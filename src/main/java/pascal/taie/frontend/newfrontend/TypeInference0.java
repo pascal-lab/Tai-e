@@ -3,14 +3,10 @@ package pascal.taie.frontend.newfrontend;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
-import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
-import pascal.taie.ir.exp.InvokeInstanceExp;
-import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
-import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -24,19 +20,14 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
-import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -44,10 +35,11 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static pascal.taie.frontend.newfrontend.Utils.*;
 
 public class TypeInference0 {
 
@@ -57,68 +49,6 @@ public class TypeInference0 {
     public TypeInference0(AsmIRBuilder builder) {
         this.builder = builder;
         localTypes = Maps.newMultiMap();
-    }
-
-    private boolean isSubtype(Type supertype, Type subtype) {
-        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
-        ClassType OBJECT = Utils.getObject();
-        ClassType CLONEABLE = Utils.getCloneable();
-        ClassType SERIALIZABLE = Utils.getSerializable();
-
-        if (subtype.equals(supertype)) {
-            return true;
-        } else if (subtype instanceof NullType) {
-            return supertype instanceof ReferenceType;
-        } else if (subtype instanceof ClassType) {
-            if (supertype instanceof ClassType) {
-                return hierarchy.isSubclass(
-                        ((ClassType) supertype).getJClass(),
-                        ((ClassType) subtype).getJClass());
-            }
-        } else if (subtype instanceof ArrayType) {
-            if (supertype instanceof ClassType) {
-                // JLS (11 Ed.), Chapter 10, Arrays
-                return supertype == OBJECT ||
-                        supertype == CLONEABLE ||
-                        supertype == SERIALIZABLE;
-            } else if (supertype instanceof ArrayType superArray) {
-                ArrayType subArray = (ArrayType) subtype;
-                Type superBase = superArray.baseType();
-                Type subBase = subArray.baseType();
-                if (superArray.dimensions() == subArray.dimensions()) {
-                    if (subBase.equals(superBase)) {
-                        return true;
-                    } else if (superBase instanceof ClassType &&
-                            subBase instanceof ClassType) {
-                        return hierarchy.isSubclass(
-                                ((ClassType) superBase).getJClass(),
-                                ((ClassType) subBase).getJClass());
-                    }
-                } else if (superArray.dimensions() < subArray.dimensions()) {
-                    return superBase == OBJECT ||
-                            superBase == CLONEABLE ||
-                            superBase == SERIALIZABLE;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return if <code>t1 <- t2</code> is valid
-     */
-    private boolean isAssignable(Type t1, Type t2) {
-        if (t1 instanceof PrimitiveType) {
-            return t1 == t2 || canHoldsInt(t2) && canHoldsInt(t1);
-        } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {
-            return true;
-        } else {
-            return isSubtype(t1, t2);
-        }
-    }
-
-    private boolean canHoldsInt(Type t) {
-        return t instanceof PrimitiveType p && p.asInt();
     }
 
     private void setTypeForTemp(Var var, Type t) {
@@ -186,7 +116,7 @@ public class TypeInference0 {
                 .distinct()
                 .toList();
         assert types.size() == 1 ||
-                types.stream().allMatch(this::canHoldsInt);
+                types.stream().allMatch(Utils::canHoldsInt);
         Type resultType = types.get(0);
         setType(typing, var, resultType);
     }
@@ -209,7 +139,8 @@ public class TypeInference0 {
         setThisParamRet();
         inferTypes();
         setTypeForLocal();
-        insertCasting();
+        CastingInsert insert = new CastingInsert(builder);
+        insert.build();
     }
 
     private void buildLocalTypes() {
@@ -243,7 +174,7 @@ public class TypeInference0 {
         for (BytecodeBlock block : builder.blockSortedList) {
             Map<Var, Type> initTyping;
             if (! visited.contains(block)) {
-                if (block.inEdges().size() == 0 && ! block.isCatch()) {
+                if (block.inEdges().isEmpty() && ! block.isCatch()) {
                     initTyping = Maps.newMap();
                 } else {
                     initTyping = block.getInitTyping();
@@ -366,135 +297,8 @@ public class TypeInference0 {
         }
     }
 
-    private Type maySplitStmt(LValue l, RValue r) {
-        Type lType = l.getType();
-        Type rType = r.getType();
-        if (! isAssignable(lType, rType)) {
-            return lType;
-        } else {
-            return null;
-        }
-    }
-
-    private Cast getNewCast(Var left, Var right, Type t) {
-        return new Cast(left, new CastExp(right, t));
-    }
-
-    public void insertCasting() {
-
-        for (BytecodeBlock block : builder.getAllBlocks()) {
-
-            List<Stmt> newStmts = new ArrayList<>();
-
-            for (Stmt stmt : getStmts(block)) {
-                Stmt newStmt = stmt.accept(new StmtVisitor<>() {
-                    @Override
-                    public Stmt visit(Copy stmt) {
-                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                        if (t != null) {
-                            return getNewCast(stmt.getLValue(), stmt.getRValue(), t);
-                        } else {
-                            return stmt;
-                        }
-                    }
-
-                    @Override
-                    public Stmt visit(LoadArray stmt) {
-                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                        if (t != null) {
-                            Var v = builder.manager.getTempVar();
-                            v.setType(stmt.getRValue().getType());
-                            newStmts.add(new LoadArray(v, stmt.getRValue()));
-                            return getNewCast(stmt.getLValue(), v, t);
-                        } else {
-                            return stmt;
-                        }
-                    }
-
-                    @Override
-                    public Stmt visit(StoreArray stmt) {
-                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                        if (t != null) {
-                            Var v = builder.manager.getTempVar();
-                            v.setType(t);
-                            newStmts.add(getNewCast(v, stmt.getRValue(), t));
-                            return new StoreArray(stmt.getLValue(), v);
-                        } else {
-                            return stmt;
-                        }
-                    }
-
-                    @Override
-                    public Stmt visit(StoreField stmt) {
-                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-                        if (t != null) {
-                            Var v = builder.manager.getTempVar();
-                            v.setType(t);
-                            newStmts.add(getNewCast(v, stmt.getRValue(), t));
-                            return new StoreField(stmt.getLValue(), v);
-                        } else {
-                            return stmt;
-                        }
-                    }
-
-                    @Override
-                    public Stmt visit(Invoke stmt) {
-                        if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                            JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
-                            assert jClass != null;
-                            Type t = jClass.getType();
-                            if (!isAssignable(t, invokeInstanceExp.getBase().getType())) {
-                                Var v = builder.manager.getTempVar();
-                                v.setType(t);
-                                newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
-                                Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
-                                return l.subSt(stmt);
-                            } else {
-                                return stmt;
-                            }
-                        }
-                        return stmt;
-                    }
-
-                    @Override
-                    public Stmt visit(Return stmt) {
-                        Type t = builder.method.getReturnType();
-                        if (stmt.getValue() != null &&
-                                !isAssignable(t, stmt.getValue().getType())) {
-                            Var v = builder.manager.getTempVar();
-                            newStmts.add(getNewCast(v, stmt.getValue(), t));
-                            builder.manager.getRetVars().remove(stmt.getValue());
-                            builder.manager.getRetVars().add(v);
-                            return new Return(v);
-                        } else {
-                            return stmt;
-                        }
-                    }
-
-                    @Override
-                    public Stmt visitDefault(Stmt stmt) {
-                        return stmt;
-                    }
-                });
-
-                newStmts.add(newStmt);
-            }
-
-            block.setStmts(newStmts);
-        }
-    }
-
-    public Map<Var, Type> getInitTyping(BytecodeBlock block) {
-        return block.getInitTyping();
-    }
-
     List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
     }
 
-    private Type getReflectArray() {
-        return BuildContext.get()
-                .getClassHierarchy()
-                .getClass(ClassNames.ARRAY).getType();
-    }
 }

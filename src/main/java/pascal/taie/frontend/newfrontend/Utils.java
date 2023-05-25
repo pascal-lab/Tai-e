@@ -54,6 +54,7 @@ import pascal.taie.language.annotation.Element;
 import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -334,6 +335,10 @@ public class Utils {
         return getClassType(ClassNames.STRING);
     }
 
+    static ClassType getReflectArray() {
+        return getClassType(ClassNames.ARRAY);
+    }
+
     static ClassType getClassType(String s) {
         return BuildContext.get().getTypeSystem().getClassType(s);
     }
@@ -353,15 +358,23 @@ public class Utils {
     }
 
     public static Set<ReferenceType> lca(ReferenceType t1, ReferenceType t2) {
-        if (t1 instanceof NullType) {
+        if (t1 == t2) {
+            return Set.of(t1);
+        } else if (t1 instanceof NullType) {
             return Set.of(t2);
         } else if (t2 instanceof NullType) {
             return Set.of(t1);
         } else if (t1 instanceof ClassType ct1 && t2 instanceof ClassType ct2) {
             Set<ClassType> upper1 = upperClosure(ct1);
             Set<ClassType> upper2 = upperClosure(ct2);
-            upper1.removeIf(t -> ! upper2.contains(t));
-            return minimum(upper1);
+            if (upper2.contains(ct1)) {
+                return Set.of(ct1);
+            } else if (upper1.contains(ct2)) {
+                return Set.of(ct2);
+            } else {
+                upper1.removeIf(t -> !upper2.contains(t));
+                return minimum(upper1);
+            }
         } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType at2) {
             Set<ClassType> upper1 = upperClosure(ct1);
             Set<ClassType> upper2 = Set.of(getCloneable(), getSerializable(), getObject());
@@ -371,6 +384,10 @@ public class Utils {
             return lca(t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.dimensions() == at2.dimensions()) {
+                if (at1.baseType() instanceof PrimitiveType
+                    && at2.baseType() instanceof PrimitiveType) {
+                    return Set.of(at1);
+                }
                 if (at1.baseType() instanceof PrimitiveType
                         || at2.baseType() instanceof PrimitiveType) {
                     return Set.of(BuildContext.get()
@@ -422,5 +439,67 @@ public class Utils {
 
     static boolean isTwoWord(pascal.taie.language.type.Type t) {
         return t == PrimitiveType.DOUBLE || t == PrimitiveType.LONG;
+    }
+
+    static boolean canHoldsInt(pascal.taie.language.type.Type t) {
+        return t instanceof PrimitiveType p && p.asInt();
+    }
+
+    static boolean isSubtype(pascal.taie.language.type.Type supertype, pascal.taie.language.type.Type subtype) {
+        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
+        ClassType OBJECT = Utils.getObject();
+        ClassType CLONEABLE = Utils.getCloneable();
+        ClassType SERIALIZABLE = Utils.getSerializable();
+
+        if (subtype.equals(supertype)) {
+            return true;
+        } else if (subtype instanceof NullType) {
+            return supertype instanceof ReferenceType;
+        } else if (subtype instanceof ClassType) {
+            if (supertype instanceof ClassType) {
+                return hierarchy.isSubclass(
+                        ((ClassType) supertype).getJClass(),
+                        ((ClassType) subtype).getJClass());
+            }
+        } else if (subtype instanceof ArrayType) {
+            if (supertype instanceof ClassType) {
+                // JLS (11 Ed.), Chapter 10, Arrays
+                return supertype == OBJECT ||
+                        supertype == CLONEABLE ||
+                        supertype == SERIALIZABLE;
+            } else if (supertype instanceof ArrayType superArray) {
+                ArrayType subArray = (ArrayType) subtype;
+                pascal.taie.language.type.Type superBase = superArray.baseType();
+                pascal.taie.language.type.Type subBase = subArray.baseType();
+                if (superArray.dimensions() == subArray.dimensions()) {
+                    if (subBase.equals(superBase)) {
+                        return true;
+                    } else if (superBase instanceof ClassType &&
+                            subBase instanceof ClassType) {
+                        return hierarchy.isSubclass(
+                                ((ClassType) superBase).getJClass(),
+                                ((ClassType) subBase).getJClass());
+                    }
+                } else if (superArray.dimensions() < subArray.dimensions()) {
+                    return superBase == OBJECT ||
+                            superBase == CLONEABLE ||
+                            superBase == SERIALIZABLE;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return if <code>t1 <- t2</code> is valid
+     */
+    static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
+        if (t1 instanceof PrimitiveType) {
+            return t1 == t2 || canHoldsInt(t2) && canHoldsInt(t1);
+        } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {
+            return true;
+        } else {
+            return isSubtype(t1, t2);
+        }
     }
 }

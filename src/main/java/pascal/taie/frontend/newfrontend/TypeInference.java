@@ -1,13 +1,15 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
-import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -17,12 +19,16 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
+
+import static pascal.taie.frontend.newfrontend.Utils.*;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -36,10 +42,13 @@ import java.util.Set;
 
 public class TypeInference {
 
-    AsmIRBuilder builder;
+    final AsmIRBuilder builder;
+
+    final TypingFlowGraph graph;
 
     public TypeInference(AsmIRBuilder builder) {
         this.builder = builder;
+        graph = new TypingFlowGraph();
     }
 
     static public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
@@ -50,7 +59,10 @@ public class TypeInference {
         return false;
     }
 
-    static public ArrayType plusOneArray(Type t) {
+    static public Optional<Type> plusOneArray(Type t) {
+        if (t instanceof NullType) {
+            return Optional.empty();
+        }
         Type baseType;
         int dim;
         if (t instanceof ArrayType at) {
@@ -60,7 +72,7 @@ public class TypeInference {
             baseType = t;
             dim = 1;
         }
-        return BuildContext.get().getTypeSystem().getArrayType(baseType, dim);
+        return Optional.of(BuildContext.get().getTypeSystem().getArrayType(baseType, dim));
     }
 
     static public Optional<Type> subOneArray(Type t) {
@@ -72,7 +84,9 @@ public class TypeInference {
     }
 
     public void build() {
-        TypingFlowGraph graph = new TypingFlowGraph();
+
+        addThisParam();
+        addExceptionRef();
 
         for (Stmt stmt : builder.getAllStmts()) {
             stmt.accept(new StmtVisitor<Void>() {
@@ -90,19 +104,19 @@ public class TypeInference {
 
                 @Override
                 public Void visit(Copy stmt) {
-                    graph.addVarEdge(stmt.getLValue(), stmt.getRValue(), EdgeKind.VAR_VAR);
+                    graph.addVarEdge(stmt.getRValue(), stmt.getLValue(), EdgeKind.VAR_VAR);
                     return null;
                 }
 
                 @Override
                 public Void visit(LoadArray stmt) {
-                    graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.VAR_ARRAY);
+                    graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.ARRAY_VAR);
                     return null;
                 }
 
                 @Override
                 public Void visit(StoreArray stmt) {
-                    graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.ARRAY_VAR);
+                    graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
                     return null;
                 }
 
@@ -130,7 +144,17 @@ public class TypeInference {
 
                 @Override
                 public Void visit(Unary stmt) {
-                    graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
+                    if (stmt.getRValue() instanceof ArrayLengthExp) {
+                        graph.addConstantEdge(PrimitiveType.INT, stmt.getLValue());
+                    } else {
+                        graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
+                    }
+                    return null;
+                }
+
+                @Override
+                public Void visit(InstanceOf stmt) {
+                    graph.addConstantEdge(PrimitiveType.BOOLEAN, stmt.getLValue());
                     return null;
                 }
 
@@ -167,11 +191,42 @@ public class TypeInference {
         }
 
         graph.inferTypes();
+        setTypes(graph);
+        CastingInsert insert = new CastingInsert(builder);
+        insert.build();
+    }
+
+    private void setTypes(TypingFlowGraph graph) {
+        graph.nodes.forEach((k, v) -> {
+            if (k.getType() != null) {
+                return;
+            }
+            if (v.primitiveType != null) {
+                k.setType(v.primitiveType);
+            } else {
+                assert v.types != null && v.types.size() == 1;
+                k.setType(v.types.iterator().next());
+            }
+        });
     }
 
     private void addThisParam() {
+        JMethod m = builder.method;
         if (! builder.method.isStatic()) {
+            Var thisVar = this.builder.manager.getThisVar();
+            graph.addConstantEdge(m.getDeclaringClass().getType(), thisVar);
+        }
 
+        for (int i = 0; i < m.getParamCount(); ++i) {
+            Var paramI = builder.manager.getParams().get(i);
+            Type typeI = m.getParamType(i);
+            graph.addConstantEdge(typeI, paramI);
+        }
+    }
+
+    private void addExceptionRef() {
+        for (ExceptionEntry entry : builder.getExceptionEntries()) {
+            graph.addConstantEdge(entry.catchType(), entry.handler().getExceptionRef());
         }
     }
 
@@ -207,9 +262,7 @@ public class TypeInference {
                 if (node.primitiveType != null) {
                     PrimitiveType t = node.primitiveType;
                     queue.addAll(flowOutType(node, t));
-                } else {
-                    assert node.types != null;
-                    // node.applyUseConstrains();
+                } else if (node.types != null) {
                     queue.addAll(flowOutType(node, node.types));
                 }
             }
@@ -233,7 +286,7 @@ public class TypeInference {
                 }
             } else if (t instanceof ReferenceType rType) {
                 Set<ReferenceType> delta = now.onNewReferenceType(rType, true);
-                if (delta.size() != 0) {
+                if (!delta.isEmpty()) {
                     return flowOutType(now, delta);
                 }
             } else {
@@ -261,7 +314,7 @@ public class TypeInference {
         Optional<Type> getTargetType() {
             return switch (edge.kind) {
                 case VAR_VAR -> Optional.of(type);
-                case VAR_ARRAY -> Optional.of(plusOneArray(type));
+                case VAR_ARRAY -> plusOneArray(type);
                 case ARRAY_VAR -> subOneArray(type);
             };
         }
@@ -297,12 +350,14 @@ public class TypeInference {
         }
 
         public boolean onNewPrimitiveType(PrimitiveType t) {
+            // TODO: perform numeric promotion
             assert types == null;
             if (this.primitiveType == null) {
                 this.primitiveType = t;
                 return true;
             } else {
-                assert this.primitiveType == t;
+                assert this.primitiveType == t ||
+                        (canHoldsInt(t) && canHoldsInt(primitiveType));
                 return false;
             }
         }
@@ -316,39 +371,57 @@ public class TypeInference {
             } else {
                 assert types.size() == 1;
                 ReferenceType typeNow = types.iterator().next();
-                if (typeNow == Utils.getObject()) {
-                    return Set.of();
-                }
-                Set<ReferenceType> newType = lca(t, typeNow);
-                ReferenceType nextType = newType.size() == 1 ? newType.iterator().next() : Utils.getObject();
+                ReferenceType nextType = getNextType(typeNow, t);
                 types = Set.of(nextType);
-                return types;
+                if (nextType == typeNow) {
+                    return Set.of();
+                } else {
+                    return types;
+                }
+            }
+        }
+
+        private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
+            Set<ReferenceType> newType = lca(current, t);
+            if (newType.size() == 1) {
+                return newType.iterator().next();
+            } else {
+                List<ReferenceType> types = newType.stream().toList();
+                ReferenceType t1 = types.get(0);
+                if (t1 instanceof ClassType) {
+                    return Utils.getObject();
+                } else if (t1 instanceof ArrayType arrayType) {
+                    return BuildContext.get().getTypeSystem()
+                            .getArrayType(Utils.getObject(), arrayType.dimensions());
+                } else {
+                    throw new UnsupportedOperationException();
+                }
             }
         }
 
         public void addNewOutEdge(TypingFlowEdge edge) {
-            if (outEdges.size() == 0) {
+            if (outEdges.isEmpty()) {
                 outEdges = new ArrayList<>();
             }
             outEdges.add(edge);
         }
 
         public void addNewInEdge(TypingFlowEdge edge) {
-            if (inEdges.size() == 0) {
+            if (inEdges.isEmpty()) {
                 inEdges = new ArrayList<>();
             }
             inEdges.add(edge);
         }
 
         public void addNewUseConstrain(ReferenceType type) {
-            if (useValidConstrains.size() == 0) {
+            if (useValidConstrains.isEmpty()) {
                 useValidConstrains = new HashSet<>();
             }
             useValidConstrains.add(type);
         }
 
         public void applyUseConstrains() {
-            if (useValidConstrains.size() != 0) {
+            if (!useValidConstrains.isEmpty()) {
                 assert types != null;
                 types.removeIf((s) -> ! useValid(s));
             }
@@ -406,8 +479,13 @@ public class TypeInference {
     }
 
     enum EdgeKind {
+        // v1 <- v2
         VAR_VAR,
+
+        // v1[i] <- v2
         VAR_ARRAY,
+
+        // v2 <- v1[i]
         ARRAY_VAR;
 
         NodeKind getTarget() {

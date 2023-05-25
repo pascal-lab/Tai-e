@@ -157,12 +157,15 @@ class AsmIRBuilder {
         // a.analyze()
         if (! isEmpty) {
             buildCFG();
-            buildIR();
+            traverseBlocks();
+            setLineNumber();
             if (isFrameUsable()) {
                 inferTypeWithFrame();
             } else {
                 inferTypeWithoutFrame();
             }
+            makeStmts();
+            makeExceptionTable();
             this.ir = getIR();
         }
         // TODO: check how to handle empty method
@@ -173,10 +176,11 @@ class AsmIRBuilder {
         splitter.build();
         TypeInference0 inference = new TypeInference0(this);
         inference.build();
-        buildStmts();
     }
 
     void inferTypeWithoutFrame() {
+        makeStmts();
+        makeExceptionTable();
         IR untyped = getIR();
         AnalysisConfig config = AnalysisConfig.of(CFGBuilder.ID,
                 "exception", null,
@@ -195,9 +199,11 @@ class AsmIRBuilder {
         var result = solver.solve(liveVar);
         VarWebSplitter splitter = new VarWebSplitter(this, result);
         splitter.build();
-//        TypeInference inference = new TypeInference(this);
-//        inference.build();
-        buildStmts();
+
+        makeExceptionTable();
+        TypeInference inference = new TypeInference(this);
+        inference.build();
+        makeStmts();
     }
 
     public BytecodeBlock getEntryBlock() {
@@ -216,6 +222,10 @@ class AsmIRBuilder {
 
     public List<BytecodeBlock> getAllBlocks() {
         return blockSortedList;
+    }
+
+    public List<ExceptionEntry> getExceptionEntries() {
+        return exceptionEntries;
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
@@ -396,12 +406,6 @@ class AsmIRBuilder {
         }
     }
 
-    public void buildIR() {
-        traverseBlocks();
-        setLineNumber();
-        makeStmts();
-        makeExceptionTable();
-    }
 
     private IR getIR() {
         Var thisVar = manager.getThisVar();
@@ -456,14 +460,6 @@ class AsmIRBuilder {
     }
 
     private void makeStmts() {
-        this.stmts = new ArrayList<>();
-        for (BytecodeBlock block : blockSortedList) {
-            block.getStmts().forEach(this::addStmt);
-            setJumpTargets(block.getLastBytecode(), block.getLastStmt());
-        }
-    }
-
-    private void buildStmts() {
         this.stmts = new ArrayList<>();
         for (BytecodeBlock block : blockSortedList) {
             block.getStmts().forEach(this::addStmt);
