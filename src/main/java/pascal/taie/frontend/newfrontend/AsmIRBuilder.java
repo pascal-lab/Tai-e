@@ -23,8 +23,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.analysis.dataflow.fact.SetFact;
-import pascal.taie.analysis.dataflow.solver.Solver;
+import pascal.taie.analysis.dataflow.analysis.LiveVariable;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.graph.cfg.ExtraEdgeAppender;
@@ -193,13 +192,14 @@ class AsmIRBuilder {
                 exceptionMap.put(stmts.get(i), entry.handler());
             }
         }
+        untyped.storeResult(CFGBuilder.ID, cfg);
+        AnalysisConfig config1 = AnalysisConfig.of(LiveVariable.ID,
+                "strongly", false);
         ExtraEdgeAppender.append(cfg, exceptionMap);
-        LiveVarSplitting liveVar = new LiveVarSplitting(cfg);
-        Solver<Stmt, SetFact<Var>> solver = Solver.getSolver();
-        var result = solver.solve(liveVar);
+        LiveVariable liveVar = new LiveVariable(config1);
+        var result = liveVar.analyze(untyped);
         VarWebSplitter splitter = new VarWebSplitter(this, result);
         splitter.build();
-
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
