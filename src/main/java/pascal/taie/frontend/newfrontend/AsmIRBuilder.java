@@ -73,7 +73,6 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.JumpStmt;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Return;
@@ -236,6 +235,11 @@ class AsmIRBuilder {
             verifyAllInStmts(v.getStoreArrays());
             verifyAllInStmts(v.getLoadFields());
             verifyAllInStmts(v.getStoreFields());
+        }
+
+        for (int i = 0; i < manager.getVars().size(); ++i) {
+            Var v = manager.getVars().get(i);
+            assert v.getIndex() == i;
         }
     }
 
@@ -437,7 +441,9 @@ class AsmIRBuilder {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = label2Block.get(label);
         if (block == null || block.getStmts().isEmpty()) {
-            logger.log(Level.INFO, method+ ", empty block / labels : " + label);
+            if (block != null) {
+                logger.atWarn().log(method + ", empty block / labels : " + label);
+            }
             return getFirstStmt((LabelNode) label.getNext());
         }
 
