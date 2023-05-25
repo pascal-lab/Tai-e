@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
@@ -80,6 +81,7 @@ public class CastingInsert {
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
                             v.setType(stmt.getRValue().getType());
+                            stmt.getRValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(new LoadArray(v, stmt.getRValue()));
                             return getNewCast(stmt.getLValue(), v, t);
                         } else {
@@ -93,6 +95,7 @@ public class CastingInsert {
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
                             v.setType(t);
+                            stmt.getLValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(getNewCast(v, stmt.getRValue(), t));
                             return new StoreArray(stmt.getLValue(), v);
                         } else {
@@ -106,6 +109,9 @@ public class CastingInsert {
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
                             v.setType(t);
+                            if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
+                                access.getBase().removeRelevantStmt(stmt);
+                            }
                             newStmts.add(getNewCast(v, stmt.getRValue(), t));
                             return new StoreField(stmt.getLValue(), v);
                         } else {

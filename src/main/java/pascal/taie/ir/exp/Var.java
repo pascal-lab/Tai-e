@@ -25,6 +25,7 @@ package pascal.taie.ir.exp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
@@ -219,6 +220,23 @@ public class Var implements LValue, RValue, Indexable {
      */
     public List<Invoke> getInvokes() {
         return relevantStmts.getInvokes();
+    }
+
+    /**
+     * This method should only be called by tai-e frontend
+     */
+    public void removeRelevantStmt(Stmt stmt) {
+        if (stmt instanceof Invoke invoke) {
+            relevantStmts.invokes.remove(invoke);
+        } else if (stmt instanceof LoadArray loadArray) {
+            relevantStmts.loadArrays.remove(loadArray);
+        } else if (stmt instanceof StoreArray storeArray) {
+            relevantStmts.storeArrays.remove(storeArray);
+        } else if (stmt instanceof LoadField loadField) {
+            relevantStmts.loadFields.remove(loadField);
+        } else if (stmt instanceof StoreField storeField) {
+            relevantStmts.storeFields.remove(storeField);
+        }
     }
 
     /**

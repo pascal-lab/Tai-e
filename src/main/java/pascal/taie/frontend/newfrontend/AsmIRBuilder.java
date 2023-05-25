@@ -166,6 +166,7 @@ class AsmIRBuilder {
             }
             makeStmts();
             makeExceptionTable();
+            verify();
             this.ir = getIR();
         }
         // TODO: check how to handle empty method
@@ -226,6 +227,24 @@ class AsmIRBuilder {
 
     public List<ExceptionEntry> getExceptionEntries() {
         return exceptionEntries;
+    }
+
+    private void verify() {
+        for (Var v : manager.getVars()) {
+            verifyAllInStmts(v.getInvokes());
+            verifyAllInStmts(v.getLoadArrays());
+            verifyAllInStmts(v.getStoreArrays());
+            verifyAllInStmts(v.getLoadFields());
+            verifyAllInStmts(v.getStoreFields());
+        }
+    }
+
+    private <T extends Stmt> void verifyAllInStmts(List<T> stmts) {
+        assert stmts.stream().allMatch(this::verifyInStmts);
+    }
+
+    private boolean verifyInStmts(Stmt stmt) {
+        return this.stmts.get(stmt.getIndex()) == stmt;
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {

@@ -14,6 +14,7 @@ import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
@@ -30,12 +31,16 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JMethod;
@@ -235,8 +240,10 @@ public class Lenses {
             @Override
             public Stmt visitDefault(Stmt stmt) {
                 if (stmt instanceof AssignStmt<?,?> stmt1) {
+                    fixRelStmts(stmt);
                     return Utils.getAssignStmt(method, leftSubSt(stmt1.getLValue()), rightSubst(stmt1.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {
+                    fixRelStmts(stmt);
                     return new Invoke(invoke.getContainer(), (InvokeExp) subSt(invoke.getInvokeExp()),
                             invoke.getLValue() == null ? null : (Var) leftSubSt(invoke.getLValue()));
                 } else {
@@ -248,5 +255,25 @@ public class Lenses {
 
         newStmt.setLineNumber(stmt.getLineNumber());
         return newStmt;
+    }
+
+    private void fixRelStmts(Stmt oldStmt) {
+        if (oldStmt instanceof Invoke i) {
+            if (i.getInvokeExp() instanceof InvokeInstanceExp exp) {
+                exp.getBase().removeRelevantStmt(oldStmt);
+            }
+        } else if (oldStmt instanceof LoadArray l) {
+            l.getRValue().getBase().removeRelevantStmt(oldStmt);
+        } else if (oldStmt instanceof StoreArray s) {
+            s.getLValue().getBase().removeRelevantStmt(oldStmt);
+        } else if (oldStmt instanceof LoadField lf) {
+            if (lf.getFieldAccess() instanceof InstanceFieldAccess instanceFieldAccess) {
+                instanceFieldAccess.getBase().removeRelevantStmt(oldStmt);
+            }
+        } else if (oldStmt instanceof StoreField sf) {
+            if (sf.getFieldAccess() instanceof InstanceFieldAccess instanceFieldAccess) {
+                instanceFieldAccess.getBase().removeRelevantStmt(oldStmt);
+            }
+        }
     }
 }
