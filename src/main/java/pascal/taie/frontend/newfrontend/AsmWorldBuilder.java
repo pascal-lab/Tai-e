@@ -40,7 +40,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
-        ClosedWorldBuilder closedWorldBuilder = new ClassInfoCWBuilder(); // Configurable
+        ClosedWorldBuilder closedWorldBuilder = new DepCWBuilder(); // Configurable
         closedWorldBuilder.build(project);
         Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
         ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder();

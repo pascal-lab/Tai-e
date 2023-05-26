@@ -5,7 +5,6 @@ import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -17,7 +16,6 @@ import pascal.taie.project.ProjectBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class TestAsmIRBuilder {
 
@@ -32,29 +30,16 @@ public class TestAsmIRBuilder {
 
     // Note: if javaVersion is less than 7, then assertion about frames will fail
     ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
-
-        String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
-        String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
-        String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
-        String resourcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/resources.jar";
-        String charsetsPath = "java-benchmarks/JREs/jre1." + javaVersion + "/charsets.jar";
-
-        List<String> java8AdditionalPath = List.of(resourcePath, charsetsPath);
-        List<String> paths = Stream.of(classPath, jcePath, jssePath).toList();
-        if (javaVersion >= 8) {
-            paths = new ArrayList<>(paths);
-            paths.addAll(java8AdditionalPath);
-        }
-        String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
+        String worldPath = "src/test/resources/world";
 
         List<String> args = new ArrayList<>();
         // Collections.addAll(args, "-pp");
-        Collections.addAll(args, "-a", "cfg");
-        Collections.addAll(args, "-cp", path);
+        // Collections.addAll(args, "-a", "cfg");
+        Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
         Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder");
         Collections.addAll(args, "-m", mainClass);
-        Main.main(args.toArray(new String[0]));
+        Main.buildWorld(args.toArray(new String[0]));
 
 //        Project project = createProject(path, mainClass, otherClasses);
 //        ClosedWorldBuilder depCWBuilder = new AllClassesCWBuilder();
@@ -151,16 +136,14 @@ public class TestAsmIRBuilder {
     public void testStmtIndexerForNewFrontend() {
         int javaVersion = 8;
         String worldPath = "src/test/resources/world";
-        String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
-        String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
-        String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
 
-        List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
-        String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
-        Main.buildWorld("-pp", "-cp", path,
+        Main.buildWorld(
+                "-java", Integer.toString(javaVersion),
+                "-acp", worldPath,
                 "--input-classes", "AllInOne",
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
-                "-m", "AllInOne");
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+//                , "-acp", worldPath
+                );
         World.get()
                 .getClassHierarchy()
                 .applicationClasses()
@@ -168,6 +151,7 @@ public class TestAsmIRBuilder {
                     for (JMethod m : c.getDeclaredMethods()) {
                         if (!m.isAbstract()) {
                             IR ir = m.getIR();
+//                            IRPrinter.print(ir, System.out);
                             for (Stmt s : ir) {
                                 Assert.assertEquals(s, ir.getObject(s.getIndex()));
                             }

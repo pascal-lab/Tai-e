@@ -2,6 +2,7 @@ package pascal.taie.project;
 
 import pascal.taie.config.Options;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
 
     @Override
     protected List<String> getInputClasses() {
-        return options.getInputClasses();
+        return getInputClasses(options);
     }
 
     @Override
@@ -50,26 +51,26 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
             if (appClassPath == null) {
                 appClassPaths = List.of();
             } else {
-                appClassPaths = Arrays.asList(appClassPath.split(";"));
+                appClassPaths = Arrays.asList(appClassPath.split(File.pathSeparator));
             }
 
             List<String> libClassPaths;
-            String classPath = options.getClassPath();
+            String classPath = getClassPath(options);
             if (classPath == null) {
                 libClassPaths = List.of();
             } else {
-                libClassPaths = new ArrayList<>(Arrays.asList(classPath.split(";")));
+                libClassPaths = new ArrayList<>(Arrays.asList(classPath.split(File.pathSeparator)));
                 libClassPaths.removeAll(appClassPaths);
             }
 
             project = new Project(
-                    options.getMainClass(),
-                    options.getJavaVersion(),
-                    options.getInputClasses(),
+                    getMainClass(),
+                    getJavaVersion(),
+                    getInputClasses(),
                     FileLoader.get().loadRootContainers(
-                            appClassPaths.stream().map(Paths::get).toList()),
+                            appClassPaths.stream().distinct().map(Paths::get).toList()),
                     FileLoader.get().loadRootContainers(
-                            libClassPaths.stream().map(Paths::get).toList())
+                            libClassPaths.stream().distinct().map(Paths::get).toList())
             );
             return project;
         } catch (IOException e) {

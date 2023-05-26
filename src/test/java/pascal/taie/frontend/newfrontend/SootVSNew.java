@@ -41,7 +41,7 @@ public class SootVSNew {
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", "8");
         Collections.addAll(args, "-m", "CloneTest");
-        Main.main(args.toArray(new String[0]));
+        Main.buildWorld(args.toArray(new String[0]));
         World w = World.get();
 
         long startTime2 = System.currentTimeMillis();

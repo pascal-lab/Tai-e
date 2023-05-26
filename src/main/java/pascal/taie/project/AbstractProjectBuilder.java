@@ -22,9 +22,26 @@
 
 package pascal.taie.project;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.config.Options;
+import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Streams;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractProjectBuilder implements ProjectBuilder {
+
+    private static final Logger logger = LogManager.getLogger(AbstractProjectBuilder.class);
+
+    protected static final String JREs = "java-benchmarks/JREs";
 
     protected abstract String getMainClass();
 
@@ -38,5 +55,65 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     public Project build() {
         return new Project(getMainClass(), getJavaVersion(),
                 getInputClasses(), getRootContainers(), null);
+    }
+
+    /**
+     * return value excludes app-class-path
+     */
+    protected static String getClassPath(Options options) {
+        if (options.isPrependJVM()) {
+            return options.getClassPath(); // TODO: include the current JVM
+        } else { // when prependJVM is not set, we manually specify JRE jars
+            // check existence of JREs
+            File jreDir = new File(JREs);
+            if (!jreDir.exists()) {
+                throw new RuntimeException("""
+                        Failed to locate Java library.
+                        Please clone submodule 'java-benchmarks' by command:
+                        git submodule update --init --recursive
+                        and put it in Tai-e's working directory.""");
+            }
+            String jrePath = String.format("%s/jre1.%d",
+                    JREs, options.getJavaVersion());
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+                return Streams.concat(
+                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                                Stream.ofNullable(options.getClassPath()))
+                        .collect(Collectors.joining(File.pathSeparator));
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
+            }
+        }
+    }
+
+    /**
+     * Obtains all input classes specified in {@code options}.
+     */
+    protected static List<String> getInputClasses(Options options) {
+        List<String> classes = new ArrayList<>();
+        // process --input-classes
+        options.getInputClasses().forEach(value -> {
+            if (value.endsWith(".txt")) {
+                // value is a path to a file that contains class names
+                try (Stream<String> lines = Files.lines(Path.of(value))) {
+                    lines.forEach(classes::add);
+                } catch (IOException e) {
+                    logger.warn("Failed to read input class file {} due to {}",
+                            value, e);
+                }
+            } else {
+                // value is a class name
+                classes.add(value);
+            }
+        });
+        // process --app-class-path
+        String appClassPath = options.getAppClassPath();
+        if (appClassPath != null) {
+            for (String path : appClassPath.split(File.pathSeparator)) {
+                classes.addAll(ClassNameExtractor.extract(path));
+            }
+        }
+        return classes;
     }
 }

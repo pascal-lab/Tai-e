@@ -1,10 +1,10 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
-import pascal.taie.project.DirContainer;
-import pascal.taie.project.FileContainer;
 import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
 import pascal.taie.util.collection.Maps;
@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Queue;
 
 public class DepCWBuilder implements ClosedWorldBuilder {
+
+    private static final Logger logger = LogManager.getLogger(DepCWBuilder.class);
 
     private final Map<String, ClassSource> sourceMap;
 
@@ -48,45 +50,17 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             for (var i : p.getInputClasses()) {
                 buildClosure(i);
             }
-            for (var container : p.getAppRootContainers()) {
-                buildClosure(container, "");
-            }
         } catch (IOException e) {
             // TODO: fail info
             throw new RuntimeException(e);
         }
     }
 
-    private void buildClosure(FileContainer container, String packageString) throws IOException {
-        for (var f : container.files()) {
-            if (f instanceof JavaSourceFile jFile) {
-                // TODO: fill here
-            } else if (f instanceof ClassFile cFile) {
-                if (cFile.className().contains("android")) { // TODO: workaround
-                    continue;
-                }
-                var deps = buildClassDeps(packageString + cFile.className(), cFile);
-                for (String dep : deps) {
-                    buildClosure(dep);
-                }
-            }
-        }
-        for (var c : container.containers()) {
-            regardOnlyDirAsRestClassPath(c, packageString);
-        }
-    }
-
-    private void regardOnlyDirAsRestClassPath(FileContainer subContainer, String currentPackageString) throws IOException {
-        if (subContainer instanceof DirContainer) {
-            buildClosure(subContainer, currentPackageString + subContainer.className() + ".");
-        }
-    }
-
-    private void regardJarAndZipAsRestClassPathToo(FileContainer subContainer, String currentPackageString) throws IOException {
-        buildClosure(subContainer, currentPackageString + subContainer.className() + ".");
-    }
-
     private void buildClosure(String binaryName) throws IOException {
+        if (binaryName.equals("android$widget$RemoteViews$BaseReflectionAction")) {
+            // FIX ME: a workaround to skip android test case in test/resources/android$widget$RemoteViews$BaseReflectionAction.class
+            return;
+        }
         Queue<String> workList = new LinkedList<>();
         workList.add(binaryName);
         while (! workList.isEmpty()) {
@@ -98,6 +72,14 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             AnalysisFile f = project.locate(binaryName);
             if (f == null) {
                 throw new FileNotFoundException(binaryName);
+            }
+
+            if (f instanceof JavaSourceFile) {
+                logger.warn(
+                        "WARNING: currently new frontend does not support java source code("
+                        + ((JavaSourceFile) f).getClassName()
+                        + "). So this class would be ignored and the rest task continues on.");
+                return;
             }
 
             List<String> deps = null;
