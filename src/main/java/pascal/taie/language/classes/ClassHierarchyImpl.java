@@ -208,8 +208,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         String className = StringReps.getClassNameOf(fieldSig);
         JClass jclass = getClass(className);
         if (jclass != null) {
-            String fieldName = StringReps.getFieldNameOf(fieldSig);
-            return jclass.getDeclaredField(fieldName);
+            return jclass.getDeclaredFields().stream().filter(i -> i.getSignature().equals(fieldSig)).findFirst().orElse(null);
         }
         return null;
     }
@@ -284,8 +283,8 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 1. If C declares a field with the name and descriptor specified
         // by the field reference, field lookup succeeds. The declared field
         // is the result of the field lookup.
-        field = jclass.getDeclaredFields().stream().filter(i -> i.getType().equals(type)).findFirst().orElse(null);
-        if (field != null) {
+        field = jclass.getDeclaredFields().stream().filter(i -> i.getType().equals(type) && i.getName().equals(name)).findFirst().orElse(null);
+        if (field != null && field.getType().equals(type)) {
             return field;
         }
         // 2. Otherwise, field lookup is applied recursively to the
