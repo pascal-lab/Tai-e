@@ -4,7 +4,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 
 public record AsmSource(
-        ClassReader r
+        ClassReader r,
+        boolean isApplication
 ) implements ClassSource {
 
     @Override

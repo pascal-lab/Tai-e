@@ -125,7 +125,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public boolean isApplication() {
-        return false;
+        return source.isApplication();
     }
 
     @Override
