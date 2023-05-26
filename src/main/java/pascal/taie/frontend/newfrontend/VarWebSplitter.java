@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Return;
@@ -106,14 +107,6 @@ public class VarWebSplitter {
         }
     }
 
-    /**
-     * @param var the variable you want to get the web information.
-     * @return the webs of the variable. WARNING: in each set there may exist element whose Kind is PHANTOM.
-     */
-    public Collection<Set<StmtOccur>> getWebs(Var var) {
-        return webs.get(var).getDisjointSets();
-    }
-
     public void constructWeb() {
         var blocks = builder.blockSortedList;
         for (var block : blocks) {
@@ -188,24 +181,20 @@ public class VarWebSplitter {
         for (int i = 0; i < stmts.size(); ++i) {
             Stmt stmt = stmts.get(i);
             // uses first
-            List<Var> uses = stmt.getUses()
-                    .stream()
-                    .distinct()
-                    .filter(r -> r instanceof Var)
-                    .map(r -> (Var) r)
-                    .filter(varManager::isLocal)
-                    .toList();
-            for (Var use : uses) {
-                var e = new StmtOccur(block, i, stmt, Kind.USE);
-                var unionFind = webs.get(use);
-                unionFind.addElement(e);
-                assert currentDefs.get(use) != null;
-                unionFind.union(e, currentDefs.get(use));
+            List<RValue> uses = stmt.getUses();
+            for (RValue r : uses) {
+                if (r instanceof Var use && localSet.contains(use)) {
+                    var e = new StmtOccur(block, i, stmt, Kind.USE);
+                    var unionFind = webs.get(use);
+                    unionFind.addElement(e);
+                    assert currentDefs.get(use) != null;
+                    unionFind.union(e, currentDefs.get(use));
+                }
             }
 
             Var def = stmt.getDef()
                     .flatMap(l -> l instanceof Var ? Optional.of((Var) l) : Optional.empty())
-                    .filter(varManager::isLocal)
+                    .filter(localSet::contains)
                     .orElse(null);
             if (def != null) {
                 StmtOccur e = new StmtOccur(block, i, stmt, Kind.DEF);
@@ -260,7 +249,7 @@ public class VarWebSplitter {
                                 sources.add(new ReplaceSource(p, var));
                             }
                         });
-                        if (sources.size() == 0) {
+                        if (sources.isEmpty()) {
                             return;
                         }
                         count[0]++;
@@ -310,7 +299,6 @@ public class VarWebSplitter {
         }
     }
 
-    // TODO: correct handle other side-effects of instr set;
     private void handleSideEffects(Stmt oldStmt, Stmt newStmt) {
         if (oldStmt instanceof Return r) {
             assert newStmt instanceof Return;
