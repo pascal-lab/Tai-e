@@ -14,6 +14,8 @@ public class AllClassesCWBuilder implements ClosedWorldBuilder {
 
     private Project project;
 
+    private final List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
+
     List<ClassSource> allClasses;
 
     @Override
@@ -38,6 +40,7 @@ public class AllClassesCWBuilder implements ClosedWorldBuilder {
         boolean isAppRoot = project.getAppRootContainers().contains(container);
         List<ClassSource> res = new ArrayList<>(container.files().stream()
                 .filter(f -> f instanceof ClassFile)
+                .filter(f -> ! excluded.contains(f.fileName()))
                 .map(c -> {
                     try {
                         var r = new ClassReader(c.resource().getContent());
