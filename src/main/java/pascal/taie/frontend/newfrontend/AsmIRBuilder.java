@@ -487,8 +487,11 @@ class AsmIRBuilder {
     private void makeStmts() {
         this.stmts = new ArrayList<>();
         for (BytecodeBlock block : blockSortedList) {
-            block.getStmts().forEach(this::addStmt);
-            setJumpTargets(block.getLastBytecode(), block.getLastStmt());
+            List<Stmt> blockStmts = block.getStmts();
+            if (! blockStmts.isEmpty()) {
+                blockStmts.forEach(this::addStmt);
+                setJumpTargets(block.getLastBytecode(), block.getLastStmt());
+            }
         }
     }
 

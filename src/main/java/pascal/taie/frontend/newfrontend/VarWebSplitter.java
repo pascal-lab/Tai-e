@@ -361,7 +361,14 @@ public class VarWebSplitter {
 
     private SetFact<Var> getInFact(BytecodeBlock block) {
         assert liveVariables != null;
-        return liveVariables.getInFact(getStmts(block).get(0));
+        if (block.getStmts().isEmpty()) {
+            // TODO: check if these assertions can fall
+            assert block.outEdges().size() == 1;
+            assert block.fallThrough() != null;
+            return getInFact(block.fallThrough());
+        } else {
+            return liveVariables.getInFact(getStmts(block).get(0));
+        }
     }
 
     private List<Stmt> getStmts(BytecodeBlock block) {

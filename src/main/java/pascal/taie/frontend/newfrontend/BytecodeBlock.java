@@ -177,6 +177,7 @@ public final class BytecodeBlock {
     }
 
     public Stmt getLastStmt() {
+        assert !stmts.isEmpty();
         return stmts.get(stmts.size() - 1);
     }
 
