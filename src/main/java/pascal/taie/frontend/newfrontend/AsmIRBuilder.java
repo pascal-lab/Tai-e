@@ -90,6 +90,7 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,11 +231,11 @@ class AsmIRBuilder {
 
     private void verify() {
         for (Var v : manager.getVars()) {
-            verifyAllInStmts(v.getInvokes());
-            verifyAllInStmts(v.getLoadArrays());
-            verifyAllInStmts(v.getStoreArrays());
-            verifyAllInStmts(v.getLoadFields());
-            verifyAllInStmts(v.getStoreFields());
+            assert verifyAllInStmts(v.getInvokes());
+            assert verifyAllInStmts(v.getLoadArrays());
+            assert verifyAllInStmts(v.getStoreArrays());
+            assert verifyAllInStmts(v.getLoadFields());
+            assert verifyAllInStmts(v.getStoreFields());
         }
 
         for (int i = 0; i < manager.getVars().size(); ++i) {
@@ -243,8 +244,8 @@ class AsmIRBuilder {
         }
     }
 
-    private <T extends Stmt> void verifyAllInStmts(List<T> stmts) {
-        assert stmts.stream().allMatch(this::verifyInStmts);
+    private <T extends Stmt> boolean verifyAllInStmts(List<T> stmts) {
+        return stmts.stream().allMatch(this::verifyInStmts);
     }
 
     private boolean verifyInStmts(Stmt stmt) {
@@ -1090,11 +1091,13 @@ class AsmIRBuilder {
             The conversion should have effect on the InsnNode that generated the exp.
          */
         Stack<Exp> target = new Stack<>();
+        Set<Var> used = Sets.newHybridSet();
         for (Exp e : origin) {
             if (e instanceof Top) {
                 target.push(e);
             }
-            else if (e instanceof Var v && manager.isTempVar(v)) {
+            else if (e instanceof Var v && manager.isTempVar(v) && !used.contains(v)) {
+                used.add(v);
                 target.push(v);
             } else {
                 target.add(manager.getTempVar());

@@ -5,8 +5,10 @@ import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.project.MockOptions;
 import pascal.taie.project.OptionsProjectBuilder;
@@ -128,6 +130,16 @@ public class TestAsmIRBuilder {
         System.out.println(ch.allClasses().mapToLong(i -> i.getDeclaredMethods().size()).sum());
     }
 
+    @Test
+    public void testCornerCase1() {
+        String mainClass = "CornerCaseMayBeNotRunnable";
+        ClassHierarchy ch = getCh(mainClass, 8);
+        JClass c = ch.getClass(mainClass);
+        assert c != null;
+        for (var m : c.getDeclaredMethods()) {
+            IRPrinter.print(m.getIR(), System.out);
+        }
+    }
 
     /**
      * Copied from pascal.taie.ir.IRTest.testStmtIndexer()
