@@ -1,9 +1,15 @@
 package pascal.taie.frontend.newfrontend;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
+import pascal.taie.config.LoggerConfigs;
+import pascal.taie.config.Options;
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.Stmt;
@@ -14,10 +20,21 @@ import pascal.taie.project.MockOptions;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
 import pascal.taie.project.ProjectBuilder;
+import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.Timer;
+import soot.G;
+import soot.Scene;
+import soot.SootResolver;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static soot.SootClass.HIERARCHY;
 
 public class TestAsmIRBuilder {
 
@@ -153,8 +170,8 @@ public class TestAsmIRBuilder {
                 "-java", Integer.toString(javaVersion),
                 "-acp", worldPath,
                 "--input-classes", "AllInOne",
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
-//                , "-acp", worldPath
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--pre-build-ir"
                 );
         World.get()
                 .getClassHierarchy()
@@ -172,4 +189,149 @@ public class TestAsmIRBuilder {
                 });
     }
 
+    @Test
+    public void benchmarkForNewFrontEnd() {
+        int javaVersion = 8;
+        String worldPath = "src/test/resources/world";
+
+        Runnable newFrontend = () -> {
+            Main.buildWorld(
+                    "-java", Integer.toString(javaVersion),
+                    "-acp", jrePaths(javaVersion),
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--pre-build-ir"
+            );
+
+            Timer.runAndCount(() ->
+            World.get()
+                    .getClassHierarchy()
+                    .allClasses()
+                    .forEach(c -> c.getDeclaredMethods().forEach(m -> {
+                        if (!m.isAbstract()) m.getIR();
+                    })), "Get All IR");
+        };
+
+        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre1.8");
+    }
+
+    @Test
+    public void benchmarkForSoot() {
+        int javaVersion = 8;
+        String worldPath = "src/test/resources/world";
+
+        Options options = getOptionsAndAnalysisConfig(
+                "-java", Integer.toString(javaVersion),
+                "-acp", jrePaths(javaVersion),
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--pre-build-ir"
+        );
+
+
+        initSoot(options);
+
+        List<String> args = new ArrayList<>();
+        Collections.addAll(args, "-cp", jrePaths(javaVersion));
+        // process --app-class-path
+        String appClassPath = options.getAppClassPath();
+        if (appClassPath != null) {
+            for (String path : appClassPath.split(File.pathSeparator)) {
+                args.addAll(ClassNameExtractor.extract(path));
+            }
+        }
+
+        Timer.runAndCount(() -> runSoot(args.toArray(new String[0])), "Soot builds all the classes in jre1.8");
+    }
+
+    private static void initSoot(Options options) {
+        // reset Soot
+        G.reset();
+
+        // set Soot options
+        soot.options.Options.v().set_output_dir(
+                new File(options.getOutputDir(), "sootOutput").toString());
+        soot.options.Options.v().set_output_format(
+                soot.options.Options.output_format_jimple);
+        soot.options.Options.v().set_keep_line_number(true);
+        soot.options.Options.v().set_app(true);
+        // exclude jdk classes from application classes
+        soot.options.Options.v().set_exclude(List.of("jdk.*", "apple.laf.*"));
+        soot.options.Options.v().set_whole_program(true);
+        soot.options.Options.v().set_no_writeout_body_releasing(true);
+        soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
+        soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
+        soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+        soot.options.Options.v().set_allow_phantom_refs(true); // allow phantom
+        soot.options.Options.v().set_drop_bodies_after_load(false); // pre-build-ir
+        soot.options.Options.v().set_process_jar_dir(List.of("D:\\Tai-e-private\\java-benchmarks\\JREs\\jre1.8"));
+
+        Scene scene = G.v().soot_Scene();
+        addBasicClasses(scene);
+    }
+
+    private Options getOptionsAndAnalysisConfig(String... args) {
+        LoggerConfigs.reconfigure();
+        Options options = Options.parse(args);
+        LoggerConfigs.setOutput(options.getOutputDir());
+        return options;
+    }
+
+    private static void runSoot(String[] args) {
+        try {
+            soot.Main.v().run(args);
+        } catch (SootResolver.SootClassNotFoundException e) {
+            throw new RuntimeException(e.getMessage()
+                    .replace("is your soot-class-path set",
+                            "are your class path and class name given"));
+        } catch (AssertionError e) {
+            if (e.getStackTrace()[0].toString()
+                    .startsWith("soot.SootResolver.resolveClass")) {
+                throw new RuntimeException("Exception thrown by class resolver," +
+                        " are your class path and class name given properly?", e);
+            }
+            throw e;
+        } catch (Exception e) {
+            if (e.getStackTrace()[0].getClassName().startsWith("soot.JastAdd")) {
+                throw new RuntimeException("""
+                        Soot frontend failed to parse input Java source file(s).
+                        This exception may be caused by:
+                        1. syntax or semantic errors in the source code. In this case, please fix the errors.
+                        2. language features introduced by Java 8+ in the source code.
+                           In this case, you could either compile the source code to bytecode (*.class)
+                           or rewrite the code by using old features.""", e);
+            }
+            throw e;
+        }
+    }
+
+    private static final String BASIC_CLASSES = "basic-classes.yml";
+    private static void addBasicClasses(Scene scene) {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, String.class);
+        try {
+            InputStream content = SootWorldBuilder.class
+                    .getClassLoader()
+                    .getResourceAsStream(BASIC_CLASSES);
+            List<String> classNames = mapper.readValue(content, type);
+            classNames.forEach(name -> scene.addBasicClass(name, HIERARCHY));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Soot basic classes", e);
+        }
+    }
+
+    private String jrePaths(int javaVersion) {
+        String classPath = "java-benchmarks/JREs/jre1." + javaVersion + "/rt.jar";
+        String jcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jce.jar";
+        String jssePath = "java-benchmarks/JREs/jre1." + javaVersion + "/jsse.jar";
+        String resourcePath = "java-benchmarks/JREs/jre1." + javaVersion + "/resources.jar";
+        String charsetsPath = "java-benchmarks/JREs/jre1." + javaVersion + "/charsets.jar";
+
+        List<String> java8AdditionalPath = List.of(resourcePath, charsetsPath);
+        List<String> jrePaths = Stream.of(classPath, jcePath, jssePath).toList();
+        if (javaVersion >= 8) {
+            jrePaths = new ArrayList<>(jrePaths);
+            jrePaths.addAll(java8AdditionalPath);
+        }
+        return jrePaths.stream().reduce((i, j) -> i + ";" + j).get();
+    }
 }

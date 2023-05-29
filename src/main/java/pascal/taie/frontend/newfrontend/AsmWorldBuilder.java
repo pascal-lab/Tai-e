@@ -56,7 +56,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         if (mainClassName != null) {
             JClass mainClass = hierarchy.getClass(mainClassName);
             if (mainClass != null) {
-                JMethod mainMethod = mainClass.getDeclaredMethod(Subsignature.getMain()); // TODO: what is src_prec_dotnet in Scene:313?
+                JMethod mainMethod = mainClass.getDeclaredMethod(Subsignature.getMain());
                 if (mainMethod != null) {
                     world.setMainMethod(mainMethod);
                 } else {
