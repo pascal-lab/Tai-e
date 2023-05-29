@@ -22,6 +22,7 @@ import pascal.taie.project.Project;
 import pascal.taie.project.ProjectBuilder;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.Timer;
+import soot.Body;
 import soot.G;
 import soot.Scene;
 import soot.SootResolver;
@@ -32,6 +33,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import static soot.SootClass.HIERARCHY;
@@ -212,6 +214,25 @@ public class TestAsmIRBuilder {
         };
 
         Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre1.8");
+
+        AtomicLong stmtCount = new AtomicLong();
+        AtomicLong varCount = new AtomicLong();
+
+        World.get()
+                .getClassHierarchy()
+                .applicationClasses()
+                .forEach(c -> {
+                    for (JMethod m : c.getDeclaredMethods()) {
+                        if (!m.isAbstract()) {
+                            IR ir = m.getIR();
+                            stmtCount.addAndGet(ir.getStmts().size());
+                            varCount.addAndGet(ir.getVars().size());
+                        }
+                    }
+                });
+
+        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the vars: " + varCount.get());
     }
 
     @Test
@@ -226,7 +247,6 @@ public class TestAsmIRBuilder {
                 "--pre-build-ir"
         );
 
-
         initSoot(options);
 
         List<String> args = new ArrayList<>();
@@ -239,7 +259,27 @@ public class TestAsmIRBuilder {
             }
         }
 
-        Timer.runAndCount(() -> runSoot(args.toArray(new String[0])), "Soot builds all the classes in jre1.8");
+        Timer.runAndCount(
+                () -> runSoot(args.toArray(new String[0])),
+                "Soot builds all the classes in jre1.8"
+        );
+
+        AtomicLong stmtCount = new AtomicLong();
+        AtomicLong varCount = new AtomicLong();
+
+        Scene scene = Scene.v();
+        scene.getClasses()
+                .forEach(c -> {
+                    c.getMethods().forEach(m -> {
+                        if (!m.isConcrete()) return;
+                        Body body = m.retrieveActiveBody();
+                        stmtCount.addAndGet(body.getUnits().size());
+                        varCount.addAndGet(body.getLocalCount());
+                    });
+                });
+
+        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the vars: " + varCount.get());
     }
 
     private static void initSoot(Options options) {
@@ -262,7 +302,7 @@ public class TestAsmIRBuilder {
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
         soot.options.Options.v().set_allow_phantom_refs(true); // allow phantom
         soot.options.Options.v().set_drop_bodies_after_load(false); // pre-build-ir
-        soot.options.Options.v().set_process_jar_dir(List.of("D:\\Tai-e-private\\java-benchmarks\\JREs\\jre1.8"));
+        soot.options.Options.v().set_process_jar_dir(List.of("java-benchmarks/JREs/jre1.8"));
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
@@ -332,6 +372,6 @@ public class TestAsmIRBuilder {
             jrePaths = new ArrayList<>(jrePaths);
             jrePaths.addAll(java8AdditionalPath);
         }
-        return jrePaths.stream().reduce((i, j) -> i + ";" + j).get();
+        return jrePaths.stream().reduce((i, j) -> i + File.pathSeparator + j).get();
     }
 }
