@@ -243,7 +243,6 @@ public class TestAsmIRBuilder {
         Options options = getOptionsAndAnalysisConfig(
                 "-java", Integer.toString(javaVersion),
                 "-acp", jrePaths(javaVersion),
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
                 "--pre-build-ir"
         );
 
