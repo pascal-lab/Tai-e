@@ -163,4 +163,29 @@ public class MultiMapTest {
         m.clear();
         Assert.assertTrue(values.isEmpty());
     }
+
+    @Test
+    public void testUnmodifiableMultiple() {
+        MultiMap<Integer, Integer> m = Maps.newMultiMap();
+        m.put(1, 1);
+        m.putAll(2, Set.of(777, 888, 999));
+        m.putAll(3, Set.of(987, 555));
+        MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(m);
+        Assert.assertEquals(m.get(2), um.get(2));
+        Assert.assertEquals(m, um);
+        m.put(333, 666);
+        Assert.assertEquals(m.get(333), um.get(333));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnmodifiableMultiplePut() {
+        MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
+        um.put(1, 2);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnmodifiableMultipleRemove() {
+        MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
+        um.remove(1, 2);
+    }
 }

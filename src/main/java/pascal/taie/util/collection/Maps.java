@@ -110,6 +110,13 @@ public final class Maps {
                 newMap(initialCapacity), Sets::newHybridSet);
     }
 
+    public static <K, V> MultiMap<K, V> unmodifiableMultiMap(MultiMap<K, V> map) {
+        if (map instanceof UnmodifiableMultiMap<K, V>) {
+            return map;
+        }
+        return new UnmodifiableMultiMap<>(map);
+    }
+
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
         return newTwoKeyMap(Maps::newMap, Maps::newHybridMap);
     }
