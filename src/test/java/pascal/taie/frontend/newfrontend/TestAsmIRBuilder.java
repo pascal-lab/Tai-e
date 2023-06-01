@@ -281,6 +281,39 @@ public class TestAsmIRBuilder {
         System.out.println("Count of all the vars: " + varCount.get());
     }
 
+    @Test
+    public void testIllTyping() {
+        String worldPath = "src/test/resources/world/multi.jar";
+
+        initSoot(new Options());
+        List<String> args = new ArrayList<>();
+        Collections.addAll(args, "-cp", worldPath);
+        Collections.addAll(args, "-process-dir", worldPath);
+        Collections.addAll(args, "-pp");
+        Collections.addAll(args, "Multi");
+
+        Timer.runAndCount(() -> runSoot(args.toArray(new String[0])),
+                "Try to make soot type inference consume tons of time & memory \n" +
+                         "(just build ir for one class with < 30 lines of java source)");
+
+        System.out.println("Let new frontend build this class");
+
+        int javaVersion = 8;
+        Main.buildWorld(
+                "-java", Integer.toString(javaVersion),
+                "-acp", worldPath,
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+        );
+
+        Timer.runAndCount(() -> {
+            for (JMethod m : World.get().getClassHierarchy().getClass("Multi").getDeclaredMethods()) {
+                if (m.getName().equals("main")) {
+                    IRPrinter.print(m.getIR(), System.out);
+                }
+            }
+        }, "new frontend build");
+    }
+
     private static void initSoot(Options options) {
         // reset Soot
         G.reset();

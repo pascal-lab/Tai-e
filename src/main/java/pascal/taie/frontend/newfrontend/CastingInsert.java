@@ -12,13 +12,16 @@ import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +128,43 @@ public class CastingInsert {
                             JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
                             assert jClass != null;
                             Type t = jClass.getType();
-                            if (!isAssignable(t, invokeInstanceExp.getBase().getType())) {
+                            Type baseType = invokeInstanceExp.getBase().getType();
+                            Var base = invokeInstanceExp.getBase();
+                            if (!isAssignable(t, baseType)) {
+                                if (stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
+                                    // prev stmt is new
+                                    // TODO: add tests for fallback
+                                    Pair<New, Integer> find = findNewInBlock(newStmts, base);
+                                    if (find != null) {
+                                        Stmt newStmt = find.first();
+                                        int idx = find.second();
+                                        Var v = builder.manager.getTempVar();
+                                        v.setType(t);
+                                        Lenses l = new Lenses(builder.method, Map.of(base, v), Map.of(base, v));
+                                        Stmt invoke = l.subSt(stmt);
+                                        Stmt newStmtReal = l.subSt(newStmt);
+                                        newStmts.set(idx, newStmtReal);
+                                        newStmts.add(invoke);
+                                        Copy cp = new Copy(base, v);
+                                        // note: if new stmt is find, i.e.
+                                        //    v = new C;
+                                        //    ...  (v can not occur in here, or we will not perform this transform)
+                                        //    invokespecical v.<init>();
+                                        // then, C <: type(v) is confirmed. So, after transform
+                                        //  (1)  v1 = new C;
+                                        //       ...
+                                        //  (2)  invokespecial v1.<init>();
+                                        //  (3)  v = v1;
+                                        // type(v1) = C, type(v1) <: type(v).
+                                        // So there is no need to check the validity of (3).
+                                        assert isAssignable(cp.getLValue().getType(),
+                                                cp.getRValue().getType());
+                                        return cp;
+                                    } else {
+                                        logger.atInfo().log("[CASTING] fallback solution for stage1");
+                                    }
+                                }
+
                                 Var v = builder.manager.getTempVar();
                                 v.setType(t);
                                 newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
@@ -168,5 +207,19 @@ public class CastingInsert {
 
     List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
+    }
+
+    Pair<New, Integer> findNewInBlock(List<Stmt> newStmts, Var target) {
+        int idx = newStmts.size() - 1;
+        for (; idx >= 0; idx--) {
+            Stmt now = newStmts.get(idx);
+            if (now instanceof New newStmt && newStmt.getLValue() == target) {
+                return new Pair<>(newStmt, idx);
+            } else if (now.getUses().contains(target)
+                || now.getDef().isPresent() && now.getDef().get() == target) {
+                return null;
+            }
+        }
+        return null;
     }
 }
