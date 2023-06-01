@@ -27,9 +27,13 @@ import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Indexable;
+import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.MultiMapCollector;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -64,7 +68,7 @@ public class JClass extends AbstractResultHolder
 
     private JClass outerClass;
 
-    private Map<String, JField> declaredFields;
+    private MultiMap<String, JField> declaredFields;
 
     private Map<Subsignature, JMethod> declaredMethods;
 
@@ -72,7 +76,7 @@ public class JClass extends AbstractResultHolder
 
     private boolean isPhantom;
 
-    private final Map<String, JField> phantomFields = Maps.newHybridMap();
+    private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
 
     /**
      * If this class is application class.
@@ -105,11 +109,10 @@ public class JClass extends AbstractResultHolder
             superClass = builder.getSuperClass();
             interfaces = builder.getInterfaces();
             outerClass = builder.getOuterClass();
-            declaredFields = Collections.unmodifiableMap(
+            declaredFields = Maps.unmodifiableMultiMap(
                     builder.getDeclaredFields()
                             .stream()
-                            .collect(Collectors.toMap(JField::getName, f -> f,
-                                    (oldV, newV) -> oldV, Maps::newLinkedHashMap))
+                            .collect(MultiMapCollector.get(JField::getName, f -> f))
             );
             declaredMethods = Collections.unmodifiableMap(
                     builder.getDeclaredMethods()
@@ -122,7 +125,7 @@ public class JClass extends AbstractResultHolder
                 superClass = getClassLoader().loadClass(ClassNames.OBJECT);
                 interfaces = Collections.emptySet();
                 outerClass = null;
-                declaredFields = Map.of();
+                declaredFields = Maps.emptyMultiMap();
                 declaredMethods = Map.of();
             } else {
                 throw e;
@@ -212,9 +215,54 @@ public class JClass extends AbstractResultHolder
         return declaredFields.values();
     }
 
+    /**
+     * Attempts to retrieve the field with the given name.
+     *
+     * @throws AmbiguousMemberException if this class has multiple fields
+     *                                  with the given name.
+     */
     @Nullable
     public JField getDeclaredField(String fieldName) {
-        return declaredFields.get(fieldName);
+        Set<JField> fields = declaredFields.get(fieldName);
+        return switch (fields.size()) {
+            case 0 -> null;
+            case 1 -> CollectionUtils.getOne(fields);
+            default -> throw new AmbiguousMemberException(name, fieldName);
+        };
+    }
+
+    /**
+     * Attempts to retrieve the field with given name and type.
+     *
+     * @return the target field with given name and type,
+     * or {@code null} if such field does not exist.
+     */
+    @Nullable
+    public JField getDeclaredField(String fieldName, Type fieldType) {
+        for (JField field : declaredFields.get(fieldName)) {
+            if (field.getType().equals(fieldType)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Attempts to retrieve the field with given name and type.
+     *
+     * @param fieldName name of the field
+     * @param typeName  name of the field type
+     * @return the target field with given name and type,
+     * or {@code null} if such field does not exist.
+     */
+    @Nullable
+    public JField getDeclaredField(String fieldName, String typeName) {
+        for (JField field : declaredFields.get(fieldName)) {
+            if (field.getType().getName().equals(typeName)) {
+                return field;
+            }
+        }
+        return null;
     }
 
     public Collection<JMethod> getDeclaredMethods() {
@@ -224,7 +272,7 @@ public class JClass extends AbstractResultHolder
     /**
      * Attempts to retrieve the method with the given name.
      *
-     * @throws AmbiguousMethodException if this class has multiple methods
+     * @throws AmbiguousMemberException if this class has multiple methods
      *                                  with the given name.
      */
     @Nullable
@@ -235,7 +283,7 @@ public class JClass extends AbstractResultHolder
                 if (result == null) {
                     result = method;
                 } else {
-                    throw new AmbiguousMethodException(name, methodName);
+                    throw new AmbiguousMemberException(name, methodName);
                 }
             }
         }
@@ -243,13 +291,15 @@ public class JClass extends AbstractResultHolder
     }
 
     /**
-     * Attempts to retrieve the method with the given subsignature.
-     * If the class has declared a method that has the same subsignature
-     * as the given one, then returns the method; otherwise, returns null.
+     * Attemps to retrieve the method with given subsignature.
+     *
+     * @param subsignature subsignature of the method
+     * @return the target method with given subsignature,
+     * or {@code null} if such method does not exist.
      */
     @Nullable
-    public JMethod getDeclaredMethod(Subsignature subSignature) {
-        return declaredMethods.get(subSignature);
+    public JMethod getDeclaredMethod(Subsignature subsignature) {
+        return declaredMethods.get(subsignature);
     }
 
     @Nullable
@@ -281,17 +331,22 @@ public class JClass extends AbstractResultHolder
         return isPhantom;
     }
 
-    public JField getPhantomField(String name) {
+    @Nullable
+    public JField getPhantomField(String fieldName, Type fieldType) {
         assert isPhantom();
-        return phantomFields.get(name);
+        for (JField field : phantomFields.get(fieldName)) {
+            if (field.getType().equals(fieldType)) {
+                return field;
+            }
+        }
+        return null;
     }
 
-    public void addPhantomField(String name, JField field) {
+    public void addPhantomField(String fieldName, Type fieldType, JField field) {
         assert isPhantom();
-        if (phantomFields.put(name, field) != null) {
-            throw new IllegalStateException(String.format(
-                    "'%s' already has phantom field '%s'", this, name));
-        }
+        assert getPhantomField(fieldName, fieldType) == null :
+                String.format("'%s' already has phantom field '%s'", this, field);
+        phantomFields.put(fieldName, field);
     }
 
     void setIndex(int index) {

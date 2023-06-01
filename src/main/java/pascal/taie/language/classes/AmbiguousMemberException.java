@@ -23,11 +23,12 @@
 package pascal.taie.language.classes;
 
 /**
- * Exception that is thrown when a method is accessed through an ambiguous name.
+ * Exception that is thrown when a member (method or field) is accessed
+ * through an ambiguous name.
  */
-public class AmbiguousMethodException extends RuntimeException {
+public class AmbiguousMemberException extends RuntimeException {
 
-    public AmbiguousMethodException(String className, String methodName) {
-        super(String.format("%s has multiple methods with name %s", className, methodName));
+    public AmbiguousMemberException(String className, String memberName) {
+        super(String.format("%s has multiple members with name %s", className, memberName));
     }
 }

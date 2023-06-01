@@ -117,6 +117,14 @@ public final class Maps {
         return new UnmodifiableMultiMap<>(map);
     }
 
+    @SuppressWarnings("rawtypes")
+    private static final MultiMap EMPTY_MULTIMAP = unmodifiableMultiMap(newMultiMap());
+
+    @SuppressWarnings("unchecked")
+    public static <K, V> MultiMap<K, V> emptyMultiMap() {
+        return (MultiMap<K, V>) EMPTY_MULTIMAP;
+    }
+
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
         return newTwoKeyMap(Maps::newMap, Maps::newHybridMap);
     }
