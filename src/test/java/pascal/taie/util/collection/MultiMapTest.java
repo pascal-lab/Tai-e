@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class MultiMapTest {
 
@@ -187,5 +188,19 @@ public class MultiMapTest {
     public void testUnmodifiableMultipleRemove() {
         MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
         um.remove(1, 2);
+    }
+
+    @Test
+    public void testMultiMapCollector() {
+        MultiMap<Integer, Integer> m1 = Stream.of(
+                new Pair<>(1, 1),
+                new Pair<>(1, 2),
+                new Pair<>(1, 3),
+                new Pair<>(2, 4)
+        ).collect(MultiMapCollector.get(Pair::first, Pair::second));
+        MultiMap<Integer, Integer> m2 = Maps.newMultiMap();
+        m2.putAll(1, Set.of(1, 2, 3));
+        m2.put(2, 4);
+        Assert.assertEquals(m1, m2);
     }
 }
