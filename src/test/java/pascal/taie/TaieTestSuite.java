@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.PTATestSuite;
 import pascal.taie.config.OptionsTest;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
+import pascal.taie.language.FieldTest;
 import pascal.taie.language.HierarchyTest;
 import pascal.taie.language.TypeTest;
 import pascal.taie.language.classes.StringRepsTest;
@@ -45,6 +46,7 @@ import pascal.taie.util.UtilTestSuite;
         TypeTest.class,
         HierarchyTest.class,
         DefaultMethodTest.class,
+        FieldTest.class,
         // analysis
         BugFinderTestSuite.class,
         DataflowTestSuite.class,

@@ -362,7 +362,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
 
     public ObjectFlowGraph getObjectFlowGraph() {
         if (ofg == null) {
-            ofg = new ObjectFlowGraph(pfg, callGraph);
+            ofg = new ObjectFlowGraph(pfg, getCallGraph());
         }
         return ofg;
     }

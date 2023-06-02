@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * Utility class for compute string representations of various program
  * elements, such as class name, method descriptor, method signature, etc.
  * <ul>
- *   <li>Method
+ *  <li>Method
  *      <ul>
  *      <li>Signature: &lt;CLASS_NAME: RETURN_TYPE METHOD_NAME(PARAM_LIST)&gt;</li>
  *      <li>Subsignature: RETURN_TYPE METHOD_NAME(PARAM_LIST)</li>
@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
  *      <li>Signature: &lt;CLASS_NAME: FIELD_TYPE FIELD_NAME&gt;</li>
  *      </ul>
  *  </li>
+ * </ul>
  */
 public final class StringReps {
 

@@ -33,7 +33,7 @@ import java.util.stream.Collector;
 
 public class MultiMapCollector<T, K, V, R> implements Collector<T, MultiMap<K, V>, R> {
 
-    private final static Set<Characteristics> CH = Collections.unmodifiableSet(
+    private static final Set<Characteristics> CH = Collections.unmodifiableSet(
             EnumSet.of(Characteristics.IDENTITY_FINISH));
 
     private final Function<? super T, ? extends K> keyMapper;
