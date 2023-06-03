@@ -86,7 +86,12 @@ class SourceHandler extends OnFlyHandler {
         handleFieldSources = !fieldSources.isEmpty();
     }
 
-    void handleCallSource(Edge<CSCallSite, CSMethod> edge) {
+    /**
+     * Handles call sources.
+     */
+    @Override
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        // handle call source
         Invoke callSite = edge.getCallSite().getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         // generate taint value from source call
@@ -103,7 +108,32 @@ class SourceHandler extends OnFlyHandler {
         });
     }
 
-    void handleParamSource(CSMethod csMethod) {
+    /**
+     * Handles field sources.
+     * Scans {@code method}'s IR to check if it loads any source fields.
+     * If so, records the {@link LoadField} statements.
+     */
+    @Override
+    public void onNewMethod(JMethod method) {
+        if (handleFieldSources) {
+            method.getIR().forEach(stmt -> {
+                if (stmt instanceof LoadField loadField) {
+                    JField field = loadField.getFieldRef().resolveNullable();
+                    if (fieldSources.containsKey(field)) {
+                        loadedFieldSources.put(method, loadField);
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
+        handleParamSource(csMethod);
+        handleFieldSource(csMethod);
+    }
+
+    private void handleParamSource(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (paramSources.containsKey(method)) {
             Context context = csMethod.getContext();
@@ -120,27 +150,10 @@ class SourceHandler extends OnFlyHandler {
     }
 
     /**
-     * Scans {@code method}'s IR to check if it loads any source fields.
-     * If so, records the {@link LoadField} statements.
-     */
-    void handleFieldSource(JMethod method) {
-        if (handleFieldSources) {
-            method.getIR().forEach(stmt -> {
-                if (stmt instanceof LoadField loadField) {
-                    JField field = loadField.getFieldRef().resolveNullable();
-                    if (fieldSources.containsKey(field)) {
-                        loadedFieldSources.put(method, loadField);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
      * If given method contains pre-recorded {@link LoadField} statements,
      * adds corresponding taint object to LHS of the {@link LoadField}.
      */
-    void handleFieldSource(CSMethod csMethod) {
+    private void handleFieldSource(CSMethod csMethod) {
         if (handleFieldSources) {
             JMethod method = csMethod.getMethod();
             Context context = csMethod.getContext();

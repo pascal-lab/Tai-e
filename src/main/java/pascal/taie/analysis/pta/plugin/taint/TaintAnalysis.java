@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.classes.JMethod;
@@ -47,11 +48,7 @@ public class TaintAnalysis implements Plugin {
 
     private TaintManager manager;
 
-    private SourceHandler sourceHandler;
-
-    private TransferHandler transferHandler;
-
-    private SanitizerHandler sanitizerHandler;
+    private Plugin onFlyHandler;
 
     private SinkHandler sinkHandler;
 
@@ -65,33 +62,33 @@ public class TaintAnalysis implements Plugin {
                 solver.getTypeSystem());
         logger.info(config);
         HandlerContext context = new HandlerContext(solver, manager, config);
-        sourceHandler = new SourceHandler(context);
-        transferHandler = new TransferHandler(context);
-        sanitizerHandler = new SanitizerHandler(context);
+        CompositePlugin onFlyHandler = new CompositePlugin();
+        onFlyHandler.addPlugin(
+                new SourceHandler(context),
+                new TransferHandler(context),
+                new SanitizerHandler(context));
+        this.onFlyHandler = onFlyHandler;
         sinkHandler = new SinkHandler(context);
     }
 
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        sourceHandler.handleCallSource(edge);
-        transferHandler.handleNewCallEdge(edge);
+        onFlyHandler.onNewCallEdge(edge);
     }
 
     @Override
     public void onNewMethod(JMethod method) {
-        sourceHandler.handleFieldSource(method);
+        onFlyHandler.onNewMethod(method);
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
-        sourceHandler.handleParamSource(csMethod);
-        sourceHandler.handleFieldSource(csMethod);
-        sanitizerHandler.handleParamSanitizer(csMethod);
+        onFlyHandler.onNewCSMethod(csMethod);
     }
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        transferHandler.handleNewPointsToSet(csVar, pts);
+        onFlyHandler.onNewPointsToSet(csVar, pts);
     }
 
     @Override

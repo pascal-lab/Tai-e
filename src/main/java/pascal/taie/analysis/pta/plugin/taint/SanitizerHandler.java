@@ -57,7 +57,12 @@ class SanitizerHandler extends OnFlyHandler {
                 .forEach(s -> this.paramSanitizers.put(s.method(), s));
     }
 
-    void handleParamSanitizer(CSMethod csMethod) {
+    /**
+     *
+     * Handles parameter sanitizers.
+     */
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (paramSanitizers.containsKey(method)) {
             Context context = csMethod.getContext();

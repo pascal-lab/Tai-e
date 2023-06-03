@@ -109,7 +109,8 @@ class TransferHandler extends OnFlyHandler {
                 .forEach(t -> this.transfers.put(t.method(), t));
     }
 
-    void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    @Override
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge.getKind() == CallKind.OTHER) {
             // skip other call edges, e.g., reflective call edges,
             // which currently cannot be handled for transfer methods
@@ -226,7 +227,8 @@ class TransferHandler extends OnFlyHandler {
                 }));
     }
 
-    void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
+    @Override
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Context ctx = csVar.getContext();
         transferInfos.get(csVar.getVar()).forEach(info ->
                 transferTaint(pts, ctx, info));
