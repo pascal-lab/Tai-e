@@ -28,7 +28,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
@@ -40,17 +39,12 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * Handles sources in taint analysis.
  */
-class SourceHandler {
-
-    private final Solver solver;
-
-    private final TaintManager manager;
+class SourceHandler extends OnFlyHandler {
 
     /**
      * Map from a source method to its result sources.
@@ -78,10 +72,9 @@ class SourceHandler {
      */
     private final MultiMap<JMethod, LoadField> loadedFieldSources = Maps.newMultiMap();
 
-    SourceHandler(Solver solver, TaintManager manager, List<Source> sources) {
-        this.solver = solver;
-        this.manager = manager;
-        sources.forEach(src -> {
+    SourceHandler(HandlerContext context) {
+        super(context);
+        context.config().sources().forEach(src -> {
             if (src instanceof CallSource callSrc) {
                 callSources.put(callSrc.method(), callSrc);
             } else if (src instanceof ParamSource paramSrc) {

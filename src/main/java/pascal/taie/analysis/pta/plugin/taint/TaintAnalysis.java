@@ -64,10 +64,11 @@ public class TaintAnalysis implements Plugin {
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        sourceHandler = new SourceHandler(solver, manager, config.sources());
-        transferHandler = new TransferHandler(solver, manager, config.transfers());
-        sanitizerHandler = new SanitizerHandler(solver, manager, config.paramSanitizers());
-        sinkHandler = new SinkHandler(solver, manager, config.sinks());
+        HandlerContext context = new HandlerContext(solver, manager, config);
+        sourceHandler = new SourceHandler(context);
+        transferHandler = new TransferHandler(context);
+        sanitizerHandler = new SanitizerHandler(context);
+        sinkHandler = new SinkHandler(context);
     }
 
     @Override

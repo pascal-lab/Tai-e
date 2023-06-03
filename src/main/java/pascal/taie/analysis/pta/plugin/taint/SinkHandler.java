@@ -25,7 +25,6 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Sets;
@@ -36,18 +35,13 @@ import java.util.Set;
 /**
  * Handles sinks in taint analysis.
  */
-class SinkHandler {
-
-    private final Solver solver;
-
-    private final TaintManager manager;
+class SinkHandler extends Handler {
 
     private final List<Sink> sinks;
 
-    SinkHandler(Solver solver, TaintManager manager, List<Sink> sinks) {
-        this.solver = solver;
-        this.manager = manager;
-        this.sinks = sinks;
+    SinkHandler(HandlerContext context) {
+        super(context);
+        sinks = context.config().sinks();
     }
 
     Set<TaintFlow> collectTaintFlows() {

@@ -33,7 +33,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.core.solver.Transfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -61,17 +60,13 @@ import java.util.Map;
 /**
  * Handles taint transfers in taint analysis.
  */
-class TransferHandler {
+class TransferHandler extends OnFlyHandler {
 
     private static final Logger logger = LogManager.getLogger(TransferHandler.class);
-
-    private final Solver solver;
 
     private final CSManager csManager;
 
     private final Context emptyContext;
-
-    private final TaintManager manager;
 
     /**
      * Map from method (which causes taint transfer) to set of relevant
@@ -106,12 +101,12 @@ class TransferHandler {
      */
     private int counter = 0;
 
-    TransferHandler(Solver solver, TaintManager manager, List<TaintTransfer> transfers) {
-        this.solver = solver;
+    TransferHandler(HandlerContext context) {
+        super(context);
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
-        this.manager = manager;
-        transfers.forEach(t -> this.transfers.put(t.method(), t));
+        context.config().transfers()
+                .forEach(t -> this.transfers.put(t.method(), t));
     }
 
     void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
