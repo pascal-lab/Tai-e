@@ -27,10 +27,13 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Sets;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Handles sinks in taint analysis.
@@ -65,6 +68,30 @@ class SinkHandler extends Handler {
                                 .forEach(taintFlows::add);
                     });
         });
+        if (callSiteMode) {
+            Map<JMethod, Sink> sinkMap = sinks.stream()
+                    .collect(Collectors.toMap(Sink::method, s -> s));
+            // scan all reachable call sites to search sink calls
+            result.getCallGraph()
+                    .reachableMethods()
+                    .filter(m -> !m.isAbstract())
+                    .flatMap(m -> m.getIR().invokes(false))
+                    .forEach(callSite -> {
+                        JMethod callee = callSite.getMethodRef().resolveNullable();
+                        Sink sink = sinkMap.get(callee);
+                        if (sink != null) {
+                            int i = sink.index();
+                            Var arg = InvokeUtils.getVar(callSite, i);
+                            SinkPoint sinkPoint = new SinkPoint(callSite, i);
+                            result.getPointsToSet(arg)
+                                    .stream()
+                                    .filter(manager::isTaint)
+                                    .map(manager::getSourcePoint)
+                                    .map(sourcePoint -> new TaintFlow(sourcePoint, sinkPoint))
+                                    .forEach(taintFlows::add);
+                        }
+                    });
+        }
         return taintFlows;
     }
 }
