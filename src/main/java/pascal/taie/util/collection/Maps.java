@@ -93,16 +93,21 @@ public final class Maps {
         return new ConcurrentHashMap<>(initialCapacity);
     }
 
-    public static <K, V> MultiMap<K, V> newMultiMap() {
-        return new MapSetMultiMap<>(newMap(), Sets::newHybridSet);
+    public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map,
+                                                    Supplier<Set<V>> setFactory) {
+        return new MapSetMultiMap<>(map, setFactory);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Supplier<Set<V>> setFactory) {
-        return new MapSetMultiMap<>(newMap(), setFactory);
+        return newMultiMap(newMap(), setFactory);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map) {
-        return new MapSetMultiMap<>(map, Sets::newHybridSet);
+        return newMultiMap(map, Sets::newHybridSet);
+    }
+
+    public static <K, V> MultiMap<K, V> newMultiMap() {
+        return newMultiMap(newMap(), Sets::newHybridSet);
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(int initialCapacity) {

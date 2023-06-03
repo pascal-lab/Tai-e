@@ -36,19 +36,23 @@ public class MultiMapCollector<T, K, V, R> implements Collector<T, MultiMap<K, V
     private static final Set<Characteristics> CH = Collections.unmodifiableSet(
             EnumSet.of(Characteristics.IDENTITY_FINISH));
 
+    private final Supplier<MultiMap<K, V>> supplier;
+
     private final Function<? super T, ? extends K> keyMapper;
 
     private final Function<? super T, ? extends V> valueMapper;
 
-    private MultiMapCollector(Function<? super T, ? extends K> keyMapper,
+    private MultiMapCollector(Supplier<MultiMap<K, V>> supplier,
+                              Function<? super T, ? extends K> keyMapper,
                               Function<? super T, ? extends V> valueMapper) {
+        this.supplier = supplier;
         this.keyMapper = keyMapper;
         this.valueMapper = valueMapper;
     }
 
     @Override
     public Supplier<MultiMap<K, V>> supplier() {
-        return Maps::newMultiMap;
+        return supplier;
     }
 
     @Override
@@ -86,8 +90,15 @@ public class MultiMapCollector<T, K, V, R> implements Collector<T, MultiMap<K, V
     }
 
     public static <T, K, V, M extends MultiMap<K, V>>
+    Collector<T, ?, M> get(Supplier<MultiMap<K, V>> supplier,
+                           Function<? super T, ? extends K> keyMapper,
+                           Function<? super T, ? extends V> valueMapper) {
+        return new MultiMapCollector<>(supplier, keyMapper, valueMapper);
+    }
+
+    public static <T, K, V, M extends MultiMap<K, V>>
     Collector<T, ?, M> get(Function<? super T, ? extends K> keyMapper,
                            Function<? super T, ? extends V> valueMapper) {
-        return new MultiMapCollector<>(keyMapper, valueMapper);
+        return get(Maps::newMultiMap, keyMapper, valueMapper);
     }
 }

@@ -34,6 +34,7 @@ import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.MultiMapCollector;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -112,7 +113,10 @@ public class JClass extends AbstractResultHolder
             declaredFields = Maps.unmodifiableMultiMap(
                     builder.getDeclaredFields()
                             .stream()
-                            .collect(MultiMapCollector.get(JField::getName, f -> f))
+                            .collect(MultiMapCollector.get(
+                                    () -> Maps.newMultiMap(Maps.newLinkedHashMap(),
+                                            Sets::newHybridOrderedSet),
+                                    JField::getName, f -> f))
             );
             declaredMethods = Collections.unmodifiableMap(
                     builder.getDeclaredMethods()
