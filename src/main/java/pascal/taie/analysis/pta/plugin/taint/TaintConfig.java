@@ -63,7 +63,8 @@ import static pascal.taie.analysis.pta.plugin.taint.TransferPoint.ARRAY_SUFFIX;
 record TaintConfig(List<Source> sources,
                    List<Sink> sinks,
                    List<TaintTransfer> transfers,
-                   List<ParamSanitizer> paramSanitizers) {
+                   List<ParamSanitizer> paramSanitizers,
+                   boolean callSiteMode) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
@@ -71,7 +72,7 @@ record TaintConfig(List<Source> sources,
      * An empty taint config.
      */
     private static final TaintConfig EMPTY = new TaintConfig(
-            List.of(), List.of(), List.of(), List.of());
+            List.of(), List.of(), List.of(), List.of(), false);
 
     /**
      * Loads a taint analysis configuration from given path.
@@ -138,7 +139,8 @@ record TaintConfig(List<Source> sources,
                 Lists.concatDistinct(sources, other.sources),
                 Lists.concatDistinct(sinks, other.sinks),
                 Lists.concatDistinct(transfers, other.transfers),
-                Lists.concatDistinct(paramSanitizers, other.paramSanitizers));
+                Lists.concatDistinct(paramSanitizers, other.paramSanitizers),
+                callSiteMode || other.callSiteMode);
     }
 
     @Override
@@ -190,7 +192,10 @@ record TaintConfig(List<Source> sources,
             List<Sink> sinks = deserializeSinks(node.get("sinks"));
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
             List<ParamSanitizer> sanitizers = deserializeSanitizers(node.get("sanitizers"));
-            return new TaintConfig(sources, sinks, transfers, sanitizers);
+            JsonNode callSiteNode = node.get("call-site-mode");
+            boolean callSiteMode = (callSiteNode != null && callSiteNode.asBoolean());
+            return new TaintConfig(
+                    sources, sinks, transfers, sanitizers, callSiteMode);
         }
 
         /**
