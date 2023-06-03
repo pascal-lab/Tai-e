@@ -40,6 +40,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles sources in taint analysis.
@@ -50,6 +51,13 @@ class SourceHandler extends OnFlyHandler {
      * Map from a source method to its result sources.
      */
     private final MultiMap<JMethod, CallSource> callSources = Maps.newMultiMap();
+
+    /**
+     * Map from a method to {@link Invoke} statements in the method
+     * which matches any call source.
+     * This map matters only when call-site mode is enabled.
+     */
+    private final MultiMap<JMethod, Invoke> callSiteSources = Maps.newMultiMap();
 
     /**
      * Map from a source method to its parameter sources.
@@ -87,25 +95,44 @@ class SourceHandler extends OnFlyHandler {
     }
 
     /**
+     * Generates taint objects from call sources.
+     */
+    private void processCallSource(Context context, Invoke callSite, CallSource source) {
+        int index = source.index();
+        if (InvokeUtils.RESULT == index && callSite.getLValue() == null) {
+            return;
+        }
+        Var var = InvokeUtils.getVar(callSite, index);
+        SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
+        Obj taint = manager.makeTaint(sourcePoint, source.type());
+        solver.addVarPointsTo(context, var, taint);
+    }
+
+    /**
      * Handles call sources.
      */
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        // handle call source
-        Invoke callSite = edge.getCallSite().getCallSite();
-        JMethod callee = edge.getCallee().getMethod();
-        // generate taint value from source call
-        callSources.get(callee).forEach(source -> {
-            int index = source.index();
-            if (InvokeUtils.RESULT == index && callSite.getLValue() == null ||
-                    InvokeUtils.RESULT != index && edge.getKind() == CallKind.OTHER) {
-                return;
-            }
-            Var var = InvokeUtils.getVar(callSite, index);
-            SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
-            Obj taint = manager.makeTaint(sourcePoint, source.type());
-            solver.addVarPointsTo(edge.getCallSite().getContext(), var, taint);
-        });
+        if (edge.getKind() == CallKind.OTHER) {
+            return;
+        }
+        Set<CallSource> sources = callSources.get(edge.getCallee().getMethod());
+        if (!sources.isEmpty()) {
+            Context context = edge.getCallSite().getContext();
+            Invoke callSite = edge.getCallSite().getCallSite();
+            sources.forEach(source -> processCallSource(context, callSite, source));
+        }
+
+    }
+
+    @Override
+    public void onNewMethod(JMethod method) {
+        if (handleFieldSources) {
+            handleFieldSource(method);
+        }
+        if (callSiteMode) {
+            handleCallSource(method);
+        }
     }
 
     /**
@@ -113,24 +140,41 @@ class SourceHandler extends OnFlyHandler {
      * Scans {@code method}'s IR to check if it loads any source fields.
      * If so, records the {@link LoadField} statements.
      */
-    @Override
-    public void onNewMethod(JMethod method) {
-        if (handleFieldSources) {
-            method.getIR().forEach(stmt -> {
-                if (stmt instanceof LoadField loadField) {
-                    JField field = loadField.getFieldRef().resolveNullable();
-                    if (fieldSources.containsKey(field)) {
-                        loadedFieldSources.put(method, loadField);
-                    }
+    private void handleFieldSource(JMethod method) {
+        method.getIR().forEach(stmt -> {
+            if (stmt instanceof LoadField loadField) {
+                JField field = loadField.getFieldRef().resolveNullable();
+                if (fieldSources.containsKey(field)) {
+                    loadedFieldSources.put(method, loadField);
                 }
-            });
-        }
+            }
+        });
+    }
+
+    /**
+     * Handles call sources for the case when call-site mode is enabled.
+     * Scans {@code method}'s IR to check if method references of any
+     * {@link Invoke}s are resolved to call source method.
+     * If so, records the {@link Invoke} statements.
+     */
+    private void handleCallSource(JMethod method) {
+        method.getIR().invokes(false).forEach(callSite -> {
+            JMethod callee = callSite.getMethodRef().resolveNullable();
+            if (callSources.containsKey(callee)) {
+                callSiteSources.put(method, callSite);
+            }
+        });
     }
 
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         handleParamSource(csMethod);
-        handleFieldSource(csMethod);
+        if (handleFieldSources) {
+            handleFieldSource(csMethod);
+        }
+        if (callSiteMode) {
+            handleCallSource(csMethod);
+        }
     }
 
     private void handleParamSource(CSMethod csMethod) {
@@ -154,16 +198,34 @@ class SourceHandler extends OnFlyHandler {
      * adds corresponding taint object to LHS of the {@link LoadField}.
      */
     private void handleFieldSource(CSMethod csMethod) {
-        if (handleFieldSources) {
-            JMethod method = csMethod.getMethod();
+        JMethod method = csMethod.getMethod();
+        Set<LoadField> loads = loadedFieldSources.get(method);
+        if (!loads.isEmpty()) {
             Context context = csMethod.getContext();
-            loadedFieldSources.get(method).forEach(load -> {
+            loads.forEach(load -> {
                 Var lhs = load.getLValue();
                 SourcePoint sourcePoint = new FieldSourcePoint(method, load);
                 JField field = load.getFieldRef().resolve();
                 Type type = fieldSources.get(field);
                 Obj taint = manager.makeTaint(sourcePoint, type);
                 solver.addVarPointsTo(context, lhs, taint);
+            });
+        }
+    }
+
+    /**
+     * If given method contains pre-recorded {@link Invoke} statements,
+     * call {@link #processCallSource} to generate taint objects.
+     */
+    private void handleCallSource(CSMethod csMethod) {
+        JMethod method = csMethod.getMethod();
+        Set<Invoke> callSites = callSiteSources.get(method);
+        if (!callSites.isEmpty()) {
+            Context context = csMethod.getContext();
+            callSites.forEach(callSite -> {
+                JMethod callee = callSite.getMethodRef().resolve();
+                callSources.get(callee).forEach(source ->
+                        processCallSource(context, callSite, source));
             });
         }
     }

@@ -33,8 +33,11 @@ abstract class Handler {
 
     protected final TaintManager manager;
 
+    protected final boolean callSiteMode;
+
     protected Handler(HandlerContext context) {
         solver = context.solver();
         manager = context.manager();
+        callSiteMode = context.config().callSiteMode();
     }
 }
