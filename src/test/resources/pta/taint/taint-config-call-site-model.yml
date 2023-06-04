@@ -1,0 +1,11 @@
+sources:
+  - { kind: call, method: "<Source: java.lang.String getSource()>", index: result }
+
+sinks:
+  - { method: "<Statement: ResultSet executeQuery(java.lang.String)>", index: 0 }
+
+transfers:
+  - { method: "<StringBuilder: StringBuilder append(java.lang.String)>", from: 0, to: base }
+  - { method: "<StringBuilder: java.lang.String toString()>", from: base, to: result }
+
+call-site-mode: true

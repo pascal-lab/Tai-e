@@ -165,4 +165,10 @@ public class TaintTest {
         Tests.testPTA(DIR, "TaintParam",
                 "taint-config:src/test/resources/pta/taint/taint-config-param-source.yml");
     }
+
+    @Test
+    public void testCallSiteMode() {
+        Tests.testPTA(DIR, "CallSiteMode",
+                "taint-config:src/test/resources/pta/taint/taint-config-call-site-model.yml");
+    }
 }

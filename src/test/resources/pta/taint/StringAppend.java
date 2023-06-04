@@ -9,7 +9,7 @@ class StringAppend {
     static void stringAdd() {
         String taint = SourceSink.source();
         String s = "abc" + taint + "xyz";
-        SourceSink.sink(s);
+        SourceSink.sink(s); // taint
     }
 
     static void stringBuffer() {
