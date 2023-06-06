@@ -24,7 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.PrimitiveType;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of unary expression.
@@ -34,8 +34,8 @@ public interface UnaryExp extends RValue {
     Var getOperand();
 
     @Override
-    default List<RValue> getUses() {
-        return List.of(getOperand());
+    default Set<RValue> getUses() {
+        return Set.of(getOperand());
     }
 
     @Override

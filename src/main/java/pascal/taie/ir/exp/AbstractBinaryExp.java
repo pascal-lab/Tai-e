@@ -22,7 +22,10 @@
 
 package pascal.taie.ir.exp;
 
-import java.util.List;
+import pascal.taie.util.collection.ArraySet;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Provides common functionalities for {@link BinaryExp} implementations.
@@ -56,8 +59,10 @@ abstract class AbstractBinaryExp implements BinaryExp {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(operand1, operand2);
+    public Set<RValue> getUses() {
+        Set<RValue> uses = new ArraySet<>(2);
+        Collections.addAll(uses, operand1, operand2);
+        return uses;
     }
 
     @Override

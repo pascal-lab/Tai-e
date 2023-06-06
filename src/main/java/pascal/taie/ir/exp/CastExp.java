@@ -24,7 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.Type;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of cast expression, e.g., (T) o.
@@ -57,8 +57,8 @@ public class CastExp implements RValue {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(value);
+    public Set<RValue> getUses() {
+        return Set.of(value);
     }
 
     @Override

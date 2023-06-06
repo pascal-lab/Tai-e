@@ -34,13 +34,13 @@ import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.ArraySet;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Representation of invocation statement, e.g., r = o.m(...) or o.m(...).
@@ -141,8 +141,10 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     }
 
     @Override
-    public List<RValue> getUses() {
-        return CollectionUtils.append(invokeExp.getUses(), invokeExp);
+    public Set<RValue> getUses() {
+        Set<RValue> uses = new ArraySet<>(invokeExp.getUses());
+        uses.add(invokeExp);
+        return uses;
     }
 
     @Override

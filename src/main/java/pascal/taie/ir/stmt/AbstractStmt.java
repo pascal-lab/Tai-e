@@ -25,8 +25,8 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 abstract class AbstractStmt implements Stmt {
 
@@ -68,8 +68,8 @@ abstract class AbstractStmt implements Stmt {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of();
+    public Set<RValue> getUses() {
+        return Set.of();
     }
 
     @Override

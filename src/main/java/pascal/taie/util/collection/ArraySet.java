@@ -74,6 +74,11 @@ public class ArraySet<E> extends AbstractSetEx<E> {
         this.fixedCapacity = fixedCapacity;
     }
 
+    public ArraySet(Collection<? extends E> coll) {
+        this(coll.size(), false);
+        addAll(coll);
+    }
+
     @Override
     public boolean isEmpty() {
         return elements.isEmpty();

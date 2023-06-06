@@ -24,7 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.ArrayType;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of new array expression, e.g., new T[..].
@@ -50,8 +50,8 @@ public class NewArray implements NewExp {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(length);
+    public Set<RValue> getUses() {
+        return Set.of(length);
     }
 
     @Override

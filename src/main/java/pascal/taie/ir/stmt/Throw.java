@@ -25,7 +25,7 @@ package pascal.taie.ir.stmt;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of throw exception statement, e.g., throw e.
@@ -46,8 +46,8 @@ public class Throw extends AbstractStmt {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(exceptionRef);
+    public Set<RValue> getUses() {
+        return Set.of(exceptionRef);
     }
 
     @Override

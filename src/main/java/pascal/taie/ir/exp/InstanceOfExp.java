@@ -25,7 +25,7 @@ package pascal.taie.ir.exp;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of instanceof expression, e.g., o instanceof T.
@@ -58,8 +58,8 @@ public class InstanceOfExp implements RValue {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(value);
+    public Set<RValue> getUses() {
+        return Set.of(value);
     }
 
     @Override

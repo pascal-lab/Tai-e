@@ -25,7 +25,7 @@ package pascal.taie.ir.exp;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of array access expression, e.g., a[i].
@@ -60,8 +60,8 @@ public class ArrayAccess implements LValue, RValue {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(base, index);
+    public Set<RValue> getUses() {
+        return Set.of(base, index);
     }
 
     @Override

@@ -24,11 +24,11 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.util.collection.ArraySet;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Representation of assign statements.
@@ -65,10 +65,10 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    public List<RValue> getUses() {
-        List<RValue> lUses = lvalue.getUses();
-        List<RValue> rUses = rvalue.getUses();
-        List<RValue> uses = new ArrayList<>(lUses.size() + rUses.size() + 1);
+    public Set<RValue> getUses() {
+        Set<RValue> lUses = lvalue.getUses();
+        Set<RValue> rUses = rvalue.getUses();
+        Set<RValue> uses = new ArraySet<>(lUses.size() + rUses.size() + 1);
         uses.addAll(lUses);
         uses.addAll(rUses);
         uses.add(rvalue);

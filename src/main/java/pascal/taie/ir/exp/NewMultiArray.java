@@ -23,8 +23,10 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.util.collection.ArraySet;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of new multi-array expression, e.g., new T[..][..][..].
@@ -58,8 +60,8 @@ public class NewMultiArray implements NewExp {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.copyOf(lengths);
+    public Set<RValue> getUses() {
+        return new ArraySet<>(lengths);
     }
 
     @Override

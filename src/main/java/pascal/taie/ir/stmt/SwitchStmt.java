@@ -27,6 +27,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of switch statement, e.g.,
@@ -120,8 +121,8 @@ public abstract class SwitchStmt extends JumpStmt {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(var);
+    public Set<RValue> getUses() {
+        return Set.of(var);
     }
 
     @Override

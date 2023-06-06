@@ -26,8 +26,8 @@ import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.util.Indexable;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Representation of statements in Tai-e IR.
@@ -59,7 +59,7 @@ public interface Stmt extends Indexable {
     /**
      * @return a list of right-value expressions used in this Stmt.
      */
-    List<RValue> getUses();
+    Set<RValue> getUses();
 
     /**
      * @return true if execution after this statement could continue at

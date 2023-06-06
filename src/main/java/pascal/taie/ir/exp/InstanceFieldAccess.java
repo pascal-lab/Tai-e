@@ -24,7 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.ir.proginfo.FieldRef;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of instance field access expression, e.g., o.f.
@@ -43,8 +43,8 @@ public class InstanceFieldAccess extends FieldAccess {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return List.of(base);
+    public Set<RValue> getUses() {
+        return Set.of(base);
     }
 
     @Override

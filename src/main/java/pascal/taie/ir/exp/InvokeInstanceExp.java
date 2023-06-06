@@ -23,9 +23,10 @@
 package pascal.taie.ir.exp;
 
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.util.collection.ArraySet;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of instance invocation (virtual, interface,
@@ -45,8 +46,8 @@ public abstract class InvokeInstanceExp extends InvokeExp {
     }
 
     @Override
-    public List<RValue> getUses() {
-        List<RValue> uses = new ArrayList<>(args.size() + 1);
+    public Set<RValue> getUses() {
+        Set<RValue> uses = new ArraySet<>(args.size() + 1);
         uses.add(base);
         uses.addAll(args);
         return uses;

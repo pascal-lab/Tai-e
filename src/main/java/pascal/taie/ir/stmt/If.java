@@ -24,9 +24,10 @@ package pascal.taie.ir.stmt;
 
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.RValue;
-import pascal.taie.util.collection.CollectionUtils;
+import pascal.taie.util.collection.ArraySet;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Representation of if statement, e.g., if a == b goto S;
@@ -67,8 +68,10 @@ public class If extends JumpStmt {
     }
 
     @Override
-    public List<RValue> getUses() {
-        return CollectionUtils.append(condition.getUses(), condition);
+    public Set<RValue> getUses() {
+        Set<RValue> uses = new ArraySet<>(condition.getUses());
+        uses.add(condition);
+        return uses;
     }
 
     @Override
