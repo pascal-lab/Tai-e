@@ -1,14 +1,23 @@
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.Project;
-
-import java.util.Set;
 
 public class DepResolver implements ClassResolver {
 
+    public DepResolver() {
+    }
+
     @Override
-    public Set<AnalysisFile> resolve(Project p) {
+    public ClassSource getClassSource(String binaryName) {
         return null;
+    }
+
+    @Override
+    public int getTotalClasses() {
+        return 0;
+    }
+
+    @Override
+    public void resolve(Project p) {
     }
 }
