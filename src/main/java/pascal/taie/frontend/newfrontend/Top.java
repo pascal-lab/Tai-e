@@ -6,6 +6,7 @@ import pascal.taie.ir.exp.RValue;
 import pascal.taie.language.type.Type;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * see JVM spec 4.10.1.2. Verification Type System <br>
@@ -23,7 +24,7 @@ enum Top implements Exp, Type {
 
 
     @Override
-    public List<RValue> getUses() {
+    public Set<RValue> getUses() {
         throw new UnsupportedOperationException();
     }
 

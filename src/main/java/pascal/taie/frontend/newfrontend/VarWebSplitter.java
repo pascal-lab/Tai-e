@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.ir.exp.RValue;
@@ -12,13 +11,13 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.UnionFindSet;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class VarWebSplitter {
 
@@ -181,7 +180,7 @@ public class VarWebSplitter {
         for (int i = 0; i < stmts.size(); ++i) {
             Stmt stmt = stmts.get(i);
             // uses first
-            List<RValue> uses = stmt.getUses();
+            Collection<RValue> uses = stmt.getUses();
             for (RValue r : uses) {
                 if (r instanceof Var use && localSet.contains(use)) {
                     var e = new StmtOccur(block, i, stmt, Kind.USE);

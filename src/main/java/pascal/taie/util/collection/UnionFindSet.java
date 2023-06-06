@@ -53,10 +53,9 @@ public class UnionFindSet<E> {
      * @param e the element to be taken into consideration.
      */
     public void addElement(E e) {
-        entries.computeIfAbsent(e, p -> {
-            setCount++;
-            return new Entry(p);
-        });
+        Entry previous = entries.put(e, new Entry(e));
+        assert previous == null;
+        setCount++;
     }
 
     /**
