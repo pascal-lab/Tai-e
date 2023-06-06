@@ -36,6 +36,7 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
 
@@ -43,8 +44,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+/**
+ * Taint flow graph builder.
+ */
 class TFGBuilder {
 
     private static final Logger logger = LogManager.getLogger(TFGBuilder.class);
@@ -66,6 +71,11 @@ class TFGBuilder {
      * Whether only track taint flow that reaches any sink.
      */
     private final boolean onlyReachSink = true;
+
+    /**
+     * Map from a node to set of taint objects pointed to by the node.
+     */
+    private Map<Node, Set<Obj>> node2TaintSet;
 
     TFGBuilder(PointerAnalysisResult pta,
                Set<TaintFlow> taintFlows,
@@ -112,47 +122,64 @@ class TFGBuilder {
         logger.info("Sink nodes:");
         sinkNodes.forEach(logger::info);
         // builds taint flow graph
+        node2TaintSet = Maps.newMap();
         TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
-        Set<Node> visitedNodes = Sets.newHybridSet();
+        Set<Node> visitedNodes = Sets.newSet();
         Deque<Node> workList = new ArrayDeque<>(sourceNodes);
         while (!workList.isEmpty()) {
             Node node = workList.poll();
-            visitedNodes.add(node);
-            getOutEdges(node).forEach(edge -> {
-                Node target = edge.target();
-                if (!onlyApp || isApp(target)) {
-                    tfg.addEdge(edge);
-                    if (!visitedNodes.contains(target)) {
-                        workList.add(target);
+            if (visitedNodes.add(node)) {
+                getOutEdges(node).forEach(edge -> {
+                    Node target = edge.target();
+                    if (!onlyApp || isApp(target)) {
+                        tfg.addEdge(edge);
+                        if (!visitedNodes.contains(target)) {
+                            workList.add(target);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
+        node2TaintSet = null;
         return tfg;
     }
 
-    private List<FlowEdge> getOutEdges(Node node) {
+    private List<FlowEdge> getOutEdges(Node source) {
+        Set<Obj> sourceTaintSet = getTaintSet(source);
         List<FlowEdge> edges = new ArrayList<>();
         // collect OFG edges
-        ofg.getOutEdgesOf(node).forEach(edge -> {
+        ofg.getOutEdgesOf(source).forEach(edge -> {
             switch (edge.kind()) {
                 case LOCAL_ASSIGN, INSTANCE_STORE, ARRAY_STORE,
                         THIS_PASSING, PARAMETER_PASSING, OTHER -> {
                     edges.add(edge);
                 }
                 case CAST, INSTANCE_LOAD, ARRAY_LOAD, RETURN -> {
-                    // check whether target node also contains taint objects
-                    // to filter spurious flow edges
-                    for (Obj obj : getPointsToSet(edge.target())) {
-                        if (taintManager.isTaint(obj)) {
-                            edges.add(edge);
-                            break;
-                        }
+                    // check whether target node also contains the same
+                    // taint objects as source node to filter spurious edges
+                    Set<Obj> targetTaintSet = getTaintSet(edge.target());
+                    if (Sets.haveOverlap(sourceTaintSet, targetTaintSet)) {
+                        edges.add(edge);
                     }
                 }
             }
         });
         return edges;
+    }
+
+    private Set<Obj> getTaintSet(Node node) {
+        Set<Obj> taintSet = node2TaintSet.get(node);
+        if (taintSet == null) {
+            taintSet = getPointsToSet(node)
+                    .stream()
+                    .filter(taintManager::isTaint)
+                    .collect(Sets::newHybridSet, Set::add, Set::addAll);
+            if (taintSet.isEmpty()) {
+                taintSet = Set.of();
+            }
+            node2TaintSet.put(node, taintSet);
+        }
+        return taintSet;
     }
 
     private Set<Obj> getPointsToSet(Node node) {
@@ -180,17 +207,18 @@ class TFGBuilder {
                 nodesReachSink.addAll(reachability.nodesCanReach(sink));
             }
         }
-        Set<Node> visitedNodes = Sets.newHybridSet();
+        Set<Node> visitedNodes = Sets.newSet();
         Deque<Node> workList = new ArrayDeque<>(complete.getSourceNodes());
         while (!workList.isEmpty()) {
             Node node = workList.poll();
-            visitedNodes.add(node);
-            for (FlowEdge edge : complete.getOutEdgesOf(node)) {
-                Node target = edge.target();
-                if (!onlyReachSink || nodesReachSink.contains(target)) {
-                    tfg.addEdge(edge);
-                    if (!visitedNodes.contains(target)) {
-                        workList.add(target);
+            if (visitedNodes.add(node)) {
+                for (FlowEdge edge : complete.getOutEdgesOf(node)) {
+                    Node target = edge.target();
+                    if (!onlyReachSink || nodesReachSink.contains(target)) {
+                        tfg.addEdge(edge);
+                        if (!visitedNodes.contains(target)) {
+                            workList.add(target);
+                        }
                     }
                 }
             }

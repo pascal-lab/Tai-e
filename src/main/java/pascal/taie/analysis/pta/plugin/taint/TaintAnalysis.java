@@ -34,6 +34,7 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Timer;
 
 import java.io.File;
 import java.util.Set;
@@ -97,8 +98,9 @@ public class TaintAnalysis implements Plugin {
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
-        new TFGDumper().dump(
-                new TFGBuilder(solver.getResult(),taintFlows, manager).build(),
-                new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
+        Timer.runAndCount(() -> new TFGDumper().dump(
+                        new TFGBuilder(solver.getResult(), taintFlows, manager).build(),
+                        new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE)),
+                "TFGDumper");
     }
 }

@@ -65,11 +65,12 @@ public class Reachability<N> {
             stack.push(source);
             while (!stack.isEmpty()) {
                 N node = stack.pop();
-                visited.add(node);
-                graph.getSuccsOf(node)
-                        .stream()
-                        .filter(not(visited::contains))
-                        .forEach(stack::push);
+                if (visited.add(node)) {
+                    graph.getSuccsOf(node)
+                            .stream()
+                            .filter(not(visited::contains))
+                            .forEach(stack::push);
+                }
             }
             source2Reachable.putAll(source, visited);
         }
@@ -86,11 +87,12 @@ public class Reachability<N> {
             stack.push(target);
             while (!stack.isEmpty()) {
                 N node = stack.pop();
-                visited.add(node);
-                graph.getPredsOf(node)
-                        .stream()
-                        .filter(not(visited::contains))
-                        .forEach(stack::push);
+                if (visited.add(node)) {
+                    graph.getPredsOf(node)
+                            .stream()
+                            .filter(not(visited::contains))
+                            .forEach(stack::push);
+                }
             }
             target2CanReach.putAll(target, visited);
         }

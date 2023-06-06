@@ -40,6 +40,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
+/**
+ * Taint flow graph dumper.
+ */
 class TFGDumper {
 
     private static final Logger logger = LogManager.getLogger(TFGDumper.class);
