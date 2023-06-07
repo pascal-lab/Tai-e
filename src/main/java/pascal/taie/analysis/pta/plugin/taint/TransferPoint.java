@@ -29,7 +29,9 @@ record TransferPoint(Kind kind, int index, JField field) {
 
     static final String ARRAY_SUFFIX = "[*]";
 
-    enum Kind {VAR, ARRAY, FIELD}
+    enum Kind {
+        VAR, ARRAY, FIELD
+    }
 
     @Override
     public JField field() {
