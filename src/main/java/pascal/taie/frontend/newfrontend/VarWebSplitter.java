@@ -242,7 +242,6 @@ public class VarWebSplitter {
                     .skip(1)
                     .forEach(s -> {
                         List<ReplaceSource> sources = new ArrayList<>();
-                        assert ! currentVar[0].getName().startsWith("this");
                         s.forEach(p -> {
                             if (p.second() != Kind.PHANTOM) {
                                 sources.add(new ReplaceSource(p, var));
@@ -335,7 +334,7 @@ public class VarWebSplitter {
             if (block.getFrame() == null) {
                 assert block.inEdges().size() == 1 && block.inEdges().get(0).fallThrough() == block ||
                         block.inEdges().stream().allMatch(b -> b.getFrame() == null) && !block.isCatch();
-                return varManager.getParams();
+                return varManager.getParamThis();
             }
 
             return varManager.getDefsBeforeStartOfABlock(block).stream().map(Pair::second).toList();

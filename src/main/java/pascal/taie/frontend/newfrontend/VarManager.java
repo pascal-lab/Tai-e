@@ -30,7 +30,9 @@ class VarManager {
 
     public static final String PARAMETER_PREFIX = "@";
     public static final String LOCAL_PREFIX = "%";
-    public static final String TEMP_PREFIX = "$";
+
+    // TODO： use another method to avoid local var has same prefix
+    public static final String TEMP_PREFIX = "$-";
 
     public static final String THIS = "this";
 
@@ -62,7 +64,7 @@ class VarManager {
 
     private final Set<Var> retVars;
 
-    private final @Nullable Var thisVar;
+    private @Nullable Var thisVar;
 
     private @Nullable Var zeroLiteral;
 
@@ -168,6 +170,15 @@ class VarManager {
 
     public List<Var> getParams() {
         return params;
+    }
+
+    public List<Var> getParamThis() {
+        List<Var> temp = new ArrayList<>();
+        if (! method.isStatic()) {
+            temp.add(thisVar);
+        }
+        temp.addAll(params);
+        return temp;
     }
 
     public List<Var> getVars() {
@@ -324,7 +335,7 @@ class VarManager {
         return v.getName().startsWith("*") || Objects.equals(v.getName(), NULL_LITERAL);
     }
 
-    public boolean isLocal(Var v) { return ! isTempVar(v) && v != thisVar && ! isSpecialVar(v); }
+    public boolean isLocal(Var v) { return ! isTempVar(v) && ! isSpecialVar(v); }
 
     public List<Pair<Integer, Var>> getBlockVarWithIdx(BytecodeBlock block) {
         if (block.getFrameLocalType() == null) {
@@ -362,8 +373,7 @@ class VarManager {
         local2Var.forEach((k, v) -> {
             if (k.second() <= index && index < k.third() &&
                     block.getFrameLocalType().containsKey(k.first()) &&
-                    block.getFrameLocalType(k.first()) != Top.Top &&
-                    v != thisVar) {
+                    block.getFrameLocalType(k.first()) != Top.Top) {
                 res.add(new Pair<>(k.first(), v));
             }
         });
@@ -372,8 +382,7 @@ class VarManager {
                 if (/*k.second() <= index && index < k.third() && // which is always true */
                         res.stream().noneMatch(p -> p.first().equals(k.first())) &&
                         block.getFrameLocalType().containsKey(k.first()) &&
-                        block.getFrameLocalType(k.first()) != Top.Top &&
-                        v != thisVar) {
+                        block.getFrameLocalType(k.first()) != Top.Top) {
                     res.add(new Pair<>(k.first(), v));
                 }
             });
@@ -401,12 +410,18 @@ class VarManager {
     }
 
     public void replaceParam(Var oldVar, Var newVar) {
+        if (oldVar == thisVar) {
+            thisVar = newVar;
+            return;
+        }
         int idx = 0;
+        assert !params.isEmpty();
         for (; idx < params.size(); ++idx) {
             if (params.get(idx) == oldVar) {
                 break;
             }
         }
+        assert idx < params.size();
         paramsIndex.put(newVar, paramsIndex.get(oldVar));
         params.set(idx, newVar);
     }
