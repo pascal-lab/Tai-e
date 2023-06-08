@@ -69,12 +69,12 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     getMainClass(),
                     getJavaVersion(),
                     getInputClasses(),
-                    FileLoader.get().loadRootContainers(Stream.concat(
-                            appClassPaths.stream().distinct().map(Paths::get),
-                            listJrtModule()).toList()),
                     FileLoader.get().loadRootContainers(
-                            libClassPaths.stream().distinct().map(Paths::get).toList())
-            );
+                            appClassPaths.stream().distinct().map(Paths::get).toList()),
+                    FileLoader.get().loadRootContainers(
+                            Stream.concat(
+                                libClassPaths.stream().distinct().map(Paths::get),
+                                listJrtModule()).toList()));
             return project;
         } catch (IOException e) {
             // TODO: more info
