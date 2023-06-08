@@ -4,6 +4,8 @@ import pascal.taie.config.Options;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,8 +69,9 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     getMainClass(),
                     getJavaVersion(),
                     getInputClasses(),
-                    FileLoader.get().loadRootContainers(
-                            appClassPaths.stream().distinct().map(Paths::get).toList()),
+                    FileLoader.get().loadRootContainers(Stream.concat(
+                            appClassPaths.stream().distinct().map(Paths::get),
+                            listJrtModule()).toList()),
                     FileLoader.get().loadRootContainers(
                             libClassPaths.stream().distinct().map(Paths::get).toList())
             );
@@ -78,5 +81,14 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    private Stream<Path> listJrtModule() throws IOException {
+        if (options.getJreDir() == null) {
+            return Stream.empty();
+        }
+        Path modulePath = FSManager.get().getJrtFs(Path.of(options.getJreDir()))
+                .getPath("/modules");
+        return Files.list(modulePath);
     }
 }

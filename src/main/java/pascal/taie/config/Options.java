@@ -287,6 +287,15 @@ public class Options implements Serializable {
         return keepResult;
     }
 
+    @JsonProperty
+    @Option(names = {"--jre-dir"},
+            description = "JRE directory for java 9 and upper, should contain jrt-fs.jar and modules JIMAGE file")
+    private String jreDir;
+
+    public String getJreDir() {
+        return jreDir;
+    }
+
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */
