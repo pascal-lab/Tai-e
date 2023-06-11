@@ -30,6 +30,7 @@ import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Indexer;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -121,7 +122,7 @@ public class DefaultIR extends AbstractResultHolder implements IR {
         return varIndexer;
     }
 
-    private class VarIndexer implements Indexer<Var> {
+    private class VarIndexer implements Indexer<Var>, Serializable {
 
         @Override
         public int getIndex(Var v) {

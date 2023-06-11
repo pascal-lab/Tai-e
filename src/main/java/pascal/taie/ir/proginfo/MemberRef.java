@@ -26,11 +26,12 @@ import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
 /**
  * Represents references to class members in IR.
  */
-public abstract class MemberRef {
+public abstract class MemberRef implements Serializable {
 
     private final JClass declaringClass;
 

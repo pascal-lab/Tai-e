@@ -60,10 +60,17 @@ public class JMethod extends ClassMember {
     /**
      * Source of the body (and/or other information) of this method.
      * IRBuilder can use this to build method IR.
+     * <br>
+     * Notes: This field is {@code transient} because it is not serializable.
      */
-    private final Object methodSource;
+    private final transient Object methodSource;
 
-    private IR ir;
+    /**
+     * Notes: This field is {@code transient} because it is serialized separately.
+     *
+     * @see pascal.taie.frontend.cache.CachedIRBuilder
+     */
+    private transient IR ir;
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType, List<ClassType> exceptions,

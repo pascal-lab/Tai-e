@@ -36,7 +36,7 @@ public abstract class AbstractResultHolder implements ResultHolder {
     /**
      * Map from analysis ID to the corresponding analysis result.
      */
-    private final Map<String, Object> results = Maps.newHybridMap();
+    private final transient Map<String, Object> results = Maps.newHybridMap();
 
     @Override
     public <R> void storeResult(String key, R result) {

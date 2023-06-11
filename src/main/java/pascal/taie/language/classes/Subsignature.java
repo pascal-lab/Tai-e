@@ -27,6 +27,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.collection.Maps;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentMap;
  * Method name and descriptor.
  */
 @InternalCanonicalized
-public class Subsignature {
+public class Subsignature implements Serializable {
 
     // Subsignatures of special methods
     public static final String CLINIT = "void <clinit>()";
@@ -75,6 +76,23 @@ public class Subsignature {
 
     private Subsignature(String subsig) {
         this.subsig = subsig;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Subsignature that)) {
+            return false;
+        }
+
+        return subsig.equals(that.subsig);
+    }
+
+    @Override
+    public int hashCode() {
+        return subsig.hashCode();
     }
 
     @Override

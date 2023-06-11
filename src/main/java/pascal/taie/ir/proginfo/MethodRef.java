@@ -118,8 +118,12 @@ public class MethodRef extends MemberRef {
     /**
      * Caches the resolved method for this reference to avoid redundant
      * method resolution.
+     *
+     * @see #resolve()
+     * @see #resolveNullable()
      */
-    private JMethod method;
+    @Nullable
+    private transient JMethod method;
 
     public static MethodRef get(
             JClass declaringClass, String name,

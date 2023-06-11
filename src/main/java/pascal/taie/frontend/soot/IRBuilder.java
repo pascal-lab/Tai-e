@@ -41,7 +41,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
 
     private static final Logger logger = LogManager.getLogger(IRBuilder.class);
 
-    private final Converter converter;
+    private final transient Converter converter;
 
     IRBuilder(Converter converter) {
         this.converter = converter;

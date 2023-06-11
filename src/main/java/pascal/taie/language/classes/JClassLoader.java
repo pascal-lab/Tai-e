@@ -22,9 +22,10 @@
 
 package pascal.taie.language.classes;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public interface JClassLoader {
+public interface JClassLoader extends Serializable {
 
     JClass loadClass(String name);
 

@@ -34,13 +34,13 @@ import java.util.Map;
 
 class SootClassLoader implements JClassLoader {
 
-    private final Scene scene;
+    private final transient Scene scene;
 
     private final ClassHierarchy hierarchy;
 
     private final boolean allowPhantom;
 
-    private Converter converter;
+    private transient Converter converter;
 
     private final Map<String, JClass> classes = Maps.newMap(1024);
 
@@ -53,7 +53,7 @@ class SootClassLoader implements JClassLoader {
     @Override
     public JClass loadClass(String name) {
         JClass jclass = classes.get(name);
-        if (jclass == null) {
+        if (jclass == null && scene != null) {
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
             if (sootClass != null && (!sootClass.isPhantom() || allowPhantom)) {
                 // TODO: handle phantom class more comprehensively

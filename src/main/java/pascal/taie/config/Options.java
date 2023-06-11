@@ -35,6 +35,7 @@ import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -51,7 +52,7 @@ import java.util.Set;
         description = "Tai-e options",
         usageHelpWidth = 120
 )
-public class Options {
+public class Options implements Serializable {
 
     private static final Logger logger = LogManager.getLogger(Options.class);
 
@@ -193,6 +194,17 @@ public class Options {
 
     public boolean isPreBuildIR() {
         return preBuildIR;
+    }
+
+    @JsonProperty
+    @Option(names = "-XX-world-cache-mode",
+            description = "Experimental Feature: Enable world cache mode to save build time"
+                    + " by caching the completed built world to the disk.",
+            defaultValue = "false")
+    private boolean worldCacheMode;
+
+    public boolean isWorldCacheMode() {
+        return worldCacheMode;
     }
 
     @JsonProperty
@@ -385,6 +397,7 @@ public class Options {
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", outputDir='" + outputDir + '\'' +
                 ", preBuildIR=" + preBuildIR +
+                ", worldCacheMode=" + worldCacheMode +
                 ", scope=" + scope +
                 ", nativeModel=" + nativeModel +
                 ", planFile=" + planFile +

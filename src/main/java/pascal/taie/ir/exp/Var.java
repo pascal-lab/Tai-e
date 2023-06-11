@@ -33,6 +33,11 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Indexable;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,8 +77,14 @@ public class Var implements LValue, RValue, Indexable {
 
     /**
      * Relevant statements of this variable.
+     * <br>
+     * Notes: add {@code transient} to control (de)serialization to
+     * avoid the inequality of {@link RelevantStmts#EMPTY}.
+     *
+     * @see #writeObject(ObjectOutputStream)
+     * @see #readObject(ObjectInputStream)
      */
-    private RelevantStmts relevantStmts = RelevantStmts.EMPTY;
+    private transient RelevantStmts relevantStmts = RelevantStmts.EMPTY;
 
     public Var(JMethod method, String name, Type type, int index) {
         this(method, name, type, index, null);
@@ -215,6 +226,26 @@ public class Var implements LValue, RValue, Indexable {
         }
     }
 
+    @Serial
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        if (relevantStmts == RelevantStmts.EMPTY) {
+            s.writeObject(null);
+        } else {
+            s.writeObject(relevantStmts);
+        }
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream s) throws IOException,
+            ClassNotFoundException {
+        s.defaultReadObject();
+        relevantStmts = (RelevantStmts) s.readObject();
+        if (relevantStmts == null) {
+            relevantStmts = RelevantStmts.EMPTY;
+        }
+    }
+
     /**
      * Relevant statements of a variable, say v, which include:
      * load field: x = v.f;
@@ -228,7 +259,7 @@ public class Var implements LValue, RValue, Indexable {
      * only need to hold one reference to the empty {@link RelevantStmts},
      * instead of several references to empty lists.
      */
-    private static class RelevantStmts {
+    private static class RelevantStmts implements Serializable {
 
         private static final RelevantStmts EMPTY = new RelevantStmts();
 

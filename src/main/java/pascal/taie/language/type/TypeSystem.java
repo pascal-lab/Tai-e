@@ -24,12 +24,14 @@ package pascal.taie.language.type;
 
 import pascal.taie.language.classes.JClassLoader;
 
+import java.io.Serializable;
+
 /**
  * This class provides APIs for retrieving types in the analyzed program.
  * For convenience, the special predefined types, i.e., primitive types,
  * null type, and void type can be directly retrieved from their own classes.
  */
-public interface TypeSystem {
+public interface TypeSystem extends Serializable {
 
     Type getType(JClassLoader loader, String typeName);
 

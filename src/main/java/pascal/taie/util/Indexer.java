@@ -22,6 +22,8 @@
 
 package pascal.taie.util;
 
+import java.io.Serializable;
+
 /**
  * An indexer assigns each object a unique index, so that the objects
  * can be stored in efficient data structures. Symmetrically, an indexer
@@ -36,7 +38,7 @@ package pascal.taie.util;
  *
  * @param <E> type of objects to be indexed
  */
-public interface Indexer<E> {
+public interface Indexer<E> extends Serializable {
 
     /**
      * @return the index of the given object.

@@ -24,6 +24,7 @@ package pascal.taie.util.graph;
 
 import pascal.taie.util.collection.Views;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ import java.util.Set;
  *
  * @param <N> type of nodes
  */
-public interface Graph<N> extends Iterable<N> {
+public interface Graph<N> extends Iterable<N>, Serializable {
 
     /**
      * @return {@code true} if this graph has given node, otherwise {@code false}.

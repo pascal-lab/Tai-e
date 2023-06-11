@@ -33,9 +33,10 @@ import java.util.Set;
  */
 public class Return extends AbstractStmt {
 
+    @Nullable
     private final Var value;
 
-    public Return(Var value) {
+    public Return(@Nullable Var value) {
         this.value = value;
     }
 

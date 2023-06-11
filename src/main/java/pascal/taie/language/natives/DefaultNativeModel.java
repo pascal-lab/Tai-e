@@ -24,8 +24,6 @@ package pascal.taie.language.natives;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.World;
-import pascal.taie.config.Options;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -54,6 +52,10 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,12 +74,25 @@ public class DefaultNativeModel implements NativeModel {
 
     private final ClassHierarchy hierarchy;
 
-    private final Map<JMethod, Function<JMethod, IR>> models = newMap();
+    private final int javaVersion;
+
+    /**
+     * Notes: add {@code transient} to manually control
+     * the re-initialization of this field by {@link #initModels()}
+     * during deserialization.
+     *
+     * @see #initModels()
+     * @see #writeObject(ObjectOutputStream)
+     * @see #readObject(ObjectInputStream)
+     */
+    private transient Map<JMethod, Function<JMethod, IR>> models = newMap();
 
     public DefaultNativeModel(TypeSystem typeSystem,
-                              ClassHierarchy hierarchy) {
+                              ClassHierarchy hierarchy,
+                              int javaVersion) {
         this.typeSystem = typeSystem;
         this.hierarchy = hierarchy;
+        this.javaVersion = javaVersion;
         initModels();
     }
 
@@ -89,8 +104,6 @@ public class DefaultNativeModel implements NativeModel {
     }
 
     private void initModels() {
-        Options options = World.get().getOptions();
-
         // --------------------------------------------------------------------
         // java.lang.Class
         // --------------------------------------------------------------------
@@ -143,7 +156,7 @@ public class DefaultNativeModel implements NativeModel {
         // invoked. Finalizer uses an indirection via native code to
         // circumvent this. This rule implements this indirection.
         // This API is deprecated since Java 7.
-        if (options.getJavaVersion() <= 6) {
+        if (javaVersion <= 6) {
             register("<java.lang.ref.Finalizer: void invokeFinalizeMethod(java.lang.Object)>", m ->
                     invokeVirtualMethod(m, "<java.lang.Object: void finalize()>",
                             b -> b.getParam(0), b -> null)
@@ -207,7 +220,7 @@ public class DefaultNativeModel implements NativeModel {
         // Redirect calls to Thread.start() to Thread.run().
         // Before Java 5, Thread.start() itself is native. Since Java 5,
         // start() is written in Java which calls native method start0().
-        final String start = options.getJavaVersion() <= 4
+        final String start = javaVersion <= 4
                 ? "<java.lang.Thread: void start()>"
                 : "<java.lang.Thread: void start0()>";
         register(start, m ->
@@ -234,7 +247,7 @@ public class DefaultNativeModel implements NativeModel {
             //  multiple invocations. A possible solution is to use a flag
             //  to mark these native-related allocation sites, so that
             //  HeapModel can recognize them and convert them to EnvObj.
-            if (options.getJavaVersion() <= 6) {
+            if (javaVersion <= 6) {
                 register("<java.io.FileSystem: java.io.FileSystem getFileSystem()>", m ->
                         allocateObject(m, "<" + fsName + ": void <init>()>",
                                 b -> List.of())
@@ -483,5 +496,18 @@ public class DefaultNativeModel implements NativeModel {
         }
         stmts.add(helper.newReturn());
         return helper.build(stmts);
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream s) throws IOException,
+            ClassNotFoundException {
+        s.defaultReadObject();
+        models = newMap();
+        initModels();
     }
 }

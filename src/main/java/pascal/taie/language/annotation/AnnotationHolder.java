@@ -23,6 +23,7 @@
 package pascal.taie.language.annotation;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  * Container of annotations.
  * This class makes it easy for a class to implement {@link Annotated}.
  */
-public class AnnotationHolder {
+public class AnnotationHolder implements Serializable {
 
     /**
      * Map from annotation type to corresponding annotation in this holder.

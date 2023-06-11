@@ -24,6 +24,7 @@ package pascal.taie.util;
 
 import pascal.taie.util.collection.Maps;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Map;
  *
  * @param <T> type of canonicalized elements.
  */
-public class Canonicalizer<T> {
+public class Canonicalizer<T> implements Serializable {
 
     private final Map<T, T> map = Maps.newConcurrentMap();
 

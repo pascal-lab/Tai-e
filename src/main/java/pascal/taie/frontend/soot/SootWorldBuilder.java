@@ -237,7 +237,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 .filter(Objects::nonNull)
                 .toList());
         // initialize IR builder
-        world.setNativeModel(getNativeModel(typeSystem, hierarchy));
+        world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
         IRBuilder irBuilder = new IRBuilder(converter);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {

@@ -25,6 +25,7 @@ package pascal.taie.language.annotation;
 import pascal.taie.util.collection.Views;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ import java.util.Set;
  * <p>
  * TODO: add ElementType and RetentionPolicy.
  */
-public class Annotation {
+public class Annotation implements Serializable {
 
     /**
      * String representation of type of this annotation.

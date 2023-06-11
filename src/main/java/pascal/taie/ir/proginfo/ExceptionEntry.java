@@ -26,6 +26,8 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
 
+import java.io.Serializable;
+
 /**
  * Representation of exception entries. Each entry consists of four items:
  * <ul>
@@ -38,7 +40,8 @@ import pascal.taie.language.type.ClassType;
  * </ul>
  */
 public record ExceptionEntry(Stmt start, Stmt end,
-                             Catch handler, ClassType catchType) {
+                             Catch handler, ClassType catchType)
+        implements Serializable {
 
     @Override
     public String toString() {

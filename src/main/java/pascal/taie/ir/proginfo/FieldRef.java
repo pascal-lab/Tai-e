@@ -64,8 +64,12 @@ public class FieldRef extends MemberRef {
     /**
      * Caches the resolved field for this reference to avoid redundant
      * field resolution.
+     *
+     * @see #resolve()
+     * @see #resolveNullable()
      */
-    private JField field;
+    @Nullable
+    private transient JField field;
 
     public static FieldRef get(
             JClass declaringClass, String name, Type type, boolean isStatic) {

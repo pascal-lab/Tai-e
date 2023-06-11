@@ -32,7 +32,10 @@ public class ClassType implements ReferenceType {
 
     private final String name;
 
-    private JClass jclass;
+    /**
+     * The cache of {@link ClassType#getJClass()}.
+     */
+    private transient JClass jclass;
 
     public ClassType(JClassLoader loader, String name) {
         this.loader = loader;

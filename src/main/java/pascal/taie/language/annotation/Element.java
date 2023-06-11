@@ -22,6 +22,8 @@
 
 package pascal.taie.language.annotation;
 
+import java.io.Serializable;
+
 /**
  * Represents elements attached on {@link Annotation}.
  * <p>
@@ -29,5 +31,5 @@ package pascal.taie.language.annotation;
  * For more information, please refer to
  * https://docs.oracle.com/javase/specs/jls/se11/html/jls-9.html#jls-9.6.1
  */
-public interface Element {
+public interface Element extends Serializable {
 }

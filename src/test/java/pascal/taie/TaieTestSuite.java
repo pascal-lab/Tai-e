@@ -31,6 +31,7 @@ import pascal.taie.analysis.defuse.DefUseTest;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.PTATestSuite;
 import pascal.taie.config.OptionsTest;
+import pascal.taie.frontend.cache.SerializationTest;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.FieldTest;
@@ -47,6 +48,7 @@ import pascal.taie.util.UtilTestSuite;
         HierarchyTest.class,
         DefaultMethodTest.class,
         FieldTest.class,
+        SerializationTest.class,
         // analysis
         BugFinderTestSuite.class,
         DataflowTestSuite.class,

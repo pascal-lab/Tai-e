@@ -23,6 +23,7 @@
 package pascal.taie;
 
 import pascal.taie.config.Options;
+import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
@@ -30,6 +31,11 @@ import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AbstractResultHolder;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +45,8 @@ import java.util.List;
  * Note that the setters of this class are protected: they are supposed
  * to be called (once) by the world builder, not analysis classes.
  */
-public final class World extends AbstractResultHolder {
+public final class World extends AbstractResultHolder
+        implements Serializable {
 
     /**
      * ZA WARUDO, i.e., the current world.
@@ -52,13 +59,24 @@ public final class World extends AbstractResultHolder {
      */
     private static final List<Runnable> resetCallbacks = new ArrayList<>();
 
-    private Options options;
+    /**
+     * Notes: This field is {@code transient} because it
+     * should be set after deserialization.
+     */
+    private transient Options options;
 
     private TypeSystem typeSystem;
 
     private ClassHierarchy classHierarchy;
 
-    private IRBuilder irBuilder;
+    /**
+     * Notes: add {@code transient} to wrap this {@link IRBuilder} using
+     * {@link pascal.taie.frontend.cache.CachedIRBuilder} in serialization.
+     *
+     * @see #writeObject(ObjectOutputStream)
+     * @see #readObject(ObjectInputStream)
+     */
+    private transient IRBuilder irBuilder;
 
     private NativeModel nativeModel;
 
@@ -155,5 +173,18 @@ public final class World extends AbstractResultHolder {
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
         this.implicitEntries = implicitEntries;
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeObject(new CachedIRBuilder(irBuilder, classHierarchy));
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream s) throws IOException,
+            ClassNotFoundException {
+        s.defaultReadObject();
+        irBuilder = (IRBuilder) s.readObject();
     }
 }

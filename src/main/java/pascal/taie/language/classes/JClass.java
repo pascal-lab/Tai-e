@@ -37,6 +37,7 @@ import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
  * methods and fields, etc.
  */
 public class JClass extends AbstractResultHolder
-        implements Annotated, Indexable {
+        implements Annotated, Indexable, Serializable {
 
     private final JClassLoader loader;
 

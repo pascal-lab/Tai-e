@@ -24,12 +24,13 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.Type;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * Representation of expressions in Tai-e IR.
  */
-public interface Exp {
+public interface Exp extends Serializable {
 
     /**
      * @return type of this expression.

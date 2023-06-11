@@ -34,6 +34,7 @@ import pascal.taie.config.Options;
 import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
+import pascal.taie.frontend.cache.CachedWorldBuilder;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Lists;
 
@@ -125,6 +126,9 @@ public class Main {
                 Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
                 Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();
                 WorldBuilder builder = builderCtor.newInstance();
+                if (options.isWorldCacheMode()) {
+                    builder = new CachedWorldBuilder(builder);
+                }
                 builder.build(options, analyses);
                 logger.info("{} classes with {} methods in the world",
                         World.get()

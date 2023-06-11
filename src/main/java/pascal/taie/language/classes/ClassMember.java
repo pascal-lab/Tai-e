@@ -27,10 +27,11 @@ import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
-public abstract class ClassMember implements Annotated {
+public abstract class ClassMember implements Annotated, Serializable {
 
     protected final JClass declaringClass;
 
