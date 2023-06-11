@@ -1,0 +1,16 @@
+-------------------- <C: void <init>()> (side-effect) --------------------
+[0@L23] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <StaticStore: void <init>()> (side-effect) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <StaticStore: void modA(C)> (side-effect) --------------------
+
+-------------------- <StaticStore: void mmodA()> (side-effect) --------------------
+[1@L8] invokespecial temp$0.<C: void <init>()>(); []
+[3@L9] invokevirtual %this.<StaticStore: void modA(C)>(c); []
+
+-------------------- <StaticStore: void main(java.lang.String[])> (side-effect) --------------------
+[1@L13] invokespecial temp$0.<StaticStore: void <init>()>(); []
+[3@L14] invokevirtual staticStore.<StaticStore: void mmodA()>(); []
+

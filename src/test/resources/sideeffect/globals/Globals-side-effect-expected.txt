@@ -1,0 +1,43 @@
+-------------------- <Globals: Tree returnGlobal()> (side-effect) --------------------
+
+-------------------- <Globals: void setXLToGlobal(Tree)> (side-effect) --------------------
+[1@L21] x.<Tree: Tree l> = temp$0; [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+
+-------------------- <Globals: void setGlobalToX(Tree)> (side-effect) --------------------
+
+-------------------- <Globals: void setGlobalLToX(Tree)> (side-effect) --------------------
+[1@L23] temp$0.<Tree: Tree l> = x; [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+
+-------------------- <Globals: Tree returnGlobalTransfer()> (side-effect) --------------------
+[0@L31] temp$0 = invokestatic <Globals: Tree returnGlobal()>(); []
+
+-------------------- <Globals: void setXLToGlobalTransfer(Tree)> (side-effect) --------------------
+[0@L32] invokestatic <Globals: void setXLToGlobal(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+
+-------------------- <Globals: void setGlobalToXTransfer(Tree)> (side-effect) --------------------
+[0@L33] invokestatic <Globals: void setGlobalToX(Tree)>(x); []
+
+-------------------- <Globals: void setGlobalLToXTransfer(Tree)> (side-effect) --------------------
+[0@L34] invokestatic <Globals: void setGlobalLToX(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+
+-------------------- <Globals: void main(java.lang.String[])> (side-effect) --------------------
+[1@L38] invokespecial temp$0.<Tree: void <init>()>(); []
+[4@L39] invokespecial temp$1.<Tree: void <init>()>(); []
+[7@L40] invokespecial temp$2.<Tree: void <init>(Tree,Tree)>(l, r); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[9@L42] invokestatic <Globals: void setGlobalToX(Tree)>(x); []
+[10@L43] invokestatic <Globals: void setGlobalLToX(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[11@L44] invokestatic <Globals: void setXLToGlobal(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[12@L45] invokestatic <Globals: Tree returnGlobal()>(); []
+[13@L47] invokestatic <Globals: void setGlobalToXTransfer(Tree)>(x); []
+[14@L48] invokestatic <Globals: void setGlobalLToXTransfer(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[15@L49] invokestatic <Globals: void setXLToGlobalTransfer(Tree)>(x); [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[16@L50] invokestatic <Globals: Tree returnGlobalTransfer()>(); []
+
+-------------------- <Tree: void <init>()> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L11] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L12] %this.<Tree: Tree l> = l; [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+[2@L13] %this.<Tree: Tree r> = r; [NewObj{<Globals: void main(java.lang.String[])>[6@L40] new Tree}]
+

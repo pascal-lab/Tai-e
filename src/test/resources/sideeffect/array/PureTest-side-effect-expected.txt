@@ -1,0 +1,10 @@
+-------------------- <PureTest: void main(java.lang.String[])> (side-effect) --------------------
+[4@L4] temp$0[%intconst1] = %intconst2; [NewObj{<PureTest: void main(java.lang.String[])>[1@L4] newarray int[%intconst0]}]
+[7@L4] temp$0[%intconst3] = %intconst4; [NewObj{<PureTest: void main(java.lang.String[])>[1@L4] newarray int[%intconst0]}]
+[9@L4] temp$0[%intconst5] = %intconst3; [NewObj{<PureTest: void main(java.lang.String[])>[1@L4] newarray int[%intconst0]}]
+[10@L4] temp$0[%intconst2] = %intconst5; [NewObj{<PureTest: void main(java.lang.String[])>[1@L4] newarray int[%intconst0]}]
+[11@L4] temp$0[%intconst4] = %intconst0; [NewObj{<PureTest: void main(java.lang.String[])>[1@L4] newarray int[%intconst0]}]
+[13@L5] invokestatic <PureTest: int countOnes(int[],int)>(array, %intconst0); []
+
+-------------------- <PureTest: int countOnes(int[],int)> (side-effect) --------------------
+

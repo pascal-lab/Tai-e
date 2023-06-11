@@ -1,0 +1,40 @@
+-------------------- <Loops: Tree returnLMostLoop(Tree)> (side-effect) --------------------
+
+-------------------- <Loops: Tree returnLMostLoopTmp(Tree)> (side-effect) --------------------
+
+-------------------- <Loops: Tree returnLMostLoopTwice(Tree)> (side-effect) --------------------
+
+-------------------- <Loops: Tree returnLMostThenRMostLoop(Tree)> (side-effect) --------------------
+
+-------------------- <Loops: void setXLToNewLoop(Tree)> (side-effect) --------------------
+[6@L46] invokespecial temp$1.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+[7@L46] x.<Tree: Tree l> = temp$1; []
+
+-------------------- <Loops: Tree returnLMostLoopTransfer(Tree)> (side-effect) --------------------
+[0@L52] temp$0 = invokestatic <Loops: Tree returnLMostLoop(Tree)>(x); []
+
+-------------------- <Loops: Tree returnLMostLoopTmpTransfer(Tree)> (side-effect) --------------------
+[0@L55] temp$0 = invokestatic <Loops: Tree returnLMostLoopTmp(Tree)>(x); []
+
+-------------------- <Loops: Tree returnLMostLoopThenRMostLoopTransfer(Tree)> (side-effect) --------------------
+[0@L58] temp$0 = invokestatic <Loops: Tree returnLMostThenRMostLoop(Tree)>(x); []
+
+-------------------- <Loops: void setXLToNewLoopTransfer(Tree)> (side-effect) --------------------
+[0@L61] invokestatic <Loops: void setXLToNewLoop(Tree)>(x); [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+
+-------------------- <Loops: void main(java.lang.String[])> (side-effect) --------------------
+[1@L67] invokestatic <Loops: Tree returnLMostLoop(Tree)>(x); []
+[2@L68] invokestatic <Loops: Tree returnLMostLoopTmp(Tree)>(x); []
+[3@L69] invokestatic <Loops: Tree returnLMostLoopTwice(Tree)>(x); []
+[4@L70] invokestatic <Loops: Tree returnLMostThenRMostLoop(Tree)>(x); []
+[5@L71] invokestatic <Loops: void setXLToNewLoop(Tree)>(x); [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+[6@L73] invokestatic <Loops: Tree returnLMostLoopTransfer(Tree)>(x); []
+[7@L74] invokestatic <Loops: Tree returnLMostLoopTmpTransfer(Tree)>(x); []
+[8@L75] invokestatic <Loops: Tree returnLMostLoopThenRMostLoopTransfer(Tree)>(x); []
+[9@L76] invokestatic <Loops: void setXLToNewLoopTransfer(Tree)>(x); [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L10] %this.<Tree: Tree l> = l; [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+[2@L11] %this.<Tree: Tree r> = r; [NewObj{<Loops: void setXLToNewLoop(Tree)>[5@L46] new Tree}]
+

@@ -1,0 +1,74 @@
+-------------------- <SimpleCases: Tree id(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: void setXLToY(Tree,Tree)> (side-effect) --------------------
+[0@L19] x.<Tree: Tree l> = y; []
+
+-------------------- <SimpleCases: void setXLToNew(Tree)> (side-effect) --------------------
+[1@L20] invokespecial temp$0.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[2@L20] x.<Tree: Tree l> = temp$0; []
+
+-------------------- <SimpleCases: void setXLToNewNew(Tree)> (side-effect) --------------------
+[1@L22] invokespecial temp$0.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[2@L22] x.<Tree: Tree l> = temp$0; []
+[5@L23] invokespecial temp$2.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[6@L23] temp$1.<Tree: Tree l> = temp$2; []
+
+-------------------- <SimpleCases: Tree returnL(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: Tree returnLL(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: Tree returnLR(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: Tree returnLOrR(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: Tree idTransfer(Tree)> (side-effect) --------------------
+[0@L31] temp$0 = invokestatic <SimpleCases: Tree id(Tree)>(x); []
+
+-------------------- <SimpleCases: void setXLToYTransfer(Tree,Tree)> (side-effect) --------------------
+[0@L32] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(x, y); []
+
+-------------------- <SimpleCases: void setXLToNewTransfer(Tree)> (side-effect) --------------------
+[0@L33] invokestatic <SimpleCases: void setXLToNew(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+
+-------------------- <SimpleCases: void setXLToNewNewTransfer(Tree)> (side-effect) --------------------
+[0@L35] invokestatic <SimpleCases: void setXLToNewNew(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+
+-------------------- <SimpleCases: Tree returnLTransfer(Tree)> (side-effect) --------------------
+[0@L36] temp$0 = invokestatic <SimpleCases: Tree returnL(Tree)>(x); []
+
+-------------------- <SimpleCases: Tree returnLTransfer2(Tree)> (side-effect) --------------------
+[1@L37] temp$1 = invokestatic <SimpleCases: Tree returnL(Tree)>(temp$0); []
+
+-------------------- <SimpleCases: Tree returnLLTransfer(Tree)> (side-effect) --------------------
+[0@L38] temp$0 = invokestatic <SimpleCases: Tree returnLL(Tree)>(x); []
+
+-------------------- <SimpleCases: Tree returnLRTransfer(Tree)> (side-effect) --------------------
+[0@L39] temp$0 = invokestatic <SimpleCases: Tree returnLR(Tree)>(x); []
+
+-------------------- <SimpleCases: Tree returnLOrRTransfer(Tree)> (side-effect) --------------------
+[0@L40] temp$0 = invokestatic <SimpleCases: Tree returnLOrR(Tree)>(x); []
+
+-------------------- <SimpleCases: void main(java.lang.String[])> (side-effect) --------------------
+[2@L47] invokestatic <SimpleCases: Tree id(Tree)>(x); []
+[3@L48] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(x, y); []
+[4@L49] invokestatic <SimpleCases: void setXLToNew(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[5@L50] invokestatic <SimpleCases: void setXLToNewNew(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[6@L51] invokestatic <SimpleCases: Tree returnL(Tree)>(x); []
+[7@L52] invokestatic <SimpleCases: Tree returnLL(Tree)>(x); []
+[8@L53] invokestatic <SimpleCases: Tree returnLR(Tree)>(x); []
+[9@L54] invokestatic <SimpleCases: Tree returnLOrR(Tree)>(x); []
+[10@L56] invokestatic <SimpleCases: Tree idTransfer(Tree)>(x); []
+[11@L57] invokestatic <SimpleCases: void setXLToYTransfer(Tree,Tree)>(x, y); []
+[12@L58] invokestatic <SimpleCases: void setXLToNewTransfer(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[13@L59] invokestatic <SimpleCases: void setXLToNewNewTransfer(Tree)>(x); [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[14@L60] invokestatic <SimpleCases: Tree returnLTransfer(Tree)>(x); []
+[15@L61] invokestatic <SimpleCases: Tree returnLTransfer2(Tree)>(x); []
+[16@L62] invokestatic <SimpleCases: Tree returnLLTransfer(Tree)>(x); []
+[17@L63] invokestatic <SimpleCases: Tree returnLRTransfer(Tree)>(x); []
+[18@L64] invokestatic <SimpleCases: Tree returnLOrRTransfer(Tree)>(x); []
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L11] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L12] %this.<Tree: Tree l> = l; [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+[2@L13] %this.<Tree: Tree r> = r; [NewObj{<SimpleCases: void setXLToNew(Tree)>[0@L20] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[0@L22] new Tree}, NewObj{<SimpleCases: void setXLToNewNew(Tree)>[4@L23] new Tree}]
+

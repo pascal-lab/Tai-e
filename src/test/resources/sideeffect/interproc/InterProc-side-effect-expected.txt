@@ -1,0 +1,60 @@
+-------------------- <InterProc: Tree returnLMostRecursion(Tree)> (side-effect) --------------------
+[7@L90] temp$2 = invokestatic <InterProc: Tree returnLMostRecursion(Tree)>(temp$1); []
+
+-------------------- <InterProc: Tree returnLRInTurnsLRecursion(Tree)> (side-effect) --------------------
+[7@L96] temp$2 = invokestatic <InterProc: Tree returnLRInTurnsRRecursion(Tree)>(temp$1); []
+
+-------------------- <InterProc: Tree returnLRInTurnsRRecursion(Tree)> (side-effect) --------------------
+[7@L101] temp$2 = invokestatic <InterProc: Tree returnLRInTurnsLRecursion(Tree)>(temp$1); []
+
+-------------------- <InterProc: void setXRLToYTransfer(Tree,Tree)> (side-effect) --------------------
+[1@L107] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(temp$0, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <InterProc: void setXLToYLTransfer(Tree,Tree)> (side-effect) --------------------
+[1@L110] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(x, temp$0); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)> (side-effect) --------------------
+[5@L113] invokespecial temp$1.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[8@L114] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <InterProc: void resolveIndirectTransfer(Tree,Tree,Tree,Tree)> (side-effect) --------------------
+[4@L118] x1.<Tree: Tree l> = x2; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}]
+[7@L119] temp$1.<Tree: Tree l> = x3; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}]
+[10@L120] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(temp$3, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <InterProc: void resolveIndirectTransfer2(Tree,Tree,Tree,Tree)> (side-effect) --------------------
+[4@L124] x1.<Tree: Tree l> = x2; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}]
+[7@L125] temp$1.<Tree: Tree l> = x3; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}]
+[9@L126] invokestatic <SimpleCases: void setXLToY(Tree,Tree)>(temp$2, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <InterProc: Tree walkXLRLRMost(Tree)> (side-effect) --------------------
+[0@L130] temp$0 = invokestatic <Loops: Tree returnLMostLoop(Tree)>(x); []
+[2@L131] temp$1 = invokestatic <Loops: Tree returnRMostLoop(Tree)>(xl); []
+[4@L132] temp$2 = invokestatic <Loops: Tree returnLMostLoop(Tree)>(xlr); []
+[6@L133] temp$3 = invokestatic <Loops: Tree returnRMostLoop(Tree)>(xlrl); []
+
+-------------------- <InterProc: void main(java.lang.String[])> (side-effect) --------------------
+[1@L139] invokespecial temp$0.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[4@L140] invokespecial temp$1.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[6@L142] invokestatic <InterProc: Tree returnLMostRecursion(Tree)>(x); []
+[7@L143] invokestatic <InterProc: Tree returnLRInTurnsLRecursion(Tree)>(x); []
+[8@L144] invokestatic <InterProc: Tree returnLRInTurnsRRecursion(Tree)>(x); []
+[9@L145] invokestatic <InterProc: void setXRLToYTransfer(Tree,Tree)>(x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[10@L146] invokestatic <InterProc: void setXLToYLTransfer(Tree,Tree)>(x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[11@L147] invokestatic <InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>(x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[12@L148] invokestatic <InterProc: void resolveIndirectTransfer(Tree,Tree,Tree,Tree)>(x, x, x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[13@L149] invokestatic <InterProc: void resolveIndirectTransfer2(Tree,Tree,Tree,Tree)>(x, x, x, y); [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[14@L150] invokestatic <InterProc: Tree walkXLRLRMost(Tree)>(x); []
+
+-------------------- <Loops: Tree returnLMostLoop(Tree)> (side-effect) --------------------
+
+-------------------- <Loops: Tree returnRMostLoop(Tree)> (side-effect) --------------------
+
+-------------------- <SimpleCases: void setXLToY(Tree,Tree)> (side-effect) --------------------
+[0@L21] x.<Tree: Tree l> = y; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L10] %this.<Tree: Tree l> = l; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+[2@L11] %this.<Tree: Tree r> = r; [NewObj{<InterProc: void main(java.lang.String[])>[0@L139] new Tree}, NewObj{<InterProc: void main(java.lang.String[])>[3@L140] new Tree}, NewObj{<InterProc: void resolveToAllocOrFormalTransfer(Tree,Tree)>[4@L113] new Tree}]
+

@@ -52,6 +52,11 @@
   id: poly-call
   requires: [ pta ]
 
+- description: find modified objects of methods and statements
+  analysisClass: pascal.taie.analysis.sideeffect.SideEffectAnalysis
+  id: side-effect
+  requires: [ pta ]
+
 - description: throw analysis
   analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
   id: throw
