@@ -46,7 +46,10 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
         return false;
     }
 
-    private Set<Map.Entry<K, V>> entrySet;
+    /**
+     * The cache of {@link AbstractMultiMap#entrySet()}.
+     */
+    private transient Set<Map.Entry<K, V>> entrySet;
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
@@ -84,7 +87,10 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 
     protected abstract Iterator<Map.Entry<K, V>> entryIterator();
 
-    private Collection<V> values;
+    /**
+     * The cache of {@link AbstractMultiMap#values()}.
+     */
+    private transient Collection<V> values;
 
     @Override
     public Collection<V> values() {

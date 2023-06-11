@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractTwoKeyMap<K1, K2, V> implements
-        TwoKeyMap<K1, K2, V> {
+        TwoKeyMap<K1, K2, V>, Serializable {
 
     protected static final String NULL_KEY = "TwoKeyMap does not permit null keys";
 
@@ -67,7 +68,10 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         return map == null ? null : map.get(key2);
     }
 
-    private Set<TwoKeyMap.Entry<K1, K2, V>> entrySet;
+    /**
+     * The cache of {@link AbstractTwoKeyMap#entrySet()}.
+     */
+    private transient Set<TwoKeyMap.Entry<K1, K2, V>> entrySet;
 
     @Override
     public Set<TwoKeyMap.Entry<K1, K2, V>> entrySet() {
@@ -106,7 +110,10 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
 
     protected abstract Iterator<TwoKeyMap.Entry<K1, K2, V>> entryIterator();
 
-    private Set<KeyPair<K1, K2>> twoKeySet;
+    /**
+     * The cache of {@link AbstractTwoKeyMap#keyPairSet()}.
+     */
+    private transient Set<KeyPair<K1, K2>> twoKeySet;
 
     @Override
     public Set<KeyPair<K1, K2>> keyPairSet() {
@@ -125,7 +132,10 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         return set;
     }
 
-    private Collection<V> values;
+    /**
+     * The cache of {@link AbstractTwoKeyMap#values()}.
+     */
+    private transient Collection<V> values;
 
     @Override
     public Collection<V> values() {

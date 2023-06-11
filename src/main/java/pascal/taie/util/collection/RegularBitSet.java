@@ -22,6 +22,7 @@
 
 package pascal.taie.util.collection;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -29,7 +30,8 @@ import java.util.Arrays;
  * This implementation is very similar to {@link java.util.Set} which uses
  * a {@code long[]} to store all the set bits.
  */
-public class RegularBitSet extends AbstractBitSet {
+public class RegularBitSet extends AbstractBitSet
+        implements Serializable {
 
     /* Used to shift left or right for a partial word mask */
     private static final long WORD_MASK = 0xffffffffffffffffL;
@@ -42,7 +44,7 @@ public class RegularBitSet extends AbstractBitSet {
     /**
      * The number of words in the logical size of this BitSet.
      */
-    private transient int wordsInUse = 0;
+    private int wordsInUse = 0;
 
     /**
      * Creates a new bit set. All bits are initially {@code false}.

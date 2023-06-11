@@ -25,6 +25,7 @@ package pascal.taie.util.collection;
 import pascal.taie.util.Hashes;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -51,7 +52,8 @@ import java.util.Set;
  *
  * @param <E> type of elements
  */
-public abstract class GenericBitSet<E> extends AbstractSetEx<E> {
+public abstract class GenericBitSet<E> extends AbstractSetEx<E>
+        implements Serializable {
 
     protected IBitSet bitSet;
 

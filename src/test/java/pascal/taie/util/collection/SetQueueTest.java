@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.List;
 import java.util.Queue;
@@ -39,5 +40,16 @@ public class SetQueueTest {
         Assert.assertEquals(2, (int) queue.poll());
         Assert.assertEquals(3, (int) queue.poll());
         Assert.assertEquals(4, (int) queue.poll());
+    }
+
+    @Test
+    public void testSerializable() {
+        Queue<Integer> queue1 = new SetQueue<>();
+        queue1.addAll(List.of(1, 2, 1, 1, 2, 3, 4));
+        Queue<Integer> queue2 = SerializationUtils.serializedCopy(queue1);
+        Assert.assertEquals(queue1.size(), queue2.size());
+        while (!queue1.isEmpty()) {
+            Assert.assertEquals(queue1.poll(), queue2.poll());
+        }
     }
 }

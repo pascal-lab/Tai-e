@@ -23,6 +23,11 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * Sparse bit set. This implementation groups bits into blocks, and it could
@@ -34,7 +39,8 @@ import javax.annotation.Nullable;
  * We rewrite most code to support the operations that we need
  * and improve the readability.
  */
-public class SparseBitSet extends AbstractBitSet {
+public class SparseBitSet extends AbstractBitSet
+        implements Serializable {
 
     // TODO: unify level1/2/3 and table/area/block
     // Currently:
@@ -157,7 +163,7 @@ public class SparseBitSet extends AbstractBitSet {
      */
     private transient int bitsLength;
 
-    private final transient State state;
+    private transient State state;
 
     public SparseBitSet() {
         this(1);
@@ -1230,6 +1236,84 @@ public class SparseBitSet extends AbstractBitSet {
     private void updateState() {
         if (!state.valid) {
             iterateBlocks(this, this, new UpdateAction(this));
+        }
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        updateState(); // Update structure and state if needed.
+        /* Write any hidden stuff. */
+        s.defaultWriteObject();
+        s.writeInt(state.length); // Needed to know where last bit is
+
+        /* This is the number of index/value pairs to be written. */
+        int count = state.count; // Minimum number of words to be written
+        s.writeInt(count);
+        final long[][][] a1 = table;
+        final int aLength1 = a1.length;
+        long[][] a2;
+        long[] a3;
+        long word;
+        for (int w1 = 0; w1 != aLength1; ++w1) {
+            if ((a2 = a1[w1]) != null) {
+                for (int w2 = 0; w2 != LENGTH2; ++w2) {
+                    if ((a3 = a2[w2]) != null) {
+                        final int base = (w1 << SHIFT1) + (w2 << SHIFT2);
+                        for (int w3 = 0; w3 != LENGTH3; ++w3) {
+                            if ((word = a3[w3]) != 0) {
+                                s.writeInt(base + w3);
+                                s.writeLong(word);
+                                --count;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (count != 0) {
+            throw new InternalError("count of entries not consistent");
+        }
+        /* As a consistency check, write the hash code of the set. */
+        s.writeInt(state.hash);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream s) throws IOException,
+            ClassNotFoundException {
+        /* Read in any hidden stuff that is part of the class overhead. */
+        s.defaultReadObject();
+        final int aLength = s.readInt();
+        resize(aLength); // Make sure there is enough space
+
+        /* Read in number of mappings. */
+        final int count = s.readInt();
+        /* Read the keys and values, them into the set array, areas, and blocks. */
+        long[][] a2;
+        long[] a3;
+        for (int n = 0; n != count; ++n) {
+            final int w = s.readInt();
+            final int w3 = w & MASK3;
+            final int w2 = (w >> SHIFT2) & MASK2;
+            final int w1 = w >> SHIFT1;
+
+            final long word = s.readLong();
+            if ((a2 = table[w1]) == null) {
+                a2 = table[w1] = new long[LENGTH2][];
+            }
+            if ((a3 = a2[w2]) == null) {
+                a3 = a2[w2] = new long[LENGTH3];
+            }
+            a3[w3] = word;
+        }
+        /* Ensure all the pieces are set up for set scanning. */
+        state = new State();
+        updateState();
+        if (count != state.count) {
+            throw new InternalError("count of entries not consistent");
+        }
+        final int hash = s.readInt(); // Get the hashcode that was stored
+        if (hash != state.hash) { // An error of some kind, if not the same
+            throw new IOException("deserialized hashCode mis-match");
         }
     }
 

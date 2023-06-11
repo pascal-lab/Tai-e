@@ -22,7 +22,10 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.function.SSupplier;
+
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,7 +34,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * An implementation of {@link MultiMap} that stores key-value pairs
@@ -40,7 +42,8 @@ import java.util.function.Supplier;
  * @param <K> type of the keys in this map
  * @param <V> type of the values in this map
  */
-public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V> {
+public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
+        implements Serializable {
 
     /**
      * The backing map.
@@ -50,11 +53,11 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V> {
     /**
      * Factory function for creating new sets.
      */
-    private final Supplier<Set<V>> setFactory;
+    private final SSupplier<Set<V>> setFactory;
 
     private int size = 0;
 
-    public MapSetMultiMap(Map<K, Set<V>> map, Supplier<Set<V>> setFactory) {
+    public MapSetMultiMap(Map<K, Set<V>> map, SSupplier<Set<V>> setFactory) {
         this.map = map;
         this.setFactory = setFactory;
     }

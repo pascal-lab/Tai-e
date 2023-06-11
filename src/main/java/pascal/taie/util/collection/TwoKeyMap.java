@@ -27,6 +27,7 @@ import pascal.taie.util.TriFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -244,7 +245,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * map entry is undefined if the backing map has been modified after
      * the entry was returned by the iterator.
      */
-    record Entry<K1, K2, V>(K1 key1, K2 key2, V value) {
+    record Entry<K1, K2, V>(K1 key1, K2 key2, V value) implements Serializable {
     }
 
     /**
@@ -256,6 +257,6 @@ public interface TwoKeyMap<K1, K2, V> {
      * key pair is undefined if the backing map has been modified after
      * the pair was returned by the iterator.
      */
-    record KeyPair<K1, K2>(K1 key1, K2 key2) {
+    record KeyPair<K1, K2>(K1 key1, K2 key2) implements Serializable {
     }
 }

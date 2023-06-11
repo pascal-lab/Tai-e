@@ -24,13 +24,14 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Indexable;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * Hybrid set that uses indexable set for large set.
  */
 public class HybridIndexableSet<E extends Indexable>
-        extends AbstractHybridSet<E> {
+        extends AbstractHybridSet<E> implements Serializable {
 
     private final boolean isSparse;
 

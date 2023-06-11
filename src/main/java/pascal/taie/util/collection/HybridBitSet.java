@@ -24,13 +24,15 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Indexer;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * Hybrid set that uses bit set for large set.
  */
-public final class HybridBitSet<E> extends AbstractHybridSet<E> {
+public final class HybridBitSet<E> extends AbstractHybridSet<E>
+        implements Serializable {
 
     private final Indexer<E> indexer;
 

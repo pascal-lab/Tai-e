@@ -23,22 +23,23 @@
 package pascal.taie.util.collection;
 
 import pascal.taie.util.TriFunction;
+import pascal.taie.util.function.SSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Implements {@link TwoKeyMap} as map of maps.
  */
 public class MapMapTwoKeyMap<K1, K2, V> extends
-        AbstractTwoKeyMap<K1, K2, V> {
+        AbstractTwoKeyMap<K1, K2, V> implements Serializable {
 
     /**
      * The backing map.
@@ -48,11 +49,11 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     /**
      * Factory function for creating new maps.
      */
-    private final Supplier<Map<K2, V>> mapFactory;
+    private final SSupplier<Map<K2, V>> mapFactory;
 
     private int size = 0;
 
-    public MapMapTwoKeyMap(Map<K1, Map<K2, V>> map, Supplier<Map<K2, V>> mapFactory) {
+    public MapMapTwoKeyMap(Map<K1, Map<K2, V>> map, SSupplier<Map<K2, V>> mapFactory) {
         this.map = map;
         this.mapFactory = mapFactory;
     }

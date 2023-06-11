@@ -22,9 +22,11 @@
 
 package pascal.taie.util.collection;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -698,5 +700,33 @@ public abstract class IBitSetTest {
             assertEquals("Failed on i = " + i, expected, ret);
             values.clear();
         }
+    }
+
+    @Test
+    public void testSerializable() {
+        IBitSet set1 = of(1, 2, 3);
+        IBitSet set2 = SerializationUtils.serializedCopy(set1);
+        Assert.assertEquals(set1, set2);
+        set1.set(4);
+        set1.set(8);
+        set2.set(4);
+        set2.set(8);
+        Assert.assertEquals(set1, set2);
+    }
+
+    @Test
+    public void setRandomMultiEntryAndSerializable() {
+        int max = 2000;
+        final Random random = new Random(0);
+        IBitSet set1 = of();
+        for (int j = 0; j < 100; ++j) {
+            int x = Math.abs(random.nextInt() + 1) % max;
+            set1.set(x);
+        }
+        IBitSet set2 = SerializationUtils.serializedCopy(set1);
+        int x = Math.abs(random.nextInt() + 1) % max;
+        int ret = set1.previousSetBit(x);
+        int ret2 = set2.previousSetBit(x);
+        assertEquals(ret, ret2);
     }
 }

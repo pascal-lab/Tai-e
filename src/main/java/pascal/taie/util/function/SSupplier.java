@@ -20,39 +20,20 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util.collection;
+package pascal.taie.util.function;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.function.Supplier;
 
 /**
- * Hybrid set that uses hash set for large set.
+ * The {@link Serializable} version of {@link Supplier}.
+ * <br>
+ * <strong>It is suggested
+ * that the implementation of this interface should not have state</strong>,
+ * as this may cause serialization failures.
+ *
+ * @see Supplier
  */
-public final class HybridHashSet<E> extends AbstractHybridSet<E>
-        implements Serializable {
-
-    /**
-     * Constructs a new hybrid set.
-     */
-    public HybridHashSet() {
-    }
-
-    /**
-     * Constructs a new hybrid set from the given collection.
-     */
-    public HybridHashSet(Collection<E> c) {
-        super(c);
-    }
-
-    @Override
-    protected Set<E> newLargeSet(int initialCapacity) {
-        return new HashSet<>(initialCapacity);
-    }
-
-    @Override
-    protected SetEx<E> newSet() {
-        return new HybridHashSet<>();
-    }
+@FunctionalInterface
+public interface SSupplier<T> extends Supplier<T>, Serializable {
 }

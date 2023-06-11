@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -92,5 +93,18 @@ abstract class AbstractMapTest {
             ksIt.remove();
         }
         Assert.assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void testSerializable() {
+        Map<Integer, String> map1 = newMap();
+        map1.put(1, "x");
+        map1.put(2, "y");
+        map1.put(3, "z");
+        Map<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
+        Assert.assertEquals(map1, map2);
+        map1.put(4, "zz");
+        map2.put(4, "zz");
+        Assert.assertEquals(map1, map2);
     }
 }

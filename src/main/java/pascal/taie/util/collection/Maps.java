@@ -22,6 +22,8 @@
 
 package pascal.taie.util.collection;
 
+import pascal.taie.util.function.SSupplier;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +33,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Supplier;
 
 /**
  * Static utility methods for various maps, including {@link Map},
@@ -94,11 +95,11 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map,
-                                                    Supplier<Set<V>> setFactory) {
+                                                    SSupplier<Set<V>> setFactory) {
         return new MapSetMultiMap<>(map, setFactory);
     }
 
-    public static <K, V> MultiMap<K, V> newMultiMap(Supplier<Set<V>> setFactory) {
+    public static <K, V> MultiMap<K, V> newMultiMap(SSupplier<Set<V>> setFactory) {
         return newMultiMap(newMap(), setFactory);
     }
 
@@ -135,8 +136,8 @@ public final class Maps {
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap(
-            Supplier<Map<K1, Map<K2, V>>> map1Factory,
-            Supplier<Map<K2, V>> map2Factory) {
+            SSupplier<Map<K1, Map<K2, V>>> map1Factory,
+            SSupplier<Map<K2, V>> map2Factory) {
         return new MapMapTwoKeyMap<>(map1Factory.get(), map2Factory);
     }
 }

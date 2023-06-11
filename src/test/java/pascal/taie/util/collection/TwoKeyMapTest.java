@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -256,5 +257,16 @@ public class TwoKeyMapTest {
     public void testModifyViaValues() {
         TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
         m.values().add(1);
+    }
+
+
+    @Test
+    public void testSerializable() {
+        TwoKeyMap<Integer, Integer, Integer> map1 = Maps.newTwoKeyMap();
+        map1.put(1, 1, 1);
+        map1.put(1, 2, 2);
+        map1.put(3, 4, 12);
+        TwoKeyMap<Integer, Integer, Integer> map2 = SerializationUtils.serializedCopy(map1);
+        Assert.assertEquals(map1, map2);
     }
 }

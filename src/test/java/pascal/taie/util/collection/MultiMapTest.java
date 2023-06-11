@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -202,5 +203,20 @@ public class MultiMapTest {
         m2.putAll(1, Set.of(1, 2, 3));
         m2.put(2, 4);
         Assert.assertEquals(m1, m2);
+    }
+
+    @Test
+    public void testSerializable() {
+        MultiMap<Integer, String> map1 = Maps.newMultiMap();
+        map1.put(1, "x");
+        map1.put(1, "xx");
+        map1.put(2, "y");
+        map1.put(3, "z");
+        map1.put(3, "zz");
+        MultiMap<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
+        Assert.assertEquals(map1, map2);
+        map1.put(3, "zzz");
+        map2.put(3, "zzz");
+        Assert.assertEquals(map1, map2);
     }
 }

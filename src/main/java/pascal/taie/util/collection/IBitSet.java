@@ -24,6 +24,8 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Copyable;
 
+import java.io.Serializable;
+
 /**
  * Interface for different bit set implementations.
  * <p>
@@ -36,7 +38,7 @@ import pascal.taie.util.Copyable;
  * returns whether the bit set changed. In addition, it provides some
  * useful operations that are absent in {@link java.util.Set}.
  */
-public interface IBitSet extends Copyable<IBitSet> {
+public interface IBitSet extends Copyable<IBitSet>, Serializable {
 
     // ------------------------------------------------------------------------
     // single-bit operations

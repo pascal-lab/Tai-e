@@ -22,7 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.Set;
 
@@ -73,5 +75,16 @@ public class GenericBitSetTest {
         ss.addAll(Set.of("1", "22", "333", "4444", "4446", "4448"));
         ss.removeIf(s -> Integer.parseInt(s) % 2 == 0);
         assertEquals("[1, 333]", CollectionUtils.toString(ss));
+    }
+
+    @Test
+    public void testSerializable() {
+        StringSet ss1 = new StringSet();
+        ss1.addAll(Set.of("1", "22", "333", "4444", "4446", "4448"));
+        StringSet ss2 = SerializationUtils.serializedCopy(ss1);
+        Assert.assertEquals(ss1, ss2);
+        ss1.add("9999");
+        ss2.add("9999");
+        Assert.assertEquals(ss1, ss2);
     }
 }

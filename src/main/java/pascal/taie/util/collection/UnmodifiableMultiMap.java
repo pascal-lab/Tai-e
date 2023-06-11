@@ -23,13 +23,14 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-class UnmodifiableMultiMap<K, V> implements MultiMap<K, V> {
+class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
 
     private final MultiMap<K, V> m;
 
@@ -90,10 +91,19 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * The cache of {@link UnmodifiableMultiMap#keySet()}.
+     */
     private transient Set<K> keySet;
 
+    /**
+     * The cache of {@link UnmodifiableMultiMap#values()}.
+     */
     private transient Collection<V> values;
 
+    /**
+     * The cache of {@link UnmodifiableMultiMap#entrySet()}.
+     */
     private transient Set<Map.Entry<K, V>> entrySet;
 
     @Override

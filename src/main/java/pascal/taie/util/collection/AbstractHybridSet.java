@@ -23,6 +23,7 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,7 +48,8 @@ import java.util.Set;
  *
  * @param <E> type of elements
  */
-public abstract class AbstractHybridSet<E> extends AbstractSetEx<E> {
+public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
+        implements Serializable {
 
     // invariant: at most one of singleton and set is non-null
 

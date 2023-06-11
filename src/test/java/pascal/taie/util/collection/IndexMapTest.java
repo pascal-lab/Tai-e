@@ -25,7 +25,9 @@ package pascal.taie.util.collection;
 import org.junit.Assert;
 import org.junit.Test;
 import pascal.taie.util.Indexer;
+import pascal.taie.util.SerializationUtils;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +36,8 @@ import static org.junit.Assert.assertEquals;
 
 public class IndexMapTest {
 
-    private static final Indexer<Integer> indexer = new Indexer<>() {
+    private static class IntIndexer implements
+            Indexer<Integer>, Serializable {
 
         @Override
         public int getIndex(Integer i) {
@@ -45,7 +48,9 @@ public class IndexMapTest {
         public Integer getObject(int index) {
             return index;
         }
-    };
+    }
+
+    private static final Indexer<Integer> indexer = new IntIndexer();
 
     private static Map<Integer, String> makeMap() {
         Map<Integer, String> m = new IndexMap<>(indexer, 6);
@@ -143,5 +148,15 @@ public class IndexMapTest {
     public void testPutNull() {
         var m = makeMap();
         m.put(1, null);
+    }
+
+    @Test
+    public void testSerializable() {
+        Map<Integer, String> map1 = makeMap();
+        Map<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
+        Assert.assertEquals(map1, map2);
+        map1.put(4, "four");
+        map2.put(4, "four");
+        Assert.assertEquals(map1, map2);
     }
 }

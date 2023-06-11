@@ -25,6 +25,7 @@ package pascal.taie.util.collection;
 import pascal.taie.util.Indexer;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Arrays;
@@ -54,7 +55,8 @@ import java.util.Set;
  * <p>
  * TODO: add mod count
  */
-public class IndexMap<K, V> extends AbstractMap<K, V> {
+public class IndexMap<K, V> extends AbstractMap<K, V>
+        implements Serializable {
 
     private static final String NULL_VALUE_MSG = "IndexMap does not permit null values";
 
@@ -64,9 +66,15 @@ public class IndexMap<K, V> extends AbstractMap<K, V> {
 
     private int size = 0;
 
-    private Set<Entry<K, V>> entrySet;
+    /**
+     * The cache of {@link IndexMap#entrySet()}.
+     */
+    private transient Set<Entry<K, V>> entrySet;
 
-    private Set<K> keySet;
+    /**
+     * The cache of {@link IndexMap#keySet()}.
+     */
+    private transient Set<K> keySet;
 
     public IndexMap(Indexer<K> indexer, int initialCapacity) {
         this.indexer = indexer;

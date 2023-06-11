@@ -22,13 +22,15 @@
 
 package pascal.taie.util.collection;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Hybrid map that uses hash map for large map.
  */
-public final class HybridHashMap<K, V> extends AbstractHybridMap<K, V> {
+public final class HybridHashMap<K, V> extends AbstractHybridMap<K, V>
+        implements Serializable {
 
     /**
      * Constructs a new empty hybrid map.

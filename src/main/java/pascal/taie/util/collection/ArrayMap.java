@@ -23,6 +23,7 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -38,7 +39,8 @@ import java.util.Set;
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
  */
-public class ArrayMap<K, V> extends AbstractMap<K, V> {
+public class ArrayMap<K, V> extends AbstractMap<K, V>
+        implements Serializable {
 
     public static final int DEFAULT_CAPACITY = 8;
 
@@ -48,7 +50,11 @@ public class ArrayMap<K, V> extends AbstractMap<K, V> {
     private final ArrayList<Entry<K, V>> entries;
     private final int initialCapacity;
     private final boolean fixedCapacity;
-    private Set<Entry<K, V>> entrySet;
+
+    /**
+     * The cache of {@link ArrayMap#entrySet()}.
+     */
+    private transient Set<Entry<K, V>> entrySet;
 
     public ArrayMap() {
         this(DEFAULT_CAPACITY);

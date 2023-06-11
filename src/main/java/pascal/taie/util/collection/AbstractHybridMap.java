@@ -25,6 +25,7 @@ package pascal.taie.util.collection;
 import pascal.taie.util.Hashes;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -52,7 +53,8 @@ import java.util.Set;
  * @param <K> type of keys
  * @param <V> type of values
  */
-public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V> {
+public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
+        implements Serializable {
 
     // invariant: at most one of singleton_key and map is non-null
 

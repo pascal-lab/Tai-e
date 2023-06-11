@@ -24,6 +24,8 @@ package pascal.taie.util.collection;
 
 import pascal.taie.util.Indexer;
 
+import java.io.Serializable;
+
 /**
  * This implementation leverages {@link Indexer} to take care of the mappings
  * between objects and indexes. The indexer itself acts as the context object.
@@ -31,7 +33,8 @@ import pascal.taie.util.Indexer;
  * @param <E> type of elements
  * @see Indexer
  */
-public class IndexerBitSet<E> extends GenericBitSet<E> {
+public class IndexerBitSet<E> extends GenericBitSet<E>
+        implements Serializable {
 
     private final Indexer<E> indexer;
 

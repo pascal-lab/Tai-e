@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pascal.taie.util.SerializationUtils;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -87,5 +88,18 @@ abstract class AbstractSetTest {
         Assert.assertEquals(0, set.size());
         set.remove("x");
         Assert.assertEquals(0, set.size());
+    }
+
+    @Test
+    public void testSerializable() {
+        Set<String> set1 = newSet();
+        set1.add("a");
+        set1.add("b");
+        set1.add("c");
+        Set<String> set2 = SerializationUtils.serializedCopy(set1);
+        Assert.assertEquals(set1, set2);
+        set1.add("d");
+        set2.add("d");
+        Assert.assertEquals(set1, set2);
     }
 }

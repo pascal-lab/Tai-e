@@ -22,6 +22,7 @@
 
 package pascal.taie.util.collection;
 
+import java.io.Serializable;
 import java.util.AbstractQueue;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -32,7 +33,7 @@ import java.util.Set;
  *
  * @param <E> type of elements.
  */
-public class SetQueue<E> extends AbstractQueue<E> {
+public class SetQueue<E> extends AbstractQueue<E> implements Serializable {
 
     private final Set<E> set = new LinkedHashSet<>();
 

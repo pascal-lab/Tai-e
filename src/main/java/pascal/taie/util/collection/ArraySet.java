@@ -23,6 +23,7 @@
 package pascal.taie.util.collection;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,7 +37,8 @@ import java.util.Set;
  * TODO: if necessary, optimize remove(Object) and let add(Object) add
  *  element to empty hole of the array.
  */
-public class ArraySet<E> extends AbstractSetEx<E> {
+public class ArraySet<E> extends AbstractSetEx<E>
+        implements Serializable {
 
     public static final int DEFAULT_CAPACITY = 8;
 
