@@ -1,26 +1,29 @@
 # Changelog
 
-## [Unreleased] - 2023-05-12
+## [Unreleased] - 2023-06-13
 
 ### New Features
 
 - Add option `--app-class-path`.
 - Add option `--keep-results`.
 - Add option `--output-dir`.
-- Add Def-use analysis.
-- Add Dominator-finding algorithm.
+- Add option `-XX-world-cache-mode`.
+- Add def-use analysis.
+- Add dominator-finding algorithm.
 - Taint analysis
   - Support taint source for arguments of method calls and method parameters.
   - Support taint source for field loads.
   - Support taint sanitization for method parameters.
   - Dump taint flow graph.
   - Support loading multiple taint configuration files.
+  - Support taint transfer between variables and instance fields/array elements.
+  - Support call-site mode.
 - Pointer analysis
   - Support adding entry points of the program to analyze.
   - Support analysis time limit.
   - Support propagation for values of primitive types.
   - Support hybrid inference-based and log-based reflection analysis.
-  - Add Solar reflection analysis.
+  - Add Solar reflection analysis (TOSEM'19).
   - Support annotation-based invoke handler registration.
   - Support dumping points-to set in YAML format.
 
@@ -37,7 +40,8 @@
 - API changes
   - Change `pascal.taie.analysis.pta.core.heap.HeapModel.getMockObj(String,...)` to `HeapModel.getMockObj(Descriptor,...)`.
   - Change APIs of `pascal.util.graph.Edge` and its subclasses.
-
+  - Change return type of `Exp.getUses()` to `Set<RValue>`.
+  - Change return type of `Stmt.getUses()` to `Set<RValue>`.
 
 ## [0.0.3] - 2022-08-02
 - First release.

@@ -41,7 +41,11 @@ way):
 Tai-e is developed in Java, and it can run on major operating systems including Windows, Linux, and
 macOS.
 
-As a courtesy to the developers, we expect that you **please cite the [technical report](https://arxiv.org/abs/2208.00337)** describing the Tai-e framework in your research work.
+As a courtesy to the developers, we expect that you **please cite the paper** from ISSTA 2023 describing the Tai-e framework in your research work:
+
+Tian Tan and Yue Li. 2023.
+**Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics.**
+In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, United States.
 
 ## How to Obtain Runnable Jar of Tai-e?
 
