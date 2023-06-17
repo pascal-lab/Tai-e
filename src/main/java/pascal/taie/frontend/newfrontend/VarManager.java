@@ -148,7 +148,7 @@ class VarManager {
     private void processLocalVarTable() {
         for (LocalVariableNode node : localVariableTable) {
             int start = insnList.indexOf(node.start);
-            int end = insnList.indexOf(node.end);
+            int end = insnList.indexOf(getNextTrueInsnNode(node.end));
             int slot = node.index;
             String varName = node.name;
             String descriptor = node.desc;
@@ -157,6 +157,23 @@ class VarManager {
             Var v = nameAndType2Var.computeIfAbsent(t, k -> newVar(varName)); // for `this`, varName.equals("this")
             local2Var.put(new Triple<>(slot, start, end), v);
         }
+    }
+
+    /**
+     * @param insnNode the query node
+     * @return the next true JVM Bytecode node if found, else the last insnNode of the insnList.
+     */
+    private static AbstractInsnNode getNextTrueInsnNode(AbstractInsnNode insnNode) {
+        if (insnNode.getNext() == null) {
+            return insnNode;
+        }
+
+        insnNode = insnNode.getNext();
+        while ((insnNode instanceof LabelNode || insnNode instanceof FrameNode || insnNode instanceof LineNumberNode)
+               && insnNode.getNext() != null) {
+            insnNode = insnNode.getNext();
+        }
+        return insnNode;
     }
 
     public Var getTempVar() {
@@ -196,23 +213,15 @@ class VarManager {
      * @return the corresponding TIR variable
      */
     public Var getLocal(int slot, AbstractInsnNode insnNode) {
-        AbstractInsnNode startNode;
         if (Utils.isVarStore(insnNode)) {
             /*
              * for VarStore, you have to use the next InsnNode (actual JVM Bytecode)
              * as the program point to query for the variable that being stored.
              * (See the definition of start_pc of local_variable_table entry)
              */
-            startNode = insnNode.getNext();
-            while (startNode instanceof LabelNode
-                    || startNode instanceof FrameNode
-                    || startNode instanceof LineNumberNode) {
-                startNode = startNode.getNext();
-            }
-        } else {
-            startNode = insnNode;
+            insnNode = getNextTrueInsnNode(insnNode);
         }
-        int asmIndex = insnList.indexOf(startNode);
+        int asmIndex = insnList.indexOf(insnNode);
         return existsLocalVariableTable ?
                 getLocalWithLocalVarTable(slot, asmIndex) : getLocalWithoutLocalVarTable(slot, asmIndex);
     }
@@ -370,8 +379,18 @@ class VarManager {
 
         int index = insnList.indexOf(block.getFirstBytecode().get());
 
+        /*
+         * Though some entries of attribute information may be associated with the same program point (i.e. the real bytecode),
+         * we still assume that they have some sequential order, and the order is implemented by the
+         * order of ASM AbstractNodes in InsnList plus the postponement of end of localVarEntryEnd.
+         * Here (a controlFlow meeting point), we need to take 3 kinds of information (i.e. mapFrame,
+         * localVarEntryEnd and the program point) into consideration.
+         * We view them as such order:
+         * [the meeting point] -> [mapFrame] -> [localVarEntryEnd] -> [program point]
+         * (The assumption comes from a corner case met in jre17:<com.sun.media.sound.DirectAudioDevice$DirectDL: int write(byte[],int,int)>)
+         */
         local2Var.forEach((k, v) -> {
-            if (k.second() <= index && index < k.third() &&
+            if (k.second() <= index && index <= k.third() &&
                     block.getFrameLocalType().containsKey(k.first()) &&
                     block.getFrameLocalType(k.first()) != Top.Top) {
                 res.add(new Pair<>(k.first(), v));

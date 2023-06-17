@@ -213,14 +213,14 @@ public class TestAsmIRBuilder {
                     })), "Get All IR");
         };
 
-        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre1.8");
+        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
 
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
 
         World.get()
                 .getClassHierarchy()
-                .applicationClasses()
+                .allClasses()
                 .forEach(c -> {
                     for (JMethod m : c.getDeclaredMethods()) {
                         if (!m.isAbstract()) {
