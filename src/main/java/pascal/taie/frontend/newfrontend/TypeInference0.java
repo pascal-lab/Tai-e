@@ -64,7 +64,7 @@ public class TypeInference0 {
                 continue;
             }
             Set<Type> allTypes = localTypes.get(v);
-            assert allTypes.size() > 0;
+            assert !allTypes.isEmpty();
             Type now = allTypes.iterator().next();
             if (allTypes.size() == 1) {
                 v.setType(now);

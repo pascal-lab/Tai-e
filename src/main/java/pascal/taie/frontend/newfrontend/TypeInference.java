@@ -14,12 +14,14 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
@@ -27,6 +29,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
 
@@ -53,10 +56,6 @@ public class TypeInference {
 
     static public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
         return Utils.lca(r1, r2);
-    }
-
-    static public boolean isSubType(ReferenceType s, ReferenceType t) {
-        return false;
     }
 
     static public Optional<Type> plusOneArray(Type t) {
@@ -133,6 +132,9 @@ public class TypeInference {
 
                 @Override
                 public Void visit(StoreField stmt) {
+                    if (stmt.getLValue().getType() instanceof ReferenceType r) {
+                        graph.addUseConstrain(stmt.getRValue(), r);
+                    }
                     return StmtVisitor.super.visit(stmt);
                 }
 
@@ -172,8 +174,10 @@ public class TypeInference {
                     }
 
                     if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                        graph.addUseConstrain(invokeInstanceExp.getBase(),
-                                invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                        if (! stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
+                            graph.addUseConstrain(invokeInstanceExp.getBase(),
+                                    invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                        }
                     }
 
                     List<Type> paraTypes = stmt.getRValue().getMethodRef().getParameterTypes();
@@ -186,6 +190,15 @@ public class TypeInference {
                         }
                     }
                     return null;
+                }
+
+                @Override
+                public Void visit(Return stmt) {
+                    Type retType = builder.method.getReturnType();
+                    if (retType instanceof ReferenceType r) {
+                        graph.addUseConstrain(stmt.getValue(), r);
+                    }
+                    return StmtVisitor.super.visit(stmt);
                 }
             });
         }
@@ -204,8 +217,8 @@ public class TypeInference {
             if (v.primitiveType != null) {
                 k.setType(v.primitiveType);
             } else {
-                assert v.types != null && v.types.size() == 1;
-                k.setType(v.types.iterator().next());
+                assert v.referenceType != null;
+                k.setType(v.referenceType);
             }
         });
     }
@@ -257,13 +270,16 @@ public class TypeInference {
         }
 
         public void inferTypes() {
+            inferUseConstrains();
+
             Queue<FlowType> queue = new LinkedList<>();
             for (TypingFlowNode node : nodes.values()) {
                 if (node.primitiveType != null) {
                     PrimitiveType t = node.primitiveType;
                     queue.addAll(flowOutType(node, t));
                 } else if (node.types != null) {
-                    queue.addAll(flowOutType(node, node.types));
+                    node.firstResolve();
+                    queue.addAll(flowOutType(node, node.referenceType));
                 }
             }
 
@@ -271,6 +287,37 @@ public class TypeInference {
                 FlowType now = queue.poll();
                 queue.addAll(spreadingFlowType(now));
             }
+        }
+
+        public void inferUseConstrains() {
+            Queue<FlowType> queue = new LinkedList<>();
+            for (TypingFlowNode node : nodes.values()) {
+                if (node.useValidConstrains != null) {
+                    for (ReferenceType t : node.useValidConstrains) {
+                        queue.addAll(flowOutConstrains(node, t));
+                    }
+                }
+            }
+
+            while (!queue.isEmpty()) {
+                FlowType now = queue.poll();
+                queue.addAll(spreadingUseConstrains(now));
+            }
+        }
+
+        private List<FlowType> spreadingUseConstrains(FlowType type) {
+            TypingFlowNode now = type.edge.source;
+            Optional<Type> optionalType = type.getSourceType();
+            if (optionalType.isEmpty()) {
+                return List.of();
+            }
+            Type t = optionalType.get();
+            if (t instanceof ReferenceType t1) {
+                if (now.useValidConstrains.add(t1)) {
+                    return flowOutConstrains(now, t1);
+                }
+            }
+            return List.of();
         }
 
         private List<FlowType> spreadingFlowType(FlowType type) {
@@ -285,9 +332,9 @@ public class TypeInference {
                     return flowOutType(now, pType);
                 }
             } else if (t instanceof ReferenceType rType) {
-                Set<ReferenceType> delta = now.onNewReferenceType(rType, true);
-                if (!delta.isEmpty()) {
-                    return flowOutType(now, delta);
+                boolean needSpread = now.onNewReferenceType(type.edge.kind, rType);
+                if (needSpread) {
+                    return flowOutType(now, now.referenceType);
                 }
             } else {
                 throw new UnsupportedOperationException();
@@ -302,10 +349,17 @@ public class TypeInference {
                     .toList();
         }
 
-        private List<FlowType> flowOutType(TypingFlowNode node, Set<ReferenceType> rType) {
+        private List<FlowType> flowOutType(TypingFlowNode node, ReferenceType type) {
             return node.outEdges
                     .stream()
-                    .flatMap(e -> rType.stream().map(t -> new FlowType(e, t)))
+                    .map(e -> new FlowType(e, type))
+                    .toList();
+        }
+
+        private List<FlowType> flowOutConstrains(TypingFlowNode node, ReferenceType type) {
+            return node.inEdges
+                    .stream()
+                    .map(e -> new FlowType(e, type))
                     .toList();
         }
     }
@@ -318,6 +372,14 @@ public class TypeInference {
                 case ARRAY_VAR -> subOneArray(type);
             };
         }
+
+        Optional<Type> getSourceType() {
+            return switch (edge.kind) {
+                case VAR_VAR -> Optional.of(type);
+                case VAR_ARRAY -> subOneArray(type);
+                case ARRAY_VAR -> plusOneArray(type);
+            };
+        }
     }
 
     static final class TypingFlowNode {
@@ -326,6 +388,10 @@ public class TypeInference {
         private Set<ReferenceType> types;
         @Nullable
         private PrimitiveType primitiveType;
+
+        @Nullable
+        private ReferenceType referenceType;
+
         private Set<ReferenceType> useValidConstrains;
 
         private List<TypingFlowEdge> inEdges;
@@ -334,7 +400,7 @@ public class TypeInference {
 
         TypingFlowNode(Var var) {
             this.var = var;
-            useValidConstrains = Set.of();
+            useValidConstrains = Sets.newHybridSet();
             inEdges = List.of();
             outEdges = List.of();
         }
@@ -343,51 +409,101 @@ public class TypeInference {
             if (t instanceof PrimitiveType pType) {
                 onNewPrimitiveType(pType);
             } else if (t instanceof ReferenceType rType) {
-                onNewReferenceType(rType, false);
+                addReferenceType(rType);
             } else {
                 throw new UnsupportedOperationException();
             }
         }
 
+        /**
+         * @param t new incoming primitive type
+         * @return if type changes
+         */
         public boolean onNewPrimitiveType(PrimitiveType t) {
             // TODO: perform numeric promotion
             assert types == null;
+            assert t != null;
             if (this.primitiveType == null) {
                 this.primitiveType = t;
                 return true;
             } else {
-                assert this.primitiveType == t ||
-                        (canHoldsInt(t) && canHoldsInt(primitiveType));
-                return false;
-            }
-        }
-
-        public Set<ReferenceType> onNewReferenceType(ReferenceType t, boolean confirmUseValid) {
-            assert primitiveType == null;
-            if (types == null) {
-                types = new HashSet<>();
-                types.add(t);
-                return Set.of(t);
-            } else {
-                assert types.size() == 1;
-                ReferenceType typeNow = types.iterator().next();
-                ReferenceType nextType = getNextType(typeNow, t);
-                types = Set.of(nextType);
-                if (nextType == typeNow) {
-                    return Set.of();
+                if (this.primitiveType == t) {
+                    return false;
+                } else if (isIntAssignable(primitiveType, t)) {
+                    PrimitiveType temp = primitiveType;
+                    // this.primitiveType = numericPromotion(t, primitiveType);
+                    // return ! (this.primitiveType == temp);
+                    return false;
                 } else {
-                    return types;
+                    throw new UnsupportedOperationException();
                 }
             }
         }
 
-        private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
-            Set<ReferenceType> newType = lca(current, t);
-            if (newType.size() == 1) {
-                return newType.iterator().next();
+        public void addReferenceType(ReferenceType t) {
+            assert primitiveType == null;
+            if (types == null) {
+                types = Sets.newHybridSet();
+            }
+            types.add(t);
+        }
+
+        public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
+            if (isPrimitiveArrayType(t)) {
+                if (referenceType != null && isPrimitiveArrayType(referenceType)) {
+                    if (kind == EdgeKind.VAR_ARRAY) {
+                        return false;
+                    } else {
+                        referenceType = t;
+                    }
+                }
+
+                if (referenceType == null) {
+                    for (ReferenceType r : useValidConstrains) {
+                        if (isPrimitiveArrayType(r)) {
+                            assert ((ArrayType) r).dimensions() == ((ArrayType) t).dimensions();
+                            referenceType = r;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            if (referenceType == null) {
+                referenceType = t;
+                return true;
             } else {
-                List<ReferenceType> types = newType.stream().toList();
-                ReferenceType t1 = types.get(0);
+                ReferenceType temp = referenceType;
+                referenceType = getNextType(referenceType, t);
+                // TODO: ==?
+                return temp != referenceType;
+            }
+        }
+
+        public ReferenceType firstResolve() {
+            assert types != null;
+            for (ReferenceType r : types) {
+                onNewReferenceType(null, r);
+            }
+            return referenceType;
+        }
+
+        private boolean isUseValid(ReferenceType t) {
+            return useValidConstrains.stream()
+                    .allMatch(c -> Utils.isAssignable(c, t));
+        }
+
+        private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
+            if (current == t) {
+                return t;
+            }
+            Set<ReferenceType> newType = lca(current, t);
+            List<ReferenceType> types = newType.stream().filter(this::isUseValid).toList();
+            if (types.size() >= 1) {
+                // any type in types is use valid
+                return types.get(0);
+            } else {
+                ReferenceType t1 = newType.iterator().next();
                 if (t1 instanceof ClassType) {
                     return Utils.getObject();
                 } else if (t1 instanceof ArrayType arrayType) {
@@ -418,19 +534,6 @@ public class TypeInference {
                 useValidConstrains = new HashSet<>();
             }
             useValidConstrains.add(type);
-        }
-
-        public void applyUseConstrains() {
-            if (!useValidConstrains.isEmpty()) {
-                assert types != null;
-                types.removeIf((s) -> ! useValid(s));
-            }
-        }
-
-        public boolean useValid(ReferenceType type) {
-            return useValidConstrains
-                    .stream()
-                    .allMatch(t -> isSubType(type, t));
         }
 
         public List<TypingFlowEdge> getInEdges() {

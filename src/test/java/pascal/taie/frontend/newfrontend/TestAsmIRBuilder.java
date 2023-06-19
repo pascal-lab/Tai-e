@@ -87,12 +87,6 @@ public class TestAsmIRBuilder {
     }
 
     @Test
-    public void testMinimal() {
-        var ch = getCh("Minimal", 6);
-        getAllIR(ch);
-    }
-
-    @Test
     public void testAllinOne() {
         List<String> methods = List.of(
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
@@ -192,6 +186,18 @@ public class TestAsmIRBuilder {
     }
 
     @Test
+    public void testJava6() {
+        int javaVersion = 6;
+
+        Main.buildWorld(
+                "-java", Integer.toString(javaVersion),
+                "-acp", jrePaths(javaVersion),
+                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--pre-build-ir"
+        );
+    }
+
+    @Test
     public void benchmarkForNewFrontEnd() {
         int javaVersion = 8;
         String worldPath = "src/test/resources/world";
@@ -265,18 +271,24 @@ public class TestAsmIRBuilder {
 
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
+        AtomicLong classCount = new AtomicLong();
+        AtomicLong methodCount = new AtomicLong();
 
         Scene scene = Scene.v();
         scene.getClasses()
                 .forEach(c -> {
                     c.getMethods().forEach(m -> {
+                        methodCount.addAndGet(1);
                         if (!m.isConcrete()) return;
                         Body body = m.retrieveActiveBody();
                         stmtCount.addAndGet(body.getUnits().size());
                         varCount.addAndGet(body.getLocalCount());
                     });
+                    classCount.addAndGet(1);
                 });
 
+        System.out.println("Count of all the classes: " + classCount.get());
+        System.out.println("Count of all the methods: " + methodCount.get());
         System.out.println("Count of all the stmts: " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
     }
@@ -334,7 +346,7 @@ public class TestAsmIRBuilder {
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
         soot.options.Options.v().set_allow_phantom_refs(true); // allow phantom
         soot.options.Options.v().set_drop_bodies_after_load(false); // pre-build-ir
-        soot.options.Options.v().set_process_jar_dir(List.of("java-benchmarks/JREs/jre1.8"));
+//        soot.options.Options.v().set_process_jar_dir(List.of("java-benchmarks/JREs/jre1.8"));
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);

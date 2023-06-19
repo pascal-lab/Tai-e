@@ -384,9 +384,17 @@ public class Utils {
             return lca(t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.dimensions() == at2.dimensions()) {
-                if (at1.baseType() instanceof PrimitiveType
-                    && at2.baseType() instanceof PrimitiveType) {
-                    return Set.of(at1);
+                if (at1.baseType() instanceof PrimitiveType p1
+                    && at2.baseType() instanceof PrimitiveType p2) {
+                    if (p1 == p2) {
+                        return Set.of(at1);
+                    } else if (canHoldsInt(p1) && canHoldsInt(p2)) {
+                        return Set.of(BuildContext.get().getTypeSystem().getArrayType(
+                                numericPromotion(p1, p2), at1.dimensions()));
+                    } else {
+                        return Set.of(BuildContext.get()
+                                .getTypeSystem().getArrayType(getObject(), at1.dimensions()));
+                    }
                 }
                 if (at1.baseType() instanceof PrimitiveType
                         || at2.baseType() instanceof PrimitiveType) {
@@ -490,16 +498,50 @@ public class Utils {
         return false;
     }
 
+    static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {
+        return t instanceof ArrayType at && canHoldsInt(at.baseType());
+    }
+
+    static boolean isIntAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
+        return canHoldsInt(t2) && canHoldsInt(t1);
+    }
+
     /**
      * @return if <code>t1 <- t2</code> is valid
      */
     static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
         if (t1 instanceof PrimitiveType) {
-            return t1 == t2 || canHoldsInt(t2) && canHoldsInt(t1);
+            return t1 == t2 || isIntAssignable(t1, t2);
         } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {
             return true;
         } else {
             return isSubtype(t1, t2);
         }
+    }
+
+    static PrimitiveType numericPromotion(PrimitiveType t1, PrimitiveType t2) {
+        return toIntType( Math.max( fromIntTypeIndex(t1),  fromIntTypeIndex(t2) ) );
+    }
+
+    static int fromIntTypeIndex(PrimitiveType t) {
+        return switch (t) {
+            case BOOLEAN -> 0;
+            case BYTE -> 1;
+            case CHAR -> 2;
+            case SHORT -> 3;
+            case INT -> 4;
+            default -> throw new UnsupportedOperationException();
+        };
+    }
+
+    static PrimitiveType toIntType(int i) {
+        return switch (i) {
+            case 0 -> PrimitiveType.BOOLEAN;
+            case 1 -> PrimitiveType.BYTE;
+            case 2 -> PrimitiveType.CHAR;
+            case 3 -> PrimitiveType.SHORT;
+            case 4 -> PrimitiveType.INT;
+            default -> throw new UnsupportedOperationException();
+        };
     }
 }
