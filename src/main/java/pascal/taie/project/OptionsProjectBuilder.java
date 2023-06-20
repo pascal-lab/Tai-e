@@ -4,6 +4,9 @@ import pascal.taie.config.Options;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -84,11 +87,12 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
     }
 
     private Stream<Path> listJrtModule() throws IOException {
-        if (options.getJreDir() == null) {
+        if (options.getJreDir() == null && ! options.isPrependJVM()) {
             return Stream.empty();
         }
-        Path modulePath = FSManager.get().getJrtFs(Path.of(options.getJreDir()))
-                .getPath("/modules");
+        FileSystem fs = options.isPrependJVM() ? FileSystems.getFileSystem(URI.create("jrt:/")) :
+            FSManager.get().getJrtFs(Path.of(options.getJreDir()));
+        Path modulePath = fs.getPath("/modules");
         return Files.list(modulePath);
     }
 }

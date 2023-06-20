@@ -49,12 +49,11 @@ public class TestAsmIRBuilder {
         return builder.build();
     }
 
-    // Note: if javaVersion is less than 7, then assertion about frames will fail
     ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
         String worldPath = "src/test/resources/world";
 
         List<String> args = new ArrayList<>();
-        // Collections.addAll(args, "-pp");
+         Collections.addAll(args, "-pp");
         // Collections.addAll(args, "-a", "cfg");
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
@@ -62,12 +61,6 @@ public class TestAsmIRBuilder {
         Collections.addAll(args, "-m", mainClass);
         Main.buildWorld(args.toArray(new String[0]));
 
-//        Project project = createProject(path, mainClass, otherClasses);
-//        ClosedWorldBuilder depCWBuilder = new AllClassesCWBuilder();
-//        depCWBuilder.build(project);
-//        var cw = depCWBuilder.getClosedWorld();
-//        ClassHierarchyBuilder builder = new DefaultCHBuilder();
-//        return builder.build(cw);
         return World.get().getClassHierarchy();
     }
 
