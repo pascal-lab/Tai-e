@@ -1,5 +1,5 @@
 plugins {
-    id("application")
+    application
     id("tai-e.conventions")
 }
 

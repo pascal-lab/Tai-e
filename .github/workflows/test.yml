@@ -27,3 +27,9 @@ jobs:
           arguments: |
             test --tests pascal.taie.TaieTestSuite
             --scan
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: env.CODECOV_TOKEN != null

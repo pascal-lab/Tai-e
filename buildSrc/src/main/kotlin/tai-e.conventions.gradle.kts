@@ -1,6 +1,7 @@
 plugins {
-    id("java")
-    id("checkstyle")
+    java
+    checkstyle
+    jacoco
 }
 
 repositories {
@@ -28,3 +29,10 @@ tasks.withType<Checkstyle>().configureEach {
     doLast { summarizeStyleViolations(this as Checkstyle)?.let(logger::warn) }
 }
 
+// jacoco
+tasks.test { finalizedBy(tasks.jacocoTestReport) }
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+    }
+}
