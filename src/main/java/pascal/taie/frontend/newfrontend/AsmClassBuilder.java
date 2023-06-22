@@ -65,6 +65,7 @@ public class AsmClassBuilder implements JClassBuilder {
         this.fields = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        BuildContext.get().jclass2Node.put(jClass, source);
     }
 
     @Override
@@ -136,7 +137,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private void buildAll() {
         CVisitor visitor = new CVisitor();
-        source.r().accept(visitor, ClassReader.EXPAND_FRAMES);
+        source.r().accept(visitor, ClassReader.SKIP_CODE);
     }
 
     private String getSimpleName(String binaryName) {
@@ -235,7 +236,7 @@ public class AsmClassBuilder implements JClassBuilder {
         }
     }
 
-    class MVisitor extends JSRInlinerAdapter {
+    class MVisitor extends MethodVisitor {
 
         private final Set<Modifier> modifiers;
 
@@ -251,11 +252,13 @@ public class AsmClassBuilder implements JClassBuilder {
 
         private final Map<Integer, List<Annotation>> paramAnnotations;
 
+        private final String desc;
+
         @Nullable
         private List<String> paramName;
 
         public MVisitor(int access, String name, String descriptor, String signature, String[] exceptions) {
-            super(Opcodes.ASM9, null, access, name, descriptor, signature, exceptions);
+            super(Opcodes.ASM9);
             org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             this.modifiers = fromAsmModifier(access);
             this.methodName = name;
@@ -268,6 +271,7 @@ public class AsmClassBuilder implements JClassBuilder {
             this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
             this.paramAnnotations = Maps.newMap();
+            this.desc = descriptor;
         }
 
 
@@ -303,12 +307,12 @@ public class AsmClassBuilder implements JClassBuilder {
                         null : AnnotationHolder.make(annotations1);
                 l.add(h);
             }
-            AsmClassBuilder.this.methods.add(
-                    new JMethod(jClass, methodName, modifiers, paramTypes,
-                            retType, exceptions,
-                            AnnotationHolder.make(annotations), l,
-                            paramName,
-                            new AsmMethodSource(this, AsmClassBuilder.this.source.getClassFileVersion())));
+            JMethod method = new JMethod(jClass, methodName, modifiers, paramTypes,
+                    retType, exceptions,
+                    AnnotationHolder.make(annotations), l,
+                    paramName,
+                    null);
+            AsmClassBuilder.this.methods.add(method);
         }
     }
 

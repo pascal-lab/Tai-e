@@ -28,6 +28,10 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
                 AsmIRBuilder builder = new AsmIRBuilder(method, asmMethodSource);
                 builder.build();
                 return builder.getIr();
+            } else if (source == null) {
+                AsmIRBuilder builder = new AsmIRBuilder(method, BuildContext.get().getSource(method));
+                builder.build();
+                return builder.getIr();
             } else {
                 throw new FrontendException("NewFrontend currently does not support " + source.getClass().getName());
             }
