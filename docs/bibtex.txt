@@ -1,0 +1,15 @@
+@inproceedings{Tai-e:paper,
+    author = {Tan, Tian and Li, Yue},
+    title = {Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics},
+    year = {2023},
+    isbn = {979-8-4007-0221-1/23/07},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3597926.3598120},
+    doi = {10.1145/3597926.3598120},
+    booktitle = {Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis},
+    numpages = {13},
+    keywords = {static analysis, framework design and implementation, Java},
+    location = {Seattle, WA, United States},
+    series = {ISSTA 2023}
+}

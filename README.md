@@ -8,7 +8,7 @@
 ## What is Tai-e?
 
 Tai-e (Chinese: 太阿; pronunciation: [ˈtaɪə:]) is a new static analysis framework for Java (please
-see [our technical report](https://arxiv.org/abs/2208.00337) for details), which features arguably
+see our [ISSTA 2023 paper](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf) for details), which features arguably
 the "best" designs from both the novel ones we proposed and those of classic frameworks such as
 Soot, WALA, Doop, and SpotBugs. Tai-e is easy-to-learn, easy-to-use, efficient, and highly
 extensible, allowing you to easily develop new analyses on top of it.
@@ -41,11 +41,11 @@ way):
 Tai-e is developed in Java, and it can run on major operating systems including Windows, Linux, and
 macOS.
 
-As a courtesy to the developers, we expect that you **please cite the paper** from ISSTA 2023 describing the Tai-e framework in your research work:
+As a courtesy to the developers, we expect that you **please [cite](docs/bibtex.txt) the paper** from ISSTA 2023 describing the Tai-e framework in your research work:
 
 Tian Tan and Yue Li. 2023.
 **Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics.**
-In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, United States.
+In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, United States ([pdf](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf), [bibtex](docs/bibtex.txt)).
 
 ## How to Obtain Runnable Jar of Tai-e?
 
