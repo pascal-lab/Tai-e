@@ -81,13 +81,15 @@ public abstract class SwitchStmt extends JumpStmt {
      * @return all case values of the switch statement. For example,
      * for switch statement
      *
-     * <p>
-     * switch (x) {<p>
-     * case 1: a = 1; break;<p>
-     * case 3: a = 3; break;<p>
-     * default: a = 0; break;<p>
-     * } <p>
-     * <p>
+     * <pre>
+     * {@code
+     * switch (x) {
+     *     case 1: a = 1; break;
+     *     case 3: a = 3; break;
+     *     default: a = 0; break;
+     * }
+     * }
+     * </pre>
      * <p>
      * This API would return [1, 3].
      */
@@ -97,13 +99,15 @@ public abstract class SwitchStmt extends JumpStmt {
      * @return pairs of case value and the corresponding jump target.
      * Default case is excluded. For example, for switch statement
      *
-     * <p>
-     * switch (x) {<p>
-     * case 1: a = 1; break;<p>
-     * case 3: a = 3; break;<p>
-     * default: a = 0; break;<p>
-     * } <p>
-     * <p>
+     * <pre>
+     * {@code
+     * switch (x) {
+     *     case 1: a = 1; break;
+     *     case 3: a = 3; break;
+     *     default: a = 0; break;
+     * }
+     * }
+     * </pre>
      * <p>
      * This API would return [(1, a = 1;), (3, a = 3;)].
      */

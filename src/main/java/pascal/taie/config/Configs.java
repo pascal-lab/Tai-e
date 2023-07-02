@@ -80,8 +80,8 @@ public final class Configs {
      * Checks if options satisfy the given conditions.
      * Examples of conditions:
      * a=b
-     * a=b&x=y
-     * a=b|c|d&x=y
+     * a=b&amp;x=y
+     * a=b|c|d&amp;x=y
      * TODO: comprehensive error handling for invalid conditions
      */
     static boolean satisfyConditions(String conditions, AnalysisOptions options) {

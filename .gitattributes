@@ -5,4 +5,6 @@
 *.yml text eol=lf
 *.md text eol=lf
 *.xml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
 *.bat text eol=crlf

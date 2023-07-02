@@ -47,9 +47,11 @@ public class PropagateTypes {
 
     /**
      * Elements of {@code types} can be:
-     * <li>"reference": allow reference types</li>
-     * <li>"null" (or null): allow null type</li>
-     * <li>various primitive types: allow the corresponding primitive types</li>
+     * <ul>
+     *     <li>"reference": allow reference types</li>
+     *     <li>"null" (or null): allow null type</li>
+     *     <li>various primitive types: allow the corresponding primitive types</li>
+     * </ul>
      */
     public PropagateTypes(List<String> types) {
         allowReference = types.contains("reference");

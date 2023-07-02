@@ -1,0 +1,32 @@
+/**
+ * CSS customizations for Tai-e
+ */
+
+h1 {
+    font-size: 32px;
+}
+
+a, a:focus {
+    color: #000000;
+}
+
+ul.nav-list a {
+    color: #000000;
+}
+
+.top-nav li {
+    color: #000000;
+}
+
+.caption span {
+    border-radius: 1px;
+}
+
+#search-input {
+    width: 200px;
+}
+
+.about-language {
+    padding: 0 0 0 0;
+}
+

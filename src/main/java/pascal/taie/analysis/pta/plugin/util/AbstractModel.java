@@ -159,7 +159,7 @@ public abstract class AbstractModel extends SolverHolder implements Model {
 
     /**
      * For invocation r = v.foo(a0, a1, ..., an);
-     * when points-to set of v or any ai (0 <= i <= n) changes,
+     * when points-to set of v or any ai (0 &le; i &le; n) changes,
      * this convenient method returns points-to sets relevant arguments.
      * For case v/ai == csVar.getVar(), this method returns pts,
      * otherwise, it just returns current points-to set of v/ai.

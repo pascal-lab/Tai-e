@@ -85,7 +85,7 @@ public class AnalysisConfig {
      * to illustrate require items.
      * requires: [A1,A2] # requires analyses A1 and A2
      * requires: [A(x=y)] # requires A when value of option x is y
-     * requires: [A(x=y&a=b)] # requires A when value of option x is y
+     * requires: [A(x=y&amp;a=b)] # requires A when value of option x is y
      * and value of option a is b
      * requires: [A(x=a|b|c)] # requires A when value of option x is
      * a, b, or c.

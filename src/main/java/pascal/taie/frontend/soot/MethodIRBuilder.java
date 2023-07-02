@@ -358,7 +358,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
      * In Tai-e IR, above code will be converted to this:
      * if a > b goto label1;
      * label1:
-     * %intconst0 = 1; // <-- tempTarget
+     * %intconst0 = 1; // &lt;-- tempTarget
      * x = %intconst0 + y;
      * <p>
      * Tai-e adds an {@link AssignLiteral} statement before the
