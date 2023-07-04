@@ -12,6 +12,7 @@ import pascal.taie.config.Options;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
+import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -26,6 +27,8 @@ import soot.Body;
 import soot.G;
 import soot.Scene;
 import soot.SootResolver;
+import soot.jimple.AssignStmt;
+import soot.jimple.Constant;
 
 import java.io.File;
 import java.io.IOException;
@@ -214,6 +217,7 @@ public class TestAsmIRBuilder {
 
         Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
 
+        boolean includeAssignLiteral = false;
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
 
@@ -224,13 +228,24 @@ public class TestAsmIRBuilder {
                     for (JMethod m : c.getDeclaredMethods()) {
                         if (!m.isAbstract()) {
                             IR ir = m.getIR();
-                            stmtCount.addAndGet(ir.getStmts().size());
+                            if (includeAssignLiteral) {
+                                stmtCount.addAndGet(ir.getStmts().size());
+                            } else {
+                                int assignLiteralCount = 0;
+                                for (var i : ir.getStmts()) {
+                                    if (i instanceof AssignLiteral) {
+                                        assignLiteralCount++;
+                                    }
+                                }
+                                stmtCount.addAndGet(ir.getStmts().size() - assignLiteralCount);
+                            }
                             varCount.addAndGet(ir.getVars().size());
                         }
                     }
                 });
 
-        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the stmts"
+                + (includeAssignLiteral ? "" : " except AssignLiterals") + ": " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
     }
 
@@ -262,6 +277,7 @@ public class TestAsmIRBuilder {
                 "Soot builds all the classes in jre1.8"
         );
 
+        boolean includeAssignLiteral = false;
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
         AtomicLong classCount = new AtomicLong();
@@ -274,7 +290,23 @@ public class TestAsmIRBuilder {
                         methodCount.addAndGet(1);
                         if (!m.isConcrete()) return;
                         Body body = m.retrieveActiveBody();
-                        stmtCount.addAndGet(body.getUnits().size());
+                        if (includeAssignLiteral) {
+                            stmtCount.addAndGet(body.getUnits().size());
+                        } else {
+                            int assignLiteral = 0;
+                            for (var unit : body.getUnits()) {
+                                if (unit instanceof AssignStmt assignStmt) {
+                                    var leftOp = assignStmt.getLeftOp();
+                                    var rightOp = assignStmt.getRightOp();
+                                    // The condition below may not be the exact condition of a AssignLiteral.
+                                    // What type does the leftOp be? Local? JimpleLocal?
+                                    if (rightOp instanceof Constant) {
+                                        assignLiteral++;
+                                    }
+                                }
+                            }
+                            stmtCount.addAndGet(body.getUnits().size() - assignLiteral);
+                        }
                         varCount.addAndGet(body.getLocalCount());
                     });
                     classCount.addAndGet(1);
@@ -282,7 +314,8 @@ public class TestAsmIRBuilder {
 
         System.out.println("Count of all the classes: " + classCount.get());
         System.out.println("Count of all the methods: " + methodCount.get());
-        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the stmts"
+                + (includeAssignLiteral ? "" : " except AssignLiterals") + ": " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
     }
 
