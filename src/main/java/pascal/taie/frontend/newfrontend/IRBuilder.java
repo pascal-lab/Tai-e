@@ -5,15 +5,8 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 class IRBuilder implements pascal.taie.ir.IRBuilder {
 
@@ -55,32 +48,13 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     public void buildAll(ClassHierarchy hierarchy) {
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
-        int nThreads = Runtime.getRuntime().availableProcessors();
-        // Group all methods by number of threads
-        List<List<JMethod>> groups = new ArrayList<>();
-        for (int i = 0; i < nThreads; ++i) {
-            groups.add(new ArrayList<>());
-        }
-        List<JClass> classes = hierarchy.allClasses().toList();
-        int i = 0;
-        for (JClass c : classes) {
+        hierarchy.allClasses().parallel().forEach(c -> {
             for (JMethod m : c.getDeclaredMethods()) {
-                if (!m.isAbstract() || m.isNative()) {
-                    groups.get(i++ % nThreads).add(m);
+                if (! m.isAbstract() && ! m.isNative()) {
+                    m.getIR();
                 }
             }
-        }
-        // Build IR for all methods in parallel
-        ExecutorService service = Executors.newFixedThreadPool(nThreads);
-        for (List<JMethod> group : groups) {
-            service.execute(() -> group.forEach(JMethod::getIR));
-        }
-        service.shutdown();
-        try {
-            service.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        });
         timer.stop();
         logger.info(timer);
     }
