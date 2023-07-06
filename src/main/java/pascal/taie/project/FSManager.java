@@ -39,7 +39,8 @@ public class FSManager {
         Path p = path.resolve("jrt-fs.jar");
         if (Files.exists(p)) {
             URLClassLoader loader = new URLClassLoader(new URL[] { p.toUri().toURL() });
-            FileSystem fs = FileSystems.newFileSystem(URI.create("jrt:/"), Map.of(), loader);
+            FileSystem fs = FileSystems.newFileSystem(URI.create("jrt:/"),
+                    Map.of("java.home", path.getParent().toString()), loader);
             fsMap.put(path, fs);
             return fs;
         } else {

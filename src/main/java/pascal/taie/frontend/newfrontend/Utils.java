@@ -385,21 +385,13 @@ public class Utils {
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.dimensions() == at2.dimensions()) {
                 if (at1.baseType() instanceof PrimitiveType p1
-                    && at2.baseType() instanceof PrimitiveType p2) {
-                    if (p1 == p2) {
-                        return Set.of(at1);
-                    } else if (canHoldsInt(p1) && canHoldsInt(p2)) {
-                        return Set.of(BuildContext.get().getTypeSystem().getArrayType(
-                                numericPromotion(p1, p2), at1.dimensions()));
-                    } else {
-                        return Set.of(BuildContext.get()
-                                .getTypeSystem().getArrayType(getObject(), at1.dimensions()));
-                    }
+                    && at2.baseType() instanceof PrimitiveType p2
+                    && p1 == p2) {
+                    return Set.of(at1);
                 }
                 if (at1.baseType() instanceof PrimitiveType
                         || at2.baseType() instanceof PrimitiveType) {
-                    return Set.of(BuildContext.get()
-                            .getTypeSystem().getArrayType(getObject(), at1.dimensions()));
+                    return Set.of(getObject(), getCloneable(), getSerializable());
                 } else {
                     ReferenceType r1 = (ReferenceType) at1.baseType();
                     ReferenceType r2 = (ReferenceType) at2.baseType();
@@ -410,7 +402,9 @@ public class Utils {
                 }
             } else {
                 ArrayType target = at1.dimensions() > at2.dimensions() ? at2 : at1;
-                assert target.baseType() instanceof ReferenceType;
+                if (at1.baseType() instanceof PrimitiveType || at2.baseType() instanceof PrimitiveType) {
+                    return Set.of(getObject(), getCloneable(), getSerializable());
+                }
                 return lca((ReferenceType) target.baseType(), at1)
                         .stream()
                         .map(t -> BuildContext.get()
@@ -428,6 +422,7 @@ public class Utils {
 
         while (! workList.isEmpty()) {
             JClass now = workList.poll();
+            assert now != null;
             if (! res.contains(now.getType())) {
                 workList.addAll(getAllDirectSuperType(now));
                 res.add(now.getType());

@@ -29,15 +29,6 @@ public final class BytecodeBlock {
 
     private Stack<Exp> outStack;
 
-    private Stmt firstStmt;
-
-    /**
-     * <code>null</code> if this block is the last bytecode block in a method
-     * or this block is empty
-     */
-    @Nullable
-    private Stmt lastStmt;
-
     private List<Stmt> stmts;
 
     @Nullable
@@ -154,7 +145,7 @@ public final class BytecodeBlock {
     }
 
     public Stmt getFirstStmt() {
-        return firstStmt;
+        return stmts.get(0);
     }
 
     public Optional<AbstractInsnNode> getFirstBytecode() {
@@ -172,17 +163,9 @@ public final class BytecodeBlock {
         return instr.get(instr.size() - 1);
     }
 
-    public void setFirstStmt(Stmt firstStmt) {
-        this.firstStmt = firstStmt;
-    }
-
     public Stmt getLastStmt() {
         assert !stmts.isEmpty();
         return stmts.get(stmts.size() - 1);
-    }
-
-    public void setLastStmt(Stmt lastStmt) {
-        this.lastStmt = lastStmt;
     }
 
     public List<Stmt> getStmts() {

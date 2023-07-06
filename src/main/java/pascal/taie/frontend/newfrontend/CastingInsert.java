@@ -2,16 +2,21 @@ package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -19,10 +24,12 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.MethodNames;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
+import java.rmi.ConnectIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +44,11 @@ public class CastingInsert {
 
     private Stmt currentStmt;
 
+    private final Map<FlowTypeInfo, Var> flowTypeCache;
+
     public CastingInsert(AsmIRBuilder builder) {
         this.builder = builder;
+        this.flowTypeCache = Maps.newHybridMap();
     }
 
     private Cast getNewCast(Var left, Var right, Type t) {
@@ -56,6 +66,50 @@ public class CastingInsert {
             return lType;
         } else {
             return null;
+        }
+    }
+
+    private Stmt ensureValidArrayType(ArrayAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
+        if (access.getBase().getType() instanceof ArrayType) {
+            return stmt;
+        } else {
+            Var local = requireFlowTypeVar(block, access.getBase(), newStmts);
+            if (local != null) {
+                Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), local), Map.of());
+                return lenses.subSt(stmt);
+            } else {
+                Var v1 = builder.manager.getTempVar();
+                Type t = BuildContext.get().getTypeSystem().getArrayType(getObject(), 1);
+                v1.setType(t);
+                newStmts.add(getNewCast(v1, access.getBase(), t));
+                Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), v1), Map.of());
+                return lenses.subSt(stmt);
+            }
+        }
+    }
+
+    private Stmt ensureValidFieldAccess(FieldAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
+        if (access instanceof InstanceFieldAccess instance) {
+            Var base = instance.getBase();
+            Type t = instance.getFieldRef().getDeclaringClass().getType();
+            if (isAssignable(t, base.getType())) {
+                return stmt;
+            } else {
+                Var v1 = requireFlowTypeVar(block, base, newStmts);
+                if (v1 != null) {
+                    assert isAssignable(t, v1.getType());
+                    Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
+                    return lenses.subSt(stmt);
+                } else {
+                    v1 = builder.manager.getTempVar();
+                    v1.setType(t);
+                    newStmts.add(getNewCast(base, v1, t));
+                    Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
+                    return lenses.subSt(stmt);
+                }
+            }
+        } else {
+            return stmt;
         }
     }
 
@@ -80,6 +134,7 @@ public class CastingInsert {
 
                     @Override
                     public Stmt visit(LoadArray stmt) {
+                        stmt = (LoadArray) ensureValidArrayType(stmt.getArrayAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
@@ -94,6 +149,7 @@ public class CastingInsert {
 
                     @Override
                     public Stmt visit(StoreArray stmt) {
+                        stmt = (StoreArray) ensureValidArrayType(stmt.getArrayAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
@@ -108,6 +164,7 @@ public class CastingInsert {
 
                     @Override
                     public Stmt visit(StoreField stmt) {
+                        stmt = (StoreField) ensureValidFieldAccess(stmt.getFieldAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
@@ -123,6 +180,11 @@ public class CastingInsert {
                     }
 
                     @Override
+                    public Stmt visit(LoadField stmt) {
+                        return ensureValidFieldAccess(stmt.getFieldAccess(), stmt, block, newStmts);
+                    }
+
+                    @Override
                     public Stmt visit(Invoke stmt) {
                         if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
                             JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
@@ -131,35 +193,16 @@ public class CastingInsert {
                             Type baseType = invokeInstanceExp.getBase().getType();
                             Var base = invokeInstanceExp.getBase();
                             if (!isAssignable(t, baseType)) {
-                                if (stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
+                                if (! (invokeInstanceExp instanceof InvokeInterface)) {
                                     // prev stmt is new
                                     // TODO: add tests for fallback
-                                    Pair<New, Integer> find = findNewInBlock(newStmts, base);
-                                    if (find != null) {
-                                        Stmt newStmt = find.first();
-                                        int idx = find.second();
-                                        Var v = builder.manager.getTempVar();
-                                        v.setType(t);
+                                    Var v = requireFlowTypeVar(block, invokeInstanceExp.getBase(), newStmts);
+                                    if (v != null) {
+                                        // if this file is a valid bytecode class, then it's checked
+                                        // which means flowType is always assignable to required type
+                                        assert isAssignable(t, v.getType());
                                         Lenses l = new Lenses(builder.method, Map.of(base, v), Map.of(base, v));
-                                        Stmt invoke = l.subSt(stmt);
-                                        Stmt newStmtReal = l.subSt(newStmt);
-                                        newStmts.set(idx, newStmtReal);
-                                        newStmts.add(invoke);
-                                        Copy cp = new Copy(base, v);
-                                        // note: if new stmt is find, i.e.
-                                        //    v = new C;
-                                        //    ...  (v can not occur in here, or we will not perform this transform)
-                                        //    invokespecical v.<init>();
-                                        // then, C <: type(v) is confirmed. So, after transform
-                                        //  (1)  v1 = new C;
-                                        //       ...
-                                        //  (2)  invokespecial v1.<init>();
-                                        //  (3)  v = v1;
-                                        // type(v1) = C, type(v1) <: type(v).
-                                        // So there is no need to check the validity of (3).
-                                        assert isAssignable(cp.getLValue().getType(),
-                                                cp.getRValue().getType());
-                                        return cp;
+                                        return l.subSt(stmt);
                                     } else {
                                         logger.atInfo().log("[CASTING] fallback solution for stage1");
                                     }
@@ -209,17 +252,51 @@ public class CastingInsert {
         return block.getStmts();
     }
 
-    Pair<New, Integer> findNewInBlock(List<Stmt> newStmts, Var target) {
+    Pair<DefinitionStmt<?, ?>, Integer> findNewInBlock(List<Stmt> newStmts, Var target) {
         int idx = newStmts.size() - 1;
         for (; idx >= 0; idx--) {
             Stmt now = newStmts.get(idx);
-            if (now instanceof New newStmt && newStmt.getLValue() == target) {
+            if (now instanceof DefinitionStmt<?, ?> newStmt && newStmt.getLValue() == target) {
                 return new Pair<>(newStmt, idx);
-            } else if (now.getUses().contains(target)
-                || now.getDef().isPresent() && now.getDef().get() == target) {
-                return null;
             }
         }
         return null;
     }
+
+    /**
+     * Use this function to do global -> local conversion
+     * @return offered variable with local type, maybe null
+     */
+    private Var requireFlowTypeVar(BytecodeBlock block, Var globalVar, List<Stmt> newStmts) {
+        FlowTypeInfo info = new FlowTypeInfo(block, globalVar);
+        if (flowTypeCache.containsKey(info)) {
+            return flowTypeCache.get(info);
+        } else {
+            // 1. try to split new in this block
+            //    e.g. a : java.lang.Object = new int[];
+            //      => v1 = new int[];
+            //         a = v1;
+            //         v1 is the "flow type var"
+            Pair<DefinitionStmt<?, ?>, Integer> newInBlock = findNewInBlock(newStmts, globalVar);
+            if (newInBlock != null) {
+                Var v1 = builder.manager.getTempVar();
+                v1.setType(newInBlock.first().getRValue().getType());
+                Lenses lenses = new Lenses(builder.method, Map.of(), Map.of(globalVar, v1));
+                newStmts.set(newInBlock.second(), lenses.subSt(newInBlock.first()));
+                newStmts.add(newInBlock.second() + 1, new Copy(globalVar, v1));
+                flowTypeCache.put(info, v1);
+                return v1;
+            }
+
+            // TODO: 2. if frame is available,
+            if (builder.isFrameUsable()) {
+                return null;
+            }
+
+            // can't get flow type, use worse solution
+            return null;
+        }
+    }
+
+    private record FlowTypeInfo(BytecodeBlock block, Var var) { }
 }
