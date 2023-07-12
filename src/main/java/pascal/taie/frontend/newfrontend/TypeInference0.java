@@ -37,6 +37,7 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
@@ -44,16 +45,22 @@ import static pascal.taie.frontend.newfrontend.Utils.*;
 public class TypeInference0 {
 
     AsmIRBuilder builder;
+
     MultiMap<Var, Type> localTypes;
+
+    MultiMap<Var, Type> localTypeAssigns;
 
     public TypeInference0(AsmIRBuilder builder) {
         this.builder = builder;
         localTypes = Maps.newMultiMap();
+        localTypeAssigns = Maps.newMultiMap();
     }
 
     private void setTypeForTemp(Var var, Type t) {
-        if (! localTypes.containsKey(var)
-                && ! builder.manager.isSpecialVar(var)) {
+        if (localTypes.containsKey(var)) {
+            localTypeAssigns.put(var, t);
+        }
+        else if (! builder.manager.isSpecialVar(var)) {
             var.setType(t);
         }
     }
@@ -63,23 +70,27 @@ public class TypeInference0 {
             if (v.getType() != null) {
                 continue;
             }
-            Set<Type> allTypes = localTypes.get(v);
+            Set<Type> allTypes = localTypeAssigns.get(v);
             assert !allTypes.isEmpty();
             Type now = allTypes.iterator().next();
             if (allTypes.size() == 1) {
                 v.setType(now);
                 continue;
             }
+            Set<Type> constrains = localTypes.get(v);
             for (Type t : allTypes) {
                 if (now instanceof PrimitiveType) {
                     assert t == now || canHoldsInt(t) && canHoldsInt(now);
                 } else {
                     assert now instanceof ReferenceType;
                     assert t instanceof ReferenceType;
-                    Set<ReferenceType> set =
-                            Utils.lca((ReferenceType) now, (ReferenceType) t);
-                    if (set.size() == 1) {
-                        now = set.iterator().next();
+                    Optional<ReferenceType> set =
+                            Utils.lca((ReferenceType) now, (ReferenceType) t)
+                                    .stream()
+                                    .filter(i -> constrains.stream().allMatch(j -> isAssignable(j, i)))
+                                    .findFirst();
+                    if (set.isPresent()) {
+                        now = set.get();
                     } else {
                         now = Utils.getObject();
                         break;
