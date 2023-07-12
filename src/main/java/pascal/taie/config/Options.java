@@ -289,7 +289,8 @@ public class Options implements Serializable {
 
     @JsonProperty
     @Option(names = {"--jre-dir"},
-            description = "JRE directory for java 9 and upper, should contain jrt-fs.jar and modules JIMAGE file")
+            description = "JRE root directory for java 9 and upper," +
+            "should contain jrt-fs.jar and modules JIMAGE file in its lib/ folder")
     private String jreDir;
 
     public String getJreDir() {

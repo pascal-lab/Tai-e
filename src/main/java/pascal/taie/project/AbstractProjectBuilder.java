@@ -30,6 +30,9 @@ import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,6 +45,11 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     private static final Logger logger = LogManager.getLogger(AbstractProjectBuilder.class);
 
     protected static final String JREs = "java-benchmarks/JREs";
+    private static final String JRE_FIND_FAILED = """
+            Failed to locate Java library.
+            Please clone submodule 'java-benchmarks' by command:
+            git submodule update --init --recursive
+            and put it in Tai-e's working directory.""";
 
     protected abstract String getMainClass();
 
@@ -62,18 +70,15 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
      */
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
-            return options.getClassPath(); // TODO: include the current JVM
-        } if (options.getJreDir() != null) {
+            return options.getClassPath();
+        } else if (options.getJreDir() != null || options.getJavaVersion() >= 8) {
+            // use another method for jre path
             return options.getClassPath();
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
             if (!jreDir.exists()) {
-                throw new RuntimeException("""
-                        Failed to locate Java library.
-                        Please clone submodule 'java-benchmarks' by command:
-                        git submodule update --init --recursive
-                        and put it in Tai-e's working directory.""");
+                throw new RuntimeException(JRE_FIND_FAILED);
             }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
@@ -117,5 +122,35 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
             }
         }
         return classes;
+    }
+
+    protected static Stream<Path> listJrtModule(Options options) throws IOException {
+        int javaVersion = options.getJavaVersion();
+        if (javaVersion <= 8) {
+            return Stream.empty();
+        }
+
+        FileSystem fs;
+        if (!options.isPrependJVM()) {
+            Path jreDir;
+            if (options.getJreDir() != null) {
+                jreDir = Path.of(options.getJreDir());
+            } else if (javaVersion == 11 || javaVersion == 17) {
+                Path jreFolder = Path.of(JREs, "jre" + javaVersion);
+                if (Files.isDirectory(jreFolder)) {
+                    jreDir = jreFolder;
+                } else {
+                    throw new RuntimeException(JRE_FIND_FAILED);
+                }
+            } else {
+                // TODO: produce error, JRE may not loaded
+                return Stream.empty();
+            }
+            fs = FSManager.get().getJrtFs(jreDir);
+        } else {
+            fs = FileSystems.getFileSystem(URI.create("jrt:/"));
+        }
+        Path modulePath = fs.getPath("/modules");
+        return Files.list(modulePath);
     }
 }

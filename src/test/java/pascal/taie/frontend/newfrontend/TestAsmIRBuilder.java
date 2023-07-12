@@ -249,6 +249,50 @@ public class TestAsmIRBuilder {
         System.out.println("Count of all the vars: " + varCount.get());
     }
 
+    /**
+     * need to use {@link AllClassesCWBuilder}
+     */
+    @Test
+    public void benchmarkForNewFrontEnd11() {
+        int javaVersion = 11;
+
+        Runnable newFrontend = () -> {
+            Main.buildWorld(
+                    "-java", Integer.toString(javaVersion),
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+            );
+
+            Timer.runAndCount(() ->
+                    World.get()
+                            .getClassHierarchy()
+                            .allClasses()
+                            .forEach(c -> c.getDeclaredMethods().forEach(m -> {
+                                if (!m.isAbstract()) m.getIR();
+                            })), "Get All IR");
+        };
+
+        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
+
+        AtomicLong stmtCount = new AtomicLong();
+        AtomicLong varCount = new AtomicLong();
+
+        World.get()
+                .getClassHierarchy()
+                .allClasses()
+                .forEach(c -> {
+                    for (JMethod m : c.getDeclaredMethods()) {
+                        if (!m.isAbstract()) {
+                            IR ir = m.getIR();
+                            stmtCount.addAndGet(ir.getStmts().size());
+                            varCount.addAndGet(ir.getVars().size());
+                        }
+                    }
+                });
+
+        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the vars: " + varCount.get());
+    }
+
     @Test
     public void benchmarkForSoot() {
         int javaVersion = 8;

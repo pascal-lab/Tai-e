@@ -77,7 +77,7 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     FileLoader.get().loadRootContainers(
                             Stream.concat(
                                 libClassPaths.stream().distinct().map(Paths::get),
-                                listJrtModule()).toList()));
+                                listJrtModule(options)).toList()));
             return project;
         } catch (IOException e) {
             // TODO: more info
@@ -86,13 +86,5 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
         }
     }
 
-    private Stream<Path> listJrtModule() throws IOException {
-        if (options.getJreDir() == null && ! options.isPrependJVM()) {
-            return Stream.empty();
-        }
-        FileSystem fs = options.isPrependJVM() ? FileSystems.getFileSystem(URI.create("jrt:/")) :
-            FSManager.get().getJrtFs(Path.of(options.getJreDir()));
-        Path modulePath = fs.getPath("/modules");
-        return Files.list(modulePath);
-    }
+
 }
