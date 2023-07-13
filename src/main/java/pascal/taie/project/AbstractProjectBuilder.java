@@ -71,7 +71,7 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
             return options.getClassPath();
-        } else if (options.getJreDir() != null || options.getJavaVersion() >= 8) {
+        } else if (options.getJreDir() != null || options.getJavaVersion() >= 9) {
             // use another method for jre path
             return options.getClassPath();
         } else { // when prependJVM is not set, we manually specify JRE jars

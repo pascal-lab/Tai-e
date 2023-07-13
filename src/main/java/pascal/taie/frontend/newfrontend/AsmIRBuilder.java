@@ -340,11 +340,15 @@ class AsmIRBuilder {
             v = manager.getTempVar();
         }
         // if reach here
-        // this method should only be called once
+        // this method should only be called once (normally)
         AbstractInsnNode orig = getOrig(e);
-        assert ! asm2Stmt.containsKey(orig);
+        if (! asm2Stmt.containsKey(orig)) {
+//            logger.atInfo().log("[IR] Multiple expression belonging to one bytecode" + "\n" +
+//                                "     It may be an error, you should check IR." + "\n" +
+//                                "     In method: " + method.toString());
+        }
         Stmt auxStmt = getAssignStmt(v, e);
-        asm2Stmt.put(orig, auxStmt);
+        assocStmt(orig, auxStmt);
         return v;
     }
 
@@ -445,7 +449,18 @@ class AsmIRBuilder {
             if (block != null) {
                 logger.atWarn().log(method + ", empty block / labels : " + label);
             }
-            return getFirstStmt((LabelNode) label.getNext());
+            AbstractInsnNode next = label.getNext();
+            if (next instanceof LabelNode labelNode) {
+                return getFirstStmt(labelNode);
+            } else {
+                logger.atWarn().log("[IR] All possible method fail to get a valid stmt for a label" + "\n" +
+                                    "     Please check IR of this method: " + method);
+                while (! asm2Stmt.containsKey(next)) {
+                    next = next.getNext();
+                    assert next != null;
+                }
+                return asm2Stmt.get(next);
+            }
         }
 
         return block.getStmts().get(0);

@@ -13,16 +13,13 @@ public class TestDepCWBuilder {
         MockOptions options = new MockOptions();
         options.setClasspath(classPath);
         options.setMainClass(mainClass);
+        options.setJavaVersion(8);
         ProjectBuilder builder = new OptionsProjectBuilder(options);
         return builder.build();
     }
 
     String worldPath = "src/test/resources/world";
-    String classPath = "java-benchmarks/JREs/jre1.8/rt.jar";
-    String jcePath = "java-benchmarks/JREs/jre1.8/jce.jar";
-    String jssePath = "java-benchmarks/JREs/jre1.8/jsse.jar";
-
-    List<String> paths = List.of(worldPath, classPath, jcePath, jssePath);
+    List<String> paths = List.of(worldPath);
     String path = paths.stream().reduce((i, j) -> i + ";" + j).get();
 
 

@@ -12,6 +12,8 @@ public class MockOptions extends Options {
 
     private List<String> inputClasses;
 
+    private int javaVersion;
+
     public MockOptions() {
         inputClasses = new ArrayList<>();
         // should mainClass be added to inputClasses?
@@ -29,6 +31,10 @@ public class MockOptions extends Options {
         this.inputClasses = inputClasses;
     }
 
+    public void setJavaVersion(int version) {
+        this.javaVersion = version;
+    }
+
     @Override
     public String getClassPath() {
         return classpath;
@@ -42,5 +48,10 @@ public class MockOptions extends Options {
     @Override
     public List<String> getInputClasses() {
         return inputClasses;
+    }
+
+    @Override
+    public int getJavaVersion() {
+        return javaVersion;
     }
 }

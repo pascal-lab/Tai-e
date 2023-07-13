@@ -9,22 +9,23 @@ import pascal.taie.frontend.newfrontend.DepCWBuilder;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.PrimitiveType;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class TestCHBuilder {
-    Project createProject(String classPath, String mainClass, List<String> inputClasses) {
+    Project createProject(int javaVersion, String classPath, String mainClass, List<String> inputClasses) {
         MockOptions options = new MockOptions();
         options.setClasspath(classPath);
         options.setMainClass(mainClass);
         options.setInputClasses(inputClasses);
+        options.setJavaVersion(javaVersion);
         ProjectBuilder builder = new OptionsProjectBuilder(options);
         return builder.build();
     }
 
-    Project createProject(String classPath, String mainClass) {
-        return createProject(classPath, mainClass, List.of());
+    Project createProject(int javaVersion, String classPath, String mainClass) {
+        return createProject(javaVersion, classPath, mainClass, List.of());
     }
 
     String worldPath = "src/test/resources/world";
@@ -38,7 +39,7 @@ public class TestCHBuilder {
     @Test
     public void test1() {
         String mainClass = "PrintClassPath";
-        Project project = createProject(worldPath + ";" + getJRE(8), mainClass);
+        Project project = createProject(8, worldPath, mainClass);
         DepCWBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
         var w = depCWBuilder.getClosedWorld();
@@ -70,10 +71,18 @@ public class TestCHBuilder {
     private void runDacapo(List<String> items) {
         String mainClass = "Harness";
 
-        StringBuilder sb = new StringBuilder(getJRE(6));
+        StringBuilder sb = new StringBuilder();
+        int ix = 0;
         for (var i : items) {
-            sb.append(";java-benchmarks/dacapo-2006/").append(i).append(".jar");
-            sb.append(";java-benchmarks/dacapo-2006/").append(i).append("-deps.jar");
+            sb.append("java-benchmarks/dacapo-2006/").append(i).append(".jar");
+            sb.append(File.pathSeparator)
+                    .append("java-benchmarks/dacapo-2006/")
+                    .append(i)
+                    .append("-deps.jar");
+            if (ix < items.size()) {
+                sb.append(File.pathSeparator);
+            }
+            ix++;
         }
 
         List<String> inputClass = items.stream()
@@ -83,7 +92,7 @@ public class TestCHBuilder {
                 })
                 .toList();
 
-        Project project = createProject(sb.toString(), mainClass, inputClass);
+        Project project = createProject(6 ,sb.toString(), mainClass, inputClass);
         ClosedWorldBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
         var w = depCWBuilder.getClosedWorld();
@@ -116,11 +125,4 @@ public class TestCHBuilder {
         return res;
     }
 
-    private String getJRE(int version) {
-        String rtPath = "java-benchmarks/JREs/jre1." + version + "/rt.jar";
-        String jcePath = "java-benchmarks/JREs/jre1." + version + "/jce.jar";
-        String jssePath = "java-benchmarks/JREs/jre1." + version + "/jsse.jar";
-        return Stream.of(rtPath, jcePath, jssePath)
-                .reduce((a, b) -> a + ";" + b).get();
-    }
 }
