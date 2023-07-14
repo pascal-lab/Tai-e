@@ -1,7 +1,12 @@
 <div align="center">
   <img src="tai-e-logo.png" height="200">
 
-## Tai-e
+# Tai-e
+
+[![test](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml/badge.svg)](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml)
+[![java](https://img.shields.io/badge/Java-17-informational)](http://openjdk.java.net/)
+[![codecov](https://codecov.io/gh/pascal-lab/Tai-e/branch/master/graph/badge.svg)](https://codecov.io/gh/pascal-lab/Tai-e)
+[![DOI](https://img.shields.io/badge/DOI-10.1145/3597926.3598120-blue)](https://doi.org/10.1145/3597926.3598120)
 
 </div>
 
@@ -45,7 +50,7 @@ As a courtesy to the developers, we expect that you **please [cite](docs/bibtex.
 
 Tian Tan and Yue Li. 2023.
 **Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics.**
-In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, United States ([pdf](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf), [bibtex](docs/bibtex.txt)).
+In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, USA ([pdf](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf), [bibtex](docs/bibtex.txt)).
 
 ## How to Obtain Runnable Jar of Tai-e?
 
