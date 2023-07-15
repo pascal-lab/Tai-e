@@ -92,7 +92,7 @@ public class TestCHBuilder {
                 })
                 .toList();
 
-        Project project = createProject(6 ,sb.toString(), mainClass, inputClass);
+        Project project = createProject(6, sb.toString(), mainClass, inputClass);
         ClosedWorldBuilder depCWBuilder = new DepCWBuilder();
         depCWBuilder.build(project);
         var w = depCWBuilder.getClosedWorld();

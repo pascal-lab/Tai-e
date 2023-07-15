@@ -78,7 +78,7 @@ public class TestAsmIRBuilder {
 
     ClassHierarchy getCh(String mainClass, int javaVersion) {
         String worldPath = "src/test/resources/world";
-        return getCh(mainClass, List.of(worldPath + "/ "+ mainClass), javaVersion);
+        return getCh(mainClass, List.of(worldPath + "/ " + mainClass), javaVersion);
     }
 
     @Test
@@ -112,10 +112,7 @@ public class TestAsmIRBuilder {
                     i.getDeclaredMethods()
                             .stream().filter(j -> j.getName().equals("p"))
                             .forEach(m -> {
-                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
-                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
-                                builder1.build();
-                                for (var stmt : builder1.getIr().getStmts()) {
+                                for (var stmt : m.getIR().getStmts()) {
                                     System.out.println(stmt);
                                 }
                             });
@@ -210,7 +207,9 @@ public class TestAsmIRBuilder {
                     .getClassHierarchy()
                     .allClasses()
                     .forEach(c -> c.getDeclaredMethods().forEach(m -> {
-                        if (!m.isAbstract()) m.getIR();
+                        if (!m.isAbstract()) {
+                            m.getIR();
+                        }
                     })), "Get All IR");
         };
 
@@ -237,7 +236,9 @@ public class TestAsmIRBuilder {
                             .getClassHierarchy()
                             .allClasses()
                             .forEach(c -> c.getDeclaredMethods().forEach(m -> {
-                                if (!m.isAbstract()) m.getIR();
+                                if (!m.isAbstract()) {
+                                    m.getIR();
+                                }
                             })), "Get All IR");
         };
 

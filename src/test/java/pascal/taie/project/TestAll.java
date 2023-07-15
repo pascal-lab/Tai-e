@@ -18,8 +18,9 @@ public class TestAll {
     FileContainer loadContainer(String path) throws IOException {
         FileContainer[] c = new FileContainer[1];
         FileLoader loader = FileLoader.get();
-        loader.loadFile(Paths.get(path), null,(a) -> null, a -> {
-            c[0] = a; return null;
+        loader.loadFile(Paths.get(path), null, (a) -> null, a -> {
+            c[0] = a;
+            return null;
         });
         return c[0];
     }
@@ -29,7 +30,8 @@ public class TestAll {
         FileContainer[] c = new FileContainer[1];
         FileLoader loader = FileLoader.get();
         loader.loadFile(Paths.get(classes), null, (a) -> null, a -> {
-            c[0] = a; return null;
+            c[0] = a;
+            return null;
         });
 
         Assert.assertNotNull(c[0]);

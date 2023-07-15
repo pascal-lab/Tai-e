@@ -7,7 +7,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -252,8 +251,6 @@ public class AsmClassBuilder implements JClassBuilder {
 
         private final Map<Integer, List<Annotation>> paramAnnotations;
 
-        private final String desc;
-
         @Nullable
         private List<String> paramName;
 
@@ -271,7 +268,6 @@ public class AsmClassBuilder implements JClassBuilder {
             this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
             this.paramAnnotations = Maps.newMap();
-            this.desc = descriptor;
         }
 
 

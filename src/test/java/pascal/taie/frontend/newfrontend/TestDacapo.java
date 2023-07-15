@@ -50,6 +50,7 @@ public class TestDacapo {
     }
 
     private void runDacapo(List<String> items) {
+        World.reset();
         String mainClass = "Harness";
 
         StringBuilder sb = new StringBuilder();
@@ -88,7 +89,9 @@ public class TestDacapo {
                             .getClassHierarchy()
                             .allClasses()
                             .forEach(c -> c.getDeclaredMethods().forEach(m -> {
-                                if (!m.isAbstract()) m.getIR();
+                                if (!m.isAbstract()) {
+                                    m.getIR();
+                                }
                             })), "Get All IR");
         };
 
