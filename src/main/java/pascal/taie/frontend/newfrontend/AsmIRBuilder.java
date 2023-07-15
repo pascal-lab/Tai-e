@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
@@ -1176,6 +1175,7 @@ class AsmIRBuilder {
             bb.setComplete();
         }
 
+        avoidUnreachableExceptionTable();
         bridgeWronglySeparatedBlocks();
         blockSortedList =
                 label2Block.keySet().stream()
@@ -1246,6 +1246,58 @@ class AsmIRBuilder {
                 return next;
             }
         };
+    }
+
+    /**
+     * This function try to correct exception table.
+     * There is a very rare case that the start position of an exception entry is unreachable.
+     * <br/>
+     * <pre>
+     * before:
+     *           1. goto 3
+     *   start-> 2. goto 3 (unreachable)
+     *           3. iload
+     *           4. istore
+     * after:
+     *           1. goto 3
+     *           2. goto 3
+     *   start-> 3. iload (reachable from 1.)
+     *           4. istore
+     * </pre>
+     */
+    private void avoidUnreachableExceptionTable() {
+        for (TryCatchBlockNode node : source.tryCatchBlocks) {
+            LabelNode start = node.start;
+            LabelNode startChecker = getNextIfUnreachable(start);
+            if (startChecker != start) {
+                logger.atWarn().log("[IR] Unreachable exception entry start." + "\n" +
+                                    "     In method: " + method);
+                node.start = startChecker;
+            }
+        }
+    }
+
+    private LabelNode getNextIfUnreachable(LabelNode labelNode) {
+        if (! label2Block.containsKey(labelNode)) {
+            return getNextLabel(labelNode);
+        } else {
+            return labelNode;
+        }
+    }
+
+    private LabelNode getNextLabel(LabelNode labelNode) {
+        AbstractInsnNode next = labelNode.getNext();
+        assert next != null;
+
+        do {
+            if (next instanceof LabelNode labelNode1 &&
+                    label2Block.containsKey(labelNode1)) {
+                return labelNode1;
+            }
+            next = next.getNext();
+        } while (next != null);
+
+        return null;
     }
 
     private final Set<LabelNode> ignoredLabels = new HashSet<>();
@@ -1390,10 +1442,8 @@ class AsmIRBuilder {
                 if (insnNode instanceof LineNumberNode l) {
                     currentLineNumber = l.line;
                 } else {
-                    // assert currentLineNumber != -1
-                    //        : "Violating our assumption: before the first node associating a stmt must be a LineNumberNode";
                     if (currentLineNumber == -1) {
-                        logger.log(Level.INFO, method + ", no line number info");
+                        logger.atInfo().log("[IR] no line number info, method: " + method);
                         return;
                     }
                     var stmt = asm2Stmt.get(insnNode);
