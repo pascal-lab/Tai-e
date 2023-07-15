@@ -64,6 +64,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
@@ -358,6 +359,7 @@ public class Utils {
     }
 
     public static Set<ReferenceType> lca(ReferenceType t1, ReferenceType t2) {
+        assert ! (t1 != t2 && t1.equals(t2));
         if (t1 == t2) {
             return Set.of(t1);
         } else if (t1 instanceof NullType) {
@@ -383,36 +385,27 @@ public class Utils {
         } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
             return lca(t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
-            if (at1.dimensions() == at2.dimensions()) {
-                if (at1.baseType() instanceof PrimitiveType p1
-                    && at2.baseType() instanceof PrimitiveType p2
-                    && p1 == p2) {
-                    return Set.of(at1);
-                }
-                if (at1.baseType() instanceof PrimitiveType
-                        || at2.baseType() instanceof PrimitiveType) {
-                    return Set.of(getObject(), getCloneable(), getSerializable());
-                } else {
-                    ReferenceType r1 = (ReferenceType) at1.baseType();
-                    ReferenceType r2 = (ReferenceType) at2.baseType();
-                    return lca(r1, r2).stream()
-                            .map(t -> BuildContext.get()
-                                    .getTypeSystem().getArrayType(t, at1.dimensions()))
-                            .collect(Collectors.toSet());
-                }
+            if (at1.elementType() instanceof PrimitiveType
+                    || at2.elementType() instanceof PrimitiveType) {
+                return Set.of(getObject(), getCloneable(), getSerializable());
             } else {
-                ArrayType target = at1.dimensions() > at2.dimensions() ? at2 : at1;
-                if (at1.baseType() instanceof PrimitiveType || at2.baseType() instanceof PrimitiveType) {
-                    return Set.of(getObject(), getCloneable(), getSerializable());
-                }
-                return lca((ReferenceType) target.baseType(), at1)
-                        .stream()
-                        .map(t -> BuildContext.get()
-                                .getTypeSystem().getArrayType(t, target.dimensions()))
+                ReferenceType r1 = (ReferenceType) at1.elementType();
+                ReferenceType r2 = (ReferenceType) at2.elementType();
+                return lca(r1, r2).stream()
+                        .map(Utils::wrap1)
                         .collect(Collectors.toSet());
             }
         }
         throw new UnsupportedOperationException();
+    }
+
+    static ArrayType wrap1(ReferenceType referenceType) {
+        TypeSystem ts = BuildContext.get().getTypeSystem();
+        if (referenceType instanceof ArrayType at) {
+            return ts.getArrayType(at.baseType(), at.dimensions());
+        } else {
+            return ts.getArrayType(referenceType, 1);
+        }
     }
 
     static Set<ClassType> upperClosure(ClassType type) {
