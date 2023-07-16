@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 class VarManager {
 
@@ -197,8 +198,33 @@ class VarManager {
         return local2Var.computeIfAbsent(slot, s -> newVar(LOCAL_PREFIX + s));
     }
 
-    public Var splitLocal(Var old, int count) {
-        return newVar(old.getName() + "#" + count);
+    public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
+        // TODO: use a global counter for each name
+        if (! existsLocalVariableTable) {
+            if (count == 1) {
+                return old;
+            } else {
+                return newVar(getDefaultSplitName(old.getName(), count));
+            }
+        } else {
+            Optional<String> name = origins
+                    .map(orig -> getName(slot, orig))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst();
+            String finalName = name.orElse(old.getName());
+
+            if (count == 1) {
+                old.setName(finalName);
+                return old;
+            } else {
+                return newVar(getDefaultSplitName(finalName, count));
+            }
+        }
+    }
+
+    private static String getDefaultSplitName(String name, int count) {
+        return name + "#" + count;
     }
 
     public boolean existsLocalVariableTable() {
@@ -269,6 +295,7 @@ class VarManager {
         });
 
         {
+            // TODO: refactor this check to a function call
             var l = res.stream().map(Pair::first).toList();
             assert l.size() == l.stream().distinct().toList().size();
         }
@@ -297,7 +324,6 @@ class VarManager {
         return TEMP_PREFIX + "c" + counter;
     }
 
-    // TODO: check when need to add v to vars
     private Var newParameter(int index) {
         return newVar(PARAMETER_PREFIX + index);
     }
@@ -313,5 +339,15 @@ class VarManager {
         vars.add(v);
         blockConstCache.put(literal, v);
         return v;
+    }
+
+    int getSlot(Var var) {
+        // TODO: there is a faster way to do this, may optimize
+        return local2Var.entrySet()
+                .stream()
+                .filter((entry) -> entry.getValue() == var)
+                .findFirst()
+                .get()
+                .getKey();
     }
 }

@@ -48,6 +48,8 @@ public final class BytecodeBlock {
 
     private Map<Integer, Var> frameLocalVar;
 
+    private List<Integer> stmt2Asm;
+
     private boolean isInTry = false;
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
@@ -245,6 +247,14 @@ public final class BytecodeBlock {
         assert frame != null;
         this.frame = frame;
         buildFrameLocalType();
+    }
+
+    void setStmt2Asm(List<Integer> stmt2Asm) {
+        this.stmt2Asm = stmt2Asm;
+    }
+
+    AbstractInsnNode getOrig(int index) {
+        return instr.get(stmt2Asm.get(index));
     }
 
     @Override

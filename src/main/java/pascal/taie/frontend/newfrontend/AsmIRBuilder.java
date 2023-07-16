@@ -145,7 +145,7 @@ class AsmIRBuilder {
         this.classFileVersion = methodSource.classFileVersion();
         this.isEmpty = source.instructions.size() == 0;
         this.manager = new VarManager(method, source.localVariables, source.instructions);
-        this.asm2Stmt = Maps.newMap();
+        this.asm2Stmt = Maps.newMap(source.instructions.size());
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
         this.stmts = new ArrayList<>();
@@ -822,7 +822,7 @@ class AsmIRBuilder {
                 asm2Stmt.remove(lastBytecode);
                 auxiliary.add(last);
             }
-            auxiliaryStmts.put(bb.getLastBytecode(), auxiliary);
+            auxiliary.forEach(stmt -> assocStmt(lastBytecode, stmt));
         }
         assert target1.empty();
     }
@@ -898,17 +898,24 @@ class AsmIRBuilder {
         }
 
         // collect all the stmts associated with this block.
-        for (var insnNode : block.instr()) {
-            var stmt = asm2Stmt.get(insnNode);
+        List<Integer> stmt2Asm = new ArrayList<>();
+        for (int i = 0; i < block.instr().size(); ++i) {
+            AbstractInsnNode insnNode = block.instr().get(i);
+            Stmt stmt = asm2Stmt.get(insnNode);
             if (stmt != null) {
                 block.getStmts().add(stmt);
+                stmt2Asm.add(i);
             }
 
-            var stmts = auxiliaryStmts.get(insnNode);
+            List<Stmt> stmts = auxiliaryStmts.get(insnNode);
             if (stmts != null) {
                 block.getStmts().addAll(stmts);
+                for (int j = 0; j < stmts.size(); ++j) {
+                    stmt2Asm.add(i);
+                }
             }
         }
+        block.setStmt2Asm(stmt2Asm);
     }
 
     private void processInstr(Stack<Exp> nowStack, AbstractInsnNode node) {
@@ -1064,8 +1071,8 @@ class AsmIRBuilder {
             pushConst(node, nowStack, IntLiteral.get(inc.incr));
             Var cst = popVar(nowStack);
             Var v = manager.getLocal(inc.var, node);
-            auxiliaryStmts.put(node, List.of(getAssignStmt(v,
-                    new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst))));
+            Stmt next = getAssignStmt(v, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            assocStmt(node, next);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)

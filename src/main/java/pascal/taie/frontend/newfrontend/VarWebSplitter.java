@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.objectweb.asm.tree.AbstractInsnNode;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.ir.exp.RValue;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class VarWebSplitter {
 
@@ -234,12 +236,12 @@ public class VarWebSplitter {
     private Map<Var, List<ReplaceSource>> spiltVariable() {
         Map<Var, List<ReplaceSource>> res = Maps.newMap();
         webs.forEach((var, web) -> {
+            int slot = varManager.getSlot(var);
             Var[] currentVar = new Var[]{var};
             int[] count = new int[]{0};
             web.getDisjointSets()
                     .stream()
                     .sorted((a, b) -> Integer.compare(b.size(), a.size()))
-                    .skip(1)
                     .forEach(s -> {
                         List<ReplaceSource> sources = new ArrayList<>();
                         s.forEach(p -> {
@@ -251,10 +253,19 @@ public class VarWebSplitter {
                             return;
                         }
                         count[0]++;
-                        currentVar[0] = varManager.splitLocal(var, count[0]);
-                        res.put(currentVar[0], sources);
-                        StmtOccur rep = s.iterator().next();
-                        split.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
+                        Stream<AbstractInsnNode> origins = sources.stream()
+                                .filter(source -> source.index().second() != Kind.PARAM)
+                                .map(source -> {
+                                    BytecodeBlock block = source.index().block();
+                                    int index = source.index().index();
+                                    return block.getOrig(index);
+                                });
+                        currentVar[0] = varManager.splitLocal(var, count[0], slot, origins);
+                        if (count[0] != 1) {
+                            res.put(currentVar[0], sources);
+                            StmtOccur rep = s.iterator().next();
+                            split.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
+                        }
                     });
         });
         return res;
@@ -266,7 +277,6 @@ public class VarWebSplitter {
         Map<Var, Var> useMap = Maps.newMap();
         Lenses lenses = new Lenses(builder.method, useMap, defMap);
         m.forEach((target, sources) -> {
-            // assert ! target.getName().startsWith("this");
             for (ReplaceSource source : sources) {
                 useMap.clear();
                 defMap.clear();

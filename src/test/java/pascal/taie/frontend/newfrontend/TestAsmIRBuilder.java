@@ -183,8 +183,7 @@ public class TestAsmIRBuilder {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
                     "-acp", jrePaths(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
-                    "--pre-build-ir"
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
             );
 
             Timer.runAndCount(() ->
@@ -247,6 +246,29 @@ public class TestAsmIRBuilder {
 
         System.out.println("Count of all the stmts: " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
+    }
+
+    @Test
+    public void benchmarkForNewFrontEnd17() {
+        Runnable newFrontend = () -> {
+            Main.buildWorld(
+                    "-pp",
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+            );
+
+            Timer.runAndCount(() ->
+                    World.get()
+                            .getClassHierarchy()
+                            .allClasses()
+                            .forEach(c -> c.getDeclaredMethods().forEach(m -> {
+                                if (!m.isAbstract()) {
+                                    m.getIR();
+                                }
+                            })), "Get All IR");
+        };
+
+        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + 17);
+        Printer.printTestRes(true);
     }
 
     @Test

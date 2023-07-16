@@ -57,7 +57,7 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * The name of this Var.
      */
-    private final String name;
+    private String name;
 
     /**
      * The type of this Var.
@@ -155,6 +155,14 @@ public class Var implements LValue, RValue, Indexable {
     @Override
     public String toString() {
         return name;
+    }
+
+
+    /**
+     * Only used by frontend
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setType(Type t) {
