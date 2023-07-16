@@ -11,6 +11,7 @@ class Printer {
     public static void printTestRes(boolean includeAssignLiteral) {
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
+        AtomicLong assignLiteralCount = new AtomicLong();
 
         World.get()
                 .getClassHierarchy()
@@ -19,24 +20,21 @@ class Printer {
                     for (JMethod m : c.getDeclaredMethods()) {
                         if (!m.isAbstract()) {
                             IR ir = m.getIR();
-                            if (includeAssignLiteral) {
-                                stmtCount.addAndGet(ir.getStmts().size());
-                            } else {
-                                int assignLiteralCount = 0;
+                            stmtCount.addAndGet(ir.getStmts().size());
+                            varCount.addAndGet(ir.getVars().size());
+                            if (!includeAssignLiteral) {
                                 for (var i : ir.getStmts()) {
                                     if (i instanceof AssignLiteral) {
-                                        assignLiteralCount++;
+                                        assignLiteralCount.incrementAndGet();
                                     }
                                 }
-                                stmtCount.addAndGet(ir.getStmts().size() - assignLiteralCount);
                             }
-                            varCount.addAndGet(ir.getVars().size());
                         }
                     }
                 });
 
-        System.out.println("Count of all the stmts"
-                + (includeAssignLiteral ? "" : " except AssignLiterals") + ": " + stmtCount.get());
+        System.out.println("Count of all the stmts: " + stmtCount.get());
+        System.out.println("Count of all the stmts except AssignLiterals: " + (stmtCount.get() - assignLiteralCount.get()));
         System.out.println("Count of all the vars: " + varCount.get());
     }
 }

@@ -16,10 +16,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.project.MockOptions;
-import pascal.taie.project.OptionsProjectBuilder;
-import pascal.taie.project.Project;
-import pascal.taie.project.ProjectBuilder;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.Timer;
 import soot.Body;
@@ -41,15 +37,6 @@ import java.util.stream.Stream;
 import static soot.SootClass.HIERARCHY;
 
 public class TestAsmIRBuilder {
-
-    Project createProject(String classPath, String mainClass, List<String> inputClasses) {
-        MockOptions options = new MockOptions();
-        options.setClasspath(classPath);
-        options.setMainClass(mainClass);
-        options.setInputClasses(inputClasses);
-        ProjectBuilder builder = new OptionsProjectBuilder(options);
-        return builder.build();
-    }
 
     ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
         String worldPath = "src/test/resources/world";
@@ -94,11 +81,9 @@ public class TestAsmIRBuilder {
                     i.getDeclaredMethods()
                             .stream().filter(j -> methods.contains(j.getName()))
                             .forEach(m -> {
-                                AsmMethodSource jsr = (AsmMethodSource) m.getMethodSource();
-                                AsmIRBuilder builder1 = new AsmIRBuilder(m, jsr);
-                                builder1.build();
-                                System.out.println(m.getName() + " : " + builder1.getIr().getStmts());
-                                System.out.println(m.getName() + " : " + builder1.getIr().getExceptionEntries());
+                                for (var stmt : m.getIR().getStmts()) {
+                                    System.out.println(stmt);
+                                }
                             });
                 });
     }
