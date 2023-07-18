@@ -17,7 +17,6 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
-import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
@@ -29,7 +28,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
-import java.rmi.ConnectIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -124,9 +122,19 @@ public class CastingInsert {
                 Stmt newStmt = stmt.accept(new StmtVisitor<>() {
                     @Override
                     public Stmt visit(Copy stmt) {
-                        Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
+                        Var right = stmt.getRValue();
+                        Type t = maySplitStmt(stmt.getLValue(), right);
                         if (t != null) {
-                            return getNewCast(stmt.getLValue(), stmt.getRValue(), t);
+                            Pair<DefinitionStmt<?, ?>, Integer> newInBlock =
+                                    findNewInBlock(newStmts, right);
+                            if (newInBlock != null) {
+                                RValue rValue = newInBlock.first().getRValue();
+                                if (isAssignable(t, rValue.getType())) {
+                                    Var v = requireFlowTypeVar(block, right, newStmts);
+                                    return stage1Transform(stmt, right, v);
+                                }
+                            }
+                            return getNewCast(stmt.getLValue(), right, t);
                         } else {
                             return stmt;
                         }
@@ -201,8 +209,7 @@ public class CastingInsert {
                                         // if this file is a valid bytecode class, then it's checked
                                         // which means flowType is always assignable to required type
                                         assert isAssignable(t, v.getType());
-                                        Lenses l = new Lenses(builder.method, Map.of(base, v), Map.of(base, v));
-                                        return l.subSt(stmt);
+                                        return stage1Transform(stmt, base, v);
                                     } else {
                                         logger.atInfo().log("[CASTING] fallback solution for stage1");
                                     }
@@ -248,6 +255,11 @@ public class CastingInsert {
         }
     }
 
+    private Stmt stage1Transform(Stmt stmt, Var base, Var v) {
+        Lenses l = new Lenses(builder.method, Map.of(base, v), Map.of(base, v));
+        return l.subSt(stmt);
+    }
+
     List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
     }
@@ -279,10 +291,14 @@ public class CastingInsert {
             //         v1 is the "flow type var"
             Pair<DefinitionStmt<?, ?>, Integer> newInBlock = findNewInBlock(newStmts, globalVar);
             if (newInBlock != null) {
+                DefinitionStmt<?, ?> def = newInBlock.first();
+                if (def instanceof Copy copy) {
+                    return copy.getRValue();
+                }
                 Var v1 = builder.manager.getTempVar();
-                v1.setType(newInBlock.first().getRValue().getType());
+                v1.setType(def.getRValue().getType());
                 Lenses lenses = new Lenses(builder.method, Map.of(), Map.of(globalVar, v1));
-                newStmts.set(newInBlock.second(), lenses.subSt(newInBlock.first()));
+                newStmts.set(newInBlock.second(), lenses.subSt(def));
                 newStmts.add(newInBlock.second() + 1, new Copy(globalVar, v1));
                 flowTypeCache.put(info, v1);
                 return v1;

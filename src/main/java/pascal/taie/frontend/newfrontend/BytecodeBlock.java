@@ -2,7 +2,9 @@ package pascal.taie.frontend.newfrontend;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -12,6 +14,7 @@ import pascal.taie.util.collection.Maps;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -109,6 +112,10 @@ public final class BytecodeBlock {
     }
 
     public void setComplete() {
+        if (frame != null) {
+            buildFrameLocalType();
+            tryCorrectFrame();
+        }
         complete = true;
     }
 
@@ -246,7 +253,6 @@ public final class BytecodeBlock {
     public void setFrame(FrameNode frame) {
         assert frame != null;
         this.frame = frame;
-        buildFrameLocalType();
     }
 
     void setStmt2Asm(List<Integer> stmt2Asm) {
@@ -272,5 +278,48 @@ public final class BytecodeBlock {
     @Nullable
     public Type getExceptionHandlerType() {
         return exceptionHandlerType;
+    }
+
+
+    private void tryCorrectFrame() {
+        if (instr.isEmpty()) {
+            return;
+        }
+        AbstractInsnNode last = instr.get(instr.size() - 1);
+        if (!Utils.isReturn(last)) {
+            return;
+        }
+        // the last node is return
+        int size = frameLocalType.size();
+        boolean[] hits = new boolean[size];
+        Arrays.fill(hits, false);
+        boolean[] redefines = new boolean[size];
+        Arrays.fill(redefines, false);
+
+        for (AbstractInsnNode insnNode: instr) {
+            if (insnNode instanceof VarInsnNode varInsnNode) {
+                int var = varInsnNode.var;
+                if (var >= size) {
+                    continue;
+                }
+                if (Utils.isVarStore(varInsnNode)) {
+                    redefines[var] = true;
+                } else {
+                    if (!redefines[var]) {
+                        hits[var] = true;
+                    }
+                }
+            } else if (insnNode instanceof IincInsnNode iincInsnNode) {
+                int var = iincInsnNode.var;
+                redefines[var] = true;
+                hits[var] = true;
+            }
+        }
+
+        for (int i = 0; i < size; ++i) {
+            if (!hits[i]) {
+                frameLocalType.put(i, Top.Top);
+            }
+        }
     }
 }
