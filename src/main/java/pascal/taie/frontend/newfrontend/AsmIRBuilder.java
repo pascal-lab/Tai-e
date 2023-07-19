@@ -1450,7 +1450,7 @@ class AsmIRBuilder {
                     currentLineNumber = l.line;
                 } else {
                     if (currentLineNumber == -1) {
-                        logger.atInfo().log("[IR] no line number info, method: " + method);
+                        logger.atDebug().log("[IR] no line number info, method: " + method);
                         return;
                     }
                     var stmt = asm2Stmt.get(insnNode);
