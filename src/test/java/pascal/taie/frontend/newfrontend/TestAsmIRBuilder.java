@@ -3,7 +3,11 @@ package pascal.taie.frontend.newfrontend;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -66,6 +70,11 @@ public class TestAsmIRBuilder {
     ClassHierarchy getCh(String mainClass, int javaVersion) {
         String worldPath = "src/test/resources/world";
         return getCh(mainClass, List.of(worldPath + "/ " + mainClass), javaVersion);
+    }
+
+    @Before
+    public void setUp() {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
     }
 
     @Test
@@ -212,7 +221,8 @@ public class TestAsmIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--extract-all"
             );
 
             Timer.runAndCount(() ->
@@ -253,7 +263,8 @@ public class TestAsmIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-pp",
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--extract-all"
             );
 
             Timer.runAndCount(() ->

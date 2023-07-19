@@ -1,14 +1,10 @@
 package pascal.taie.project;
 
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.AllClassesCWBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +74,12 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                             Stream.concat(
                                 libClassPaths.stream().distinct().map(Paths::get),
                                 listJrtModule(options)).toList()));
+            if (options.getExtractAllClasses()) {
+                List<String> inputClasses = project.getInputClasses();
+                for (FileContainer path : project.getLibRootContainers()) {
+                    inputClasses.addAll(AllClassesCWBuilder.outPutAll(path));
+                }
+            }
             return project;
         } catch (IOException e) {
             // TODO: more info

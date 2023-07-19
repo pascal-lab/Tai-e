@@ -10,35 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class AllClassesCWBuilder implements ClosedWorldBuilder {
+public class AllClassesCWBuilder {
 
-    private Project project;
+    private final static List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
 
-    private final List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
-
-    List<ClassSource> allClasses;
-
-    @Override
-    public int getTotalClasses() {
-        return allClasses.size();
-    }
-
-    @Override
-    public Collection<ClassSource> getClosedWorld() {
-        return allClasses;
-    }
-
-    @Override
-    public void build(Project p) {
-        project = p;
-        allClasses = new ArrayList<>();
-        allClasses.addAll(outPutAll(p.getAppRootContainers()));
-        allClasses.addAll(outPutAll(p.getLibRootContainers()));
-    }
-
-    private List<ClassSource> outPutAll(FileContainer container) {
-        boolean isAppRoot = project.getAppRootContainers().contains(container);
-        List<ClassSource> res = new ArrayList<>(container.files().stream()
+    public static List<String> outPutAll(FileContainer container) {
+        List<String> res = new ArrayList<>(container.files().stream()
                 .filter(f -> f instanceof ClassFile)
                 .filter(f -> ! excluded.contains(f.fileName()))
                 .map(c -> {
@@ -46,10 +23,7 @@ public class AllClassesCWBuilder implements ClosedWorldBuilder {
                         var r = new ClassReader(c.resource().getContent());
                         String fullClassName = r.getClassName().replaceAll("/", ".");
                         assert !fullClassName.contains("/");
-                        boolean isApplication = isAppRoot
-                                || project.getInputClasses().contains(fullClassName)
-                                || fullClassName.equals(project.getMainClass());
-                        return new AsmSource(r, isApplication);
+                        return fullClassName;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -59,7 +33,7 @@ public class AllClassesCWBuilder implements ClosedWorldBuilder {
         return res;
     }
 
-    private List<ClassSource> outPutAll(List<FileContainer> containers) {
+    private static List<String> outPutAll(List<FileContainer> containers) {
         return containers.stream()
                 .flatMap(c -> outPutAll(c).stream())
                 .toList();
