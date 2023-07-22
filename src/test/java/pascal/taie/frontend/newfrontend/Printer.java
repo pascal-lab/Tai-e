@@ -34,7 +34,9 @@ class Printer {
                 });
 
         System.out.println("Count of all the stmts: " + stmtCount.get());
-        System.out.println("Count of all the stmts except AssignLiterals: " + (stmtCount.get() - assignLiteralCount.get()));
+        if (!includeAssignLiteral) {
+            System.out.println("Count of all the stmts except AssignLiterals: " + (stmtCount.get() - assignLiteralCount.get()));
+        }
         System.out.println("Count of all the vars: " + varCount.get());
     }
 }
