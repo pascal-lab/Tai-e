@@ -72,7 +72,7 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
             return options.getClassPath();
-        } else if (options.getJreDir() != null || options.getJavaVersion() >= 9) {
+        } else if (options.getJreDir() != null) {
             // use another method for jre path
             return options.getClassPath();
         } else { // when prependJVM is not set, we manually specify JRE jars
@@ -81,8 +81,9 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
             if (!jreDir.exists()) {
                 throw new RuntimeException(JRE_FIND_FAILED);
             }
-            String jrePath = String.format("%s/jre1.%d",
-                    JREs, options.getJavaVersion());
+            int javaVersion = options.getJavaVersion();
+            String jrePath = String.format("%s/jre" + ((javaVersion <= 8) ? "1.%d" : "%d"),
+                    JREs, javaVersion);
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
@@ -136,14 +137,6 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
             Path jreDir;
             if (options.getJreDir() != null) {
                 jreDir = Path.of(options.getJreDir());
-            } else if (javaVersion == 11 || javaVersion == 17) {
-                Path jreFolder = Path.of(JREs, "jre" + javaVersion);
-                if (Files.isDirectory(jreFolder)) {
-                    setUpBenchmarkJRE(jreFolder);
-                    jreDir = jreFolder;
-                } else {
-                    throw new RuntimeException(JRE_FIND_FAILED);
-                }
             } else {
                 // TODO: produce error, JRE may not loaded
                 return Stream.empty();
