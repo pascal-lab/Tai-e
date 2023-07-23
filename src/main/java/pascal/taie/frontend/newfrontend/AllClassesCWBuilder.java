@@ -14,28 +14,29 @@ public class AllClassesCWBuilder {
 
     private final static List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
 
-    public static List<String> outPutAll(FileContainer container) {
+    public static List<String> outPutAll(FileContainer root) {
+        return outPutAll("", root, true);
+    }
+
+    private static List<String> outPutAll(String current, FileContainer container, boolean isRoot) {
+        String currentNext = (isRoot) ? "" : current + container.className() + ".";
         List<String> res = new ArrayList<>(container.files().stream()
                 .filter(f -> f instanceof ClassFile)
                 .filter(f -> ! excluded.contains(f.fileName()))
+                .filter(f -> ! f.fileName().equals("module-info.class"))
                 .map(c -> {
-                    try {
-                        var r = new ClassReader(c.resource().getContent());
-                        String fullClassName = r.getClassName().replaceAll("/", ".");
-                        assert !fullClassName.contains("/");
-                        return fullClassName;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    String fullClassName = currentNext + ((ClassFile) c).getClassName();
+                    assert !fullClassName.contains("/");
+                    return fullClassName;
                 })
                 .toList());
-        res.addAll(outPutAll(container.containers()));
+        res.addAll(outPutAll(currentNext, container.containers()));
         return res;
     }
 
-    private static List<String> outPutAll(List<FileContainer> containers) {
+    private static List<String> outPutAll(String current, List<FileContainer> containers) {
         return containers.stream()
-                .flatMap(c -> outPutAll(c).stream())
+                .flatMap(c -> outPutAll(current, c, false).stream())
                 .toList();
     }
 }
