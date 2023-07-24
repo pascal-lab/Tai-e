@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class VarWebSplitter {
+class VarWebSplitter {
 
     private final AsmIRBuilder builder;
 
@@ -51,15 +51,6 @@ public class VarWebSplitter {
                     BytecodeBlock,
                     Map<
                             Var,
-                            StmtOccur
-                    >
-            > outDef;
-
-    private final Map
-            <
-                    BytecodeBlock,
-                    Map<
-                            Var,
                             List<StmtOccur>
                     >
             > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
@@ -75,14 +66,11 @@ public class VarWebSplitter {
         this(builder, null);
     }
 
-    // TODO:
-    //   (optional) remove all phantom defs by dfs / bfs traversal
     public VarWebSplitter(AsmIRBuilder builder, DataflowResult<Stmt, SetFact<Var>> liveVariables) {
         this.builder = builder;
         this.varManager = builder.manager;
         this.webs = new HashMap<>();
         this.inDef = new HashMap<>();
-        this.outDef = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
         this.split = Maps.newMap();
@@ -109,19 +97,14 @@ public class VarWebSplitter {
     }
 
     public void constructWeb() {
-        var blocks = builder.blockSortedList;
-        for (var block : blocks) {
-            if (! inDef.containsKey(block)) {
-                constructWebInsideBlock(block, null);
+        BytecodeBlock entry = builder.getEntryBlock();
+        constructWebInsideBlock(entry, getPhantomInDefs(entry));
+        for (Pair<List<BytecodeBlock>, BytecodeBlock> tryCatchPair : tryAndHandlerBlocks) {
+            BytecodeBlock handler = tryCatchPair.second();
+            if (! inDef.containsKey(handler)) {
+                constructWebInsideBlock(handler, getPhantomInDefs(handler));
             }
         }
-
-        for (var block : blocks) {
-            for (var succ : block.outEdges()) {
-                constructWebBetweenBlock(block, succ);
-            }
-        }
-
         for (var tryCatchPair : tryAndHandlerBlocks) {
             var trys = tryCatchPair.first();
             var handler = tryCatchPair.second();
@@ -131,12 +114,7 @@ public class VarWebSplitter {
         }
     }
 
-    private void constructWebBetweenBlock(BytecodeBlock pred, BytecodeBlock succ) {
-        var predOutDef = outDef.get(pred);
-        var succInDef = inDef.get(succ);
-        if (predOutDef == succInDef) {
-            return;
-        }
+    private void mergeDefs(Map<Var, StmtOccur> succInDef, Map<Var, StmtOccur> predOutDef) {
         for (Var var : succInDef.keySet()) {
             var web = webs.get(var);
             assert predOutDef.containsKey(var);
@@ -144,39 +122,71 @@ public class VarWebSplitter {
         }
     }
 
-    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
-        boolean isInTry = block.isInTry();
+    private Map<Var, StmtOccur> washDefs(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
+        Map<Var, StmtOccur> res = Maps.newMap(inDef.size());
+        for (Var var : getDefsAtStartOfBlock(block)) {
+            assert inDef.containsKey(var);
+            res.put(var, inDef.get(var));
+        }
+        return res;
+    }
+
+    private Map<Var, StmtOccur> getPhantomInDefs(BytecodeBlock entry) {
+        boolean isInTry = entry.isInTry();
+        Map<Var, StmtOccur> res = new HashMap<>();
         Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
-        if (inDef == null || isFrameProvided(block)) {
-            Kind phantomType = block == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
-            Map<Var, StmtOccur> phantomDefs = new HashMap<>();
-            for (Var var : getDefsAtStartOfBlock(block)) { // initialization.
-                Copy phantom = new Copy(var, var);
-                StmtOccur e = new StmtOccur(block, -1, phantom, phantomType);
-                var web = webs.get(var);
-                assert web != null;
-                web.addElement(e);
-                phantomDefs.put(var, e);
-                if (isInTry) {
-                    // collect phantom to mayFlowToCatch
-                    List<StmtOccur> varDefs = new ArrayList<>();
-                    varDefs.add(e);
-                    mayFlowToCatch.put(var, varDefs);
-                }
-            }
-            inDef = phantomDefs;
-        } else {
-            if (mayFlowToCatch != null) {
-                inDef.forEach((k, v) -> {
-                    List<StmtOccur> temp = new ArrayList<>();
-                    temp.add(v);
-                    mayFlowToCatch.put(k, temp);
-                });
+        Kind phantomType = entry == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
+        for (Var var : getDefsAtStartOfBlock(entry)) { // initialization.
+            Copy phantom = new Copy(var, var);
+            StmtOccur e = new StmtOccur(entry, -1, phantom, phantomType);
+            var web = webs.get(var);
+            assert web != null;
+            web.addElement(e);
+            res.put(var, e);
+            if (isInTry) {
+                // collect phantom to mayFlowToCatch
+                List<StmtOccur> varDefs = List.of(e);
+                mayFlowToCatch.put(var, varDefs);
             }
         }
+        if (isInTry) {
+            mayFlowToCatchOfBlocks.put(entry, mayFlowToCatch);
+        }
+        return res;
+    }
 
-        this.inDef.put(block, inDef);
-        Map<Var, StmtOccur> currentDefs = new HashMap<>(inDef);
+    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
+        boolean isInTry = block.isInTry();
+        Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>(inDef.size()) : null;
+        Map<Var, StmtOccur> currentDefs;
+        int size = block.inEdges().size();
+        if (size > 1) {
+            if (this.inDef.containsKey(block)) {
+                Map<Var, StmtOccur> otherInDefs = this.inDef.get(block);
+                mergeDefs(otherInDefs, inDef);
+                return;
+            } else {
+                Map<Var, StmtOccur> realInDef = washDefs(block, inDef);
+                this.inDef.put(block, realInDef);
+                currentDefs = new HashMap<>(realInDef);
+            }
+        }  else {
+            if (block == builder.getEntryBlock() && this.inDef.get(block) != null) {
+                mergeDefs(this.inDef.get(block), inDef);
+                return;
+            }
+            assert this.inDef.get(block) == null;
+            this.inDef.put(block, inDef);
+            currentDefs = new HashMap<>(inDef);
+        }
+
+        if (isInTry) {
+            currentDefs.forEach((key, value) -> {
+                List<StmtOccur> occurs = new ArrayList<>();
+                occurs.add(value);
+                mayFlowToCatch.put(key, occurs);
+            });
+        }
 
         List<Stmt> stmts = getStmts(block);
         for (int i = 0; i < stmts.size(); ++i) {
@@ -211,13 +221,12 @@ public class VarWebSplitter {
             }
         }
 
-        outDef.put(block, currentDefs);
         if (isInTry) {
             mayFlowToCatchOfBlocks.put(block, mayFlowToCatch);
         }
 
-        if (block.fallThrough() != null && builder.isFrameUsable()) {
-            constructWebInsideBlock(block.fallThrough(), currentDefs);
+        for (BytecodeBlock bytecodeBlock : block.outEdges()) {
+            constructWebInsideBlock(bytecodeBlock, currentDefs);
         }
     }
 

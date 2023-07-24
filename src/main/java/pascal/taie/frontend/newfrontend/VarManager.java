@@ -294,13 +294,14 @@ class VarManager {
             }
         });
 
-        {
-            // TODO: refactor this check to a function call
-            var l = res.stream().map(Pair::first).toList();
-            assert l.size() == l.stream().distinct().toList().size();
-        }
+        assert verifyDefs(res);
 
         return res;
+    }
+
+    private static boolean verifyDefs(List<Pair<Integer, Var>> res) {
+        var l = res.stream().map(Pair::first).toList();
+        return l.size() == l.stream().distinct().toList().size();
     }
 
     public void replaceParam(Var oldVar, Var newVar) {
