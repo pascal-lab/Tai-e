@@ -27,6 +27,7 @@ import pascal.taie.util.collection.TwoKeyMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -49,13 +50,13 @@ class TransferInferenceHandler extends OnFlyHandler {
      * Map from a method parameter to its CSVar. A parameter is indicated by a method
      * and an index.
      */
-    private final TwoKeyMap<JMethod, Integer, Set<CSVar>> param2CSVar = Maps.newTwoKeyMap();
+    private final MultiMap<Param, CSVar> param2CSVar = Maps.newMultiMap();
 
     /**
      * Map from a CSVar to a method parameter. A parameter is indicated by a method
      * and an index.
      */
-    private final MultiMap<CSVar, Pair<JMethod, Integer>> csVar2Param = Maps.newMultiMap();
+    private final MultiMap<CSVar, Param> csVar2Param = Maps.newMultiMap();
 
     /**
      * All CSVar related to sink method
@@ -67,7 +68,7 @@ class TransferInferenceHandler extends OnFlyHandler {
     /**
      * Map from a parameter to its type
      */
-    private final MultiMap<Pair<JMethod, Integer>, Type> param2ClassType = Maps.newMultiMap();
+    private final MultiMap<Param, Type> param2ClassType = Maps.newMultiMap();
 
     private final Set<TaintTransfer> inferenceTransfers = Sets.newSet();
 
@@ -97,18 +98,9 @@ class TransferInferenceHandler extends OnFlyHandler {
         taintConfig.sinks().forEach(sink -> sinkMethod2Sink.put(sink.method(), sink));
     }
 
-    private Set<CSVar> getParamCSVar(JMethod method, int index) {
-        return param2CSVar.getOrDefault(method, index, Set.of());
-    }
-
-    private void addParamCSVar(JMethod method, int index, CSVar newCSVar) {
-        Set<CSVar> csVarSet = param2CSVar.computeIfAbsent(method, index, (__, ___) -> Sets.newHybridSet());
-        csVarSet.add(newCSVar);
-    }
-
     // Return ClassType in parameter, because currently we only infer transfer for ClassType.
     private Set<Type> getParamClassType(JMethod method, int index) {
-        return param2ClassType.get(new Pair<>(method, index));
+        return param2ClassType.get(new Param(method, index));
     }
 
     private List<TaintTransfer> getTransfers(JMethod method, int from, int to) {
@@ -255,20 +247,23 @@ class TransferInferenceHandler extends OnFlyHandler {
         for (int i = 0; i < callee.getParamCount(); i++) {
             Var arg = InvokeUtils.getVar(callSite, i);
             CSVar csArg = csManager.getCSVar(context, arg);
-            addParamCSVar(callee, i, csArg);
-            csVar2Param.put(csArg, new Pair<>(callee, i));
+            Param param = new Param(callee, i);
+            param2CSVar.put(param, csArg);
+            csVar2Param.put(csArg, param);
         }
         if (!callSite.isStatic()) {
             Var base = InvokeUtils.getVar(callSite, InvokeUtils.BASE);
             CSVar csBase = csManager.getCSVar(context, base);
-            addParamCSVar(callee, InvokeUtils.BASE, csBase);
-            csVar2Param.put(csBase, new Pair<>(callee, InvokeUtils.BASE));
+            Param param = new Param(callee, InvokeUtils.BASE);
+            param2CSVar.put(param, csBase);
+            csVar2Param.put(csBase, param);
         }
         Var result = InvokeUtils.getVar(callSite, InvokeUtils.RESULT);
         if (result != null) {
             CSVar csResult = csManager.getCSVar(context, result);
-            addParamCSVar(callee, InvokeUtils.RESULT, csResult);
-            csVar2Param.put(csResult, new Pair<>(callee, InvokeUtils.RESULT));
+            Param param = new Param(callee, InvokeUtils.RESULT);
+            param2CSVar.put(param, csResult);
+            csVar2Param.put(csResult, param);
         }
 
         sinkMethod2Sink.get(callee)
@@ -289,7 +284,7 @@ class TransferInferenceHandler extends OnFlyHandler {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        Set<Pair<JMethod, Integer>> params = csVar2Param.get(csVar);
+        Set<Param> params = csVar2Param.get(csVar);
         Set<Type> newTypes = pts.objects()
                 .map(CSObj::getObject)
                 .map(Obj::getType)
@@ -313,7 +308,7 @@ class TransferInferenceHandler extends OnFlyHandler {
         }
 
         newTypesCanReachSink.addAll(params.stream()
-                .map(Pair::first)
+                .map(Param::method)
                 .distinct()
                 .map(this::updateTypeTransfer)
                 .flatMap(Collection::stream)
@@ -340,5 +335,20 @@ class TransferInferenceHandler extends OnFlyHandler {
     }
 
     private record Rule(Predicate<JMethod> predicate, int from, int to) {
+    }
+
+    private record Param(JMethod method, int index) {
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Param param = (Param) o;
+            return index == param.index && Objects.equals(method, param.method);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(method, index);
+        }
     }
 }
