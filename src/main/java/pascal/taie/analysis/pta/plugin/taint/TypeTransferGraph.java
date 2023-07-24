@@ -28,7 +28,7 @@ public class TypeTransferGraph implements Graph<Type> {
         // Filter out-edges of java.lang.Object for better precision
         if (concernedType.contains(from.getClass())
                 && concernedType.contains(to.getClass())
-                && from.getName().equals("java.lang.Object")) {
+                && !from.getName().equals("java.lang.Object")) {
             successor.put(from, to);
             predecessor.put(to, from);
             nodes.add(from);
