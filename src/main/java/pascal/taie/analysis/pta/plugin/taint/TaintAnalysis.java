@@ -64,10 +64,14 @@ public class TaintAnalysis implements Plugin {
         logger.info(config);
         HandlerContext context = new HandlerContext(solver, manager, config);
         CompositePlugin onFlyHandler = new CompositePlugin();
+        TransferHandler transferHandler = new TransferHandler(context);
         onFlyHandler.addPlugin(
                 new SourceHandler(context),
-                new TransferHandler(context),
+                transferHandler,
                 new SanitizerHandler(context));
+        if(config.inferenceConfig().inferenceEnable()) {
+            onFlyHandler.addPlugin(new TransferInferenceHandler(context, transferHandler::addNewTransfer));
+        }
         this.onFlyHandler = onFlyHandler;
         sinkHandler = new SinkHandler(context);
     }
