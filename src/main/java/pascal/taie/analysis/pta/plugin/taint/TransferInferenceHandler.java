@@ -280,7 +280,6 @@ class TransferInferenceHandler extends OnFlyHandler {
                 });
     }
 
-    private void addSinkTypes
 
     @Override
     public void onNewMethod(JMethod method) {
@@ -300,7 +299,7 @@ class TransferInferenceHandler extends OnFlyHandler {
         params.forEach(param -> param2ClassType.putAll(param, newTypes));
 
         Set<Type> newTypesCanReachSink = Sets.newSet();
-        if (csVar2SinkMethod.containsKey(csVar)) {
+        if (sinkCSVars.contains(csVar)) {
             newTypesCanReachSink.addAll(typeReachability.addSinkTypes(newTypes));
             logger.info("has sink method");
         }
