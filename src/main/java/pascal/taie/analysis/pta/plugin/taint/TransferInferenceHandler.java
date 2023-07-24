@@ -295,13 +295,9 @@ class TransferInferenceHandler extends OnFlyHandler {
 
         Set<Type> newTypesCanReachSink = Sets.newSet();
         if (sinkCSVars.contains(csVar)) {
-            newTypesCanReachSink.addAll(typeReachability.addSinkTypes(newTypes));
-            logger.info("has sink method");
+            newTypes.forEach(newSinkType ->
+                    newTypesCanReachSink.addAll(typeReachability.addSinkType(newSinkType)));
         }
-
-//        logger.info("sinkTypes size: {}, typesCanReachSink size: {}",
-//                typeReachability.getSinkTypes().size(),
-//                typeReachability.getTypesCanReachSink().size());
 
         if(typeReachability.getTypesCanReachSink().isEmpty()) {
             return;
