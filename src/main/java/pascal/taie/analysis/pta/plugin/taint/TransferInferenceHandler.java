@@ -20,10 +20,9 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.TwoKeyMap;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -96,11 +95,6 @@ class TransferInferenceHandler extends OnFlyHandler {
                 .forEach(hasTransferMethods::add);
         this.typeReachability = new TypeReachability(new TypeTransferGraph(solver.getHierarchy()));
         taintConfig.sinks().forEach(sink -> sinkMethod2Sink.put(sink.method(), sink));
-    }
-
-    // Return ClassType in parameter, because currently we only infer transfer for ClassType.
-    private Set<Type> getParamClassType(JMethod method, int index) {
-        return param2ClassType.get(new Param(method, index));
     }
 
     private List<TaintTransfer> getTransfers(JMethod method, int from, int to) {
@@ -189,7 +183,7 @@ class TransferInferenceHandler extends OnFlyHandler {
                 || ignoreClasses.contains(method.getDeclaringClass())) {
             return;
         }
-        if(typeReachability.getTypesCanReachSink().isEmpty()) {
+        if (typeReachability.getTypesCanReachSink().isEmpty()) {
             return;
         }
         List<Rule> matchedRules = rules.stream().filter(rule -> rule.predicate().test(method)).toList();
@@ -203,68 +197,100 @@ class TransferInferenceHandler extends OnFlyHandler {
         }
     }
 
-    // Return new types that can reach sink
-    private Set<Type> updateTypeTransfer(JMethod method) {
-        Set<Type> newTypesCanReachSink = Sets.newSet();
-        Set<Type> resultTypes = getParamClassType(method, InvokeUtils.RESULT);
-        Set<Type> argTypes = Sets.newSet();
-        for (int i = 0; i < method.getParamCount(); i++) {
-            argTypes.addAll(getParamClassType(method, i));
-        }
-        if (!method.isStatic()) {
-            // base-to-result
-            Set<Type> baseTypes = getParamClassType(method, InvokeUtils.BASE);
-            if (!baseTypes.isEmpty()) {
-                for (Type baseType : baseTypes) {
-                    for (Type resultType : resultTypes) {
-                        newTypesCanReachSink.addAll(typeReachability.addTypeTransfer(baseType, resultType));
-                    }
-                }
-
-                // arg-to-base
-                for (Type baseType : baseTypes) {
-                    for (Type argType : argTypes) {
-                        newTypesCanReachSink.addAll(typeReachability.addTypeTransfer(argType, baseType));
-                    }
-                }
+    private Set<Type> getParamClassType(JMethod method, int index) {
+        if(index == ARG) {  // Merge all types in args
+            Set<Type> result = Sets.newSet();
+            for(int i = 0; i < method.getParamCount(); i++) {
+                result.addAll(param2ClassType.get(new Param(method, i)));
             }
+            return result;
         } else {
-            // arg-to-result
-            for (Type argType : argTypes) {
-                for (Type resultType : resultTypes) {
-                    newTypesCanReachSink.addAll(typeReachability.addTypeTransfer(argType, resultType));
+            return param2ClassType.get(new Param(method, index));
+        }
+    }
+
+    // Return new types that can reach sink
+    private Set<Type> processNewParamTypes(Param param, Set<Type> type) {
+        JMethod method = param.method;
+        int index = param.index;
+        Set<Type> existParamTypes = getParamClassType(param.method, param.index);
+        type = type.stream().filter(Predicate.not(existParamTypes::contains)).collect(Collectors.toSet());
+        Set<Type> newTypesCanReachSink = Sets.newSet();
+        switch (index) {
+            case InvokeUtils.BASE -> {
+                assert !method.isStatic();
+                // base-to-result
+                newTypesCanReachSink.addAll(
+                        addTypeTransfers(type, getParamClassType(method, InvokeUtils.RESULT)));
+                // arg-to-base
+                newTypesCanReachSink.addAll(addTypeTransfers(getParamClassType(method, ARG), type));
+            }
+            case InvokeUtils.RESULT -> {
+                // arg-to-result
+                newTypesCanReachSink.addAll(addTypeTransfers(getParamClassType(method, ARG), type));
+                if(!method.isStatic()) {
+                    // base-to-result
+                    newTypesCanReachSink.addAll(
+                            addTypeTransfers(getParamClassType(method, InvokeUtils.BASE), type));
                 }
             }
+            default -> {
+                newTypesCanReachSink.addAll(
+                        addTypeTransfers(type, getParamClassType(method, InvokeUtils.RESULT)));
+                if(!method.isStatic()) {
+                    newTypesCanReachSink.addAll(
+                            addTypeTransfers(type, getParamClassType(method, InvokeUtils.BASE)));
+                }
+            }
+        }
+        if (newTypesCanReachSink.isEmpty()) {
+            return Set.of();
         }
         return newTypesCanReachSink;
     }
 
+    private Set<Type> addTypeTransfers(Set<Type> fromTypes, Set<Type> toTypes) {
+        Set<Type> result = Sets.newSet();
+        for(Type from : fromTypes) {
+            for(Type to : toTypes) {
+                result.addAll(typeReachability.addTypeTransfer(from, to));
+            }
+        }
+        return result;
+    }
+
+    @Nullable
+    private CSVar getCSVar(CSCallSite csCallSite, int index) {
+        Invoke callSite = csCallSite.getCallSite();
+        Var var = InvokeUtils.getVar(callSite, index);
+        if (var == null) {
+            return null;
+        }
+        return csManager.getCSVar(csCallSite.getContext(), var);
+    }
+
+    private void processNewCSVarOfParam(Param param, CSVar csVar) {
+        if (csVar != null) {
+            param2CSVar.put(param, csVar);
+            csVar2Param.put(csVar, param);
+        }
+    }
+
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
-        Context context = edge.getCallSite().getContext();
-        Invoke callSite = edge.getCallSite().getCallSite();
+        CSCallSite csCallSite = edge.getCallSite();
+        Context context = csCallSite.getContext();
+        Invoke callSite = csCallSite.getCallSite();
         JMethod callee = edge.getCallee().getMethod();
         for (int i = 0; i < callee.getParamCount(); i++) {
-            Var arg = InvokeUtils.getVar(callSite, i);
-            CSVar csArg = csManager.getCSVar(context, arg);
-            Param param = new Param(callee, i);
-            param2CSVar.put(param, csArg);
-            csVar2Param.put(csArg, param);
+            processNewCSVarOfParam(new Param(callee, i), getCSVar(csCallSite, i));
         }
         if (!callSite.isStatic()) {
-            Var base = InvokeUtils.getVar(callSite, InvokeUtils.BASE);
-            CSVar csBase = csManager.getCSVar(context, base);
-            Param param = new Param(callee, InvokeUtils.BASE);
-            param2CSVar.put(param, csBase);
-            csVar2Param.put(csBase, param);
+            processNewCSVarOfParam(new Param(callee, InvokeUtils.BASE),
+                    getCSVar(csCallSite, InvokeUtils.BASE));
         }
-        Var result = InvokeUtils.getVar(callSite, InvokeUtils.RESULT);
-        if (result != null) {
-            CSVar csResult = csManager.getCSVar(context, result);
-            Param param = new Param(callee, InvokeUtils.RESULT);
-            param2CSVar.put(param, csResult);
-            csVar2Param.put(csResult, param);
-        }
+        processNewCSVarOfParam(new Param(callee, InvokeUtils.RESULT),
+                getCSVar(csCallSite, InvokeUtils.RESULT));
 
         sinkMethod2Sink.get(callee)
                 .forEach(sink -> {
@@ -285,6 +311,9 @@ class TransferInferenceHandler extends OnFlyHandler {
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Set<Param> params = csVar2Param.get(csVar);
+        if(params.isEmpty()) {
+            return;
+        }
         Set<Type> newTypes = pts.objects()
                 .map(CSObj::getObject)
                 .map(Obj::getType)
@@ -299,16 +328,14 @@ class TransferInferenceHandler extends OnFlyHandler {
                     newTypesCanReachSink.addAll(typeReachability.addSinkType(newSinkType)));
         }
 
-        if(typeReachability.getTypesCanReachSink().isEmpty()) {
+        if (typeReachability.getTypesCanReachSink().isEmpty()) {
             return;
         }
 
-        newTypesCanReachSink.addAll(params.stream()
-                .map(Param::method)
-                .distinct()
-                .map(this::updateTypeTransfer)
+        params.stream()
+                .map(param -> processNewParamTypes(param, newTypes))
                 .flatMap(Collection::stream)
-                .toList());
+                .forEach(newTypesCanReachSink::add);
 
         if (!newTypesCanReachSink.isEmpty()) {
             for (JMethod method : methods) {
