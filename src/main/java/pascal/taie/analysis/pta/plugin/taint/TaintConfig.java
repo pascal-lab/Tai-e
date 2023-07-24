@@ -64,7 +64,8 @@ record TaintConfig(List<Source> sources,
                    List<Sink> sinks,
                    List<TaintTransfer> transfers,
                    List<ParamSanitizer> paramSanitizers,
-                   boolean callSiteMode) {
+                   boolean callSiteMode,
+                   TransferInferenceConfig inferenceConfig) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
@@ -72,7 +73,7 @@ record TaintConfig(List<Source> sources,
      * An empty taint config.
      */
     private static final TaintConfig EMPTY = new TaintConfig(
-            List.of(), List.of(), List.of(), List.of(), false);
+            List.of(), List.of(), List.of(), List.of(), false, TransferInferenceConfig.EMPTY);
 
     /**
      * Loads a taint analysis configuration from given path.
@@ -140,7 +141,9 @@ record TaintConfig(List<Source> sources,
                 Lists.concatDistinct(sinks, other.sinks),
                 Lists.concatDistinct(transfers, other.transfers),
                 Lists.concatDistinct(paramSanitizers, other.paramSanitizers),
-                callSiteMode || other.callSiteMode);
+                callSiteMode || other.callSiteMode,
+                inferenceConfig.mergeWith(other.inferenceConfig)
+        );
     }
 
     @Override
@@ -165,6 +168,16 @@ record TaintConfig(List<Source> sources,
             sb.append("\nsanitizers:\n");
             paramSanitizers.forEach(sanitizer ->
                     sb.append("  ").append(sanitizer).append("\n"));
+        }
+        if (inferenceConfig != TransferInferenceConfig.EMPTY) {
+            sb.append("\ntransfer-inference-config:\n");
+            sb.append("  confidence: ").append(inferenceConfig.confidence()).append("\n");
+            sb.append("  ignoreClasses:\n");
+            inferenceConfig.ignoreClasses().forEach(jClass ->
+                    sb.append("    ").append(jClass.getName()).append("\n"));
+            sb.append("  ignoreMethods:\n");
+            inferenceConfig.ignoreMethods().forEach(method ->
+                    sb.append("    ").append(method.getSignature()).append("\n"));
         }
         return sb.toString();
     }
@@ -193,9 +206,10 @@ record TaintConfig(List<Source> sources,
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
             List<ParamSanitizer> sanitizers = deserializeSanitizers(node.get("sanitizers"));
             JsonNode callSiteNode = node.get("call-site-mode");
+            TransferInferenceConfig inferenceConfig = deserializeInferenceConfig((node.get("transfer-inference")));
             boolean callSiteMode = (callSiteNode != null && callSiteNode.asBoolean());
             return new TaintConfig(
-                    sources, sinks, transfers, sanitizers, callSiteMode);
+                    sources, sinks, transfers, sanitizers, callSiteMode, inferenceConfig);
         }
 
         /**
@@ -438,6 +452,48 @@ record TaintConfig(List<Source> sources,
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
             }
+        }
+
+        private TransferInferenceConfig deserializeInferenceConfig(JsonNode node) {
+            if(node == null) {
+                return TransferInferenceConfig.EMPTY;
+            }
+
+            TransferInferenceConfig.Confidence confidence =
+                    TransferInferenceConfig.Confidence.valueOf(
+                            node.path("confidence").asText().toUpperCase());
+            JsonNode classNode = node.path("ignoreClasses");
+            JsonNode methodNode = node.path("ignoreMethods");
+            List<JClass> ignoreClasses = List.of();
+            List<JMethod> ignoreMethods = List.of();
+
+            if(classNode instanceof ArrayNode arrayNode) {
+                ignoreClasses = new ArrayList<>(arrayNode.size());
+                for(JsonNode elem : arrayNode) {
+                    String className = elem.asText();
+                    JClass jClass = hierarchy.getClass(className);
+                    if(jClass != null) {
+                        ignoreClasses.add(jClass);
+                    } else {
+                        logger.warn("Cannot find ignore class '{}'", className);
+                    }
+                }
+            }
+
+            if(methodNode instanceof ArrayNode arrayNode) {
+                ignoreMethods = new ArrayList<>(arrayNode.size());
+                for(JsonNode elem : arrayNode) {
+                    String methodSig = elem.asText();
+                    JMethod method = hierarchy.getMethod(methodSig);
+                    if(method != null) {
+                        ignoreMethods.add(method);
+                    } else {
+                        logger.warn("Cannot find ignore method '{}'", methodSig);
+                    }
+                }
+            }
+
+            return new TransferInferenceConfig(confidence, ignoreClasses, ignoreMethods);
         }
     }
 }
