@@ -73,7 +73,7 @@ class VarManager {
                       InsnList insnList) {
         this.method = method;
         this.localVariableTable = localVariableTable;
-        this.existsLocalVariableTable = localVariableTable != null && localVariableTable.size() != 0;
+        this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
         this.local2Var = Maps.newMap();
         this.parsedLocalVarTable = existsLocalVariableTable ? Maps.newMap() : null;
@@ -112,6 +112,7 @@ class VarManager {
     }
 
     private void processLocalVarTable() {
+        assert localVariableTable != null;
         for (LocalVariableNode node : localVariableTable) {
             int start = insnList.indexOf(node.start);
             int end = insnList.indexOf(getNextTrueInsnNode(node.end));
@@ -227,10 +228,6 @@ class VarManager {
         return name + "#" + count;
     }
 
-    public boolean existsLocalVariableTable() {
-        return existsLocalVariableTable;
-    }
-
     public void addReturnVar(Var v) {
         this.retVars.add(v);
     }
@@ -274,11 +271,11 @@ class VarManager {
         return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
-    public boolean isSpecialVar(Var v) {
-        return v.getName().startsWith("*") || Objects.equals(v.getName(), NULL_LITERAL);
+    public boolean isNotSpecialVar(Var v) {
+        return !v.getName().startsWith("*") && !Objects.equals(v.getName(), NULL_LITERAL);
     }
 
-    public boolean isLocal(Var v) { return ! isTempVar(v) && ! isSpecialVar(v); }
+    public boolean isLocal(Var v) { return ! isTempVar(v) && isNotSpecialVar(v); }
 
     /**
      * @param block index of the AsmNode

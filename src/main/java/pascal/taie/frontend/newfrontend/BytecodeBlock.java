@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Stack;
 
 public final class BytecodeBlock {
@@ -39,8 +38,6 @@ public final class BytecodeBlock {
 
     @Nullable
     private FrameNode frame;
-
-    private AbstractInsnNode firstBytecode;
 
     private boolean complete;
 
@@ -129,12 +126,8 @@ public final class BytecodeBlock {
 
     public void setInStack(Stack<Exp> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
-        if (frame == null) {
-            // assert inStack.isEmpty() || inEdges.size() == 1;
-        } else {
-            assert inStack.stream().filter(i -> i instanceof Var).count()
-                    == frame.stack.size();
-        }
+        assert frame == null ||
+                inStack.stream().filter(i -> i instanceof Var).count() == frame.stack.size();
         this.inStack = inStack;
         for (var pred : inEdges) {
             if (pred.outStack == null) {
@@ -150,21 +143,6 @@ public final class BytecodeBlock {
             if (succ.inStack == null) {
                 succ.setInStack(outStack);
             }
-        }
-    }
-
-    public Stmt getFirstStmt() {
-        return stmts.get(0);
-    }
-
-    public Optional<AbstractInsnNode> getFirstBytecode() {
-        if (instr().size() != 0) {
-            if (firstBytecode == null) {
-                firstBytecode = instr.get(0);
-            }
-            return Optional.of(firstBytecode);
-        } else {
-            return Optional.empty();
         }
     }
 
@@ -230,7 +208,7 @@ public final class BytecodeBlock {
                 n++;
             }
         } else {
-            assert inEdges.size() == 0;
+            assert inEdges.isEmpty();
         }
         return typing;
     }

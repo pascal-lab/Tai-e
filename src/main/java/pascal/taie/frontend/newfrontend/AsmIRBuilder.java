@@ -107,7 +107,7 @@ import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
 
-class AsmIRBuilder {
+public class AsmIRBuilder {
 
     private IR ir;
 
@@ -530,8 +530,7 @@ class AsmIRBuilder {
 
     private Type getExceptionType(String s) {
         String name = s == null ? getThrowable() : s;
-        ReferenceType expType = BuildContext.get().fromAsmInternalName(name);
-        return expType;
+        return BuildContext.get().fromAsmInternalName(name);
     }
 
     private boolean inRange(int opcode, int min, int max) {
@@ -814,7 +813,7 @@ class AsmIRBuilder {
         while (! nowStack1.isEmpty()) {
             mergeStack1(auxiliary, nowStack1, target1);
         }
-        if (auxiliary.size() != 0) {
+        if (!auxiliary.isEmpty()) {
             AbstractInsnNode lastBytecode = bb.getLastBytecode();
             Stmt last = asm2Stmt.get(lastBytecode);
             if (last != null && isCFEdge(lastBytecode)) {
@@ -884,10 +883,10 @@ class AsmIRBuilder {
             processInstr(nowStack, node);
         }
 
-        if (block.outEdges().size() == 0) {
-            // no out edges, must be a return / throw block
-            // do nothing
-        } else {
+        // if there is no out edges, it must be a return / throw block
+        // do nothing
+        // else, perform stack assign merge
+        if (!block.outEdges().isEmpty()) {
             if (block.getOutStack() == null) {
                 // Web has not been constructed. So all the succs do not have inStack.
                 block.setOutStack(regularizeStack(block, nowStack));
@@ -931,7 +930,6 @@ class AsmIRBuilder {
         } else if (node instanceof InsnNode insnNode) {
             int opcode = insnNode.getOpcode();
             if (opcode == Opcodes.NOP) {
-                return;
             } else if (opcode == Opcodes.ARRAYLENGTH) {
                 pushExp(node, nowStack, new ArrayLengthExp(popVar(nowStack)));
             } else if (opcode == Opcodes.ATHROW) {

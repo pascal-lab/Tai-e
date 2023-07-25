@@ -1,7 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import pascal.taie.util.collection.Sets;
 
@@ -31,8 +29,6 @@ public class ConstantTableReader {
     public static final byte CONSTANT_Module = 19;
     public static final byte CONSTANT_Package = 20;
 
-    private static final Logger logger = LogManager.getLogger();
-
     private List<String> binaryNames;
 
     public ConstantTableReader() {
@@ -49,13 +45,16 @@ public class ConstantTableReader {
             throw new FrontendException("not a valid class file");
         }
 
-        int minor = buf.getChar(), ver = buf.getChar();
+        // minor
+        buf.getChar();
+        // version
+        buf.getChar();
         int count = buf.getChar();
         String[] constants = new String[count];
         Set<Integer> internals = Sets.newSet(count / 2);
         Set<Integer> descriptors = Sets.newSet(count / 2);
         for (int ix = 1; ix < count; ix++) {
-            int index1 = -1, index2 = -1;
+            int index1, index2;
             byte tag = buf.get();
             switch (tag) {
                 default -> throw new FrontendException("unknown pool item type " + buf.get(buf.position() - 1));

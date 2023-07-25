@@ -430,9 +430,6 @@ public class TypeInference {
                 if (this.primitiveType == t) {
                     return false;
                 } else if (isIntAssignable(primitiveType, t)) {
-                    PrimitiveType temp = primitiveType;
-                    // this.primitiveType = numericPromotion(t, primitiveType);
-                    // return ! (this.primitiveType == temp);
                     return false;
                 } else {
                     throw new UnsupportedOperationException();
@@ -450,7 +447,7 @@ public class TypeInference {
 
         public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
             if (isPrimitiveArrayType(t)) {
-                if (referenceType != null && isPrimitiveArrayType(referenceType)) {
+                if (isPrimitiveArrayType(referenceType)) {
                     if (kind == EdgeKind.VAR_ARRAY) {
                         return false;
                     } else {
@@ -480,12 +477,11 @@ public class TypeInference {
             }
         }
 
-        public ReferenceType firstResolve() {
+        public void firstResolve() {
             assert types != null;
             for (ReferenceType r : types) {
                 onNewReferenceType(null, r);
             }
-            return referenceType;
         }
 
         private boolean isUseValid(ReferenceType t) {
@@ -499,7 +495,7 @@ public class TypeInference {
             }
             Set<ReferenceType> newType = lca(current, t);
             List<ReferenceType> types = newType.stream().filter(this::isUseValid).toList();
-            if (types.size() >= 1) {
+            if (!types.isEmpty()) {
                 // any type in types is use valid
                 return types.get(0);
             } else {
@@ -536,42 +532,9 @@ public class TypeInference {
             useValidConstrains.add(type);
         }
 
-        public List<TypingFlowEdge> getInEdges() {
-            return inEdges;
-        }
-
-        /**
-         * set type for var, this node is completed and removed from algorithm
-         */
-        public void complete() {
-            assert types == null;
-            // TODO: set var type
-        }
 
         public Var var() {
             return var;
-        }
-
-        @Nullable
-        public Set<ReferenceType> types() {
-            return types;
-        }
-
-        @Nullable
-        public PrimitiveType primitiveType() {
-            return primitiveType;
-        }
-
-        public Set<ReferenceType> useValidConstrains() {
-            return useValidConstrains;
-        }
-
-        public List<TypingFlowEdge> inEdges() {
-            return inEdges;
-        }
-
-        public List<TypingFlowEdge> outEdges() {
-            return outEdges;
         }
     }
 
@@ -589,25 +552,7 @@ public class TypeInference {
         VAR_ARRAY,
 
         // v2 <- v1[i]
-        ARRAY_VAR;
+        ARRAY_VAR
 
-        NodeKind getTarget() {
-            return switch (this) {
-                case VAR_VAR, ARRAY_VAR -> NodeKind.VAR;
-                case VAR_ARRAY -> NodeKind.ArrayAccess;
-            };
-        }
-
-        NodeKind getSource() {
-            return switch (this) {
-                case VAR_VAR, VAR_ARRAY -> NodeKind.VAR;
-                case ARRAY_VAR -> NodeKind.ArrayAccess;
-            };
-        }
-    }
-
-    enum NodeKind {
-        VAR,
-        ArrayAccess
     }
 }

@@ -60,7 +60,7 @@ public class TypeInference0 {
         if (localTypes.containsKey(var)) {
             localTypeAssigns.put(var, t);
         }
-        else if (! builder.manager.isSpecialVar(var)) {
+        else if (builder.manager.isNotSpecialVar(var)) {
             var.setType(t);
         }
     }

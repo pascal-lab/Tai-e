@@ -208,7 +208,7 @@ public class AsmClassBuilder implements JClassBuilder {
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
 
-            return new MVisitor(access, name, descriptor, signature, exceptions);
+            return new MVisitor(access, name, descriptor, exceptions);
         }
 
     }
@@ -254,7 +254,7 @@ public class AsmClassBuilder implements JClassBuilder {
         @Nullable
         private List<String> paramName;
 
-        public MVisitor(int access, String name, String descriptor, String signature, String[] exceptions) {
+        public MVisitor(int access, String name, String descriptor, String[] exceptions) {
             super(Opcodes.ASM9);
             org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             this.modifiers = fromAsmModifier(access);
