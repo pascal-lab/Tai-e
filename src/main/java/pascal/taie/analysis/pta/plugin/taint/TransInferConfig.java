@@ -9,8 +9,6 @@ import java.util.List;
 record TransInferConfig(Confidence confidence,
                         List<JClass> ignoreClasses,
                         List<JMethod> ignoreMethods) {
-    enum Confidence { DISABLE, LOW, MEDIUM, HIGH }
-
     public static final TransInferConfig EMPTY = new TransInferConfig(
             Confidence.DISABLE, List.of(), List.of());
 
@@ -34,4 +32,6 @@ record TransInferConfig(Confidence confidence,
                 ", ignoreMethods=" + ignoreMethods +
                 '}';
     }
+
+    enum Confidence {DISABLE, LOW, MEDIUM, HIGH}
 }
