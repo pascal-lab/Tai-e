@@ -14,12 +14,14 @@ class DefaultTransferInferer extends AbstractTransferInferer {
         super(context, newTransferAction);
     }
 
+    @Override
     Set<TaintTransfer> getNextInput(TransInferStrategy prevStrategy,
                                                        TransInferStrategy nextStrategy,
                                                        Set<TaintTransfer> prevOutput) {
         return prevOutput;
     }
 
+    @Override
     Set<TaintTransfer> meetResults(Map<TransInferStrategy, Set<TaintTransfer>> result) {
         TransInferStrategy lastStrategy = enabledStrategies.last();
         return result.get(lastStrategy);
