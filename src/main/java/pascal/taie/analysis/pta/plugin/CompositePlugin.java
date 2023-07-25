@@ -100,6 +100,11 @@ public class CompositePlugin implements Plugin {
     }
 
     @Override
+    public void onBeforeFinish() {
+        allPlugins.forEach(Plugin::onBeforeFinish);
+    }
+
+    @Override
     public void onFinish() {
         allPlugins.forEach(Plugin::onFinish);
     }
