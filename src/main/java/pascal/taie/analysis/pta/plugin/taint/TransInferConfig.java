@@ -6,20 +6,20 @@ import pascal.taie.util.collection.Lists;
 
 import java.util.List;
 
-record TransferInferenceConfig(Confidence confidence,
-                               List<JClass> ignoreClasses,
-                               List<JMethod> ignoreMethods) {
+record TransInferConfig(Confidence confidence,
+                        List<JClass> ignoreClasses,
+                        List<JMethod> ignoreMethods) {
     enum Confidence { DISABLE, LOW, MEDIUM, HIGH }
 
-    public static final TransferInferenceConfig EMPTY = new TransferInferenceConfig(
+    public static final TransInferConfig EMPTY = new TransInferConfig(
             Confidence.DISABLE, List.of(), List.of());
 
     public boolean inferenceEnable() {
         return this.confidence != Confidence.DISABLE;
     }
 
-    public TransferInferenceConfig mergeWith(TransferInferenceConfig other) {
-        return new TransferInferenceConfig(
+    public TransInferConfig mergeWith(TransInferConfig other) {
+        return new TransInferConfig(
                 confidence.compareTo(other.confidence) <= 0 ? confidence : other.confidence,
                 Lists.concatDistinct(ignoreClasses, other.ignoreClasses),
                 Lists.concatDistinct(ignoreMethods, other.ignoreMethods)
@@ -28,7 +28,7 @@ record TransferInferenceConfig(Confidence confidence,
 
     @Override
     public String toString() {
-        return "TransferInferenceConfig{" +
+        return "TransInferConfig{" +
                 "confidence=" + confidence +
                 ", ignoreClasses=" + ignoreClasses +
                 ", ignoreMethods=" + ignoreMethods +

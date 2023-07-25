@@ -71,7 +71,7 @@ public class TaintAnalysis implements Plugin {
                 transferHandler,
                 new SanitizerHandler(context));
         if(config.inferenceConfig().inferenceEnable()) {
-            onFlyHandler.addPlugin(new TransferInferenceHandler(context, transferHandler::addNewTransfer));
+            onFlyHandler.addPlugin(new DefaultTransferInferer(context, transferHandler::addNewTransfer));
         }
         this.onFlyHandler = onFlyHandler;
         sinkHandler = new SinkHandler(context);

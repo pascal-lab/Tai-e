@@ -65,7 +65,7 @@ record TaintConfig(List<Source> sources,
                    List<TaintTransfer> transfers,
                    List<ParamSanitizer> paramSanitizers,
                    boolean callSiteMode,
-                   TransferInferenceConfig inferenceConfig) {
+                   TransInferConfig inferenceConfig) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
@@ -73,7 +73,7 @@ record TaintConfig(List<Source> sources,
      * An empty taint config.
      */
     private static final TaintConfig EMPTY = new TaintConfig(
-            List.of(), List.of(), List.of(), List.of(), false, TransferInferenceConfig.EMPTY);
+            List.of(), List.of(), List.of(), List.of(), false, TransInferConfig.EMPTY);
 
     /**
      * Loads a taint analysis configuration from given path.
@@ -169,7 +169,7 @@ record TaintConfig(List<Source> sources,
             paramSanitizers.forEach(sanitizer ->
                     sb.append("  ").append(sanitizer).append("\n"));
         }
-        if (inferenceConfig != TransferInferenceConfig.EMPTY) {
+        if (inferenceConfig != TransInferConfig.EMPTY) {
             sb.append("\ntransfer-inference-config:\n");
             sb.append("  confidence: ").append(inferenceConfig.confidence()).append("\n");
             sb.append("  ignoreClasses:\n");
@@ -206,7 +206,7 @@ record TaintConfig(List<Source> sources,
             List<TaintTransfer> transfers = deserializeTransfers(node.get("transfers"));
             List<ParamSanitizer> sanitizers = deserializeSanitizers(node.get("sanitizers"));
             JsonNode callSiteNode = node.get("call-site-mode");
-            TransferInferenceConfig inferenceConfig = deserializeInferenceConfig((node.get("transfer-inference")));
+            TransInferConfig inferenceConfig = deserializeInferenceConfig((node.get("transfer-inference")));
             boolean callSiteMode = (callSiteNode != null && callSiteNode.asBoolean());
             return new TaintConfig(
                     sources, sinks, transfers, sanitizers, callSiteMode, inferenceConfig);
@@ -381,7 +381,7 @@ record TaintConfig(List<Source> sources,
                                 case FIELD -> to.field().getType();
                             };
                         }
-                        transfers.add(new ConcreteTaintTransfer(method, from, to, type));
+                        transfers.add(new ConcreteTransfer(method, from, to, type));
                     } else {
                         logger.warn("Cannot find taint-transfer method '{}'", methodSig);
                     }
@@ -454,13 +454,13 @@ record TaintConfig(List<Source> sources,
             }
         }
 
-        private TransferInferenceConfig deserializeInferenceConfig(JsonNode node) {
+        private TransInferConfig deserializeInferenceConfig(JsonNode node) {
             if(node == null) {
-                return TransferInferenceConfig.EMPTY;
+                return TransInferConfig.EMPTY;
             }
 
-            TransferInferenceConfig.Confidence confidence =
-                    TransferInferenceConfig.Confidence.valueOf(
+            TransInferConfig.Confidence confidence =
+                    TransInferConfig.Confidence.valueOf(
                             node.path("confidence").asText().toUpperCase());
             JsonNode classNode = node.path("ignoreClasses");
             JsonNode methodNode = node.path("ignoreMethods");
@@ -493,7 +493,7 @@ record TaintConfig(List<Source> sources,
                 }
             }
 
-            return new TransferInferenceConfig(confidence, ignoreClasses, ignoreMethods);
+            return new TransInferConfig(confidence, ignoreClasses, ignoreMethods);
         }
     }
 }

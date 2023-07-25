@@ -3,15 +3,15 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-class InferredTaintTransfer extends TaintTransfer {
+class InferredTransfer extends TaintTransfer {
 
     private int weight;
 
-    public InferredTaintTransfer(JMethod method,
-                                 TransferPoint from,
-                                 TransferPoint to,
-                                 Type type,
-                                 int weight) {
+    public InferredTransfer(JMethod method,
+                            TransferPoint from,
+                            TransferPoint to,
+                            Type type,
+                            int weight) {
         super(method, from, to, type);
         this.weight = weight;
     }
@@ -26,6 +26,6 @@ class InferredTaintTransfer extends TaintTransfer {
 
     @Override
     public String toString() {
-        return "InferredTaintTransfer{ " + super.toString() + " }";
+        return "InferredTransfer{ " + super.toString() + " }";
     }
 }
