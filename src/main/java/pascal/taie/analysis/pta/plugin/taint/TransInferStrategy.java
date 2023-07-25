@@ -11,7 +11,8 @@ interface TransInferStrategy extends Comparable<TransInferStrategy> {
 
     /**
      * Apply this strategy on the given transfers related to a given method.
-     * @param method All transfers are related to this method.
+     *
+     * @param method    All transfers are related to this method.
      * @param transfers Transfers to be filtered.
      * @return Filtered transfers
      */

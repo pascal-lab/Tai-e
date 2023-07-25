@@ -25,7 +25,7 @@ abstract class AbstractTransferInferer extends OnFlyHandler {
         super(context);
         this.config = context.config();
         this.newTransferConsumer = newTransferConsumer;
-        enabledStrategies = initStrategy();
+        this.enabledStrategies = initStrategy();
     }
 
     abstract SortedSet<TransInferStrategy> initStrategy();

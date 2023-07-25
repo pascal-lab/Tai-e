@@ -16,8 +16,8 @@ class DefaultTransferInferer extends AbstractTransferInferer {
 
     @Override
     Set<TaintTransfer> getNextInput(TransInferStrategy prevStrategy,
-                                                       TransInferStrategy nextStrategy,
-                                                       Set<TaintTransfer> prevOutput) {
+                                    TransInferStrategy nextStrategy,
+                                    Set<TaintTransfer> prevOutput) {
         return prevOutput;
     }
 
