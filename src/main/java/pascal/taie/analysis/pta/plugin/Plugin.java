@@ -56,6 +56,14 @@ public interface Plugin {
     }
 
     /**
+     * Invoked before pointer analysis finishes.
+     * Pointer analysis is still running at this stage,
+     * thus this call back is allowed to modify pointer analysis results;
+     */
+    default void onBeforeFinish() {
+    }
+
+    /**
      * Invoked when pointer analysis finishes.
      * Pointer analysis is supposed to have been finished at this stage,
      * thus this call back should NOT modify pointer analysis results.
