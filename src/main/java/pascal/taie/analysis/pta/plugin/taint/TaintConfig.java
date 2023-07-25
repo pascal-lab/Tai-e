@@ -381,7 +381,7 @@ record TaintConfig(List<Source> sources,
                                 case FIELD -> to.field().getType();
                             };
                         }
-                        transfers.add(new TaintTransfer(method, from, to, type));
+                        transfers.add(new ConcreteTaintTransfer(method, from, to, type));
                     } else {
                         logger.warn("Cannot find taint-transfer method '{}'", methodSig);
                     }

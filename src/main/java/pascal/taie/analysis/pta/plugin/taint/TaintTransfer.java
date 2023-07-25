@@ -35,10 +35,39 @@ import pascal.taie.language.type.Type;
  *     <li>type: the type of the transferred taint object
  * </ul>
  */
-record TaintTransfer(
-        JMethod method, TransferPoint from, TransferPoint to, Type type) {
+abstract class TaintTransfer {
 
-    @Override
+    protected final JMethod method;
+
+    protected final TransferPoint from;
+
+    protected final TransferPoint to;
+
+    protected final Type type;
+
+    TaintTransfer(JMethod method, TransferPoint from, TransferPoint to, Type type) {
+        this.method = method;
+        this.from = from;
+        this.to = to;
+        this.type = type;
+    }
+
+    public JMethod getMethod() {
+        return method;
+    }
+
+    public TransferPoint getFrom() {
+        return from;
+    }
+
+    public TransferPoint getTo() {
+        return to;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
     public String toString() {
         return method + ": " +
                 from + " -> " + to + "(" + type + ")";

@@ -119,12 +119,12 @@ class TransferHandler extends OnFlyHandler {
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
         context.config().transfers()
-                .forEach(t -> this.transfers.put(t.method(), t));
+                .forEach(t -> this.transfers.put(t.getMethod(), t));
     }
 
     private void processTransfer(Context context, Invoke callSite, TaintTransfer transfer) {
-        TransferPoint from = transfer.from();
-        TransferPoint to = transfer.to();
+        TransferPoint from = transfer.getFrom();
+        TransferPoint to = transfer.getTo();
         Var toVar = InvokeUtils.getVar(callSite, to.index());
         if (toVar == null) {
             return;
@@ -135,7 +135,7 @@ class TransferHandler extends OnFlyHandler {
         if (from.kind() == TransferPoint.Kind.VAR) { // Var -> Var/Array/Field
             Kind kind = switch (to.kind()) {
                 case VAR -> {
-                    Transfer tf = getTransferFunction(transfer.type());
+                    Transfer tf = getTransferFunction(transfer.getType());
                     solver.addPFGEdge(csFrom, csTo, FlowKind.OTHER, tf);
                     yield null;
                 }
@@ -172,14 +172,14 @@ class TransferHandler extends OnFlyHandler {
                 && to.index() != InvokeUtils.RESULT
                 && to.kind() == TransferPoint.Kind.VAR
                 && !(to.index() == InvokeUtils.BASE
-                && transfer.method().isConstructor())) {
+                && transfer.getMethod().isConstructor())) {
             backPropagateTaint(toVar, context);
         }
     }
 
     private void transferTaint(PointsToSet baseObjs, Context ctx, TransferInfo info) {
         CSVar csVar = csManager.getCSVar(ctx, info.var());
-        Transfer tf = getTransferFunction(info.transfer().type());
+        Transfer tf = getTransferFunction(info.transfer().getType());
         switch (info.kind()) {
             case VAR_TO_ARRAY -> {
                 baseObjs.objects()
@@ -188,7 +188,7 @@ class TransferHandler extends OnFlyHandler {
                                 solver.addPFGEdge(csVar, arrayIndex, FlowKind.OTHER, tf));
             }
             case VAR_TO_FIELD -> {
-                JField f = info.transfer().to().field();
+                JField f = info.transfer().getTo().field();
                 baseObjs.objects()
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
@@ -201,7 +201,7 @@ class TransferHandler extends OnFlyHandler {
                                 solver.addPFGEdge(arrayIndex, csVar, FlowKind.OTHER, tf));
             }
             case FIELD_TO_VAR -> {
-                JField f = info.transfer().from().field();
+                JField f = info.transfer().getFrom().field();
                 baseObjs.objects()
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
@@ -276,8 +276,8 @@ class TransferHandler extends OnFlyHandler {
 
     public void addNewTransfer(TaintTransfer transfer) {
         logger.info("Add new taint transfer: {}", transfer);
-        this.transfers.put(transfer.method(), transfer);
-        Set<CSCallSite> csCallSites = method2CallSite.get(transfer.method());
+        this.transfers.put(transfer.getMethod(), transfer);
+        Set<CSCallSite> csCallSites = method2CallSite.get(transfer.getMethod());
         for(CSCallSite csCallSite : csCallSites) {
             Context context = csCallSite.getContext();
             Invoke callSite = csCallSite.getCallSite();
