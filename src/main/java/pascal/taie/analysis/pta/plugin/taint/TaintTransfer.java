@@ -37,13 +37,13 @@ import pascal.taie.language.type.Type;
  */
 abstract class TaintTransfer {
 
-    protected final JMethod method;
+    private final JMethod method;
 
-    protected final TransferPoint from;
+    private final TransferPoint from;
 
-    protected final TransferPoint to;
+    private final TransferPoint to;
 
-    protected final Type type;
+    private final Type type;
 
     TaintTransfer(JMethod method, TransferPoint from, TransferPoint to, Type type) {
         this.method = method;
