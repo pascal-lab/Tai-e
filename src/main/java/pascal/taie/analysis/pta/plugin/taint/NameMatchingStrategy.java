@@ -58,8 +58,7 @@ public class NameMatchingStrategy implements TransInferStrategy {
     }
 
 
-    private record Rule(Predicate<JMethod> predicate, Type from,
-                        Type to) {
+    private record Rule(Predicate<JMethod> predicate, Type from, Type to) {
     }
 
 
