@@ -18,10 +18,6 @@ public class NameMatchingStrategy implements TransInferStrategy {
             new Rule(method -> method.getName().startsWith("create"), Type.ARGS, Type.RESULT)
     );
 
-    @Override
-    public void setContext(InfererContext context) {
-        //initialize the context
-    }
 
     @Override
     public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
