@@ -8,6 +8,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
@@ -20,6 +21,7 @@ import pascal.taie.util.collection.TwoKeyMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 class InitialStrategy implements TransInferStrategy {
@@ -27,10 +29,14 @@ class InitialStrategy implements TransInferStrategy {
     private static final int BASE = InvokeUtils.BASE;
 
     private static final int RESULT = InvokeUtils.RESULT;
+
+    private static final Set<String> COLLECTION_CLASS = Set.of(
+            "java.util.Collection", "java.util.Map", "java.util.Dictionary");
     private final MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
     private final TwoKeyMap<JMethod, Integer, Set<Type>> arg2types = Maps.newTwoKeyMap();
     private Solver solver;
     private CSManager csManager;
+    private ClassHierarchy hierarchy;
     private Set<JMethod> methodsWithTransfer;
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
@@ -38,13 +44,15 @@ class InitialStrategy implements TransInferStrategy {
     @Override
     public void setContext(InfererContext context) {
         solver = context.solver();
+        hierarchy = solver.getHierarchy();
         TaintConfig taintConfig = context.config();
         csManager = solver.getCSManager();
-        this.methodsWithTransfer = taintConfig.transfers().stream()
+        methodsWithTransfer = taintConfig.transfers().stream()
                 .map(TaintTransfer::getMethod)
                 .collect(Collectors.toSet());
-        this.ignoreClasses = Sets.newSet(taintConfig.inferenceConfig().ignoreClasses());
-        this.ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
+        ignoreClasses = getCollectionClasses();
+        ignoreClasses.addAll(taintConfig.inferenceConfig().ignoreClasses());
+        ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
 
         CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
         callGraph.reachableMethods()
@@ -90,6 +98,29 @@ class InitialStrategy implements TransInferStrategy {
             case BASE -> method.getDeclaringClass().getType();
             default -> method.getParamType(index);
         };
+    }
+
+    private Set<JClass> getCollectionClasses() {
+        Set<JClass> collectionClasses = Sets.newSet();
+        COLLECTION_CLASS.stream()
+                .map(hierarchy::getJREClass)
+                .map(hierarchy::getAllSubclassesOf)
+                .flatMap(Collection::stream)
+                .filter(Predicate.not(JClass::isApplication))
+                .forEach(collectionClasses::add);
+        Set<JClass> allCollectionClasses = Sets.newSet(collectionClasses);
+        collectionClasses.forEach(c ->
+                allCollectionClasses.addAll(getAllInnerClassesOf(c)));
+        return allCollectionClasses;
+    }
+
+    private Set<JClass> getAllInnerClassesOf(JClass jclass) {
+        Set<JClass> innerClasses = Sets.newHybridSet();
+        hierarchy.getDirectInnerClassesOf(jclass).forEach(inner -> {
+            innerClasses.add(inner);
+            innerClasses.addAll(getAllInnerClassesOf(inner));
+        });
+        return innerClasses;
     }
 
     @Override
