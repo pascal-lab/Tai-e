@@ -53,6 +53,8 @@ public class TaintAnalysis implements Plugin {
 
     private SinkHandler sinkHandler;
 
+    private TransferInferer transferInferer;
+
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
@@ -70,7 +72,8 @@ public class TaintAnalysis implements Plugin {
                 transferHandler,
                 new SanitizerHandler(context));
         if(config.inferenceConfig().inferenceEnable()) {
-            onFlyHandler.addPlugin(new DefaultTransferInferer(context, transferHandler::addNewTransfer));
+            transferInferer = new DefaultTransferInferer(context, transferHandler::addNewTransfer);
+            onFlyHandler.addPlugin(transferInferer);
         }
         this.onFlyHandler = onFlyHandler;
         sinkHandler = new SinkHandler(context);

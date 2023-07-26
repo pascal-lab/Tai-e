@@ -9,9 +9,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
-class DefaultTransferInferer extends AbstractTransferInferer {
-    DefaultTransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferAction) {
-        super(context, newTransferAction);
+class DefaultTransferInferer extends TransferInferer {
+    DefaultTransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
+        super(context, newTransferConsumer);
     }
 
     @Override
