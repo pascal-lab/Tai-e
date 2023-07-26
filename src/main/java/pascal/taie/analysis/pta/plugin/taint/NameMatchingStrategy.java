@@ -11,26 +11,56 @@ import java.util.stream.Collectors;
 
 class NameMatchingStrategy implements TransInferStrategy {
 
-    private static final List<Rule> ruleList = List.of(
-            new Rule(method -> method.getName().startsWith("get"), TransferPointType.BASE, TransferPointType.RESULT),
-            new Rule(method -> method.getName().startsWith("new"), TransferPointType.ARG, TransferPointType.RESULT),
-            new Rule(method -> method.getName().startsWith("create"), TransferPointType.ARG, TransferPointType.RESULT)
+    private static final List<Rule> IncludeRules = List.of(
+            new Rule(method -> method.getName().startsWith("get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.INCLUDE),
+            new Rule(method -> method.getName().startsWith("new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.INCLUDE),
+            new Rule(method -> method.getName().startsWith("create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.INCLUDE)
+    );
+
+    private static final List<Rule> ExcludeRules = List.of(
+            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("set")
+                    && method.getName().length() > 3
+                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("is")
+                    && method.getName().length() > 2
+                    && Character.isUpperCase(method.getName().charAt(2)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("has")
+                    && method.getName().length() > 3
+                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("can")
+                    && method.getName().length() > 3
+                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("should")
+                    && method.getName().length() > 6
+                    && Character.isUpperCase(method.getName().charAt(6)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("will")
+                    && method.getName().length() > 4
+                    && Character.isUpperCase(method.getName().charAt(4)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE)
     );
 
     @Override
     public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
-        List<Rule> matchedRules = ruleList.stream().filter(rule -> rule.predicate().test(method)).toList();
-        if (matchedRules.isEmpty()) {
+        List<Rule> matchedIncludeRules = IncludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
+        List<Rule> matchedExcludeRules = ExcludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
+        if (matchedIncludeRules.isEmpty() && matchedExcludeRules.isEmpty()) {
             return Collections.unmodifiableSet(transfers);
         }
 
         return transfers.stream()
-                .filter(tf -> matchAnyRule(tf, matchedRules))
+                .filter(tf -> matchAnyRule(tf, matchedIncludeRules))
+                .filter(tf -> !matchAnyRule(tf, matchedExcludeRules))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public int getPriority() {
+        return 1;
+    }
+
+    public int getWeight() {
         return 1;
     }
 
@@ -52,8 +82,11 @@ class NameMatchingStrategy implements TransInferStrategy {
         ARG, BASE, RESULT
     }
 
-    private record Rule(Predicate<JMethod> predicate,
-                        TransferPointType from,
-                        TransferPointType to) {
+    private enum RuleType {
+        INCLUDE, EXCLUDE
+    }
+
+    private record Rule(Predicate<JMethod> predicate, TransferPointType from, TransferPointType to,
+                        RuleType type) {
     }
 }
