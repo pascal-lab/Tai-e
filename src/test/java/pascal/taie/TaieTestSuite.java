@@ -36,7 +36,7 @@ import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.FieldTest;
 import pascal.taie.language.HierarchyTest;
-import pascal.taie.language.TransferPointTypeTest;
+import pascal.taie.language.TypeTest;
 import pascal.taie.language.classes.StringRepsTest;
 import pascal.taie.util.UtilTestSuite;
 
@@ -44,7 +44,7 @@ import pascal.taie.util.UtilTestSuite;
 @Suite.SuiteClasses({
         // world
         SootFrontendTest.class,
-        TransferPointTypeTest.class,
+        TypeTest.class,
         HierarchyTest.class,
         DefaultMethodTest.class,
         FieldTest.class,
