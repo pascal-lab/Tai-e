@@ -18,9 +18,9 @@ class NameMatchingStrategy implements TransInferStrategy {
     );
 
     private static final List<Rule> ExcludeRules = List.of(
-            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
             new Rule(method -> method.getName().startsWith("set")
                     && method.getName().length() > 3
                     && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
@@ -75,11 +75,12 @@ class NameMatchingStrategy implements TransInferStrategy {
     private boolean matchAnyRule(TaintTransfer transfer, List<Rule> rules) {
         TransferPointType from = getTransferPointType(transfer.getFrom());
         TransferPointType to = getTransferPointType(transfer.getTo());
-        return rules.stream().anyMatch(rule -> rule.from == from && rule.to == to);
+        return rules.stream().anyMatch(rule ->  (rule.from == TransferPointType.ANY || rule.to == TransferPointType.ANY)
+                                                || (rule.from == from && rule.to == to));
     }
 
     private enum TransferPointType {
-        ARG, BASE, RESULT
+        ANY, ARG, BASE, RESULT
     }
 
     private enum RuleType {
