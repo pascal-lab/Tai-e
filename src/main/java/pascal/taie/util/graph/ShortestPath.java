@@ -40,20 +40,12 @@ public class ShortestPath<N> {
     }
 
     /**
-     * @return the predecessors of all nodes for the shortest
-     * path from source to them
-     */
-    public Map<N, N> getNode2PathPredecessor() {
-        return node2PathPredecessor;
-    }
-
-    /**
      * Compute the shortest paths from source node to other nodes
      *
      * @param algorithm algorithm to compute the shortest path
      */
     public void compute(SSSPAlgorithm algorithm) {
-        if(node2PathDistance == null) {
+        if (node2PathDistance == null) {
             node2PathDistance = Maps.newMap();
             node2PathPredecessor = Maps.newMap();
             switch (algorithm) {
@@ -98,9 +90,9 @@ public class ShortestPath<N> {
 
     private void runDial() {
         // Initialize
+        Set<N> finished = Sets.newSet(graph.getNumberOfNodes());
         graph.forEach(node -> node2PathPredecessor.put(node, null));
-        graph.forEach(node -> node2PathDistance.put(node, (int) Float.POSITIVE_INFINITY));
-        graph.forEach(node -> finished.put(node, false));
+        graph.forEach(node -> node2PathDistance.put(node, INVALID_WEIGHT));
         Map<Integer, Set<N>> bucket = Maps.newMap();
 
         // Set source node status
@@ -119,24 +111,22 @@ public class ShortestPath<N> {
             }
             while (iterator.hasNext()) {
                 N node = iterator.next();
-                if (finished.get(node)) {
-                    iterator.remove();
-                    continue;
+                if (finished.add(node)) {
+                    for (Edge<N> outEdge : graph.getOutEdgesOf(node)) {
+                        N neighbor = outEdge.target();
+                        if (finished.contains(neighbor)) {
+                            continue;
+                        }
+                        int newDist = node2PathDistance.get(node) + weightCalc.applyAsInt(outEdge);
+                        if (newDist < node2PathDistance.get(neighbor)) {
+                            node2PathDistance.put(neighbor, newDist);
+                            bucket.computeIfAbsent(newDist, k -> Sets.newSet());
+                            bucket.get(newDist).add(neighbor);
+                            node2PathPredecessor.put(neighbor, node);
+                        }
+                    }
                 }
-                finished.put(node, true);
                 iterator.remove();
-                for (N neighbor : graph.getSuccsOf(node)) {
-                    if (finished.get(neighbor)) {
-                        continue;
-                    }
-                    int newDist = node2PathDistance.get(node) + weights.get(node).get(neighbor);
-                    if (newDist < node2PathDistance.get(neighbor)) {
-                        node2PathDistance.put(neighbor, newDist);
-                        bucket.computeIfAbsent(newDist, k -> Sets.newSet());
-                        bucket.get(newDist).add(neighbor);
-                        node2PathPredecessor.put(neighbor, node);
-                    }
-                }
             }
         }
 
@@ -151,7 +141,7 @@ public class ShortestPath<N> {
      * @return the shortest path from source node to target node
      */
     public List<N> getPath(N target) {
-        if(node2PathDistance.get(target) == INVALID_WEIGHT) {
+        if (node2PathDistance.get(target) == INVALID_WEIGHT) {
             return List.of();
         }
         List<N> path = new ArrayList<>();
