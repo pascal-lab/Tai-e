@@ -1,5 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -11,6 +13,8 @@ import java.util.SortedSet;
 import java.util.function.Consumer;
 
 abstract class TransferInferer extends OnFlyHandler {
+
+    private static final Logger logger = LogManager.getLogger(TransferInferer.class);
 
     protected static final List<TransInferStrategy> strategyList = List.of(
             new InitialStrategy(),
@@ -69,6 +73,7 @@ abstract class TransferInferer extends OnFlyHandler {
 
                         meetResults(result).forEach(this::addNewTransfer);
                     });
+            logger.info("Total inferred transfers count :{}", newTransfers.size());
         }
     }
 
