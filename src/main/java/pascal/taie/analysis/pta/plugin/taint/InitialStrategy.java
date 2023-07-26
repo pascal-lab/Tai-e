@@ -7,22 +7,25 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class InitialStrategy implements TransInferStrategy {
 
 
-    private final Set<JMethod> methodsExistTransfers = Sets.newSet();
+    private Set<JMethod> methodsWithTransfer;
 
-    private final Set<JClass> ignoreClasses = Sets.newSet();
+    private Set<JClass> ignoreClasses;
 
-    private final Set<JMethod> ignoreMethods = Sets.newSet();
+    private Set<JMethod> ignoreMethods;
 
 
     @Override
     public void setContext(InfererContext context) {
-        context.config().transfers().forEach(t -> methodsExistTransfers.add(t.getMethod()));
-        ignoreClasses.addAll(context.config().inferenceConfig().ignoreClasses());
-        ignoreMethods.addAll(context.config().inferenceConfig().ignoreMethods());
+        methodsWithTransfer = context.config().transfers().stream()
+                .map(TaintTransfer::getMethod)
+                .collect(Collectors.toSet());
+        ignoreClasses = Sets.newSet(context.config().inferenceConfig().ignoreClasses());
+        ignoreMethods = Sets.newSet(context.config().inferenceConfig().ignoreMethods());
     }
 
     @Override
@@ -31,7 +34,7 @@ class InitialStrategy implements TransInferStrategy {
         if (ignoreMethods.contains(method) || ignoreClasses.contains(method.getDeclaringClass()))
             return Set.of();
         // check if exists transfer for this method
-        if (methodsExistTransfers.contains(method))
+        if (methodsWithTransfer.contains(method))
             return Set.of();
 
         // add whole transfers for this method
