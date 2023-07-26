@@ -10,6 +10,7 @@ import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -54,7 +55,7 @@ class InitialStrategy implements TransInferStrategy {
             for (int i = 0; i < method.getParamCount(); i++) {
                 arg2types.put(method, i, getArgType(method, i));
             }
-            if(!method.isStatic()) {
+            if (!method.isStatic()) {
                 arg2types.put(method, BASE, getArgType(method, BASE));
             }
             arg2types.put(method, RESULT, getArgType(method, RESULT));
@@ -72,12 +73,23 @@ class InitialStrategy implements TransInferStrategy {
     }
 
     private void addTransfers(Set<TaintTransfer> result, JMethod method, int from, int to) {
-        Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
-        TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
-        TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
-        toTypes.stream()
-                .map(toType -> new InferredTransfer(method, fromPoint, toPoint, toType, getWeight()))
-                .forEach(result::add);
+        if (getParamType(method, from) instanceof ReferenceType
+                && getParamType(method, to) instanceof ReferenceType) {
+            Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
+            TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
+            TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
+            toTypes.stream()
+                    .map(toType -> new InferredTransfer(method, fromPoint, toPoint, toType, getWeight()))
+                    .forEach(result::add);
+        }
+    }
+
+    private Type getParamType(JMethod method, int index) {
+        return switch (index) {
+            case RESULT -> method.getReturnType();
+            case BASE -> method.getDeclaringClass().getType();
+            default -> method.getParamType(index);
+        };
     }
 
     @Override
