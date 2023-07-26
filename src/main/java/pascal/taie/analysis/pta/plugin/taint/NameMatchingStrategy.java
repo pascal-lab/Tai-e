@@ -21,6 +21,9 @@ class NameMatchingStrategy implements TransInferStrategy {
             new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
             new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
             new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
+            new Rule(method -> method.getName().startsWith("will"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
             new Rule(method -> method.getName().startsWith("set")
                     && method.getName().length() > 3
                     && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
@@ -32,13 +35,7 @@ class NameMatchingStrategy implements TransInferStrategy {
                     && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
             new Rule(method -> method.getName().startsWith("can")
                     && method.getName().length() > 3
-                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("should")
-                    && method.getName().length() > 6
-                    && Character.isUpperCase(method.getName().charAt(6)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("will")
-                    && method.getName().length() > 4
-                    && Character.isUpperCase(method.getName().charAt(4)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE)
+                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE)
     );
 
     @Override
