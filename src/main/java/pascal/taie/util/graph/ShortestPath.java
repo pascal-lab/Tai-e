@@ -1,152 +1,119 @@
 package pascal.taie.util.graph;
 
-
-
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.function.ToIntFunction;
 
 /**
- * Finds shortest from a single source to other nodes in a graph using
- * Dijkstra's algorithm or Dial's algorithm.
+ * Computes shortest paths from a single source node to other nodes in a graph
+ * using Dijkstra's algorithm or Dial's algorithm.
  *
  * @param <N> type of nodes
  */
 
 public class ShortestPath<N> {
 
+    private static final int INVALID_WEIGHT = Integer.MAX_VALUE;
+
     private final Graph<N> graph;
 
     private final N source;
 
-    private final Map<N, Integer> distances = Maps.newMap();
+    private final ToIntFunction<Edge<N>> weightCalc;
 
-    private final Map<N, Map<N, Integer>> weights;
+    private Map<N, Integer> node2PathDistance;
 
-    private final Map<N, N> predecessors = Maps.newMap();
+    private Map<N, N> node2PathPredecessor;
 
-    private final Map<N, Boolean> finished = Maps.newMap();
-
-    public enum ComputeKind {
-        Dijkstra, Dial
-    }
-
-    public ShortestPath(Graph<N> graph, N source, Map<N, Map<N, Integer>> weights) {
+    public ShortestPath(Graph<N> graph, N source, ToIntFunction<Edge<N>> weightCalc) {
         this.graph = graph;
         this.source = source;
-        this.weights = weights;
-    }
-
-    /**
-     * @return the graph of the SSSP
-     */
-    public Graph<N> getGraph() {
-        return graph;
-    }
-
-    /**
-     * @return the distances from source to the other nodes
-     */
-    public Map<N, Integer> getDistances() {
-        return distances;
-    }
-
-    /**
-     * @return the source node of SSSP
-     */
-    public N getSource() {
-        return source;
-    }
-
-    /**
-     * @return the weights of all edges
-     */
-    public Map<N, Map<N, Integer>> getWeights() {
-        return weights;
+        this.weightCalc = weightCalc;
     }
 
     /**
      * @return the predecessors of all nodes for the shortest
      * path from source to them
      */
-    public Map<N, N> getPredecessors() {
-        return predecessors;
+    public Map<N, N> getNode2PathPredecessor() {
+        return node2PathPredecessor;
     }
 
-
     /**
-     * @param kind choose the algorithm to compute the shortest path
-     * compute the shortest path from source node to other nodes
+     * Compute the shortest paths from source node to other nodes
+     *
+     * @param algorithm algorithm to compute the shortest path
      */
-    public void compute(ComputeKind kind) {
-        switch (kind) {
-            case Dijkstra -> computeWithDijkstra();
-            case Dial -> computeWithDial();
-            default -> throw new RuntimeException("There is not this algorithm's implement!");
+    public void compute(SSSPAlgorithm algorithm) {
+        if(node2PathDistance == null) {
+            node2PathDistance = Maps.newMap();
+            node2PathPredecessor = Maps.newMap();
+            switch (algorithm) {
+                case DIJKSTRA -> runDijkstra();
+                case DIAL -> runDial();
+                default -> throw new UnsupportedOperationException("No such SSSP algorithm");
+            }
         }
-
     }
 
-    /**
-     * compute the shortest path from source node to
-     * other nodes, using dijkstra's algorithm
-     */
-    private void computeWithDijkstra() {
+    private void runDijkstra() {
         // Initialize
         PriorityQueue<DistPair> queue = new PriorityQueue<>();
-        graph.forEach(node -> predecessors.put(node, null));
-        graph.forEach(node -> distances.put(node, (int) Float.POSITIVE_INFINITY));
-        graph.forEach(node -> finished.put(node, false));
+        Set<N> finished = Sets.newSet(graph.getNumberOfNodes());
+        graph.forEach(node -> node2PathPredecessor.put(node, null));
+        graph.forEach(node -> node2PathDistance.put(node, INVALID_WEIGHT));
 
         // Set source node status
-        distances.put(source, 0);
+        node2PathDistance.put(source, 0);
         queue.add(new DistPair(source, 0));
 
         // Main loop
         while (!queue.isEmpty()) {
             DistPair distPair = queue.poll();
-            if (finished.get(distPair.node)) {
-                continue;
-            }
-            finished.put(distPair.node, true);
-            for (N node : graph.getSuccsOf(distPair.node)) {
-                if (!finished.get(node)) {
-                    int newDist = distPair.dist + weights.get(distPair.node).get(node);
-                    if (newDist < distances.get(node)) {
-                        distances.put(node, newDist);
-                        predecessors.put(node, distPair.node);
-                        queue.add(new DistPair(node, newDist));
+            N minDistNode = distPair.node;
+            int minDist = distPair.dist;
+            if (finished.add(minDistNode)) {
+                for (Edge<N> outEdge : graph.getOutEdgesOf(minDistNode)) {
+                    N successor = outEdge.target();
+                    if (!finished.contains(successor)) {
+                        int newDist = minDist + weightCalc.applyAsInt(outEdge);
+                        if (newDist < node2PathDistance.get(successor)) {
+                            node2PathDistance.put(successor, newDist);
+                            node2PathPredecessor.put(successor, minDistNode);
+                            queue.add(new DistPair(successor, newDist));
+                        }
                     }
                 }
             }
         }
-
     }
 
-    /**
-     * compute the shortest path from source node to
-     * other nodes, using dial's algorithm
-     */
-    private void computeWithDial() {
+    private void runDial() {
         // Initialize
-        graph.forEach(node -> predecessors.put(node, null));
-        graph.forEach(node -> distances.put(node, (int) Float.POSITIVE_INFINITY));
+        graph.forEach(node -> node2PathPredecessor.put(node, null));
+        graph.forEach(node -> node2PathDistance.put(node, (int) Float.POSITIVE_INFINITY));
         graph.forEach(node -> finished.put(node, false));
         Map<Integer, Set<N>> bucket = Maps.newMap();
 
         // Set source node status
         bucket.put(0, Sets.newSet());
         bucket.get(0).add(source);
-        distances.put(source, 0);
+        node2PathDistance.put(source, 0);
 
         // Main loop
         while (!bucket.isEmpty()) {
             Iterator<Integer> iter = bucket.keySet().iterator();
             int minDist = iter.next();
             Iterator<N> iterator = bucket.get(minDist).iterator();
-            if(!iterator.hasNext()){
+            if (!iterator.hasNext()) {
                 iter.remove();
                 continue;
             }
@@ -162,12 +129,12 @@ public class ShortestPath<N> {
                     if (finished.get(neighbor)) {
                         continue;
                     }
-                    int newDist = distances.get(node) + weights.get(node).get(neighbor);
-                    if (newDist < distances.get(neighbor)) {
-                        distances.put(neighbor, newDist);
+                    int newDist = node2PathDistance.get(node) + weights.get(node).get(neighbor);
+                    if (newDist < node2PathDistance.get(neighbor)) {
+                        node2PathDistance.put(neighbor, newDist);
                         bucket.computeIfAbsent(newDist, k -> Sets.newSet());
                         bucket.get(newDist).add(neighbor);
-                        predecessors.put(neighbor, node);
+                        node2PathPredecessor.put(neighbor, node);
                     }
                 }
             }
@@ -177,17 +144,21 @@ public class ShortestPath<N> {
     }
 
     /**
+     * Get the shortest path from source node to target node.
+     * If there is no such path, it will return an empty list.
+     *
      * @param target the target node
-     * @return the shortest path from source to target
-     * if there is not a path from source node to target
-     * node, it will return a single node of target itself
+     * @return the shortest path from source node to target node
      */
-    public LinkedList<N> getPath(N target) {
-        LinkedList<N> path = new LinkedList<>();
+    public List<N> getPath(N target) {
+        if(node2PathDistance.get(target) == INVALID_WEIGHT) {
+            return List.of();
+        }
+        List<N> path = new ArrayList<>();
         N curr = target;
         while (curr != null) {
             path.add(curr);
-            curr = predecessors.get(curr);
+            curr = node2PathPredecessor.get(curr);
         }
         Collections.reverse(path);
         return path;
@@ -197,17 +168,20 @@ public class ShortestPath<N> {
      * @param node the target node
      * @return the distance from source node to target node
      */
-    public int getDistanceOf(N node)
-    {
-        return distances.get(node);
+    public int getDistance(N node) {
+        return node2PathDistance.get(node);
+    }
+
+    public enum SSSPAlgorithm {
+        DIJKSTRA, DIAL
     }
 
     private class DistPair implements Comparable<DistPair> {
         private final N node;
 
-        private final Integer dist;
+        private final int dist;
 
-        public DistPair(N node, Integer dist) {
+        public DistPair(N node, int dist) {
             this.node = node;
             this.dist = dist;
         }

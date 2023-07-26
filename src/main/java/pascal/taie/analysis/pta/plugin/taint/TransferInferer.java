@@ -2,6 +2,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
 
-abstract class AbstractTransferInferer extends OnFlyHandler {
+abstract class TransferInferer extends OnFlyHandler {
 
-    protected static final List<TransInferStrategy> strategyList = List.of();
+    protected static final List<TransInferStrategy> strategyList = List.of(
+            new InitialStrategy(),
+            new NameMatchingStrategy(),
+            new TypeTransferStrategy()
+    );
 
     protected final TaintConfig config;
 
@@ -21,7 +26,9 @@ abstract class AbstractTransferInferer extends OnFlyHandler {
 
     protected boolean processed = false;
 
-    AbstractTransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
+    protected Set<TaintTransfer> newTransfers = Sets.newSet();
+
+    TransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
         super(context);
         this.config = context.config();
         this.newTransferConsumer = newTransferConsumer;
@@ -60,9 +67,14 @@ abstract class AbstractTransferInferer extends OnFlyHandler {
                             prev = strategy;
                         }
 
-                        meetResults(result).forEach(newTransferConsumer);
+                        meetResults(result).forEach(this::addNewTransfer);
                     });
         }
+    }
+
+    private void addNewTransfer(TaintTransfer transfer) {
+        newTransfers.add(transfer);
+        newTransferConsumer.accept(transfer);
     }
 
 }
