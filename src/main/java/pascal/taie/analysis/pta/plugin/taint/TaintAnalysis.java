@@ -101,6 +101,11 @@ public class TaintAnalysis implements Plugin {
     }
 
     @Override
+    public void onBeforeFinish() {
+        onFlyHandler.onBeforeFinish();
+    }
+
+    @Override
     public void onFinish() {
         Set<TaintFlow> taintFlows = sinkHandler.collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
