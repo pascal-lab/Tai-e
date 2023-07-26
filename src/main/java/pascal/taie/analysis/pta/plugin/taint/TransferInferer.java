@@ -52,7 +52,7 @@ abstract class TransferInferer extends OnFlyHandler {
     public void onBeforeFinish() {
         if(!processed) {
             processed = true;
-            InfererContext context = new InfererContext(solver, config);
+            InfererContext context = new InfererContext(solver, manager, config);
             enabledStrategies.forEach(strategy -> strategy.setContext(context));
 
             solver.getCallGraph().reachableMethods()
