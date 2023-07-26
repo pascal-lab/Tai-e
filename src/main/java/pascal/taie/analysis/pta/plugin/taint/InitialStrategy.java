@@ -13,13 +13,11 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,16 +26,19 @@ class InitialStrategy implements TransInferStrategy {
     private static final int BASE = InvokeUtils.BASE;
 
     private static final int RESULT = InvokeUtils.RESULT;
+    private final MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
     private final TwoKeyMap<JMethod, Integer, Set<Type>> arg2types = Maps.newTwoKeyMap();
+    private Solver solver;
+    private CSManager csManager;
     private Set<JMethod> methodsWithTransfer;
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
 
     @Override
     public void setContext(InfererContext context) {
-        Solver solver = context.solver();
+        solver = context.solver();
         TaintConfig taintConfig = context.config();
-        CSManager csManager = solver.getCSManager();
+        csManager = solver.getCSManager();
         this.methodsWithTransfer = taintConfig.transfers().stream()
                 .map(TaintTransfer::getMethod)
                 .collect(Collectors.toSet());
@@ -45,25 +46,38 @@ class InitialStrategy implements TransInferStrategy {
         this.ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
 
         CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
-        MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
         callGraph.reachableMethods()
                 .forEach(csMethod ->
                         method2CSCallSite.putAll(csMethod.getMethod(), callGraph.getCallersOf(csMethod)));
 
-        for(JMethod method : method2CSCallSite.keySet()) {
-            // TODO: fix undefined behavior
-            for(int i = RESULT; i < method.getParamCount(); i++) {
-                int finalI = i;
-                Set<Type> types= method2CSCallSite.get(method).stream()
-                        .map(csCallSite -> {
-                            CSVar csVar = StrategyUtils.getCSVar(csManager, csCallSite, finalI);
-                            return StrategyUtils.getTypes(solver, csVar);
-                        })
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet());
-                arg2types.put(method, i, types);
+        for (JMethod method : method2CSCallSite.keySet()) {
+            for (int i = 0; i < method.getParamCount(); i++) {
+                arg2types.put(method, i, getArgType(method, i));
             }
+            if(!method.isStatic()) {
+                arg2types.put(method, BASE, getArgType(method, BASE));
+            }
+            arg2types.put(method, RESULT, getArgType(method, RESULT));
         }
+    }
+
+    private Set<Type> getArgType(JMethod method, int index) {
+        return method2CSCallSite.get(method).stream()
+                .map(csCallSite -> {
+                    CSVar csVar = StrategyUtils.getCSVar(csManager, csCallSite, index);
+                    return StrategyUtils.getTypes(solver, csVar);
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+    }
+
+    private void addTransfers(Set<TaintTransfer> result, JMethod method, int from, int to) {
+        Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
+        TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
+        TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
+        toTypes.stream()
+                .map(toType -> new InferredTransfer(method, fromPoint, toPoint, toType, getWeight()))
+                .forEach(result::add);
     }
 
     @Override
@@ -89,15 +103,6 @@ class InitialStrategy implements TransInferStrategy {
         }
 
         return Collections.unmodifiableSet(result);
-    }
-
-    private void addTransfers(Set<TaintTransfer> result, JMethod method, int from, int to) {
-        Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
-        TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
-        TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
-        toTypes.stream()
-                .map(toType -> new InferredTransfer(method, fromPoint, toPoint, toType, getWeight()))
-                .forEach(result::add);
     }
 
     @Override

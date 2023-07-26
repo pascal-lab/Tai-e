@@ -6,6 +6,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
@@ -23,6 +24,9 @@ public class StrategyUtils {
     @Nullable
     public static CSVar getCSVar(CSManager csManager, CSCallSite csCallSite, int index) {
         Context context = csCallSite.getContext();
+        if(csCallSite.getCallSite().isStatic() && index == InvokeUtils.BASE) {
+            return null;
+        }
         Var var = InvokeUtils.getVar(csCallSite.getCallSite(), index);
         if (var == null) {
             return null;
