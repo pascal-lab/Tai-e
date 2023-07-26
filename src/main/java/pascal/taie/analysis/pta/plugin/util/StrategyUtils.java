@@ -6,10 +6,12 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +31,9 @@ public class StrategyUtils {
     }
 
     public static Set<Type> getTypes(Solver solver, CSVar csVar) {
+        if(csVar == null) {
+            return Set.of();
+        }
         return solver.getPointsToSetOf(csVar)
                 .objects()
                 .map(csObj -> csObj.getObject().getType())
