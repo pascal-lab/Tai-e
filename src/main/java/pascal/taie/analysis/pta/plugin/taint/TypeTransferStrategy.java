@@ -1,27 +1,126 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
+import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.cs.element.CSManager;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
+import pascal.taie.util.graph.Reachability;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class TypeTransferStrategy implements TransInferStrategy {
 
+    private static final int BASE = InvokeUtils.BASE;
+
+    private static final int RESULT = InvokeUtils.RESULT;
+
+    private static final List<Class<? extends Type>> concernedTypes = List.of(ClassType.class);
+    private final MultiMap<JMethod, Integer> sinkMethod2Index = Maps.newMultiMap();
+    private final Set<Type> sinkTypes = Sets.newSet();
     private Solver solver;
-
-    private TaintConfig config;
-
+    private CSManager csManager;
     private TypeTransferGraph typeTransferGraph;
+    private Reachability<Type> typeReachability;
+
+    private void processCallEdge(Edge<CSCallSite, CSMethod> edge) {
+        CSCallSite csCallSite = edge.getCallSite();
+        JMethod callee = edge.getCallee().getMethod();
+        Set<Type> resultTypes = Set.of();
+        Set<Type> baseTypes = Set.of();
+        List<Set<Type>> argTypes = new ArrayList<>(callee.getParamCount());
+
+        CSVar result = getCSVar(csCallSite, RESULT);
+        if (result != null) {
+            resultTypes = getTypes(result);
+        }
+
+        if (!csCallSite.getCallSite().isStatic()) {
+            CSVar base = getCSVar(csCallSite, BASE);
+            baseTypes = getTypes(base);
+        }
+
+        for (int i = 0; i < callee.getParamCount(); i++) {
+            argTypes.add(getTypes(getCSVar(csCallSite, i)));
+        }
+
+        Set<Type> allArgsTypes = argTypes.stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        addTypeTransfer(allArgsTypes, baseTypes);
+        addTypeTransfer(allArgsTypes, resultTypes);
+        addTypeTransfer(baseTypes, resultTypes);
+
+        // callee is sink method
+        if (sinkMethod2Index.containsKey(callee)) {
+            Set<Type> finalBaseTypes = baseTypes;
+            Set<Type> finalResultTypes = resultTypes;
+            Set<Type> newSinkTypes = sinkMethod2Index.get(callee).stream()
+                    .map(index -> switch (index) {
+                        case BASE -> finalBaseTypes;
+                        case RESULT -> finalResultTypes;
+                        default -> argTypes.get(index);
+                    })
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+            sinkTypes.addAll(newSinkTypes);
+        }
+    }
+
+    private Set<Type> getTypes(CSVar csVar) {
+        return solver.getPointsToSetOf(csVar)
+                .objects()
+                .map(csObj -> csObj.getObject().getType())
+                .filter(type -> concernedTypes.contains(type.getClass()))
+                .collect(Collectors.toSet());
+    }
+
+    private void addTypeTransfer(Set<Type> from, Set<Type> to) {
+        if (!from.isEmpty() && !to.isEmpty()) {
+            for (Type fromType : from) {
+                for (Type toType : to) {
+                    typeTransferGraph.addEdge(fromType, toType);
+                }
+            }
+        }
+    }
+
+    @Nullable
+    private CSVar getCSVar(CSCallSite csCallSite, int index) {
+        Context context = csCallSite.getContext();
+        Var var = InvokeUtils.getVar(csCallSite.getCallSite(), index);
+        if (var == null) {
+            return null;
+        }
+        return csManager.getCSVar(context, var);
+    }
+
+    private boolean canReachSink(Type type) {
+        return sinkTypes.stream()
+                .anyMatch(sinkType -> typeReachability.nodesCanReach(sinkType).contains(type));
+    }
 
     @Override
     public void setContext(InfererContext context) {
         this.solver = context.solver();
-        this.config = context.config();
+        this.csManager = solver.getCSManager();
         this.typeTransferGraph = new TypeTransferGraph();
+        context.config().sinks().forEach(sink -> sinkMethod2Index.put(sink.method(), sink.index()));
 
         ClassHierarchy classHierarchy = solver.getHierarchy();
         classHierarchy.allClasses()
@@ -31,13 +130,15 @@ class TypeTransferStrategy implements TransInferStrategy {
                     subClasses.forEach(subClass -> typeTransferGraph.addEdge(subClass.getType(), type));
                 });
 
-        // TODO: collect information from CSCallsite
+        solver.getCallGraph().edges().forEach(this::processCallEdge);
+        this.typeReachability = new Reachability<>(typeTransferGraph);
     }
 
     @Override
     public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
-        // TODO
-        return null;
+        return transfers.stream()
+                .filter(tf -> canReachSink(tf.getType()))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
