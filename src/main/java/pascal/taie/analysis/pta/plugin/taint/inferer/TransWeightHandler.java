@@ -10,14 +10,15 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class TransWeightHandler {
 
-    private final MultiMap<FlowEdge, InferredTransfer> edge2InferTrans = Maps.newMultiMap(TreeSet::new);
+    private final Map<FlowEdge, TreeSet<InferredTransfer>> edge2InferTrans = Maps.newMap();
 
     public TransWeightHandler(PointerAnalysisResult result, Set<InferredTransfer> transfers) {
         MultiMap<JMethod, Invoke> method2CallSite = StrategyUtils.getMethod2CallSites(result.getCallGraph());
@@ -30,7 +31,7 @@ public class TransWeightHandler {
                 Node to = ofg.getVarNode(InvokeUtils.getVar(invoke, tf.getTo().index()));
                 ofg.getOutEdgesOf(from).forEach(edge -> {
                     if (edge.target().equals(to)) {
-                        edge2InferTrans.put(edge, tf);
+                        edge2InferTrans.computeIfAbsent(edge, __ -> Sets.newOrderedSet()).add(tf);
                     }
                 });
             });
@@ -38,8 +39,10 @@ public class TransWeightHandler {
     }
 
     public int getWeight(FlowEdge edge) {
-        Set<InferredTransfer> transfers = edge2InferTrans.get(edge);
-        Optional<InferredTransfer> minWeightTrans = transfers.stream().findFirst();
-        return minWeightTrans.map(InferredTransfer::getWeight).orElse(0);
+        TreeSet<InferredTransfer> transfers = edge2InferTrans.get(edge);
+        if(transfers == null) {
+            return 0;
+        }
+        return transfers.first().getWeight();
     }
 }
