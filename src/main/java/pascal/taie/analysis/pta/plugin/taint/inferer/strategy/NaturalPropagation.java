@@ -28,9 +28,6 @@ public class NaturalPropagation implements TransInferStrategy {
 
     private MultiMap<JMethod, CSCallSite> method2CSCallSite;
 
-    private static final Logger logger = LogManager.getLogger(NaturalPropagation.class);
-
-
     @Override
     public void setContext(InfererContext context) {
         TransInferStrategy.super.setContext(context);
