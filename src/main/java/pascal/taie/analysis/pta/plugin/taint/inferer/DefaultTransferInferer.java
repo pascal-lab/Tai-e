@@ -35,7 +35,7 @@ public class DefaultTransferInferer extends TransferInferer {
         return switch (config.inferenceConfig().confidence()) {
             case DISABLE -> throw new AnalysisException();
             case LOW, MEDIUM, HIGH ->
-                    Collections.unmodifiableSortedSet(new TreeSet<>(strategyList));
+                    Collections.unmodifiableSortedSet(new TreeSet<>(strategyList.values()));
         };
     }
 }

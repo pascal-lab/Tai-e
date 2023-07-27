@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class TypeTransferStrategy implements TransInferStrategy {
+public class TypeTransfer implements TransInferStrategy {
+
+    public static String ID = "type-transfer";
 
     private static final int BASE = InvokeUtils.BASE;
 

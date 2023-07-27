@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 public class InitialStrategy implements TransInferStrategy {
 
+    public static String ID = "initialize";
+
     private static final int BASE = InvokeUtils.BASE;
 
     private static final int RESULT = InvokeUtils.RESULT;
