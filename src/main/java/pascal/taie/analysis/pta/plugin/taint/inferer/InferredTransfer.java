@@ -5,7 +5,7 @@ import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-public class InferredTransfer extends TaintTransfer {
+public class InferredTransfer extends TaintTransfer implements Comparable<InferredTransfer> {
 
     private int weight;
 
@@ -29,5 +29,10 @@ public class InferredTransfer extends TaintTransfer {
     @Override
     public String toString() {
         return "InferredTransfer{ " + super.toString() + " }";
+    }
+
+    @Override
+    public int compareTo(InferredTransfer other) {
+        return Integer.compare(weight, other.weight);
     }
 }
