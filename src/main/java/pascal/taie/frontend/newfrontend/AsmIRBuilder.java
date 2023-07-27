@@ -362,7 +362,8 @@ public class AsmIRBuilder {
 
     private Stmt popToVar(Stack<Exp> stack, Var v) {
         Exp top = popExp(stack);
-        ensureStackSafety(stack, e -> e.getUses().contains(v));
+        // Note: Var . getUses() will return empty set
+        ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
         return getAssignStmt(v, top);
     }
 
@@ -746,6 +747,7 @@ public class AsmIRBuilder {
         Collections.reverse(args);
         Var base = isStatic ? null : popVar(stack);
 
+        assert ref.getParameterTypes().size() == args.size();
         return switch (opcode) {
             case Opcodes.INVOKESTATIC -> new InvokeStatic(ref, args);
             case Opcodes.INVOKEVIRTUAL -> new InvokeVirtual(ref, base, args);

@@ -28,6 +28,7 @@ import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -37,8 +38,8 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
 
@@ -70,35 +71,43 @@ public class TypeInference0 {
             if (v.getType() != null) {
                 continue;
             }
-            Set<Type> allTypes = localTypeAssigns.get(v);
-            assert !allTypes.isEmpty();
-            Type now = allTypes.iterator().next();
-            if (allTypes.size() == 1) {
-                v.setType(now);
-                continue;
-            }
-            Set<Type> constrains = localTypes.get(v);
-            for (Type t : allTypes) {
-                if (now instanceof PrimitiveType) {
-                    assert t == now || canHoldsInt(t) && canHoldsInt(now);
-                } else {
-                    assert now instanceof ReferenceType;
-                    assert t instanceof ReferenceType;
-                    Optional<ReferenceType> set =
-                            Utils.lca((ReferenceType) now, (ReferenceType) t)
-                                    .stream()
-                                    .filter(i -> constrains.stream().allMatch(j -> isAssignable(j, i)))
-                                    .findFirst();
-                    if (set.isPresent()) {
-                        now = set.get();
-                    } else {
-                        now = Utils.getObject();
-                        break;
-                    }
-                }
-            }
+            Type now = computeLocalType(v);
+            // assert ! (now instanceof Uninitialized);
             v.setType(now);
         }
+    }
+
+    private Type computeLocalType(Var v) {
+        Set<Type> allTypes = localTypeAssigns.get(v);
+        assert !allTypes.isEmpty();
+        Type now = allTypes.iterator().next();
+        if (allTypes.size() == 1) {
+            return now;
+        }
+        Set<Type> constrains = localTypes.get(v);
+        for (Type t : allTypes) {
+            if (now instanceof PrimitiveType) {
+                assert t == now || canHoldsInt(t) && canHoldsInt(now);
+            } else {
+                assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType);
+                Set<ReferenceType> res = lca(allTypes.stream()
+                        .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
+                        .map(i -> (ReferenceType) i)
+                        .collect(Collectors.toSet()));
+                if (res.isEmpty())  {
+                    now = Utils.getObject();
+                } else if (res.size() == 1) {
+                    now = res.iterator().next();
+                } else {
+                    now = res.stream()
+                            .filter(i -> constrains.stream().allMatch(j -> isAssignable(j, i)))
+                            .findFirst()
+                            .orElse(Utils.getObject());
+                }
+                break;
+            }
+        }
+        return now;
     }
 
     private Type getType(Map<Var, Type> typing, Var v) {

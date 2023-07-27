@@ -286,7 +286,7 @@ class VarManager {
 
         local2Var.forEach((k, v) -> {
             if (block.getFrameLocalType().containsKey(k) &&
-                    block.getFrameLocalType(k) != Top.Top) {
+                    block.getFrameLocalType().get(k) != Top.Top) {
                 res.add(new Pair<>(k, v));
             }
         });

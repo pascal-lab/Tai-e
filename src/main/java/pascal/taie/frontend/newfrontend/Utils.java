@@ -71,6 +71,7 @@ import pascal.taie.util.collection.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -346,12 +347,13 @@ public class Utils {
 
     static Set<ReferenceType> minimum(Set<ClassType> in) {
         Set<ClassType> removed = Sets.newHybridSet();
-        for (ClassType t: in) {
-            if (! removed.contains(t)) {
-                getAllDirectSuperType(t.getJClass())
-                        .stream()
-                        .map(JClass::getType)
-                        .forEach(removed::add);
+        for (ClassType t1: in) {
+            for (ClassType t2 : in) {
+                if (isAssignable(t1, t2)) {
+                    if (t1 != t2) {
+                        removed.add(t1);
+                    }
+                }
             }
         }
         in.removeAll(removed);
@@ -374,20 +376,20 @@ public class Utils {
             } else if (upper1.contains(ct2)) {
                 return Set.of(ct2);
             } else {
-                upper1.removeIf(t -> !upper2.contains(t));
+                intersection(upper1, upper2);
                 return minimum(upper1);
             }
         } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType at2) {
             Set<ClassType> upper1 = upperClosure(ct1);
-            Set<ClassType> upper2 = Set.of(getCloneable(), getSerializable(), getObject());
-            upper1.removeIf(t -> ! upper2.contains(t));
+            Set<ClassType> upper2 = getArraySupers();
+            intersection(upper1, upper2);
             return minimum(upper1);
         } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
             return lca(t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.elementType() instanceof PrimitiveType
                     || at2.elementType() instanceof PrimitiveType) {
-                return Set.of(getObject(), getCloneable(), getSerializable());
+                return Collections.unmodifiableSet(getArraySupers());
             } else {
                 ReferenceType r1 = (ReferenceType) at1.elementType();
                 ReferenceType r2 = (ReferenceType) at2.elementType();
@@ -397,6 +399,59 @@ public class Utils {
             }
         }
         throw new UnsupportedOperationException();
+    }
+
+    static Set<ClassType> getArraySupers() {
+        return Set.of(getObject(), getCloneable(), getSerializable());
+    }
+
+    /**
+     * s1 <- s1 /\ s2
+     */
+    private static void intersection(Set<ClassType> s1, Set<ClassType> s2) {
+        s1.removeIf(t -> ! s2.contains(t));
+    }
+
+    /**
+     * @param types null and uninitialized type should be removed
+     */
+    static Set<ReferenceType> lca(Set<ReferenceType> types) {
+        if (types.size() <= 1) {
+            return types;
+        } else {
+            if (allRefArray(types)) {
+                return lca(types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
+                        .collect(Collectors.toSet()))
+                        .stream()
+                        .map(Utils::wrap1)
+                        .collect(Collectors.toSet());
+            }
+
+            Set<ClassType> res = null;
+            for (ReferenceType t : types) {
+                Set<ClassType> current;
+                if (t instanceof NullType) {
+                    continue;
+                } else if (t instanceof ArrayType at) {
+                    current = new HashSet<>(getArraySupers());
+                } else {
+                    current = upperClosure((ClassType) t);
+                }
+                if (res == null) {
+                    res = current;
+                } else {
+                    intersection(res, current);
+                }
+            }
+
+            assert res != null;
+            return minimum(res);
+        }
+    }
+
+    static boolean allRefArray(Set<ReferenceType> types) {
+        return types.stream().allMatch(t -> t instanceof ArrayType arrayType
+                && arrayType.elementType() instanceof ReferenceType);
     }
 
     static ArrayType wrap1(ReferenceType referenceType) {

@@ -109,10 +109,6 @@ public final class BytecodeBlock {
     }
 
     public void setComplete() {
-        if (frame != null) {
-            buildFrameLocalType();
-            tryCorrectFrame();
-        }
         complete = true;
     }
 
@@ -169,11 +165,10 @@ public final class BytecodeBlock {
     }
 
     public Map<Integer, Type> getFrameLocalType() {
+        if (frameLocalType == null) {
+            buildFrameLocalType();
+        }
         return this.frameLocalType;
-    }
-
-    public Type getFrameLocalType(int i) {
-        return frameLocalType.get(i);
     }
 
     public void setFrameLocalVar(Map<Integer, Var> frameLocalVar) {
@@ -226,6 +221,7 @@ public final class BytecodeBlock {
                 n += 1;
             }
         }
+        tryCorrectFrame(n);
     }
 
     public void setFrame(FrameNode frame) {
@@ -259,16 +255,16 @@ public final class BytecodeBlock {
     }
 
 
-    private void tryCorrectFrame() {
+    private void tryCorrectFrame(int size) {
         if (instr.isEmpty()) {
             return;
         }
         AbstractInsnNode last = instr.get(instr.size() - 1);
-        if (!Utils.isReturn(last)) {
+        if (!Utils.isReturn(last) || isInTry) {
             return;
         }
         // the last node is return
-        int size = frameLocalType.size();
+
         boolean[] hits = new boolean[size];
         Arrays.fill(hits, false);
         boolean[] redefines = new boolean[size];
@@ -289,12 +285,15 @@ public final class BytecodeBlock {
                 }
             } else if (insnNode instanceof IincInsnNode iincInsnNode) {
                 int var = iincInsnNode.var;
+                if (var >= size) {
+                    continue;
+                }
                 redefines[var] = true;
                 hits[var] = true;
             }
         }
 
-        for (int i = 0; i < size; ++i) {
+        for (int i : frameLocalType.keySet()) {
             if (!hits[i]) {
                 frameLocalType.put(i, Top.Top);
             }
