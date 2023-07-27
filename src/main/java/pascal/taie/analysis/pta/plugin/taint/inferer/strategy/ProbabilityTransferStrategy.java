@@ -8,6 +8,7 @@ import pascal.taie.analysis.pta.plugin.taint.TaintManager;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
@@ -37,7 +38,7 @@ public class ProbabilityTransferStrategy implements TransInferStrategy{
     }
 
     @Override
-    public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
 
         //逻辑：查看该方法的每个调用点，理论上的三条路径，如果在不同的路径上，有不同的传播概率，那么就需要分别处理
 

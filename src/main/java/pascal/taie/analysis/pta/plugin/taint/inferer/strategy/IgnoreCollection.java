@@ -1,7 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
-import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -53,7 +53,7 @@ public class IgnoreCollection implements TransInferStrategy {
     }
 
     @Override
-    public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
         if(collectionClasses.contains(method.getDeclaringClass())) {
             return Set.of();
         }

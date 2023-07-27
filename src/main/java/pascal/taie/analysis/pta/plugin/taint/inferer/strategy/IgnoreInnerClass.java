@@ -1,6 +1,6 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
-import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
@@ -12,7 +12,7 @@ public class IgnoreInnerClass implements TransInferStrategy {
     public static final String ID = "ignore-inner-class";
 
     @Override
-    public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
         JClass jClass = method.getDeclaringClass();
         if(!jClass.isPublic() && jClass.hasOuterClass()) {
             return Set.of();

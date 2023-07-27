@@ -18,14 +18,14 @@ public class DefaultTransferInferer extends TransferInferer {
     }
 
     @Override
-    Set<TaintTransfer> getNextInput(TransInferStrategy prevStrategy,
+    Set<InferredTransfer> getNextInput(TransInferStrategy prevStrategy,
                                     TransInferStrategy nextStrategy,
-                                    Set<TaintTransfer> prevOutput) {
+                                    Set<InferredTransfer> prevOutput) {
         return prevOutput;
     }
 
     @Override
-    Set<TaintTransfer> meetResults(Map<TransInferStrategy, Set<TaintTransfer>> result) {
+    Set<InferredTransfer> meetResults(Map<TransInferStrategy, Set<InferredTransfer>> result) {
         TransInferStrategy lastStrategy = enabledStrategies.last();
         return result.get(lastStrategy);
     }

@@ -1,7 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
-import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
@@ -18,7 +18,7 @@ public interface TransInferStrategy extends Comparable<TransInferStrategy> {
      * @param transfers Transfers to be filtered.
      * @return Filtered transfers
      */
-    Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers);
+    Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers);
 
     int getPriority();
 
