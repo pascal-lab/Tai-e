@@ -1,9 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
-import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
@@ -35,7 +33,7 @@ public class InitialStrategy implements TransInferStrategy {
 
     private static final int RESULT = InvokeUtils.RESULT;
 
-    private final MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
+    private MultiMap<JMethod, CSCallSite> method2CSCallSite;
     private final TwoKeyMap<JMethod, Integer, Set<Type>> arg2types = Maps.newTwoKeyMap();
     private Solver solver;
     private CSManager csManager;
@@ -53,11 +51,7 @@ public class InitialStrategy implements TransInferStrategy {
                 .collect(Collectors.toSet());
         ignoreClasses = Sets.newSet(taintConfig.inferenceConfig().ignoreClasses());
         ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
-
-        CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
-        callGraph.reachableMethods()
-                .forEach(csMethod ->
-                        method2CSCallSite.putAll(csMethod.getMethod(), callGraph.getCallersOf(csMethod)));
+        method2CSCallSite = StrategyUtils.getMethod2CSCallSites(solver.getCallGraph());
 
         for (JMethod method : method2CSCallSite.keySet()) {
             for (int i = 0; i < method.getParamCount(); i++) {
