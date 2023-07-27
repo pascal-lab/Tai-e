@@ -7,6 +7,7 @@ import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.CollectionFilterStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatchingStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
@@ -26,6 +27,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     protected static final List<TransInferStrategy> strategyList = List.of(
             new InitialStrategy(),
+            new CollectionFilterStrategy(),
             new NameMatchingStrategy(),
             new TypeTransferStrategy()
     );

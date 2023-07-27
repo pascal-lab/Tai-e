@@ -35,13 +35,10 @@ public class InitialStrategy implements TransInferStrategy {
 
     private static final int RESULT = InvokeUtils.RESULT;
 
-    private static final Set<String> COLLECTION_CLASS = Set.of(
-            "java.util.Collection", "java.util.Map", "java.util.Dictionary");
     private final MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
     private final TwoKeyMap<JMethod, Integer, Set<Type>> arg2types = Maps.newTwoKeyMap();
     private Solver solver;
     private CSManager csManager;
-    private ClassHierarchy hierarchy;
     private Set<JMethod> methodsWithTransfer;
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
@@ -49,14 +46,12 @@ public class InitialStrategy implements TransInferStrategy {
     @Override
     public void setContext(InfererContext context) {
         solver = context.solver();
-        hierarchy = solver.getHierarchy();
         TaintConfig taintConfig = context.config();
         csManager = solver.getCSManager();
         methodsWithTransfer = taintConfig.transfers().stream()
                 .map(TaintTransfer::getMethod)
                 .collect(Collectors.toSet());
-        ignoreClasses = getCollectionClasses();
-        ignoreClasses.addAll(taintConfig.inferenceConfig().ignoreClasses());
+        ignoreClasses = Sets.newSet(taintConfig.inferenceConfig().ignoreClasses());
         ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
 
         CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
@@ -86,8 +81,8 @@ public class InitialStrategy implements TransInferStrategy {
     }
 
     private void addTransfers(Set<TaintTransfer> result, JMethod method, int from, int to) {
-        if (getParamType(method, from) instanceof ReferenceType
-                && getParamType(method, to) instanceof ReferenceType) {
+        if (StrategyUtils.getParamType(method, from) instanceof ReferenceType
+                && StrategyUtils.getParamType(method, to) instanceof ReferenceType) {
             Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
             TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
             TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
@@ -95,37 +90,6 @@ public class InitialStrategy implements TransInferStrategy {
                     .map(toType -> new InferredTransfer(method, fromPoint, toPoint, toType, getWeight()))
                     .forEach(result::add);
         }
-    }
-
-    private Type getParamType(JMethod method, int index) {
-        return switch (index) {
-            case RESULT -> method.getReturnType();
-            case BASE -> method.getDeclaringClass().getType();
-            default -> method.getParamType(index);
-        };
-    }
-
-    private Set<JClass> getCollectionClasses() {
-        Set<JClass> collectionClasses = Sets.newSet();
-        COLLECTION_CLASS.stream()
-                .map(hierarchy::getJREClass)
-                .map(hierarchy::getAllSubclassesOf)
-                .flatMap(Collection::stream)
-                .filter(Predicate.not(JClass::isApplication))
-                .forEach(collectionClasses::add);
-        Set<JClass> allCollectionClasses = Sets.newSet(collectionClasses);
-        collectionClasses.forEach(c ->
-                allCollectionClasses.addAll(getAllInnerClassesOf(c)));
-        return allCollectionClasses;
-    }
-
-    private Set<JClass> getAllInnerClassesOf(JClass jclass) {
-        Set<JClass> innerClasses = Sets.newHybridSet();
-        hierarchy.getDirectInnerClassesOf(jclass).forEach(inner -> {
-            innerClasses.add(inner);
-            innerClasses.addAll(getAllInnerClassesOf(inner));
-        });
-        return innerClasses;
     }
 
     @Override

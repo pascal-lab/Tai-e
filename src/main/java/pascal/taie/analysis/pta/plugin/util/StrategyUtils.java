@@ -44,4 +44,12 @@ public class StrategyUtils {
                 .filter(type -> concernedTypes.contains(type.getClass()))
                 .collect(Collectors.toSet());
     }
+
+    public static Type getParamType(JMethod method, int index) {
+        return switch (index) {
+            case InvokeUtils.RESULT -> method.getReturnType();
+            case InvokeUtils.BASE -> method.getDeclaringClass().getType();
+            default -> method.getParamType(index);
+        };
+    }
 }
