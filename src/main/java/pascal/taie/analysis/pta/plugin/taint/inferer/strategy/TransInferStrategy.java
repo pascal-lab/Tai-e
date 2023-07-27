@@ -1,10 +1,12 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 
-interface TransInferStrategy extends Comparable<TransInferStrategy> {
+public interface TransInferStrategy extends Comparable<TransInferStrategy> {
 
     default void setContext(InfererContext context) {
     }

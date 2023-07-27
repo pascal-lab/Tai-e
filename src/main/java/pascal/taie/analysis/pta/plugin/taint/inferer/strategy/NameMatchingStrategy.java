@@ -1,5 +1,7 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JMethod;
 
@@ -9,7 +11,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-class NameMatchingStrategy implements TransInferStrategy {
+public class NameMatchingStrategy implements TransInferStrategy {
 
     private static final List<Rule> IncludeRules = List.of(
             new Rule(method -> method.getName().startsWith("get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.INCLUDE),

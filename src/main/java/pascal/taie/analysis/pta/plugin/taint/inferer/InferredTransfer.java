@@ -1,9 +1,11 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer;
 
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
-class InferredTransfer extends TaintTransfer {
+public class InferredTransfer extends TaintTransfer {
 
     private int weight;
 

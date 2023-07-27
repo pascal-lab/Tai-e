@@ -1,8 +1,16 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
+import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
+import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatchingStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransferStrategy;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -12,7 +20,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
 
-abstract class TransferInferer extends OnFlyHandler {
+public abstract class TransferInferer extends OnFlyHandler {
 
     private static final Logger logger = LogManager.getLogger(TransferInferer.class);
 

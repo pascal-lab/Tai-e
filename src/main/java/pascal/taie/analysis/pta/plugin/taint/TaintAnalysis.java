@@ -32,6 +32,8 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.taint.inferer.DefaultTransferInferer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.TransferInferer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
