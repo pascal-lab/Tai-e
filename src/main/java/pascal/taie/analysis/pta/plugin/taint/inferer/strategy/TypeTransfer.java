@@ -1,5 +1,6 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -112,7 +113,10 @@ public class TypeTransfer implements TransInferStrategy {
                     subClasses.forEach(subClass -> typeTransferGraph.addEdge(subClass.getType(), type));
                 });
 
-        solver.getCallGraph().edges().forEach(this::processCallEdge);
+        // TODO: handle other call edge
+        solver.getCallGraph().edges()
+                .filter(edge -> edge.getKind() != CallKind.OTHER)
+                .forEach(this::processCallEdge);
         this.typeReachability = new Reachability<>(typeTransferGraph);
     }
 
