@@ -1,50 +1,48 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer;
 
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class TransWeightHandler {
 
-    private final Map<FlowEdge, InferredTransfer> fEdge2iTrans = Maps.newHybridMap();
+    private final MultiMap<FlowEdge, InferredTransfer> edge2InferTrans = Maps.newMultiMap(TreeSet::new);
 
-    public TransWeightHandler(Set<InferredTransfer> transfers, Solver solver){
-        PointerAnalysisResult result = solver.getResult();
+    public TransWeightHandler(PointerAnalysisResult result, Set<InferredTransfer> transfers) {
+        CallGraph<Invoke, JMethod> callGraph = result.getCallGraph();
         MultiMap<JMethod, Invoke> method2CallSite = Maps.newMultiMap();
+        callGraph.getNodes().forEach(method ->
+                method2CallSite.putAll(method, callGraph.getCallersOf(method)));
         ObjectFlowGraph ofg = result.getObjectFlowGraph();
 
-        result.getCallGraph().getNodes().forEach(jMethod ->
-                method2CallSite.putAll(jMethod, result.getCallGraph().getCallersOf(jMethod)));
-        transfers.forEach(t -> {
-            JMethod jm = t.getMethod();
-            method2CallSite.get(jm).forEach(invoke -> {
-                Node from = ofg.getVarNode(InvokeUtils.getVar(invoke, t.getFrom().index()));
-                Node to = ofg.getVarNode(InvokeUtils.getVar(invoke, t.getTo().index()));
+        transfers.forEach(tf -> {
+            JMethod method = tf.getMethod();
+            method2CallSite.get(method).forEach(invoke -> {
+                Node from = ofg.getVarNode(InvokeUtils.getVar(invoke, tf.getFrom().index()));
+                Node to = ofg.getVarNode(InvokeUtils.getVar(invoke, tf.getTo().index()));
                 ofg.getOutEdgesOf(from).forEach(edge -> {
-                    if(edge.target().equals(to)){
-                        fEdge2iTrans.put(edge, t);
+                    if (edge.target().equals(to)) {
+                        edge2InferTrans.put(edge, tf);
                     }
                 });
             });
         });
     }
 
-    public int calWeight(FlowEdge edge){
-        InferredTransfer transfer = fEdge2iTrans.get(edge);
-        int weight = 0;
-        if(transfer != null){
-            weight = transfer.getWeight();
-        }
-        return weight;
+    public int getWeight(FlowEdge edge) {
+        Set<InferredTransfer> transfers = edge2InferTrans.get(edge);
+        Optional<InferredTransfer> minWeightTrans = transfers.stream().findFirst();
+        return minWeightTrans.map(InferredTransfer::getWeight).orElse(0);
     }
 }
