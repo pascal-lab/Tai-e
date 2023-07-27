@@ -53,6 +53,8 @@ public class TaintAnalysis implements Plugin {
 
     private Plugin onFlyHandler;
 
+    private TaintConfig config;
+
     private SinkHandler sinkHandler;
 
     private TransferInferer transferInferer;
@@ -61,7 +63,7 @@ public class TaintAnalysis implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         manager = new TaintManager(solver.getHeapModel());
-        TaintConfig config = TaintConfig.loadConfig(
+        config = TaintConfig.loadConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
                 solver.getTypeSystem());
@@ -73,7 +75,7 @@ public class TaintAnalysis implements Plugin {
                 new SourceHandler(context),
                 transferHandler,
                 new SanitizerHandler(context));
-        if(config.inferenceConfig().inferenceEnable()) {
+        if (config.inferenceConfig().inferenceEnable()) {
             transferInferer = new DefaultTransferInferer(context, transferHandler::addNewTransfer);
             onFlyHandler.addPlugin(transferInferer);
         }
@@ -112,9 +114,18 @@ public class TaintAnalysis implements Plugin {
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
-        Timer.runAndCount(() -> new TFGDumper().dump(
-                        new TFGBuilder(solver.getResult(), taintFlows, manager).build(),
-                        new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE)),
+        Timer.runAndCount(() -> {
+                    TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager).build();
+                    logger.info("Source nodes:");
+                    tfg.getSourceNodes().forEach(logger::info);
+                    logger.info("Sink nodes:");
+                    tfg.getSinkNodes().forEach(logger::info);
+                    new TFGDumper().dump(tfg,
+                            new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
+                },
                 "TFGDumper");
+        if (config.inferenceConfig().inferenceEnable()) {
+            transferInferer.collectInferredTrans(taintFlows);
+        }
     }
 }

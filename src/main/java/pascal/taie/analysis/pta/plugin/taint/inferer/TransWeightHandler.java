@@ -45,4 +45,12 @@ public class TransWeightHandler {
         }
         return transfers.first().getWeight();
     }
+
+    public Set<InferredTransfer> getInferredTrans(FlowEdge edge) {
+        Set<InferredTransfer> transfers = edge2InferTrans.get(edge);
+        if(transfers == null) {
+            return Set.of();
+        }
+        return transfers;
+    }
 }

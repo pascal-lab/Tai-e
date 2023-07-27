@@ -32,7 +32,7 @@ import pascal.taie.util.graph.Graph;
 
 import java.util.Set;
 
-class TaintFlowGraph implements Graph<Node> {
+public class TaintFlowGraph implements Graph<Node> {
 
     private final Set<Node> sourceNodes;
 
@@ -51,11 +51,11 @@ class TaintFlowGraph implements Graph<Node> {
         nodes.addAll(sinkNodes);
     }
 
-    Set<Node> getSourceNodes() {
+    public Set<Node> getSourceNodes() {
         return sourceNodes;
     }
 
-    Set<Node> getSinkNodes() {
+    public Set<Node> getSinkNodes() {
         return sinkNodes;
     }
 

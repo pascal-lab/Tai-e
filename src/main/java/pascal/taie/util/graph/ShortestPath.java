@@ -31,7 +31,7 @@ public class ShortestPath<N> {
 
     private Map<N, Integer> node2PathDistance;
 
-    private Map<N, N> node2PathPredecessor;
+    private Map<N, Edge<N>> node2PathPredecessor;
 
     public ShortestPath(Graph<N> graph, N source, ToIntFunction<Edge<N>> weightCalc) {
         this.graph = graph;
@@ -79,7 +79,7 @@ public class ShortestPath<N> {
                         int newDist = minDist + weightCalc.applyAsInt(outEdge);
                         if (newDist < node2PathDistance.get(successor)) {
                             node2PathDistance.put(successor, newDist);
-                            node2PathPredecessor.put(successor, minDistNode);
+                            node2PathPredecessor.put(successor, outEdge);
                             queue.add(new DistPair(successor, newDist));
                         }
                     }
@@ -122,7 +122,7 @@ public class ShortestPath<N> {
                             node2PathDistance.put(neighbor, newDist);
                             bucket.computeIfAbsent(newDist, k -> Sets.newSet());
                             bucket.get(newDist).add(neighbor);
-                            node2PathPredecessor.put(neighbor, node);
+                            node2PathPredecessor.put(neighbor, outEdge);
                         }
                     }
                 }
@@ -140,7 +140,7 @@ public class ShortestPath<N> {
      * @param target the target node
      * @return the shortest path from source node to target node
      */
-    public List<N> getPath(N target) {
+    public List<N> getPathNode(N target) {
         if (node2PathDistance.get(target) == INVALID_WEIGHT) {
             return List.of();
         }
@@ -148,7 +148,21 @@ public class ShortestPath<N> {
         N curr = target;
         while (curr != null) {
             path.add(curr);
-            curr = node2PathPredecessor.get(curr);
+            curr = node2PathPredecessor.get(curr).source();
+        }
+        Collections.reverse(path);
+        return path;
+    }
+
+    public List<Edge<N>> getPath(N target) {
+        if (node2PathDistance.get(target) == INVALID_WEIGHT) {
+            return List.of();
+        }
+        List<Edge<N>> path = new ArrayList<>();
+        Edge<N> curr = node2PathPredecessor.get(target);
+        while (curr != null) {
+            path.add(curr);
+            curr = node2PathPredecessor.get(curr.source());
         }
         Collections.reverse(path);
         return path;
