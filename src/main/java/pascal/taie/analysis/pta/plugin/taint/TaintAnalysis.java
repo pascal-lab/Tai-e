@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.taint.inferer.DefaultTransferInferer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.TransWeightHandler;
 import pascal.taie.analysis.pta.plugin.taint.inferer.TransferInferer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.classes.JMethod;
@@ -108,6 +109,7 @@ public class TaintAnalysis implements Plugin {
 
     @Override
     public void onFinish() {
+        new TransWeightHandler(solver.getResult(), transferInferer.getInferredTransfer());
         Set<TaintFlow> taintFlows = sinkHandler.collectTaintFlows();
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         logger.info("Detected {} taint flow(s):", taintFlows.size());

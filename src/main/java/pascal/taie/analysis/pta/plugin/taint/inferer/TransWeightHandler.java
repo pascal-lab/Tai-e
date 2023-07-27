@@ -1,11 +1,11 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer;
 
-import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
@@ -20,10 +20,7 @@ public class TransWeightHandler {
     private final MultiMap<FlowEdge, InferredTransfer> edge2InferTrans = Maps.newMultiMap(TreeSet::new);
 
     public TransWeightHandler(PointerAnalysisResult result, Set<InferredTransfer> transfers) {
-        CallGraph<Invoke, JMethod> callGraph = result.getCallGraph();
-        MultiMap<JMethod, Invoke> method2CallSite = Maps.newMultiMap();
-        callGraph.getNodes().forEach(method ->
-                method2CallSite.putAll(method, callGraph.getCallersOf(method)));
+        MultiMap<JMethod, Invoke> method2CallSite = StrategyUtils.getMethod2CallSites(result.getCallGraph());
         ObjectFlowGraph ofg = result.getObjectFlowGraph();
 
         transfers.forEach(tf -> {
