@@ -56,7 +56,7 @@ public class NameMatchingStrategy implements TransInferStrategy {
 
     @Override
     public int getPriority() {
-        return 1;
+        return 20;
     }
 
     public int getWeight() {

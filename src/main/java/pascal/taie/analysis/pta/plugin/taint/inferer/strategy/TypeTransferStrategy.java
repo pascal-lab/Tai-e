@@ -123,6 +123,6 @@ public class TypeTransferStrategy implements TransInferStrategy {
 
     @Override
     public int getPriority() {
-        return 2;
+        return 30;
     }
 }
