@@ -11,7 +11,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class NameMatchingStrategy implements TransInferStrategy {
+public class NameMatching implements TransInferStrategy {
+
+    public static String ID = "name-matching";
 
     private static final List<Rule> IncludeRules = List.of(
             new Rule(method -> method.getName().startsWith("get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.INCLUDE),
@@ -74,8 +76,8 @@ public class NameMatchingStrategy implements TransInferStrategy {
     private boolean matchAnyRule(TaintTransfer transfer, List<Rule> rules) {
         TransferPointType from = getTransferPointType(transfer.getFrom());
         TransferPointType to = getTransferPointType(transfer.getTo());
-        return rules.stream().anyMatch(rule ->  (rule.from == TransferPointType.ANY || rule.to == TransferPointType.ANY)
-                                                || (rule.from == from && rule.to == to));
+        return rules.stream().anyMatch(rule -> (rule.from == TransferPointType.ANY || rule.to == TransferPointType.ANY)
+                || (rule.from == from && rule.to == to));
     }
 
     private enum TransferPointType {

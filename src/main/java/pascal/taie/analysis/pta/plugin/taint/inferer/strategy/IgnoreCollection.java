@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class CollectionFilterStrategy implements TransInferStrategy {
+public class IgnoreCollection implements TransInferStrategy {
+
+    public static final String ID = "ignore-collection";
 
     private static final Set<String> COLLECTION_CLASS = Set.of(
             "java.util.Collection", "java.util.Map", "java.util.Dictionary");

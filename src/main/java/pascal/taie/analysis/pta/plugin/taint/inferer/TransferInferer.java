@@ -7,11 +7,12 @@ import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.CollectionFilterStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatchingStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransferStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransfer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -25,12 +26,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     private static final Logger logger = LogManager.getLogger(TransferInferer.class);
 
-    protected static final List<TransInferStrategy> strategyList = List.of(
-            new InitialStrategy(),
-            new CollectionFilterStrategy(),
-            new NameMatchingStrategy(),
-            new TypeTransferStrategy()
-    );
+    protected static final Map<String, TransInferStrategy> strategyList;
 
     protected final TaintConfig config;
 
@@ -41,6 +37,15 @@ public abstract class TransferInferer extends OnFlyHandler {
     protected boolean processed = false;
 
     protected Set<TaintTransfer> newTransfers = Sets.newSet();
+
+    static {
+        strategyList = Maps.newMap();
+        strategyList.put(InitialStrategy.ID, new InitialStrategy());
+        strategyList.put(IgnoreCollection.ID, new IgnoreCollection());
+        strategyList.put(IgnoreInnerClass.ID, new IgnoreInnerClass());
+        strategyList.put(NameMatching.ID, new NameMatching());
+        strategyList.put(TypeTransfer.ID, new TypeTransfer());
+    }
 
     TransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
         super(context);
