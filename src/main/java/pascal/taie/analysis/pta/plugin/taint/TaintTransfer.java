@@ -35,7 +35,7 @@ import pascal.taie.language.type.Type;
  *     <li>type: the type of the transferred taint object
  * </ul>
  */
-abstract class TaintTransfer {
+public abstract class TaintTransfer {
 
     private final JMethod method;
 
@@ -45,7 +45,7 @@ abstract class TaintTransfer {
 
     private final Type type;
 
-    TaintTransfer(JMethod method, TransferPoint from, TransferPoint to, Type type) {
+    public TaintTransfer(JMethod method, TransferPoint from, TransferPoint to, Type type) {
         this.method = method;
         this.from = from;
         this.to = to;

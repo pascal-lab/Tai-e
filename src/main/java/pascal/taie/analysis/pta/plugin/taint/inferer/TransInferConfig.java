@@ -1,4 +1,4 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -6,9 +6,9 @@ import pascal.taie.util.collection.Lists;
 
 import java.util.List;
 
-record TransInferConfig(Confidence confidence,
-                        List<JClass> ignoreClasses,
-                        List<JMethod> ignoreMethods) {
+public record TransInferConfig(Confidence confidence,
+                               List<JClass> ignoreClasses,
+                               List<JMethod> ignoreMethods) {
     public static final TransInferConfig EMPTY = new TransInferConfig(
             Confidence.DISABLE, List.of(), List.of());
 
@@ -33,5 +33,5 @@ record TransInferConfig(Confidence confidence,
                 '}';
     }
 
-    enum Confidence {DISABLE, LOW, MEDIUM, HIGH}
+    public enum Confidence {DISABLE, LOW, MEDIUM, HIGH}
 }

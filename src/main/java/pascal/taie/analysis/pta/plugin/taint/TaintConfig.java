@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.pta.plugin.taint.inferer.TransInferConfig;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -60,7 +61,7 @@ import static pascal.taie.analysis.pta.plugin.taint.TransferPoint.ARRAY_SUFFIX;
 /**
  * Configuration for taint analysis.
  */
-record TaintConfig(List<Source> sources,
+public record TaintConfig(List<Source> sources,
                    List<Sink> sinks,
                    List<TaintTransfer> transfers,
                    List<ParamSanitizer> paramSanitizers,

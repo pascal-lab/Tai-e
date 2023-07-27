@@ -1,4 +1,4 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;

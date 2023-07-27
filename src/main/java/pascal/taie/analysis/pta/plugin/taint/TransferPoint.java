@@ -25,11 +25,11 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JField;
 
-record TransferPoint(Kind kind, int index, JField field) {
+public record TransferPoint(Kind kind, int index, JField field) {
 
     static final String ARRAY_SUFFIX = "[*]";
 
-    enum Kind {
+    public enum Kind {
         VAR, ARRAY, FIELD
     }
 

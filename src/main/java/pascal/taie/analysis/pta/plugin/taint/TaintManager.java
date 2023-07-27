@@ -36,7 +36,7 @@ import java.util.Set;
 /**
  * Manages taint objects.
  */
-class TaintManager {
+public class TaintManager {
 
     private static final Descriptor TAINT_DESC = () -> "TaintObj";
 

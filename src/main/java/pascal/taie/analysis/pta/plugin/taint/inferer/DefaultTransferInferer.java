@@ -1,5 +1,8 @@
-package pascal.taie.analysis.pta.plugin.taint;
+package pascal.taie.analysis.pta.plugin.taint.inferer;
 
+import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.util.AnalysisException;
 
 import java.util.Collections;
@@ -9,8 +12,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
-class DefaultTransferInferer extends TransferInferer {
-    DefaultTransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
+public class DefaultTransferInferer extends TransferInferer {
+    public DefaultTransferInferer(HandlerContext context, Consumer<TaintTransfer> newTransferConsumer) {
         super(context, newTransferConsumer);
     }
 
