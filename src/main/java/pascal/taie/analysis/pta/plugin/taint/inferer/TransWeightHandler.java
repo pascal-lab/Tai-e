@@ -1,6 +1,5 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer;
 
-import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
@@ -21,9 +20,11 @@ public class TransWeightHandler {
 
     public TransWeightHandler(Set<InferredTransfer> transfers, Solver solver){
         PointerAnalysisResult result = solver.getResult();
-        MultiMap<JMethod, Invoke> method2CallSite = processCSCallGraph(result.getCallGraph());
+        MultiMap<JMethod, Invoke> method2CallSite = Maps.newMultiMap();
         ObjectFlowGraph ofg = result.getObjectFlowGraph();
 
+        result.getCallGraph().getNodes().forEach(jMethod ->
+                method2CallSite.putAll(jMethod, result.getCallGraph().getCallersOf(jMethod)));
         transfers.forEach(t -> {
             JMethod jm = t.getMethod();
             method2CallSite.get(jm).forEach(invoke -> {
@@ -36,14 +37,6 @@ public class TransWeightHandler {
                 });
             });
         });
-    }
-
-    private MultiMap<JMethod, Invoke> processCSCallGraph(CallGraph<Invoke, JMethod> cg){
-        MultiMap<JMethod, Invoke> method2CallSite = Maps.newMultiMap();
-        cg.getNodes().forEach(jMethod ->
-                cg.getCallSitesIn(jMethod).forEach(invoke ->
-                        method2CallSite.put(invoke.getMethodRef().resolve(), invoke)));
-        return method2CallSite;
     }
 
     public int calWeight(FlowEdge edge){
