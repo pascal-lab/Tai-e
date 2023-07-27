@@ -47,6 +47,11 @@ public class TransWeightHandler {
     }
 
     public int calWeight(FlowEdge edge){
-        return fEdge2iTrans.get(edge).getWeight();
+        InferredTransfer transfer = fEdge2iTrans.get(edge);
+        int weight = 0;
+        if(transfer != null){
+            weight = transfer.getWeight();
+        }
+        return weight;
     }
 }
