@@ -4,16 +4,15 @@ import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.core.solver.Transfer;
 import pascal.taie.analysis.pta.plugin.taint.TaintManager;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.lang.invoke.CallSite;
 import java.util.Set;
 
 public class ProbabilityTransferStrategy implements TransInferStrategy{
