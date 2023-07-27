@@ -50,7 +50,7 @@ import java.util.Set;
 /**
  * Taint flow graph builder.
  */
-class TFGBuilder {
+public class TFGBuilder {
 
     private static final Logger logger = LogManager.getLogger(TFGBuilder.class);
 
@@ -65,25 +65,40 @@ class TFGBuilder {
     /**
      * Whether only track taint flow in application code.
      */
-    private final boolean onlyApp = true;
+    private final boolean onlyApp;
 
     /**
      * Whether only track taint flow that reaches any sink.
      */
-    private final boolean onlyReachSink = true;
+    private final boolean onlyReachSink;
 
     /**
      * Map from a node to set of taint objects pointed to by the node.
      */
     private Map<Node, Set<Obj>> node2TaintSet;
 
-    TFGBuilder(PointerAnalysisResult pta,
+    public TFGBuilder(PointerAnalysisResult pta,
                Set<TaintFlow> taintFlows,
                TaintManager taintManager) {
         this.pta = pta;
         this.ofg = pta.getObjectFlowGraph();
         this.taintFlows = taintFlows;
         this.taintManager = taintManager;
+        this.onlyApp = true;
+        this.onlyReachSink = true;
+    }
+
+    public TFGBuilder(PointerAnalysisResult pta,
+                      Set<TaintFlow> taintFlows,
+                      TaintManager taintManager,
+                      boolean onlyApp,
+                      boolean onlyReachSink) {
+        this.pta = pta;
+        this.ofg = pta.getObjectFlowGraph();
+        this.taintFlows = taintFlows;
+        this.taintManager = taintManager;
+        this.onlyApp = onlyApp;
+        this.onlyReachSink = onlyReachSink;
     }
 
     /**
@@ -110,8 +125,6 @@ class TFGBuilder {
                         sourceNodes.add(ofg.getVarNode(sourceVar));
                     }
                 });
-        logger.info("Source nodes:");
-        sourceNodes.forEach(logger::info);
         // collect sink nodes
         Set<Node> sinkNodes = Sets.newHybridSet();
         taintFlows.forEach(taintFlow -> {
@@ -119,8 +132,6 @@ class TFGBuilder {
             Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(), sinkPoint.index());
             sinkNodes.add(ofg.getVarNode(sinkVar));
         });
-        logger.info("Sink nodes:");
-        sinkNodes.forEach(logger::info);
         // builds taint flow graph
         node2TaintSet = Maps.newMap();
         TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
@@ -194,7 +205,7 @@ class TFGBuilder {
         }
     }
 
-    TaintFlowGraph build() {
+    public TaintFlowGraph build() {
         TaintFlowGraph complete = buildComplete();
         Set<Node> sourceNodes = complete.getSourceNodes();
         Set<Node> sinkNodes = complete.getSinkNodes();

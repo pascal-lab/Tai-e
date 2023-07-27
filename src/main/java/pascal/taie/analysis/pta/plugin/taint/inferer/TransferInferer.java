@@ -2,10 +2,15 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
+import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
+import pascal.taie.analysis.pta.plugin.taint.TFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
+import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
+import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
@@ -13,14 +18,20 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransfer;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.graph.Edge;
+import pascal.taie.util.graph.ShortestPath;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public abstract class TransferInferer extends OnFlyHandler {
 
@@ -63,7 +74,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     abstract Set<InferredTransfer> meetResults(Map<TransInferStrategy, Set<InferredTransfer>> result);
 
-    public Set<InferredTransfer> getInferredTransfer() {
+    public Set<InferredTransfer> getInferredTrans() {
         return Collections.unmodifiableSet(newTransfers);
     }
 
@@ -94,6 +105,42 @@ public abstract class TransferInferer extends OnFlyHandler {
                     });
             logger.info("Total inferred transfers count :{}", newTransfers.size());
         }
+    }
+
+    public void collectInferredTrans(Set<TaintFlow> taintFlows) {
+        if(taintFlows.isEmpty()) {
+            return;
+        }
+        logger.info("\nTransfer inferer output:");
+        TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager, false, true).build();
+        TransWeightHandler weightHandler = new TransWeightHandler(solver.getResult(), getInferredTrans());
+        Set<Node> sourcesReachSink = tfg.getSourceNodes().stream()
+                .filter(source -> tfg.getOutDegreeOf(source) > 0)
+                .collect(Collectors.toSet());
+        Set<Node> sinkNodes = tfg.getSinkNodes();
+        for(Node source : sourcesReachSink) {
+            ShortestPath<Node> shortestPath = new ShortestPath<>(tfg, source, edge -> weightHandler.getWeight((FlowEdge) edge));
+            shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
+            for(Node sink : sinkNodes) {
+                List<Edge<Node>> path = shortestPath.getPath(sink);
+                if(!path.isEmpty()) {
+                    logger.info("\n{} -> {}:", source, sink);
+                    path.stream()
+                            .map(edge -> weightHandler.getInferredTrans((FlowEdge) edge))
+                            .flatMap(Collection::stream)
+                            .forEach(tf -> logger.info(transferToString(tf)));
+                }
+            }
+        }
+    }
+
+    private String transferToString(InferredTransfer transfer) {
+        return String.format(" - { method: \"%s\", from: %s, to: %s, type: %s }",
+                transfer.getMethod().getSignature(),
+                InvokeUtils.toString(transfer.getFrom().index()),
+                InvokeUtils.toString(transfer.getTo().index()),
+                transfer.getType().getName());
+
     }
 
     private void addNewTransfer(InferredTransfer transfer) {
