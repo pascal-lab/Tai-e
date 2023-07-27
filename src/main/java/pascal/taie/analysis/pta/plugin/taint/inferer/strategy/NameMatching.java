@@ -2,6 +2,7 @@ package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
+import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JMethod;
 
@@ -43,7 +44,7 @@ public class NameMatching implements TransInferStrategy {
     );
 
     @Override
-    public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
         List<Rule> matchedIncludeRules = IncludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
         List<Rule> matchedExcludeRules = ExcludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
         if (matchedIncludeRules.isEmpty() && matchedExcludeRules.isEmpty()) {
@@ -59,10 +60,6 @@ public class NameMatching implements TransInferStrategy {
     @Override
     public int getPriority() {
         return 20;
-    }
-
-    public int getWeight() {
-        return 1;
     }
 
     private TransferPointType getTransferPointType(TransferPoint transferPoint) {

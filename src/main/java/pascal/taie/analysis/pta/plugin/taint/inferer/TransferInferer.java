@@ -16,7 +16,7 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransfer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -36,7 +36,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     protected boolean processed = false;
 
-    protected Set<TaintTransfer> newTransfers = Sets.newSet();
+    protected Set<InferredTransfer> newTransfers = Sets.newSet();
 
     static {
         strategyList = Maps.newMap();
@@ -57,11 +57,15 @@ public abstract class TransferInferer extends OnFlyHandler {
     abstract SortedSet<TransInferStrategy> initStrategy();
 
     // For the first strategy, prevStrategy is null and prevOutput is an empty set.
-    abstract Set<TaintTransfer> getNextInput(TransInferStrategy prevStrategy,
+    abstract Set<InferredTransfer> getNextInput(TransInferStrategy prevStrategy,
                                              TransInferStrategy nextStrategy,
-                                             Set<TaintTransfer> prevOutput);
+                                             Set<InferredTransfer> prevOutput);
 
-    abstract Set<TaintTransfer> meetResults(Map<TransInferStrategy, Set<TaintTransfer>> result);
+    abstract Set<InferredTransfer> meetResults(Map<TransInferStrategy, Set<InferredTransfer>> result);
+
+    public Set<InferredTransfer> getInferredTransfer() {
+        return Collections.unmodifiableSet(newTransfers);
+    }
 
     @Override
     public void onBeforeFinish() {
@@ -75,12 +79,12 @@ public abstract class TransferInferer extends OnFlyHandler {
                     .distinct()
                     .forEach(method -> {
                         TransInferStrategy prev = null;
-                        Set<TaintTransfer> prevOutput = Set.of();
-                        Map<TransInferStrategy, Set<TaintTransfer>> result = Maps.newMap();
+                        Set<InferredTransfer> prevOutput = Set.of();
+                        Map<TransInferStrategy, Set<InferredTransfer>> result = Maps.newMap();
 
                         for(TransInferStrategy strategy : enabledStrategies) {
-                            Set<TaintTransfer> input = getNextInput(prev, strategy, prevOutput);
-                            Set<TaintTransfer> output = strategy.apply(method, input);
+                            Set<InferredTransfer> input = getNextInput(prev, strategy, prevOutput);
+                            Set<InferredTransfer> output = strategy.apply(method, input);
                             result.put(strategy, output);
                             prevOutput = output;
                             prev = strategy;
@@ -92,7 +96,7 @@ public abstract class TransferInferer extends OnFlyHandler {
         }
     }
 
-    private void addNewTransfer(TaintTransfer transfer) {
+    private void addNewTransfer(InferredTransfer transfer) {
         newTransfers.add(transfer);
         newTransferConsumer.accept(transfer);
     }

@@ -13,7 +13,6 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
@@ -26,7 +25,6 @@ import pascal.taie.util.collection.TwoKeyMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class InitialStrategy implements TransInferStrategy {
@@ -82,7 +80,7 @@ public class InitialStrategy implements TransInferStrategy {
                 .collect(Collectors.toSet());
     }
 
-    private void addTransfers(Set<TaintTransfer> result, JMethod method, int from, int to) {
+    private void addTransfers(Set<InferredTransfer> result, JMethod method, int from, int to) {
         if (StrategyUtils.getParamType(method, from) instanceof ReferenceType
                 && StrategyUtils.getParamType(method, to) instanceof ReferenceType) {
             Set<Type> toTypes = arg2types.getOrDefault(method, to, Set.of());
@@ -95,14 +93,14 @@ public class InitialStrategy implements TransInferStrategy {
     }
 
     @Override
-    public Set<TaintTransfer> apply(JMethod method, Set<TaintTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
         if (ignoreMethods.contains(method)
                 || ignoreClasses.contains(method.getDeclaringClass())
                 || methodsWithTransfer.contains(method))
             return Set.of();
 
         // add whole transfers for this method
-        Set<TaintTransfer> result = Sets.newSet();
+        Set<InferredTransfer> result = Sets.newSet();
         if (!method.isStatic()) {
             // base-to-result
             addTransfers(result, method, BASE, RESULT);
