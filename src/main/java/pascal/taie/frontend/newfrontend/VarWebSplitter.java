@@ -27,10 +27,6 @@ public class VarWebSplitter {
 
     private final VarManager varManager;
 
-    private final List<Var> locals;
-
-    private final SetFact<Var> localSet;
-
     private final Map
             <
                     Var,
@@ -62,6 +58,8 @@ public class VarWebSplitter {
     @Nullable
     private final DataflowResult<Stmt, SetFact<Var>> liveVariables;
 
+    private final Var[] locals;
+
     public VarWebSplitter(AsmIRBuilder builder) {
         this(builder, null);
     }
@@ -74,12 +72,8 @@ public class VarWebSplitter {
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
         this.split = Maps.newMap();
-        this.locals = varManager.getVars()
-                .stream()
-                .filter(varManager::isLocal)
-                .toList();
         this.liveVariables = liveVariables;
-        this.localSet = new SetFact<>(locals);
+        this.locals = varManager.getLocals();
 
         assert builder.isFrameUsable() || liveVariables != null;
     }
@@ -128,19 +122,43 @@ public class VarWebSplitter {
 
     private Map<Var, StmtOccur> washDefs(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
         Map<Var, StmtOccur> res = Maps.newMap(inDef.size());
-        for (Var var : getDefsAtStartOfBlock(block)) {
-            assert inDef.containsKey(var);
-            res.put(var, inDef.get(var));
+        for (Var var : inDef.keySet()) {
+            if (isVarExistsInFrame(block, var)) {
+                res.put(var, inDef.get(var));
+            }
         }
         return res;
+    }
+
+    private boolean isVarExistsInFrame(BytecodeBlock block, Var var) {
+        if (builder.isFrameUsable()) {
+            return block.isLocalExistInFrame(varManager.getSlot(var));
+        } else {
+            return getInFact(block).contains(var);
+        }
+    }
+
+    private boolean canInferLiveVar(BytecodeBlock block) {
+        return ! builder.isFrameUsable() || block.getFrame() != null;
     }
 
     private Map<Var, StmtOccur> getPhantomInDefs(BytecodeBlock entry) {
         boolean isInTry = entry.isInTry();
         Map<Var, StmtOccur> res = new HashMap<>();
         Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
-        Kind phantomType = entry == builder.getEntryBlock() ? Kind.PARAM : Kind.PHANTOM;
-        for (Var var : getDefsAtStartOfBlock(entry)) { // initialization.
+        boolean isEntry = entry == builder.getEntryBlock();
+        Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
+        List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
+        for (Var var : allPhantoms) { // initialization.
+            if (phantomType == Kind.PHANTOM &&
+                    ! isVarExistsInFrame(entry, var)) {
+                continue;
+            }
+
+            if (phantomType == Kind.PARAM && canInferLiveVar(entry) &&
+                    ! isVarExistsInFrame(entry, var)) {
+                continue;
+            }
             Copy phantom = new Copy(var, var);
             StmtOccur e = new StmtOccur(entry, -1, phantom, phantomType);
             UnionFindSet<StmtOccur> web = webs.get(var);
@@ -164,21 +182,22 @@ public class VarWebSplitter {
         Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>(inDefs.size()) : null;
         Map<Var, StmtOccur> currentDefs;
         int size = block.inEdges().size();
-        if (size > 1) {
+        if (size > 1 || block == builder.getEntryBlock()) {
             if (block2inDefs.containsKey(block)) {
                 Map<Var, StmtOccur> otherInDefs = block2inDefs.get(block);
                 mergeDefs(otherInDefs, inDefs);
                 return;
             } else {
-                Map<Var, StmtOccur> realInDef = washDefs(block, inDefs);
+                Map<Var, StmtOccur> realInDef;
+                if (block == builder.getEntryBlock()) {
+                    realInDef = inDefs;
+                } else {
+                    realInDef = washDefs(block, inDefs);
+                }
                 block2inDefs.put(block, realInDef);
                 currentDefs = new HashMap<>(realInDef);
             }
         }  else {
-            if (block == builder.getEntryBlock() && this.block2inDefs.get(block) != null) {
-                mergeDefs(block2inDefs.get(block), inDefs);
-                return;
-            }
             assert block2inDefs.get(block) == null;
             block2inDefs.put(block, inDefs);
             currentDefs = new HashMap<>(inDefs);
@@ -198,7 +217,7 @@ public class VarWebSplitter {
             // uses first
             Collection<RValue> uses = stmt.getUses();
             for (RValue r : uses) {
-                if (r instanceof Var use && localSet.contains(use)) {
+                if (r instanceof Var use && varManager.isLocal(use)) {
                     StmtOccur e = new StmtOccur(block, i, stmt, Kind.USE);
                     UnionFindSet<StmtOccur> unionFind = webs.get(use);
                     unionFind.addElement(e);
@@ -209,7 +228,7 @@ public class VarWebSplitter {
 
             Var def = stmt.getDef()
                     .flatMap(l -> l instanceof Var ? Optional.of((Var) l) : Optional.empty())
-                    .filter(localSet::contains)
+                    .filter(varManager::isLocal)
                     .orElse(null);
             if (def != null) {
                 StmtOccur e = new StmtOccur(block, i, stmt, Kind.DEF);
@@ -237,11 +256,12 @@ public class VarWebSplitter {
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
         Map<Var, List<StmtOccur>> blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
         Map<Var, StmtOccur> handlerInDefs = block2inDefs.get(handler);
-        for (Var var : getDefsAtStartOfBlock(handler)) {
+        for (Var var : locals) {
             var web = webs.get(var);
-            assert blockAllDefs.containsKey(var);
-            for (var p : blockAllDefs.get(var)) {
-                web.union(p, handlerInDefs.get(var));
+            if (handlerInDefs.containsKey(var)) {
+                for (var p : blockAllDefs.get(var)) {
+                    web.union(p, handlerInDefs.get(var));
+                }
             }
         }
     }
@@ -314,10 +334,6 @@ public class VarWebSplitter {
                 block.getStmts().set(idx, newStmt);
             }
         });
-
-        if (builder.isFrameUsable()) {
-            updateInDefs();
-        }
     }
 
     private void handleSideEffects(Stmt oldStmt, Stmt newStmt) {
@@ -325,42 +341,6 @@ public class VarWebSplitter {
             assert newStmt instanceof Return;
             varManager.getRetVars().remove(r.getValue());
             varManager.getRetVars().add(((Return) newStmt).getValue());
-        }
-    }
-
-    private void updateInDefs() {
-        for (BytecodeBlock block : builder.blockSortedList) {
-            if (block.getFrame() == null) {
-                continue;
-            }
-            Map<Var, StmtOccur> inDefs = block2inDefs.get(block);
-            assert inDefs != null;
-            Map<Integer, Var> frameLocalVar = Maps.newMap();
-            for (Pair<Integer, Var> p : varManager.getDefsBeforeStartOfABlock(block)) {
-                int idx = p.first();
-                Var v = p.second();
-                StmtOccur real = inDefs.get(v);
-                Var realVar;
-                realVar = split.get(new SplitIndex(v, webs.get(v).findRoot(real)));
-                frameLocalVar.put(idx, realVar != null ? realVar : v);
-            }
-            block.setFrameLocalVar(frameLocalVar);
-        }
-    }
-
-    private Iterable<Var> getDefsAtStartOfBlock(BytecodeBlock block) {
-        if (builder.isFrameUsable()) {
-            if (block.getFrame() == null) {
-                assert block.inEdges().size() == 1 && block.inEdges().get(0).fallThrough() == block ||
-                        block.inEdges().stream().allMatch(b -> b.getFrame() == null) && !block.isCatch();
-                return varManager.getParamThis();
-            }
-
-            return varManager.getDefsBeforeStartOfABlock(block).stream().map(Pair::second).toList();
-        } else {
-            SetFact<Var> inFact = getInFact(block);
-            inFact.intersect(localSet);
-            return inFact;
         }
     }
 

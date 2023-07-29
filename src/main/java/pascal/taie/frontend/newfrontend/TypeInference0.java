@@ -6,6 +6,11 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
+import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InvokeDynamic;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StringLiteral;
@@ -20,6 +25,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
@@ -27,6 +33,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
@@ -47,27 +54,19 @@ public class TypeInference0 {
 
     AsmIRBuilder builder;
 
-    MultiMap<Var, Type> localTypes;
+    MultiMap<Var, Type> localTypeConstrains;
 
     MultiMap<Var, Type> localTypeAssigns;
 
     public TypeInference0(AsmIRBuilder builder) {
         this.builder = builder;
-        localTypes = Maps.newMultiMap();
+        localTypeConstrains = Maps.newMultiMap();
         localTypeAssigns = Maps.newMultiMap();
     }
 
-    private void setTypeForTemp(Var var, Type t) {
-        if (localTypes.containsKey(var)) {
-            localTypeAssigns.put(var, t);
-        }
-        else if (builder.manager.isNotSpecialVar(var)) {
-            var.setType(t);
-        }
-    }
 
     private void setTypeForLocal() {
-        for (Var v : localTypes.keySet()) {
+        for (Var v : localTypeAssigns.keySet()) {
             if (v.getType() != null) {
                 continue;
             }
@@ -84,7 +83,7 @@ public class TypeInference0 {
         if (allTypes.size() == 1) {
             return now;
         }
-        Set<Type> constrains = localTypes.get(v);
+        Set<Type> constrains = localTypeConstrains.get(v);
         for (Type t : allTypes) {
             if (now instanceof PrimitiveType) {
                 assert t == now || canHoldsInt(t) && canHoldsInt(now);
@@ -110,26 +109,48 @@ public class TypeInference0 {
         return now;
     }
 
-    private Type getType(Map<Var, Type> typing, Var v) {
+    private Type getType(Typing typing, Var v) {
         if (v.getType() != null) {
             return v.getType();
         } else {
-            Type t = typing.get(v);
-            assert t != null;
-            return t;
+            Type t = typing.typing().get(v);
+            if (t == null) {
+                int slot = builder.manager.getSlot(v);
+                assert slot != -1;
+                Object frameLocalType = typing.frameLocalType().get(slot);
+                Type currentType = fromAsmFrameType(frameLocalType);
+                typing.typing().put(v, currentType);
+                localTypeConstrains.put(v, currentType);
+                return currentType;
+            } else {
+                return t;
+            }
         }
     }
 
-    private void setType(Map<Var, Type> typing, Var v, Type t) {
-        typing.put(v, t);
+    private void setTypeForTemp(Var var, Type t) {
+        if (isLocal(var)) {
+            localTypeAssigns.put(var, t);
+        }
+        else if (builder.manager.isNotSpecialVar(var)) {
+            var.setType(t);
+        }
+    }
+
+    private boolean isLocal(Var v) {
+        return localTypeConstrains.containsKey(v) || builder.manager.getSlot(v) != -1;
+    }
+
+    private void setType(Typing typing, Var v, Type t) {
+        typing.typing().put(v, t);
         setTypeForTemp(v, t);
     }
 
-    public void newTypeAssign(Var var, Type t, Map<Var, Type> typing) {
+    private void newTypeAssign(Var var, Type t, Typing typing) {
         setType(typing, var, t);
     }
 
-    public void newTypeAssign(Var var, List<Var> rValues, Map<Var, Type> typing) {
+    private void newTypeAssign(Var var, List<Var> rValues, Typing typing) {
         List<Type> types = rValues
                 .stream()
                 .map(v -> getType(typing, v))
@@ -141,7 +162,7 @@ public class TypeInference0 {
         setType(typing, var, resultType);
     }
 
-    public void newTypeArrayLoad(Var target, ArrayAccess array, Map<Var, Type> typing) {
+    private void newTypeArrayLoad(Var target, ArrayAccess array, Typing typing) {
         Var base = array.getBase();
         Type t = getType(typing, base);
         if (t instanceof ArrayType arrayType) {
@@ -168,10 +189,23 @@ public class TypeInference0 {
             if (block.getFrame() != null) {
                 block.getInitTyping().forEach((k, v) -> {
                     if (v != Uninitialized.UNINITIALIZED) {
-                        localTypes.put(k, v);
+                        localTypeConstrains.put(k, v);
                     }
                 });
             }
+        }
+    }
+
+    private void addConstrainsForFieldAccess(FieldAccess access) {
+        if (access instanceof InstanceFieldAccess instanceFieldAccess) {
+            Var base = instanceFieldAccess.getBase();
+            addTypeConstrain(base, instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
+        }
+    }
+
+    private void addTypeConstrain(Var base, Type constrain) {
+        if (isLocal(base)) {
+            localTypeConstrains.put(base, constrain);
         }
     }
 
@@ -189,22 +223,25 @@ public class TypeInference0 {
         }
     }
 
-    public void inferTypes() {
+    private void inferTypes() {
         visited = Sets.newHybridSet();
         for (BytecodeBlock block : builder.blockSortedList) {
             Map<Var, Type> initTyping;
+            List<Object> frameLocalType;
             if (! visited.contains(block)) {
                 if (block.inEdges().isEmpty() && ! block.isCatch()) {
                     initTyping = Maps.newMap();
+                    frameLocalType = List.of();
                 } else {
                     initTyping = block.getInitTyping();
+                    frameLocalType = block.getFrameLocalType();
                 }
-                inferTypesForBlock(block, initTyping);
+                inferTypesForBlock(block, new Typing(initTyping, frameLocalType));
             }
         }
     }
 
-    public void inferTypesForBlock(BytecodeBlock block, Map<Var, Type> typing) {
+    private void inferTypesForBlock(BytecodeBlock block, Typing typing) {
         visited.add(block);
         for (Stmt stmt : getStmts(block)) {
             stmt.accept(new StmtVisitor<Void> () {
@@ -249,11 +286,13 @@ public class TypeInference0 {
                 @Override
                 public Void visit(LoadField stmt) {
                     newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
+                    addConstrainsForFieldAccess(stmt.getFieldAccess());
                     return StmtVisitor.super.visit(stmt);
                 }
 
                 @Override
                 public Void visit(StoreField stmt) {
+                    addConstrainsForFieldAccess(stmt.getFieldAccess());
                     return StmtVisitor.super.visit(stmt);
                 }
 
@@ -299,6 +338,33 @@ public class TypeInference0 {
                     if (stmt.getLValue() != null) {
                         newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
                     }
+
+                    InvokeExp exp = stmt.getInvokeExp();
+                    if (exp instanceof InvokeInstanceExp invokeInstanceExp) {
+                        // TODO: use better rule
+                        if (!invokeInstanceExp.getMethodRef().getName().equals(MethodNames.INIT)) {
+                            addTypeConstrain(invokeInstanceExp.getBase(),
+                                    invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                        }
+                    }
+
+                    if (! (exp instanceof InvokeDynamic)) {
+                        List<Var> params = exp.getArgs();
+                        List<Type> paramTypes = exp.getMethodRef().getParameterTypes();
+                        for (int i = 0; i < exp.getArgCount(); ++i) {
+                            Var v = params.get(i);
+                            Type t = paramTypes.get(i);
+                            addTypeConstrain(v, t);
+                        }
+                    }
+                    return StmtVisitor.super.visit(stmt);
+                }
+
+                @Override
+                public Void visit(Return stmt) {
+                    if (stmt.getValue() != null) {
+                        addTypeConstrain(stmt.getValue(), builder.method.getReturnType());
+                    }
                     return StmtVisitor.super.visit(stmt);
                 }
 
@@ -320,5 +386,7 @@ public class TypeInference0 {
     List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
     }
+
+    private record Typing(Map<Var, Type> typing, List<Object> frameLocalType) {}
 
 }

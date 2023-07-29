@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 class VarManager {
 
-    public static final String PARAMETER_PREFIX = "@";
     public static final String LOCAL_PREFIX = "%";
 
     // TODO: use another method to avoid local var has same prefix
@@ -48,13 +47,13 @@ class VarManager {
 
     private int counter;
 
-    private final Map<Integer, Var> local2Var; // slot -> Var
+    private final Var[] local2Var; // slot -> Var
 
     private final Map<Triple<Integer, Integer, Integer>, LocalVariableNode> parsedLocalVarTable; // (slot, start(inclusive), end(exclusive)) -> Var
 
     private final List<Var> params;
 
-    private final Map<Var, Integer> paramsIndex;
+    private final Map<Var, Integer> var2Local;
 
     private final List<Var> vars;
 
@@ -70,15 +69,16 @@ class VarManager {
 
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
-                      InsnList insnList) {
+                      InsnList insnList,
+                      int maxLocal) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
-        this.local2Var = Maps.newMap();
+        this.local2Var = new Var[maxLocal];
         this.parsedLocalVarTable = existsLocalVariableTable ? Maps.newMap() : null;
         this.params = new ArrayList<>();
-        this.paramsIndex = Maps.newMap();
+        this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>();
         this.retVars = new HashSet<>();
         this.blockConstCache = Maps.newMap();
@@ -87,14 +87,15 @@ class VarManager {
             processLocalVarTable();
         }
 
+        for (int i = 0; i < maxLocal; ++i) {
+            makeLocal(i, getLocalName(i, method.isStatic()));
+        }
+
         int firstParamIndex = method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
         for (int NoOfParam = firstParamIndex; NoOfParam < method.getParamCount() + firstParamIndex; ++NoOfParam) {
-            Var v = newParameter(NoOfParam);
-
-            this.params.add(v);
-            local2Var.put(slotOfCurrentParam, v);
-            this.paramsIndex.put(v, slotOfCurrentParam);
+            Var v = getLocal(slotOfCurrentParam);
+            params.add(v);
             if (Utils.isTwoWord(method.getParamType(NoOfParam - firstParamIndex))) {
                 slotOfCurrentParam += 2;
             } else {
@@ -105,9 +106,7 @@ class VarManager {
         if (method.isStatic()) {
             thisVar = null;
         } else {
-            Var t = newVar(THIS);
-            thisVar = t;
-            local2Var.put(0, t);
+            thisVar = getLocal(0);
         }
     }
 
@@ -191,12 +190,32 @@ class VarManager {
 
     /**
      * Get the TIR var for a <code>this</code> variable, parameter or local variable
+     *
      * @param slot index of variable in bytecode
-     * @param insnNode asm insnNode that require the local variable
      * @return the corresponding TIR variable
      */
-    public Var getLocal(int slot, AbstractInsnNode insnNode) {
-        return local2Var.computeIfAbsent(slot, s -> newVar(LOCAL_PREFIX + s));
+    public Var getLocal(int slot) {
+        Var v = local2Var[slot];
+        assert v != null;
+        return v;
+    }
+
+    public Var[] getLocals() {
+        return local2Var;
+    }
+
+    private void makeLocal(int slot, String name) {
+        Var v1 = newVar(name);
+        var2Local.put(v1, slot);
+        local2Var[slot] = v1;
+    }
+
+    private String getLocalName(int slot, boolean isStatic) {
+        if (slot == 0) {
+            return isStatic ? LOCAL_PREFIX + slot : THIS;
+        } else {
+            return LOCAL_PREFIX + slot;
+        }
     }
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
@@ -219,7 +238,9 @@ class VarManager {
                 old.setName(finalName);
                 return old;
             } else {
-                return newVar(getDefaultSplitName(finalName, count));
+                Var v = newVar(getDefaultSplitName(finalName, count));
+                var2Local.put(v, slot);
+                return v;
             }
         }
     }
@@ -275,26 +296,10 @@ class VarManager {
         return !v.getName().startsWith("*") && !Objects.equals(v.getName(), NULL_LITERAL);
     }
 
-    public boolean isLocal(Var v) { return ! isTempVar(v) && isNotSpecialVar(v); }
-
     /**
-     * @param block index of the AsmNode
-     * @return live vars before the first AsmNode of the block.
+     * can only be used before splitting
      */
-    public List<Pair<Integer, Var>> getDefsBeforeStartOfABlock(BytecodeBlock block) {
-        List<Pair<Integer, Var>> res = new ArrayList<>();
-
-        local2Var.forEach((k, v) -> {
-            if (block.getFrameLocalType().containsKey(k) &&
-                    block.getFrameLocalType().get(k) != Top.Top) {
-                res.add(new Pair<>(k, v));
-            }
-        });
-
-        assert verifyDefs(res);
-
-        return res;
-    }
+    public boolean isLocal(Var v) { return v.getIndex() < local2Var.length; }
 
     private static boolean verifyDefs(List<Pair<Integer, Var>> res) {
         var l = res.stream().map(Pair::first).toList();
@@ -307,23 +312,18 @@ class VarManager {
             return;
         }
         int idx = 0;
-        assert !params.isEmpty();
         for (; idx < params.size(); ++idx) {
             if (params.get(idx) == oldVar) {
                 break;
             }
         }
         assert idx < params.size();
-        paramsIndex.put(newVar, paramsIndex.get(oldVar));
+        var2Local.put(newVar, var2Local.get(oldVar));
         params.set(idx, newVar);
     }
 
     private String getConstVarName(Literal literal) {
         return TEMP_PREFIX + "c" + counter;
-    }
-
-    private Var newParameter(int index) {
-        return newVar(PARAMETER_PREFIX + index);
     }
 
     private Var newVar(String name) {
@@ -340,12 +340,7 @@ class VarManager {
     }
 
     int getSlot(Var var) {
-        // TODO: there is a faster way to do this, may optimize
-        return local2Var.entrySet()
-                .stream()
-                .filter((entry) -> entry.getValue() == var)
-                .findFirst()
-                .get()
-                .getKey();
+        Integer i = var2Local.get(var);
+        return Objects.requireNonNullElse(i, -1);
     }
 }

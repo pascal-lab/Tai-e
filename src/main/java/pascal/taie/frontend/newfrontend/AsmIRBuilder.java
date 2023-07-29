@@ -144,7 +144,8 @@ public class AsmIRBuilder {
         this.source = methodSource.adapter();
         this.classFileVersion = methodSource.classFileVersion();
         this.isEmpty = source.instructions.size() == 0;
-        this.manager = new VarManager(method, source.localVariables, source.instructions);
+        this.manager = new VarManager(method,
+                source.localVariables, source.instructions, source.maxLocals);
         this.asm2Stmt = Maps.newMap(source.instructions.size());
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
@@ -765,7 +766,7 @@ public class AsmIRBuilder {
 
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
-        Var v = manager.getLocal(idx, varNode);
+        Var v = manager.getLocal(idx);
         Stmt stmt = popToVar(stack, v);
         assocStmt(varNode, stmt);
     }
@@ -864,7 +865,7 @@ public class AsmIRBuilder {
                 AbstractInsnNode insnNode = instr.next();
                 if (insnNode.getOpcode() == Opcodes.ASTORE) {
                     VarInsnNode node = (VarInsnNode) insnNode;
-                    assocStmt(node, new Catch(manager.getLocal(node.var, node)));
+                    assocStmt(node, new Catch(manager.getLocal(node.var)));
                 } else {
                     // else
                     // * for java source, insn should be POP *
@@ -923,7 +924,7 @@ public class AsmIRBuilder {
         if (node instanceof VarInsnNode varNode) {
             switch (varNode.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
-                    pushExp(node, nowStack, manager.getLocal(varNode.var, varNode));
+                    pushExp(node, nowStack, manager.getLocal(varNode.var));
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                         storeExp(varNode, nowStack);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
@@ -1070,7 +1071,7 @@ public class AsmIRBuilder {
         } else if (node instanceof IincInsnNode inc) {
             pushConst(node, nowStack, IntLiteral.get(inc.incr));
             Var cst = popVar(nowStack);
-            Var v = manager.getLocal(inc.var, node);
+            Var v = manager.getLocal(inc.var);
             Stmt next = getAssignStmt(v, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
             assocStmt(node, next);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {

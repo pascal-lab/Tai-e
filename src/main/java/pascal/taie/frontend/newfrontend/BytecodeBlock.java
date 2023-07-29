@@ -44,9 +44,7 @@ public final class BytecodeBlock {
     @Nullable
     private final Type exceptionHandlerType;
 
-    private Map<Integer, Type> frameLocalType;
-
-    private Map<Integer, Var> frameLocalVar;
+    private List<Object> frameLocalType;
 
     private List<Integer> stmt2Asm;
 
@@ -164,29 +162,10 @@ public final class BytecodeBlock {
         return frame;
     }
 
-    public Map<Integer, Type> getFrameLocalType() {
-        if (frameLocalType == null) {
-            buildFrameLocalType();
-        }
-        return this.frameLocalType;
-    }
-
-    public void setFrameLocalVar(Map<Integer, Var> frameLocalVar) {
-        if (frame == null) {
-            return;
-        }
-        this.frameLocalVar = frameLocalVar;
-    }
-
     public Map<Var, Type> getInitTyping() {
         assert frame != null;
 
         Map<Var, Type> typing = Maps.newMap();
-        frameLocalVar.forEach((i, v) -> {
-            Type t = frameLocalType.get(i);
-            assert t != null;
-            typing.put(v, t);
-        });
 
         if (inStack != null) {
             int n = 0;
@@ -210,18 +189,39 @@ public final class BytecodeBlock {
 
     private void buildFrameLocalType() {
         assert frame != null;
-        frameLocalType = Maps.newMap();
+        frameLocalType = new ArrayList<>(frame.local.size() + 1);
         int n = 0;
         for (Object o : frame.local) {
-            Type t = Utils.fromAsmFrameType(o);
-            frameLocalType.put(n, t);
-            if (t == PrimitiveType.DOUBLE || t == PrimitiveType.LONG) {
+            frameLocalType.add(o);
+            // is long or double
+            if (o instanceof Integer i && (i == 3 || i == 4)) {
+                frameLocalType.add(0); // place top
                 n += 2;
             } else {
                 n += 1;
             }
         }
         tryCorrectFrame(n);
+    }
+
+    private void ensureLocalType() {
+        if (frameLocalType == null) {
+            buildFrameLocalType();
+        }
+    }
+
+    public boolean isLocalExistInFrame(int slot) {
+        ensureLocalType();
+        if (slot >= frameLocalType.size()) {
+            return false;
+        }
+        Object o = frameLocalType.get(slot);
+        return ! (o instanceof Integer i && i == 0);
+    }
+
+    public List<Object> getFrameLocalType() {
+        ensureLocalType();
+        return frameLocalType;
     }
 
     public void setFrame(FrameNode frame) {
@@ -293,9 +293,9 @@ public final class BytecodeBlock {
             }
         }
 
-        for (int i : frameLocalType.keySet()) {
+        for (int i = 0; i < frameLocalType.size(); ++i) {
             if (!hits[i]) {
-                frameLocalType.put(i, Top.Top);
+                frameLocalType.set(i, 0);
             }
         }
     }
