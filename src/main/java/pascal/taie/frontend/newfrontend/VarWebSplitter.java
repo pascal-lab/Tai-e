@@ -3,7 +3,6 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
-import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Return;
@@ -14,11 +13,9 @@ import pascal.taie.util.collection.UnionFindSet;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class VarWebSplitter {
@@ -132,7 +129,7 @@ public class VarWebSplitter {
 
     private boolean isVarExistsInFrame(BytecodeBlock block, Var var) {
         if (builder.isFrameUsable()) {
-            return block.isLocalExistInFrame(varManager.getSlot(var));
+            return block.isLocalExistInFrame(varManager.getSlotFast(var));
         } else {
             return getInFact(block).contains(var);
         }
@@ -197,7 +194,7 @@ public class VarWebSplitter {
                 block2inDefs.put(block, realInDef);
                 currentDefs = new HashMap<>(realInDef);
             }
-        }  else {
+        } else {
             assert block2inDefs.get(block) == null;
             block2inDefs.put(block, inDefs);
             currentDefs = new HashMap<>(inDefs);
@@ -215,33 +212,19 @@ public class VarWebSplitter {
         for (int i = 0; i < stmts.size(); ++i) {
             Stmt stmt = stmts.get(i);
             // uses first
-            Collection<RValue> uses = stmt.getUses();
-            for (RValue r : uses) {
-                if (r instanceof Var use && varManager.isLocal(use)) {
-                    StmtOccur e = new StmtOccur(block, i, stmt, Kind.USE);
-                    UnionFindSet<StmtOccur> unionFind = webs.get(use);
-                    unionFind.addElement(e);
-                    assert currentDefs.get(use) != null;
-                    unionFind.union(e, currentDefs.get(use));
+            int finalI = i;
+            StmtVarVisitor.visitUse(stmt, (use) -> {
+                if (varManager.isLocalFast(use)) {
+                    mergeOneUse(use, currentDefs, new StmtOccur(block, finalI, stmt, Kind.USE));
                 }
-            }
+            });
 
-            Var def = stmt.getDef()
-                    .flatMap(l -> l instanceof Var ? Optional.of((Var) l) : Optional.empty())
-                    .filter(varManager::isLocal)
-                    .orElse(null);
-            if (def != null) {
-                StmtOccur e = new StmtOccur(block, i, stmt, Kind.DEF);
-                UnionFindSet<StmtOccur> unionFind = webs.get(def);
-                unionFind.addElement(e);
-                currentDefs.put(def, e);
-
-                if (isInTry) {
-                    List<StmtOccur> varDefs =
-                            mayFlowToCatch.computeIfAbsent(def, k -> new ArrayList<>());
-                    varDefs.add(e);
+            StmtVarVisitor.visitDef(stmt, (def) -> {
+                if (varManager.isLocalFast(def)) {
+                    StmtOccur e = new StmtOccur(block, finalI, stmt, Kind.DEF);
+                    replaceOneDef(def, e, currentDefs, isInTry, mayFlowToCatch);
                 }
-            }
+            });
         }
 
         if (isInTry) {
@@ -251,6 +234,26 @@ public class VarWebSplitter {
         for (BytecodeBlock bytecodeBlock : block.outEdges()) {
             constructWebInsideBlock(bytecodeBlock, currentDefs);
         }
+    }
+
+    private void replaceOneDef(Var def, StmtOccur e, Map<Var, StmtOccur> currentDefs,
+                               boolean isInTry, Map<Var, List<StmtOccur>> mayFlowToCatch) {
+        UnionFindSet<StmtOccur> unionFind = webs.get(def);
+        unionFind.addElement(e);
+        currentDefs.put(def, e);
+
+        if (isInTry) {
+            List<StmtOccur> varDefs =
+                    mayFlowToCatch.computeIfAbsent(def, k -> new ArrayList<>());
+            varDefs.add(e);
+        }
+    }
+
+    private void mergeOneUse(Var use, Map<Var, StmtOccur> currentDefs, StmtOccur occur) {
+        UnionFindSet<StmtOccur> unionFind = webs.get(use);
+        unionFind.addElement(occur);
+        assert currentDefs.get(use) != null;
+        unionFind.union(occur, currentDefs.get(use));
     }
 
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
@@ -269,7 +272,7 @@ public class VarWebSplitter {
     private Map<Var, List<ReplaceSource>> spiltVariable() {
         Map<Var, List<ReplaceSource>> res = Maps.newMap();
         webs.forEach((var, web) -> {
-            int slot = varManager.getSlot(var);
+            int slot = varManager.getSlotFast(var);
             Var[] currentVar = new Var[]{var};
             int[] count = new int[]{0};
             web.getDisjointSets()

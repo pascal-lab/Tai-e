@@ -303,7 +303,7 @@ class VarManager {
     /**
      * can only be used before splitting
      */
-    public boolean isLocal(Var v) { return v.getIndex() < local2Var.length; }
+    public boolean isLocalFast(Var v) { return v.getIndex() < local2Var.length; }
 
     private static boolean verifyDefs(List<Pair<Integer, Var>> res) {
         var l = res.stream().map(Pair::first).toList();
@@ -346,5 +346,9 @@ class VarManager {
     int getSlot(Var var) {
         Integer i = var2Local.get(var);
         return Objects.requireNonNullElse(i, -1);
+    }
+
+    int getSlotFast(Var var) {
+        return var.getIndex();
     }
 }

@@ -35,7 +35,6 @@ public final class BytecodeBlock {
     @Nullable
     private BytecodeBlock fallThrough;
 
-    @Nullable
     private FrameNode frame;
 
     private boolean complete;
@@ -187,7 +186,6 @@ public final class BytecodeBlock {
     }
 
     private void buildFrameLocalType() {
-        assert frame != null;
         frameLocalType = new ArrayList<>(frame.local.size() + 1);
         int n = 0;
         for (Object o : frame.local) {
