@@ -1,10 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.tree.AbstractInsnNode;
 import pascal.taie.analysis.dataflow.fact.DataflowResult;
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Maps;
@@ -13,10 +11,13 @@ import pascal.taie.util.collection.UnionFindSet;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VarWebSplitter {
 
@@ -26,36 +27,24 @@ public class VarWebSplitter {
 
     private final Map
             <
-                    Var,
-                    UnionFindSet<StmtOccur>
-            > webs;
+                    BytecodeBlock,
+                    int[]
+                    > block2inDefs;
 
     private final Map
             <
                     BytecodeBlock,
-                    Map<
-                            Var,
-                            StmtOccur
-                    >
-            > block2inDefs;
-
-    private final Map
-            <
-                    BytecodeBlock,
-                    Map<
-                            Var,
-                            List<StmtOccur>
-                    >
-            > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
+                    List<List<Integer>> // slot -> [Defs]
+                    > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
-
-    private final Map<SplitIndex, Var> split;
 
     @Nullable
     private final DataflowResult<Stmt, SetFact<Var>> liveVariables;
 
     private final Var[] locals;
+
+    private final Colors colors;
 
     public VarWebSplitter(AsmIRBuilder builder) {
         this(builder, null);
@@ -64,27 +53,19 @@ public class VarWebSplitter {
     public VarWebSplitter(AsmIRBuilder builder, DataflowResult<Stmt, SetFact<Var>> liveVariables) {
         this.builder = builder;
         this.varManager = builder.manager;
-        this.webs = new HashMap<>();
         this.block2inDefs = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
-        this.split = Maps.newMap();
         this.liveVariables = liveVariables;
         this.locals = varManager.getLocals();
+        this.colors = new Colors(locals.length);
 
         assert builder.isFrameUsable() || liveVariables != null;
     }
 
     public void build() {
-        initWebs();
         constructWeb();
         update();
-    }
-
-    private void initWebs() {
-        for (Var var : locals) {
-            webs.put(var, new UnionFindSet<>(new ArrayList<>()));
-        }
     }
 
     public void constructWeb() {
@@ -94,7 +75,7 @@ public class VarWebSplitter {
         constructWebInsideBlock(entry, getPhantomInDefs(entry));
         for (Pair<List<BytecodeBlock>, BytecodeBlock> tryCatchPair : tryAndHandlerBlocks) {
             BytecodeBlock handler = tryCatchPair.second();
-            if (! block2inDefs.containsKey(handler)) {
+            if (!block2inDefs.containsKey(handler)) {
                 constructWebInsideBlock(handler, getPhantomInDefs(handler));
             }
         }
@@ -109,103 +90,112 @@ public class VarWebSplitter {
         }
     }
 
-    private void mergeDefs(Map<Var, StmtOccur> succInDef, Map<Var, StmtOccur> predOutDef) {
-        for (Var var : succInDef.keySet()) {
-            UnionFindSet<StmtOccur> web = webs.get(var);
-            assert predOutDef.containsKey(var);
-            web.union(predOutDef.get(var), succInDef.get(var));
+    private void mergeDefs(int[] succInDef, int[] predOutDef) {
+        for (int i = 0; i < locals.length; ++i) {
+            int inColor = succInDef[i];
+            if (inColor != Colors.NOT_EXIST) {
+                int outColor = predOutDef[i];
+                assert outColor != Colors.NOT_EXIST;
+                colors.mergeTwoColor(i, inColor, outColor);
+            }
         }
     }
 
-    private Map<Var, StmtOccur> washDefs(BytecodeBlock block, Map<Var, StmtOccur> inDef) {
-        Map<Var, StmtOccur> res = Maps.newMap(inDef.size());
-        for (Var var : inDef.keySet()) {
-            if (isVarExistsInFrame(block, var)) {
-                res.put(var, inDef.get(var));
+    private int[] washDefs(BytecodeBlock block, int[] inDef) {
+        int[] res = inDef.clone();
+        for (int i = 0; i < locals.length; ++i) {
+            if (isVarNotExistsInFrame(block, i)) {
+                res[i] = Colors.NOT_EXIST;
             }
         }
         return res;
     }
 
-    private boolean isVarExistsInFrame(BytecodeBlock block, Var var) {
+    private boolean isVarNotExistsInFrame(BytecodeBlock block, int slot) {
         if (builder.isFrameUsable()) {
-            return block.isLocalExistInFrame(varManager.getSlotFast(var));
+            return !block.isLocalExistInFrame(slot);
         } else {
-            return getInFact(block).contains(var);
+            return !getInFact(block).contains(locals[slot]);
         }
     }
 
     private boolean canInferLiveVar(BytecodeBlock block) {
-        return ! builder.isFrameUsable() || block.getFrame() != null;
+        return !builder.isFrameUsable() || block.getFrame() != null;
     }
 
-    private Map<Var, StmtOccur> getPhantomInDefs(BytecodeBlock entry) {
-        boolean isInTry = entry.isInTry();
-        Map<Var, StmtOccur> res = new HashMap<>();
-        Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>() : null;
+    private int[] getPhantomInDefs(BytecodeBlock entry) {
+        int[] res = getEmptyColors();
         boolean isEntry = entry == builder.getEntryBlock();
-        Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
-        List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
-        for (Var var : allPhantoms) { // initialization.
-            if (phantomType == Kind.PHANTOM &&
-                    ! isVarExistsInFrame(entry, var)) {
-                continue;
-            }
 
-            if (phantomType == Kind.PARAM && canInferLiveVar(entry) &&
-                    ! isVarExistsInFrame(entry, var)) {
+        List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
+        Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
+
+        for (Var v : allPhantoms) {
+            int slot = varManager.getSlotFast(v);
+            if (phantomType == Kind.PHANTOM &&
+                    isVarNotExistsInFrame(entry, slot)) {
                 continue;
             }
-            Copy phantom = new Copy(var, var);
-            StmtOccur e = new StmtOccur(entry, -1, phantom, phantomType);
-            UnionFindSet<StmtOccur> web = webs.get(var);
-            assert web != null;
-            web.addElement(e);
-            res.put(var, e);
-            if (isInTry) {
-                // collect phantom to mayFlowToCatch
-                List<StmtOccur> varDefs = List.of(e);
-                mayFlowToCatch.put(var, varDefs);
+            if (phantomType == Kind.PARAM && canInferLiveVar(entry) &&
+                    isVarNotExistsInFrame(entry, slot)) {
+                continue;
             }
+            int color = isEntry ? colors.getAllColors(slot).get(0) : colors.getNewColor(slot);
+            StmtOccur occur = new StmtOccur(entry, -1, phantomType, slot, color);
+            colors.noticeOneOccur(occur);
+            res[slot] = color;
         }
-        if (isInTry) {
-            mayFlowToCatchOfBlocks.put(entry, mayFlowToCatch);
-        }
+
         return res;
     }
 
-    private void constructWebInsideBlock(BytecodeBlock block, Map<Var, StmtOccur> inDefs) {
+    private int[] getEmptyColors() {
+        int[] res = new int[locals.length];
+        Arrays.fill(res, Colors.NOT_EXIST);
+        return res;
+    }
+
+    private void constructWebInsideBlock(BytecodeBlock block, int[] inDefs) {
         boolean isInTry = block.isInTry();
-        Map<Var, List<StmtOccur>> mayFlowToCatch = isInTry ? new HashMap<>(inDefs.size()) : null;
-        Map<Var, StmtOccur> currentDefs;
+        int[] currentDefs;
         int size = block.inEdges().size();
         if (size > 1 || block == builder.getEntryBlock()) {
             if (block2inDefs.containsKey(block)) {
-                Map<Var, StmtOccur> otherInDefs = block2inDefs.get(block);
+                int[] otherInDefs = block2inDefs.get(block);
                 mergeDefs(otherInDefs, inDefs);
                 return;
             } else {
-                Map<Var, StmtOccur> realInDef;
+                int[] realInDef;
                 if (block == builder.getEntryBlock()) {
                     realInDef = inDefs;
                 } else {
                     realInDef = washDefs(block, inDefs);
                 }
                 block2inDefs.put(block, realInDef);
-                currentDefs = new HashMap<>(realInDef);
+                currentDefs = realInDef.clone();
             }
         } else {
             assert block2inDefs.get(block) == null;
             block2inDefs.put(block, inDefs);
-            currentDefs = new HashMap<>(inDefs);
+            currentDefs = inDefs.clone();
         }
 
+        List<List<Integer>> mayFlowToCatch;
         if (isInTry) {
-            currentDefs.forEach((key, value) -> {
-                List<StmtOccur> occurs = new ArrayList<>();
-                occurs.add(value);
-                mayFlowToCatch.put(key, occurs);
-            });
+            mayFlowToCatch = mayFlowToCatchOfBlocks.computeIfAbsent(block,
+                    (b) -> {
+                        List<List<Integer>> res = new ArrayList<>();
+                        for (int i = 0; i < locals.length; ++i) {
+                            List<Integer> slotDefs = new ArrayList<>();
+                            if (currentDefs[i] != Colors.NOT_EXIST) {
+                                slotDefs.add(currentDefs[i]);
+                            }
+                            res.add(slotDefs);
+                        }
+                        return res;
+                    });
+        } else {
+            mayFlowToCatch = null;
         }
 
         List<Stmt> stmts = getStmts(block);
@@ -215,128 +205,136 @@ public class VarWebSplitter {
             int finalI = i;
             StmtVarVisitor.visitUse(stmt, (use) -> {
                 if (varManager.isLocalFast(use)) {
-                    mergeOneUse(use, currentDefs, new StmtOccur(block, finalI, stmt, Kind.USE));
+                    int slot = varManager.getSlotFast(use);
+                    int color = currentDefs[slot];
+                    assert color != Colors.NOT_EXIST;
+                    StmtOccur occur = new StmtOccur(block, finalI, Kind.USE, slot, color);
+                    colors.noticeOneOccur(occur);
                 }
             });
 
             StmtVarVisitor.visitDef(stmt, (def) -> {
                 if (varManager.isLocalFast(def)) {
-                    StmtOccur e = new StmtOccur(block, finalI, stmt, Kind.DEF);
-                    replaceOneDef(def, e, currentDefs, isInTry, mayFlowToCatch);
+                    int slot = varManager.getSlotFast(def);
+                    int newColor = colors.getNewColor(slot);
+                    StmtOccur occur = new StmtOccur(block, finalI, Kind.DEF, slot, newColor);
+                    colors.noticeOneOccur(occur);
+                    currentDefs[slot] = newColor;
+
+                    if (isInTry) {
+                        mayFlowToCatch.get(slot).add(newColor);
+                    }
                 }
             });
         }
 
-        if (isInTry) {
-            mayFlowToCatchOfBlocks.put(block, mayFlowToCatch);
-        }
 
         for (BytecodeBlock bytecodeBlock : block.outEdges()) {
             constructWebInsideBlock(bytecodeBlock, currentDefs);
         }
     }
 
-    private void replaceOneDef(Var def, StmtOccur e, Map<Var, StmtOccur> currentDefs,
-                               boolean isInTry, Map<Var, List<StmtOccur>> mayFlowToCatch) {
-        UnionFindSet<StmtOccur> unionFind = webs.get(def);
-        unionFind.addElement(e);
-        currentDefs.put(def, e);
-
-        if (isInTry) {
-            List<StmtOccur> varDefs =
-                    mayFlowToCatch.computeIfAbsent(def, k -> new ArrayList<>());
-            varDefs.add(e);
-        }
-    }
-
-    private void mergeOneUse(Var use, Map<Var, StmtOccur> currentDefs, StmtOccur occur) {
-        UnionFindSet<StmtOccur> unionFind = webs.get(use);
-        unionFind.addElement(occur);
-        assert currentDefs.get(use) != null;
-        unionFind.union(occur, currentDefs.get(use));
-    }
-
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
-        Map<Var, List<StmtOccur>> blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
-        Map<Var, StmtOccur> handlerInDefs = block2inDefs.get(handler);
-        for (Var var : locals) {
-            var web = webs.get(var);
-            if (handlerInDefs.containsKey(var)) {
-                for (var p : blockAllDefs.get(var)) {
-                    web.union(p, handlerInDefs.get(var));
+        List<List<Integer>> blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
+        int[] handlerInDefs = block2inDefs.get(handler);
+        for (int i = 0; i < locals.length; ++i) {
+            int inColor = handlerInDefs[i];
+            if (inColor != Colors.NOT_EXIST) {
+                for (int outColor : blockAllDefs.get(i)) {
+                    colors.mergeTwoColor(i, inColor, outColor);
                 }
             }
         }
     }
 
-    private Map<Var, List<ReplaceSource>> spiltVariable() {
-        Map<Var, List<ReplaceSource>> res = Maps.newMap();
-        webs.forEach((var, web) -> {
-            int slot = varManager.getSlotFast(var);
-            Var[] currentVar = new Var[]{var};
-            int[] count = new int[]{0};
-            web.getDisjointSets()
+    // TODO: further optimize?
+    private Var[] splitLocals() {
+        int allColorSize = colors.getAllColorCount();
+        Var[] res = new Var[allColorSize];
+
+        for (int i = 0; i < locals.length; ++i) {
+            int slot = i;
+            List<Integer> allColors = colors.getAllColors(i);
+            Map<Integer, Integer> visited = Maps.newMap();
+            for (int color : allColors) {
+                int rootColor = colors.getRootColor(slot, color);
+                int currentCount = colors.getColorCount(color);
+                visited.compute(rootColor, (k, v) ->
+                        (v == null) ? currentCount : currentCount + v);
+            }
+
+            AtomicInteger index = new AtomicInteger();
+            visited.entrySet()
                     .stream()
-                    .sorted((a, b) -> Integer.compare(b.size(), a.size()))
-                    .forEach(s -> {
-                        List<ReplaceSource> sources = new ArrayList<>();
-                        s.forEach(p -> {
-                            if (p.second() != Kind.PHANTOM) {
-                                sources.add(new ReplaceSource(p, var));
-                            }
-                        });
-                        if (sources.isEmpty()) {
-                            return;
-                        }
-                        count[0]++;
-                        Stream<AbstractInsnNode> origins = sources.stream()
-                                .filter(source -> source.index().second() != Kind.PARAM)
-                                .map(source -> {
-                                    BytecodeBlock block = source.index().block();
-                                    int index = source.index().index();
-                                    return block.getOrig(index);
-                                });
-                        currentVar[0] = varManager.splitLocal(var, count[0], slot, origins);
-                        if (count[0] != 1) {
-                            res.put(currentVar[0], sources);
-                            StmtOccur rep = s.iterator().next();
-                            split.put(new SplitIndex(var, web.findRoot(rep)), currentVar[0]);
-                        }
+                    .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
+                    .forEach((e) -> {
+                        int color = e.getKey();
+                        Var v = varManager.splitLocal(slot, index.incrementAndGet());
+                        res[color] = v;
                     });
-        });
+
+            for (int color : allColors) {
+                res[color] = res[colors.getRootColor(slot, color)];
+            }
+        }
+
+        assert Arrays.stream(res).noneMatch(Objects::isNull);
+
         return res;
     }
 
     private void update() {
-        Map<Var, List<ReplaceSource>> m = spiltVariable();
+        Var[] color2Local = splitLocals();
         Map<Var, Var> defMap = Maps.newMap();
         Map<Var, Var> useMap = Maps.newMap();
         Lenses lenses = new Lenses(builder.method, useMap, defMap);
-        m.forEach((target, sources) -> {
-            for (ReplaceSource source : sources) {
-                useMap.clear();
-                defMap.clear();
-                Kind kind = source.index().second();
-                if (kind == Kind.DEF) {
-                    defMap.put(source.old(), target);
-                } else if (kind == Kind.USE) {
-                    useMap.put(source.old(), target);
-                } else if (kind == Kind.PARAM) {
-                    varManager.replaceParam(source.old(), target);
-                    // don't set stmt
-                    continue;
-                } else {
-                    throw new UnsupportedOperationException();
-                }
+        for (StmtOccur source : colors.getOccurs()) {
+            useMap.clear();
+            defMap.clear();
+            Kind kind = source.second();
 
-                BytecodeBlock block = source.index().block();
-                int idx = source.index().index();
-                Stmt oldStmt = block.getStmts().get(idx);
-                Stmt newStmt = lenses.subSt(oldStmt);
-                handleSideEffects(oldStmt, newStmt);
-                block.getStmts().set(idx, newStmt);
+            if (kind == Kind.PHANTOM) {
+                continue;
             }
-        });
+
+            BytecodeBlock block = source.block();
+            int idx = source.index();
+            Stmt oldStmt = idx == -1 ? null : block.getStmts().get(idx);
+
+            int slot = source.slot();
+            int color = source.color();
+
+            Var old = locals[slot];
+            Var target = color2Local[color];
+            assert old != null && target != null;
+
+            // try to correct var name if possible
+            if (varManager.existsLocalVariableTable) {
+                if (idx != -1 && target.getName().startsWith(VarManager.LOCAL_PREFIX)) {
+                    Optional<String> maybeName = varManager.getName(slot, block.getOrig(idx));
+                    maybeName.ifPresent(s -> varManager.fixName(target, s));
+                }
+            }
+
+            if (old == target) {
+                continue;
+            }
+
+            if (kind == Kind.DEF) {
+                defMap.put(old, target);
+            } else if (kind == Kind.USE) {
+                useMap.put(old, target);
+            } else if (kind == Kind.PARAM) {
+                varManager.replaceParam(old, target);
+                // don't set stmt
+                continue;
+            }
+
+            assert oldStmt != null;
+            Stmt newStmt = lenses.subSt(oldStmt);
+            handleSideEffects(oldStmt, newStmt);
+            block.getStmts().set(idx, newStmt);
+        }
     }
 
     private void handleSideEffects(Stmt oldStmt, Stmt newStmt) {
@@ -369,9 +367,79 @@ public class VarWebSplitter {
         PARAM
     }
 
-    private record StmtOccur(BytecodeBlock block, int index, Stmt first, Kind second) {}
+    private record StmtOccur(BytecodeBlock block, int index, Kind second, int slot, int color) {
+    }
 
-    private record ReplaceSource(StmtOccur index, Var old) {}
+    private static class Colors {
 
-    private record SplitIndex(Var v, StmtOccur rep) {}
+        private final List<StmtOccur> occurs;
+
+        private final List<Integer> colorCount;
+
+        private final List<List<Integer>> allColors;
+
+        private final UnionFindSet<Integer> unionFindSet;
+
+        static final int NOT_EXIST = -1;
+
+        Colors(int maxLocal) {
+            occurs = new ArrayList<>();
+            colorCount = new ArrayList<>(maxLocal);
+            unionFindSet = new UnionFindSet<>(new ArrayList<>());
+            allColors = new ArrayList<>();
+            for (int i = 0; i < maxLocal; ++i) {
+                List<Integer> colorList = new ArrayList<>();
+                allColors.add(colorList);
+                getNewColor(i);
+            }
+        }
+
+        void noticeOneOccur(StmtOccur occur) {
+            occurs.add(occur);
+            int color = occur.color();
+            assert color < colorCount.size();
+            int oldCount = colorCount.get(color);
+            colorCount.set(color, oldCount + 1);
+        }
+
+        int getNewColor(int slot) {
+            int newColor = colorCount.size();
+            colorCount.add(0);
+            allColors.get(slot).add(newColor);
+            unionFindSet.addElement(newColor);
+            return newColor;
+        }
+
+        void mergeTwoColor(int slot, int color1, int color2) {
+            assert allColors.get(slot).contains(color1) &&
+                    allColors.get(slot).contains(color2);
+            if (color1 == color2) {
+                return;
+            }
+            unionFindSet.union(color1, color2);
+        }
+
+        int getColorCount(int color) {
+            return colorCount.get(color);
+        }
+
+        List<Integer> getAllColors(int slot) {
+            return allColors.get(slot);
+        }
+
+        int getAllColorCount() {
+            return colorCount.size();
+        }
+
+        int getRootColor(int slot, int color) {
+            int res = unionFindSet.findRoot(color);
+            assert allColors.get(slot).contains(res)
+                    && allColors.get(slot).contains(color);
+            return res;
+        }
+
+        List<StmtOccur> getOccurs() {
+            return occurs;
+        }
+    }
 }

@@ -41,7 +41,7 @@ class VarManager {
 
     private final @Nullable List<LocalVariableNode> localVariableTable;
 
-    private final boolean existsLocalVariableTable;
+    final boolean existsLocalVariableTable;
 
     private final InsnList insnList;
 
@@ -218,6 +218,13 @@ class VarManager {
         }
     }
 
+    public void fixName(Var var, String newName) {
+        assert var.getName().startsWith(LOCAL_PREFIX);
+        String sub = var.getName().substring(1);
+        String[] counter = sub.split("#");
+        var.setName(newName + (counter.length >= 2 ? counter[1] : ""));
+    }
+
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
         // TODO: use a global counter for each name
         if (! existsLocalVariableTable) {
@@ -240,6 +247,15 @@ class VarManager {
             } else {
                 return getSplitVar(getDefaultSplitName(finalName, count), slot);
             }
+        }
+    }
+
+    public Var splitLocal(int slot, int index) {
+        Var old = local2Var[slot];
+        if (index == 1) {
+            return old;
+        } else {
+            return getSplitVar(getDefaultSplitName(old.getName(), index), slot);
         }
     }
 
