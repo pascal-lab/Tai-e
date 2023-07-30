@@ -8,7 +8,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 

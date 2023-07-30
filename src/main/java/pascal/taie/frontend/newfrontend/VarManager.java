@@ -224,7 +224,7 @@ class VarManager {
             if (count == 1) {
                 return old;
             } else {
-                return newVar(getDefaultSplitName(old.getName(), count));
+                return getSplitVar(getDefaultSplitName(old.getName(), count), slot);
             }
         } else {
             Optional<String> name = origins
@@ -238,11 +238,15 @@ class VarManager {
                 old.setName(finalName);
                 return old;
             } else {
-                Var v = newVar(getDefaultSplitName(finalName, count));
-                var2Local.put(v, slot);
-                return v;
+                return getSplitVar(getDefaultSplitName(finalName, count), slot);
             }
         }
+    }
+
+    private Var getSplitVar(String name, int slot) {
+        Var v = newVar(name);
+        var2Local.put(v, slot);
+        return v;
     }
 
     private static String getDefaultSplitName(String name, int count) {

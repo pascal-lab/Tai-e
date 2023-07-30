@@ -280,6 +280,13 @@ public class TypeInference0 {
 
                 @Override
                 public Void visit(StoreArray stmt) {
+                    Var base = stmt.getArrayAccess().getBase();
+                    if (isLocal(base)) {
+                        Type t = getType(typing, stmt.getRValue());
+                        if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
+                            localTypeAssigns.put(base, wrap1(referenceType));
+                        }
+                    }
                     return StmtVisitor.super.visit(stmt);
                 }
 

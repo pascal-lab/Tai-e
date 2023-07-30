@@ -457,7 +457,7 @@ public class Utils {
     static ArrayType wrap1(ReferenceType referenceType) {
         TypeSystem ts = BuildContext.get().getTypeSystem();
         if (referenceType instanceof ArrayType at) {
-            return ts.getArrayType(at.baseType(), at.dimensions());
+            return ts.getArrayType(at.baseType(), at.dimensions() + 1);
         } else {
             return ts.getArrayType(referenceType, 1);
         }
