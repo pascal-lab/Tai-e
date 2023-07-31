@@ -22,17 +22,19 @@
 
 package pascal.taie.ir;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 public class IRTest {
 
     @Test
-    public void testStmtIndexer() {
+    void testStmtIndexer() {
         Main.buildWorld("-pp", "-cp", "src/test/resources/world",
                 "--input-classes", "AllInOne");
         World.get()
@@ -43,7 +45,7 @@ public class IRTest {
                         if (!m.isAbstract()) {
                             IR ir = m.getIR();
                             for (Stmt s : ir) {
-                                Assert.assertEquals(s, ir.getObject(s.getIndex()));
+                                assertEquals(s, ir.getObject(s.getIndex()));
                             }
                         }
                     }

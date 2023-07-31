@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 /**
@@ -34,102 +34,102 @@ public class BasicTest {
 
     // Tests for handling basic pointer analysis statements
     @Test
-    public void testNew() {
+    void testNew() {
         Tests.testPTA(DIR, "New");
     }
 
     @Test
-    public void testAssign() {
+    void testAssign() {
         Tests.testPTA(DIR, "Assign");
     }
 
     @Test
-    public void testStoreLoad() {
+    void testStoreLoad() {
         Tests.testPTA(DIR, "StoreLoad");
     }
 
     @Test
-    public void testCall() {
+    void testCall() {
         Tests.testPTA(DIR, "Call");
     }
 
     @Test
-    public void testAssign2() {
+    void testAssign2() {
         Tests.testPTA(DIR, "Assign2");
     }
 
     @Test
-    public void testInstanceField() {
+    void testInstanceField() {
         Tests.testPTA(DIR, "InstanceField");
     }
 
     @Test
-    public void testInstanceField2() {
+    void testInstanceField2() {
         Tests.testPTA(DIR, "InstanceField2");
     }
 
     @Test
-    public void testCallParamRet() {
+    void testCallParamRet() {
         Tests.testPTA(DIR, "CallParamRet");
     }
 
     @Test
-    public void testCallField() {
+    void testCallField() {
         Tests.testPTA(DIR, "CallField");
     }
 
     @Test
-    public void testStaticCall() {
+    void testStaticCall() {
         Tests.testPTA(DIR, "StaticCall");
     }
 
     @Test
-    public void testMergeParam() {
+    void testMergeParam() {
         Tests.testPTA(DIR, "MergeParam");
     }
 
     @Test
-    public void testLinkedQueue() {
+    void testLinkedQueue() {
         Tests.testPTA(DIR, "LinkedQueue");
     }
 
     @Test
-    public void testRedBlackBST() {
+    void testRedBlackBST() {
         Tests.testPTA(DIR, "RedBlackBST");
     }
 
     @Test
-    public void testMultiReturn() {
+    void testMultiReturn() {
         Tests.testPTA(DIR, "MultiReturn");
     }
 
     @Test
-    public void testDispatch() {
+    void testDispatch() {
         Tests.testPTA(DIR, "Dispatch");
     }
 
     @Test
-    public void testDispatch2() {
+    void testDispatch2() {
         Tests.testPTA(DIR, "Dispatch2");
     }
 
     @Test
-    public void testInterface() {
+    void testInterface() {
         Tests.testPTA(DIR, "Interface");
     }
 
     @Test
-    public void testRecursion() {
+    void testRecursion() {
         Tests.testPTA(DIR, "Recursion");
     }
 
     @Test
-    public void testCycle() {
+    void testCycle() {
         Tests.testPTA(DIR, "Cycle");
     }
 
     @Test
-    public void testComplexAssign() {
+    void testComplexAssign() {
         Tests.testPTA(DIR, "ComplexAssign");
     }
 }

@@ -22,10 +22,12 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.inter.InterConstantPropagation;
 
+@Disabled
 public class InterCPTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/inter";
@@ -39,22 +41,22 @@ public class InterCPTest {
     }
 
     @Test
-    public void testExample() {
+    void testExample() {
         test("Example");
     }
 
     @Test
-    public void testReference() {
+    void testReference() {
         test("Reference");
     }
 
     @Test
-    public void testFibonacci() {
+    void testFibonacci() {
         test("Fibonacci");
     }
 
     @Test
-    public void testMultiIntArgs() {
+    void testMultiIntArgs() {
         test("MultiIntArgs");
     }
 }

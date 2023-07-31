@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
@@ -34,14 +34,14 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testAnnotation() {
+    void testAnnotation() {
         buildWorld("Annotated");
         JClass main = World.get().getClassHierarchy().getClass("Annotated");
         AnnotationPrinter.print(main);
     }
 
     @Test
-    public void testAnnotationJava() {
+    void testAnnotationJava() {
         buildWorld("AnnotatedJava");
         JClass main = World.get().getClassHierarchy().getClass("AnnotatedJava");
         AnnotationPrinter.print(main);

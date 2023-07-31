@@ -22,70 +22,70 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class ContextSensitivityTestFull extends ContextSensitivityTest {
 
     // More complex tests
     @Test
-    public void testRecursiveObj() {
+    void testRecursiveObj() {
         Tests.testPTA(DIR, "RecursiveObj", "cs:2-obj");
     }
 
     @Test
-    public void testLongObjContext() {
+    void testLongObjContext() {
         Tests.testPTA(DIR, "LongObjContext", "cs:2-obj");
     }
 
     @Test
-    public void testLongCallContext() {
+    void testLongCallContext() {
         Tests.testPTA(DIR, "LongCallContext", "cs:2-call");
     }
 
     @Test
-    public void testStaticSelect() {
+    void testStaticSelect() {
         Tests.testPTA(DIR, "StaticSelect", "cs:2-obj");
     }
 
     @Test
-    public void testTwoCallOnly() {
+    void testTwoCallOnly() {
         Tests.testPTA(DIR, "TwoCallOnly", "cs:2-call");
     }
 
     @Test
-    public void testObjOnly() {
+    void testObjOnly() {
         Tests.testPTA(DIR, "ObjOnly", "cs:1-obj");
     }
 
     @Test
-    public void testMustUseHeap() {
+    void testMustUseHeap() {
         Tests.testPTA(DIR, "MustUseHeap", "cs:2-call");
     }
 
     @Test
-    public void testNestedHeap() {
+    void testNestedHeap() {
         Tests.testPTA(DIR, "NestedHeap", "cs:2-obj");
     }
 
     @Test
-    public void testCallOnly() {
+    void testCallOnly() {
         Tests.testPTA(DIR, "CallOnly", "cs:1-call");
     }
 
     @Test
-    public void testLinkedQueue() {
+    void testLinkedQueue() {
         Tests.testPTA(DIR, "LinkedQueue", "cs:2-obj");
     }
 
     // Tests for handling of non-normal objects
     @Test
-    public void testTypeSens() {
+    void testTypeSens() {
         Tests.testPTA(DIR, "TypeSens", "cs:2-type");
     }
 
     @Test
-    public void testSpecialHeapContext() {
+    void testSpecialHeapContext() {
         Tests.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
     }
 }

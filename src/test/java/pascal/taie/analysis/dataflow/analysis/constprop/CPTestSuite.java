@@ -22,11 +22,11 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
         CPTestFull.class,
         EdgeRefineTest.class,
         InterCPAliasTest.class,

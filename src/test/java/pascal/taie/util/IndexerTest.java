@@ -22,16 +22,17 @@
 
 package pascal.taie.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class IndexerTest {
 
     @Test
-    public void testInit() {
+    void testInit() {
         Indexer<String> i = new SimpleIndexer<>(List.of("aaa", "xxx", "yyy"));
         assertEquals(0, i.getIndex("aaa"));
         assertEquals(0, i.getIndex("aaa"));
@@ -43,7 +44,7 @@ public class IndexerTest {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         Indexer<String> i = new SimpleIndexer<>();
         assertEquals(0, i.getIndex("0"));
         assertEquals(0, i.getIndex("0"));
@@ -51,13 +52,15 @@ public class IndexerTest {
         assertEquals(2, i.getIndex("2"));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testGetNull() {
-        new SimpleIndexer<>().getIndex(null);
+    @Test
+    void testGetNull() {
+        assertThrows(NullPointerException.class, () ->
+                new SimpleIndexer<>().getIndex(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAbsentId() {
-        new SimpleIndexer<>().getObject(666);
+    @Test
+    void testAbsentId() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new SimpleIndexer<>().getObject(666));
     }
 }

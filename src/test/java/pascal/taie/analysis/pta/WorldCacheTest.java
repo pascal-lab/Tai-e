@@ -23,17 +23,18 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class WorldCacheTest {
 
     @Test
-    public void testWorldCache() {
+    void testWorldCache() {
         String[] args = {
                 "-XX-world-cache-mode",
                 "-java", "8",
@@ -51,7 +52,7 @@ public class WorldCacheTest {
         Main.main(args);
         World world2 = World.get();
         CachedWorldBuilder.getWorldCacheFile(world2.getOptions()).delete();
-        Assert.assertTrue(world2.getIRBuilder() instanceof CachedIRBuilder);
+        assertTrue(world2.getIRBuilder() instanceof CachedIRBuilder);
     }
 
 }

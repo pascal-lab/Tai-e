@@ -23,13 +23,13 @@
 
 package pascal.taie.analysis.bugfinder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class DroppedExceptionTest {
 
     @Test
-    public void test() {
+    void test() {
         Tests.testInput("DroppedException", "src/test/resources/bugfinder",
                 DroppedException.ID);
     }

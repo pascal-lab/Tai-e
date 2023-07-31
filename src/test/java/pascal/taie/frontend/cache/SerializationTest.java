@@ -23,10 +23,9 @@
 
 package pascal.taie.frontend.cache;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.Options;
@@ -41,11 +40,15 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.SerializationUtils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 public class SerializationTest {
 
     private static World world1;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Main.buildWorld(
                 "-java", "8",
@@ -56,93 +59,93 @@ public class SerializationTest {
         World.reset();
     }
 
-    @After
-    public void tearDownEach() {
+    @AfterEach
+    void tearDownEach() {
         World.reset();
     }
 
     @Test
-    public void compareOptions() {
+    void compareOptions() {
         Options options1 = world1.getOptions();
         Options options2 = SerializationUtils.serializedCopy(options1);
-        Assert.assertEquals(options1.getJavaVersion(), options2.getJavaVersion());
-        Assert.assertEquals(options1.getClassPath(), options2.getClassPath());
-        Assert.assertEquals(options1.getAppClassPath(), options2.getAppClassPath());
-        Assert.assertEquals(options1.getAnalyses(), options2.getAnalyses());
-        Assert.assertEquals(options1.getMainClass(), options2.getMainClass());
-        Assert.assertEquals(options1.getInputClasses(), options2.getInputClasses());
-        Assert.assertEquals(options1.getOutputDir(), options2.getOutputDir());
-        Assert.assertEquals(options1.getScope(), options2.getScope());
-        Assert.assertEquals(options1.getKeepResult(), options2.getKeepResult());
-        Assert.assertEquals(options1.getWorldBuilderClass(), options2.getWorldBuilderClass());
+        assertEquals(options1.getJavaVersion(), options2.getJavaVersion());
+        assertEquals(options1.getClassPath(), options2.getClassPath());
+        assertEquals(options1.getAppClassPath(), options2.getAppClassPath());
+        assertEquals(options1.getAnalyses(), options2.getAnalyses());
+        assertEquals(options1.getMainClass(), options2.getMainClass());
+        assertEquals(options1.getInputClasses(), options2.getInputClasses());
+        assertEquals(options1.getOutputDir(), options2.getOutputDir());
+        assertEquals(options1.getScope(), options2.getScope());
+        assertEquals(options1.getKeepResult(), options2.getKeepResult());
+        assertEquals(options1.getWorldBuilderClass(), options2.getWorldBuilderClass());
     }
 
     @Test
-    public void compareMainMethod() {
+    void compareMainMethod() {
         JMethod m1 = world1.getMainMethod();
         JMethod m2 = SerializationUtils.serializedCopy(m1);
-        Assert.assertEquals(m1.getName(), m2.getName());
-        Assert.assertEquals(m1.getModifiers(), m2.getModifiers());
-        Assert.assertEquals(m1.getSignature(), m2.getSignature());
-        Assert.assertEquals(m1.getDeclaringClass().getName(), m2.getDeclaringClass().getName());
-        Assert.assertEquals(m1.getSubsignature(), m2.getSubsignature());
-        Assert.assertEquals(m1.getExceptions().size(), m2.getExceptions().size());
-        Assert.assertEquals(m1.getParamCount(), m2.getParamCount());
-        Assert.assertEquals(m1.getReturnType().getName(), m2.getReturnType().getName());
+        assertEquals(m1.getName(), m2.getName());
+        assertEquals(m1.getModifiers(), m2.getModifiers());
+        assertEquals(m1.getSignature(), m2.getSignature());
+        assertEquals(m1.getDeclaringClass().getName(), m2.getDeclaringClass().getName());
+        assertEquals(m1.getSubsignature(), m2.getSubsignature());
+        assertEquals(m1.getExceptions().size(), m2.getExceptions().size());
+        assertEquals(m1.getParamCount(), m2.getParamCount());
+        assertEquals(m1.getReturnType().getName(), m2.getReturnType().getName());
     }
 
     @Test
-    public void compareMainClass() {
+    void compareMainClass() {
         JClass c1 = world1.getMainMethod().getDeclaringClass();
         JClass c2 = SerializationUtils.serializedCopy(c1);
         compareJClass(c1, c2);
     }
 
     @Test
-    public void compareJavaLangObjectClass() {
+    void compareJavaLangObjectClass() {
         JClass c1 = world1.getClassHierarchy().getClass(ClassNames.OBJECT);
-        Assert.assertNotNull(c1);
+        assertNotNull(c1);
         JClass c2 = SerializationUtils.serializedCopy(c1);
         compareJClass(c1, c2);
     }
 
     @Test
-    public void compareConstantPoolClass() {
+    void compareConstantPoolClass() {
         JClass c1 = world1.getClassHierarchy().getClass("sun.reflect.ConstantPool");
-        Assert.assertNotNull(c1);
+        assertNotNull(c1);
         JClass c2 = SerializationUtils.serializedCopy(c1);
         compareJClass(c1, c2);
     }
 
     private void compareJClass(JClass c1, JClass c2) {
-        Assert.assertEquals(c1.getName(), c2.getName());
-        Assert.assertEquals(c1.getSimpleName(), c2.getSimpleName());
-        Assert.assertEquals(c1.getModuleName(), c2.getModuleName());
-        Assert.assertEquals(c1.getModifiers(), c2.getModifiers());
-        Assert.assertEquals(c1.getInterfaces().size(), c2.getInterfaces().size());
-        Assert.assertEquals(c1.getDeclaredFields().size(), c2.getDeclaredFields().size());
-        Assert.assertEquals(c1.getDeclaredMethods().size(), c2.getDeclaredMethods().size());
-        Assert.assertEquals(c1.isPhantom(), c2.isPhantom());
+        assertEquals(c1.getName(), c2.getName());
+        assertEquals(c1.getSimpleName(), c2.getSimpleName());
+        assertEquals(c1.getModuleName(), c2.getModuleName());
+        assertEquals(c1.getModifiers(), c2.getModifiers());
+        assertEquals(c1.getInterfaces().size(), c2.getInterfaces().size());
+        assertEquals(c1.getDeclaredFields().size(), c2.getDeclaredFields().size());
+        assertEquals(c1.getDeclaredMethods().size(), c2.getDeclaredMethods().size());
+        assertEquals(c1.isPhantom(), c2.isPhantom());
     }
 
     @Test
-    public void compareClassHierarchy() {
+    void compareClassHierarchy() {
         ClassHierarchy hierarchy1 = world1.getClassHierarchy();
         ClassHierarchy hierarchy2 = SerializationUtils.serializedCopy(hierarchy1);
-        Assert.assertEquals(hierarchy1.allClasses().count(),
+        assertEquals(hierarchy1.allClasses().count(),
                 hierarchy2.allClasses().count());
-        Assert.assertEquals(hierarchy1.applicationClasses().count(),
+        assertEquals(hierarchy1.applicationClasses().count(),
                 hierarchy2.applicationClasses().count());
     }
 
     @Test
-    public void compareTypeSystem() {
+    void compareTypeSystem() {
         TypeSystem typeSystem1 = world1.getTypeSystem();
         SerializationUtils.serializedCopy(typeSystem1);
     }
 
     @Test
-    public void compareIRBuilder() {
+    void compareIRBuilder() {
         IRBuilder irBuilder1 = world1.getIRBuilder();
         SerializationUtils.serializedCopy(irBuilder1);
     }
@@ -152,7 +155,7 @@ public class SerializationTest {
      * build all IRs is time-consuming, so share a deserialized {@link World}.
      */
     @Test
-    public void compareIR() {
+    void compareIR() {
         World.set(world1); // World.world should be set for building IRs
         World world2 = SerializationUtils.serializedCopy(world1);
         World.set(world2); // World.world should be set for getting IRs
@@ -165,11 +168,11 @@ public class SerializationTest {
                 .getClass("java.util.concurrent.ConcurrentHashMap")
                 .getDeclaredMethod("putVal")
                 .getIR();
-        Assert.assertNotNull(ir2);
-        Assert.assertEquals(ir1.getVars().size(), ir2.getVars().size());
-        Assert.assertEquals(ir1.getParams().size(), ir2.getParams().size());
-        Assert.assertEquals(ir1.getStmts().size(), ir2.getStmts().size());
-        Assert.assertEquals(ir1.getReturnVars().size(), ir2.getReturnVars().size());
+        assertNotNull(ir2);
+        assertEquals(ir1.getVars().size(), ir2.getVars().size());
+        assertEquals(ir1.getParams().size(), ir2.getParams().size());
+        assertEquals(ir1.getStmts().size(), ir2.getStmts().size());
+        assertEquals(ir1.getReturnVars().size(), ir2.getReturnVars().size());
         // test2: compare the Var.RelevantStmts.Empty
         Var v21 = world2.getClassHierarchy()
                 .getClass("java.util.HashMap")
@@ -183,11 +186,11 @@ public class SerializationTest {
                 .getIR()
                 .getReturnVars()
                 .get(0);
-        Assert.assertEquals(0, v21.getInvokes().size());
-        Assert.assertEquals(0, v22.getInvokes().size());
+        assertEquals(0, v21.getInvokes().size());
+        assertEquals(0, v22.getInvokes().size());
         v22.addInvoke(new Invoke(null, null, null));
-        Assert.assertEquals(0, v21.getInvokes().size()); // v21 should be not changed
-        Assert.assertEquals(1, v22.getInvokes().size());
+        assertEquals(0, v21.getInvokes().size()); // v21 should be not changed
+        assertEquals(1, v22.getInvokes().size());
     }
 
 }

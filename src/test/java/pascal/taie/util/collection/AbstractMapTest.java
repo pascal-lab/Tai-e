@@ -22,13 +22,16 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.SerializationUtils;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ALL")
 abstract class AbstractMapTest {
@@ -36,37 +39,39 @@ abstract class AbstractMapTest {
     protected abstract <K, V> Map<K, V> newMap();
 
     @Test
-    public void testPut() {
+    void testPut() {
         Map<Integer, String> map = newMap();
         map.put(1, "a");
         map.put(1, "b");
         map.put(2, "c");
         map.put(3, "d");
-        Assert.assertEquals(3, map.size());
-        Assert.assertEquals("b", map.get(1));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testPutNullKey() {
-        Map<String, Object> map = newMap();
-        map.put("x", new Object());
-        map.put(null, new Object());
+        assertEquals(3, map.size());
+        assertEquals("b", map.get(1));
     }
 
     @Test
-    public void testKeySet() {
+    void testPutNullKey() {
+        assertThrows(NullPointerException.class, () -> {
+            Map<String, Object> map = newMap();
+            map.put("x", new Object());
+            map.put(null, new Object());
+        });
+    }
+
+    @Test
+    void testKeySet() {
         Map<Integer, String> map = newMap();
         Set<Integer> keySet = map.keySet();
-        Assert.assertEquals(0, keySet.size());
+        assertEquals(0, keySet.size());
         map.put(1, "x");
         map.put(2, "y");
-        Assert.assertEquals(2, keySet.size());
+        assertEquals(2, keySet.size());
         keySet.remove(1);
-        Assert.assertEquals(1, map.size());
+        assertEquals(1, map.size());
     }
 
     @Test
-    public void testKeySet20() {
+    void testKeySet20() {
         testKeySetN(newMap(), 20);
     }
 
@@ -76,35 +81,35 @@ abstract class AbstractMapTest {
         for (int i = 0; i < n; ++i) {
             map.put(i, "");
         }
-        Assert.assertEquals(n, keySet.size());
+        assertEquals(n, keySet.size());
     }
 
     @Test
-    public void testKeySetIterator() {
+    void testKeySetIterator() {
         Map<Integer, String> map = newMap();
         map.put(1, "x");
         map.put(2, "y");
         map.put(3, "z");
-        Assert.assertEquals(3, map.size());
+        assertEquals(3, map.size());
         Set<Integer> keySet = map.keySet();
         Iterator<Integer> ksIt = keySet.iterator();
         while (ksIt.hasNext()) {
             int n = ksIt.next();
             ksIt.remove();
         }
-        Assert.assertTrue(map.isEmpty());
+        assertTrue(map.isEmpty());
     }
 
     @Test
-    public void testSerializable() {
+    void testSerializable() {
         Map<Integer, String> map1 = newMap();
         map1.put(1, "x");
         map1.put(2, "y");
         map1.put(3, "z");
         Map<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
         map1.put(4, "zz");
         map2.put(4, "zz");
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
     }
 }

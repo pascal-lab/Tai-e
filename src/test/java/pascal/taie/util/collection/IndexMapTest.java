@@ -22,8 +22,7 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.SerializationUtils;
 
@@ -32,7 +31,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IndexMapTest {
 
@@ -61,21 +64,21 @@ public class IndexMapTest {
     }
 
     @Test
-    public void testContainsKey() {
+    void testContainsKey() {
         var m = makeMap();
-        Assert.assertTrue(m.containsKey(1));
-        Assert.assertFalse(m.containsKey(100));
+        assertTrue(m.containsKey(1));
+        assertFalse(m.containsKey(100));
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         var m = makeMap();
         assertEquals("one", m.get(1));
-        Assert.assertNull(m.get(100));
+        assertNull(m.get(100));
     }
 
     @Test
-    public void testPut() {
+    void testPut() {
         var m = makeMap();
         assertEquals(m.get(1), "one");
         m.put(1, "ONE");
@@ -83,7 +86,7 @@ public class IndexMapTest {
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         var m = makeMap();
         assertEquals(3, m.size());
         m.remove(2);
@@ -99,7 +102,7 @@ public class IndexMapTest {
     }
 
     @Test
-    public void testKeySetRemove() {
+    void testKeySetRemove() {
         var m = makeMap();
         m.putAll(Map.of(0, "zero", 1, "one", 2, "two",
                 3, "three", 4, "four", 5, "five"));
@@ -111,7 +114,7 @@ public class IndexMapTest {
     }
 
     @Test
-    public void testClear() {
+    void testClear() {
         var m = makeMap();
         assertEquals(3, m.size());
         m.clear();
@@ -119,44 +122,46 @@ public class IndexMapTest {
     }
 
     @Test
-    public void testForEach() {
+    void testForEach() {
         var s = new HashSet<>(Set.of("one", "three", "four"));
         var m = makeMap();
         m.forEach((k, v) -> s.remove(v));
-        Assert.assertTrue(s.isEmpty());
+        assertTrue(s.isEmpty());
     }
 
     @Test
-    public void testIterator() {
+    void testIterator() {
         var m = makeMap();
         var iter = m.entrySet().iterator();
         while (iter.hasNext()) {
             iter.next();
             iter.remove();
         }
-        Assert.assertTrue(m.isEmpty());
+        assertTrue(m.isEmpty());
     }
 
     @Test
-    public void testMapExpansion() {
+    void testMapExpansion() {
         var m = new IndexMap<Integer, String>(indexer, 3);
         m.put(20, "20");
-        Assert.assertEquals("20", m.get(20));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testPutNull() {
-        var m = makeMap();
-        m.put(1, null);
+        assertEquals("20", m.get(20));
     }
 
     @Test
-    public void testSerializable() {
+    void testPutNull() {
+        assertThrows(NullPointerException.class, () -> {
+            var m = makeMap();
+            m.put(1, null);
+        });
+    }
+
+    @Test
+    void testSerializable() {
         Map<Integer, String> map1 = makeMap();
         Map<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
         map1.put(4, "four");
         map2.put(4, "four");
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
     }
 }

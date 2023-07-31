@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class LambdaTest {
@@ -32,37 +32,37 @@ public class LambdaTest {
     private static final String ARG = "handle-invokedynamic:true";
 
     @Test
-    public void testArgs() {
+    void testArgs() {
         Tests.testPTA(DIR, "Args", ARG);
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         Tests.testPTA(DIR, "LambdaConstructor", ARG);
     }
 
     @Test
-    public void testInstanceMethod() {
+    void testInstanceMethod() {
         Tests.testPTA(DIR, "LambdaInstanceMethod", ARG);
     }
 
     @Test
-    public void testStaticMethod() {
+    void testStaticMethod() {
         Tests.testPTA(DIR, "LambdaStaticMethod", ARG);
     }
 
     @Test
-    public void testImpreciseLambdas() {
+    void testImpreciseLambdas() {
         Tests.testPTA(DIR, "ImpreciseLambdas", ARG);
     }
 
     @Test
-    public void testDispatchBugDueToLackOfSubclassCheck() {
+    void testDispatchBugDueToLackOfSubclassCheck() {
         Tests.testPTA(DIR, "DispatchBugDueToLackOfSubclassCheck", ARG);
     }
 
     @Test
-    public void testNativeModelWithLambda() {
+    void testNativeModelWithLambda() {
         Tests.testPTA(DIR, "NativeModelWithLambda", ARG);
     }
 }

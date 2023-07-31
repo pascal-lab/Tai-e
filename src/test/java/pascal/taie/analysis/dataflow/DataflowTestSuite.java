@@ -22,16 +22,16 @@
 
 package pascal.taie.analysis.dataflow;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import pascal.taie.analysis.dataflow.analysis.AvailExpTest;
 import pascal.taie.analysis.dataflow.analysis.LiveVarTestFull;
 import pascal.taie.analysis.dataflow.analysis.ReachDefTest;
 import pascal.taie.analysis.dataflow.analysis.constprop.CPTestSuite;
 import pascal.taie.analysis.dataflow.fact.FactTest;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
         FactTest.class,
         CPTestSuite.class,
         LiveVarTestFull.class,

@@ -23,7 +23,7 @@
 
 package pascal.taie.analysis.bugfinder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.collection.Sets;
@@ -42,22 +42,22 @@ public class CloneIdiomTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
         test("CloneIdiom1");
     }
 
     @Test
-    public void test2() {
+    void test2() {
         test("CloneIdiom2");
     }
 
     @Test
-    public void test3() {
+    void test3() {
         test("CloneIdiom3");
     }
 
     @Test
-    public void test4() {
+    void test4() {
         test("CloneIdiom4");
     }
 }

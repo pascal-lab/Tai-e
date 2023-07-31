@@ -17,7 +17,7 @@ tasks.compileTestJava { options.encoding = "UTF-8" }
 tasks.classes { finalizedBy("checkstyleMain") }
 tasks.testClasses { finalizedBy("checkstyleTest") }
 
-tasks.withType<Javadoc>() {
+tasks.withType<Javadoc> {
     val javadocConfigDir = rootProject.rootDir.resolve(
         "config/javadoc/")
     fun String.escapeLineBreaking() = this.replace("\r", "")
@@ -54,7 +54,7 @@ tasks.withType<Javadoc>() {
 checkstyle {
     isShowViolations = false
 }
-tasks.withType<Checkstyle>().configureEach {
+tasks.withType<Checkstyle> {
     // only xml need
     reports {
         xml.required.set(true)
@@ -65,7 +65,6 @@ tasks.withType<Checkstyle>().configureEach {
 }
 
 // jacoco
-tasks.test { finalizedBy(tasks.jacocoTestReport) }
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)

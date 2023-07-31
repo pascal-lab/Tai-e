@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class CPTest {
@@ -33,37 +33,37 @@ public class CPTest {
     }
 
     @Test
-    public void testAssign() {
+    void testAssign() {
         testCP("Assign");
     }
 
     @Test
-    public void testSimpleConstant() {
+    void testSimpleConstant() {
         testCP("SimpleConstant");
     }
 
     @Test
-    public void testSimpleBinary() {
+    void testSimpleBinary() {
         testCP("SimpleBinary");
     }
 
     @Test
-    public void testSimpleBranch() {
+    void testSimpleBranch() {
         testCP("SimpleBranch");
     }
 
     @Test
-    public void testSimpleChar() {
+    void testSimpleChar() {
         testCP("SimpleChar");
     }
 
     @Test
-    public void testBranchConstant() {
+    void testBranchConstant() {
         testCP("BranchConstant");
     }
 
     @Test
-    public void testInterprocedural() {
+    void testInterprocedural() {
         testCP("Interprocedural");
     }
 }

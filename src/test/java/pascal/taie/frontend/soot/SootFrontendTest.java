@@ -22,8 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
@@ -37,10 +36,14 @@ import soot.SootMethod;
 
 import java.util.Comparator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 public class SootFrontendTest {
 
     @Test
-    public void testWorldBuilder() {
+    void testWorldBuilder() {
         Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", "AllInOne");
         World.get()
                 .getClassHierarchy()
@@ -57,26 +60,26 @@ public class SootFrontendTest {
      * Compare the information of JClass and SootClass.
      */
     private void examineJClass(JClass jclass, SootClass sootClass) {
-        Assert.assertTrue(areSameClasses(jclass, sootClass));
+        assertTrue(areSameClasses(jclass, sootClass));
 
         if (!jclass.getName().equals("java.lang.Object")) {
-            Assert.assertTrue(areSameClasses(
+            assertTrue(areSameClasses(
                     jclass.getSuperClass(), sootClass.getSuperclass()));
         }
 
-        Assert.assertEquals(jclass.getInterfaces().size(),
+        assertEquals(jclass.getInterfaces().size(),
                 sootClass.getInterfaceCount());
 
         sootClass.getFields().forEach(sootField -> {
             JField field = jclass.getDeclaredField(sootField.getName());
-            Assert.assertTrue(areSameFields(field, sootField));
+            assertTrue(areSameFields(field, sootField));
         });
 
         sootClass.getMethods().forEach(sootMethod -> {
             // Soot signatures are quoted, remove quotes for comparison
             String subSig = sootMethod.getSubSignature().replace("'", "");
             JMethod method = jclass.getDeclaredMethod(Subsignature.get(subSig));
-            Assert.assertTrue(areSameMethods(method, sootMethod));
+            assertTrue(areSameMethods(method, sootMethod));
         });
     }
 

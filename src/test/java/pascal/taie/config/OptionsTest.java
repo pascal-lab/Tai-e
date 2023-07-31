@@ -22,20 +22,19 @@
 
 package pascal.taie.config;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OptionsTest {
 
     @Test
-    public void testHelp() {
+    void testHelp() {
         Options options = Options.parse("--help");
         if (options.isPrintHelp()) {
             options.printHelp();
@@ -43,26 +42,26 @@ public class OptionsTest {
     }
 
     @Test
-    public void testJavaVersion() {
+    void testJavaVersion() {
         Options options = Options.parse("-java=8");
         assertEquals(options.getJavaVersion(), 8);
     }
 
     @Test
-    public void testPrependJVM() {
+    void testPrependJVM() {
         Options options = Options.parse("-pp");
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
     }
 
     @Test
-    public void testMainClass() {
+    void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         assertEquals("Main", options.getMainClass());
     }
 
     @Test
-    public void testAllowPhantom() {
+    void testAllowPhantom() {
         Options options = Options.parse();
         assertFalse(options.isAllowPhantom());
         options = Options.parse("--allow-phantom");
@@ -70,7 +69,7 @@ public class OptionsTest {
     }
 
     @Test
-    public void testAnalyses() {
+    void testAnalyses() {
         Options options = Options.parse(
                 "-a", "cfg=exception:true;scope:inter",
                 "-a", "pta=timeout:1800;merge-string-objects:false;cs:2-obj",
@@ -85,10 +84,10 @@ public class OptionsTest {
     }
 
     @Test
-    public void testKeepResult() {
+    void testKeepResult() {
         Options options = Options.parse();
-        Assert.assertEquals(Set.of(Plan.KEEP_ALL), options.getKeepResult());
+        assertEquals(Set.of(Plan.KEEP_ALL), options.getKeepResult());
         options = Options.parse("-kr", "pta,def-use");
-        Assert.assertEquals(Set.of("pta", "def-use"), options.getKeepResult());
+        assertEquals(Set.of("pta", "def-use"), options.getKeepResult());
     }
 }

@@ -22,31 +22,38 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.AnalysisException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValueTest {
 
     @Test
-    public void testInt() {
+    void testInt() {
         Value v1 = Value.makeConstant(10);
-        Assert.assertTrue(v1.isConstant());
-        Assert.assertFalse(v1.isNAC() || v1.isUndef());
-        Assert.assertEquals(v1.getConstant(), 10);
+        assertTrue(v1.isConstant());
+        assertFalse(v1.isNAC() || v1.isUndef());
+        assertEquals(v1.getConstant(), 10);
         Value v2 = Value.makeConstant(1);
         Value v3 = Value.makeConstant(10);
-        Assert.assertNotEquals(v1, v2);
-        Assert.assertEquals(v1, v3);
+        assertNotEquals(v1, v2);
+        assertEquals(v1, v3);
     }
 
-    @Test(expected = AnalysisException.class)
-    public void testGetIntOnNAC() {
-        Value.getNAC().getConstant();
+    @Test
+    void testGetIntOnNAC() {
+        assertThrows(AnalysisException.class, () ->
+                Value.getNAC().getConstant());
     }
 
-    @Test(expected = AnalysisException.class)
-    public void testGetIntOnUndef() {
-        Value.getUndef().getConstant();
+    @Test
+    void testGetIntOnUndef() {
+        assertThrows(AnalysisException.class, () ->
+                Value.getUndef().getConstant());
     }
 }

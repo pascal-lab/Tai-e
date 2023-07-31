@@ -22,9 +22,11 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ArrayMapTest extends AbstractMapTest {
 
@@ -33,8 +35,8 @@ public class ArrayMapTest extends AbstractMapTest {
         return new ArrayMap<>();
     }
 
-    @Test(expected = TooManyElementsException.class)
-    public void testKeySet20() {
-        super.testKeySet20();
+    @Test
+    void testKeySet20() {
+        assertThrows(TooManyElementsException.class, super::testKeySet20);
     }
 }

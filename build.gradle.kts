@@ -23,7 +23,9 @@ dependencies {
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.platform:junit-platform-suite")
 }
 
 application {
@@ -43,20 +45,45 @@ task("fatJar", type = Jar::class) {
         }
     )
     from("COPYING", "COPYING.LESSER")
-    destinationDirectory.set(rootProject.buildDir)
+    destinationDirectory.set(rootProject.getLayout().getBuildDirectory())
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
 }
 
 tasks.jar {
     from("COPYING", "COPYING.LESSER")
-    destinationDirectory.set(rootProject.buildDir)
+    destinationDirectory.set(rootProject.getLayout().getBuildDirectory())
 }
 
-tasks.test {
+tasks.withType<Test> {
+    // Uses JUnit5
+    useJUnitPlatform()
     // Increases the maximum heap memory of JUnit test process. The default is 512M.
     // (see org.gradle.process.internal.worker.DefaultWorkerProcessBuilder.build)
     maxHeapSize = "2G"
+    // Sets the maximum number of test processes to start in parallel.
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    // Sets the default classpath for test execution.
+    // (see https://docs.gradle.org/current/userguide/upgrading_version_8.html#test_task_default_classpath)
+    val test by testing.suites.existing(JvmTestSuite::class)
+    testClassesDirs = files(test.map { it.sources.output.classesDirs })
+    classpath = files(test.map { it.sources.runtimeClasspath })
+}
+
+tasks.test {
+    // Excludes test suites from the default test task
+    // to avoid running some tests multiple times.
+    filter {
+        excludeTestsMatching("*TestSuite")
+    }
+}
+
+task("testTaieTestSuite", type = Test::class) {
+    group = "verification"
+    description = "Runs the Tai-e test suite"
+    filter {
+        includeTestsMatching("TaieTestSuite")
+    }
 }
 
 // Automatically agree the Gradle ToS when running gradle with '--scan' option

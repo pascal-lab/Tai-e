@@ -22,9 +22,8 @@
 
 package pascal.taie.language;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -39,6 +38,10 @@ import pascal.taie.language.type.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static pascal.taie.language.type.PrimitiveType.BOOLEAN;
 import static pascal.taie.language.type.PrimitiveType.INT;
 import static pascal.taie.language.type.PrimitiveType.LONG;
@@ -46,7 +49,7 @@ import static pascal.taie.language.type.VoidType.VOID;
 
 public class HierarchyTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void buildWorld() {
         Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", "Hierarchy");
     }
@@ -57,7 +60,7 @@ public class HierarchyTest {
      * Test interface and subinterfaces.
      */
     @Test
-    public void testSubclass1() {
+    void testSubclass1() {
         String i = "I", ii = "II", iii = "III", iiii = "IIII";
         expectedSubclass(i, iii);
         expectedSubclass(i, iiii);
@@ -70,7 +73,7 @@ public class HierarchyTest {
      * Test interfaces and java.lang.Object.
      */
     @Test
-    public void testSubclass2() {
+    void testSubclass2() {
         String sObject = "java.lang.Object", i = "I", c = "C";
         expectedSubclass(sObject, i);
         expectedNotSubclass(i, sObject);
@@ -82,7 +85,7 @@ public class HierarchyTest {
      * Test interface and implementers
      */
     @Test
-    public void testSubclass3() {
+    void testSubclass3() {
         String i = "I", e = "E", f = "F", g = "G";
         expectedSubclass(i, e);
         expectedSubclass(i, f);
@@ -94,7 +97,7 @@ public class HierarchyTest {
      * Test class and subclasses.
      */
     @Test
-    public void testSubclass4() {
+    void testSubclass4() {
         String c = "C", d = "D", g = "G";
         expectedSubclass(c, d);
         expectedSubclass(c, g);
@@ -104,14 +107,14 @@ public class HierarchyTest {
     private static void expectedSubclass(String sup, String sub) {
         JClass superclass = getClass(sup);
         JClass subclass = getClass(sub);
-        Assert.assertTrue(World.get().getClassHierarchy()
+        assertTrue(World.get().getClassHierarchy()
                 .isSubclass(superclass, subclass));
     }
 
     private static void expectedNotSubclass(String sup, String sub) {
         JClass superclass = getClass(sup);
         JClass subclass = getClass(sub);
-        Assert.assertFalse(World.get().getClassHierarchy()
+        assertFalse(World.get().getClassHierarchy()
                 .isSubclass(superclass, subclass));
     }
 
@@ -121,7 +124,7 @@ public class HierarchyTest {
      * Find field in current class.
      */
     @Test
-    public void testResolveField1() {
+    void testResolveField1() {
         testResolveField("E", "fe", "E");
     }
 
@@ -129,7 +132,7 @@ public class HierarchyTest {
      * Find field in superclass.
      */
     @Test
-    public void testResolveField2() {
+    void testResolveField2() {
         testResolveField("G", "fc", "C");
     }
 
@@ -137,7 +140,7 @@ public class HierarchyTest {
      * Find field in superinterface.
      */
     @Test
-    public void testResolveField3() {
+    void testResolveField3() {
         testResolveField("F", "fii", "II");
     }
 
@@ -145,23 +148,25 @@ public class HierarchyTest {
      * Find field in superclass, the first matching field should be resolved.
      */
     @Test
-    public void testResolveField4() {
+    void testResolveField4() {
         testResolveField("G", "f", "E");
     }
 
     /**
      * Find non-exist field.
      */
-    @Test(expected = FieldResolutionFailedException.class)
-    public void testResolveField5() {
-        testResolveField("G", "xxx", "G");
+    @Test
+    void testResolveField5() {
+        assertThrows(FieldResolutionFailedException.class, () -> {
+            testResolveField("G", "xxx", "G");
+        });
     }
 
     /**
      * Resolve the same field twice.
      */
     @Test
-    public void testResolveField6() {
+    void testResolveField6() {
         testResolveField("G", "f", "E");
         testResolveField("G", "f", "E");
     }
@@ -182,7 +187,7 @@ public class HierarchyTest {
         Type refType = getClassType("java.lang.String");
         FieldRef fieldRef = FieldRef.get(refJClass, refName, refType, false);
         JField field = fieldRef.resolve();
-        Assert.assertEquals(declaringJClass, field.getDeclaringClass());
+        assertEquals(declaringJClass, field.getDeclaringClass());
     }
 
     // ---------- Test method resolution resolveMethod()  ----------
@@ -191,7 +196,7 @@ public class HierarchyTest {
      * Find methods in current class.
      */
     @Test
-    public void testResolveMethod1() {
+    void testResolveMethod1() {
         testResolveMethod("E", "foo", "E", INT);
         testResolveMethod("E", "<init>", "E");
     }
@@ -200,7 +205,7 @@ public class HierarchyTest {
      * Find methods in superclasses.
      */
     @Test
-    public void testResolveMethod2() {
+    void testResolveMethod2() {
         testResolveMethod("E", "foo", "C", LONG);
         testResolveMethod("E", "bar", "C");
         testResolveMethod("E", "hashCode", INT,
@@ -213,7 +218,7 @@ public class HierarchyTest {
      * Find methods in superinterfaces.
      */
     @Test
-    public void testResolveMethod3() {
+    void testResolveMethod3() {
         testResolveMethod("IIII", "biu", "I", getClassType("I"));
         testResolveMethod("G", "biubiu", "IIII",
                 getClassType("IIII"));
@@ -224,7 +229,7 @@ public class HierarchyTest {
      * Find method in superclass's superinterface.
      */
     @Test
-    public void testResolveMethod4() {
+    void testResolveMethod4() {
         testResolveMethod("H", "biu", "I", getClassType("I"));
     }
 
@@ -255,7 +260,7 @@ public class HierarchyTest {
         MethodRef methodRef = MethodRef.get(refJClass, refName,
                 Arrays.asList(parameterTypes), returnType, false);
         JMethod method = methodRef.resolve();
-        Assert.assertEquals(declaringJClass, method.getDeclaringClass());
+        assertEquals(declaringJClass, method.getDeclaringClass());
     }
 
     static void testResolveMethod(
@@ -271,28 +276,28 @@ public class HierarchyTest {
      * Test subclasses of class.
      */
     @Test
-    public void testSubclasses() {
+    void testSubclasses() {
         Collection<JClass> subclasses;
         JClass c = getClass("C");
         subclasses = getAllSubclasses(c);
-        Assert.assertTrue(subclasses.contains(c));
+        assertTrue(subclasses.contains(c));
     }
 
     /**
      * Test subclasses of interface.
      */
     @Test
-    public void testInterfaceSubclasses() {
+    void testInterfaceSubclasses() {
         JClass i = getClass("I");
         Collection<JClass> subclasses = getAllSubclasses(i);
 
-        Assert.assertTrue(subclasses.contains(getClass("IIII")));
-        Assert.assertTrue(subclasses.contains(getClass("E")));
-        Assert.assertTrue(subclasses.contains(getClass("G")));
-        Assert.assertTrue(subclasses.contains(getClass("H")));
+        assertTrue(subclasses.contains(getClass("IIII")));
+        assertTrue(subclasses.contains(getClass("E")));
+        assertTrue(subclasses.contains(getClass("G")));
+        assertTrue(subclasses.contains(getClass("H")));
 
-        Assert.assertFalse(subclasses.contains(getClass("II")));
-        Assert.assertFalse(subclasses.contains(getClass("C")));
+        assertFalse(subclasses.contains(getClass("II")));
+        assertFalse(subclasses.contains(getClass("C")));
     }
 
     private static Collection<JClass> getAllSubclasses(JClass jclass) {

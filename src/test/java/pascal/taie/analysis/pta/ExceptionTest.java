@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class ExceptionTest {
@@ -30,27 +30,27 @@ public class ExceptionTest {
     private static final String DIR = "exception";
 
     @Test
-    public void testExceptionCircle() {
+    void testExceptionCircle() {
         Tests.testPTA(DIR, "ExceptionCircle");
     }
 
     @Test
-    public void testExceptionCircleAndRecursion() {
+    void testExceptionCircleAndRecursion() {
         Tests.testPTA(DIR, "ExceptionCircleAndRecursion");
     }
 
     @Test
-    public void testExceptionNoneCaught() {
+    void testExceptionNoneCaught() {
         Tests.testPTA(DIR, "ExceptionNoneCaught");
     }
 
     @Test
-    public void testExceptionTreeAndRecursion() {
+    void testExceptionTreeAndRecursion() {
         Tests.testPTA(DIR, "ExceptionTreeAndRecursion");
     }
 
     @Test
-    public void testExceptionFromClinit() {
+    void testExceptionFromClinit() {
         Tests.testPTA(DIR, "ExceptionFromClinit", "cs:1-call");
     }
 }

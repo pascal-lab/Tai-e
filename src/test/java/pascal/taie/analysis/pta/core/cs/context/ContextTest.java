@@ -22,19 +22,19 @@
 
 package pascal.taie.analysis.pta.core.cs.context;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContextTest {
 
     @Test
-    public void testTreeContext() {
+    void testTreeContext() {
         testContext(new TrieContext.Factory<>());
     }
 
     @Test
-    public void testTreeContext2() {
+    void testTreeContext2() {
         TrieContext.Factory<String> factory = new TrieContext.Factory<>();
         Context abc = factory.make("A", "B", "C");
         TrieContext bcd = factory.append(abc, "D", 3);

@@ -22,57 +22,57 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CPTestFull extends CPTest {
 
     @Test
-    public void testSimpleBoolean() {
+    void testSimpleBoolean() {
         testCP("SimpleBoolean");
     }
 
     @Test
-    public void testBinaryOp() {
+    void testBinaryOp() {
         testCP("BinaryOp");
     }
 
     @Test
-    public void testBranchNAC() {
+    void testBranchNAC() {
         testCP("BranchNAC");
     }
 
     @Test
-    public void testBranchUndef() {
+    void testBranchUndef() {
         testCP("BranchUndef");
     }
 
     @Test
-    public void testLoop() {
+    void testLoop() {
         testCP("Loop");
     }
 
     @Test
-    public void testLogicalOp() {
+    void testLogicalOp() {
         testCP("LogicalOp");
     }
 
     @Test
-    public void testDivisionByZero() {
+    void testDivisionByZero() {
         testCP("DivisionByZero");
     }
 
     @Test
-    public void testMultiplyByZero() {
+    void testMultiplyByZero() {
         testCP("MultiplyByZero");
     }
 
     @Test
-    public void testConditionOp() {
+    void testConditionOp() {
         testCP("ConditionOp");
     }
 
     @Test
-    public void testComparisonOp() {
+    void testComparisonOp() {
         testCP("ComparisonOp");
     }
 }

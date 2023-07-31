@@ -22,13 +22,13 @@
 
 package pascal.taie.analysis.defuse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class DefUseTest {
 
     @Test
-    public void test() {
+    void test() {
         Tests.testInput("DefUse", "src/test/resources/defuse/",
                 DefUseAnalysis.ID);
     }

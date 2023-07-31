@@ -22,7 +22,7 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class HybridHashSetTest extends AbstractSetTest {
     }
 
     @Test
-    public void testAdd20() {
+    void testAdd20() {
         testAddNElements(newSet(), 20);
     }
 }

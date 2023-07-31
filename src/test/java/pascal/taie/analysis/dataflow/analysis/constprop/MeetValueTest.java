@@ -22,8 +22,10 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class MeetValueTest {
 
@@ -35,16 +37,16 @@ public class MeetValueTest {
             new ConstantPropagation.Analysis(null, true);
 
     @Test
-    public void testMeet() {
-        Assert.assertEquals(cp.meetValue(undef, undef), undef);
-        Assert.assertEquals(cp.meetValue(undef, i0), i0);
-        Assert.assertEquals(cp.meetValue(undef, NAC), NAC);
-        Assert.assertEquals(cp.meetValue(NAC, NAC), NAC);
-        Assert.assertEquals(cp.meetValue(NAC, i0), NAC);
-        Assert.assertEquals(cp.meetValue(NAC, undef), NAC);
-        Assert.assertEquals(cp.meetValue(i0, i0), i0);
-        Assert.assertEquals(cp.meetValue(i0, i1), NAC);
-        Assert.assertEquals(cp.meetValue(i0, undef), i0);
-        Assert.assertEquals(cp.meetValue(i0, NAC), NAC);
+    void testMeet() {
+        assertEquals(cp.meetValue(undef, undef), undef);
+        assertEquals(cp.meetValue(undef, i0), i0);
+        assertEquals(cp.meetValue(undef, NAC), NAC);
+        assertEquals(cp.meetValue(NAC, NAC), NAC);
+        assertEquals(cp.meetValue(NAC, i0), NAC);
+        assertEquals(cp.meetValue(NAC, undef), NAC);
+        assertEquals(cp.meetValue(i0, i0), i0);
+        assertEquals(cp.meetValue(i0, i1), NAC);
+        assertEquals(cp.meetValue(i0, undef), i0);
+        assertEquals(cp.meetValue(i0, NAC), NAC);
     }
 }

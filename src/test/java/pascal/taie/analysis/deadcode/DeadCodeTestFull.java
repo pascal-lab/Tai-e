@@ -22,62 +22,62 @@
 
 package pascal.taie.analysis.deadcode;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DeadCodeTestFull extends DeadCodeTest {
 
     @Test
-    public void testControlFlowUnreachable2() {
+    void testControlFlowUnreachable2() {
         testDCD("ControlFlowUnreachable2");
     }
 
     @Test
-    public void testUnreachableIfBranch2() {
+    void testUnreachableIfBranch2() {
         testDCD("UnreachableIfBranch2");
     }
 
     @Test
-    public void testUnreachableSwitchBranch2() {
+    void testUnreachableSwitchBranch2() {
         testDCD("UnreachableSwitchBranch2");
     }
 
     @Test
-    public void testDeadAssignment2() {
+    void testDeadAssignment2() {
         testDCD("DeadAssignment2");
     }
 
     @Test
-    public void testLiveAssignments() {
+    void testLiveAssignments() {
         testDCD("LiveAssignments");
     }
 
     @Test
-    public void testMixedDeadCode() {
+    void testMixedDeadCode() {
         testDCD("MixedDeadCode");
     }
 
     @Test
-    public void testNotDead() {
+    void testNotDead() {
         testDCD("NotDead");
     }
 
     @Test
-    public void testCorner() {
+    void testCorner() {
         testDCD("Corner");
     }
 
     @Test
-    public void testAllReachableIfBranch() {
+    void testAllReachableIfBranch() {
         testDCD("AllReachableIfBranch");
     }
 
     @Test
-    public void testForLoops() {
+    void testForLoops() {
         testDCD("ForLoops");
     }
 
     @Test
-    public void testArrayField() {
+    void testArrayField() {
         testDCD("ArrayField");
     }
 }

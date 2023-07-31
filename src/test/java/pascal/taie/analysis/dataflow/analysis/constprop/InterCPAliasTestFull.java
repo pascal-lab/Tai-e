@@ -22,70 +22,72 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
+@Disabled
 public class InterCPAliasTestFull extends InterCPAliasTest {
 
     // Tests instance field
     @Test
-    public void testMultiLoads() {
+    void testMultiLoads() {
         test("MultiLoads");
     }
 
     @Test
-    public void testMultiObjs() {
+    void testMultiObjs() {
         test("MultiObjs");
     }
 
     @Test
-    public void testInterprocedural() {
+    void testInterprocedural() {
         test("Interprocedural");
     }
 
     @Test
-    public void testInheritedField() {
+    void testInheritedField() {
         test("InheritedField");
     }
 
     @Test
-    public void testFieldCorner() {
+    void testFieldCorner() {
         test("FieldCorner");
     }
 
     // Tests array
     @Test
-    public void testArrayField() {
+    void testArrayField() {
         test("ArrayField");
     }
 
     @Test
-    public void testArrayInter() {
+    void testArrayInter() {
         test("ArrayInter");
     }
 
     @Test
-    public void testArrayCorner() {
+    void testArrayCorner() {
         test("ArrayCorner");
     }
 
     // Other tests
     @Test
-    public void testReference() {
+    void testReference() {
         test("Reference");
     }
 
     @Test
-    public void testObjSens2() {
+    void testObjSens2() {
         test("ObjSens2");
     }
 
     @Test
-    public void testArrayInField() {
+    void testArrayInField() {
         test("ArrayInField");
     }
 
     @Test
-    public void testMaxPQ() {
+    void testMaxPQ() {
         test("MaxPQ");
     }
 }

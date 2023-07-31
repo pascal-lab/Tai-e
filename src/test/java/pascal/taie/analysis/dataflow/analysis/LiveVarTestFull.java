@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class LiveVarTestFull extends LiveVarTest {
@@ -33,92 +33,92 @@ public class LiveVarTestFull extends LiveVarTest {
     }
 
     @Test
-    public void testAssign() {
+    void testAssign() {
         testLV("Assign");
     }
 
     @Test
-    public void testInvoke() {
+    void testInvoke() {
         testLV("Invoke");
     }
 
     @Test
-    public void testBranch() {
+    void testBranch() {
         testLV("Branch");
     }
 
     @Test
-    public void testLoop() {
+    void testLoop() {
         testLV("Loop");
     }
 
     @Test
-    public void testBranchLoop() {
+    void testBranchLoop() {
         testLV("BranchLoop");
     }
 
     @Test
-    public void testAnonInner() {
+    void testAnonInner() {
         testLV("AnonInner");
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         testLV("Array");
     }
 
     @Test
-    public void testField() {
+    void testField() {
         testLV("Field");
     }
 
     @Test
-    public void testGraph() {
+    void testGraph() {
         testLV("Graph");
     }
 
     @Test
-    public void testSort() {
+    void testSort() {
         testLV("Sort");
     }
 
     @Test
-    public void testComplexAssign() {
+    void testComplexAssign() {
         testLV("ComplexAssign");
     }
 
     @Test
-    public void testCorner() {
+    void testCorner() {
         testLV("Corner");
     }
 
     @Test
-    public void testFibonacci() {
+    void testFibonacci() {
         testLV("Fibonacci");
     }
 
     @Test
-    public void testGaussianElimination() {
+    void testGaussianElimination() {
         testLV("GaussianElimination");
     }
 
     @Test
-    public void testSwitch() {
+    void testSwitch() {
         testLV("Switch");
     }
 
     @Test
-    public void testReference() {
+    void testReference() {
         testLV("Reference");
     }
 
     @Test
-    public void testStronglyAssign() {
+    void testStronglyAssign() {
         testSLV("StronglyAssign");
     }
 
     @Test
-    public void testStronglyBranchLoop() {
+    void testStronglyBranchLoop() {
         testSLV("StronglyBranchLoop");
     }
 }
