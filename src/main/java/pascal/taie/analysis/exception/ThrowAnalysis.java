@@ -40,7 +40,7 @@ public class ThrowAnalysis extends MethodAnalysis<ThrowResult> {
     public ThrowAnalysis(AnalysisConfig config) {
         super(config);
         if ("all".equals(getOptions().getString("exception"))) {
-            implicitThrowAnalysis = ImplicitThrowAnalysis.get();
+            implicitThrowAnalysis = new ImplicitThrowAnalysis();
         } else {
             implicitThrowAnalysis = null;
         }

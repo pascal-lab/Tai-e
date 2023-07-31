@@ -45,13 +45,7 @@ import pascal.taie.language.type.TypeSystem;
 
 import java.util.Set;
 
-enum ImplicitThrowAnalysis {
-
-    INSTANCE;
-
-    static ImplicitThrowAnalysis get() {
-        return INSTANCE;
-    }
+class ImplicitThrowAnalysis {
 
     // Implicit exception groups
     private final Set<ClassType> ARITHMETIC_EXCEPTION;
