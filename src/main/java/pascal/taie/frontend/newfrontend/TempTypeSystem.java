@@ -152,6 +152,6 @@ public class TempTypeSystem implements TypeSystem {
      */
     @Override
     public boolean isSubtype(Type supertype, Type subtype) {
-        throw new IllegalStateException();
+        return Utils.isSubtype(supertype, subtype);
     }
 }

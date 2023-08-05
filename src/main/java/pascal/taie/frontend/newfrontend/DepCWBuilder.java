@@ -67,6 +67,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                 target.add(entry);
             }
             target.addAll(p.getInputClasses());
+            target.addAll(loadNecessaryClasses());
             buildClosure(target);
         } catch (IOException e) {
             // TODO: fail info
@@ -154,6 +155,10 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         assert reader.getClassName().replaceAll("/", ".").equals(binaryName);
         sourceMap.put(binaryName, new AsmSource(reader, isApplication));
         return new ConstantTableReader().read(content);
+    }
+
+    private List<String> loadNecessaryClasses() {
+        return List.of("java.lang.ref.Finalizer");
     }
 
     private record Completed(String input, List<String> res) {}
