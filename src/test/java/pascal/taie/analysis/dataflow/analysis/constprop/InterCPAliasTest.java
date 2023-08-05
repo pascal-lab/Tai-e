@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.inter.InterConstantPropagation;
 
@@ -40,47 +40,47 @@ public class InterCPAliasTest {
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         test("Array");
     }
 
     @Test
-    public void testArrayInter2() {
+    void testArrayInter2() {
         test("ArrayInter2");
     }
 
     @Test
-    public void testArrayLoops() {
+    void testArrayLoops() {
         test("ArrayLoops");
     }
 
     @Test
-    public void testInstanceField() {
+    void testInstanceField() {
         test("InstanceField");
     }
 
     @Test
-    public void testMultiStores() {
+    void testMultiStores() {
         test("MultiStores");
     }
 
     @Test
-    public void testInterprocedural2() {
+    void testInterprocedural2() {
         test("Interprocedural2");
     }
 
     @Test
-    public void testObjSens() {
+    void testObjSens() {
         test("ObjSens");
     }
 
     @Test
-    public void testStaticField() {
+    void testStaticField() {
         test("StaticField");
     }
 
     @Test
-    public void testStaticFieldMultiStores() {
+    void testStaticFieldMultiStores() {
         test("StaticFieldMultiStores");
     }
 }

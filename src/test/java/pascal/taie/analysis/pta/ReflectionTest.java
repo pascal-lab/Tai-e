@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class ReflectionTest {
@@ -30,12 +30,12 @@ public class ReflectionTest {
     private static final String DIR = "reflection";
 
     @Test
-    public void testStringConstant() {
+    void testStringConstant() {
         Tests.testPTA(DIR, "GetMember");
     }
 
     @Test
-    public void testReflectionLog() {
+    void testReflectionLog() {
         Tests.testPTA(DIR, "ReflectiveAction",
                 "reflection-inference:null",
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
@@ -43,22 +43,22 @@ public class ReflectionTest {
 
     // Test cases for Solar
     @Test
-    public void testLazyHeapModeling() {
+    void testLazyHeapModeling() {
         Tests.testPTA(DIR, "LazyHeapModeling", "reflection-inference:solar");
     }
 
     @Test
-    public void testArgsRefine() {
+    void testArgsRefine() {
         Tests.testPTA(DIR, "ArgsRefine", "reflection-inference:solar");
     }
 
     @Test
-    public void testGetMethods() {
+    void testGetMethods() {
         Tests.testPTA(DIR, "GetMethods", "reflection-inference:solar");
     }
 
     @Test
-    public void testUnknownMethodName() {
+    void testUnknownMethodName() {
         Tests.testPTA(DIR, "UnknownMethodName", "reflection-inference:solar");
     }
 }

@@ -22,103 +22,106 @@
 
 package pascal.taie.language;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static pascal.taie.language.type.NullType.NULL;
 import static pascal.taie.language.type.PrimitiveType.INT;
 import static pascal.taie.language.type.PrimitiveType.LONG;
+
 
 public class TypeTest {
 
     private static TypeSystem typeSystem;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTypeManager() {
         Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", "Types");
         typeSystem = World.get().getTypeSystem();
     }
 
     @Test
-    public void testSubtypeNull() {
+    void testSubtypeNull() {
         Type object = typeSystem.getClassType("java.lang.Object");
         Type intArray = typeSystem.getArrayType(INT, 1);
 
-        Assert.assertTrue(typeSystem.isSubtype(object, NULL));
-        Assert.assertFalse(typeSystem.isSubtype(INT, NULL));
-        Assert.assertTrue(typeSystem.isSubtype(intArray, NULL));
+        assertTrue(typeSystem.isSubtype(object, NULL));
+        assertFalse(typeSystem.isSubtype(INT, NULL));
+        assertTrue(typeSystem.isSubtype(intArray, NULL));
     }
 
     @Test
-    public void testSubtypePrimitive() {
-        Assert.assertTrue(typeSystem.isSubtype(INT, INT));
-        Assert.assertFalse(typeSystem.isSubtype(INT, LONG));
+    void testSubtypePrimitive() {
+        assertTrue(typeSystem.isSubtype(INT, INT));
+        assertFalse(typeSystem.isSubtype(INT, LONG));
     }
 
     /**
      * Test arrays and some special classes.
      */
     @Test
-    public void testSubtypeArray1() {
+    void testSubtypeArray1() {
         Type intArray = typeSystem.getArrayType(INT, 1);
         Type object = typeSystem.getClassType("java.lang.Object");
-        Assert.assertTrue(typeSystem.isSubtype(object, intArray));
+        assertTrue(typeSystem.isSubtype(object, intArray));
 
         Type serializable = typeSystem.getClassType("java.lang.Serializable");
-        Assert.assertTrue(typeSystem.isSubtype(serializable, intArray));
+        assertTrue(typeSystem.isSubtype(serializable, intArray));
 
         Type cloneable = typeSystem.getClassType("java.lang.Cloneable");
-        Assert.assertTrue(typeSystem.isSubtype(cloneable, intArray));
+        assertTrue(typeSystem.isSubtype(cloneable, intArray));
 
         Type a = typeSystem.getClassType("A");
-        Assert.assertFalse(typeSystem.isSubtype(a, intArray));
+        assertFalse(typeSystem.isSubtype(a, intArray));
     }
 
     /**
      * Test arrays with different dimensions.
      */
     @Test
-    public void testSubtypeArray2() {
+    void testSubtypeArray2() {
         Type intArray2 = typeSystem.getArrayType(INT, 2);
         Type object = typeSystem.getClassType("java.lang.Object");
         Type objectArray = typeSystem.getArrayType(object, 1);
-        Assert.assertTrue(typeSystem.isSubtype(objectArray, intArray2));
+        assertTrue(typeSystem.isSubtype(objectArray, intArray2));
 
         Type intArray3 = typeSystem.getArrayType(INT, 3);
-        Assert.assertTrue(typeSystem.isSubtype(objectArray, intArray3));
+        assertTrue(typeSystem.isSubtype(objectArray, intArray3));
     }
 
     /**
      * Test arrays of different classes with subtyping relation.
      */
     @Test
-    public void testSubtypeArray3() {
+    void testSubtypeArray3() {
         Type object = typeSystem.getClassType("java.lang.Object");
         Type objectArray = typeSystem.getArrayType(object, 1);
         Type a = typeSystem.getClassType("A");
         Type aArray = typeSystem.getArrayType(a, 1);
-        Assert.assertTrue(typeSystem.isSubtype(objectArray, aArray));
+        assertTrue(typeSystem.isSubtype(objectArray, aArray));
 
         Type b = typeSystem.getClassType("B");
         Type bArray = typeSystem.getArrayType(b, 1);
-        Assert.assertTrue(typeSystem.isSubtype(aArray, bArray));
-        Assert.assertFalse(typeSystem.isSubtype(bArray, aArray));
+        assertTrue(typeSystem.isSubtype(aArray, bArray));
+        assertFalse(typeSystem.isSubtype(bArray, aArray));
     }
 
     @Test
-    public void testGetType1() {
+    void testGetType1() {
         Type a = typeSystem.getClassType("A");
         Type aArray = typeSystem.getArrayType(a, 1);
         Type aArray2 = typeSystem.getType("A[]");
-        Assert.assertEquals(aArray, aArray2);
+        assertEquals(aArray, aArray2);
 
         Type intArray = typeSystem.getArrayType(INT, 2);
         Type intArray2 = typeSystem.getType("int[][]");
-        Assert.assertEquals(intArray, intArray2);
+        assertEquals(intArray, intArray2);
     }
 }

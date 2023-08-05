@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.deadcode;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class DeadCodeTest {
@@ -35,27 +35,27 @@ public class DeadCodeTest {
     }
 
     @Test
-    public void testControlFlowUnreachable() {
+    void testControlFlowUnreachable() {
         testDCD("ControlFlowUnreachable");
     }
 
     @Test
-    public void testUnreachableIfBranch() {
+    void testUnreachableIfBranch() {
         testDCD("UnreachableIfBranch");
     }
 
     @Test
-    public void testUnreachableSwitchBranch() {
+    void testUnreachableSwitchBranch() {
         testDCD("UnreachableSwitchBranch");
     }
 
     @Test
-    public void testDeadAssignment() {
+    void testDeadAssignment() {
         testDCD("DeadAssignment");
     }
 
     @Test
-    public void testLoops() {
+    void testLoops() {
         testDCD("Loops");
     }
 }

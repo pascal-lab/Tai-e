@@ -22,88 +22,88 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class BasicTestFull extends BasicTest {
 
     // Tests for handling of more Java features
     @Test
-    public void testStaticField() {
+    void testStaticField() {
         Tests.testPTA(DIR, "StaticField");
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         Tests.testPTA(DIR, "Array");
     }
 
     @Test
-    public void testCast() {
+    void testCast() {
         Tests.testPTA(DIR, "Cast");
     }
 
     @Test
-    public void testCast2() {
+    void testCast2() {
         Tests.testPTA(DIR, "Cast2");
     }
 
     @Test
-    public void testNull() {
+    void testNull() {
         Tests.testPTA(DIR, "Null");
     }
 
     @Test
-    public void testPrimitive() {
+    void testPrimitive() {
         Tests.testPTA(DIR, "Primitive");
     }
 
     @Test
-    public void testPrimitives() {
+    void testPrimitives() {
         Tests.testPTA(DIR, "Primitives",
                 "propagate-types:[reference,int,double];" +
                         "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]");
     }
 
     @Test
-    public void testPropagateNull() {
+    void testPropagateNull() {
         Tests.testPTA(DIR, "PropagateNull",
                 "propagate-types:[reference,null];" +
                         "plugins:[pascal.taie.analysis.pta.plugin.NullHandler]");
     }
 
     @Test
-    public void testStrings() {
+    void testStrings() {
         Tests.testPTA(DIR, "Strings", "distinguish-string-constants:all");
     }
 
     @Test
-    public void testMultiArray() {
+    void testMultiArray() {
         Tests.testPTA(DIR, "MultiArray");
     }
 
     @Test
-    public void testClinit() {
+    void testClinit() {
         Tests.testPTA(DIR, "Clinit");
     }
 
     @Test
-    public void testClassObj() {
+    void testClassObj() {
         Tests.testPTA(DIR, "ClassObj");
     }
 
     @Test
-    public void testNative() {
+    void testNative() {
         Tests.testPTA(DIR, "Native");
     }
 
     @Test
-    public void testNativeModel() {
+    void testNativeModel() {
         Tests.testPTA(DIR, "NativeModel", "distinguish-string-constants:all");
     }
 
     @Test
-    public void testAnnotationModel() {
+    void testAnnotationModel() {
         Tests.testPTA(DIR, "Annotations",
                 "cs:1-call", "distinguish-string-constants:all");
     }

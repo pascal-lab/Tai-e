@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 
 public class LiveVarTest {
@@ -33,32 +33,32 @@ public class LiveVarTest {
     }
 
     @Test
-    public void testAssign() {
+    void testAssign() {
         testLV("Assign");
     }
 
     @Test
-    public void testBranch() {
+    void testBranch() {
         testLV("Branch");
     }
 
     @Test
-    public void testBranchLoop() {
+    void testBranchLoop() {
         testLV("BranchLoop");
     }
 
     @Test
-    public void testArray() {
+    void testArray() {
         testLV("Array");
     }
 
     @Test
-    public void testFibonacci() {
+    void testFibonacci() {
         testLV("Fibonacci");
     }
 
     @Test
-    public void testReference() {
+    void testReference() {
         testLV("Reference");
     }
 }

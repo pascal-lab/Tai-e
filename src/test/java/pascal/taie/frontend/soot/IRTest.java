@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
@@ -41,7 +41,7 @@ public class IRTest {
     }
 
     @Test
-    public void testBottomType() {
+    void testBottomType() {
         String clzName = "android$widget$RemoteViews$BaseReflectionAction";
         Main.buildWorld("-ap", "-cp", "src/test/resources/world",
                 "--input-classes", clzName);
@@ -50,7 +50,7 @@ public class IRTest {
     }
 
     @Test
-    public void testIRBuilder() {
+    void testIRBuilder() {
         targets.forEach(main -> {
             buildWorld(main);
             JClass mainClass = World.get().getClassHierarchy().getClass(main);
@@ -64,7 +64,7 @@ public class IRTest {
     }
 
     @Test
-    public void testDefUse() {
+    void testDefUse() {
         String main = "DefUse";
         buildWorld(main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);

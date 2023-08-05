@@ -22,8 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
@@ -36,6 +35,8 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class InvokeDynamicTest {
 
     private static final String CP = "src/test/resources/pta/invokedynamic";
@@ -43,18 +44,18 @@ public class InvokeDynamicTest {
     private static final boolean isPrintIR = true;
 
     @Test
-    public void testFunction() {
+    void testFunction() {
         final String main = "Function";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(
-                indy -> Assert.assertEquals("apply", indy.getMethodName()));
+                indy -> assertEquals("apply", indy.getMethodName()));
     }
 
     @Test
-    public void testInterface() {
+    void testInterface() {
         final String main = "Interface";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
@@ -62,18 +63,18 @@ public class InvokeDynamicTest {
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy -> {
             if (indy.getMethodName().equals("test")) {
-                Assert.assertEquals("java.util.function.Predicate",
+                assertEquals("java.util.function.Predicate",
                         indy.getType().getName());
             }
             if (indy.getMethodName().equals("accept")) {
-                Assert.assertEquals("java.util.function.Consumer",
+                assertEquals("java.util.function.Consumer",
                         indy.getType().getName());
             }
         });
     }
 
     @Test
-    public void testMultiStatement() {
+    void testMultiStatement() {
         final String main = "MultiStatement";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
@@ -81,27 +82,27 @@ public class InvokeDynamicTest {
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy -> {
             MethodRef bootstrapMethodRef = indy.getBootstrapMethodRef();
-            Assert.assertEquals("metafactory",
+            assertEquals("metafactory",
                     bootstrapMethodRef.getName());
         });
         printIR(mainClass.getDeclaredMethod("getValue").getIR());
     }
 
     @Test
-    public void testWithArgs() {
+    void testWithArgs() {
         final String main = "WithArgs";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
         extractInvokeDynamics(mainMethod.getIR()).forEach(indy ->
-                Assert.assertEquals("actionPerformed",
+                assertEquals("actionPerformed",
                         indy.getMethodName())
         );
     }
 
     @Test
-    public void testCapture() {
+    void testCapture() {
         final String main = "Capture";
         Main.buildWorld("-pp", "-cp", CP, "-m", main);
         JClass mainClass = World.get().getClassHierarchy().getClass(main);

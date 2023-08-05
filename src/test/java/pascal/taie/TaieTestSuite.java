@@ -22,8 +22,8 @@
 
 package pascal.taie;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 import pascal.taie.analysis.bugfinder.BugFinderTestSuite;
 import pascal.taie.analysis.dataflow.DataflowTestSuite;
 import pascal.taie.analysis.deadcode.DeadCodeTestFull;
@@ -40,8 +40,8 @@ import pascal.taie.language.TypeTest;
 import pascal.taie.language.classes.StringRepsTest;
 import pascal.taie.util.UtilTestSuite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
         // world
         SootFrontendTest.class,
         TypeTest.class,

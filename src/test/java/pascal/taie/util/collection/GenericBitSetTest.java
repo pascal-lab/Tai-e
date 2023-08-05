@@ -22,13 +22,12 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.SerializationUtils;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GenericBitSetTest {
 
@@ -62,7 +61,7 @@ public class GenericBitSetTest {
     }
 
     @Test
-    public void testStream() {
+    void testStream() {
         StringSet ss = new StringSet();
         assertEquals("[]", CollectionUtils.toString(ss));
         ss.add("123");
@@ -70,7 +69,7 @@ public class GenericBitSetTest {
     }
 
     @Test
-    public void testRemoveIf() {
+    void testRemoveIf() {
         StringSet ss = new StringSet();
         ss.addAll(Set.of("1", "22", "333", "4444", "4446", "4448"));
         ss.removeIf(s -> Integer.parseInt(s) % 2 == 0);
@@ -78,13 +77,13 @@ public class GenericBitSetTest {
     }
 
     @Test
-    public void testSerializable() {
+    void testSerializable() {
         StringSet ss1 = new StringSet();
         ss1.addAll(Set.of("1", "22", "333", "4444", "4446", "4448"));
         StringSet ss2 = SerializationUtils.serializedCopy(ss1);
-        Assert.assertEquals(ss1, ss2);
+        assertEquals(ss1, ss2);
         ss1.add("9999");
         ss2.add("9999");
-        Assert.assertEquals(ss1, ss2);
+        assertEquals(ss1, ss2);
     }
 }

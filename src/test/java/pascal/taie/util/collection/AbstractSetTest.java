@@ -22,12 +22,14 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.SerializationUtils;
 
 import java.util.Arrays;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SuppressWarnings("ALL")
 abstract class AbstractSetTest {
@@ -35,21 +37,23 @@ abstract class AbstractSetTest {
     protected abstract <E> Set<E> newSet();
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         Set<String> set = newSet();
         set.add("a");
         set.add("a");
         set.add("b");
         set.add("c");
-        Assert.assertEquals(3, set.size());
+        assertEquals(3, set.size());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testAddNull() {
-        Set<String> set = newSet();
-        set.add("a");
-        set.add(null);
-        set.add("b");
+    @Test
+    void testAddNull() {
+        assertThrows(NullPointerException.class, () -> {
+            Set<String> set = newSet();
+            set.add("a");
+            set.add(null);
+            set.add("b");
+        });
     }
 
     void testAddNElements(Set<Integer> set, int n) {
@@ -57,49 +61,49 @@ abstract class AbstractSetTest {
         for (int i = 0; i < n; ++i) {
             set.add(i);
         }
-        Assert.assertEquals(n, set.size());
+        assertEquals(n, set.size());
     }
 
     @Test
-    public void testAddAll() {
+    void testAddAll() {
         Set<String> set = newSet();
         set.addAll(Arrays.asList("a", "a", "b", "c", "c"));
-        Assert.assertEquals(3, set.size());
+        assertEquals(3, set.size());
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         Set<String> set = newSet();
         set.add("a");
         set.add("b");
         set.add("c");
-        Assert.assertEquals(3, set.size());
+        assertEquals(3, set.size());
         set.remove("x");
-        Assert.assertEquals(3, set.size());
+        assertEquals(3, set.size());
         set.remove("a");
-        Assert.assertEquals(2, set.size());
+        assertEquals(2, set.size());
         set.remove("b");
-        Assert.assertEquals(1, set.size());
+        assertEquals(1, set.size());
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         Set<String> set = newSet();
-        Assert.assertEquals(0, set.size());
+        assertEquals(0, set.size());
         set.remove("x");
-        Assert.assertEquals(0, set.size());
+        assertEquals(0, set.size());
     }
 
     @Test
-    public void testSerializable() {
+    void testSerializable() {
         Set<String> set1 = newSet();
         set1.add("a");
         set1.add("b");
         set1.add("c");
         Set<String> set2 = SerializationUtils.serializedCopy(set1);
-        Assert.assertEquals(set1, set2);
+        assertEquals(set1, set2);
         set1.add("d");
         set2.add("d");
-        Assert.assertEquals(set1, set2);
+        assertEquals(set1, set2);
     }
 }

@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.graph.flowgraph.FlowGraphDumper;
@@ -45,7 +45,7 @@ public class ZipperTest {
     private static final String MISC = "misc";
 
     @Test
-    public void testOAG() {
+    void testOAG() {
         dumpOAG(CS, "TwoObject", "cs:2-obj");
     }
 
@@ -59,7 +59,7 @@ public class ZipperTest {
     }
 
     @Test
-    public void testOFG() {
+    void testOFG() {
         Stream.of("Cast", "StoreLoad", "Array", "CallParamRet", "Cycle")
                 .forEach(main -> dumpOFG(BASIC, main));
     }
@@ -73,7 +73,7 @@ public class ZipperTest {
     }
 
     @Test
-    public void testPFGBuilder() {
+    void testPFGBuilder() {
         Tests.testPTA(false, MISC, "Zipper", "advanced:zipper");
     }
 }

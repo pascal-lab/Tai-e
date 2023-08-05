@@ -22,9 +22,11 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ArraySetTest extends AbstractSetTest {
 
@@ -32,18 +34,19 @@ public class ArraySetTest extends AbstractSetTest {
         return new ArraySet<>();
     }
 
-    @Test(expected = TooManyElementsException.class)
-    public void testFixedCapacity() {
-        testAddNElements(new ArraySet<>(4), 5);
+    @Test
+    void testFixedCapacity() {
+        assertThrows(TooManyElementsException.class, () ->
+                testAddNElements(new ArraySet<>(4), 5));
     }
 
     @Test
-    public void testNonFixedCapacity() {
+    void testNonFixedCapacity() {
         testAddNElements(new ArraySet<>(4, false), 5);
     }
 
     @Test
-    public void testBoundaryAdd() {
+    void testBoundaryAdd() {
         Set<Integer> s = new ArraySet<>(4);
         s.add(1);
         s.add(2);

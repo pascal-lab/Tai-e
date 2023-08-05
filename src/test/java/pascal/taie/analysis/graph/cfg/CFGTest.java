@@ -22,19 +22,19 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.analysis.exception.ThrowAnalysis;
 
 public class CFGTest {
 
     @Test
-    public void testCFG() {
+    void testCFG() {
         test("CFG", "explicit");
     }
 
     @Test
-    public void testException() {
+    void testException() {
         test("Exceptions", "all");
     }
 

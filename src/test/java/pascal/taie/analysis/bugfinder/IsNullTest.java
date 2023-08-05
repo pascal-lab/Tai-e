@@ -23,7 +23,7 @@
 
 package pascal.taie.analysis.bugfinder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis;
 
@@ -36,12 +36,12 @@ public class IsNullTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         testIsNullValue("NullDeref");
     }
 
     @Test
-    public void test2() {
+    void test2() {
         testIsNullValue("NullDeref2");
     }
 }

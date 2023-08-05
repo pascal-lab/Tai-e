@@ -28,6 +28,8 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 
 import java.util.List;
@@ -69,8 +71,8 @@ class SinkHandler extends Handler {
                     });
         });
         if (callSiteMode) {
-            Map<JMethod, Sink> sinkMap = sinks.stream()
-                    .collect(Collectors.toMap(Sink::method, s -> s));
+            MultiMap<JMethod, Sink> sinkMap = sinks.stream()
+                    .collect(MultiMapCollector.get(Sink::method, s -> s));
             // scan all reachable call sites to search sink calls
             result.getCallGraph()
                     .reachableMethods()
@@ -78,8 +80,10 @@ class SinkHandler extends Handler {
                     .flatMap(m -> m.getIR().invokes(false))
                     .forEach(callSite -> {
                         JMethod callee = callSite.getMethodRef().resolveNullable();
-                        Sink sink = sinkMap.get(callee);
-                        if (sink != null) {
+                        if (callee == null) {
+                            return;
+                        }
+                        for (Sink sink : sinkMap.get(callee)) {
                             int i = sink.index();
                             Var arg = InvokeUtils.getVar(callSite, i);
                             SinkPoint sinkPoint = new SinkPoint(callSite, i);

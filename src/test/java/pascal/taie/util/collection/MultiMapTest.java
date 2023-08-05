@@ -22,177 +22,186 @@
 
 package pascal.taie.util.collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.util.SerializationUtils;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class MultiMapTest {
 
     @Test
-    public void testPut() {
+    void testPut() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.put(1, 1);
         m.put(1, 2);
         m.put(1, 3);
-        Assert.assertTrue(m.put(2, 1));
-        Assert.assertFalse(m.put(2, 1));
-        Assert.assertFalse(m.put(2, 1));
-        Assert.assertEquals(4, m.size());
+        assertTrue(m.put(2, 1));
+        assertFalse(m.put(2, 1));
+        assertFalse(m.put(2, 1));
+        assertEquals(4, m.size());
     }
 
     @Test
-    public void testPutAll1() {
+    void testPutAll1() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
-        Assert.assertTrue(m.putAll(1, Set.of(6, 7, 8)));
-        Assert.assertTrue(m.putAll(2, Set.of(1)));
-        Assert.assertFalse(m.putAll(3, Set.of()));
-        Assert.assertEquals(4, m.size());
+        assertTrue(m.putAll(1, Set.of(6, 7, 8)));
+        assertTrue(m.putAll(2, Set.of(1)));
+        assertFalse(m.putAll(3, Set.of()));
+        assertEquals(4, m.size());
     }
 
     @Test
-    public void testPutAll2() {
+    void testPutAll2() {
         MultiMap<Integer, Integer> m1 = Maps.newMultiMap();
         m1.putAll(1, Set.of(6, 7, 8));
         m1.putAll(2, Set.of(1));
 
         MultiMap<Integer, Integer> m2 = Maps.newMultiMap();
-        Assert.assertTrue(m2.putAll(m1));
-        Assert.assertEquals(4, m2.size());
+        assertTrue(m2.putAll(m1));
+        assertEquals(4, m2.size());
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.putAll(1, Set.of(555, 888, 666));
         m.putAll(2, Set.of(777));
         m.remove(1, 666);
         m.remove(2, 777);
-        Assert.assertEquals(2, m.size());
+        assertEquals(2, m.size());
     }
 
     @Test
-    public void testRemoveAll() {
+    void testRemoveAll() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.putAll(1, Set.of(314, 159, 265));
         m.putAll(2, Set.of(3));
-        Assert.assertTrue(m.removeAll(1));
-        Assert.assertTrue(m.removeAll(2, Set.of(3, 5, 7)));
-        Assert.assertTrue(m.isEmpty());
-        Assert.assertFalse(m.containsKey(2));
+        assertTrue(m.removeAll(1));
+        assertTrue(m.removeAll(2, Set.of(3, 5, 7)));
+        assertTrue(m.isEmpty());
+        assertFalse(m.containsKey(2));
 
         m.putAll(1, Set.of(314, 159, 265));
         m.removeAll(1, Set.of(314, 159, 265));
-        Assert.assertFalse(m.containsKey(1));
+        assertFalse(m.containsKey(1));
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.putAll(1, Set.of(314, 159, 265));
         m.putAll(2, Set.of(3));
-        Assert.assertEquals(3, m.get(1).size());
-        Assert.assertEquals(1, m.get(2).size());
-        Assert.assertEquals(0, m.get(3).size());
+        assertEquals(3, m.get(1).size());
+        assertEquals(1, m.get(2).size());
+        assertEquals(0, m.get(3).size());
     }
 
     @Test
-    public void testContains() {
+    void testContains() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.putAll(1, Set.of(314, 159, 265));
         m.putAll(2, Set.of(3));
 
-        Assert.assertTrue(m.contains(1, 314));
-        Assert.assertTrue(m.containsKey(2));
-        Assert.assertTrue(m.containsValue(3));
+        assertTrue(m.contains(1, 314));
+        assertTrue(m.containsKey(2));
+        assertTrue(m.containsValue(3));
 
-        Assert.assertFalse(m.contains(1, 2333));
-        Assert.assertFalse(m.containsKey(2333));
-        Assert.assertFalse(m.containsValue(2333));
+        assertFalse(m.contains(1, 2333));
+        assertFalse(m.containsKey(2333));
+        assertFalse(m.containsValue(2333));
 
         m.remove(2, 3);
-        Assert.assertFalse(m.containsKey(2));
+        assertFalse(m.containsKey(2));
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         MultiMap<Integer, Integer> m1 = Maps.newMultiMap();
         m1.putAll(1, Set.of(314, 159, 265));
         m1.putAll(2, Set.of(3));
 
         MultiMap<Integer, Integer> m2 = Maps.newMultiMap();
         m2.putAll(m1);
-        Assert.assertEquals(m1, m2);
+        assertEquals(m1, m2);
         m2.remove(1, 314);
-        Assert.assertNotEquals(m1, m2);
+        assertNotEquals(m1, m2);
         m2.put(1, 314);
-        Assert.assertEquals(m1, m2);
+        assertEquals(m1, m2);
         m2.put(1, 3);
-        Assert.assertNotEquals(m1, m2);
+        assertNotEquals(m1, m2);
 
         m1.clear();
-        Assert.assertNotEquals(m1, m2);
+        assertNotEquals(m1, m2);
         m2.clear();
-        Assert.assertEquals(m1, m2);
+        assertEquals(m1, m2);
     }
 
     @Test
-    public void testEntrySet() {
+    void testEntrySet() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         var entrySet = m.entrySet();
         m.put(1, 1);
         m.putAll(2, Set.of(777, 888, 999));
         m.putAll(3, Set.of(987, 555));
-        Assert.assertEquals(6, entrySet.size());
+        assertEquals(6, entrySet.size());
         m.removeAll(2);
-        Assert.assertEquals(3, entrySet.size());
+        assertEquals(3, entrySet.size());
         m.clear();
-        Assert.assertTrue(entrySet.isEmpty());
+        assertTrue(entrySet.isEmpty());
     }
 
     @Test
-    public void testValues() {
+    void testValues() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         var values = m.values();
         m.put(1, 1);
         m.putAll(2, Set.of(777, 888, 999));
         m.putAll(3, Set.of(987, 555));
-        Assert.assertEquals(6, values.size());
+        assertEquals(6, values.size());
         m.removeAll(2);
-        Assert.assertEquals(3, values.size());
+        assertEquals(3, values.size());
         m.clear();
-        Assert.assertTrue(values.isEmpty());
+        assertTrue(values.isEmpty());
     }
 
     @Test
-    public void testUnmodifiableMultiple() {
+    void testUnmodifiableMultiple() {
         MultiMap<Integer, Integer> m = Maps.newMultiMap();
         m.put(1, 1);
         m.putAll(2, Set.of(777, 888, 999));
         m.putAll(3, Set.of(987, 555));
         MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(m);
-        Assert.assertEquals(m.get(2), um.get(2));
-        Assert.assertEquals(m, um);
+        assertEquals(m.get(2), um.get(2));
+        assertEquals(m, um);
         m.put(333, 666);
-        Assert.assertEquals(m.get(333), um.get(333));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnmodifiableMultiplePut() {
-        MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
-        um.put(1, 2);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnmodifiableMultipleRemove() {
-        MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
-        um.remove(1, 2);
+        assertEquals(m.get(333), um.get(333));
     }
 
     @Test
-    public void testMultiMapCollector() {
+    void testUnmodifiableMultiplePut() {
+        assertThrows(UnsupportedOperationException.class, () -> {
+            MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
+            um.put(1, 2);
+        });
+    }
+
+    @Test
+    void testUnmodifiableMultipleRemove() {
+        assertThrows(UnsupportedOperationException.class, () -> {
+            MultiMap<Integer, Integer> um = Maps.unmodifiableMultiMap(Maps.newMultiMap());
+            um.remove(1, 2);
+        });
+    }
+
+    @Test
+    void testMultiMapCollector() {
         MultiMap<Integer, Integer> m1 = Stream.of(
                 new Pair<>(1, 1),
                 new Pair<>(1, 2),
@@ -202,11 +211,11 @@ public class MultiMapTest {
         MultiMap<Integer, Integer> m2 = Maps.newMultiMap();
         m2.putAll(1, Set.of(1, 2, 3));
         m2.put(2, 4);
-        Assert.assertEquals(m1, m2);
+        assertEquals(m1, m2);
     }
 
     @Test
-    public void testSerializable() {
+    void testSerializable() {
         MultiMap<Integer, String> map1 = Maps.newMultiMap();
         map1.put(1, "x");
         map1.put(1, "xx");
@@ -214,9 +223,9 @@ public class MultiMapTest {
         map1.put(3, "z");
         map1.put(3, "zz");
         MultiMap<Integer, String> map2 = SerializationUtils.serializedCopy(map1);
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
         map1.put(3, "zzz");
         map2.put(3, "zzz");
-        Assert.assertEquals(map1, map2);
+        assertEquals(map1, map2);
     }
 }
