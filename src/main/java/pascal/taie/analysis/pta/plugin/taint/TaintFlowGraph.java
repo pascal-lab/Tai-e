@@ -44,7 +44,7 @@ public class TaintFlowGraph implements Graph<Node> {
 
     private final MultiMap<Node, FlowEdge> outEdges = Maps.newMultiMap();
 
-    TaintFlowGraph(Set<Node> sourceNodes, Set<Node> sinkNodes) {
+    public TaintFlowGraph(Set<Node> sourceNodes, Set<Node> sinkNodes) {
         this.sourceNodes = Set.copyOf(sourceNodes);
         nodes.addAll(sourceNodes);
         this.sinkNodes = Set.copyOf(sinkNodes);
@@ -59,7 +59,7 @@ public class TaintFlowGraph implements Graph<Node> {
         return sinkNodes;
     }
 
-    void addEdge(FlowEdge edge) {
+    public void addEdge(FlowEdge edge) {
         nodes.add(edge.source());
         nodes.add(edge.target());
         inEdges.put(edge.target(), edge);

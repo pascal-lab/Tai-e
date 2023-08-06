@@ -14,46 +14,44 @@ import java.util.stream.Collectors;
 
 public class NameMatching implements TransInferStrategy {
 
-    public static String ID = "name-matching";
-
-    private static final List<Rule> IncludeRules = List.of(
-            new Rule(method -> method.getName().startsWith("get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.INCLUDE),
-            new Rule(method -> method.getName().startsWith("new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.INCLUDE),
-            new Rule(method -> method.getName().startsWith("create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.INCLUDE)
+    private static final List<Rule> rules = List.of(
+            // Allow
+            new Rule(method -> startsWithWord(method.getName(), "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(method -> startsWithWord(method.getName(), "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(method -> startsWithWord(method.getName(), "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
+            // Deny
+            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "will"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "set"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "is"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "has"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "can"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "needs"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "check"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> startsWithWord(method.getName(), "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY)
     );
+    public static final String ID = "name-matching";
 
-    private static final List<Rule> ExcludeRules = List.of(
-            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("will"), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("set")
-                    && method.getName().length() > 3
-                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("is")
-                    && method.getName().length() > 2
-                    && Character.isUpperCase(method.getName().charAt(2)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("has")
-                    && method.getName().length() > 3
-                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE),
-            new Rule(method -> method.getName().startsWith("can")
-                    && method.getName().length() > 3
-                    && Character.isUpperCase(method.getName().charAt(3)), TransferPointType.ARG, TransferPointType.BASE, RuleType.EXCLUDE)
-    );
+    private static boolean startsWithWord(String text, String word) {
+        if (text.startsWith(word)) {
+            return text.length() == word.length() || Character.isUpperCase(text.charAt(word.length()));
+        }
+        return false;
+    }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
-        List<Rule> matchedIncludeRules = IncludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
-        List<Rule> matchedExcludeRules = ExcludeRules.stream().filter(rule -> rule.predicate().test(method)).toList();
-        if (matchedIncludeRules.isEmpty() && matchedExcludeRules.isEmpty()) {
+    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
+        List<Rule> matchedRules = rules.stream().filter(rule -> rule.predicate().test(method)).toList();
+        if (matchedRules.isEmpty()) {
             return Collections.unmodifiableSet(transfers);
         }
 
         return transfers.stream()
-                .filter(tf -> matchAnyRule(tf, matchedIncludeRules))
-                .filter(tf -> !matchAnyRule(tf, matchedExcludeRules))
+                .filter(tf -> matchAllRules(tf, matchedRules))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
@@ -70,11 +68,14 @@ public class NameMatching implements TransInferStrategy {
         };
     }
 
-    private boolean matchAnyRule(TaintTransfer transfer, List<Rule> rules) {
+    private boolean matchAllRules(TaintTransfer transfer, List<Rule> rules) {
         TransferPointType from = getTransferPointType(transfer.getFrom());
         TransferPointType to = getTransferPointType(transfer.getTo());
-        return rules.stream().anyMatch(rule -> (rule.from == TransferPointType.ANY || rule.to == TransferPointType.ANY)
-                || (rule.from == from && rule.to == to));
+        return rules.stream().allMatch(rule -> {
+            boolean match = rule.from == TransferPointType.ANY || rule.to == TransferPointType.ANY
+                    || (rule.from == from && rule.to == to);
+            return (rule.type == RuleType.ALLOW) == match;
+        });
     }
 
     private enum TransferPointType {
@@ -82,10 +83,12 @@ public class NameMatching implements TransInferStrategy {
     }
 
     private enum RuleType {
-        INCLUDE, EXCLUDE
+        ALLOW, DENY
     }
 
-    private record Rule(Predicate<JMethod> predicate, TransferPointType from, TransferPointType to,
+    private record Rule(Predicate<JMethod> predicate,
+                        TransferPointType from,
+                        TransferPointType to,
                         RuleType type) {
     }
 }

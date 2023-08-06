@@ -38,7 +38,7 @@ public class ProbabilityTransferStrategy implements TransInferStrategy{
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
 
         //逻辑：查看该方法的每个调用点，理论上的三条路径，如果在不同的路径上，有不同的传播概率，那么就需要分别处理
 
