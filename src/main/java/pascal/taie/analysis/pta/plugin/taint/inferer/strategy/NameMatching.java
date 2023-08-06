@@ -32,7 +32,13 @@ public class NameMatching implements TransInferStrategy {
             new Rule(method -> startsWithWord(method.getName(), "can"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(method -> startsWithWord(method.getName(), "needs"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(method -> startsWithWord(method.getName(), "check"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY)
+            new Rule(method -> startsWithWord(method.getName(), "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(method -> method.getName().equals("log"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(method -> method.getName().equals("trace"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(method -> method.getName().equals("debug"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(method -> method.getName().equals("info"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(method -> method.getName().equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(method -> method.getName().equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
     );
     public static final String ID = "name-matching";
 
