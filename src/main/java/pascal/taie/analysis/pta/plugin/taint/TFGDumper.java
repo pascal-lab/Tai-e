@@ -43,7 +43,7 @@ import java.util.Set;
 /**
  * Taint flow graph dumper.
  */
-class TFGDumper {
+public class TFGDumper {
 
     private static final Logger logger = LogManager.getLogger(TFGDumper.class);
 
@@ -53,7 +53,7 @@ class TFGDumper {
 
     private Set<Node> sinkNodes;
 
-    TFGDumper() {
+    public TFGDumper() {
         this(null);
     }
 
@@ -69,7 +69,7 @@ class TFGDumper {
         }
     }
 
-    void dump(TaintFlowGraph tfg, File output) {
+    public void dump(TaintFlowGraph tfg, File output) {
         logger.info("Dumping {}", output.getAbsolutePath());
         sourceNodes = tfg.getSourceNodes();
         sinkNodes = tfg.getSinkNodes();

@@ -27,14 +27,11 @@ import java.util.stream.Collectors;
 
 public class InitialStrategy implements TransInferStrategy {
 
-    public static String ID = "initialize";
-
     private static final int BASE = InvokeUtils.BASE;
-
     private static final int RESULT = InvokeUtils.RESULT;
-
-    private MultiMap<JMethod, CSCallSite> method2CSCallSite;
+    public static String ID = "initialize";
     private final TwoKeyMap<JMethod, Integer, Set<Type>> arg2types = Maps.newTwoKeyMap();
+    private MultiMap<JMethod, CSCallSite> method2CSCallSite;
     private Solver solver;
     private CSManager csManager;
     private Set<JMethod> methodsWithTransfer;
@@ -87,25 +84,26 @@ public class InitialStrategy implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
-        if (ignoreMethods.contains(method)
+    public boolean shouldIgnore(JMethod method, int index) {
+        return ignoreMethods.contains(method)
                 || ignoreClasses.contains(method.getDeclaringClass())
-                || methodsWithTransfer.contains(method))
-            return Set.of();
+                || methodsWithTransfer.contains(method);
+    }
 
-        // add whole transfers for this method
+    @Override
+    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
         Set<InferredTransfer> result = Sets.newSet();
-        if (!method.isStatic()) {
+        if(index == BASE) {
+            assert !method.isStatic();
             // base-to-result
-            addTransfers(result, method, BASE, RESULT);
-            // arg-to-base
-            for (int i = 0; i < method.getParamCount(); i++) {
-                addTransfers(result, method, i, BASE);
+            addTransfers(result, method, index, RESULT);
+        } else {
+            if (!method.isStatic()) {
+                // arg-to-base
+                addTransfers(result, method, index, BASE);
             }
-        }
-        // arg-to-result
-        for (int i = 0; i < method.getParamCount(); i++) {
-            addTransfers(result, method, i, RESULT);
+            // arg-to-result
+            addTransfers(result, method, index, RESULT);
         }
 
         return Collections.unmodifiableSet(result);

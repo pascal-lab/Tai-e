@@ -39,7 +39,7 @@ public class NaturalPropagation implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
         return transfers.stream().filter(tf -> !canNaturalPropagation(method, tf)).collect(Collectors.toUnmodifiableSet());
     }
 

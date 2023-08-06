@@ -304,6 +304,7 @@ public class DefaultSolver implements Solver {
      */
     private void analyze() {
         while (!workList.isEmpty() && !isTimeout) {
+            result = null;  // Clear result
             while (!workList.isEmpty() && !isTimeout) {
                 WorkList.Entry entry = workList.pollEntry();
                 if (entry instanceof WorkList.PointerEntry pEntry) {
