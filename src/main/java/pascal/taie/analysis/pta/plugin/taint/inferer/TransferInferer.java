@@ -15,13 +15,14 @@ import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.FilterAlias;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreException;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.ObjectFlow;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeTransfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
@@ -52,11 +53,13 @@ public abstract class TransferInferer extends OnFlyHandler {
     static {
         strategyList = Maps.newMap();
         strategyList.put(InitialStrategy.ID, new InitialStrategy());
+//        strategyList.put(ObjectFlow.ID, new ObjectFlow());
+        strategyList.put(FilterAlias.ID, new FilterAlias());
         strategyList.put(IgnoreCollection.ID, new IgnoreCollection());
         strategyList.put(IgnoreInnerClass.ID, new IgnoreInnerClass());
         strategyList.put(IgnoreException.ID, new IgnoreException());
         strategyList.put(NameMatching.ID, new NameMatching());
-        strategyList.put(TypeTransfer.ID, new TypeTransfer());
+//        strategyList.put(TypeTransfer.ID, new TypeTransfer());
     }
 
     protected final TaintConfig config;
@@ -176,7 +179,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
         for (Var param : newTaintParams) {
             JMethod method = param.getMethod();
-            if(!targetMethods.contains(method)) {
+            if (!targetMethods.contains(method)) {
                 continue;
             }
             int index = param2Index.get(param);
@@ -204,7 +207,11 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {
-        logger.info("Total inferred transfers count :{}", addedTransfers.size());
+        logger.info("Total inferred transfers count : {}", addedTransfers.size());
+        logger.info("Inferred transfers (merge type) count: {}", addedTransfers.stream()
+                .map(tf -> new Entry(tf.getMethod(), tf.getFrom().index(), tf.getTo().index()))
+                .distinct()
+                .count());
         if (taintFlows.isEmpty()) {
             return;
         }
@@ -214,6 +221,19 @@ public abstract class TransferInferer extends OnFlyHandler {
         Set<Node> sourcesReachSink = tfg.getSourceNodes().stream()
                 .filter(source -> tfg.getOutDegreeOf(source) > 0)
                 .collect(Collectors.toSet());
+
+        Set<InferredTransfer> taintRelatedTransfers = tfg.getNodes().stream()
+                .map(tfg::getOutEdgesOf)
+                .flatMap(Collection::stream)
+                .map(weightHandler::getInferredTrans)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableSet());
+        logger.info("Taint related transfers count : {}", taintRelatedTransfers.size());
+        logger.info("Taint related transfers (merge type) count : {}", taintRelatedTransfers.stream()
+                .map(tf -> new Entry(tf.getMethod(), tf.getFrom().index(), tf.getTo().index()))
+                .distinct()
+                .count());
+
         Set<Node> sinkNodes = tfg.getSinkNodes();
         for (Node source : sourcesReachSink) {
             ShortestPath<Node> shortestPath = new ShortestPath<>(tfg, source, edge -> weightHandler.getWeight((FlowEdge) edge));
@@ -242,6 +262,10 @@ public abstract class TransferInferer extends OnFlyHandler {
     private void addNewTransfer(InferredTransfer transfer) {
         addedTransfers.add(transfer);
         newTransferConsumer.accept(transfer);
+    }
+
+    private record Entry(JMethod method, int from, int to) {
+
     }
 
 }
