@@ -42,6 +42,9 @@ import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.generics.GSignatures;
+import pascal.taie.language.generics.MethodGSignature;
+import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
@@ -80,6 +83,8 @@ import soot.tagkit.AnnotationLongElem;
 import soot.tagkit.AnnotationStringElem;
 import soot.tagkit.AnnotationTag;
 import soot.tagkit.ParamNamesTag;
+import soot.tagkit.SignatureTag;
+import soot.tagkit.Tag;
 import soot.tagkit.VisibilityAnnotationTag;
 import soot.tagkit.VisibilityParameterAnnotationTag;
 
@@ -163,6 +168,7 @@ class Converter {
                         sootField.getName(),
                         Modifiers.convert(sootField.getModifiers()),
                         convertType(sootField.getType()),
+                        convertGSignature(sootField),
                         convertAnnotations(sootField)));
     }
 
@@ -178,6 +184,7 @@ class Converter {
             return new JMethod(convertClass(m.getDeclaringClass()),
                     m.getName(), Modifiers.convert(m.getModifiers()),
                     paramTypes, returnType, exceptions,
+                    convertGSignature(sootMethod),
                     convertAnnotations(sootMethod),
                     convertParamAnnotations(sootMethod),
                     convertParamNames(sootMethod),
@@ -203,6 +210,34 @@ class Converter {
             return MethodRef.get(cls, ref.getName(), paramTypes, returnType,
                     ref.isStatic());
         });
+    }
+
+    /**
+     * @return the signature attribute for dealing with generics
+     *         starting from Java 1.5.
+     * @see ReferenceTypeGSignature
+     */
+    @Nullable
+    private static ReferenceTypeGSignature convertGSignature(SootField sootField) {
+        Tag tag = sootField.getTag("SignatureTag");
+        if (tag instanceof SignatureTag signatureTag) {
+            return GSignatures.toTypeSig(signatureTag.getSignature());
+        }
+        return null;
+    }
+
+    /**
+     * @return the signature attribute for dealing with generics
+     *         starting from Java 1.5.
+     * @see MethodGSignature
+     */
+    @Nullable
+    private static MethodGSignature convertGSignature(SootMethod sootMethod) {
+        Tag tag = sootMethod.getTag("SignatureTag");
+        if (tag instanceof SignatureTag signatureTag) {
+            return GSignatures.toMethodSig(signatureTag.getSignature());
+        }
+        return null;
     }
 
     /**

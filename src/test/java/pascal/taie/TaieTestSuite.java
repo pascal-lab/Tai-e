@@ -38,6 +38,7 @@ import pascal.taie.language.FieldTest;
 import pascal.taie.language.HierarchyTest;
 import pascal.taie.language.TypeTest;
 import pascal.taie.language.classes.StringRepsTest;
+import pascal.taie.language.generics.GSignaturesTest;
 import pascal.taie.util.UtilTestSuite;
 
 @Suite
@@ -45,6 +46,7 @@ import pascal.taie.util.UtilTestSuite;
         // world
         SootFrontendTest.class,
         TypeTest.class,
+        GSignaturesTest.class,
         HierarchyTest.class,
         DefaultMethodTest.class,
         FieldTest.class,

@@ -36,7 +36,11 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.generics.ClassGSignature;
+import pascal.taie.language.generics.MethodGSignature;
+import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.SerializationUtils;
 
@@ -160,12 +164,14 @@ public class SerializationTest {
         World world2 = SerializationUtils.serializedCopy(world1);
         World.set(world2); // World.world should be set for getting IRs
         // test1: compare the size of IR, a simple and loose test
-        IR ir1 = world1.getClassHierarchy()
-                .getClass("java.util.concurrent.ConcurrentHashMap")
+        JClass concurrentHashMapClz1 = world1.getClassHierarchy()
+                .getClass("java.util.concurrent.ConcurrentHashMap");
+        JClass concurrentHashMapClz2 = world2.getClassHierarchy()
+                .getClass("java.util.concurrent.ConcurrentHashMap");
+        IR ir1 = concurrentHashMapClz1
                 .getDeclaredMethod("putVal")
                 .getIR();
-        IR ir2 = world2.getClassHierarchy()
-                .getClass("java.util.concurrent.ConcurrentHashMap")
+        IR ir2 = concurrentHashMapClz2
                 .getDeclaredMethod("putVal")
                 .getIR();
         assertNotNull(ir2);
@@ -191,6 +197,26 @@ public class SerializationTest {
         v22.addInvoke(new Invoke(null, null, null));
         assertEquals(0, v21.getInvokes().size()); // v21 should be not changed
         assertEquals(1, v22.getInvokes().size());
+        // test3: compare generics signature
+        JClass enumClz1 = world1.getClassHierarchy().getClass("java.lang.Enum");
+        JClass enumClz2 = world2.getClassHierarchy().getClass("java.lang.Enum");
+        ClassGSignature cSig1 = enumClz1.getGSignature();
+        ClassGSignature cSig2 = enumClz2.getGSignature();
+        if (cSig1 != null && cSig2 != null) {
+            assertEquals(cSig1.toString(), cSig2.toString());
+        }
+        MethodGSignature mSig1 = enumClz1.getDeclaredMethod("valueOf").getGSignature();
+        MethodGSignature mSig2 = enumClz2.getDeclaredMethod("valueOf").getGSignature();
+        if (mSig1 != null && mSig2 != null) {
+            assertEquals(mSig1.toString(), mSig2.toString());
+        }
+        JField tableField1 = concurrentHashMapClz1.getDeclaredField("table");
+        JField tableField2 = concurrentHashMapClz2.getDeclaredField("table");
+        ReferenceTypeGSignature fSig1 = tableField1.getGSignature();
+        ReferenceTypeGSignature fSig2 = tableField2.getGSignature();
+        if (fSig1 != null && fSig2 != null) {
+            assertEquals(fSig1.toString(), fSig2.toString());
+        }
     }
 
 }

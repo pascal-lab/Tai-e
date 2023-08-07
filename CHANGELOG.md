@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2023-06-13
+## [Unreleased] - 2023-08-07
 
 ### New Features
 
@@ -10,6 +10,7 @@
 - Add option `-XX-world-cache-mode`.
 - Add def-use analysis.
 - Add dominator-finding algorithm.
+- Add generics signature information for Class, Method, and Field.
 - Taint analysis
   - Support taint source for arguments of method calls and method parameters.
   - Support taint source for field loads.

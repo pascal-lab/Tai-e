@@ -23,8 +23,10 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -63,4 +65,12 @@ public interface JClassBuilder {
      * @return true if this class is phantom class, otherwise false.
      */
     boolean isPhantom();
+
+    /**
+     * @return the signature attribute for dealing with generics
+     * starting from Java 1.5.
+     * @see ClassGSignature
+     */
+    @Nullable
+    ClassGSignature getGSignature();
 }

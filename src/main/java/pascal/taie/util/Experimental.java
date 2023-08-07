@@ -20,15 +20,27 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util.collection;
+package pascal.taie.util;
 
-import java.io.Serializable;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public record Pair<T1, T2>(T1 first, T2 second)
-        implements Serializable {
-
-    @Override
-    public String toString() {
-        return "<" + first + ", " + second + ">";
-    }
+/**
+ * Indicates that a feature is experimental.
+ * This means that the feature is currently a work-in-progress and may change at any time.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({
+        ElementType.PACKAGE,
+        ElementType.TYPE,
+        ElementType.ANNOTATION_TYPE,
+        ElementType.CONSTRUCTOR,
+        ElementType.FIELD,
+        ElementType.METHOD
+})
+public @interface Experimental {
 }
