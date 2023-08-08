@@ -305,8 +305,7 @@ public class AsmClassBuilder implements JClassBuilder {
                     retType, exceptions,
                     AnnotationHolder.make(annotations), l,
                     paramName,
-                    null,
-                    false);
+                    null);
             AsmClassBuilder.this.methods.add(method);
         }
     }

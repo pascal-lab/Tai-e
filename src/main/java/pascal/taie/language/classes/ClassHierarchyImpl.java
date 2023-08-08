@@ -368,7 +368,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                     Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
                     method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
                             t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
-                            null, null, null, true
+                            null, null, null
                     );
                     jclass.addPhantomMethod(subsignature, method);
                 }
@@ -406,7 +406,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
                 Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
                 method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
                         t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
-                        null, null, null, true
+                        null, null, null
                 );
                 jclass.addPhantomMethod(subsignature, method);
             }

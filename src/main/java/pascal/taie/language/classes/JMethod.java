@@ -79,16 +79,13 @@ public class JMethod extends ClassMember {
      */
     private transient IR ir;
 
-    private final boolean isPhantom;
-
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType, List<ClassType> exceptions,
                    @Nullable MethodGSignature gSignature,
                    AnnotationHolder annotationHolder,
                    @Nullable List<AnnotationHolder> paramAnnotations,
                    @Nullable List<String> paramNames,
-                   Object methodSource,
-                   boolean isPhantom) {
+                   Object methodSource) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
@@ -99,7 +96,6 @@ public class JMethod extends ClassMember {
         this.paramAnnotations = paramAnnotations;
         this.paramNames = paramNames;
         this.methodSource = methodSource;
-        this.isPhantom = isPhantom;
     }
 
     public boolean isAbstract() {
@@ -193,7 +189,7 @@ public class JMethod extends ClassMember {
             }
             if (isNative()) {
                 ir = World.get().getNativeModel().buildNativeIR(this);
-            } else if (isPhantom) {
+            } else if (declaringClass.isPhantom()) {
                 ir = new IRBuildHelper(this).buildEmpty();
             } else {
                 ir = World.get().getIRBuilder().buildIR(this);
