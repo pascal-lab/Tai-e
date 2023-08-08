@@ -86,6 +86,8 @@ public class JClass extends AbstractResultHolder
 
     private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
 
+    private final Map<Subsignature, JMethod> phantomMethods = Maps.newMap();
+
     /**
      * If this class is application class.
      */
@@ -365,6 +367,19 @@ public class JClass extends AbstractResultHolder
         assert getPhantomField(fieldName, fieldType) == null :
                 String.format("'%s' already has phantom field '%s'", this, field);
         phantomFields.put(fieldName, field);
+    }
+
+    @Nullable
+    public JMethod getPhantomMethod(Subsignature subsignature) {
+        assert isPhantom();
+        return phantomMethods.get(subsignature);
+    }
+
+    public void addPhantomMethod(Subsignature subsignature, JMethod method) {
+        assert isPhantom();
+        assert getPhantomMethod(subsignature) == null :
+                String.format("'%s' already has phantom method '%s'", this, method);
+        phantomMethods.put(subsignature, method);
     }
 
     void setIndex(int index) {

@@ -22,11 +22,15 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.World;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Triple;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -136,6 +140,23 @@ public final class StringReps {
                         .map(Type::toString)
                         .collect(Collectors.joining(",")) +
                 ")";
+    }
+
+    /**
+     *
+     * @param subsignature the subsignature to parse
+     * @return (name, parameterTypes, returnType)
+     */
+    public static Triple<String, List<Type>, Type> parseSubsignature(Subsignature subsignature) {
+        TypeSystem typeSystem = World.get().getTypeSystem();
+        String subsig = subsignature.toString();
+        int space = subsig.indexOf(' ');
+        int leftBracket = subsig.indexOf('(');
+        Type returnType = typeSystem.getType(subsig.substring(0, space));
+        String name = subsig.substring(space + 1, leftBracket);
+        String parameterTypesStr = subsig.substring(leftBracket + 1, subsig.length() - 1);
+        List<Type> parameterTypes = Arrays.stream(parameterTypesStr.split(",")).map(typeSystem::getType).toList();
+        return new Triple<>(name, parameterTypes, returnType);
     }
 
     private static void validateSignature(String signature) {

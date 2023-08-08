@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.JClass;
@@ -14,7 +15,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
     @Override
     public ClassHierarchy build(Collection<ClassSource> sources) {
         ClassHierarchyImpl ch = new ClassHierarchyImpl();
-        DefaultClassLoader dcl = new DefaultClassLoader();
+        DefaultClassLoader dcl = new DefaultClassLoader(ch, World.get().getOptions().isAllowPhantom());
         Map<String, JClass> m = Maps.newConcurrentMap();
         dcl.setMapping(m);
         sources.parallelStream().forEach(i -> {

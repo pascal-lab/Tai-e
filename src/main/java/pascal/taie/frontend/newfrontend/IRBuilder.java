@@ -48,7 +48,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     public void buildAll(ClassHierarchy hierarchy) {
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
-        hierarchy.allClasses().parallel().forEach(c -> {
+        hierarchy.allClasses().toList().parallelStream().forEach(c -> {
             for (JMethod m : c.getDeclaredMethods()) {
                 if (! m.isAbstract() && ! m.isNative()) {
                     m.getIR();

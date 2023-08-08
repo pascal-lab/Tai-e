@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import pascal.taie.World;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.JavaSourceFile;
@@ -118,10 +119,14 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                         Future<Completed> future = completionService.take();
                         Completed res = future.get();
                         workList.addAll(res.res);
-                        deltaCount--;
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (ExecutionException e) {
+                        if (!(World.get().getOptions().isAllowPhantom() && e.getCause() instanceof FileNotFoundException)) {
+                            throw new RuntimeException(e);
+                        }
+                    } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
+                    deltaCount--;
                 }
             }
         }

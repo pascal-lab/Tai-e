@@ -33,11 +33,13 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Triple;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -359,7 +361,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 2. Otherwise, method resolution attempts to locate the
         // referenced method in C and its superclasses
         for (JClass c = jclass; c != null; c = c.getSuperClass()) {
-            JMethod method = c.getDeclaredMethod(subsignature);
+            JMethod method;
+            if (c.isPhantom()) {
+                method = c.getPhantomMethod(subsignature);
+                if (method == null) {
+                    Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
+                    method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
+                            t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
+                            null, null, null, true
+                    );
+                    jclass.addPhantomMethod(subsignature, method);
+                }
+                return method;
+            }
+            method = c.getDeclaredMethod(subsignature);
             if (method != null && (allowAbstract || !method.isAbstract())) {
                 return method;
             }
@@ -384,7 +399,20 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JMethod lookupMethodFromSuperinterfaces(
             JClass jclass, Subsignature subsignature, boolean allowAbstract) {
-        JMethod method = jclass.getDeclaredMethod(subsignature);
+        JMethod method;
+        if (jclass.isPhantom()) {
+            method = jclass.getPhantomMethod(subsignature);
+            if (method == null) {
+                Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
+                method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
+                        t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
+                        null, null, null, true
+                );
+                jclass.addPhantomMethod(subsignature, method);
+            }
+            return method;
+        }
+        method = jclass.getDeclaredMethod(subsignature);
         if (method != null && (allowAbstract || !method.isAbstract())) {
             return method;
         }

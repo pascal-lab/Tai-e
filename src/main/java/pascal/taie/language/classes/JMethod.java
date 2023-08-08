@@ -24,6 +24,7 @@ package pascal.taie.language.classes;
 
 import pascal.taie.World;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -78,13 +79,16 @@ public class JMethod extends ClassMember {
      */
     private transient IR ir;
 
+    private final boolean isPhantom;
+
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType, List<ClassType> exceptions,
                    @Nullable MethodGSignature gSignature,
                    AnnotationHolder annotationHolder,
                    @Nullable List<AnnotationHolder> paramAnnotations,
                    @Nullable List<String> paramNames,
-                   Object methodSource) {
+                   Object methodSource,
+                   boolean isPhantom) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
@@ -95,6 +99,7 @@ public class JMethod extends ClassMember {
         this.paramAnnotations = paramAnnotations;
         this.paramNames = paramNames;
         this.methodSource = methodSource;
+        this.isPhantom = isPhantom;
     }
 
     public boolean isAbstract() {
@@ -188,6 +193,8 @@ public class JMethod extends ClassMember {
             }
             if (isNative()) {
                 ir = World.get().getNativeModel().buildNativeIR(this);
+            } else if (isPhantom) {
+                ir = new IRBuildHelper(this).buildEmpty();
             } else {
                 ir = World.get().getIRBuilder().buildIR(this);
             }
