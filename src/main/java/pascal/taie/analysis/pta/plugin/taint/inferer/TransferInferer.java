@@ -8,21 +8,8 @@ import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
-import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
-import pascal.taie.analysis.pta.plugin.taint.TFGBuilder;
-import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
-import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
-import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
-import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.FilterAlias;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreException;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.ObjectFlow;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
+import pascal.taie.analysis.pta.plugin.taint.*;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.*;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
@@ -35,12 +22,7 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Edge;
 import pascal.taie.util.graph.ShortestPath;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -236,7 +218,8 @@ public abstract class TransferInferer extends OnFlyHandler {
 
         Set<Node> sinkNodes = tfg.getSinkNodes();
         for (Node source : sourcesReachSink) {
-            ShortestPath<Node> shortestPath = new ShortestPath<>(tfg, source, edge -> weightHandler.getWeight((FlowEdge) edge));
+            ShortestPath<Node> shortestPath = new ShortestPath<>(tfg, source,
+                    edge -> weightHandler.getWeight((FlowEdge) edge), edge -> weightHandler.getCost((FlowEdge) edge));
             shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
             for (Node sink : sinkNodes) {
                 List<Edge<Node>> path = shortestPath.getPath(sink);

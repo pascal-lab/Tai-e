@@ -46,6 +46,10 @@ public class TransWeightHandler {
         return transfers.first().getWeight();
     }
 
+    public int getCost(FlowEdge edge){
+        return 1;
+    }
+
     public Set<InferredTransfer> getInferredTrans(FlowEdge edge) {
         Set<InferredTransfer> transfers = edge2InferTrans.get(edge);
         if(transfers == null) {

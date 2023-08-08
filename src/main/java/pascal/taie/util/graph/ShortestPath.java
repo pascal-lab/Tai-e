@@ -3,13 +3,7 @@ package pascal.taie.util.graph;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 import java.util.function.ToIntFunction;
 
 /**
@@ -29,14 +23,19 @@ public class ShortestPath<N> {
 
     private final ToIntFunction<Edge<N>> weightCalc;
 
+    private final ToIntFunction<Edge<N>> costCalc;
+
     private Map<N, Integer> node2PathDistance;
 
     private Map<N, Edge<N>> node2PathPredecessor;
 
-    public ShortestPath(Graph<N> graph, N source, ToIntFunction<Edge<N>> weightCalc) {
+    private Map<N, Integer> node2PathCost;
+
+    public ShortestPath(Graph<N> graph, N source, ToIntFunction<Edge<N>> weightCalc, ToIntFunction<Edge<N>> costCalc) {
         this.graph = graph;
         this.source = source;
         this.weightCalc = weightCalc;
+        this.costCalc = costCalc;
     }
 
     /**
@@ -48,6 +47,7 @@ public class ShortestPath<N> {
         if (node2PathDistance == null) {
             node2PathDistance = Maps.newMap();
             node2PathPredecessor = Maps.newMap();
+            node2PathCost = Maps.newMap();
             switch (algorithm) {
                 case DIJKSTRA -> runDijkstra();
                 case DIAL -> runDial();
@@ -62,10 +62,12 @@ public class ShortestPath<N> {
         Set<N> finished = Sets.newSet(graph.getNumberOfNodes());
         graph.forEach(node -> node2PathPredecessor.put(node, null));
         graph.forEach(node -> node2PathDistance.put(node, INVALID_WEIGHT));
+        graph.forEach(node -> node2PathCost.put(node, 0));
 
         // Set source node status
         node2PathDistance.put(source, 0);
-        queue.add(new DistPair(source, 0));
+        node2PathCost.put(source, 0);
+        queue.add(new DistPair(source, 0, 0));
 
         // Main loop
         while (!queue.isEmpty()) {
@@ -77,10 +79,18 @@ public class ShortestPath<N> {
                     N successor = outEdge.target();
                     if (!finished.contains(successor)) {
                         int newDist = minDist + weightCalc.applyAsInt(outEdge);
+                        int newCost = node2PathCost.get(minDistNode) + costCalc.applyAsInt(outEdge);
                         if (newDist < node2PathDistance.get(successor)) {
                             node2PathDistance.put(successor, newDist);
                             node2PathPredecessor.put(successor, outEdge);
-                            queue.add(new DistPair(successor, newDist));
+                            node2PathCost.put(successor, newCost);
+                            queue.add(new DistPair(successor, newDist, newCost));
+                        }
+                        else if(newDist == node2PathDistance.get(successor) && newCost < node2PathCost.get(successor))
+                        {
+                            node2PathPredecessor.put(successor, outEdge);
+                            node2PathCost.put(successor, newCost);
+                            queue.add(new DistPair(successor, newDist, newCost));
                         }
                     }
                 }
@@ -93,7 +103,7 @@ public class ShortestPath<N> {
         Set<N> finished = Sets.newSet(graph.getNumberOfNodes());
         graph.forEach(node -> node2PathPredecessor.put(node, null));
         graph.forEach(node -> node2PathDistance.put(node, INVALID_WEIGHT));
-        Map<Integer, Set<N>> bucket = Maps.newMap();
+        TreeMap<Integer, Set<N>> bucket = new TreeMap<>();
 
         // Set source node status
         bucket.put(0, Sets.newSet());
@@ -141,7 +151,7 @@ public class ShortestPath<N> {
      * @return the shortest path from source node to target node
      */
     public List<N> getPathNode(N target) {
-        if (node2PathDistance.get(target) == INVALID_WEIGHT) {
+        if (node2PathDistance.get(target) == INVALID_WEIGHT || node2PathPredecessor.get(target) == null) {
             return List.of();
         }
         List<N> path = new ArrayList<>();
@@ -185,13 +195,19 @@ public class ShortestPath<N> {
 
         private final int dist;
 
-        public DistPair(N node, int dist) {
+        private final int cost;
+
+        public DistPair(N node, int dist, int cost) {
             this.node = node;
             this.dist = dist;
+            this.cost = cost;
         }
 
         @Override
         public int compareTo(DistPair other) {
+            if(this.dist == other.dist){
+                return Integer.compare(this.cost, other.cost);
+            }
             return Integer.compare(this.dist, other.dist);
         }
     }
