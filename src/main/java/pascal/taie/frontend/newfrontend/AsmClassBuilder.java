@@ -148,9 +148,7 @@ public class AsmClassBuilder implements JClassBuilder {
     }
 
     private static JClass getClassByName(String internalName) {
-        return BuildContext.get()
-                .getClassMap()
-                .get(getBinaryName(internalName));
+        return BuildContext.get().getClassByName(getBinaryName(internalName));
     }
 
     class CVisitor extends ClassVisitor {

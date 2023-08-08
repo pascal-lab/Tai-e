@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class BuildContext {
 
-    private final Map<String, JClass> classMap;
+    private final JClassLoader defaultClassLoader;
 
     private final TypeSystem typeSystem;
 
@@ -41,8 +41,8 @@ public class BuildContext {
 
     final ConcurrentMap<JClass, AsmSource> jclass2Node;
 
-    private BuildContext(Map<String, JClass> classMap, TypeSystem typeSystem) {
-        this.classMap = classMap;
+    private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
+        this.defaultClassLoader = defaultClassLoader;
         this.typeSystem = typeSystem;
         jclass2Node = Maps.newConcurrentMap();
         method2Source = Maps.newConcurrentMap();
@@ -57,8 +57,8 @@ public class BuildContext {
         return buildContext;
     }
 
-    static void make(Map<String, JClass> classMap, JClassLoader loader) {
-        buildContext = new BuildContext(classMap, new TempTypeSystem(loader));
+    static void make(JClassLoader loader) {
+        buildContext = new BuildContext(loader, new TempTypeSystem(loader));
     }
 
     public void setHierarchy(ClassHierarchy hierarchy) {
@@ -69,8 +69,8 @@ public class BuildContext {
         return typeSystem;
     }
 
-    public Map<String, JClass> getClassMap() {
-        return classMap;
+    public JClass getClassByName(String name) {
+        return defaultClassLoader.loadClass(name);
     }
 
     public ReferenceType fromAsmInternalName(String internalName) {

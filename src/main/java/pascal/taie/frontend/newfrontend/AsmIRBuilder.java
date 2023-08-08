@@ -133,6 +133,8 @@ public class AsmIRBuilder {
 
     private final boolean isEmpty;
 
+    private boolean isFrameUsable;
+
     private List<Stmt> stmts;
 
     private List<ExceptionEntry> exceptionEntries;
@@ -156,6 +158,7 @@ public class AsmIRBuilder {
         // a.analyze()
         if (! isEmpty) {
             buildCFG();
+            this.isFrameUsable = classFileVersion >= Opcodes.V1_6 && checkFrameValid();
             traverseBlocks();
             setLineNumber();
             if (isFrameUsable()) {
@@ -212,7 +215,23 @@ public class AsmIRBuilder {
     }
 
     public boolean isFrameUsable() {
-        return classFileVersion >= Opcodes.V1_6;
+        return isFrameUsable;
+    }
+
+    public boolean checkFrameValid() {
+        for (BytecodeBlock block : blockSortedList) {
+            if (block.inEdges().size() >= 2 && block.getFrame() == null) {
+                return false;
+            }
+
+            if (block.outEdges().size() >= 2 &&
+                    block.outEdges().stream().allMatch(o -> o.getFrame() == null)) {
+
+
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<Stmt> getAllStmts() {

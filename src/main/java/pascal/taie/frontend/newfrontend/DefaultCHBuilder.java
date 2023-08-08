@@ -16,6 +16,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         ClassHierarchyImpl ch = new ClassHierarchyImpl();
         DefaultClassLoader dcl = new DefaultClassLoader();
         Map<String, JClass> m = Maps.newConcurrentMap();
+        dcl.setMapping(m);
         sources.parallelStream().forEach(i -> {
             String name = i.getClassName();
             m.put(name, new JClass(dcl, name));
@@ -23,7 +24,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
 
         ch.setDefaultClassLoader(dcl);
         ch.setBootstrapClassLoader(dcl);
-        BuildContext.make(m, dcl);
+        BuildContext.make(dcl);
 
         sources.parallelStream().forEach(i -> {
             JClass klass = m.getOrDefault(i.getClassName(), null);
@@ -35,11 +36,12 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         });
 
         for (var i : m.values()) {
-            ch.addClass(i);
+            if (i.getIndex() == -1) {
+                ch.addClass(i);
+            }
         }
 
         BuildContext.get().setHierarchy(ch);
-        dcl.setMapping(m);
         return ch;
     }
 
