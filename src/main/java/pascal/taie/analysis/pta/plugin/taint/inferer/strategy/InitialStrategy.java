@@ -38,6 +38,8 @@ public class InitialStrategy implements TransInferStrategy {
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
 
+    private long inferredTransCnt = 0;
+
     @Override
     public void setContext(InfererContext context) {
         solver = context.solver();
@@ -105,8 +107,12 @@ public class InitialStrategy implements TransInferStrategy {
             // arg-to-result
             addTransfers(result, method, index, RESULT);
         }
-
+        inferredTransCnt += result.size();
         return Collections.unmodifiableSet(result);
+    }
+
+    public long getInferredTransCnt() {
+        return inferredTransCnt;
     }
 
     @Override

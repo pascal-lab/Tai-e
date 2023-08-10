@@ -98,4 +98,34 @@ public class Reachability<N> {
         }
         return target2CanReach.get(target);
     }
+
+    public Set<N> reachableNodesFrom(Set<N> source) {
+        Set<N> visited = Sets.newSet();
+        Deque<N> stack = new ArrayDeque<>(source);
+        while (!stack.isEmpty()) {
+            N node = stack.pop();
+            if (visited.add(node)) {
+                graph.getSuccsOf(node)
+                        .stream()
+                        .filter(not(visited::contains))
+                        .forEach(stack::push);
+            }
+        }
+        return visited;
+    }
+
+    public Set<N> nodesCanReach(Set<N> target) {
+        Set<N> visited = Sets.newSet();
+        Deque<N> stack = new ArrayDeque<>(target);
+        while (!stack.isEmpty()) {
+            N node = stack.pop();
+            if (visited.add(node)) {
+                graph.getPredsOf(node)
+                        .stream()
+                        .filter(not(visited::contains))
+                        .forEach(stack::push);
+            }
+        }
+        return visited;
+    }
 }
