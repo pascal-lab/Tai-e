@@ -2,7 +2,6 @@ package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
-import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.NewObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -17,6 +16,7 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,9 +62,18 @@ public class ObjectFlow implements TransInferStrategy {
 
         // TODO: add param index
         if (method.getReturnType() instanceof ReferenceType) {
-            if (method.getIR().getReturnVars().stream()
+            List<Var> returnVars = method.getIR().getReturnVars();
+            if (returnVars.stream()
                     .noneMatch(retVar -> taintParamReach.contains(ofg.getVarNode(retVar)))) {
-                reachableIndex.add(InvokeUtils.RESULT);
+                Set<Node> resultFieldNodes = returnVars.stream()
+                        .map(result::getPointsToSet)
+                        .flatMap(Collection::stream)
+                        .map(obj -> ofg.getInstanceFieldNode(obj))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toUnmodifiableSet());
+                if(Sets.haveOverlap(taintParamReach, resultFieldNodes) ||
+                        Sets.haveOverlap(taintParamFieldReach, resultFieldNodes))
+                    reachableIndex.add(InvokeUtils.RESULT);
             }
         }
         // TODO: fix this

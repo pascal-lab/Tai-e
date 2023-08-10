@@ -5,11 +5,25 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
+import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
+import pascal.taie.analysis.graph.flowgraph.VarNode;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.plugin.taint.*;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.*;
+import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
+import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
+import pascal.taie.analysis.pta.plugin.taint.TFGBuilder;
+import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
+import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
+import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
+import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.FilterAlias;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreException;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
@@ -20,9 +34,17 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Edge;
+import pascal.taie.util.graph.Reachability;
 import pascal.taie.util.graph.ShortestPath;
 
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -127,45 +149,30 @@ public abstract class TransferInferer extends OnFlyHandler {
 
 //        PointerAnalysisResult ptaResult = solver.getResult();
 //        ObjectFlowGraph ofg = ptaResult.getObjectFlowGraph();
-//        Set<JMethod> endMethods = Sets.newSet();
-//        ofg.getNodes()
+//        Set<JMethod> taintEndMethods = ofg.getNodes()
 //                .stream()
-//                .filter(node -> ofg.getOutDegreeOf(node) == 0)
 //                .filter(node -> {
-//                    Set<Obj> pts = Set.of();
-//                    if(node instanceof VarNode varNode) {
-//                        pts = ptaResult.getPointsToSet(varNode.getVar());
-//                    } else if (node instanceof InstanceFieldNode ifNode) {
-//                        if(ifNode.getField().isStatic()) {
-//                            pts = ptaResult.getPointsToSet(ifNode.getField());
-//                        } else {
-//                            pts = ptaResult.getPointsToSet(ifNode.getBase(), ifNode.getField());
+//                    if (ofg.getOutDegreeOf(node) == 0) {
+//                        if (node instanceof VarNode varNode) {
+//                            return ptaResult.getPointsToSet(varNode.getVar())
+//                                    .stream()
+//                                    .anyMatch(manager::isTaint);
 //                        }
-//                    } else if (node instanceof ArrayIndexNode aiNode) {
-//                        pts = ptaResult.getPointsToSet(aiNode.getBase());
 //                    }
-//                    return pts.stream().anyMatch(manager::isTaint);
+//                    return false;
 //                })
-//                .forEach(node -> {
-//                    if(node instanceof VarNode varNode) {
-//                        endMethods.add(varNode.getVar().getMethod());
-//                    } else {
-//                        ofg.getPredsOf(node)
-//                                .stream()
-//                                .map(n -> ((VarNode) n).getVar().getMethod())
-//                                .forEach(endMethods::add);
-//                    }
-//                });
+//                .map(node -> ((VarNode) node).getVar().getMethod())
+//                .collect(Collectors.toUnmodifiableSet());
+//        Set<JMethod> possibleMethods = new Reachability<>(ptaResult.getCallGraph()).nodesCanReach(taintEndMethods);
 
         Set<InferredTransfer> newTransfers = Sets.newSet();
 
         for (Var param : newTaintParams) {
             JMethod method = param.getMethod();
-            if (!targetMethods.contains(method)) {
-                continue;
-            }
             int index = param2Index.get(param);
-            if (enabledStrategies.stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
+            if (!targetMethods.contains(method)
+//                    || !possibleMethods.contains(method)
+                    || enabledStrategies.stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
                 continue;
             }
 
@@ -186,6 +193,17 @@ public abstract class TransferInferer extends OnFlyHandler {
 
         newTransfers.forEach(this::addNewTransfer);
         newTaintParams.clear();
+    }
+
+    private <T> T getStrategy(Class<T> strategyClass) {
+        try {
+            Field idField = strategyClass.getField("ID");
+            String id = (String) idField.get(null);
+            return (T) strategyList.get(id);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalArgumentException(String.format("Failed to get analysis ID of %s",
+                    strategyClass));
+        }
     }
 
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {
