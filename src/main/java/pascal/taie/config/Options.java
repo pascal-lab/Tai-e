@@ -29,6 +29,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.util.Experimental;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -196,6 +197,7 @@ public class Options implements Serializable {
         return preBuildIR;
     }
 
+    @Experimental
     @JsonProperty
     @Option(names = "-XX-world-cache-mode",
             description = "Experimental Feature: Enable world cache mode to save build time"

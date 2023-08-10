@@ -276,7 +276,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             field = jclass.getPhantomField(name, type);
             if (field == null) {
                 field = new JField(jclass, name, Set.of(),
-                        type, AnnotationHolder.emptyHolder());
+                        type, null, AnnotationHolder.emptyHolder());
                 jclass.addPhantomField(name, type, field);
             }
             return field;

@@ -28,10 +28,15 @@ import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.generics.ClassGSignature;
+import pascal.taie.language.generics.GSignatures;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Lists;
 import soot.SootClass;
+import soot.tagkit.SignatureTag;
+import soot.tagkit.Tag;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -112,5 +117,16 @@ class SootClassBuilder implements JClassBuilder {
     @Override
     public boolean isPhantom() {
         return sootClass.isPhantom();
+    }
+
+    @Nullable
+    @Override
+    public ClassGSignature getGSignature() {
+        Tag tag = sootClass.getTag("SignatureTag");
+        if (tag instanceof SignatureTag signatureTag) {
+            return GSignatures.toClassSig(sootClass.isInterface(),
+                    signatureTag.getSignature());
+        }
+        return null;
     }
 }

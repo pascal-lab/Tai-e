@@ -20,15 +20,24 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util.collection;
 
-import java.io.Serializable;
+package pascal.taie.language.generics;
 
-public record Pair<T1, T2>(T1 first, T2 second)
-        implements Serializable {
+/**
+ * In <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-ReferenceTypeSignature">
+ * JVM Spec. 4.7.9.1 ReferenceTypeSignature</a>,
+ * A <i>reference type signature</i> represents a reference type of
+ * the Java programming language, that is,
+ * a class or interface type({@link ClassTypeGSignature}),
+ * a type variable({@link TypeVariableGSignature}),
+ * or an array type({@link ArrayTypeGSignature}).
+ */
+public sealed interface ReferenceTypeGSignature
+        extends TypeGSignature
+        permits ArrayTypeGSignature, ClassTypeGSignature, TypeVariableGSignature {
 
-    @Override
-    public String toString() {
-        return "<" + first + ", " + second + ">";
+    default boolean isJavaLangObject() {
+        return false;
     }
+
 }

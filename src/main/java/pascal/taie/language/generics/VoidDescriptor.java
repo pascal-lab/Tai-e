@@ -20,15 +20,40 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util.collection;
 
-import java.io.Serializable;
+package pascal.taie.language.generics;
 
-public record Pair<T1, T2>(T1 first, T2 second)
-        implements Serializable {
+/**
+ * In <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-VoidDescriptor">
+ * JVM Spec. 4.3.3 VoidDescriptor</a>,
+ * The <i>void</i> descriptor indicates that the method returns no value.
+ */
+public enum VoidDescriptor implements TypeGSignature {
+
+    VOID('V', "void");
+
+    /**
+     * Descriptor of this type.
+     */
+    private final char descriptor;
+
+    /**
+     * Name of this type.
+     */
+    private final String name;
+
+    VoidDescriptor(char descriptor, String name) {
+        this.descriptor = descriptor;
+        this.name = name;
+    }
+
+    public static boolean isVoid(char descriptor) {
+        return descriptor == VOID.descriptor;
+    }
 
     @Override
     public String toString() {
-        return "<" + first + ", " + second + ">";
+        return "void";
     }
+
 }

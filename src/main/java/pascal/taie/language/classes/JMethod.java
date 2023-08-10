@@ -27,9 +27,11 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.generics.MethodGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.Experimental;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -50,6 +52,10 @@ public class JMethod extends ClassMember {
     private final List<ClassType> exceptions;
 
     private final Subsignature subsignature;
+
+    @Nullable
+    @Experimental
+    private final MethodGSignature gSignature;
 
     @Nullable
     private final List<AnnotationHolder> paramAnnotations;
@@ -74,6 +80,7 @@ public class JMethod extends ClassMember {
 
     public JMethod(JClass declaringClass, String name, Set<Modifier> modifiers,
                    List<Type> paramTypes, Type returnType, List<ClassType> exceptions,
+                   @Nullable MethodGSignature gSignature,
                    AnnotationHolder annotationHolder,
                    @Nullable List<AnnotationHolder> paramAnnotations,
                    @Nullable List<String> paramNames,
@@ -84,6 +91,7 @@ public class JMethod extends ClassMember {
         this.exceptions = List.copyOf(exceptions);
         this.signature = StringReps.getSignatureOf(this);
         this.subsignature = Subsignature.get(name, paramTypes, returnType);
+        this.gSignature = gSignature;
         this.paramAnnotations = paramAnnotations;
         this.paramNames = paramNames;
         this.methodSource = methodSource;
@@ -160,6 +168,12 @@ public class JMethod extends ClassMember {
 
     public Subsignature getSubsignature() {
         return subsignature;
+    }
+
+    @Nullable
+    @Experimental
+    public MethodGSignature getGSignature() {
+        return gSignature;
     }
 
     public Object getMethodSource() {

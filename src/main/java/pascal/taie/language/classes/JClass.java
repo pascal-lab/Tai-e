@@ -26,9 +26,11 @@ import pascal.taie.World;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AbstractResultHolder;
+import pascal.taie.util.Experimental;
 import pascal.taie.util.Indexable;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
@@ -61,6 +63,10 @@ public class JClass extends AbstractResultHolder
     private String simpleName;
 
     private ClassType type;
+
+    @Nullable
+    @Experimental
+    private ClassGSignature gSignature;
 
     private Set<Modifier> modifiers;
 
@@ -103,6 +109,7 @@ public class JClass extends AbstractResultHolder
     public void build(JClassBuilder builder) {
         simpleName = builder.getSimpleName();
         type = builder.getClassType();
+        gSignature = builder.getGSignature();
         modifiers = builder.getModifiers();
         annotationHolder = builder.getAnnotationHolder();
         isApplication = builder.isApplication();
@@ -156,6 +163,12 @@ public class JClass extends AbstractResultHolder
 
     public ClassType getType() {
         return type;
+    }
+
+    @Nullable
+    @Experimental
+    public ClassGSignature getGSignature() {
+        return gSignature;
     }
 
     public Set<Modifier> getModifiers() {

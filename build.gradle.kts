@@ -18,6 +18,8 @@ dependencies {
         implementation(it) { isTransitive = false }
         runtimeOnly(it)
     }
+    // Use ASM to read Java class files
+    implementation("org.ow2.asm:asm:9.4")
     // Eliminate SLF4J warning
     implementation("org.slf4j:slf4j-nop:2.0.7")
     // JSR305, for javax.annotation

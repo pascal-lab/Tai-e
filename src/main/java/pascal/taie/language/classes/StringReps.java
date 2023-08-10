@@ -165,6 +165,13 @@ public final class StringReps {
 
     /**
      * Converts type descriptor in bytecode to Tai-e's type descriptor.
+     * For example:
+     * <ul>
+     *     <li>{@code [I} to {@code int[]}.</li>
+     *     <li>{@code [[I} to {@code int[][]}.</li>
+     *     <li>{@code Ljava/lang/Object;} to {@code java.lang.Object}.</li>
+     *     <li>{@code [Ljava/lang/Object;} to {@code java.lang.Object[]}.</li>
+     * </ul>
      */
     public static String toTaieTypeDesc(String desc) {
         int i = desc.lastIndexOf('[');
