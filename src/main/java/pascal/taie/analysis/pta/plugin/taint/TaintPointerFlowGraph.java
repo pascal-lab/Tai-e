@@ -19,6 +19,7 @@ import pascal.taie.util.graph.Graph;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,8 @@ public class TaintPointerFlowGraph implements Graph<Pointer> {
         CSVar base = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
         Set<Type> typeSet = getTaintedTypes(base);
         callGraph.getCalleesOf(csCallSite).forEach(callee -> {
-                    if (typeSet.contains(callee.getMethod().getDeclaringClass().getType())) {
+                    Type calleeType = Objects.requireNonNull(callee.getMethod().getIR().getThis()).getType();
+                    if (typeSet.contains(calleeType)) {
                         CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
                         addEdge(FlowKind.THIS_PASSING, base, thisVar);
                     }
