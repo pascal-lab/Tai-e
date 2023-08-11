@@ -1,5 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -11,6 +13,8 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
@@ -23,6 +27,7 @@ import pascal.taie.util.collection.TwoKeyMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class InitialStrategy implements TransInferStrategy {
@@ -37,6 +42,8 @@ public class InitialStrategy implements TransInferStrategy {
     private Set<JMethod> methodsWithTransfer;
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
+
+    private Set<JMethod> targetMethods;
 
     private long inferredTransCnt = 0;
 
@@ -61,6 +68,19 @@ public class InitialStrategy implements TransInferStrategy {
             }
             arg2types.put(method, RESULT, getArgType(method, RESULT));
         }
+
+        PointerAnalysisResult ptaResult = solver.getResult();
+        CallGraph<Invoke, JMethod> callGraph = ptaResult.getCallGraph();
+        Set<JMethod> appMethods = callGraph.reachableMethods()
+                .filter(ClassMember::isApplication)
+                .collect(Collectors.toSet());
+        Set<JMethod> firstNonAppMethods = appMethods.stream()
+                .map(callGraph::getCalleesOfM)
+                .flatMap(Collection::stream)
+                .filter(Predicate.not(ClassMember::isApplication))
+                .collect(Collectors.toSet());
+        targetMethods = Sets.newSet(appMethods);
+        targetMethods.addAll(firstNonAppMethods);
     }
 
     private Set<Type> getArgType(JMethod method, int index) {
@@ -89,7 +109,8 @@ public class InitialStrategy implements TransInferStrategy {
     public boolean shouldIgnore(JMethod method, int index) {
         return ignoreMethods.contains(method)
                 || ignoreClasses.contains(method.getDeclaringClass())
-                || methodsWithTransfer.contains(method);
+                || methodsWithTransfer.contains(method)
+                || !targetMethods.contains(method);
     }
 
     @Override
