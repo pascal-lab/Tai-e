@@ -2,12 +2,8 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
-import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
-import pascal.taie.analysis.graph.flowgraph.VarNode;
-import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
@@ -17,59 +13,36 @@ import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.FilterAlias;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreException;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Edge;
-import pascal.taie.util.graph.Reachability;
 import pascal.taie.util.graph.ShortestPath;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class TransferInferer extends OnFlyHandler {
-
-    protected static final Map<String, TransInferStrategy> strategyList;
     private static final Logger logger = LogManager.getLogger(TransferInferer.class);
-
-    static {
-        strategyList = Maps.newMap();
-        strategyList.put(InitialStrategy.ID, new InitialStrategy());
-//        strategyList.put(ObjectFlow.ID, new ObjectFlow());
-//        strategyList.put(FilterAlias.ID, new FilterAlias());
-        strategyList.put(IgnoreCollection.ID, new IgnoreCollection());
-        strategyList.put(IgnoreInnerClass.ID, new IgnoreInnerClass());
-        strategyList.put(IgnoreException.ID, new IgnoreException());
-        strategyList.put(NameMatching.ID, new NameMatching());
-//        strategyList.put(TypeTransfer.ID, new TypeTransfer());
-    }
 
     protected final TaintConfig config;
     protected final Consumer<TaintTransfer> newTransferConsumer;
-    protected final SortedSet<TransInferStrategy> enabledStrategies;
+    protected final LinkedHashSet<TransInferStrategy> generateStrategies = new LinkedHashSet<>();
+    protected final LinkedHashSet<TransInferStrategy> filterStrategies = new LinkedHashSet<>();
     protected final Set<InferredTransfer> addedTransfers = Sets.newSet();
+
+    private LinkedHashSet<TransInferStrategy> strategies;
 
     private final Map<Var, Integer> param2Index = Maps.newMap();
 
@@ -83,17 +56,10 @@ public abstract class TransferInferer extends OnFlyHandler {
         super(context);
         this.config = context.config();
         this.newTransferConsumer = newTransferConsumer;
-        this.enabledStrategies = initStrategy();
+        initStrategy();
     }
 
-    abstract SortedSet<TransInferStrategy> initStrategy();
-
-    // For the first strategy, prevStrategy is null and prevOutput is an empty set.
-    abstract Set<InferredTransfer> getNextInput(TransInferStrategy prevStrategy,
-                                                TransInferStrategy nextStrategy,
-                                                Set<InferredTransfer> prevOutput);
-
-    abstract Set<InferredTransfer> meetResults(Map<TransInferStrategy, Set<InferredTransfer>> result);
+    abstract void initStrategy();
 
     public Set<InferredTransfer> getInferredTrans() {
         return Collections.unmodifiableSet(addedTransfers);
@@ -129,7 +95,7 @@ public abstract class TransferInferer extends OnFlyHandler {
         if (!initialized) {
             initialized = true;
             InfererContext context = new InfererContext(solver, manager, config);
-            enabledStrategies.forEach(strategy -> strategy.setContext(context));
+            getStrategies().forEach(strategy -> strategy.setContext(context));
         }
 
        Set<InferredTransfer> newTransfers = Sets.newSet();
@@ -137,38 +103,35 @@ public abstract class TransferInferer extends OnFlyHandler {
         for (Var param : newTaintParams) {
             JMethod method = param.getMethod();
             int index = param2Index.get(param);
-            if (enabledStrategies.stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
+            if (getStrategies().stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
                 continue;
             }
 
-            TransInferStrategy prev = null;
-            Set<InferredTransfer> prevOutput = Set.of();
-            Map<TransInferStrategy, Set<InferredTransfer>> result = Maps.newMap();
+            Set<InferredTransfer> possibleTransfers = generateStrategies.stream()
+                    .map(strategy -> strategy.generate(method, index))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toUnmodifiableSet());
 
-            for (TransInferStrategy strategy : enabledStrategies) {
-                Set<InferredTransfer> input = getNextInput(prev, strategy, prevOutput);
-                Set<InferredTransfer> output = strategy.apply(method, index, input);
-                result.put(strategy, output);
-                prevOutput = output;
-                prev = strategy;
+            if(!possibleTransfers.isEmpty()) {
+                for (TransInferStrategy strategy : filterStrategies) {
+                    possibleTransfers = strategy.filter(method, index, possibleTransfers);
+                }
+
             }
 
-            newTransfers.addAll(meetResults(result));
+            newTransfers.addAll(possibleTransfers);
         }
 
         newTransfers.forEach(this::addNewTransfer);
         newTaintParams.clear();
     }
 
-    private <T> T getStrategy(Class<T> strategyClass) {
-        try {
-            Field idField = strategyClass.getField("ID");
-            String id = (String) idField.get(null);
-            return (T) strategyList.get(id);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalArgumentException(String.format("Failed to get analysis ID of %s",
-                    strategyClass));
+    private LinkedHashSet<TransInferStrategy> getStrategies() {
+        if(strategies == null) {
+            strategies = new LinkedHashSet<>(generateStrategies);
+            strategies.addAll(filterStrategies);
         }
+        return strategies;
     }
 
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {

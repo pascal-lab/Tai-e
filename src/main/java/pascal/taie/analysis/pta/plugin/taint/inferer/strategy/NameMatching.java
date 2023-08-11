@@ -40,7 +40,6 @@ public class NameMatching implements TransInferStrategy {
             new Rule(method -> method.getName().equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(method -> method.getName().equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
     );
-    public static final String ID = "name-matching";
 
     private static boolean startsWithWord(String text, String word) {
         if (text.startsWith(word)) {
@@ -50,7 +49,7 @@ public class NameMatching implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
         List<Rule> matchedRules = rules.stream().filter(rule -> rule.predicate().test(method)).toList();
         if (matchedRules.isEmpty()) {
             return Collections.unmodifiableSet(transfers);
@@ -59,11 +58,6 @@ public class NameMatching implements TransInferStrategy {
         return transfers.stream()
                 .filter(tf -> matchAllRules(tf, matchedRules))
                 .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public int getPriority() {
-        return 20;
     }
 
     private TransferPointType getTransferPointType(TransferPoint transferPoint) {
