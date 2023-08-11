@@ -7,13 +7,17 @@ import pascal.taie.language.classes.JMethod;
 import java.util.Collections;
 import java.util.Set;
 
-public interface TransInferStrategy extends Comparable<TransInferStrategy> {
+public interface TransInferStrategy {
 
     default void setContext(InfererContext context) {
     }
 
     default boolean shouldIgnore(JMethod method, int index) {
         return false;
+    }
+
+    default Set<InferredTransfer> generate(JMethod method, int index) {
+        return Set.of();
     }
 
     /**
@@ -24,14 +28,7 @@ public interface TransInferStrategy extends Comparable<TransInferStrategy> {
      * @param transfers Transfers to be filtered.
      * @return New Transfers
      */
-    default Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
+    default Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
         return Collections.unmodifiableSet(transfers);
-    }
-
-    int getPriority();
-
-    @Override
-    default int compareTo(TransInferStrategy other) {
-        return Integer.compare(getPriority(), other.getPriority());
     }
 }

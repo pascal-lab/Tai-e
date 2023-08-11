@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 
 public class IgnoreCollection implements TransInferStrategy {
 
-    public static final String ID = "ignore-collection";
-
     private static final Set<String> COLLECTION_CLASS = Set.of(
             "java.util.Collection", "java.util.Map", "java.util.Dictionary");
 
@@ -57,15 +55,10 @@ public class IgnoreCollection implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
                 .filter(tf -> !(tf.getType() instanceof ClassType classType
                         && collectionClasses.contains(classType.getJClass())))
                 .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public int getPriority() {
-        return 10;
     }
 }

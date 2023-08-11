@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 
 public class IgnoreException implements TransInferStrategy {
 
-    public static final String ID = "ignore-exception";
-
     private Set<JClass> throwableSubClasses;
 
     @Override
@@ -30,7 +28,7 @@ public class IgnoreException implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> apply(JMethod method, int index, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
                 .filter(tf -> {
                     if(tf.getType() instanceof ClassType classType) {
@@ -39,10 +37,5 @@ public class IgnoreException implements TransInferStrategy {
                     return true;
                 })
                 .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public int getPriority() {
-        return 11;
     }
 }

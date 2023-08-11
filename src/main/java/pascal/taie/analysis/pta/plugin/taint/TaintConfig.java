@@ -62,11 +62,11 @@ import static pascal.taie.analysis.pta.plugin.taint.TransferPoint.ARRAY_SUFFIX;
  * Configuration for taint analysis.
  */
 public record TaintConfig(List<Source> sources,
-                   List<Sink> sinks,
-                   List<TaintTransfer> transfers,
-                   List<ParamSanitizer> paramSanitizers,
-                   boolean callSiteMode,
-                   TransInferConfig inferenceConfig) {
+                          List<Sink> sinks,
+                          List<TaintTransfer> transfers,
+                          List<ParamSanitizer> paramSanitizers,
+                          boolean callSiteMode,
+                          TransInferConfig inferenceConfig) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
@@ -102,7 +102,7 @@ public record TaintConfig(List<Source> sources,
         } else if (file.isDirectory()) {
             // if file is a directory, then load all YAML files
             // in the directory and merge them as the result
-            TaintConfig[] result = new TaintConfig[]{ EMPTY };
+            TaintConfig[] result = new TaintConfig[]{EMPTY};
             try (Stream<Path> paths = Files.walk(file.toPath())) {
                 paths.filter(TaintConfig::isYAML)
                         .map(p -> loadSingle(mapper, p.toFile()))
@@ -134,6 +134,7 @@ public record TaintConfig(List<Source> sources,
 
     /**
      * Merges this taint config with other taint config.
+     *
      * @return a new merged taint config.
      */
     TaintConfig mergeWith(TaintConfig other) {
@@ -195,6 +196,17 @@ public record TaintConfig(List<Source> sources,
         private Deserializer(ClassHierarchy hierarchy, TypeSystem typeSystem) {
             this.hierarchy = hierarchy;
             this.typeSystem = typeSystem;
+        }
+
+        /**
+         * @return corresponding type of index for the method.
+         */
+        private static Type getMethodType(JMethod method, int index) {
+            return switch (index) {
+                case InvokeUtils.BASE -> method.getDeclaringClass().getType();
+                case InvokeUtils.RESULT -> method.getReturnType();
+                default -> method.getParamType(index);
+            };
         }
 
         @Override
@@ -309,17 +321,6 @@ public record TaintConfig(List<Source> sources,
                 logger.warn("Cannot find source field '{}'", fieldSig);
                 return null;
             }
-        }
-
-        /**
-         * @return corresponding type of index for the method.
-         */
-        private static Type getMethodType(JMethod method, int index) {
-            return switch (index) {
-                case InvokeUtils.BASE -> method.getDeclaringClass().getType();
-                case InvokeUtils.RESULT -> method.getReturnType();
-                default -> method.getParamType(index);
-            };
         }
 
         /**
@@ -456,24 +457,34 @@ public record TaintConfig(List<Source> sources,
         }
 
         private TransInferConfig deserializeInferenceConfig(JsonNode node) {
-            if(node == null) {
+            if (node == null) {
                 return TransInferConfig.EMPTY;
             }
 
-            TransInferConfig.Confidence confidence =
-                    TransInferConfig.Confidence.valueOf(
-                            node.path("confidence").asText().toUpperCase());
+            TransInferConfig.Confidence confidence = TransInferConfig.Confidence
+                    .valueOf(node.path("confidence").asText().toUpperCase());
+            TransInferConfig.Scope scope = TransInferConfig.Scope
+                    .valueOf(node.path("scope").asText().toUpperCase());
+            JsonNode packageNode = node.path("appPackages");
             JsonNode classNode = node.path("ignoreClasses");
             JsonNode methodNode = node.path("ignoreMethods");
+            List<String> appPackages = List.of();
             List<JClass> ignoreClasses = List.of();
             List<JMethod> ignoreMethods = List.of();
 
-            if(classNode instanceof ArrayNode arrayNode) {
-                ignoreClasses = new ArrayList<>(arrayNode.size());
+            if(packageNode instanceof ArrayNode arrayNode) {
+                appPackages = new ArrayList<>(arrayNode.size());
                 for(JsonNode elem : arrayNode) {
+                    appPackages.add(elem.asText());
+                }
+            }
+
+            if (classNode instanceof ArrayNode arrayNode) {
+                ignoreClasses = new ArrayList<>(arrayNode.size());
+                for (JsonNode elem : arrayNode) {
                     String className = elem.asText();
                     JClass jClass = hierarchy.getClass(className);
-                    if(jClass != null) {
+                    if (jClass != null) {
                         ignoreClasses.add(jClass);
                     } else {
                         logger.warn("Cannot find ignore class '{}'", className);
@@ -481,12 +492,12 @@ public record TaintConfig(List<Source> sources,
                 }
             }
 
-            if(methodNode instanceof ArrayNode arrayNode) {
+            if (methodNode instanceof ArrayNode arrayNode) {
                 ignoreMethods = new ArrayList<>(arrayNode.size());
-                for(JsonNode elem : arrayNode) {
+                for (JsonNode elem : arrayNode) {
                     String methodSig = elem.asText();
                     JMethod method = hierarchy.getMethod(methodSig);
-                    if(method != null) {
+                    if (method != null) {
                         ignoreMethods.add(method);
                     } else {
                         logger.warn("Cannot find ignore method '{}'", methodSig);
@@ -494,7 +505,7 @@ public record TaintConfig(List<Source> sources,
                 }
             }
 
-            return new TransInferConfig(confidence, ignoreClasses, ignoreMethods);
+            return new TransInferConfig(confidence, scope, appPackages, ignoreClasses, ignoreMethods);
         }
     }
 }
