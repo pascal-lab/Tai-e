@@ -58,7 +58,7 @@ public abstract class TransferInferer extends OnFlyHandler {
         strategyList = Maps.newMap();
         strategyList.put(InitialStrategy.ID, new InitialStrategy());
 //        strategyList.put(ObjectFlow.ID, new ObjectFlow());
-        strategyList.put(FilterAlias.ID, new FilterAlias());
+//        strategyList.put(FilterAlias.ID, new FilterAlias());
         strategyList.put(IgnoreCollection.ID, new IgnoreCollection());
         strategyList.put(IgnoreInnerClass.ID, new IgnoreInnerClass());
         strategyList.put(IgnoreException.ID, new IgnoreException());
@@ -76,8 +76,6 @@ public abstract class TransferInferer extends OnFlyHandler {
     private final Set<Var> taintParams = Sets.newSet();
 
     private final Set<Var> newTaintParams = Sets.newSet();
-
-    private final Set<JMethod> targetMethods = Sets.newSet();
 
     private boolean initialized = false;
 
@@ -132,47 +130,14 @@ public abstract class TransferInferer extends OnFlyHandler {
             initialized = true;
             InfererContext context = new InfererContext(solver, manager, config);
             enabledStrategies.forEach(strategy -> strategy.setContext(context));
-
-            PointerAnalysisResult ptaResult = solver.getResult();
-            CallGraph<Invoke, JMethod> callGraph = ptaResult.getCallGraph();
-            Set<JMethod> appMethods = callGraph.reachableMethods()
-                    .filter(ClassMember::isApplication)
-                    .collect(Collectors.toSet());
-            Set<JMethod> firstNonAppMethods = appMethods.stream()
-                    .map(callGraph::getCalleesOfM)
-                    .flatMap(Collection::stream)
-                    .filter(Predicate.not(ClassMember::isApplication))
-                    .collect(Collectors.toSet());
-            targetMethods.addAll(appMethods);
-            targetMethods.addAll(firstNonAppMethods);
         }
 
-//        PointerAnalysisResult ptaResult = solver.getResult();
-//        ObjectFlowGraph ofg = ptaResult.getObjectFlowGraph();
-//        Set<JMethod> taintEndMethods = ofg.getNodes()
-//                .stream()
-//                .filter(node -> {
-//                    if (ofg.getOutDegreeOf(node) == 0) {
-//                        if (node instanceof VarNode varNode) {
-//                            return ptaResult.getPointsToSet(varNode.getVar())
-//                                    .stream()
-//                                    .anyMatch(manager::isTaint);
-//                        }
-//                    }
-//                    return false;
-//                })
-//                .map(node -> ((VarNode) node).getVar().getMethod())
-//                .collect(Collectors.toUnmodifiableSet());
-//        Set<JMethod> possibleMethods = new Reachability<>(ptaResult.getCallGraph()).nodesCanReach(taintEndMethods);
-
-        Set<InferredTransfer> newTransfers = Sets.newSet();
+       Set<InferredTransfer> newTransfers = Sets.newSet();
 
         for (Var param : newTaintParams) {
             JMethod method = param.getMethod();
             int index = param2Index.get(param);
-            if (!targetMethods.contains(method)
-//                    || !possibleMethods.contains(method)
-                    || enabledStrategies.stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
+            if (enabledStrategies.stream().anyMatch(strategy -> strategy.shouldIgnore(method, index))) {
                 continue;
             }
 
