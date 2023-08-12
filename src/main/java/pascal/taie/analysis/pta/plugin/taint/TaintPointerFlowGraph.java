@@ -36,12 +36,19 @@ public class TaintPointerFlowGraph implements Graph<Pointer> {
         taintedPointers.addAll(sinkPointers);
     }
 
-    private void addEdge(FlowKind kind, Pointer source, Pointer target) {
+    public void addEdge(FlowKind kind, Pointer source, Pointer target) {
         PointerFlowEdge edge = new PointerFlowEdge(kind, source, target);
         outEdges.put(source, edge);
         inEdges.put(target, edge);
         taintedPointers.add(source);
         taintedPointers.add(target);
+    }
+
+    public void addEdge(PointerFlowEdge edge) {
+        outEdges.put(edge.source(), edge);
+        inEdges.put(edge.target(), edge);
+        taintedPointers.add(edge.source());
+        taintedPointers.add(edge.target());
     }
 
     public Set<Pointer> getSourcePointers()
