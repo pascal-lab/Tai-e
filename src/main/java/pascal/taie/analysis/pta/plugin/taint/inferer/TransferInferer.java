@@ -2,6 +2,7 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -73,6 +74,9 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     @Override
     public void onNewCallEdge(pascal.taie.analysis.graph.callgraph.Edge<CSCallSite, CSMethod> edge) {
+        if(edge.getKind() == CallKind.OTHER) {
+            return;
+        }
         CSCallSite csCallSite = edge.getCallSite();
         Invoke invoke = csCallSite.getCallSite();
         for (int i = 0; i < invoke.getInvokeExp().getArgCount(); i++) {

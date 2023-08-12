@@ -35,6 +35,7 @@ public class InitialStrategy implements TransInferStrategy {
             }
             return Set.of();
         } else {
+            assert index < callSite.getInvokeExp().getArgCount();
             Set<InferredTransfer> result = Sets.newSet();
             if (!callSite.isStatic()) {
                 // arg-to-base
