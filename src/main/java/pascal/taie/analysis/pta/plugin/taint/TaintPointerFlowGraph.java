@@ -3,7 +3,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
+import pascal.taie.analysis.graph.flowgraph.*;
 import pascal.taie.analysis.pta.core.cs.element.*;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
@@ -17,9 +17,9 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,15 +67,17 @@ public class TaintPointerFlowGraph implements Graph<Pointer> {
 
     private void addBase2ThisEdge(CSCallSite csCallSite) {
         CSVar base = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
-        Set<Type> typeSet = getTaintedTypes(base);
         callGraph.getCalleesOf(csCallSite).forEach(callee -> {
-                    Type calleeType = Objects.requireNonNull(callee.getMethod().getIR().getThis()).getType();
-                    if (typeSet.contains(calleeType)) {
-                        CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
-                        addEdge(FlowKind.THIS_PASSING, base, thisVar);
-                    }
-                }
-        );
+            CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
+            Set<Type> thisObjTypes = thisVar.getObjects().stream()
+                    .map(CSObj::getObject)
+                    .map(Obj::getType)
+                    .collect(Collectors.toSet());
+
+            if (!Collections.disjoint(getTaintedTypes(base), thisObjTypes)) {
+                addEdge(FlowKind.THIS_PASSING, base, thisVar);
+            }
+        });
     }
 
     private boolean hasTaint(Pointer pointer) {
