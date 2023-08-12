@@ -121,7 +121,7 @@ public class TypeTransfer implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
                 .filter(tf -> canReachSink(tf.getType()))
                 .collect(Collectors.toUnmodifiableSet());

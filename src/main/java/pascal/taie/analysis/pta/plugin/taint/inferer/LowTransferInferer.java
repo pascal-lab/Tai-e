@@ -2,14 +2,13 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
-import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
-import pascal.taie.util.AnalysisException;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreCollection;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreException;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.NameMatching;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.ScopeFilter;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 public class LowTransferInferer extends TransferInferer {
@@ -19,6 +18,11 @@ public class LowTransferInferer extends TransferInferer {
 
     @Override
     void initStrategy() {
-        // TODO
+        generateStrategies.add(new InitialStrategy());
+        filterStrategies.add(new IgnoreCollection());
+        filterStrategies.add(new IgnoreException());
+        filterStrategies.add(new IgnoreInnerClass());
+        filterStrategies.add(new NameMatching());
+        filterStrategies.add(new ScopeFilter());
     }
 }

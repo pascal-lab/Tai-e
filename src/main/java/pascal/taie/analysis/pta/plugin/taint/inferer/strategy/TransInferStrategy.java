@@ -1,8 +1,8 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
-import pascal.taie.language.classes.JMethod;
 
 import java.util.Collections;
 import java.util.Set;
@@ -12,23 +12,19 @@ public interface TransInferStrategy {
     default void setContext(InfererContext context) {
     }
 
-    default boolean shouldIgnore(JMethod method, int index) {
-        return false;
-    }
-
-    default Set<InferredTransfer> generate(JMethod method, int index) {
+    default Set<InferredTransfer> generate(CSCallSite csCallSite, int index) {
         return Set.of();
     }
 
     /**
      * Apply this strategy on the given transfers related to a given method parameter.
      *
-     * @param method    All transfers are related to this method.
-     * @param index     All transfers are from this index.
-     * @param transfers Transfers to be filtered.
+     * @param csCallSite    All transfers are related to this csCallSite.
+     * @param index         All transfers are from this index.
+     * @param transfers     Transfers to be filtered.
      * @return New Transfers
      */
-    default Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
+    default Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return Collections.unmodifiableSet(transfers);
     }
 }
