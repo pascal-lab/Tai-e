@@ -33,6 +33,10 @@ public class TaintPointerFlowGraph implements Graph<Pointer> {
 
     private final Set<Pointer> taintedPointers = Sets.newSet();
 
+    private final Set<Pointer> sourcePointers = Sets.newSet();
+
+    private final Set<Pointer> sinkPointers = Sets.newSet();
+
     private final CallGraph<CSCallSite, CSMethod> callGraph;
 
     private final CSManager csManager;
@@ -107,6 +111,16 @@ public class TaintPointerFlowGraph implements Graph<Pointer> {
                 .map(CSObj::getObject)
                 .map(Obj::getType)
                 .collect(Collectors.toSet());
+    }
+
+    public Set<Pointer> getSourcePointers()
+    {
+        return null;
+    }
+
+    public Set<Pointer> getSinkPointers()
+    {
+        return null;
     }
 
     @Override
