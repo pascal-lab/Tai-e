@@ -1,10 +1,10 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.language.classes.JMethod;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,29 +16,29 @@ public class NameMatching implements TransInferStrategy {
 
     private static final List<Rule> rules = List.of(
             // Allow
-            new Rule(method -> startsWithWord(method.getName(), "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(method -> startsWithWord(method.getName(), "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(method -> startsWithWord(method.getName(), "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(name -> startsWithWord(name, "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(name -> startsWithWord(name, "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(name -> startsWithWord(name, "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
             // Deny
-            new Rule(method -> method.getName().startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> method.getName().startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> method.getName().startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "will"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "set"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "is"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "has"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "can"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "needs"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "check"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> startsWithWord(method.getName(), "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(method -> method.getName().equals("log"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(method -> method.getName().equals("trace"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(method -> method.getName().equals("debug"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(method -> method.getName().equals("info"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(method -> method.getName().equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(method -> method.getName().equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
+            new Rule(name -> name.startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> name.startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> name.startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "will"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "set"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "is"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "has"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "can"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "needs"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "check"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> startsWithWord(name, "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> name.equals("log"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(name -> name.equals("trace"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(name -> name.equals("debug"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(name -> name.equals("info"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(name -> name.equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
+            new Rule(name -> name.equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
     );
 
     private static boolean startsWithWord(String text, String word) {
@@ -49,8 +49,10 @@ public class NameMatching implements TransInferStrategy {
     }
 
     @Override
-    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
-        List<Rule> matchedRules = rules.stream().filter(rule -> rule.predicate().test(method)).toList();
+    public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
+        List<Rule> matchedRules = rules.stream()
+                .filter(rule -> rule.methodName().test(csCallSite.getCallSite().getMethodRef().getName()))
+                .toList();
         if (matchedRules.isEmpty()) {
             return Collections.unmodifiableSet(transfers);
         }
@@ -86,7 +88,7 @@ public class NameMatching implements TransInferStrategy {
         ALLOW, DENY
     }
 
-    private record Rule(Predicate<JMethod> predicate,
+    private record Rule(Predicate<String> methodName,
                         TransferPointType from,
                         TransferPointType to,
                         RuleType type) {

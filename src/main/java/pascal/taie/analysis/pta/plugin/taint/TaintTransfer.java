@@ -25,6 +25,8 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
+import java.util.Objects;
+
 /**
  * Represents taint transfer between argument/base/return variables
  * caused by invocation to specific method.
@@ -66,6 +68,22 @@ public abstract class TaintTransfer {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TaintTransfer that = (TaintTransfer) o;
+        return Objects.equals(method, that.method)
+                && Objects.equals(from, that.from)
+                && Objects.equals(to, that.to)
+                && Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method, from, to, type);
     }
 
     public String toString() {

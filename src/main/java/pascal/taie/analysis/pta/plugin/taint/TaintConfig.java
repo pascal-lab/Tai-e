@@ -174,6 +174,8 @@ public record TaintConfig(List<Source> sources,
         if (inferenceConfig != TransInferConfig.EMPTY) {
             sb.append("\ntransfer-inference-config:\n");
             sb.append("  confidence: ").append(inferenceConfig.confidence()).append("\n");
+            sb.append("  scope: ").append(inferenceConfig.scope()).append("\n");
+            sb.append("  appPackages: ").append(inferenceConfig.appPackages()).append("\n");
             sb.append("  ignoreClasses:\n");
             inferenceConfig.ignoreClasses().forEach(jClass ->
                     sb.append("    ").append(jClass.getName()).append("\n"));

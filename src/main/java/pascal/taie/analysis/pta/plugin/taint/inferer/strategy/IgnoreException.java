@@ -1,10 +1,10 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Sets;
 
@@ -23,19 +23,11 @@ public class IgnoreException implements TransInferStrategy {
     }
 
     @Override
-    public boolean shouldIgnore(JMethod method, int index) {
-        return throwableSubClasses.contains(method.getDeclaringClass());
-    }
-
-    @Override
-    public Set<InferredTransfer> filter(JMethod method, int index, Set<InferredTransfer> transfers) {
+    public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
-                .filter(tf -> {
-                    if(tf.getType() instanceof ClassType classType) {
-                        return !throwableSubClasses.contains(classType.getJClass());
-                    }
-                    return true;
-                })
+                .filter(tf -> !throwableSubClasses.contains(tf.getMethod().getDeclaringClass())
+                        && !(tf.getType() instanceof ClassType classType
+                        && throwableSubClasses.contains(classType.getJClass())))
                 .collect(Collectors.toUnmodifiableSet());
     }
 }
