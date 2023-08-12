@@ -106,6 +106,7 @@ public class TFGBuilder {
      */
     private TaintFlowGraph buildComplete() {
         // collect source nodes
+
         Set<Node> sourceNodes = Sets.newHybridSet();
         taintManager.getTaintObjs()
                 .stream()
