@@ -18,8 +18,8 @@ public class IgnoreInnerClass implements TransInferStrategy {
     public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
                 .filter(tf -> !isPrivateInnerClass(tf.getMethod().getDeclaringClass()))
-                .filter(tf -> !(tf.getType() instanceof ClassType classType
-                        && isPrivateInnerClass(classType.getJClass())))
+//                .filter(tf -> !(tf.getType() instanceof ClassType classType
+//                        && isPrivateInnerClass(classType.getJClass())))
                 .collect(Collectors.toUnmodifiableSet());
     }
 }
