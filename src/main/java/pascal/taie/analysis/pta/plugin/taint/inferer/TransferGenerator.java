@@ -49,6 +49,9 @@ public class TransferGenerator {
             TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
 
             if(to == InvokeUtils.RESULT) {
+                // collect types in callee method to avoid
+                // r = o.m(..)
+                // r = p
                 Set<InferredTransfer> result = Sets.newSet();
                 for(CSMethod callee : solver.getCallGraph().getCalleesOf(csCallSite)) {
                     Context calleeContext = callee.getContext();

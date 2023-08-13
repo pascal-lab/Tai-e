@@ -24,6 +24,7 @@ public class HighTransferInferer extends TransferInferer {
         filterStrategies.add(new IgnoreException());
         filterStrategies.add(new IgnoreInnerClass());
         filterStrategies.add(new MethodNameMatching());
+        filterStrategies.add(new TypeMatching());
         filterStrategies.add(new ScopeFilter());
     }
 }
