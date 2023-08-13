@@ -8,6 +8,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -15,6 +16,7 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,20 +36,21 @@ public class TransferGenerator {
     }
 
     public Set<InferredTransfer> getTransfers(CSCallSite csCallSite, int from, int to) {
-        if (getCSVar(csCallSite, from).getType() instanceof ReferenceType
-                && getCSVar(csCallSite, to).getType() instanceof ReferenceType) {
-
+        CSVar fromVar = getCSVar(csCallSite, from);
+        CSVar toVar = getCSVar(csCallSite, to);
+        if (fromVar != null && fromVar.getType() instanceof ReferenceType
+                && toVar != null && toVar.getType() instanceof ReferenceType) {
             Set<Type> toTypes = getArgType(csCallSite, to);
             Set<JMethod> callees = solver.getCallGraph().getCalleesOf(csCallSite)
                     .stream()
                     .map(CSMethod::getMethod)
                     .collect(Collectors.toUnmodifiableSet());
-            if(!toTypes.isEmpty() && !callees.isEmpty()) {
+            if (!toTypes.isEmpty() && !callees.isEmpty()) {
                 TransferPoint fromPoint = new TransferPoint(TransferPoint.Kind.VAR, from, null);
                 TransferPoint toPoint = new TransferPoint(TransferPoint.Kind.VAR, to, null);
                 Set<InferredTransfer> result = Sets.newSet();
-                for(JMethod callee : callees) {
-                    for(Type toType : toTypes) {
+                for (JMethod callee : callees) {
+                    for (Type toType : toTypes) {
                         result.add(new InferredTransfer(callee, fromPoint, toPoint, toType, DEFAULT_WEIGHT));
                     }
                 }
@@ -57,10 +60,15 @@ public class TransferGenerator {
         return Set.of();
     }
 
+    @Nullable
     private CSVar getCSVar(CSCallSite csCallSite, int index) {
         Context context = csCallSite.getContext();
         Invoke callSite = csCallSite.getCallSite();
-        return csManager.getCSVar(context, InvokeUtils.getVar(callSite, index));
+        Var v = InvokeUtils.getVar(callSite, index);
+        if (v == null) {
+            return null;
+        }
+        return csManager.getCSVar(context, v);
     }
 
     private Set<Type> getArgType(CSCallSite csCallSite, int index) {
