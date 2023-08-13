@@ -7,7 +7,6 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.TransferGenerator;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +15,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class NameMatching implements TransInferStrategy {
+public class MethodNameMatching implements TransInferStrategy {
 
     private static final List<Rule> rules = List.of(
             // Allow
@@ -27,6 +26,7 @@ public class NameMatching implements TransInferStrategy {
             new Rule(name -> name.startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(name -> name.startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(name -> name.startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> name.startsWith("toString"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(name -> startsWithWord(name, "should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(name -> startsWithWord(name, "match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
             new Rule(name -> startsWithWord(name, "will"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
