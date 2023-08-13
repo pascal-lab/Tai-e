@@ -74,7 +74,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     @Override
     public void onNewCallEdge(pascal.taie.analysis.graph.callgraph.Edge<CSCallSite, CSMethod> edge) {
-        if(edge.getKind() == CallKind.OTHER) {
+        if (edge.getKind() == CallKind.OTHER) {
             return;
         }
         CSCallSite csCallSite = edge.getCallSite();
@@ -85,7 +85,7 @@ public abstract class TransferInferer extends OnFlyHandler {
         if (!invoke.isStatic() && !invoke.isDynamic()) {
             arg2Callsites.put(getCSVar(csCallSite, BASE), new Pair<>(csCallSite, BASE));
         }
-        if(invoke.getResult() != null) {
+        if (invoke.getResult() != null) {
             arg2Callsites.put(getCSVar(csCallSite, RESULT), new Pair<>(csCallSite, RESULT));
         }
     }
@@ -121,11 +121,12 @@ public abstract class TransferInferer extends OnFlyHandler {
         Set<InferredTransfer> newTransfers = Sets.newSet();
 
         for (CSVar csArg : newTaintVars) {
-            for(Pair<CSCallSite, Integer> entry : arg2Callsites.get(csArg)) {
+            for (Pair<CSCallSite, Integer> entry : arg2Callsites.get(csArg)) {
                 // Currently, we ignore invoke dynamic
                 CSCallSite csCallSite = entry.first();
                 int index = entry.second();
-                if(csCallSite.getCallSite().isDynamic()) {
+                if (csCallSite.getCallSite().isDynamic()
+                        || index == RESULT) {
                     continue;
                 }
                 Set<InferredTransfer> possibleTransfers = generateStrategies.stream()
@@ -208,7 +209,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void addNewTransfer(InferredTransfer transfer) {
-        if(addedTransfers.add(transfer)) {
+        if (addedTransfers.add(transfer)) {
             newTransferConsumer.accept(transfer);
         }
     }
