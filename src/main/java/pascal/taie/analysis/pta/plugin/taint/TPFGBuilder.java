@@ -5,18 +5,15 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.element.*;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.PointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
-
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -211,40 +208,14 @@ public class TPFGBuilder {
     }
 
     private void addBase2ThisEdge(TaintPointerFlowGraph tpfg, CSCallSite csCallSite) {
+        //TODO:try to find csMethod called by taint obj
         CSVar base = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
         callGraph.getCalleesOf(csCallSite).forEach(callee -> {
             CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
-            Set<Type> thisObjTypes = thisVar.getObjects().stream()
-                    .map(CSObj::getObject)
-                    .map(Obj::getType)
-                    .collect(Collectors.toSet());
-
-            if (Sets.haveOverlap(getTaintedTypes(base), thisObjTypes)) {
+            if (Sets.haveOverlap(getTaintSet(base), getTaintSet(thisVar))) {
                 tpfg.addEdge(FlowKind.THIS_PASSING, base, thisVar);
             }
         });
-    }
-
-    private Set<Type> getTaintedTypes(CSVar base) {
-        if (base == null) {
-            return Set.of();
-        }
-
-        Map<Boolean, List<CSObj>> partitioned = base.getObjects().stream()
-                .collect(Collectors.partitioningBy(csObj -> taintManager.isTaint(csObj.getObject())));
-
-        Set<CSObj> taints = Sets.newSet(partitioned.get(true));
-        Set<CSObj> objs = Sets.newSet(partitioned.get(false));
-
-        Set<CSObj> csObjs = taints.stream()
-                .flatMap(taint -> objs.stream()
-                        .filter(obj -> taint.getObject().getType().equals(obj.getObject().getType())))
-                .collect(Collectors.toSet());
-
-        return csObjs.stream()
-                .map(CSObj::getObject)
-                .map(Obj::getType)
-                .collect(Collectors.toSet());
     }
 
     private static boolean isApp(Pointer pointer) {
