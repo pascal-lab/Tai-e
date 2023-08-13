@@ -11,6 +11,7 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TypeMatching implements TransInferStrategy {
 
@@ -43,6 +44,13 @@ public class TypeMatching implements TransInferStrategy {
             transfers.addAll(generator.getTransfers(csCallSite, index, InvokeUtils.BASE));
         }
         return transfers;
+    }
+
+    @Override
+    public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
+        return transfers.stream()
+                .filter(tf -> matchType(tf.getType()))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private String getSimpleTypeName(Type type) {
