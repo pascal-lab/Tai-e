@@ -3,20 +3,20 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallKind;
-import pascal.taie.analysis.graph.flowgraph.FlowEdge;
-import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
-import pascal.taie.analysis.pta.plugin.taint.TFGBuilder;
+import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
-import pascal.taie.analysis.pta.plugin.taint.TaintFlowGraph;
+import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
@@ -164,14 +164,16 @@ public abstract class TransferInferer extends OnFlyHandler {
             return;
         }
         logger.info("\nTransfer inferer output:");
-        TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager, false, true).build();
-        TransWeightHandler weightHandler = new TransWeightHandler(solver.getResult(), getInferredTrans());
-        Set<Node> sourcesReachSink = tfg.getSourceNodes().stream()
-                .filter(source -> tfg.getOutDegreeOf(source) > 0)
+        TaintPointerFlowGraph tpfg = new TPFGBuilder(solver, manager, taintFlows, false, true).build();
+        TransWeightHandler weightHandler = new TransWeightHandler(solver.getCallGraph(),
+                tpfg, csManager, getInferredTrans());
+
+        Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
+                .filter(source -> tpfg.getOutDegreeOf(source) > 0)
                 .collect(Collectors.toSet());
 
-        Set<InferredTransfer> taintRelatedTransfers = tfg.getNodes().stream()
-                .map(tfg::getOutEdgesOf)
+        Set<InferredTransfer> taintRelatedTransfers = tpfg.getNodes().stream()
+                .map(tpfg::getOutEdgesOf)
                 .flatMap(Collection::stream)
                 .map(weightHandler::getInferredTrans)
                 .flatMap(Collection::stream)
@@ -182,17 +184,18 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .distinct()
                 .count());
 
-        Set<Node> sinkNodes = tfg.getSinkNodes();
-        for (Node source : sourcesReachSink) {
-            ShortestPath<Node> shortestPath = new ShortestPath<>(tfg, source,
-                    edge -> weightHandler.getWeight((FlowEdge) edge), edge -> weightHandler.getCost((FlowEdge) edge));
+        Set<Pointer> sinkPointers = tpfg.getSinkPointers();
+        for (Pointer source : sourcesReachSink) {
+            ShortestPath<Pointer> shortestPath = new ShortestPath<>(tpfg, source,
+                    edge -> weightHandler.getWeight((PointerFlowEdge) edge),
+                    edge -> weightHandler.getCost((PointerFlowEdge) edge));
             shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
-            for (Node sink : sinkNodes) {
-                List<Edge<Node>> path = shortestPath.getPath(sink);
+            for (Pointer sink : sinkPointers) {
+                List<Edge<Pointer>> path = shortestPath.getPath(sink);
                 if (!path.isEmpty()) {
                     logger.info("\n{} -> {}:", source, sink);
                     path.stream()
-                            .map(edge -> weightHandler.getInferredTrans((FlowEdge) edge))
+                            .map(edge -> weightHandler.getInferredTrans((PointerFlowEdge) edge))
                             .flatMap(Collection::stream)
                             .forEach(tf -> logger.info(transferToString(tf)));
                 }

@@ -20,8 +20,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
