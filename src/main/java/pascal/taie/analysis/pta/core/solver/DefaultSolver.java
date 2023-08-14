@@ -216,6 +216,11 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
+    public PointerFlowGraph getPointerFlowGraph() {
+        return pointerFlowGraph;
+    }
+
+    @Override
     public PointsToSet getPointsToSetOf(Pointer pointer) {
         PointsToSet pts = pointer.getPointsToSet();
         if (pts == null) {

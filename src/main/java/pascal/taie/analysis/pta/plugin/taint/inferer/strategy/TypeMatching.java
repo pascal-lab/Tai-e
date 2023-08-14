@@ -20,7 +20,7 @@ public class TypeMatching implements TransInferStrategy {
             "Message", "File", "Expression", "Packet", "Request",
             "Cookie", "Session", "Input", "URL", "URI",
             "Query", "Header", "Command", "Payload", "Path",
-            "Config", "Environment"
+            "Config", "Environment", "Properties"
     );
 
     private TransferGenerator generator;
