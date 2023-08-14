@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.World;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -508,9 +509,7 @@ public class Utils {
             return supertype instanceof ReferenceType;
         } else if (subtype instanceof ClassType) {
             if (supertype instanceof ClassType) {
-                return hierarchy.isSubclass(
-                        ((ClassType) supertype).getJClass(),
-                        ((ClassType) subtype).getJClass());
+                return isSubclass((ClassType) supertype, (ClassType) subtype);
             }
         } else if (subtype instanceof ArrayType) {
             if (supertype instanceof ClassType) {
@@ -527,9 +526,7 @@ public class Utils {
                         return true;
                     } else if (superBase instanceof ClassType &&
                             subBase instanceof ClassType) {
-                        return hierarchy.isSubclass(
-                                ((ClassType) superBase).getJClass(),
-                                ((ClassType) subBase).getJClass());
+                        return isSubclass((ClassType) superBase, (ClassType) subBase);
                     }
                 } else if (superArray.dimensions() < subArray.dimensions()) {
                     return superBase == OBJECT ||
@@ -539,6 +536,19 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    private static boolean isSubclass(ClassType supertype, ClassType subtype) {
+        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
+        // disable type checking for phantom
+        if (World.get().getOptions().isAllowPhantom()) {
+            if (supertype.getJClass().isPhantom() || subtype.getJClass().isPhantom()) {
+                return true;
+            }
+        }
+        return hierarchy.isSubclass(
+                supertype.getJClass(),
+                subtype.getJClass());
     }
 
     static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {

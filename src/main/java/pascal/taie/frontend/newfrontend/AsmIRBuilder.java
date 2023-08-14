@@ -218,6 +218,7 @@ public class AsmIRBuilder {
         return isFrameUsable;
     }
 
+    // TODO: optimize
     public boolean checkFrameValid() {
         for (BytecodeBlock block : blockSortedList) {
             if (block.inEdges().size() >= 2 && block.getFrame() == null) {
@@ -226,8 +227,10 @@ public class AsmIRBuilder {
 
             if (block.outEdges().size() >= 2 &&
                     block.outEdges().stream().allMatch(o -> o.getFrame() == null)) {
+                return false;
+            }
 
-
+            if (block.isCatch() && block.getFrame() == null) {
                 return false;
             }
         }
