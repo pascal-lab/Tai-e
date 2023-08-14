@@ -12,12 +12,13 @@ import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -39,8 +40,6 @@ public class TPFGBuilder {
     private final boolean onlyApp;
 
     private final boolean onlyReachSink;
-
-    private Map<Pointer, Set<CSObj>> pointer2TaintSet;
 
     public TPFGBuilder(PointerFlowGraph pfg,
                        CallGraph<CSCallSite, CSMethod> callGraph,
@@ -75,40 +74,17 @@ public class TPFGBuilder {
     }
 
     private TaintPointerFlowGraph buildComplete() {
-        // collect source pointers
-        Set<Pointer> sourcePointers = findSourcePointers();
+        Set<Pointer> taintedPointerSet = pfg.pointers()
+                .filter(pointer -> (!onlyApp || isApp(pointer)) && hasTaint(pointer))
+                .collect(Collectors.toSet());
 
-        //collect sink Pointers
-        Set<Pointer> sinkPointers = findSinkPointers();
-
-        //build Taint Pointer Flow Graph
-        pointer2TaintSet = Maps.newMap();
-        TaintPointerFlowGraph tpfg = new TaintPointerFlowGraph(sourcePointers, sinkPointers);
-        Set<Pointer> visitedPointers = Sets.newSet();
-        Deque<Pointer> workList = new ArrayDeque<>(sourcePointers);
-        while (!workList.isEmpty()) {
-            Pointer pointer = workList.poll();
-            if (visitedPointers.add(pointer)) {
-                getOutEdges(pointer).forEach(edge ->
-                {
-                    Pointer target = edge.target();
-                    if (!onlyApp || isApp(edge.target())) {
-                        tpfg.addEdge(edge.kind(), pointer, target);
-                        if (!visitedPointers.contains(target)) {
-                            workList.add(target);
-                        }
-                    }
-
-                });
-            }
-        }
+        TaintPointerFlowGraph tpfg = new TaintPointerFlowGraph();
+        taintedPointerSet.forEach(pointer -> pointer.getOutEdges().forEach(tpfg::addEdge));
 
         // connect base to this
         StrategyUtils.getMethod2CSCallSites(callGraph).values().stream()
                 .filter(csCallSite -> !csCallSite.getCallSite().isStatic())
                 .forEach(csCallSite -> addBase2ThisEdge(tpfg, csCallSite));
-
-        pointer2TaintSet = null;
 
         return tpfg;
     }
@@ -146,48 +122,21 @@ public class TPFGBuilder {
         return sinkPointers;
     }
 
-    private List<PointerFlowEdge> getOutEdges(Pointer source) {
-        Set<CSObj> sourceTaintSet = getTaintSet(source);
-        List<PointerFlowEdge> edges = new ArrayList<>();
-
-        // collect PFG edges
-        for (PointerFlowEdge pointerFlowEdge : pfg.getOutEdgesOf(source)) {
-            switch (pointerFlowEdge.kind()) {
-                case LOCAL_ASSIGN, INSTANCE_STORE, ARRAY_STORE,
-                        THIS_PASSING, PARAMETER_PASSING, OTHER -> {
-                    edges.add(pointerFlowEdge);
-                }
-                case CAST, INSTANCE_LOAD, ARRAY_LOAD, RETURN -> {
-                    Set<CSObj> targetTaintSet = getTaintSet(pointerFlowEdge.target());
-                    if (Sets.haveOverlap(sourceTaintSet, targetTaintSet)) {
-                        edges.add(pointerFlowEdge);
-                    }
-                }
-            }
-        }
-        return edges;
-    }
-
     private Set<CSObj> getTaintSet(Pointer pointer) {
-        Set<CSObj> taintSet = pointer2TaintSet.get(pointer);
-        if (taintSet == null) {
-            taintSet = pointer.objects()
-                    .filter(csObj -> taintManager.isTaint(csObj.getObject()))
-                    .collect(Collectors.toCollection(Sets::newHybridSet));
-
-            if (taintSet.isEmpty()) {
-                taintSet = Set.of();
-            }
-            pointer2TaintSet.put(pointer, taintSet);
-        }
-        return taintSet;
+        return pointer.objects()
+                .filter(csObj -> taintManager.isTaint(csObj.getObject()))
+                .collect(Collectors.toCollection(Sets::newHybridSet));
     }
 
-    public TaintPointerFlowGraph build() {
+    private boolean hasTaint(Pointer pointer) {
+        return !getTaintSet(pointer).isEmpty();
+    }
+
+    private TaintPointerFlowGraph build() {
         TaintPointerFlowGraph complete = buildComplete();
-        Set<Pointer> sourcePointers = complete.getSourcePointers();
-        Set<Pointer> sinkPointers = complete.getSinkPointers();
-        TaintPointerFlowGraph tpfg = new TaintPointerFlowGraph(sourcePointers, sinkPointers);
+        Set<Pointer> sourcePointers = findSourcePointers();
+        Set<Pointer> sinkPointers = findSinkPointers();
+        TaintPointerFlowGraph tpfg = new TaintPointerFlowGraph();
         Set<Pointer> PointersReachSink = null;
         if (onlyReachSink) {
             PointersReachSink = Sets.newHybridSet();
@@ -197,7 +146,7 @@ public class TPFGBuilder {
             }
         }
         Set<Pointer> visitedPointers = Sets.newSet();
-        Deque<Pointer> workList = new ArrayDeque<>(complete.getSourcePointers());
+        Deque<Pointer> workList = new ArrayDeque<>(sourcePointers);
         while (!workList.isEmpty()) {
             Pointer pointer = workList.poll();
             if (visitedPointers.add(pointer)) {
@@ -219,19 +168,17 @@ public class TPFGBuilder {
         CSVar base = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
         Set<CSObj> baseTaintSet = getTaintSet(base);
         if (!baseTaintSet.isEmpty()) {
-            callGraph.getCalleesOf(csCallSite).forEach(callee -> {
-                baseTaintSet.stream().map(csObj -> csObj.getObject().getType())
-                        .map(taintedType -> classHierarchy.dispatch(taintedType, callee.getMethod().getRef()))
-                        .filter(Objects::nonNull)
-                        .forEach(taintCallee -> {
-                            CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
-                            Set<CSObj> thisTaintSet = getTaintSet(thisVar);
+            callGraph.getCalleesOf(csCallSite).forEach(callee -> baseTaintSet.stream().map(csObj -> csObj.getObject().getType())
+                    .map(taintedType -> classHierarchy.dispatch(taintedType, callee.getMethod().getRef()))
+                    .filter(Objects::nonNull)
+                    .forEach(taintCallee -> {
+                        CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
+                        Set<CSObj> thisTaintSet = getTaintSet(thisVar);
 
-                            if (Sets.haveOverlap(baseTaintSet, thisTaintSet)) {
-                                tpfg.addEdge(FlowKind.THIS_PASSING, base, thisVar);
-                            }
-                        });
-            });
+                        if (Sets.haveOverlap(baseTaintSet, thisTaintSet)) {
+                            tpfg.addEdge(FlowKind.THIS_PASSING, base, thisVar);
+                        }
+                    }));
         }
     }
 
