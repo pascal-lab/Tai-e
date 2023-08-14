@@ -382,6 +382,10 @@ public class JClass extends AbstractResultHolder
         phantomMethods.put(subsignature, method);
     }
 
+    public Collection<JMethod> getPhantomMethods() {
+        return phantomMethods.values();
+    }
+
     void setIndex(int index) {
         if (this.index != -1) {
             throw new IllegalStateException("index already set");
