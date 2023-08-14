@@ -10,7 +10,9 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.Reachability;
@@ -26,6 +28,8 @@ public class TPFGBuilder {
 
     private final CallGraph<CSCallSite, CSMethod> callGraph;
 
+    private final ClassHierarchy classHierarchy;
+
     private final CSManager csManager;
 
     private final TaintManager taintManager;
@@ -40,10 +44,12 @@ public class TPFGBuilder {
 
     public TPFGBuilder(PointerFlowGraph pfg,
                        CallGraph<CSCallSite, CSMethod> callGraph,
+                       ClassHierarchy classHierarchy,
                        CSManager csManager, TaintManager taintManager,
                        Set<TaintFlow> taintFlows) {
         this.pfg = pfg;
         this.callGraph = callGraph;
+        this.classHierarchy = classHierarchy;
         this.csManager = csManager;
         this.taintManager = taintManager;
         this.taintFlows = taintFlows;
@@ -53,12 +59,14 @@ public class TPFGBuilder {
 
     public TPFGBuilder(PointerFlowGraph pfg,
                        CallGraph<CSCallSite, CSMethod> callGraph,
+                       ClassHierarchy classHierarchy,
                        CSManager csManager, TaintManager taintManager,
                        Set<TaintFlow> taintFlows,
                        boolean onlyApp,
                        boolean onlyReachSink) {
         this.pfg = pfg;
         this.callGraph = callGraph;
+        this.classHierarchy = classHierarchy;
         this.csManager = csManager;
         this.taintManager = taintManager;
         this.taintFlows = taintFlows;
@@ -208,14 +216,23 @@ public class TPFGBuilder {
     }
 
     private void addBase2ThisEdge(TaintPointerFlowGraph tpfg, CSCallSite csCallSite) {
-        //TODO:try to find csMethod called by taint obj
         CSVar base = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
-        callGraph.getCalleesOf(csCallSite).forEach(callee -> {
-            CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
-            if (Sets.haveOverlap(getTaintSet(base), getTaintSet(thisVar))) {
-                tpfg.addEdge(FlowKind.THIS_PASSING, base, thisVar);
-            }
-        });
+        Set<CSObj> baseTaintSet = getTaintSet(base);
+        if (!baseTaintSet.isEmpty()) {
+            callGraph.getCalleesOf(csCallSite).forEach(callee -> {
+                baseTaintSet.stream().map(csObj -> csObj.getObject().getType())
+                        .map(taintedType -> classHierarchy.dispatch(taintedType, callee.getMethod().getRef()))
+                        .filter(Objects::nonNull)
+                        .forEach(taintCallee -> {
+                            CSVar thisVar = csManager.getCSVar(callee.getContext(), callee.getMethod().getIR().getThis());
+                            Set<CSObj> thisTaintSet = getTaintSet(thisVar);
+
+                            if (Sets.haveOverlap(baseTaintSet, thisTaintSet)) {
+                                tpfg.addEdge(FlowKind.THIS_PASSING, base, thisVar);
+                            }
+                        });
+            });
+        }
     }
 
     private static boolean isApp(Pointer pointer) {
