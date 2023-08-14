@@ -33,6 +33,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -126,44 +127,27 @@ class SourceHandler extends OnFlyHandler {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        if (handleFieldSources) {
-            handleFieldSource(method);
-        }
-        if (callSiteMode) {
-            handleCallSource(method);
-        }
-    }
-
-    /**
-     * Handles field sources.
-     * Scans {@code method}'s IR to check if it loads any source fields.
-     * If so, records the {@link LoadField} statements.
-     */
-    private void handleFieldSource(JMethod method) {
-        method.getIR().forEach(stmt -> {
-            if (stmt instanceof LoadField loadField) {
-                JField field = loadField.getFieldRef().resolveNullable();
-                if (fieldSources.containsKey(field)) {
-                    loadedFieldSources.put(method, loadField);
-                }
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (handleFieldSources && stmt instanceof LoadField loadField) {
+            // Handle field sources.
+            // If a {@link LoadField} loads any source fields,
+            // then records the {@link LoadField} statements.
+            JField field = loadField.getFieldRef().resolveNullable();
+            if (fieldSources.containsKey(field)) {
+                loadedFieldSources.put(container, loadField);
             }
-        });
-    }
-
-    /**
-     * Handles call sources for the case when call-site mode is enabled.
-     * Scans {@code method}'s IR to check if method references of any
-     * {@link Invoke}s are resolved to call source method.
-     * If so, records the {@link Invoke} statements.
-     */
-    private void handleCallSource(JMethod method) {
-        method.getIR().invokes(false).forEach(callSite -> {
-            JMethod callee = callSite.getMethodRef().resolveNullable();
+        }
+        if (callSiteMode &&
+                stmt instanceof Invoke invoke &&
+                !invoke.isDynamic()) {
+            // Handles call sources for the case when call-site mode is enabled.
+            // If method references of any {@link Invoke}s are resolved to
+            // call source method, then records the {@link Invoke} statements.
+            JMethod callee = invoke.getMethodRef().resolveNullable();
             if (callSources.containsKey(callee)) {
-                callSiteSources.put(method, callSite);
+                callSiteSources.put(container, invoke);
             }
-        });
+        }
     }
 
     @Override

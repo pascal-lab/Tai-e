@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
 
@@ -78,8 +79,8 @@ public class TaintAnalysis implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        onFlyHandler.onNewMethod(method);
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        onFlyHandler.onNewStmt(stmt, container);
     }
 
     @Override

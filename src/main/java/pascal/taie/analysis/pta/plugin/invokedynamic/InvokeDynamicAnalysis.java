@@ -51,6 +51,7 @@ import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
@@ -76,7 +77,7 @@ public class InvokeDynamicAnalysis implements Plugin {
     /**
      * Whether analyzes lambda-related invokedynamic
      */
-    private static final boolean processLambdas = true;
+    private static final boolean processLambdas = true;// false;
 
     private Solver solver;
 
@@ -183,8 +184,8 @@ public class InvokeDynamicAnalysis implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        method.getIR().invokes(true).forEach(invoke -> {
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof Invoke invoke) {
             if (!invoke.isDynamic()) {
                 methodTypeModel.handleNewInvoke(invoke);
                 lookupModel.handleNewInvoke(invoke);
@@ -193,7 +194,7 @@ public class InvokeDynamicAnalysis implements Plugin {
             if (indy != null) {
                 // if new reachable method contains invokedynamic,
                 // then we record necessary information
-                method2indys.put(method, invoke);
+                method2indys.put(container, invoke);
                 JMethod bsm = indy.getBootstrapMethodRef().resolve();
                 // we associate the variables in bootstrap method to
                 // the invokedynamic, where the variables may point to
@@ -205,7 +206,7 @@ public class InvokeDynamicAnalysis implements Plugin {
                 // add call edge to BSM
                 addBSMCallEdge(invoke, bsm);
             }
-        });
+        }
     }
 
     @Nullable

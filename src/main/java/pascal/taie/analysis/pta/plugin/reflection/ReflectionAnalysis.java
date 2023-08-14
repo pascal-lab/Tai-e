@@ -39,6 +39,7 @@ import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -107,18 +108,16 @@ public class ReflectionAnalysis implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        method.getIR().forEach(stmt -> {
-            if (stmt instanceof Invoke invoke) {
-                if (!invoke.isDynamic()) {
-                    inferenceModel.handleNewInvoke(invoke);
-                    reflectiveActionModel.handleNewInvoke(invoke);
-                    othersModel.handleNewInvoke(invoke);
-                }
-            } else {
-                inferenceModel.handleNewNonInvokeStmt(stmt);
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof Invoke invoke) {
+            if (!invoke.isDynamic()) {
+                inferenceModel.handleNewInvoke(invoke);
+                reflectiveActionModel.handleNewInvoke(invoke);
+                othersModel.handleNewInvoke(invoke);
             }
-        });
+        } else {
+            inferenceModel.handleNewNonInvokeStmt(stmt);
+        }
     }
 
     @Override

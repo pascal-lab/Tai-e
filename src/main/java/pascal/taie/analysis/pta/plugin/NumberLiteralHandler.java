@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.exp.NumberLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -59,16 +60,11 @@ public class NumberLiteralHandler implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        List<Pair<Var, Number>> assigns = new ArrayList<>();
-        method.getIR().forEach(s -> {
-            if (s instanceof AssignLiteral assign &&
-                    assign.getRValue() instanceof NumberLiteral literal) {
-                assigns.add(new Pair<>(assign.getLValue(), literal.getNumber()));
-            }
-        });
-        if (!assigns.isEmpty()) {
-            assignMap.put(method, assigns);
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof AssignLiteral assign &&
+                assign.getRValue() instanceof NumberLiteral literal) {
+            assignMap.computeIfAbsent(container, __ -> new ArrayList<>())
+                    .add(new Pair<>(assign.getLValue(), literal.getNumber()));
         }
     }
 

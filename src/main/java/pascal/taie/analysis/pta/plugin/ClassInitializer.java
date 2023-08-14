@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.FieldStmt;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -51,18 +52,20 @@ public class ClassInitializer implements Plugin {
         if (method.isStatic() || method.isConstructor()) {
             solver.initializeClass(method.getDeclaringClass());
         }
-        method.getIR().forEach(s -> {
-            if (s instanceof AssignLiteral) {
-                Type type = ((AssignLiteral) s).getRValue().getType();
-                if (type instanceof ClassType) {
-                    solver.initializeClass(((ClassType) type).getJClass());
-                }
-            } else if (s instanceof FieldStmt<?, ?> fieldStmt) {
-                if (fieldStmt.isStatic()) {
-                    JField field = fieldStmt.getFieldRef().resolve();
-                    solver.initializeClass(field.getDeclaringClass());
-                }
+    }
+
+    @Override
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof AssignLiteral) {
+            Type type = ((AssignLiteral) stmt).getRValue().getType();
+            if (type instanceof ClassType) {
+                solver.initializeClass(((ClassType) type).getJClass());
             }
-        });
+        } else if (stmt instanceof FieldStmt<?, ?> fieldStmt) {
+            if (fieldStmt.isStatic()) {
+                JField field = fieldStmt.getFieldRef().resolve();
+                solver.initializeClass(field.getDeclaringClass());
+            }
+        }
     }
 }

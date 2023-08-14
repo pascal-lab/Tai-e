@@ -35,7 +35,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Catch;
@@ -101,23 +100,28 @@ public class ExceptionAnalysis implements Plugin {
     }
 
     /**
-     * Establishes the map from all exception references to related throw
-     * statements in the new-reached method, and as for the throw statements in
-     * the method, analyzes and records all the exception entries that handle
-     * the exceptions thrown by the statements.
+     * For the throw statements in the method, analyzes and records all the
+     * exception entries that handle the exceptions thrown by the statements.
      *
      * @param method the method that the solver meet now
      */
     @Override
     public void onNewMethod(JMethod method) {
-        IR ir = method.getIR();
-        ir.forEach(stmt -> {
-            if (stmt instanceof Throw throwStmt) {
-                Var exceptionRef = throwStmt.getExceptionRef();
-                var2Throws.put(exceptionRef, throwStmt);
-            }
-        });
-        catchers.put(method, CatchAnalysis.getPotentialCatchers(ir));
+        catchers.put(method,
+                CatchAnalysis.getPotentialCatchers(method.getIR()));
+    }
+
+    /**
+     * Establishes the map from all exception references to related throw statements.
+     *
+     * @param stmt new reachable stmt
+     */
+    @Override
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof Throw throwStmt) {
+            Var exceptionRef = throwStmt.getExceptionRef();
+            var2Throws.put(exceptionRef, throwStmt);
+        }
     }
 
     /**

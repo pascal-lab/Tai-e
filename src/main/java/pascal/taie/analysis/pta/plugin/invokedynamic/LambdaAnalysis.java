@@ -39,12 +39,12 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Signatures;
@@ -56,7 +56,6 @@ import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class LambdaAnalysis implements Plugin {
 
@@ -102,21 +101,16 @@ public class LambdaAnalysis implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        extractLambdaMetaFactories(method.getIR()).forEach(invoke -> {
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof Invoke invoke &&
+                invoke.isDynamic() &&
+                LambdaAnalysis.isLambdaMetaFactory(invoke)) {
             InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
             Type type = indy.getMethodType().getReturnType();
-            JMethod container = invoke.getContainer();
             // record lambda meta factories of new reachable methods
             lambdaObjs.put(container,
                     heapModel.getMockObj(LAMBDA_DESC, invoke, type, container));
-        });
-    }
-
-    private static Stream<Invoke> extractLambdaMetaFactories(IR ir) {
-        return ir.invokes(true)
-                .filter(Invoke::isDynamic)
-                .filter(LambdaAnalysis::isLambdaMetaFactory);
+        }
     }
 
     static boolean isLambdaMetaFactory(Invoke invoke) {

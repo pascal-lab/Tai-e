@@ -293,14 +293,14 @@ class TransferHandler extends OnFlyHandler {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        if (callSiteMode) {
-            method.getIR().invokes(false).forEach(callSite -> {
-                JMethod callee = callSite.getMethodRef().resolveNullable();
-                if (transfers.containsKey(callee)) {
-                    callSiteTransfers.put(method, callSite);
-                }
-            });
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (callSiteMode &&
+                stmt instanceof Invoke invoke &&
+                !invoke.isDynamic()) {
+            JMethod callee = invoke.getMethodRef().resolveNullable();
+            if (transfers.containsKey(callee)) {
+                callSiteTransfers.put(container, invoke);
+            }
         }
     }
 

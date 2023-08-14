@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Maps;
@@ -56,13 +57,11 @@ public class NullHandler implements Plugin {
     }
 
     @Override
-    public void onNewMethod(JMethod method) {
-        method.getIR().forEach(s -> {
-            if (s instanceof AssignLiteral assign &&
-                    assign.getRValue() instanceof NullLiteral) {
-                nullVars.put(method, assign.getLValue());
-            }
-        });
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (stmt instanceof AssignLiteral assign &&
+                assign.getRValue() instanceof NullLiteral) {
+            nullVars.put(container, assign.getLValue());
+        }
     }
 
     @Override
