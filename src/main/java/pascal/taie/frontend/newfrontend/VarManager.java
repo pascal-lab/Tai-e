@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
+import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
@@ -275,7 +276,7 @@ class VarManager {
 
     public Var getZeroLiteral() {
         if (zeroLiteral == null) {
-            zeroLiteral = newVar("*intliteral0");
+            zeroLiteral = newConstVar("*intliteral0", IntLiteral.get(0));
             zeroLiteral.setType(PrimitiveType.INT);
         }
         return zeroLiteral;
@@ -283,7 +284,7 @@ class VarManager {
 
     public Var getNullLiteral() {
         if (nullLiteral == null) {
-            nullLiteral = newVar(NULL_LITERAL);
+            nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
             nullLiteral.setType(NullType.NULL);
         }
         return nullLiteral;
