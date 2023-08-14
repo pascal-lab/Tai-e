@@ -535,6 +535,7 @@ public class DefaultSolver implements Solver {
     private void processNewMethod(JMethod method) {
         if (reachableMethods.add(method)) {
             plugin.onNewMethod(method);
+            method.getIR().forEach(stmt -> plugin.onNewStmt(stmt, method));
         }
     }
 

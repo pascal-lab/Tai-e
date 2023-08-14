@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
 import java.lang.reflect.Method;
@@ -54,6 +55,8 @@ public class CompositePlugin implements Plugin {
 
     private final List<Plugin> onNewMethodPlugins = new ArrayList<>();
 
+    private final List<Plugin> onNewStmtPlugins = new ArrayList<>();
+
     private final List<Plugin> onNewCSMethodPlugins = new ArrayList<>();
 
     private final List<Plugin> onUnresolvedCallPlugins = new ArrayList<>();
@@ -65,6 +68,7 @@ public class CompositePlugin implements Plugin {
                     "onNewPointsToSet", CSVar.class, PointsToSet.class);
             addPlugin(plugin, onNewCallEdgePlugins, "onNewCallEdge", Edge.class);
             addPlugin(plugin, onNewMethodPlugins, "onNewMethod", JMethod.class);
+            addPlugin(plugin, onNewStmtPlugins, "onNewStmt", Stmt.class, JMethod.class);
             addPlugin(plugin, onNewCSMethodPlugins, "onNewCSMethod", CSMethod.class);
             addPlugin(plugin, onUnresolvedCallPlugins,
                     "onUnresolvedCall", CSObj.class, Context.class, Invoke.class);
@@ -113,6 +117,11 @@ public class CompositePlugin implements Plugin {
     @Override
     public void onNewMethod(JMethod method) {
         onNewMethodPlugins.forEach(p -> p.onNewMethod(method));
+    }
+
+    @Override
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        onNewStmtPlugins.forEach(p -> p.onNewStmt(stmt, container));
     }
 
     @Override

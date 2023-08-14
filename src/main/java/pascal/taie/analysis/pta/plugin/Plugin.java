@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
 /**
@@ -86,6 +87,15 @@ public interface Plugin {
      * @param method new reachable method
      */
     default void onNewMethod(JMethod method) {
+    }
+
+    /**
+     * Invoked when a new reachable stmt is discovered.
+     *
+     * @param stmt      new reachable stmt
+     * @param container container method of {@code stmt}
+     */
+    default void onNewStmt(Stmt stmt, JMethod container) {
     }
 
     /**
