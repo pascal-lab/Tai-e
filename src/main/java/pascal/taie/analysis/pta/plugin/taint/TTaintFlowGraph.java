@@ -15,21 +15,21 @@ import java.util.stream.Collectors;
 public class TTaintFlowGraph extends NodeManager
         implements Graph<Node>, Indexer<Node> {
 
-    private final Set<Node> sourceNodes;
+    private final Set<Node> sourceNodes = null;
 
-    private final Set<Node> sinkNodes;
+    private final Set<Node> sinkNodes = null;
 
     private final Map<Node, List<Set<TaintFlowEdge>>> inEdges = Maps.newHybridMap();
 
     private final Map<Node, List<Set<TaintFlowEdge>>> outEdges = Maps.newHybridMap();
 
     public TTaintFlowGraph(TaintPointerFlowGraph tpfg){
-        this.sourceNodes = tpfg.getSourcePointers().stream()
-                .map(this::toNode)
-                .collect(Collectors.toSet());
-        this.sinkNodes = tpfg.getSinkPointers().stream()
-                .map(this::toNode)
-                .collect(Collectors.toSet());
+//        this.sourceNodes = tpfg.getSourcePointers().stream()
+//                .map(this::toNode)
+//                .collect(Collectors.toSet());
+//        this.sinkNodes = tpfg.getSinkPointers().stream()
+//                .map(this::toNode)
+//                .collect(Collectors.toSet());
         tpfg.getNodes().forEach(node -> {
             inEdges.computeIfAbsent(toNode(node), k -> new ArrayList<>())
                     .add(tpfg.getInEdgesOf(node).stream()
@@ -57,6 +57,22 @@ public class TTaintFlowGraph extends NodeManager
             return getOrCreateStaticFieldNode(
                     ((StaticField) pointer).getField());
         }
+    }
+
+    public Set<Node> getSourceNodes(){
+        return sourceNodes;
+    }
+
+    public Set<Node> getSinkNodes(){
+        return sinkNodes;
+    }
+
+    public Map<Node, List<Set<TaintFlowEdge>>> getInEdges(){
+        return inEdges;
+    }
+
+    public Map<Node, List<Set<TaintFlowEdge>>> getOutEdges(){
+        return outEdges;
     }
 
     @Override
