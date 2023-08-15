@@ -22,12 +22,14 @@ import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -153,9 +155,6 @@ public abstract class TransferInferer extends OnFlyHandler {
         return strategies;
     }
 
-    /**
-     *
-     */
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {
         logger.info("Total inferred transfers count : {}", addedTransfers.size());
         logger.info("Inferred transfers (merge type) count: {}", addedTransfers.stream()
@@ -186,6 +185,8 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .filter(source -> tpfg.getOutDegreeOf(source) > 0)
                 .collect(Collectors.toSet());
         Set<Pointer> sinkPointers = tpfg.getSinkPointers();
+        // TODO: handle other call source type
+        TwoKeyMap<Var, Var, List<PointerFlowEdge>> taintPaths = Maps.newTwoKeyMap();
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
@@ -198,13 +199,22 @@ public abstract class TransferInferer extends OnFlyHandler {
                 shortestTaintPath.compute();
                 List<PointerFlowEdge> path = shortestTaintPath.getPath(sink);
                 if (!path.isEmpty()) {
-                    logger.info("\n{} -> {}:", source, sink);
-                    path.stream()
-                            .map(weightHandler::getInferredTrans)
-                            .flatMap(Collection::stream)
-                            .forEach(tf -> logger.info(transferToString(tf)));
+                    Var sourceVar = ((CSVar) source).getVar();
+                    Var sinkVar = ((CSVar) sink).getVar();
+                    List<PointerFlowEdge> oldPath = taintPaths.get(sourceVar, sinkVar);
+                    if(oldPath == null || path.size() < oldPath.size()) {
+                        taintPaths.put(sourceVar, sinkVar, path);
+                    }
                 }
             }
+        }
+
+        for(TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
+            logger.info("\n{} -> {}:", varToString(entry.key1()), varToString(entry.key2()));
+            entry.value().stream()
+                    .map(weightHandler::getInferredTrans)
+                    .flatMap(Collection::stream)
+                    .forEach(tf -> logger.info(transferToString(tf)));
         }
     }
 
@@ -220,6 +230,10 @@ public abstract class TransferInferer extends OnFlyHandler {
                 InvokeUtils.toString(transfer.getFrom().index()),
                 InvokeUtils.toString(transfer.getTo().index()),
                 transfer.getType().getName());
+    }
+
+    private String varToString(Var v) {
+        return v.getMethod() + "/" + v.getName();
     }
 
     private void addNewTransfer(InferredTransfer transfer) {
