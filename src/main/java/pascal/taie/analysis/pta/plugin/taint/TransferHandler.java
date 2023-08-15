@@ -107,7 +107,7 @@ class TransferHandler extends OnFlyHandler {
     /**
      * Map from a method to CSCallSites that call this method.
      */
-    private final MultiMap<JMethod, CSCallSite> method2CallSite = Maps.newMultiMap();
+    private final MultiMap<JMethod, CSCallSite> method2CSCallSite = Maps.newMultiMap();
 
     /**
      * Counter for generating temporary variables.
@@ -277,7 +277,7 @@ class TransferHandler extends OnFlyHandler {
     public void addNewTransfer(TaintTransfer transfer) {
         logger.info("Add new taint transfer: {}", transfer);
         this.transfers.put(transfer.getMethod(), transfer);
-        Set<CSCallSite> csCallSites = method2CallSite.get(transfer.getMethod());
+        Set<CSCallSite> csCallSites = method2CSCallSite.get(transfer.getMethod());
         for(CSCallSite csCallSite : csCallSites) {
             Context context = csCallSite.getContext();
             Invoke callSite = csCallSite.getCallSite();
@@ -293,7 +293,7 @@ class TransferHandler extends OnFlyHandler {
             // TODO: handle OTHER call edges
             return;
         }
-        method2CallSite.put(edge.getCallee().getMethod(), edge.getCallSite());
+        method2CSCallSite.put(edge.getCallee().getMethod(), edge.getCallSite());
         Set<TaintTransfer> tfs = transfers.get(edge.getCallee().getMethod());
         if (!tfs.isEmpty()) {
             Context context = edge.getCallSite().getContext();
