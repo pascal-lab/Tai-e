@@ -27,8 +27,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.graph.Edge;
-import pascal.taie.util.graph.ShortestPath;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -168,10 +166,6 @@ public abstract class TransferInferer extends OnFlyHandler {
         TransWeightHandler weightHandler = new TransWeightHandler(solver.getCallGraph(),
                 tpfg, csManager, getInferredTrans());
 
-        Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
-                .filter(source -> tpfg.getOutDegreeOf(source) > 0)
-                .collect(Collectors.toSet());
-
         Set<InferredTransfer> taintRelatedTransfers = tpfg.getNodes().stream()
                 .map(tpfg::getOutEdgesOf)
                 .flatMap(Collection::stream)
@@ -184,23 +178,35 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .distinct()
                 .count());
 
+        Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
+                .filter(source -> tpfg.getOutDegreeOf(source) > 0)
+                .collect(Collectors.toSet());
         Set<Pointer> sinkPointers = tpfg.getSinkPointers();
         for (Pointer source : sourcesReachSink) {
-            ShortestPath<Pointer> shortestPath = new ShortestPath<>(tpfg, source,
-                    edge -> weightHandler.getWeight((PointerFlowEdge) edge),
-                    edge -> weightHandler.getCost((PointerFlowEdge) edge));
-            shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
+            assert getTaintSet(source).size() == 1;
+            CSObj taintObj = getTaintSet(source).iterator().next();
+            ShortestTaintPath shortestTaintPath = new ShortestTaintPath(tpfg, source, taintObj,
+                    weightHandler::getWeight,
+                    weightHandler::getCost,
+                    solver);
+            shortestTaintPath.compute();
             for (Pointer sink : sinkPointers) {
-                List<Edge<Pointer>> path = shortestPath.getPath(sink);
+                List<PointerFlowEdge> path = shortestTaintPath.getPath(sink);
                 if (!path.isEmpty()) {
                     logger.info("\n{} -> {}:", source, sink);
                     path.stream()
-                            .map(edge -> weightHandler.getInferredTrans((PointerFlowEdge) edge))
+                            .map(weightHandler::getInferredTrans)
                             .flatMap(Collection::stream)
                             .forEach(tf -> logger.info(transferToString(tf)));
                 }
             }
         }
+    }
+
+    private Set<CSObj> getTaintSet(Pointer pointer) {
+        return pointer.objects()
+                .filter(csObj -> manager.isTaint(csObj.getObject()))
+                .collect(Sets::newHybridSet, Set::add, Set::addAll);
     }
 
     private String transferToString(InferredTransfer transfer) {
