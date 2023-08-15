@@ -13,10 +13,12 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
+import pascal.taie.analysis.pta.core.solver.Identity;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
@@ -65,6 +67,21 @@ public class TPFGBuilder {
         this.csManager = solver.getCSManager();
     }
 
+    private static boolean isApp(Pointer pointer) {
+        if (pointer instanceof CSVar csVar) {
+            return csVar.getVar().getMethod().isApplication();
+        } else if (pointer instanceof InstanceField iField) {
+            return iField.getField().isApplication();
+        } else if (pointer instanceof ArrayIndex arrayIndex) {
+            return arrayIndex.getArray().getObject().getContainerMethod().stream().anyMatch(JMethod::isApplication);
+        } else if (pointer instanceof StaticField staticField) {
+            // In the original TFGBuilder, this condition check was not present. I'm not sure if this check is necessary.
+            return staticField.getField().isApplication();
+        } else {
+            return false;
+        }
+    }
+
     private TaintPointerFlowGraph buildComplete() {
         this.pointer2TaintSet = Maps.newMap();
         Set<Pointer> sourcePointers = getSourcePointers();
@@ -98,8 +115,9 @@ public class TPFGBuilder {
                                         JMethod callee = edge.getCallee().getMethod();
                                         assert !callee.isStatic();
                                         CSVar csThis = csManager.getCSVar(calleeContext, callee.getIR().getThis());
-                                        if(Sets.haveOverlap(getTaintSet(csBase), getTaintSet(csThis))) {
+                                        if (Sets.haveOverlap(getTaintSet(csBase), getTaintSet(csThis))) {
                                             PointerFlowEdge pointerFlowEdge = new PointerFlowEdge(FlowKind.THIS_PASSING, csBase, csThis);
+                                            pointerFlowEdge.addTransfer(Identity.get());
                                             tpfg.addEdge(pointerFlowEdge);
                                         }
                                     });
@@ -163,9 +181,11 @@ public class TPFGBuilder {
 
     private List<PointerFlowEdge> getOutEdges(Pointer pointer) {
         Set<CSObj> taintSet = getTaintSet(pointer);
+        PointsToSet pts = solver.makePointsToSet();
+        taintSet.forEach(pts::addObject);
         return pointer.getOutEdges().stream()
-                .filter(edge -> edge.kind() == FlowKind.OTHER && hasTaint(edge.target())
-                        || Sets.haveOverlap(taintSet, getTaintSet(edge.target())))
+                .filter(edge -> edge.getTransfers().stream()
+                        .anyMatch(tf -> !tf.apply(edge, pts).isEmpty()))
                 .toList();
     }
 
@@ -184,7 +204,9 @@ public class TPFGBuilder {
                         sourceVar = fsp.loadField().getLValue();
                     }
                     if (sourceVar != null) {
-                        sourcePointers.addAll(csManager.getCSVarsOf(sourceVar));
+                        csManager.getCSVarsOf(sourceVar).stream()
+                                .filter(this::hasTaint)
+                                .forEach(sourcePointers::add);
                     }
                 });
         return sourcePointers;
@@ -195,23 +217,10 @@ public class TPFGBuilder {
         taintFlows.forEach(taintFlow -> {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
             Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(), sinkPoint.index());
-            sinkPointers.addAll(csManager.getCSVarsOf(sinkVar));
+            csManager.getCSVarsOf(sinkVar).stream()
+                    .filter(this::hasTaint)
+                    .forEach(sinkPointers::add);
         });
         return sinkPointers;
-    }
-
-    private static boolean isApp(Pointer pointer) {
-        if (pointer instanceof CSVar csVar) {
-            return csVar.getVar().getMethod().isApplication();
-        } else if (pointer instanceof InstanceField iField) {
-            return iField.getField().isApplication();
-        } else if (pointer instanceof ArrayIndex arrayIndex) {
-            return arrayIndex.getArray().getObject().getContainerMethod().stream().anyMatch(JMethod::isApplication);
-        } else if (pointer instanceof StaticField staticField) {
-            // In the original TFGBuilder, this condition check was not present. I'm not sure if this check is necessary.
-            return staticField.getField().isApplication();
-        } else {
-            return false;
-        }
     }
 }
