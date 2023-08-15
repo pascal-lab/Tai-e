@@ -1,7 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -13,9 +13,10 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.solver.Identity;
+import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.core.solver.Transfer;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -97,6 +98,7 @@ public class TPFGBuilder {
                 .flatMap(Collection::stream)
                 .forEach(tpfg::addEdge);
 
+        ContextSelector contextSelector = solver.getContextSelector();
         CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
         // connect base to this
         for (Pointer pointer : taintPointers) {
@@ -108,19 +110,21 @@ public class TPFGBuilder {
                         .forEach(csCallSite -> {
                             CSVar csBase = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
                             assert csBase != null;
-                            callGraph.edgesOutOf(csCallSite)
-                                    .filter(edge -> edge.getKind() != CallKind.OTHER)
-                                    .forEach(edge -> {
-                                        Context calleeContext = edge.getCallee().getContext();
-                                        JMethod callee = edge.getCallee().getMethod();
-                                        assert !callee.isStatic();
-                                        CSVar csThis = csManager.getCSVar(calleeContext, callee.getIR().getThis());
-                                        if (Sets.haveOverlap(getTaintSet(csBase), getTaintSet(csThis))) {
-                                            PointerFlowEdge pointerFlowEdge = new PointerFlowEdge(FlowKind.THIS_PASSING, csBase, csThis);
-                                            pointerFlowEdge.addTransfer(Identity.get());
-                                            tpfg.addEdge(pointerFlowEdge);
-                                        }
-                                    });
+                            getTaintSet(csBase).forEach(taintObj -> {
+                                JMethod callee = CallGraphs.resolveCallee(
+                                        taintObj.getObject().getType(), csCallSite.getCallSite());
+                                if (callee != null) {
+                                    assert !callee.isStatic();
+                                    Context calleeContext = contextSelector.selectContext(
+                                            csCallSite, taintObj, callee);
+                                    CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
+                                    assert callGraph.getCalleesOf(csCallSite).contains(csCallee);
+                                    CSVar csThis = csManager.getCSVar(calleeContext, callee.getIR().getThis());
+                                    PointerFlowEdge edge = new PointerFlowEdge(FlowKind.THIS_PASSING, csBase, csThis);
+                                    edge.addTransfer(getTransfer(taintObj));
+                                    tpfg.addEdge(edge);
+                                }
+                            });
                         });
             }
         }
@@ -159,6 +163,16 @@ public class TPFGBuilder {
             }
         }
         return tpfg;
+    }
+
+    private Transfer getTransfer(CSObj base) {
+        return ((edge, input) -> {
+            PointsToSet pts = solver.makePointsToSet();
+            if(input.contains(base)) {
+                pts.addObject(base);
+            }
+            return pts;
+        });
     }
 
     private Set<CSObj> getTaintSet(Pointer pointer) {

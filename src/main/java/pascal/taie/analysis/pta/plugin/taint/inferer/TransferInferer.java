@@ -16,6 +16,7 @@ import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
 import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
+import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
@@ -152,6 +153,9 @@ public abstract class TransferInferer extends OnFlyHandler {
         return strategies;
     }
 
+    /**
+     *
+     */
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {
         logger.info("Total inferred transfers count : {}", addedTransfers.size());
         logger.info("Inferred transfers (merge type) count: {}", addedTransfers.stream()
@@ -185,12 +189,13 @@ public abstract class TransferInferer extends OnFlyHandler {
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
-            ShortestTaintPath shortestTaintPath = new ShortestTaintPath(tpfg, source, taintObj,
-                    weightHandler::getWeight,
-                    weightHandler::getCost,
-                    solver);
-            shortestTaintPath.compute();
             for (Pointer sink : sinkPointers) {
+                TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, sink, solver);
+                ShortestTaintPath shortestTaintPath = new ShortestTaintPath(tofg, source,
+                        weightHandler::getWeight,
+                        weightHandler::getCost,
+                        solver);
+                shortestTaintPath.compute();
                 List<PointerFlowEdge> path = shortestTaintPath.getPath(sink);
                 if (!path.isEmpty()) {
                     logger.info("\n{} -> {}:", source, sink);
