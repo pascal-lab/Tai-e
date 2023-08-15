@@ -1,7 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.callgraph.CallGraphs;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
@@ -13,7 +13,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
-import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
@@ -73,7 +72,7 @@ public class TPFGBuilder {
         TaintPointerFlowGraph tpfg = new TaintPointerFlowGraph(sourcePointers, sinkPointers);
 
         Set<Pointer> taintPointers = solver.getPointerFlowGraph().getNodes().stream()
-                .filter(this::hasTaint)
+                .filter(pointer -> hasTaint(pointer) && (!onlyApp || isApp(pointer)))
                 .collect(Collectors.toSet());
 
         taintPointers.stream()
@@ -81,7 +80,6 @@ public class TPFGBuilder {
                 .flatMap(Collection::stream)
                 .forEach(tpfg::addEdge);
 
-        ContextSelector contextSelector = solver.getContextSelector();
         CallGraph<CSCallSite, CSMethod> callGraph = solver.getCallGraph();
         // connect base to this
         for (Pointer pointer : taintPointers) {
@@ -93,20 +91,18 @@ public class TPFGBuilder {
                         .forEach(csCallSite -> {
                             CSVar csBase = StrategyUtils.getCSVar(csManager, csCallSite, InvokeUtils.BASE);
                             assert csBase != null;
-                            getTaintSet(csBase).forEach(taintObj -> {
-                                JMethod callee = CallGraphs.resolveCallee(
-                                        taintObj.getObject().getType(), csCallSite.getCallSite());
-                                if (callee != null) {
-                                    assert !callee.isStatic();
-                                    Context calleeContext = contextSelector.selectContext(
-                                            csCallSite, taintObj, callee);
-                                    CSMethod csCallee = csManager.getCSMethod(calleeContext, callee);
-                                    assert callGraph.getCalleesOf(csCallSite).contains(csCallee);
-                                    CSVar csThis = csManager.getCSVar(calleeContext, callee.getIR().getThis());
-                                    PointerFlowEdge edge = new PointerFlowEdge(FlowKind.THIS_PASSING, csBase, csThis);
-                                    tpfg.addEdge(edge);
-                                }
-                            });
+                            callGraph.edgesOutOf(csCallSite)
+                                    .filter(edge -> edge.getKind() != CallKind.OTHER)
+                                    .forEach(edge -> {
+                                        Context calleeContext = edge.getCallee().getContext();
+                                        JMethod callee = edge.getCallee().getMethod();
+                                        assert !callee.isStatic();
+                                        CSVar csThis = csManager.getCSVar(calleeContext, callee.getIR().getThis());
+                                        if(Sets.haveOverlap(getTaintSet(csBase), getTaintSet(csThis))) {
+                                            PointerFlowEdge pointerFlowEdge = new PointerFlowEdge(FlowKind.THIS_PASSING, csBase, csThis);
+                                            tpfg.addEdge(pointerFlowEdge);
+                                        }
+                                    });
                         });
             }
         }
@@ -168,7 +164,8 @@ public class TPFGBuilder {
     private List<PointerFlowEdge> getOutEdges(Pointer pointer) {
         Set<CSObj> taintSet = getTaintSet(pointer);
         return pointer.getOutEdges().stream()
-                .filter(edge -> Sets.haveOverlap(taintSet, getTaintSet(edge.target())))
+                .filter(edge -> edge.kind() == FlowKind.OTHER && hasTaint(edge.target())
+                        || Sets.haveOverlap(taintSet, getTaintSet(edge.target())))
                 .toList();
     }
 
