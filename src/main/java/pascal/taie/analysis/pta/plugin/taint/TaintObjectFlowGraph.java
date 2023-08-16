@@ -12,9 +12,7 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TaintObjectFlowGraph implements Graph<Pointer> {
     private final MultiMap<Pointer, PointerFlowEdge> inEdges = Maps.newMultiMap(4096);
@@ -29,9 +27,6 @@ public class TaintObjectFlowGraph implements Graph<Pointer> {
 
     private final Solver solver;
 
-    private Set<Entry> visited = Sets.newSet();
-
-    private Map<Entry, Boolean> dfsCache = Maps.newMap();
 
     public TaintObjectFlowGraph(TaintPointerFlowGraph tpfg,
                                 Pointer source,
@@ -42,45 +37,52 @@ public class TaintObjectFlowGraph implements Graph<Pointer> {
         this.tpfg = tpfg;
         this.sink = sink;
         this.solver = solver;
-        init(source, concernedObj);
+        build(new Entry(source, concernedObj));
     }
 
-    private void init(Pointer source, CSObj concernedObj) {
-        dfs(new Entry(source, concernedObj));
-        visited = null;
-        dfsCache = null;
-    }
+    private void build(Entry entry) {
+        Set<Entry> visited = Sets.newSet();
+        Map<Entry, Boolean> dfsCache = Maps.newMap();
+        Deque<Entry> stack = new ArrayDeque<>();
+        stack.push(entry);
 
-    private boolean dfs(Entry entry) {
-        if(!visited.add(entry)) {
-            return false;
-        }
-        if(dfsCache.containsKey(entry)) {
-            return dfsCache.get(entry);
-        }
-        Pointer pointer = entry.pointer;
-        CSObj concernedObj = entry.concernedObj;
-        assert pointer.getObjects().contains(concernedObj);
-        PointsToSet pts = solver.makePointsToSet();
-        pts.addObject(concernedObj);
-        boolean canReachSink = pointer.equals(sink);
-        for(PointerFlowEdge edge : tpfg.getOutEdgesOf(pointer)) {
-            Set<CSObj> outObjs = applyTransfer(edge, concernedObj).getObjects();
-            if(outObjs.stream().anyMatch(csObj -> dfs(new Entry(edge.target(), csObj)))) {
-                addEdge(edge);
-                canReachSink = true;
+        while (!stack.isEmpty()) {
+            Entry curr = stack.pop();
+            Pointer pointer = curr.pointer;
+            CSObj concernedObj = entry.concernedObj;
+            assert pointer.getObjects().contains(concernedObj);
+            if (visited.add(curr)) {
+                stack.push(curr);
+                for (PointerFlowEdge edge : tpfg.getOutEdgesOf(pointer)) {
+                    Set<CSObj> outObjs = applyTransfer(edge, concernedObj).getObjects();
+                    for (CSObj csObj : outObjs) {
+                        Entry newEntry = new Entry(edge.target(), csObj);
+                        if (!dfsCache.containsKey(newEntry)) {
+                            stack.push(newEntry);
+                        }
+                    }
+                }
+            } else {
+                boolean canReachSink = pointer.equals(sink);
+                for (PointerFlowEdge edge : tpfg.getOutEdgesOf(pointer)) {
+                    Set<CSObj> outObjs = applyTransfer(edge, concernedObj).getObjects();
+                    if (outObjs.stream().anyMatch(csObj ->
+                            dfsCache.getOrDefault(new Entry(edge.target(), csObj), false))) {
+                        addEdge(edge);
+                        canReachSink = true;
+                    }
+                }
+                dfsCache.put(curr, canReachSink);
+                visited.remove(entry);
             }
         }
-        visited.remove(entry);
-        dfsCache.put(entry, canReachSink);
-        return canReachSink;
     }
 
     private PointsToSet applyTransfer(PointerFlowEdge edge, CSObj csObj) {
         PointsToSet pts = solver.makePointsToSet();
         pts.addObject(csObj);
         PointsToSet result = solver.makePointsToSet();
-        for(Transfer transfer : edge.getTransfers()) {
+        for (Transfer transfer : edge.getTransfers()) {
             result.addAll(transfer.apply(edge, pts));
         }
         return result;
