@@ -1,5 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer;
 
+import pascal.taie.analysis.graph.callgraph.CallKind;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -51,7 +53,7 @@ public class TransferGenerator {
                 // r = o.m(..)
                 // r = p
                 Set<InferredTransfer> result = Sets.newSet();
-                for(CSMethod callee : solver.getCallGraph().getCalleesOf(csCallSite)) {
+                for(CSMethod callee : getCalleesOf(csCallSite)) {
                     Context calleeContext = callee.getContext();
                     JMethod method = callee.getMethod();
                     Set<Type> toTypes = method.getIR().getReturnVars()
@@ -69,7 +71,7 @@ public class TransferGenerator {
                 return result;
             } else {
                 Set<Type> toTypes = getArgType(csCallSite, to);
-                Set<JMethod> callees = solver.getCallGraph().getCalleesOf(csCallSite)
+                Set<JMethod> callees = getCalleesOf(csCallSite)
                         .stream()
                         .map(CSMethod::getMethod)
                         .collect(Collectors.toUnmodifiableSet());
@@ -105,5 +107,13 @@ public class TransferGenerator {
                 .map(csObj -> csObj.getObject().getType())
                 .filter(type -> concernedTypes.contains(type.getClass()))
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    // Edge with CallKind.OTHER will be filtered
+    private Set<CSMethod> getCalleesOf(CSCallSite csCallSite) {
+        return solver.getCallGraph().edgesOutOf(csCallSite)
+                .filter(edge -> edge.getKind() != CallKind.OTHER)
+                .map(Edge::getCallee)
+                .collect(Collectors.toSet());
     }
 }
