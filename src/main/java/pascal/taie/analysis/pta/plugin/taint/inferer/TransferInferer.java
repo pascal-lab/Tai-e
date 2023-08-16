@@ -20,7 +20,6 @@ import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.plugin.taint.TaintNode;
 import pascal.taie.analysis.pta.plugin.taint.TaintNodeFlowEdge;
-import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
@@ -64,7 +63,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     protected final Consumer<TaintTransfer> newTransferConsumer;
     protected final LinkedHashSet<TransInferStrategy> generateStrategies = new LinkedHashSet<>();
     protected final LinkedHashSet<TransInferStrategy> filterStrategies = new LinkedHashSet<>();
-    protected final Set<InferredTransfer> addedTransfers = Sets.newSet();
+    protected final Set<InferredTransfer> addedTransfers = Sets.newLinkedSet();
     private final MultiMap<CSVar, Pair<CSCallSite, Integer>> arg2Callsites = Maps.newMultiMap(4096);
     private final Set<CSVar> taintVars = Sets.newSet();
     private final Set<CSVar> newTaintVars = Sets.newSet();
