@@ -49,7 +49,7 @@ public class TaintObjectFlowGraph implements Graph<Pointer> {
         while (!stack.isEmpty()) {
             Entry curr = stack.pop();
             Pointer pointer = curr.pointer;
-            CSObj concernedObj = entry.concernedObj;
+            CSObj concernedObj = curr.concernedObj;
             assert pointer.getObjects().contains(concernedObj);
             if (visited.add(curr)) {
                 stack.push(curr);
@@ -73,7 +73,7 @@ public class TaintObjectFlowGraph implements Graph<Pointer> {
                     }
                 }
                 dfsCache.put(curr, canReachSink);
-                visited.remove(entry);
+                visited.remove(curr);
             }
         }
     }
