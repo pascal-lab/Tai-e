@@ -25,6 +25,8 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JField;
 
+import java.util.Objects;
+
 public record TransferPoint(Kind kind, int index, JField field) {
 
     static final String ARRAY_SUFFIX = "[*]";
@@ -37,6 +39,19 @@ public record TransferPoint(Kind kind, int index, JField field) {
     public JField field() {
         assert kind == Kind.FIELD : "Not a FIELD TransferPoint";
         return field;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransferPoint that = (TransferPoint) o;
+        return index == that.index && kind == that.kind && Objects.equals(field, that.field);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kind, index, field);
     }
 
     @Override

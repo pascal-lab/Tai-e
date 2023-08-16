@@ -2,6 +2,7 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -19,6 +20,7 @@ import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
+import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TransInferStrategy;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -31,6 +33,10 @@ import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -155,31 +161,35 @@ public abstract class TransferInferer extends OnFlyHandler {
         return strategies;
     }
 
+    private void addNewTransfer(InferredTransfer transfer) {
+        if (addedTransfers.add(transfer)) {
+            newTransferConsumer.accept(transfer);
+        }
+    }
+
     public void collectInferredTrans(Set<TaintFlow> taintFlows) {
-        logger.info("Total inferred transfers count : {}", addedTransfers.size());
-        logger.info("Inferred transfers (merge type) count: {}", addedTransfers.stream()
-                .map(tf -> new Entry(tf.getMethod(), tf.getFrom().index(), tf.getTo().index()))
-                .distinct()
-                .count());
+        File output = new File(World.get().getOptions().getOutputDir(), "transfer-inferer-output.log");
+        logger.info("Dumping {}", output.getAbsolutePath());
+        try (PrintStream out = new PrintStream(new FileOutputStream(output))) {
+            dump(taintFlows, out);
+        } catch (FileNotFoundException e) {
+            logger.warn("Failed to dump to {}", output.getAbsolutePath(), e);
+        }
+    }
+
+    private void dump(Set<TaintFlow> taintFlows, PrintStream out) {
+        out.printf("Total inferred transfers count : %d%n", addedTransfers.size());
+        out.printf("Inferred transfers (merge type) count: %d%n", countTransferIgnoreType(addedTransfers));
         if (taintFlows.isEmpty()) {
             return;
         }
-        logger.info("\nTransfer inferer output:");
         TaintPointerFlowGraph tpfg = new TPFGBuilder(solver, manager, taintFlows, false, true).build();
         TransWeightHandler weightHandler = new TransWeightHandler(solver.getCallGraph(),
                 tpfg, csManager, getInferredTrans());
 
-        Set<InferredTransfer> taintRelatedTransfers = tpfg.getNodes().stream()
-                .map(tpfg::getOutEdgesOf)
-                .flatMap(Collection::stream)
-                .map(weightHandler::getInferredTrans)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toUnmodifiableSet());
-        logger.info("Taint related transfers count : {}", taintRelatedTransfers.size());
-        logger.info("Taint related transfers (merge type) count : {}", taintRelatedTransfers.stream()
-                .map(tf -> new Entry(tf.getMethod(), tf.getFrom().index(), tf.getTo().index()))
-                .distinct()
-                .count());
+        Set<InferredTransfer> taintTransfers = getTaintRelatedTransfer(tpfg, weightHandler);
+        out.printf("%n%d taint related transfers: %n", taintTransfers.size());
+        taintTransfers.forEach(tf -> out.printf("%s%n", tf));
 
         Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
                 .filter(source -> tpfg.getOutDegreeOf(source) > 0)
@@ -202,19 +212,26 @@ public abstract class TransferInferer extends OnFlyHandler {
                     Var sourceVar = ((CSVar) source).getVar();
                     Var sinkVar = ((CSVar) sink).getVar();
                     List<PointerFlowEdge> oldPath = taintPaths.get(sourceVar, sinkVar);
-                    if(oldPath == null || path.size() < oldPath.size()) {
+                    if (oldPath == null || path.size() < oldPath.size()) {
                         taintPaths.put(sourceVar, sinkVar, path);
                     }
                 }
             }
         }
 
-        for(TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
-            logger.info("\n{} -> {}:", varToString(entry.key1()), varToString(entry.key2()));
+        out.printf("%nInferred transfers:");
+        for (TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
+            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
             entry.value().stream()
                     .map(weightHandler::getInferredTrans)
                     .flatMap(Collection::stream)
-                    .forEach(tf -> logger.info(transferToString(tf)));
+                    .forEach(tf -> out.println(transferToString(tf)));
+        }
+
+        out.printf("%nShortest taint path:");
+        for (TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
+            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
+            entry.value().forEach(out::println);
         }
     }
 
@@ -236,14 +253,24 @@ public abstract class TransferInferer extends OnFlyHandler {
         return v.getMethod() + "/" + v.getName();
     }
 
-    private void addNewTransfer(InferredTransfer transfer) {
-        if (addedTransfers.add(transfer)) {
-            newTransferConsumer.accept(transfer);
-        }
+    private long countTransferIgnoreType(Set<? extends TaintTransfer> transfers) {
+        return transfers.stream()
+                .map(tf -> new Entry(tf.getMethod(), tf.getFrom(), tf.getTo()))
+                .distinct()
+                .count();
     }
 
-    private record Entry(JMethod method, int from, int to) {
-
+    private Set<InferredTransfer> getTaintRelatedTransfer(TaintPointerFlowGraph tpfg,
+                                                          TransWeightHandler weightHandler) {
+        return tpfg.getNodes().stream()
+                .map(tpfg::getOutEdgesOf)
+                .flatMap(Collection::stream)
+                .map(weightHandler::getInferredTrans)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
+    private record Entry(JMethod method, TransferPoint from, TransferPoint to) {
+
+    }
 }
