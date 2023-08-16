@@ -134,7 +134,7 @@ public class TaintAnalysis implements Plugin {
                 },
                 "TFGDumper");
         if (config.inferenceConfig().inferenceEnable()) {
-            transferInferer.collectInferredTrans(taintFlows);
+            Timer.runAndCount(() -> transferInferer.collectInferredTrans(taintFlows), "TransferInfererDumper");
         }
     }
 }
