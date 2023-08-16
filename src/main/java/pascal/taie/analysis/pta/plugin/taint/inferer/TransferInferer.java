@@ -238,7 +238,10 @@ public abstract class TransferInferer extends OnFlyHandler {
         out.printf("%nShortest taint path:");
         for (TwoKeyMap.Entry<Var, Var, List<Edge<TaintNode>>> entry : taintPaths.entrySet()) {
             out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            entry.value().forEach(out::println);
+            entry.value().forEach(edge -> {
+                PointerFlowEdge pointerFlowEdge = ((TaintNodeFlowEdge) edge).pointerFlowEdge();
+                out.println(pointerFlowEdge);
+            });
         }
     }
 
