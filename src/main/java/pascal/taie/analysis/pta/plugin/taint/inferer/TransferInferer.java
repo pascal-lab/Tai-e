@@ -14,9 +14,12 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
+import pascal.taie.analysis.pta.plugin.taint.PointerTaintFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
+import pascal.taie.analysis.pta.plugin.taint.TaintNode;
+import pascal.taie.analysis.pta.plugin.taint.TaintNodeFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
@@ -32,6 +35,8 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.graph.Edge;
+import pascal.taie.util.graph.ShortestPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +48,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class TransferInferer extends OnFlyHandler {
@@ -196,40 +202,41 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .collect(Collectors.toSet());
         Set<Pointer> sinkPointers = tpfg.getSinkPointers();
         // TODO: handle other call source type
-        TwoKeyMap<Var, Var, List<PointerFlowEdge>> taintPaths = Maps.newTwoKeyMap();
+        TwoKeyMap<Var, Var, List<Edge<TaintNode>>> taintPaths = Maps.newTwoKeyMap();
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
             for (Pointer sink : sinkPointers) {
-                TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, sink, solver);
-                ShortestTaintPath shortestTaintPath = new ShortestTaintPath(tofg, source,
-                        weightHandler::getWeight,
-                        weightHandler::getCost,
-                        solver);
-                shortestTaintPath.compute();
-                List<PointerFlowEdge> path = shortestTaintPath.getPath(sink);
-                if (!path.isEmpty()) {
-                    Var sourceVar = ((CSVar) source).getVar();
-                    Var sinkVar = ((CSVar) sink).getVar();
-                    List<PointerFlowEdge> oldPath = taintPaths.get(sourceVar, sinkVar);
-                    if (oldPath == null || path.size() < oldPath.size()) {
-                        taintPaths.put(sourceVar, sinkVar, path);
-                    }
-                }
+                PointerTaintFlowGraph ptfg = new PointerTaintFlowGraph(tpfg, source, taintObj, solver);
+                ShortestPath<TaintNode> shortestPath = new ShortestPath<>(ptfg, ptfg.getSourceNode(),
+                        edge -> weightHandler.getWeight(((TaintNodeFlowEdge)edge).pointerFlowEdge()),
+                        edge -> weightHandler.getCost(((TaintNodeFlowEdge)edge).pointerFlowEdge()));
+                shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
+                ptfg.getTaintNode(sink).stream()
+                        .map(shortestPath::getPath)
+                        .filter(Predicate.not(List::isEmpty))
+                        .forEach(path -> {
+                            Var sourceVar = ((CSVar) source).getVar();
+                            Var sinkVar = ((CSVar) sink).getVar();
+                            List<Edge<TaintNode>> oldPath = taintPaths.get(sourceVar, sinkVar);
+                            if (oldPath == null || path.size() < oldPath.size()) {
+                                taintPaths.put(sourceVar, sinkVar, path);
+                            }
+                        });
             }
         }
 
         out.printf("%nInferred transfers:");
-        for (TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
+        for (TwoKeyMap.Entry<Var, Var, List<Edge<TaintNode>>> entry : taintPaths.entrySet()) {
             out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
             entry.value().stream()
-                    .map(weightHandler::getInferredTrans)
+                    .map(edge -> weightHandler.getInferredTrans(((TaintNodeFlowEdge)edge).pointerFlowEdge()))
                     .flatMap(Collection::stream)
                     .forEach(tf -> out.println(transferToString(tf)));
         }
 
         out.printf("%nShortest taint path:");
-        for (TwoKeyMap.Entry<Var, Var, List<PointerFlowEdge>> entry : taintPaths.entrySet()) {
+        for (TwoKeyMap.Entry<Var, Var, List<Edge<TaintNode>>> entry : taintPaths.entrySet()) {
             out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
             entry.value().forEach(out::println);
         }

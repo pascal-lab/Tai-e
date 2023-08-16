@@ -12,7 +12,11 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Set;
 
 public class TaintObjectFlowGraph implements Graph<Pointer> {
     private final MultiMap<Pointer, PointerFlowEdge> inEdges = Maps.newMultiMap(4096);
