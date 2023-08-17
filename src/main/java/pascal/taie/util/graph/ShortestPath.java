@@ -31,7 +31,10 @@ public class ShortestPath<N> {
 
     private Map<N, Integer> node2PathCost;
 
-    public ShortestPath(Graph<N> graph, N source, ToIntFunction<Edge<N>> weightCalc, ToIntFunction<Edge<N>> costCalc) {
+    public ShortestPath(Graph<N> graph,
+                        N source,
+                        ToIntFunction<Edge<N>> weightCalc,
+                        ToIntFunction<Edge<N>> costCalc) {
         this.graph = graph;
         this.source = source;
         this.weightCalc = weightCalc;

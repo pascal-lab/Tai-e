@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 public class TPFGBuilder {
 
     private final Solver solver;
@@ -199,7 +198,11 @@ public class TPFGBuilder {
         taintSet.forEach(pts::addObject);
         return pointer.getOutEdges().stream()
                 .filter(edge -> edge.getTransfers().stream()
-                        .anyMatch(tf -> !tf.apply(edge, pts).isEmpty()))
+                        .anyMatch(tf -> {
+                            Set<CSObj> outObjs = tf.apply(edge, pts).getObjects();
+                            Set<CSObj> targetObjs = edge.target().getObjects();
+                            return outObjs.stream().anyMatch(targetObjs::contains);
+                        }))
                 .toList();
     }
 
