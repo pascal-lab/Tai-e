@@ -14,7 +14,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
-import pascal.taie.analysis.pta.plugin.taint.PointerTaintFlowGraph;
+import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
@@ -206,12 +206,12 @@ public abstract class TransferInferer extends OnFlyHandler {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
             for (Pointer sink : sinkPointers) {
-                PointerTaintFlowGraph ptfg = new PointerTaintFlowGraph(tpfg, source, taintObj, solver);
-                ShortestPath<TaintNode> shortestPath = new ShortestPath<>(ptfg, ptfg.getSourceNode(),
+                TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, solver);
+                ShortestPath<TaintNode> shortestPath = new ShortestPath<>(tofg, tofg.getSourceNode(),
                         edge -> weightHandler.getWeight(((TaintNodeFlowEdge)edge).pointerFlowEdge()),
                         edge -> weightHandler.getCost(((TaintNodeFlowEdge)edge).pointerFlowEdge()));
                 shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
-                ptfg.getTaintNode(sink).stream()
+                tofg.getTaintNode(sink).stream()
                         .map(shortestPath::getPath)
                         .filter(Predicate.not(List::isEmpty))
                         .forEach(path -> {

@@ -9,82 +9,72 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
 
-public class TaintObjectFlowGraph implements Graph<Pointer> {
-    private final MultiMap<Pointer, PointerFlowEdge> inEdges = Maps.newMultiMap(4096);
+public class TaintObjectFlowGraph implements Graph<TaintNode> {
 
-    private final MultiMap<Pointer, PointerFlowEdge> outEdges = Maps.newMultiMap(4096);
+    private final MultiMap<TaintNode, TaintNodeFlowEdge> inEdges = Maps.newMultiMap(4096);
 
-    private final Set<Pointer> nodes = Sets.newSet();
+    private final MultiMap<TaintNode, TaintNodeFlowEdge> outEdges = Maps.newMultiMap(4096);
+
+    private final Set<TaintNode> nodes = Sets.newSet(4096);
 
     private final TaintPointerFlowGraph tpfg;
 
-    private final Pointer sink;
-
     private final Solver solver;
 
+    private final TaintNode sourceNode;
+
+    private final TwoKeyMap<Pointer, CSObj, TaintNode> taintNodeMap = Maps.newTwoKeyMap();
 
     public TaintObjectFlowGraph(TaintPointerFlowGraph tpfg,
                                 Pointer source,
                                 CSObj concernedObj,
-                                Pointer sink,
                                 Solver solver) {
         assert source.getObjects().contains(concernedObj);
         this.tpfg = tpfg;
-        this.sink = sink;
         this.solver = solver;
-        build(new Entry(source, concernedObj));
+        this.sourceNode = new TaintNode(source, concernedObj);
+        build(sourceNode);
     }
 
-    private void build(Entry entry) {
-        Set<Entry> visited = Sets.newSet();
-        Map<Entry, Boolean> dfsCache = Maps.newMap();
-        Deque<Entry> stack = new ArrayDeque<>();
-        stack.push(entry);
+    private void build(TaintNode node) {
+        Set<TaintNode> visited = Sets.newSet();
+        Deque<TaintNode> workList = new ArrayDeque<>();
+        workList.add(node);
 
-        while (!stack.isEmpty()) {
-            Entry curr = stack.pop();
-            Pointer pointer = curr.pointer;
-            CSObj concernedObj = curr.concernedObj;
-            assert pointer.getObjects().contains(concernedObj);
+        while (!workList.isEmpty()) {
+            TaintNode curr = workList.poll();
             if (visited.add(curr)) {
-                stack.push(curr);
-                for (PointerFlowEdge edge : tpfg.getOutEdgesOf(pointer)) {
-                    Set<CSObj> outObjs = applyTransfer(edge, concernedObj).getObjects();
-                    for (CSObj csObj : outObjs) {
-                        Entry newEntry = new Entry(edge.target(), csObj);
-                        if (!dfsCache.containsKey(newEntry)) {
-                            stack.push(newEntry);
+                Pointer pointer = curr.pointer();
+                CSObj taintObj = curr.taintObj();
+                assert pointer.getObjects().contains(taintObj);
+                for (PointerFlowEdge pointerFlowEdge : tpfg.getOutEdgesOf(pointer)) {
+                    Pointer target = pointerFlowEdge.target();
+                    for(CSObj outObj : applyTransfer(pointerFlowEdge, taintObj)) {
+                        if(target.getObjects().contains(outObj)) {
+                            TaintNode newNode = taintNodeMap.computeIfAbsent(target, outObj, TaintNode::new);
+                            addEdge(new TaintNodeFlowEdge(curr, newNode, pointerFlowEdge));
+                            workList.add(newNode);
                         }
                     }
                 }
-            } else {
-                boolean canReachSink = pointer.equals(sink);
-                for (PointerFlowEdge edge : tpfg.getOutEdgesOf(pointer)) {
-                    Set<CSObj> outObjs = applyTransfer(edge, concernedObj).getObjects();
-                    if (outObjs.stream().anyMatch(csObj ->
-                            dfsCache.getOrDefault(new Entry(edge.target(), csObj), false))) {
-                        addEdge(edge);
-                        canReachSink = true;
-                    }
-                }
-                dfsCache.put(curr, canReachSink);
-                visited.remove(curr);
             }
         }
     }
 
-    private PointsToSet applyTransfer(PointerFlowEdge edge, CSObj csObj) {
+    private PointsToSet applyTransfer(PointerFlowEdge edge, CSObj taintObj) {
         PointsToSet pts = solver.makePointsToSet();
-        pts.addObject(csObj);
+        pts.addObject(taintObj);
         PointsToSet result = solver.makePointsToSet();
         for (Transfer transfer : edge.getTransfers()) {
             result.addAll(transfer.apply(edge, pts));
@@ -92,39 +82,43 @@ public class TaintObjectFlowGraph implements Graph<Pointer> {
         return result;
     }
 
-    record Entry(Pointer pointer, CSObj concernedObj) {
-
-    }
-
-    public void addEdge(PointerFlowEdge edge) {
+    public void addEdge(TaintNodeFlowEdge edge) {
         outEdges.put(edge.source(), edge);
         inEdges.put(edge.target(), edge);
         nodes.add(edge.source());
         nodes.add(edge.target());
     }
 
-    @Override
-    public Set<Pointer> getPredsOf(Pointer pointer) {
-        return Views.toMappedSet(getInEdgesOf(pointer), PointerFlowEdge::source);
+    public TaintNode getSourceNode() {
+        return sourceNode;
+    }
+
+    public Collection<TaintNode> getTaintNode(Pointer pointer) {
+        return taintNodeMap.getOrDefault(pointer, Map.of()).values();
     }
 
     @Override
-    public Set<Pointer> getSuccsOf(Pointer pointer) {
-        return Views.toMappedSet(getOutEdgesOf(pointer), PointerFlowEdge::target);
+    public Set<TaintNode> getPredsOf(TaintNode node) {
+        return Views.toMappedSet(getInEdgesOf(node), TaintNodeFlowEdge::source);
     }
 
     @Override
-    public Set<PointerFlowEdge> getInEdgesOf(Pointer pointer) {
-        return inEdges.get(pointer);
+    public Set<TaintNode> getSuccsOf(TaintNode node) {
+        return Views.toMappedSet(getOutEdgesOf(node), TaintNodeFlowEdge::target);
     }
 
     @Override
-    public Set<PointerFlowEdge> getOutEdgesOf(Pointer pointer) {
-        return outEdges.get(pointer);
+    public Set<TaintNodeFlowEdge> getInEdgesOf(TaintNode node) {
+        return inEdges.get(node);
     }
 
     @Override
-    public Set<Pointer> getNodes() {
+    public Set<TaintNodeFlowEdge> getOutEdgesOf(TaintNode node) {
+        return outEdges.get(node);
+    }
+
+    @Override
+    public Set<TaintNode> getNodes() {
         return Collections.unmodifiableSet(nodes);
     }
 }
