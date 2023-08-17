@@ -3,9 +3,9 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.NodeManager;
 import pascal.taie.analysis.pta.core.cs.element.*;
-import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
@@ -23,6 +23,8 @@ public class TTaintFlowGraph extends NodeManager
 
     private final Map<Node, List<Set<TaintFlowEdge>>> outEdges = Maps.newHybridMap();
 
+    private final Set<TaintFlowEdge> edges = Sets.newHybridSet();
+
     public TTaintFlowGraph(TaintPointerFlowGraph tpfg){
 //        this.sourceNodes = tpfg.getSourcePointers().stream()
 //                .map(this::toNode)
@@ -30,18 +32,22 @@ public class TTaintFlowGraph extends NodeManager
 //        this.sinkNodes = tpfg.getSinkPointers().stream()
 //                .map(this::toNode)
 //                .collect(Collectors.toSet());
+        Map<Node, List<Pointer>> mergeNodes = Maps.newHybridMap();
         tpfg.getNodes().forEach(node -> {
-            inEdges.computeIfAbsent(toNode(node), k -> new ArrayList<>())
-                    .add(tpfg.getInEdgesOf(node).stream()
-                            .map(edge->new TaintFlowEdge(edge.kind(), toNode(edge.source()), toNode(edge.target()),
-                                    edge.getTransfers().stream().anyMatch(transfer -> transfer instanceof InferredTransfer)))
-                            .collect(Collectors.toSet()));
-            outEdges.computeIfAbsent(toNode(node), k -> new ArrayList<>())
-                    .add(tpfg.getOutEdgesOf(node).stream()
-                            .map(edge->new TaintFlowEdge(edge.kind(), toNode(edge.source()), toNode(edge.target()),
-                                    edge.getTransfers().stream().anyMatch(transfer -> transfer instanceof InferredTransfer)))
-                            .collect(Collectors.toSet()));
+//            inEdges.computeIfAbsent(toNode(node), k -> new ArrayList<>())
+//                    .add(tpfg.getInEdgesOf(node).stream()
+//                            .map(edge->new TaintFlowEdge(edge.kind(), toNode(edge.source()), toNode(edge.target())))
+//                            .collect(Collectors.toSet()));
+//            outEdges.computeIfAbsent(toNode(node), k -> new ArrayList<>())
+//                    .add(tpfg.getOutEdgesOf(node).stream()
+//                            .map(edge->new TaintFlowEdge(edge.kind(), toNode(edge.source()), toNode(edge.target())))
+//                            .collect(Collectors.toSet()));
+            mergeNodes.computeIfAbsent(toNode(node), k -> new ArrayList<>()).add(node);
         });
+        tpfg.getNodes().forEach(node -> edges.addAll(tpfg.getInEdgesOf(node).stream()
+                .map(edge -> new TaintFlowEdge(edge.kind(), toNode(edge.source()), toNode(edge.target()),
+                        mergeNodes.get(toNode(node)).indexOf(edge.source()), mergeNodes.get(toNode(node)).indexOf(edge.target())))
+                .collect(Collectors.toSet())));
     }
 
     private Node toNode(Pointer pointer) {
@@ -73,6 +79,10 @@ public class TTaintFlowGraph extends NodeManager
 
     public Map<Node, List<Set<TaintFlowEdge>>> getOutEdges(){
         return outEdges;
+    }
+
+    public Set<TaintFlowEdge> getEdges() {
+        return edges;
     }
 
     @Override
