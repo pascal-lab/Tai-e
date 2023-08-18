@@ -61,7 +61,7 @@ public class ShortestPath<N> {
 
     private void runDijkstra() {
         // Initialize
-        PriorityQueue<DistPair> queue = new PriorityQueue<>();
+        PriorityQueue<DistPair> queue = new PriorityQueue<>(graph.getNumberOfNodes());
         Set<N> finished = Sets.newSet(graph.getNumberOfNodes());
         graph.forEach(node -> node2PathPredecessor.put(node, null));
         graph.forEach(node -> node2PathDistance.put(node, INVALID_WEIGHT));

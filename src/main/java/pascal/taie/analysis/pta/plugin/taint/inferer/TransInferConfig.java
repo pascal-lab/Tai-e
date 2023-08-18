@@ -39,7 +39,7 @@ public record TransInferConfig(Confidence confidence,
                 '}';
     }
 
-    public enum Confidence {DISABLE, LOW, HIGH}
+    public enum Confidence {DISABLE, LOW, MEDIUM, HIGH}
 
     public enum Scope {APP, APP_LIB, ALL}
 }

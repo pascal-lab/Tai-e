@@ -101,6 +101,11 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
+    public Collection<InstanceField> getInstanceFieldsOf(CSObj csObj) {
+        return ptrManager.getInstanceFieldsOf(csObj);
+    }
+
+    @Override
     public Collection<InstanceField> getInstanceFields() {
         return ptrManager.getInstanceFields();
     }
@@ -203,6 +208,10 @@ public class MapBasedCSManager implements CSManager {
 
         private Collection<StaticField> getStaticFields() {
             return Collections.unmodifiableCollection(staticFields.values());
+        }
+
+        private Collection<InstanceField> getInstanceFieldsOf(CSObj csObj) {
+            return instanceFields.getOrDefault(csObj, Map.of()).values();
         }
 
         private Collection<InstanceField> getInstanceFields() {
