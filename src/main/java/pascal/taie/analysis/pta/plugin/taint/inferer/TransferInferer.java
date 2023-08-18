@@ -147,6 +147,9 @@ public abstract class TransferInferer extends OnFlyHandler {
                         .collect(Collectors.toUnmodifiableSet());
                 if (!possibleTransfers.isEmpty()) {
                     for (TransInferStrategy strategy : filterStrategies) {
+                        if(possibleTransfers.isEmpty()) {
+                            break;
+                        }
                         possibleTransfers = strategy.filter(csCallSite, index, possibleTransfers);
                     }
                 }

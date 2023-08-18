@@ -105,6 +105,11 @@ public interface CSManager {
     Collection<StaticField> getStaticFields();
 
     /**
+     * @return all relevant instance field pointers for given context-sensitive object.
+     */
+    Collection<InstanceField> getInstanceFieldsOf(CSObj csObj);
+
+    /**
      * @return all instance field pointers.
      */
     Collection<InstanceField> getInstanceFields();

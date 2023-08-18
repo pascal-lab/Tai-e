@@ -34,6 +34,7 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.taint.inferer.HighTransferInferer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.LowTransferInferer;
+import pascal.taie.analysis.pta.plugin.taint.inferer.MediumTransferInferer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.TransferInferer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Stmt;
@@ -77,17 +78,14 @@ public class TaintAnalysis implements Plugin {
                 new SourceHandler(context),
                 transferHandler,
                 new SanitizerHandler(context));
-        switch (config.inferenceConfig().confidence()) {
-            case DISABLE -> {
-            }
-            case LOW -> {
-                transferInferer = new LowTransferInferer(context, transferHandler::addNewTransfer);
-                onFlyHandler.addPlugin(transferInferer);
-            }
-            case HIGH -> {
-                transferInferer = new HighTransferInferer(context, transferHandler::addNewTransfer);
-                onFlyHandler.addPlugin(transferInferer);
-            }
+        transferInferer = switch (config.inferenceConfig().confidence()) {
+            case LOW -> new LowTransferInferer(context, transferHandler::addNewTransfer);
+            case MEDIUM -> new MediumTransferInferer(context, transferHandler::addNewTransfer);
+            case HIGH -> new HighTransferInferer(context, transferHandler::addNewTransfer);
+            default -> null;
+        };
+        if(transferInferer != null) {
+            onFlyHandler.addPlugin(transferInferer);
         }
         this.onFlyHandler = onFlyHandler;
         sinkHandler = new SinkHandler(context);
