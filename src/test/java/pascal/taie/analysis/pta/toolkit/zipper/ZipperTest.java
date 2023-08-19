@@ -23,6 +23,8 @@
 package pascal.taie.analysis.pta.toolkit.zipper;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.graph.flowgraph.FlowGraphDumper;
@@ -58,10 +60,16 @@ public class ZipperTest {
         new DotDumper<Obj>().dump(oag, output);
     }
 
-    @Test
-    void testOFG() {
-        Stream.of("Cast", "StoreLoad", "Array", "CallParamRet", "Cycle")
-                .forEach(main -> dumpOFG(BASIC, main));
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Cast",
+            "StoreLoad",
+            "Array",
+            "CallParamRet",
+            "Cycle",
+    })
+    void testOFG(String mainClass) {
+        dumpOFG(BASIC, mainClass);
     }
 
     private static void dumpOFG(String dir, String main) {

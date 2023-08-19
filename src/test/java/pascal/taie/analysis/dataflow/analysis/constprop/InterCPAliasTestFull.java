@@ -24,70 +24,32 @@ package pascal.taie.analysis.dataflow.analysis.constprop;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @Disabled
 public class InterCPAliasTestFull extends InterCPAliasTest {
 
-    // Tests instance field
-    @Test
-    void testMultiLoads() {
-        test("MultiLoads");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            // Tests instance field
+            "MultiLoads",
+            "MultiObjs",
+            "Interprocedural",
+            "InheritedField",
+            "FieldCorner",
+            // Tests array
+            "ArrayField",
+            "ArrayInter",
+            "ArrayCorner",
+            // Other tests
+            "Reference",
+            "ObjSens2",
+            "ArrayInField",
+            "MaxPQ",
+    })
+    void testFull(String mainClass) {
+        testInterCPAlias(mainClass);
     }
 
-    @Test
-    void testMultiObjs() {
-        test("MultiObjs");
-    }
-
-    @Test
-    void testInterprocedural() {
-        test("Interprocedural");
-    }
-
-    @Test
-    void testInheritedField() {
-        test("InheritedField");
-    }
-
-    @Test
-    void testFieldCorner() {
-        test("FieldCorner");
-    }
-
-    // Tests array
-    @Test
-    void testArrayField() {
-        test("ArrayField");
-    }
-
-    @Test
-    void testArrayInter() {
-        test("ArrayInter");
-    }
-
-    @Test
-    void testArrayCorner() {
-        test("ArrayCorner");
-    }
-
-    // Other tests
-    @Test
-    void testReference() {
-        test("Reference");
-    }
-
-    @Test
-    void testObjSens2() {
-        test("ObjSens2");
-    }
-
-    @Test
-    void testArrayInField() {
-        test("ArrayInField");
-    }
-
-    @Test
-    void testMaxPQ() {
-        test("MaxPQ");
-    }
 }

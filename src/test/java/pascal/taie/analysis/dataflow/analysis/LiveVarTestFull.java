@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.dataflow.analysis;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 
 public class LiveVarTestFull extends LiveVarTest {
@@ -32,93 +33,30 @@ public class LiveVarTestFull extends LiveVarTest {
                 LiveVariable.ID, "strongly:true");
     }
 
-    @Test
-    void testAssign() {
-        testLV("Assign");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Invoke",
+            "Loop",
+            "AnonInner",
+            "Field",
+            "Graph",
+            "Sort",
+            "ComplexAssign",
+            "Corner",
+            "GaussianElimination",
+            "Switch",
+    })
+    void testFull(String inputClass) {
+        testLV(inputClass);
     }
 
-    @Test
-    void testInvoke() {
-        testLV("Invoke");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "StronglyAssign",
+            "StronglyBranchLoop",
+    })
+    void testStrong(String inputClass) {
+        testSLV(inputClass);
     }
 
-    @Test
-    void testBranch() {
-        testLV("Branch");
-    }
-
-    @Test
-    void testLoop() {
-        testLV("Loop");
-    }
-
-    @Test
-    void testBranchLoop() {
-        testLV("BranchLoop");
-    }
-
-    @Test
-    void testAnonInner() {
-        testLV("AnonInner");
-    }
-
-    @Test
-    void testArray() {
-        testLV("Array");
-    }
-
-    @Test
-    void testField() {
-        testLV("Field");
-    }
-
-    @Test
-    void testGraph() {
-        testLV("Graph");
-    }
-
-    @Test
-    void testSort() {
-        testLV("Sort");
-    }
-
-    @Test
-    void testComplexAssign() {
-        testLV("ComplexAssign");
-    }
-
-    @Test
-    void testCorner() {
-        testLV("Corner");
-    }
-
-    @Test
-    void testFibonacci() {
-        testLV("Fibonacci");
-    }
-
-    @Test
-    void testGaussianElimination() {
-        testLV("GaussianElimination");
-    }
-
-    @Test
-    void testSwitch() {
-        testLV("Switch");
-    }
-
-    @Test
-    void testReference() {
-        testLV("Reference");
-    }
-
-    @Test
-    void testStronglyAssign() {
-        testSLV("StronglyAssign");
-    }
-
-    @Test
-    void testStronglyBranchLoop() {
-        testSLV("StronglyBranchLoop");
-    }
 }

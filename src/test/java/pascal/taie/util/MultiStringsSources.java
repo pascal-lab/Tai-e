@@ -20,29 +20,34 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.deadcode;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+package pascal.taie.util;
 
-public class DeadCodeTestFull extends DeadCodeTest {
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "ControlFlowUnreachable2",
-            "UnreachableIfBranch2",
-            "UnreachableSwitchBranch2",
-            "DeadAssignment2",
-            "LiveAssignments",
-            "MixedDeadCode",
-            "NotDead",
-            "Corner",
-            "AllReachableIfBranch",
-            "ForLoops",
-            "ArrayField",
-    })
-    void testFull(String inputClass) {
-        testDCD(inputClass);
-    }
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * {@code @MultiStringsSources} is a simple container for one or more
+ * {@link MultiStringsSource} annotations.
+ *
+ * <p>Note, however, that use of the {@code @MultiStringsSources} container is completely
+ * optional since {@code @MultiStringsSource} is a {@linkplain java.lang.annotation.Repeatable
+ * repeatable} annotation.
+ *
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface MultiStringsSources {
+
+    /**
+     * An array of one or more {@link MultiStringsSource @MultiStringsSource}
+     * annotations.
+     */
+    MultiStringsSource[] value();
 
 }

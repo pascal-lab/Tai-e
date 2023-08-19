@@ -23,6 +23,8 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 
 public class ReflectionTest {
@@ -41,24 +43,17 @@ public class ReflectionTest {
                 "reflection-log:src/test/resources/pta/reflection/ReflectiveAction.log");
     }
 
-    // Test cases for Solar
-    @Test
-    void testLazyHeapModeling() {
-        Tests.testPTA(DIR, "LazyHeapModeling", "reflection-inference:solar");
-    }
-
-    @Test
-    void testArgsRefine() {
-        Tests.testPTA(DIR, "ArgsRefine", "reflection-inference:solar");
-    }
-
-    @Test
-    void testGetMethods() {
-        Tests.testPTA(DIR, "GetMethods", "reflection-inference:solar");
-    }
-
-    @Test
-    void testUnknownMethodName() {
-        Tests.testPTA(DIR, "UnknownMethodName", "reflection-inference:solar");
+    /**
+     * Test cases for Solar
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "LazyHeapModeling",
+            "ArgsRefine",
+            "GetMethods",
+            "UnknownMethodName"
+    })
+    void testSolar(String mainClass) {
+        Tests.testPTA(DIR, mainClass, "reflection-inference:solar");
     }
 }

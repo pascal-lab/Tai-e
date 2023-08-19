@@ -22,89 +22,42 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import pascal.taie.analysis.Tests;
+import pascal.taie.util.MultiStringsSource;
+
+import javax.annotation.Nullable;
 
 public class BasicTestFull extends BasicTest {
 
-    // Tests for handling of more Java features
-    @Test
-    void testStaticField() {
-        Tests.testPTA(DIR, "StaticField");
+    /**
+     * Tests for handling of more Java features
+     */
+    @ParameterizedTest
+    @MultiStringsSource("StaticField")
+    @MultiStringsSource("Array")
+    @MultiStringsSource("Cast")
+    @MultiStringsSource("Cast2")
+    @MultiStringsSource("Null")
+    @MultiStringsSource("Primitive")
+    @MultiStringsSource({"Primitives", "propagate-types:[reference,int,double];"
+            + "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]"})
+    @MultiStringsSource({"PropagateNull", "propagate-types:[reference,null];"
+            + "plugins:[pascal.taie.analysis.pta.plugin.NullHandler]"})
+    @MultiStringsSource({"Strings", "distinguish-string-constants:all"})
+    @MultiStringsSource("MultiArray")
+    @MultiStringsSource("Clinit")
+    @MultiStringsSource("ClassObj")
+    @MultiStringsSource("Native")
+    @MultiStringsSource({"NativeModel", "distinguish-string-constants:all"})
+    @MultiStringsSource({"Annotations", "cs:1-call;"
+            + "distinguish-string-constants:all;"})
+    void testFull(String mainClass, @Nullable String opts) {
+        if (opts != null) {
+            Tests.testPTA(DIR, mainClass, opts);
+        } else {
+            Tests.testPTA(DIR, mainClass);
+        }
     }
 
-    @Test
-    void testArray() {
-        Tests.testPTA(DIR, "Array");
-    }
-
-    @Test
-    void testCast() {
-        Tests.testPTA(DIR, "Cast");
-    }
-
-    @Test
-    void testCast2() {
-        Tests.testPTA(DIR, "Cast2");
-    }
-
-    @Test
-    void testNull() {
-        Tests.testPTA(DIR, "Null");
-    }
-
-    @Test
-    void testPrimitive() {
-        Tests.testPTA(DIR, "Primitive");
-    }
-
-    @Test
-    void testPrimitives() {
-        Tests.testPTA(DIR, "Primitives",
-                "propagate-types:[reference,int,double];" +
-                        "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]");
-    }
-
-    @Test
-    void testPropagateNull() {
-        Tests.testPTA(DIR, "PropagateNull",
-                "propagate-types:[reference,null];" +
-                        "plugins:[pascal.taie.analysis.pta.plugin.NullHandler]");
-    }
-
-    @Test
-    void testStrings() {
-        Tests.testPTA(DIR, "Strings", "distinguish-string-constants:all");
-    }
-
-    @Test
-    void testMultiArray() {
-        Tests.testPTA(DIR, "MultiArray");
-    }
-
-    @Test
-    void testClinit() {
-        Tests.testPTA(DIR, "Clinit");
-    }
-
-    @Test
-    void testClassObj() {
-        Tests.testPTA(DIR, "ClassObj");
-    }
-
-    @Test
-    void testNative() {
-        Tests.testPTA(DIR, "Native");
-    }
-
-    @Test
-    void testNativeModel() {
-        Tests.testPTA(DIR, "NativeModel", "distinguish-string-constants:all");
-    }
-
-    @Test
-    void testAnnotationModel() {
-        Tests.testPTA(DIR, "Annotations",
-                "cs:1-call", "distinguish-string-constants:all");
-    }
 }
