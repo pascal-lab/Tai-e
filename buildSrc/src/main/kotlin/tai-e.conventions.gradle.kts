@@ -1,4 +1,4 @@
-import java.nio.file.Files
+import kotlin.io.readText
 
 plugins {
     java
@@ -10,12 +10,15 @@ repositories {
     mavenCentral()
 }
 
-tasks.compileJava { options.encoding = "UTF-8" }
-tasks.compileTestJava { options.encoding = "UTF-8" }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
-// checks the code style after compilation
-tasks.classes { finalizedBy("checkstyleMain") }
-tasks.testClasses { finalizedBy("checkstyleTest") }
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
 
 tasks.withType<Javadoc> {
     val javadocConfigDir = rootProject.rootDir.resolve(
@@ -29,10 +32,8 @@ tasks.withType<Javadoc> {
         overview = javadocConfigDir.resolve("overview.html").path
         addStringOption("-add-stylesheet",
             javadocConfigDir.resolve("javadoc.css").path)
-        header = Files.readString(javadocConfigDir.resolve("header.html").toPath())
-            .escapeLineBreaking()
-        bottom = Files.readString(javadocConfigDir.resolve("footer.html").toPath())
-            .escapeLineBreaking()
+        header = javadocConfigDir.resolve("header.html").readText().escapeLineBreaking()
+        bottom = javadocConfigDir.resolve("footer.html").readText().escapeLineBreaking()
         // fix language and encoding
         encoding = "UTF-8"
         docEncoding = "UTF-8"
@@ -50,6 +51,9 @@ tasks.withType<Javadoc> {
     }
 }
 
+// checks the code style after compilation
+tasks.classes { finalizedBy("checkstyleMain") }
+tasks.testClasses { finalizedBy("checkstyleTest") }
 // custom the report format
 checkstyle {
     isShowViolations = false
