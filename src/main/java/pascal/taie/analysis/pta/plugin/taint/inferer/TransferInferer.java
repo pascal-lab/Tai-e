@@ -14,12 +14,12 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
-import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
 import pascal.taie.analysis.pta.plugin.taint.TaintNode;
 import pascal.taie.analysis.pta.plugin.taint.TaintNodeFlowEdge;
+import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
@@ -29,12 +29,14 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.MutableInt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.graph.Edge;
+import pascal.taie.util.graph.PathEdgeSorter;
 import pascal.taie.util.graph.ShortestPath;
 
 import java.io.File;
@@ -45,6 +47,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -139,6 +143,9 @@ public abstract class TransferInferer extends OnFlyHandler {
                 int index = entry.second();
                 if (csCallSite.getCallSite().isDynamic()
                         || index == RESULT) {
+                    continue;
+                }
+                if(getStrategies().stream().anyMatch(strategy -> strategy.shouldIgnore(csCallSite, index))) {
                     continue;
                 }
                 Set<InferredTransfer> possibleTransfers = generateStrategies.stream()

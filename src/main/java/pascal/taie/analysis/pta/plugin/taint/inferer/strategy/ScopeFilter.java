@@ -13,9 +13,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Sets;
 
-import java.util.Collection;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ScopeFilter implements TransInferStrategy {
@@ -41,28 +39,14 @@ public class ScopeFilter implements TransInferStrategy {
 
         switch (taintConfig.inferenceConfig().scope()) {
             case APP -> {
-                Set<JMethod> appMethods = callGraph.reachableMethods()
+                targetMethods = callGraph.reachableMethods()
                         .filter(this::isApp)
                         .collect(Collectors.toUnmodifiableSet());
-                Set<JMethod> firstNonAppMethods = appMethods.stream()
-                        .map(callGraph::getCalleesOfM)
-                        .flatMap(Collection::stream)
-                        .filter(Predicate.not(this::isApp))
-                        .collect(Collectors.toUnmodifiableSet());
-                targetMethods = Sets.newSet(appMethods);
-                targetMethods.addAll(firstNonAppMethods);
             }
             case APP_LIB -> {
-                Set<JMethod> appLibMethods = callGraph.reachableMethods()
+                targetMethods = callGraph.reachableMethods()
                         .filter(this::isAppOrLib)
                         .collect(Collectors.toSet());
-                Set<JMethod> firstNonAppLibMethods = appLibMethods.stream()
-                        .map(callGraph::getCalleesOfM)
-                        .flatMap(Collection::stream)
-                        .filter(Predicate.not(this::isAppOrLib))
-                        .collect(Collectors.toSet());
-                targetMethods = Sets.newSet(appLibMethods);
-                targetMethods.addAll(firstNonAppLibMethods);
             }
             case ALL -> targetMethods = callGraph.reachableMethods()
                     .collect(Collectors.toUnmodifiableSet());
@@ -80,14 +64,18 @@ public class ScopeFilter implements TransInferStrategy {
     }
 
     @Override
+    public boolean shouldIgnore(CSCallSite csCallSite, int index) {
+        return !targetMethods.contains(csCallSite.getContainer().getMethod());
+    }
+
+    @Override
     public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return transfers.stream()
                 .filter(tf -> {
                     JMethod method = tf.getMethod();
                     return !ignoreMethods.contains(method)
                             && !ignoreClasses.contains(method.getDeclaringClass())
-                            && !methodsWithTransfer.contains(method)
-                            && targetMethods.contains(method);
+                            && !methodsWithTransfer.contains(method);
                 })
                 .collect(Collectors.toUnmodifiableSet());
     }
