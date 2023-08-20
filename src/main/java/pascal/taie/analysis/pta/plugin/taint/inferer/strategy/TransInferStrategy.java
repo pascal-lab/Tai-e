@@ -12,6 +12,10 @@ public interface TransInferStrategy {
     default void setContext(InfererContext context) {
     }
 
+    default boolean shouldIgnore(CSCallSite csCallSite, int index) {
+        return false;
+    }
+
     default Set<InferredTransfer> generate(CSCallSite csCallSite, int index) {
         return Set.of();
     }
