@@ -4,6 +4,7 @@ import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.taint.Sink;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
@@ -33,6 +34,8 @@ public class ScopeFilter implements TransInferStrategy {
         appPackages = Sets.newSet(taintConfig.inferenceConfig().appPackages());
         ignoreClasses = Sets.newSet(taintConfig.inferenceConfig().ignoreClasses());
         ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
+        // Ignore sink method by default
+        ignoreMethods.addAll(taintConfig.sinks().stream().map(Sink::method).toList());
 
         PointerAnalysisResult ptaResult = solver.getResult();
         CallGraph<Invoke, JMethod> callGraph = ptaResult.getCallGraph();

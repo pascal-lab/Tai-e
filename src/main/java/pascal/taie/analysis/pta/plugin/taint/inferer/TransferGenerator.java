@@ -12,9 +12,8 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.TransferPoint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
@@ -28,8 +27,6 @@ import java.util.stream.Collectors;
 public class TransferGenerator {
 
     private static final int DEFAULT_WEIGHT = 1;
-
-    private static final Set<Class<? extends Type>> concernedTypes = Set.of(ClassType.class);
 
     private final Solver solver;
 
@@ -91,22 +88,11 @@ public class TransferGenerator {
 
     @Nullable
     private CSVar getCSVar(CSCallSite csCallSite, int index) {
-        Context context = csCallSite.getContext();
-        Invoke callSite = csCallSite.getCallSite();
-        Var v = InvokeUtils.getVar(callSite, index);
-        if (v == null) {
-            return null;
-        }
-        return csManager.getCSVar(context, v);
+        return StrategyUtils.getCSVar(csManager, csCallSite, index);
     }
 
     private Set<Type> getArgType(CSCallSite csCallSite, int index) {
-        CSVar csVar = getCSVar(csCallSite, index);
-        return solver.getPointsToSetOf(csVar)
-                .objects()
-                .map(csObj -> csObj.getObject().getType())
-                .filter(type -> concernedTypes.contains(type.getClass()))
-                .collect(Collectors.toUnmodifiableSet());
+        return StrategyUtils.getArgType(solver, csCallSite, index);
     }
 
     // Edge with CallKind.OTHER will be filtered

@@ -29,9 +29,6 @@ public class StrategyUtils {
     @Nullable
     public static CSVar getCSVar(CSManager csManager, CSCallSite csCallSite, int index) {
         Context context = csCallSite.getContext();
-        if (csCallSite.getCallSite().isStatic() && index == InvokeUtils.BASE) {
-            return null;
-        }
         Var var = InvokeUtils.getVar(csCallSite.getCallSite(), index);
         if (var == null) {
             return null;
@@ -48,6 +45,11 @@ public class StrategyUtils {
                 .map(csObj -> csObj.getObject().getType())
                 .filter(type -> concernedTypes.contains(type.getClass()))
                 .collect(Collectors.toSet());
+    }
+
+    public static Set<Type> getArgType(Solver solver, CSCallSite csCallSite, int index) {
+        CSVar csVar = StrategyUtils.getCSVar(solver.getCSManager(), csCallSite, index);
+        return StrategyUtils.getTypes(solver, csVar);
     }
 
     public static Type getParamType(JMethod method, int index) {
