@@ -1,0 +1,46 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L18] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L18] return; {}
+
+-------------------- <MultiObjs: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = new A; {}
+[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L4] a1 = temp$0; {}
+[3@L5] temp$1 = 2333; {temp$1=2333}
+[4@L5] a1.<A: int f> = temp$1; {temp$1=2333}
+[5@L6] temp$2 = new A; {temp$1=2333}
+[6@L6] invokespecial temp$2.<A: void <init>()>(); {temp$1=2333}
+[7@L6] a2 = temp$2; {temp$1=2333}
+[8@L7] temp$3 = 666; {temp$1=2333, temp$3=666}
+[9@L7] a2.<A: int f> = temp$3; {temp$1=2333, temp$3=666}
+[10@L8] temp$4 = new A; {temp$1=2333, temp$3=666}
+[11@L8] invokespecial temp$4.<A: void <init>()>(); {temp$1=2333, temp$3=666}
+[12@L8] a3 = temp$4; {temp$1=2333, temp$3=666}
+[13@L9] temp$5 = 666; {temp$1=2333, temp$3=666, temp$5=666}
+[14@L9] a3.<A: int f> = temp$5; {temp$1=2333, temp$3=666, temp$5=666}
+[15@L10] temp$7 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[16@L10] %intconst0 = 0; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[17@L10] if (temp$7 > %intconst0) goto 19; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[18@L10] goto 22; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[19@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[20@L10] temp$6 = a1; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[21@L10] goto 24; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[22@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[23@L10] temp$6 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[24@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[25@L10] aa = temp$6; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
+[26@L11] temp$9 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[27@L11] if (temp$9 > %intconst0) goto 29; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[28@L11] goto 32; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[29@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[30@L11] temp$8 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[31@L11] goto 34; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[32@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[33@L11] temp$8 = a3; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[34@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[35@L11] aaa = temp$8; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
+[36@L12] x = aa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC}
+[37@L13] y = aaa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666}
+[38@L14] z = a1.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
+[39@L14] return; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
+

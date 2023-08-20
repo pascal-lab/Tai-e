@@ -1,0 +1,66 @@
+-------------------- <MultiReturn: void <init>()> (inter-const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <MultiReturn: boolean retDiffConst(int)> (inter-const-prop) --------------------
+[0@L3] %intconst0 = 2; {x=0}
+[1@L3] temp$0 = x % %intconst0; {temp$0=0, x=0}
+[2@L3] %intconst1 = 0; {temp$0=0, x=0}
+[3@L3] if (temp$0 == %intconst1) goto 5; {temp$0=0, x=0}
+[4@L3] goto 8; {temp$0=0, x=0}
+[5@L3] nop; {temp$0=0, x=0}
+[6@L3] temp$1 = 1; {temp$0=0, temp$1=1, x=0}
+[7@L4] return temp$1; {temp$0=0, temp$1=1, x=0}
+[8@L4] nop; {temp$0=0, x=0}
+[9@L4] temp$2 = 0; {temp$0=0, temp$2=0, x=0}
+[10@L5] return temp$2; {temp$0=0, temp$2=0, x=0}
+
+-------------------- <MultiReturn: double retDouble(int)> (inter-const-prop) --------------------
+[0@L9] %intconst0 = 2; {x=0}
+[1@L9] temp$0 = x % %intconst0; {temp$0=0, x=0}
+[2@L9] %intconst1 = 0; {temp$0=0, x=0}
+[3@L9] if (temp$0 == %intconst1) goto 5; {temp$0=0, x=0}
+[4@L9] goto 8; {temp$0=0, x=0}
+[5@L9] nop; {temp$0=0, x=0}
+[6@L9] temp$1 = 1.0; {temp$0=0, x=0}
+[7@L10] return temp$1; {temp$0=0, x=0}
+[8@L10] nop; {temp$0=0, x=0}
+[9@L10] temp$2 = 0.0; {temp$0=0, x=0}
+[10@L11] return temp$2; {temp$0=0, x=0}
+
+-------------------- <MultiReturn: int retX(int)> (inter-const-prop) --------------------
+[0@L15] %intconst0 = 2; {x=1}
+[1@L15] temp$0 = x % %intconst0; {temp$0=1, x=1}
+[2@L15] %intconst1 = 0; {temp$0=1, x=1}
+[3@L15] if (temp$0 == %intconst1) goto 5; {temp$0=1, x=1}
+[4@L15] goto 8; {temp$0=1, x=1}
+[5@L15] nop; {temp$0=1, x=1}
+[6@L15] temp$1 = 1; {temp$0=1, temp$1=1, x=1}
+[7@L16] return temp$1; {temp$0=1, temp$1=1, x=1}
+[8@L16] nop; {temp$0=1, x=1}
+[9@L17] return x; {temp$0=1, x=1}
+
+-------------------- <MultiReturn: int retUndef(int)> (inter-const-prop) --------------------
+[0@L21] %intconst0 = 2; {}
+[1@L21] temp$0 = y % %intconst0; {}
+[2@L21] %intconst1 = 0; {}
+[3@L21] if (temp$0 == %intconst1) goto 5; {}
+[4@L21] goto 8; {}
+[5@L21] nop; {}
+[6@L21] temp$1 = 1; {temp$1=1}
+[7@L22] return temp$1; {temp$1=1}
+[8@L22] nop; {}
+[9@L23] return y; {}
+
+-------------------- <MultiReturn: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L27] temp$0 = new MultiReturn; {}
+[1@L27] invokespecial temp$0.<MultiReturn: void <init>()>(); {}
+[2@L27] mr = temp$0; {}
+[3@L28] x = 0; {x=0}
+[4@L29] invokevirtual mr.<MultiReturn: boolean retDiffConst(int)>(x); {x=0}
+[5@L30] invokevirtual mr.<MultiReturn: double retDouble(int)>(x); {x=0}
+[6@L31] x = 1; {x=1}
+[7@L32] invokevirtual mr.<MultiReturn: int retX(int)>(x); {x=1}
+[8@L34] invokevirtual mr.<MultiReturn: int retUndef(int)>(y); {x=1}
+[9@L34] return; {x=1}
+

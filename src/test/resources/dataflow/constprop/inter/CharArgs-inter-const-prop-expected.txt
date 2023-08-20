@@ -1,0 +1,14 @@
+-------------------- <CharArgs: char foo(char,char)> (inter-const-prop) --------------------
+[0@L3] temp$0 = (int) x; {temp$0=NAC, x=1, y=2}
+[1@L3] temp$1 = (int) y; {temp$0=NAC, temp$1=NAC, x=1, y=2}
+[2@L3] temp$2 = temp$0 + temp$1; {temp$0=NAC, temp$1=NAC, temp$2=NAC, x=1, y=2}
+[3@L3] temp$3 = (char) temp$2; {temp$0=NAC, temp$1=NAC, temp$2=NAC, temp$3=NAC, x=1, y=2}
+[4@L4] return temp$3; {temp$0=NAC, temp$1=NAC, temp$2=NAC, temp$3=NAC, x=1, y=2}
+
+-------------------- <CharArgs: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L9] x = 1; {x=1}
+[1@L10] y = 2; {x=1, y=2}
+[2@L11] temp$0 = invokestatic <CharArgs: char foo(char,char)>(x, y); {x=1, y=2}
+[3@L11] z = temp$0; {temp$0=NAC, x=1, y=2, z=NAC}
+[4@L11] return; {temp$0=NAC, x=1, y=2, z=NAC}
+

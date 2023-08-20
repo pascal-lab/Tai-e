@@ -1,0 +1,27 @@
+-------------------- <Fibonacci: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] n = 5; {n=5}
+[1@L4] z = 0; {n=5, z=0}
+[2@L5] temp$0 = invokestatic <Fibonacci: int getFibonacci(int)>(n); {n=5, z=0}
+[3@L5] z = temp$0; {n=5, temp$0=NAC, z=NAC}
+[4@L5] return; {n=5, temp$0=NAC, z=NAC}
+
+-------------------- <Fibonacci: int getFibonacci(int)> (inter-const-prop) --------------------
+[0@L9] %intconst0 = 0; {n=NAC}
+[1@L9] if (n == %intconst0) goto 8; {n=NAC}
+[2@L9] goto 3; {n=NAC}
+[3@L9] nop; {n=NAC}
+[4@L9] %intconst1 = 1; {n=NAC}
+[5@L9] if (n == %intconst1) goto 8; {n=NAC}
+[6@L9] goto 10; {n=NAC}
+[7@L9] goto 10; {}
+[8@L9] nop; {n=NAC}
+[9@L10] return n; {n=NAC}
+[10@L10] nop; {n=NAC}
+[11@L10] temp$0 = n - %intconst1; {n=NAC, temp$0=NAC}
+[12@L10] temp$1 = invokestatic <Fibonacci: int getFibonacci(int)>(temp$0); {n=NAC, temp$0=NAC}
+[13@L10] %intconst2 = 2; {n=NAC, temp$0=NAC, temp$1=NAC}
+[14@L10] temp$3 = n - %intconst2; {n=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC}
+[15@L10] temp$4 = invokestatic <Fibonacci: int getFibonacci(int)>(temp$3); {n=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC}
+[16@L10] temp$5 = temp$1 + temp$4; {n=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$4=NAC, temp$5=NAC}
+[17@L12] return temp$5; {n=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$4=NAC, temp$5=NAC}
+

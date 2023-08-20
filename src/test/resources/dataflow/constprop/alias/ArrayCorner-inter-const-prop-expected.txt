@@ -1,0 +1,161 @@
+-------------------- <ArrayCorner: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] x = 1; {x=1}
+[1@L4] %intconst0 = 0; {x=1}
+[2@L4] if (x > %intconst0) goto 4; {x=1}
+[3@L4] goto 6; {x=1}
+[4@L4] nop; {x=1}
+[5@L5] x = 2; {x=2}
+[6@L5] nop; {x=NAC}
+[7@L8] invokestatic <ArrayCorner: void corner1(int)>(x); {x=NAC}
+[8@L9] invokestatic <ArrayCorner: void corner2(int)>(x); {x=NAC}
+[9@L10] invokestatic <ArrayCorner: void corner3(int)>(x); {x=NAC}
+[10@L11] invokestatic <ArrayCorner: void corner4(int)>(x); {x=NAC}
+[11@L12] invokestatic <ArrayCorner: void corner5(int)>(x); {x=NAC}
+[12@L13] invokestatic <ArrayCorner: void corner6(int)>(x); {x=NAC}
+[13@L14] invokestatic <ArrayCorner: void corner7(int)>(x); {x=NAC}
+[14@L15] invokestatic <ArrayCorner: void corner8(int)>(x); {x=NAC}
+[15@L16] invokestatic <ArrayCorner: void corner9()>(); {x=NAC}
+[16@L17] invokestatic <ArrayCorner: void corner10()>(); {x=NAC}
+[17@L18] invokestatic <ArrayCorner: void corner11()>(); {x=NAC}
+[18@L18] return; {x=NAC}
+
+-------------------- <ArrayCorner: void corner1(int)> (inter-const-prop) --------------------
+[0@L24] %intconst0 = 2; {x=NAC}
+[1@L24] a = newarray int[%intconst0]; {x=NAC}
+[2@L25] temp$2 = 1; {temp$2=1, x=NAC}
+[3@L25] a[x] = temp$2; {temp$2=1, x=NAC}
+[4@L26] temp$5 = 2; {temp$2=1, temp$5=2, x=NAC}
+[5@L26] a[x] = temp$5; {temp$2=1, temp$5=2, x=NAC}
+[6@L27] temp$7 = 0; {temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[7@L27] r1 = a[temp$7]; {r1=NAC, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[8@L27] return; {r1=NAC, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+
+-------------------- <ArrayCorner: void corner2(int)> (inter-const-prop) --------------------
+[0@L31] %intconst0 = 2; {x=NAC}
+[1@L31] b = newarray int[%intconst0]; {x=NAC}
+[2@L32] temp$2 = 1; {temp$2=1, x=NAC}
+[3@L32] b[x] = temp$2; {temp$2=1, x=NAC}
+[4@L33] temp$4 = 0; {temp$2=1, temp$4=0, x=NAC}
+[5@L33] r2 = b[temp$4]; {r2=1, temp$2=1, temp$4=0, x=NAC}
+[6@L33] return; {r2=1, temp$2=1, temp$4=0, x=NAC}
+
+-------------------- <ArrayCorner: void corner3(int)> (inter-const-prop) --------------------
+[0@L37] %intconst0 = 2; {x=NAC}
+[1@L37] c = newarray int[%intconst0]; {x=NAC}
+[2@L38] temp$1 = 0; {temp$1=0, x=NAC}
+[3@L38] temp$2 = 1; {temp$1=0, temp$2=1, x=NAC}
+[4@L38] c[temp$1] = temp$2; {temp$1=0, temp$2=1, x=NAC}
+[5@L39] temp$5 = 2; {temp$1=0, temp$2=1, temp$5=2, x=NAC}
+[6@L39] c[x] = temp$5; {temp$1=0, temp$2=1, temp$5=2, x=NAC}
+[7@L40] temp$7 = 0; {temp$1=0, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[8@L40] r3 = c[temp$7]; {r3=NAC, temp$1=0, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[9@L40] return; {r3=NAC, temp$1=0, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+
+-------------------- <ArrayCorner: void corner4(int)> (inter-const-prop) --------------------
+[0@L44] %intconst0 = 2; {x=NAC}
+[1@L44] d = newarray int[%intconst0]; {x=NAC}
+[2@L45] temp$1 = 1; {temp$1=1, x=NAC}
+[3@L45] temp$2 = 1; {temp$1=1, temp$2=1, x=NAC}
+[4@L45] d[temp$1] = temp$2; {temp$1=1, temp$2=1, x=NAC}
+[5@L46] temp$5 = 2; {temp$1=1, temp$2=1, temp$5=2, x=NAC}
+[6@L46] d[x] = temp$5; {temp$1=1, temp$2=1, temp$5=2, x=NAC}
+[7@L47] temp$7 = 0; {temp$1=1, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[8@L47] r4 = d[temp$7]; {r4=2, temp$1=1, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+[9@L47] return; {r4=2, temp$1=1, temp$2=1, temp$5=2, temp$7=0, x=NAC}
+
+-------------------- <ArrayCorner: void corner5(int)> (inter-const-prop) --------------------
+[0@L51] %intconst0 = 2; {x=NAC}
+[1@L51] e = newarray int[%intconst0]; {x=NAC}
+[2@L52] y = 1; {x=NAC, y=1}
+[3@L53] %intconst1 = 1; {x=NAC, y=1}
+[4@L53] if (x > %intconst1) goto 6; {x=NAC, y=1}
+[5@L53] goto 8; {x=NAC, y=1}
+[6@L53] nop; {x=NAC, y=1}
+[7@L54] y = 3; {x=NAC, y=3}
+[8@L54] nop; {x=NAC, y=NAC}
+[9@L56] temp$3 = 1; {temp$3=1, x=NAC, y=NAC}
+[10@L56] e[x] = temp$3; {temp$3=1, x=NAC, y=NAC}
+[11@L57] temp$6 = 2; {temp$3=1, temp$6=2, x=NAC, y=NAC}
+[12@L57] e[y] = temp$6; {temp$3=1, temp$6=2, x=NAC, y=NAC}
+[13@L58] temp$8 = 1; {temp$3=1, temp$6=2, temp$8=1, x=NAC, y=NAC}
+[14@L58] r5 = e[temp$8]; {r5=NAC, temp$3=1, temp$6=2, temp$8=1, x=NAC, y=NAC}
+[15@L58] return; {r5=NAC, temp$3=1, temp$6=2, temp$8=1, x=NAC, y=NAC}
+
+-------------------- <ArrayCorner: void corner6(int)> (inter-const-prop) --------------------
+[0@L62] %intconst0 = 2; {x=NAC}
+[1@L62] f = newarray int[%intconst0]; {x=NAC}
+[2@L63] temp$1 = 0; {temp$1=0, x=NAC}
+[3@L63] temp$2 = 1; {temp$1=0, temp$2=1, x=NAC}
+[4@L63] f[temp$1] = temp$2; {temp$1=0, temp$2=1, x=NAC}
+[5@L64] temp$4 = 1; {temp$1=0, temp$2=1, temp$4=1, x=NAC}
+[6@L64] temp$5 = 2; {temp$1=0, temp$2=1, temp$4=1, temp$5=2, x=NAC}
+[7@L64] f[temp$4] = temp$5; {temp$1=0, temp$2=1, temp$4=1, temp$5=2, x=NAC}
+[8@L65] temp$8 = 2; {temp$1=0, temp$2=1, temp$4=1, temp$5=2, temp$8=2, x=NAC}
+[9@L65] f[x] = temp$8; {temp$1=0, temp$2=1, temp$4=1, temp$5=2, temp$8=2, x=NAC}
+[10@L66] r6 = f[x]; {r6=NAC, temp$1=0, temp$2=1, temp$4=1, temp$5=2, temp$8=2, x=NAC}
+[11@L66] return; {r6=NAC, temp$1=0, temp$2=1, temp$4=1, temp$5=2, temp$8=2, x=NAC}
+
+-------------------- <ArrayCorner: void corner7(int)> (inter-const-prop) --------------------
+[0@L70] %intconst0 = 3; {x=NAC}
+[1@L70] g = newarray int[%intconst0]; {x=NAC}
+[2@L71] temp$2 = 1; {temp$2=1, x=NAC}
+[3@L71] g[x] = temp$2; {temp$2=1, x=NAC}
+[4@L72] temp$4 = 2; {temp$2=1, temp$4=2, x=NAC}
+[5@L72] temp$5 = 6; {temp$2=1, temp$4=2, temp$5=6, x=NAC}
+[6@L72] g[temp$4] = temp$5; {temp$2=1, temp$4=2, temp$5=6, x=NAC}
+[7@L73] temp$8 = 6; {temp$2=1, temp$4=2, temp$5=6, temp$8=6, x=NAC}
+[8@L73] g[x] = temp$8; {temp$2=1, temp$4=2, temp$5=6, temp$8=6, x=NAC}
+[9@L74] temp$10 = 1; {temp$10=1, temp$2=1, temp$4=2, temp$5=6, temp$8=6, x=NAC}
+[10@L74] r7 = g[temp$10]; {r7=NAC, temp$10=1, temp$2=1, temp$4=2, temp$5=6, temp$8=6, x=NAC}
+[11@L74] return; {r7=NAC, temp$10=1, temp$2=1, temp$4=2, temp$5=6, temp$8=6, x=NAC}
+
+-------------------- <ArrayCorner: void corner8(int)> (inter-const-prop) --------------------
+[0@L78] %intconst0 = 3; {x=NAC}
+[1@L78] h = newarray int[%intconst0]; {x=NAC}
+[2@L79] temp$1 = 0; {temp$1=0, x=NAC}
+[3@L79] temp$2 = 0; {temp$1=0, temp$2=0, x=NAC}
+[4@L79] h[temp$1] = temp$2; {temp$1=0, temp$2=0, x=NAC}
+[5@L80] temp$4 = 1; {temp$1=0, temp$2=0, temp$4=1, x=NAC}
+[6@L80] temp$5 = 1; {temp$1=0, temp$2=0, temp$4=1, temp$5=1, x=NAC}
+[7@L80] h[temp$4] = temp$5; {temp$1=0, temp$2=0, temp$4=1, temp$5=1, x=NAC}
+[8@L81] temp$7 = 2; {temp$1=0, temp$2=0, temp$4=1, temp$5=1, temp$7=2, x=NAC}
+[9@L81] temp$8 = 0; {temp$1=0, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[10@L81] h[temp$7] = temp$8; {temp$1=0, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[11@L82] temp$11 = 1; {temp$1=0, temp$11=1, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[12@L82] h[x] = temp$11; {temp$1=0, temp$11=1, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[13@L83] temp$13 = 0; {temp$1=0, temp$11=1, temp$13=0, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[14@L83] r8_1 = h[temp$13]; {r8_1=NAC, temp$1=0, temp$11=1, temp$13=0, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[15@L84] temp$15 = 1; {r8_1=NAC, temp$1=0, temp$11=1, temp$13=0, temp$15=1, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[16@L84] r8_2 = h[temp$15]; {r8_1=NAC, r8_2=1, temp$1=0, temp$11=1, temp$13=0, temp$15=1, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+[17@L84] return; {r8_1=NAC, r8_2=1, temp$1=0, temp$11=1, temp$13=0, temp$15=1, temp$2=0, temp$4=1, temp$5=1, temp$7=2, temp$8=0, x=NAC}
+
+-------------------- <ArrayCorner: void corner9()> (inter-const-prop) --------------------
+[0@L89] temp$1 = 0; {temp$1=0}
+[1@L89] temp$2 = 1; {temp$1=0, temp$2=1}
+[2@L89] i[temp$1] = temp$2; {temp$1=0, temp$2=1}
+[3@L90] temp$4 = 0; {temp$1=0, temp$2=1, temp$4=0}
+[4@L90] r9 = i[temp$4]; {temp$1=0, temp$2=1, temp$4=0}
+[5@L90] return; {temp$1=0, temp$2=1, temp$4=0}
+
+-------------------- <ArrayCorner: void corner10()> (inter-const-prop) --------------------
+[0@L96] %intconst0 = 2; {}
+[1@L96] j = newarray int[%intconst0]; {}
+[2@L98] temp$2 = 0; {temp$2=0}
+[3@L98] j[y] = temp$2; {temp$2=0}
+[4@L99] temp$4 = 1; {temp$2=0, temp$4=1}
+[5@L99] temp$5 = 1; {temp$2=0, temp$4=1, temp$5=1}
+[6@L99] j[temp$4] = temp$5; {temp$2=0, temp$4=1, temp$5=1}
+[7@L100] r10_1 = j[y]; {temp$2=0, temp$4=1, temp$5=1}
+[8@L101] temp$9 = 1; {temp$2=0, temp$4=1, temp$5=1, temp$9=1}
+[9@L101] r10_2 = j[temp$9]; {r10_2=1, temp$2=0, temp$4=1, temp$5=1, temp$9=1}
+[10@L101] return; {r10_2=1, temp$2=0, temp$4=1, temp$5=1, temp$9=1}
+
+-------------------- <ArrayCorner: void corner11()> (inter-const-prop) --------------------
+[0@L105] %intconst0 = 2; {}
+[1@L105] k = newarray int[%intconst0]; {}
+[2@L106] temp$1 = 0; {temp$1=0}
+[3@L106] temp$2 = 1; {temp$1=0, temp$2=1}
+[4@L106] k[temp$1] = temp$2; {temp$1=0, temp$2=1}
+[5@L108] r11 = k[y]; {temp$1=0, temp$2=1}
+[6@L108] return; {temp$1=0, temp$2=1}
+

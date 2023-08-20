@@ -1,0 +1,216 @@
+-------------------- <MaxPQ: void <clinit>()> (inter-const-prop) --------------------
+[0@L1] temp$0 = 114514; {temp$0=114514}
+[1@L2] <MaxPQ: int MAGIC_NUMBER> = temp$0; {temp$0=114514}
+[2@L2] return; {temp$0=114514}
+
+-------------------- <MaxPQ: void <init>(int)> (inter-const-prop) --------------------
+[0@L7] invokespecial %this.<java.lang.Object: void <init>()>(); {initCapacity=1}
+[1@L8] %intconst0 = 1; {initCapacity=1}
+[2@L8] temp$1 = initCapacity + %intconst0; {initCapacity=1, temp$1=2}
+[3@L8] temp$2 = newarray int[temp$1]; {initCapacity=1, temp$1=2}
+[4@L8] %this.<MaxPQ: int[] pq> = temp$2; {initCapacity=1, temp$1=2}
+[5@L9] temp$3 = 0; {initCapacity=1, temp$1=2, temp$3=0}
+[6@L9] %this.<MaxPQ: int n> = temp$3; {initCapacity=1, temp$1=2, temp$3=0}
+[7@L9] return; {initCapacity=1, temp$1=2, temp$3=0}
+
+-------------------- <MaxPQ: void <init>()> (inter-const-prop) --------------------
+[0@L13] %intconst0 = 1; {}
+[1@L13] invokespecial %this.<MaxPQ: void <init>(int)>(%intconst0); {}
+[2@L13] return; {}
+
+-------------------- <MaxPQ: boolean isEmpty()> (inter-const-prop) --------------------
+[0@L17] temp$0 = %this.<MaxPQ: int n>; {temp$0=NAC}
+[1@L17] %intconst0 = 0; {temp$0=NAC}
+[2@L17] if (temp$0 == %intconst0) goto 7; {temp$0=NAC}
+[3@L17] goto 4; {temp$0=NAC}
+[4@L17] nop; {temp$0=NAC}
+[5@L17] temp$1 = 0; {temp$0=NAC, temp$1=0}
+[6@L17] goto 9; {temp$0=NAC, temp$1=0}
+[7@L17] nop; {temp$0=NAC}
+[8@L17] temp$1 = 1; {temp$0=NAC, temp$1=1}
+[9@L17] nop; {temp$0=NAC, temp$1=NAC}
+[10@L17] return temp$1; {temp$0=NAC, temp$1=NAC}
+
+-------------------- <MaxPQ: int size()> (inter-const-prop) --------------------
+[0@L21] temp$0 = %this.<MaxPQ: int n>; {temp$0=NAC}
+[1@L21] return temp$0; {temp$0=NAC}
+
+-------------------- <MaxPQ: void resize(int)> (inter-const-prop) --------------------
+[0@L25] temp = newarray int[capacity]; {capacity=NAC}
+[1@L26] i = 1; {capacity=NAC, i=1}
+[2@L26] nop; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[3@L26] temp$0 = %this.<MaxPQ: int n>; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[4@L26] if (i <= temp$0) goto 6; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[5@L26] goto 14; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[6@L26] nop; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[7@L27] temp$3 = %this.<MaxPQ: int[] pq>; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[8@L27] temp$5 = temp$3[i]; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[9@L27] temp[i] = temp$5; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[10@L27] nop; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[11@L26] %intconst0 = 1; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[12@L26] i = i + %intconst0; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[13@L26] goto 2; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[14@L26] nop; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[15@L29] %this.<MaxPQ: int[] pq> = temp; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+[16@L29] return; {capacity=NAC, i=NAC, temp$0=NAC, temp$5=114514}
+
+-------------------- <MaxPQ: void insert(int)> (inter-const-prop) --------------------
+[0@L34] temp$0 = %this.<MaxPQ: int[] pq>; {x=114514}
+[1@L34] temp$1 = temp$0.length; {temp$1=NAC, x=114514}
+[2@L34] temp$3 = %this.<MaxPQ: int n>; {temp$1=NAC, temp$3=NAC, x=114514}
+[3@L34] %intconst0 = 1; {temp$1=NAC, temp$3=NAC, x=114514}
+[4@L34] temp$2 = temp$1 - %intconst0; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=114514}
+[5@L34] if (temp$3 == temp$2) goto 7; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=114514}
+[6@L34] goto 13; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=114514}
+[7@L34] nop; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=114514}
+[8@L34] temp$4 = %this.<MaxPQ: int[] pq>; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=114514}
+[9@L34] temp$5 = temp$4.length; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, x=114514}
+[10@L34] %intconst1 = 2; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, x=114514}
+[11@L34] temp$6 = %intconst1 * temp$5; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, x=114514}
+[12@L34] invokevirtual %this.<MaxPQ: void resize(int)>(temp$6); {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, x=114514}
+[13@L34] nop; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, x=114514}
+[14@L37] temp$7 = %this.<MaxPQ: int[] pq>; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, x=114514}
+[15@L37] temp$8 = %this.<MaxPQ: int n>; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, x=114514}
+[16@L37] temp$9 = temp$8 + %intconst0; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+[17@L37] %this.<MaxPQ: int n> = temp$9; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+[18@L37] temp$7[temp$9] = x; {temp$1=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+[19@L38] temp$11 = %this.<MaxPQ: int n>; {temp$1=NAC, temp$11=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+[20@L38] invokevirtual %this.<MaxPQ: void swim(int)>(temp$11); {temp$1=NAC, temp$11=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+[21@L38] return; {temp$1=NAC, temp$11=NAC, temp$2=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$8=NAC, temp$9=NAC, x=114514}
+
+-------------------- <MaxPQ: int delMax()> (inter-const-prop) --------------------
+[0@L42] temp$0 = invokevirtual %this.<MaxPQ: boolean isEmpty()>(); {}
+[1@L42] %intconst0 = 0; {temp$0=NAC}
+[2@L42] if (temp$0 == %intconst0) goto 7; {temp$0=NAC}
+[3@L42] goto 4; {temp$0=NAC}
+[4@L42] nop; {temp$0=NAC}
+[5@L42] temp$1 = <MaxPQ: int MAGIC_NUMBER>; {temp$0=NAC, temp$1=114514}
+[6@L43] return temp$1; {temp$0=NAC, temp$1=114514}
+[7@L43] nop; {temp$0=NAC}
+[8@L44] temp$2 = %this.<MaxPQ: int[] pq>; {temp$0=NAC}
+[9@L44] temp$3 = 1; {temp$0=NAC, temp$3=1}
+[10@L44] max = temp$2[temp$3]; {max=114514, temp$0=NAC, temp$3=1}
+[11@L45] temp$4 = %this.<MaxPQ: int n>; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC}
+[12@L45] %intconst1 = -1; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC}
+[13@L45] temp$5 = temp$4 + %intconst1; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[14@L45] %this.<MaxPQ: int n> = temp$5; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[15@L45] %intconst2 = 1; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[16@L45] invokevirtual %this.<MaxPQ: void exch(int,int)>(%intconst2, temp$4); {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[17@L46] invokevirtual %this.<MaxPQ: void sink(int)>(%intconst2); {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[18@L47] temp$6 = %this.<MaxPQ: int[] pq>; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC}
+[19@L47] temp$7 = %this.<MaxPQ: int n>; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC}
+[20@L47] temp$8 = temp$7 + %intconst2; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC}
+[21@L47] temp$9 = 114514; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[22@L47] temp$6[temp$8] = temp$9; {max=114514, temp$0=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[23@L48] temp$10 = %this.<MaxPQ: int n>; {max=114514, temp$0=NAC, temp$10=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[24@L48] if (temp$10 > %intconst0) goto 26; {max=114514, temp$0=NAC, temp$10=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[25@L48] goto 42; {max=114514, temp$0=NAC, temp$10=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[26@L48] nop; {max=114514, temp$0=NAC, temp$10=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[27@L48] temp$11 = %this.<MaxPQ: int[] pq>; {max=114514, temp$0=NAC, temp$10=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[28@L48] temp$12 = temp$11.length; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[29@L48] temp$15 = %this.<MaxPQ: int n>; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[30@L48] temp$13 = temp$12 - %intconst2; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[31@L48] %intconst3 = 4; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[32@L48] temp$14 = temp$13 / %intconst3; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[33@L48] if (temp$15 == temp$14) goto 36; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[34@L48] goto 42; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[35@L48] goto 36; {}
+[36@L48] nop; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[37@L49] temp$16 = %this.<MaxPQ: int[] pq>; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[38@L49] temp$17 = temp$16.length; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[39@L49] %intconst4 = 2; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[40@L49] temp$18 = temp$17 / %intconst4; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$18=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[41@L49] invokevirtual %this.<MaxPQ: void resize(int)>(temp$18); {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$18=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[42@L49] nop; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$18=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+[43@L50] return max; {max=114514, temp$0=NAC, temp$10=NAC, temp$12=NAC, temp$13=NAC, temp$14=NAC, temp$15=NAC, temp$17=NAC, temp$18=NAC, temp$3=1, temp$4=NAC, temp$5=NAC, temp$7=NAC, temp$8=NAC, temp$9=114514}
+
+-------------------- <MaxPQ: void swim(int)> (inter-const-prop) --------------------
+[0@L53] nop; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[1@L54] %intconst0 = 1; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[2@L54] if (k > %intconst0) goto 4; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[3@L54] goto 17; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[4@L54] nop; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[5@L54] %intconst1 = 2; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[6@L54] temp$0 = k / %intconst1; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[7@L54] temp$1 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(temp$0, k); {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[8@L54] %intconst2 = 0; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[9@L54] if (temp$1 == %intconst2) goto 17; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[10@L54] goto 12; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[11@L54] goto 12; {}
+[12@L54] nop; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[13@L55] temp$2 = k / %intconst1; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[14@L55] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, temp$2); {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[15@L56] k = k / %intconst1; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[16@L54] goto 0; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[17@L54] nop; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[18@L54] return; {k=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+
+-------------------- <MaxPQ: void sink(int)> (inter-const-prop) --------------------
+[0@L60] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[1@L61] temp$1 = %this.<MaxPQ: int n>; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[2@L61] %intconst0 = 2; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[3@L61] temp$0 = %intconst0 * k; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[4@L61] if (temp$0 <= temp$1) goto 6; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[5@L61] goto 31; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[6@L61] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[7@L62] j = %intconst0 * k; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[8@L63] temp$3 = %this.<MaxPQ: int n>; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[9@L63] if (j < temp$3) goto 11; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[10@L63] goto 21; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[11@L63] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[12@L63] %intconst1 = 1; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[13@L63] temp$5 = j + %intconst1; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[14@L63] temp$6 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(j, temp$5); {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[15@L63] %intconst2 = 0; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[16@L63] if (temp$6 == %intconst2) goto 21; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[17@L63] goto 19; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[18@L63] goto 19; {}
+[19@L63] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[20@L63] j = j + %intconst1; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[21@L63] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[22@L64] temp$9 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(k, j); {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[23@L64] if (temp$9 == %intconst2) goto 25; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[24@L64] goto 27; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[25@L64] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[26@L64] goto 31; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[27@L64] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[28@L65] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, j); {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[29@L66] k = j; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[30@L61] goto 0; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[31@L61] nop; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+[32@L61] return; {j=NAC, k=NAC, temp$0=NAC, temp$1=NAC, temp$3=NAC, temp$5=NAC, temp$6=NAC, temp$9=NAC}
+
+-------------------- <MaxPQ: boolean less(int,int)> (inter-const-prop) --------------------
+[0@L71] if (i < j) goto 5; {i=NAC, j=NAC}
+[1@L71] goto 2; {i=NAC, j=NAC}
+[2@L71] nop; {i=NAC, j=NAC}
+[3@L71] temp$0 = 0; {i=NAC, j=NAC, temp$0=0}
+[4@L71] goto 7; {i=NAC, j=NAC, temp$0=0}
+[5@L71] nop; {i=NAC, j=NAC}
+[6@L71] temp$0 = 1; {i=NAC, j=NAC, temp$0=1}
+[7@L71] nop; {i=NAC, j=NAC, temp$0=NAC}
+[8@L71] return temp$0; {i=NAC, j=NAC, temp$0=NAC}
+
+-------------------- <MaxPQ: void exch(int,int)> (inter-const-prop) --------------------
+[0@L75] temp$0 = %this.<MaxPQ: int[] pq>; {i=NAC, j=NAC}
+[1@L75] swap = temp$0[i]; {i=NAC, j=NAC, swap=114514}
+[2@L76] temp$2 = %this.<MaxPQ: int[] pq>; {i=NAC, j=NAC, swap=114514}
+[3@L76] temp$4 = %this.<MaxPQ: int[] pq>; {i=NAC, j=NAC, swap=114514}
+[4@L76] temp$6 = temp$4[j]; {i=NAC, j=NAC, swap=114514, temp$6=114514}
+[5@L76] temp$2[i] = temp$6; {i=NAC, j=NAC, swap=114514, temp$6=114514}
+[6@L77] temp$7 = %this.<MaxPQ: int[] pq>; {i=NAC, j=NAC, swap=114514, temp$6=114514}
+[7@L77] temp$7[j] = swap; {i=NAC, j=NAC, swap=114514, temp$6=114514}
+[8@L77] return; {i=NAC, j=NAC, swap=114514, temp$6=114514}
+
+-------------------- <MaxPQ: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L81] temp$0 = new MaxPQ; {}
+[1@L81] invokespecial temp$0.<MaxPQ: void <init>()>(); {}
+[2@L81] pq = temp$0; {}
+[3@L82] %intconst0 = 114514; {}
+[4@L82] invokevirtual pq.<MaxPQ: void insert(int)>(%intconst0); {}
+[5@L83] temp$1 = invokevirtual pq.<MaxPQ: int delMax()>(); {}
+[6@L83] r = temp$1; {r=114514, temp$1=114514}
+[7@L84] temp$2 = invokevirtual pq.<MaxPQ: int size()>(); {r=114514, temp$1=114514}
+[8@L84] s = temp$2; {r=114514, s=NAC, temp$1=114514, temp$2=NAC}
+[9@L84] return; {r=114514, s=NAC, temp$1=114514, temp$2=NAC}
+

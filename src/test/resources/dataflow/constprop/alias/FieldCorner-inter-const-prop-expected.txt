@@ -1,0 +1,61 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L47] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L47] return; {}
+
+-------------------- <FieldCorner: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] invokestatic <FieldCorner: void corner1()>(); {}
+[1@L4] invokestatic <FieldCorner: void corner2()>(); {}
+[2@L5] invokestatic <FieldCorner: void corner3()>(); {}
+[3@L6] invokestatic <FieldCorner: void corner4()>(); {}
+[4@L6] return; {}
+
+-------------------- <FieldCorner: void corner1()> (inter-const-prop) --------------------
+[0@L10] temp$0 = new A; {}
+[1@L10] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L10] a1 = temp$0; {}
+[3@L11] a2 = a1; {}
+[4@L12] a3 = a2; {}
+[5@L13] temp$1 = 555; {temp$1=555}
+[6@L13] a1.<A: int f> = temp$1; {temp$1=555}
+[7@L14] r1 = a3.<A: int f>; {r1=NAC, temp$1=555}
+[8@L15] temp$2 = 666; {r1=NAC, temp$1=555, temp$2=666}
+[9@L15] a2.<A: int f> = temp$2; {r1=NAC, temp$1=555, temp$2=666}
+[10@L15] return; {r1=NAC, temp$1=555, temp$2=666}
+
+-------------------- <FieldCorner: void corner2()> (inter-const-prop) --------------------
+[0@L19] temp$0 = new A; {}
+[1@L19] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L19] b1 = temp$0; {}
+[3@L20] temp$1 = 1; {temp$1=1}
+[4@L20] b1.<A: int f> = temp$1; {temp$1=1}
+[5@L21] temp$2 = 2; {temp$1=1, temp$2=2}
+[6@L21] b1.<A: int g> = temp$2; {temp$1=1, temp$2=2}
+[7@L22] b2 = b1; {temp$1=1, temp$2=2}
+[8@L23] r2 = b2.<A: int g>; {r2=2, temp$1=1, temp$2=2}
+[9@L23] return; {r2=2, temp$1=1, temp$2=2}
+
+-------------------- <FieldCorner: void corner3()> (inter-const-prop) --------------------
+[0@L29] temp$0 = 2; {temp$0=2}
+[1@L29] c1.<A: int f> = temp$0; {temp$0=2}
+[2@L30] r3 = c1.<A: int f>; {temp$0=2}
+[3@L30] return; {temp$0=2}
+
+-------------------- <FieldCorner: void corner4()> (inter-const-prop) --------------------
+[0@L34] temp$0 = new A; {}
+[1@L34] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L34] d1 = temp$0; {}
+[3@L35] temp$1 = new A; {}
+[4@L35] invokespecial temp$1.<A: void <init>()>(); {}
+[5@L35] d2 = temp$1; {}
+[6@L36] temp$2 = new A; {}
+[7@L36] invokespecial temp$2.<A: void <init>()>(); {}
+[8@L36] d3 = temp$2; {}
+[9@L38] d4 = d1; {}
+[10@L39] d4 = d2; {}
+[11@L40] d5 = d3; {}
+[12@L41] d5 = d2; {}
+[13@L42] temp$3 = 1; {temp$3=1}
+[14@L42] d4.<A: int f> = temp$3; {temp$3=1}
+[15@L43] r4 = d5.<A: int f>; {r4=1, temp$3=1}
+[16@L43] return; {r4=1, temp$3=1}
+
