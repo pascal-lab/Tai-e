@@ -8,6 +8,7 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.IgnoreInnerClass;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.InitialStrategy;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.MethodNameMatching;
 import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.ScopeFilter;
+import pascal.taie.analysis.pta.plugin.taint.inferer.strategy.TypeMatching;
 
 import java.util.function.Consumer;
 
@@ -24,5 +25,6 @@ public class LowTransferInferer extends TransferInferer {
         filterStrategies.add(new IgnoreException());
         filterStrategies.add(new IgnoreInnerClass());
         filterStrategies.add(new MethodNameMatching());
+        filterStrategies.add(new TypeMatching());
     }
 }
