@@ -29,14 +29,11 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.MutableInt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
-import pascal.taie.util.graph.Edge;
-import pascal.taie.util.graph.PathEdgeSorter;
 import pascal.taie.util.graph.ShortestPath;
 
 import java.io.File;
@@ -47,11 +44,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class TransferInferer extends OnFlyHandler {
@@ -145,7 +139,7 @@ public abstract class TransferInferer extends OnFlyHandler {
                         || index == RESULT) {
                     continue;
                 }
-                if(getStrategies().stream().anyMatch(strategy -> strategy.shouldIgnore(csCallSite, index))) {
+                if (getStrategies().stream().anyMatch(strategy -> strategy.shouldIgnore(csCallSite, index))) {
                     continue;
                 }
                 Set<InferredTransfer> possibleTransfers = generateStrategies.stream()
@@ -154,7 +148,7 @@ public abstract class TransferInferer extends OnFlyHandler {
                         .collect(Collectors.toUnmodifiableSet());
                 if (!possibleTransfers.isEmpty()) {
                     for (TransInferStrategy strategy : filterStrategies) {
-                        if(possibleTransfers.isEmpty()) {
+                        if (possibleTransfers.isEmpty()) {
                             break;
                         }
                         possibleTransfers = strategy.filter(csCallSite, index, possibleTransfers);
@@ -166,6 +160,11 @@ public abstract class TransferInferer extends OnFlyHandler {
 
         newTransfers.forEach(this::addNewTransfer);
         newTaintVars.clear();
+    }
+
+    @Override
+    public void onFinish() {
+        getStrategies().forEach(TransInferStrategy::onFinish);
     }
 
     private LinkedHashSet<TransInferStrategy> getStrategies() {
@@ -211,44 +210,48 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .collect(Collectors.toSet());
         Set<Pointer> sinkPointers = tpfg.getSinkPointers();
         // TODO: handle other call source type
-        TwoKeyMap<Var, Var, List<Edge<TaintNode>>> taintPaths = Maps.newTwoKeyMap();
+        TwoKeyMap<Var, Var, TaintPath> taintPaths = Maps.newTwoKeyMap();
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
+            TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, solver);
+            ShortestPath<TaintNode, TaintNodeFlowEdge> shortestPath = new ShortestPath<>(
+                    tofg, tofg.getSourceNode(),
+                    edge -> weightHandler.getWeight(edge.pointerFlowEdge()),
+                    edge -> weightHandler.getCost(edge.pointerFlowEdge()));
+            shortestPath.compute();
             for (Pointer sink : sinkPointers) {
-                TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, solver);
-                ShortestPath<TaintNode> shortestPath = new ShortestPath<>(tofg, tofg.getSourceNode(),
-                        edge -> weightHandler.getWeight(((TaintNodeFlowEdge)edge).pointerFlowEdge()),
-                        edge -> weightHandler.getCost(((TaintNodeFlowEdge)edge).pointerFlowEdge()));
-                shortestPath.compute(ShortestPath.SSSPAlgorithm.DIJKSTRA);
-                tofg.getTaintNode(sink).stream()
-                        .map(shortestPath::getPath)
-                        .filter(Predicate.not(List::isEmpty))
-                        .forEach(path -> {
-                            Var sourceVar = ((CSVar) source).getVar();
-                            Var sinkVar = ((CSVar) sink).getVar();
-                            List<Edge<TaintNode>> oldPath = taintPaths.get(sourceVar, sinkVar);
-                            if (oldPath == null || path.size() < oldPath.size()) {
-                                taintPaths.put(sourceVar, sinkVar, path);
-                            }
-                        });
+                for (TaintNode taintNode : tofg.getTaintNode(sink)) {
+                    int weight = shortestPath.getDistance(taintNode);
+                    List<TaintNodeFlowEdge> path = shortestPath.getPath(taintNode);
+                    if (!path.isEmpty()) {
+                        Var sourceVar = ((CSVar) source).getVar();
+                        Var sinkVar = ((CSVar) sink).getVar();
+                        TaintPath oldPath = taintPaths.get(sourceVar, sinkVar);
+                        if (oldPath == null
+                                || oldPath.weight > weight
+                                || (oldPath.weight == weight && oldPath.path.size() > path.size())) {
+                            taintPaths.put(sourceVar, sinkVar, new TaintPath(path, weight));
+                        }
+                    }
+                }
             }
         }
 
         out.printf("%nInferred transfers:");
-        for (TwoKeyMap.Entry<Var, Var, List<Edge<TaintNode>>> entry : taintPaths.entrySet()) {
+        for (var entry : taintPaths.entrySet()) {
             out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            entry.value().stream()
-                    .map(edge -> weightHandler.getInferredTrans(((TaintNodeFlowEdge)edge).pointerFlowEdge()))
+            entry.value().path.stream()
+                    .map(edge -> weightHandler.getInferredTrans(edge.pointerFlowEdge()))
                     .flatMap(Collection::stream)
                     .forEach(tf -> out.println(transferToString(tf)));
         }
 
         out.printf("%nShortest taint path:");
-        for (TwoKeyMap.Entry<Var, Var, List<Edge<TaintNode>>> entry : taintPaths.entrySet()) {
+        for (var entry : taintPaths.entrySet()) {
             out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            entry.value().forEach(edge -> {
-                PointerFlowEdge pointerFlowEdge = ((TaintNodeFlowEdge) edge).pointerFlowEdge();
+            entry.value().path.forEach(edge -> {
+                PointerFlowEdge pointerFlowEdge = edge.pointerFlowEdge();
                 out.println(pointerFlowEdge);
             });
         }
@@ -290,6 +293,10 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private record Entry(JMethod method, TransferPoint from, TransferPoint to) {
+
+    }
+
+    private record TaintPath(List<TaintNodeFlowEdge> path, int weight) {
 
     }
 }

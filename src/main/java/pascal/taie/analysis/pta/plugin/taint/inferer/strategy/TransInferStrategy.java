@@ -31,4 +31,8 @@ public interface TransInferStrategy {
     default Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
         return Collections.unmodifiableSet(transfers);
     }
+
+    default void onFinish() {
+
+    }
 }
