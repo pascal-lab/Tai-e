@@ -21,12 +21,12 @@ public class HighTransferInferer extends TransferInferer {
     void initStrategy() {
         generateStrategies.add(new MethodNameMatching());
         generateStrategies.add(new TypeMatching());
-        generateStrategies.add(new ObjectFlow());
         filterStrategies.add(new ScopeFilter());
         filterStrategies.add(new IgnoreCollection());
         filterStrategies.add(new IgnoreException());
         filterStrategies.add(new IgnoreInnerClass());
         filterStrategies.add(new MethodNameMatching());
         filterStrategies.add(new TypeMatching());
+        filterStrategies.add(new ObjectFlow());
     }
 }
