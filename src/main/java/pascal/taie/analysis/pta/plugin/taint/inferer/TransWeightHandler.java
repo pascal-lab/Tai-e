@@ -12,6 +12,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.graph.MaxFlowMinCutSolver;
 
 import java.util.Map;
 import java.util.Set;
@@ -52,11 +53,22 @@ public class TransWeightHandler {
         return 1;
     }
 
+    public int getCapacity(PointerFlowEdge edge) {
+        if(hasInferredTrans(edge)) {
+            return 1;
+        }
+        return MaxFlowMinCutSolver.INVALID_WEIGHT;
+    }
+
     public Set<InferredTransfer> getInferredTrans(PointerFlowEdge edge) {
         Set<InferredTransfer> transfers = edge2InferTrans.get(edge);
         if (transfers == null) {
             return Set.of();
         }
         return transfers;
+    }
+
+    public boolean hasInferredTrans(PointerFlowEdge edge) {
+        return edge2InferTrans.containsKey(edge);
     }
 }
