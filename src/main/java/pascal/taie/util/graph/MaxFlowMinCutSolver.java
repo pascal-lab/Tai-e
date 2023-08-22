@@ -1,13 +1,16 @@
 package pascal.taie.util.graph;
 
-import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.Views;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.ToIntFunction;
 
 public class MaxFlowMinCutSolver<N> {
@@ -20,8 +23,8 @@ public class MaxFlowMinCutSolver<N> {
     private final Map<N, N> node2pred;
     private final N source;
     private final N target;
-    private int maxFlowValue = INVALID_WEIGHT;
     private final Set<Edge<N>> result = Sets.newSet();
+    private int maxFlowValue = INVALID_WEIGHT;
 
     public MaxFlowMinCutSolver(Graph<N> graph, N source, N target, ToIntFunction<Edge<N>> capacityCal) {
         this.source = source;
@@ -36,17 +39,16 @@ public class MaxFlowMinCutSolver<N> {
                 .flatMap(Collection::stream)
                 .forEach(edge -> {
                     //if (edge.source() != target && edge.target() != source) {
-                        CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
-                        this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
-                        new2init.put(newEdge1, edge);
-                        CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
-                        if (getExistingEdge(newEdge2) == null) {
-                            this.addEdge(newEdge2, 0);
-                        }
+                    CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
+                    this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
+                    new2init.put(newEdge1, edge);
+                    CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
+                    if (getExistingEdge(newEdge2) == null) {
+                        this.addEdge(newEdge2, 0);
+                    }
                     //}
                 });
         compute();
-        assert maxFlowValue == result.size();
     }
 
     public int getMaxFlowValue() {
@@ -66,7 +68,7 @@ public class MaxFlowMinCutSolver<N> {
     }
 
     private void computeMinCut() {
-        if(maxFlowValue == INVALID_WEIGHT){
+        if (maxFlowValue == INVALID_WEIGHT) {
             return;
         }
         Set<N> sourceCanReach = sourceCanReach();
@@ -112,7 +114,7 @@ public class MaxFlowMinCutSolver<N> {
             int increase = getMinCapacity(path);
 
             // this condition indicate that there is a path without transfer edge
-            if(increase == INVALID_WEIGHT){
+            if (increase == INVALID_WEIGHT) {
                 return;
             }
 
@@ -177,7 +179,7 @@ public class MaxFlowMinCutSolver<N> {
     }
 
     /**
-     * @param edge edge
+     * @param edge     edge
      * @param capacity if testEdge is existing, then change the capacity,
      *                 else add the edge with the capacity
      */
@@ -206,65 +208,12 @@ public class MaxFlowMinCutSolver<N> {
         return null;
     }
 
-    private Set<N> getPredsOf(N node) {
-        return Views.toMappedSet(getInEdgesOf(node), Edge::source);
-    }
-
-    private Set<N> getSuccsOf(N node) {
-        return Views.toMappedSet(getOutEdgesOf(node), Edge::target);
-    }
-
-    private Set<CapacityEdge<N>> getInEdgesOf(N node) {
-        return inEdges.get(node);
-    }
-
     private Set<CapacityEdge<N>> getOutEdgesOf(N node) {
         return outEdges.get(node);
     }
 
-    private class CapacityEdge<N> implements Edge<N> {
+    private record CapacityEdge<N>(N source, N target) implements Edge<N> {
 
-        private final N source;
-
-        private final N target;
-
-        CapacityEdge(N source, N target) {
-            this.source = source;
-            this.target = target;
-        }
-
-        @Override
-        public N source() {
-            return source;
-        }
-
-        @Override
-        public N target() {
-            return target;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            CapacityEdge<?> edge = (CapacityEdge<?>) o;
-            return source.equals(edge.source) && target.equals(edge.target);
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(source, target);
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() +
-                    "{" + source + " -> " + target + '}';
-        }
     }
 
 }
