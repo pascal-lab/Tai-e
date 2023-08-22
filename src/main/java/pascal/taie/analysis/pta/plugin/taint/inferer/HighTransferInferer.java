@@ -19,14 +19,13 @@ public class HighTransferInferer extends TransferInferer {
 
     @Override
     void initStrategy() {
+        ObjectFlow objectFlow = new ObjectFlow();
         generateStrategies.add(new MethodNameMatching());
-        generateStrategies.add(new TypeMatching());
+        generateStrategies.add(objectFlow);
         filterStrategies.add(new ScopeFilter());
         filterStrategies.add(new IgnoreCollection());
         filterStrategies.add(new IgnoreException());
         filterStrategies.add(new IgnoreInnerClass());
-        filterStrategies.add(new MethodNameMatching());
         filterStrategies.add(new TypeMatching());
-        filterStrategies.add(new ObjectFlow());
     }
 }

@@ -17,32 +17,37 @@ import java.util.stream.Collectors;
 
 public class MethodNameMatching implements TransInferStrategy {
 
-    private static final List<Rule> rules = List.of(
-            // Allow
+    private static final List<Rule> allowedRules = List.of(
             new Rule(name -> startsWithWord(name, "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
             new Rule(name -> startsWithWord(name, "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
             new Rule(name -> startsWithWord(name, "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
-            // Deny
-            new Rule(name -> name.startsWith("equals"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> name.startsWith("hashCode"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> name.startsWith("compareTo"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> name.startsWith("toString"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "should"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "match"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "will"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "set"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "is"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "has"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "can"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "needs"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "check"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
-            new Rule(name -> startsWithWord(name, "may"), TransferPointType.ANY, TransferPointType.ANY, RuleType.DENY),
+            new Rule(name -> name.equals("clone"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW)
+    );
+
+    private static final List<Rule> deniedRules = List.of(
             new Rule(name -> name.equals("log"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(name -> name.equals("trace"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(name -> name.equals("debug"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(name -> name.equals("info"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(name -> name.equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
             new Rule(name -> name.equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
+    );
+
+    private static final List<Predicate<String>> ignoreMethods = List.of(
+            name -> name.startsWith("equals"),
+            name -> name.startsWith("hashCode"),
+            name -> name.startsWith("compareTo"),
+            name -> name.startsWith("toString"),
+            name -> startsWithWord(name, "should"),
+            name -> startsWithWord(name, "match"),
+            name -> startsWithWord(name, "will"),
+            name -> startsWithWord(name, "set"),
+            name -> startsWithWord(name, "is"),
+            name -> startsWithWord(name, "has"),
+            name -> startsWithWord(name, "can"),
+            name -> startsWithWord(name, "need"),
+            name -> startsWithWord(name, "check"),
+            name -> startsWithWord(name, "may")
     );
 
     private TransferGenerator generator;
@@ -60,10 +65,15 @@ public class MethodNameMatching implements TransInferStrategy {
     }
 
     @Override
+    public boolean shouldIgnore(CSCallSite csCallSite, int index) {
+        String name = csCallSite.getCallSite().getMethodRef().getName();
+        return ignoreMethods.stream().anyMatch(ignoreRule -> ignoreRule.test(name));
+    }
+
+    @Override
     public Set<InferredTransfer> generate(CSCallSite csCallSite, int index) {
-        List<Rule> matchedRules = rules.stream()
-                .filter(rule -> rule.type == RuleType.ALLOW
-                        && rule.methodName().test(csCallSite.getCallSite().getMethodRef().getName())
+        List<Rule> matchedRules = allowedRules.stream()
+                .filter(rule -> rule.methodName().test(csCallSite.getCallSite().getMethodRef().getName())
                         && matchTransferPointType(rule.from, index))
                 .toList();
         if (matchedRules.isEmpty()) {
@@ -77,7 +87,7 @@ public class MethodNameMatching implements TransInferStrategy {
 
     @Override
     public Set<InferredTransfer> filter(CSCallSite csCallSite, int index, Set<InferredTransfer> transfers) {
-        List<Rule> matchedRules = rules.stream()
+        List<Rule> matchedRules = deniedRules.stream()
                 .filter(rule -> rule.methodName().test(csCallSite.getCallSite().getMethodRef().getName()))
                 .toList();
         if (matchedRules.isEmpty()) {
