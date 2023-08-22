@@ -19,7 +19,6 @@ public class MaxFlowMinCutSolver<N> {
     private final N target;
     private final Graph<N> graph;
     private final ToIntFunction<Edge<N>> capacityCal;
-    private final Set<N> nodes = Sets.newSet();
     private MultiMap<N, CapacityEdge<N>> inEdges;
     private MultiMap<N, CapacityEdge<N>> outEdges;
     private Map<CapacityEdge<N>, Integer> edge2Capacity;
@@ -210,8 +209,6 @@ public class MaxFlowMinCutSolver<N> {
             edge2Capacity.put(edge, capacity);
             inEdges.put(target, edge);
             outEdges.put(source, edge);
-            nodes.add(source);
-            nodes.add(target);
         } else {
             edge2Capacity.put(edge, capacity);
         }
