@@ -15,39 +15,24 @@ import java.util.function.ToIntFunction;
 
 public class MaxFlowMinCutSolver<N> {
     public static final int INVALID_WEIGHT = Integer.MAX_VALUE;
-    private final Set<N> nodes = Sets.newSet();
-    private final MultiMap<N, CapacityEdge<N>> inEdges;
-    private final MultiMap<N, CapacityEdge<N>> outEdges;
-    private final Map<CapacityEdge<N>, Integer> edge2Capacity;
-    private final Map<CapacityEdge<N>, Edge<N>> new2init;
-    private final Map<N, N> node2pred;
     private final N source;
     private final N target;
-    private Set<Edge<N>> result = null;
+    private final Graph<N> graph;
+    private final ToIntFunction<Edge<N>> capacityCal;
+    private final Set<N> nodes = Sets.newSet();
+    private MultiMap<N, CapacityEdge<N>> inEdges;
+    private MultiMap<N, CapacityEdge<N>> outEdges;
+    private Map<CapacityEdge<N>, Integer> edge2Capacity;
+    private Map<CapacityEdge<N>, Edge<N>> new2init;
+    private Map<N, N> node2pred;
+    private Set<Edge<N>> result;
     private int maxFlowValue = INVALID_WEIGHT;
 
     public MaxFlowMinCutSolver(Graph<N> graph, N source, N target, ToIntFunction<Edge<N>> capacityCal) {
+        this.graph = graph;
         this.source = source;
         this.target = target;
-        inEdges = Maps.newMultiMap();
-        outEdges = Maps.newMultiMap();
-        edge2Capacity = Maps.newMap();
-        node2pred = Maps.newMap();
-        new2init = Maps.newMap();
-        graph.getNodes().forEach(node -> node2pred.put(node, null));
-        graph.getNodes().stream().map(graph::getOutEdgesOf)
-                .flatMap(Collection::stream)
-                .forEach(edge -> {
-                    //if (edge.source() != target && edge.target() != source) {
-                    CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
-                    this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
-                    new2init.put(newEdge1, edge);
-                    CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
-                    if (!edge2Capacity.containsKey(newEdge2)) {
-                        this.addEdge(newEdge2, 0);
-                    }
-                    //}
-                });
+        this.capacityCal = capacityCal;
     }
 
     public int getMaxFlowValue() {
@@ -64,8 +49,32 @@ public class MaxFlowMinCutSolver<N> {
     public void compute() {
         if(result == null){
             result = Sets.newSet();
+            inEdges = Maps.newMultiMap();
+            outEdges = Maps.newMultiMap();
+            edge2Capacity = Maps.newMap();
+            node2pred = Maps.newMap();
+            new2init = Maps.newMap();
+            graph.getNodes().forEach(node -> node2pred.put(node, null));
+            graph.getNodes().stream().map(graph::getOutEdgesOf)
+                    .flatMap(Collection::stream)
+                    .forEach(edge -> {
+                        //if (edge.source() != target && edge.target() != source) {
+                        CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
+                        this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
+                        new2init.put(newEdge1, edge);
+                        CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
+                        if (!edge2Capacity.containsKey(newEdge2)) {
+                            this.addEdge(newEdge2, 0);
+                        }
+                        //}
+                    });
             computeMaxFlow();
             computeMinCut();
+            inEdges = null;
+            outEdges = null;
+            edge2Capacity = null;
+            node2pred = null;
+            new2init = null;
         }
     }
 
