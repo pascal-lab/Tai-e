@@ -59,11 +59,8 @@ public class MaxFlowMinCutSolver<N> {
                 .flatMap(Collection::stream)
                 .forEach(edge -> {
                     //if (edge.source() != target && edge.target() != source) {
-                    this.recordCapacity(edge.source(), edge.target(), capacityCal.applyAsInt(edge));
+                    recordCapacity(edge.source(), edge.target(), capacityCal.applyAsInt(edge));
                     new2init.put(edge.source(), edge.target(), edge);
-                    if (!edge2Capacity.containsKey(edge.target(), edge.source())) {
-                        this.recordCapacity(edge.target(), edge.source(), 0);
-                    }
                     //}
                 });
     }
@@ -189,9 +186,8 @@ public class MaxFlowMinCutSolver<N> {
 
     private int getCapacity(N from, N to) {
         Integer capacity = edge2Capacity.get(from, to);
-        if (capacity == null)
-            throw new RuntimeException();
-        return capacity;
+        // return 0 for avoiding initialize the edge capacity of the edge out of init graph
+        return Objects.requireNonNullElse(capacity, 0);
     }
 
 }
