@@ -24,6 +24,8 @@
 package pascal.taie.analysis.bugfinder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.collection.Sets;
@@ -32,7 +34,14 @@ import java.util.Set;
 
 public class CloneIdiomTest {
 
-    private void test(String inputClass) {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "CloneIdiom1",
+            "CloneIdiom2",
+            "CloneIdiom3",
+            "CloneIdiom4",
+    })
+    void test(String inputClass) {
         Tests.testInput(inputClass, "src/test/resources/bugfinder/CloneIdiom", CloneIdiom.ID);
         Set<BugInstance> bugInstances = Sets.newSet();
         World.get()
@@ -41,23 +50,4 @@ public class CloneIdiomTest {
                 .forEach(jClass -> bugInstances.addAll(jClass.getResult(CloneIdiom.ID)));
     }
 
-    @Test
-    void test1() {
-        test("CloneIdiom1");
-    }
-
-    @Test
-    void test2() {
-        test("CloneIdiom2");
-    }
-
-    @Test
-    void test3() {
-        test("CloneIdiom3");
-    }
-
-    @Test
-    void test4() {
-        test("CloneIdiom4");
-    }
 }

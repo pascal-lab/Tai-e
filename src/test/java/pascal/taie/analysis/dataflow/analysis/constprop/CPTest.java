@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 
 public class CPTest {
@@ -32,38 +33,18 @@ public class CPTest {
                 ConstantPropagation.ID, "edge-refine:false");
     }
 
-    @Test
-    void testAssign() {
-        testCP("Assign");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Assign",
+            "SimpleConstant",
+            "SimpleBinary",
+            "SimpleBranch",
+            "SimpleChar",
+            "BranchConstant",
+            "Interprocedural",
+    })
+    void test(String inputClass) {
+        testCP(inputClass);
     }
 
-    @Test
-    void testSimpleConstant() {
-        testCP("SimpleConstant");
-    }
-
-    @Test
-    void testSimpleBinary() {
-        testCP("SimpleBinary");
-    }
-
-    @Test
-    void testSimpleBranch() {
-        testCP("SimpleBranch");
-    }
-
-    @Test
-    void testSimpleChar() {
-        testCP("SimpleChar");
-    }
-
-    @Test
-    void testBranchConstant() {
-        testCP("BranchConstant");
-    }
-
-    @Test
-    void testInterprocedural() {
-        testCP("Interprocedural");
-    }
 }

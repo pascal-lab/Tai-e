@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 
 public class LambdaTest {
@@ -31,38 +32,18 @@ public class LambdaTest {
 
     private static final String ARG = "handle-invokedynamic:true";
 
-    @Test
-    void testArgs() {
-        Tests.testPTA(DIR, "Args", ARG);
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Args",
+            "LambdaConstructor",
+            "LambdaInstanceMethod",
+            "LambdaStaticMethod",
+            "ImpreciseLambdas",
+            "DispatchBugDueToLackOfSubclassCheck",
+            "NativeModelWithLambda",
+    })
+    void test(String mainClass) {
+        Tests.testPTA(DIR, mainClass, ARG);
     }
 
-    @Test
-    void testConstructor() {
-        Tests.testPTA(DIR, "LambdaConstructor", ARG);
-    }
-
-    @Test
-    void testInstanceMethod() {
-        Tests.testPTA(DIR, "LambdaInstanceMethod", ARG);
-    }
-
-    @Test
-    void testStaticMethod() {
-        Tests.testPTA(DIR, "LambdaStaticMethod", ARG);
-    }
-
-    @Test
-    void testImpreciseLambdas() {
-        Tests.testPTA(DIR, "ImpreciseLambdas", ARG);
-    }
-
-    @Test
-    void testDispatchBugDueToLackOfSubclassCheck() {
-        Tests.testPTA(DIR, "DispatchBugDueToLackOfSubclassCheck", ARG);
-    }
-
-    @Test
-    void testNativeModelWithLambda() {
-        Tests.testPTA(DIR, "NativeModelWithLambda", ARG);
-    }
 }

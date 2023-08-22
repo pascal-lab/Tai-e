@@ -22,70 +22,29 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import pascal.taie.analysis.Tests;
+import pascal.taie.util.MultiStringsSource;
 
 public class ContextSensitivityTestFull extends ContextSensitivityTest {
 
+    @ParameterizedTest
     // More complex tests
-    @Test
-    void testRecursiveObj() {
-        Tests.testPTA(DIR, "RecursiveObj", "cs:2-obj");
-    }
-
-    @Test
-    void testLongObjContext() {
-        Tests.testPTA(DIR, "LongObjContext", "cs:2-obj");
-    }
-
-    @Test
-    void testLongCallContext() {
-        Tests.testPTA(DIR, "LongCallContext", "cs:2-call");
-    }
-
-    @Test
-    void testStaticSelect() {
-        Tests.testPTA(DIR, "StaticSelect", "cs:2-obj");
-    }
-
-    @Test
-    void testTwoCallOnly() {
-        Tests.testPTA(DIR, "TwoCallOnly", "cs:2-call");
-    }
-
-    @Test
-    void testObjOnly() {
-        Tests.testPTA(DIR, "ObjOnly", "cs:1-obj");
-    }
-
-    @Test
-    void testMustUseHeap() {
-        Tests.testPTA(DIR, "MustUseHeap", "cs:2-call");
-    }
-
-    @Test
-    void testNestedHeap() {
-        Tests.testPTA(DIR, "NestedHeap", "cs:2-obj");
-    }
-
-    @Test
-    void testCallOnly() {
-        Tests.testPTA(DIR, "CallOnly", "cs:1-call");
-    }
-
-    @Test
-    void testLinkedQueue() {
-        Tests.testPTA(DIR, "LinkedQueue", "cs:2-obj");
-    }
-
+    @MultiStringsSource({"RecursiveObj", "cs:2-obj"})
+    @MultiStringsSource({"LongObjContext", "cs:2-obj"})
+    @MultiStringsSource({"LongCallContext", "cs:2-call"})
+    @MultiStringsSource({"StaticSelect", "cs:2-obj"})
+    @MultiStringsSource({"TwoCallOnly", "cs:2-call"})
+    @MultiStringsSource({"ObjOnly", "cs:1-obj"})
+    @MultiStringsSource({"MustUseHeap", "cs:2-call"})
+    @MultiStringsSource({"NestedHeap", "cs:2-obj"})
+    @MultiStringsSource({"CallOnly", "cs:1-call"})
+    @MultiStringsSource({"LinkedQueue", "cs:2-obj"})
     // Tests for handling of non-normal objects
-    @Test
-    void testTypeSens() {
-        Tests.testPTA(DIR, "TypeSens", "cs:2-type");
+    @MultiStringsSource({"TypeSens", "cs:2-type"})
+    @MultiStringsSource({"SpecialHeapContext", "cs:2-obj"})
+    void testFull(String mainClass, String opts) {
+        Tests.testPTA(DIR, mainClass, opts);
     }
 
-    @Test
-    void testSpecialHeapContext() {
-        Tests.testPTA(DIR, "SpecialHeapContext", "cs:2-obj");
-    }
 }

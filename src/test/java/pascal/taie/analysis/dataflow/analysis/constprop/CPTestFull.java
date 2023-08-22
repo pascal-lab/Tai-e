@@ -22,57 +22,26 @@
 
 package pascal.taie.analysis.dataflow.analysis.constprop;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class CPTestFull extends CPTest {
 
-    @Test
-    void testSimpleBoolean() {
-        testCP("SimpleBoolean");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SimpleBoolean",
+            "BinaryOp",
+            "BranchNAC",
+            "BranchUndef",
+            "Loop",
+            "LogicalOp",
+            "DivisionByZero",
+            "MultiplyByZero",
+            "ConditionOp",
+            "ComparisonOp",
+    })
+    void testFull(String inputCLass) {
+        testCP(inputCLass);
     }
 
-    @Test
-    void testBinaryOp() {
-        testCP("BinaryOp");
-    }
-
-    @Test
-    void testBranchNAC() {
-        testCP("BranchNAC");
-    }
-
-    @Test
-    void testBranchUndef() {
-        testCP("BranchUndef");
-    }
-
-    @Test
-    void testLoop() {
-        testCP("Loop");
-    }
-
-    @Test
-    void testLogicalOp() {
-        testCP("LogicalOp");
-    }
-
-    @Test
-    void testDivisionByZero() {
-        testCP("DivisionByZero");
-    }
-
-    @Test
-    void testMultiplyByZero() {
-        testCP("MultiplyByZero");
-    }
-
-    @Test
-    void testConditionOp() {
-        testCP("ConditionOp");
-    }
-
-    @Test
-    void testComparisonOp() {
-        testCP("ComparisonOp");
-    }
 }
