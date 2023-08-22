@@ -32,7 +32,7 @@ public class ReflectionTest {
     private static final String DIR = "reflection";
 
     @Test
-    void testStringConstant() {
+    void testBasic() {
         Tests.testPTA(DIR, "GetMember");
     }
 
