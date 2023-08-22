@@ -34,6 +34,7 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.graph.MaxFlowMinCutSolver;
 import pascal.taie.util.graph.ShortestPath;
 
 import java.io.File;
@@ -231,7 +232,7 @@ public abstract class TransferInferer extends OnFlyHandler {
                         if (oldPath == null
                                 || oldPath.weight > weight
                                 || (oldPath.weight == weight && oldPath.path.size() > path.size())) {
-                            taintPaths.put(sourceVar, sinkVar, new TaintPath(path, weight));
+                            taintPaths.put(sourceVar, sinkVar, new TaintPath(path, weight, tofg, taintNode));
                         }
                     }
                 }
@@ -254,6 +255,22 @@ public abstract class TransferInferer extends OnFlyHandler {
                 PointerFlowEdge pointerFlowEdge = edge.pointerFlowEdge();
                 out.println(pointerFlowEdge);
             });
+        }
+
+        out.printf("%nMinimum cut edges:");
+        for (var entry : taintPaths.entrySet()) {
+            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
+            TaintPath path = entry.value();
+            MaxFlowMinCutSolver<TaintNode> minCut = new MaxFlowMinCutSolver<>(path.tofg,
+                    path.tofg.getSourceNode(),
+                    path.sinkNode,
+                    edge -> weightHandler.getCapacity(((TaintNodeFlowEdge) edge).pointerFlowEdge()));
+            minCut.compute();
+            minCut.getMinCutEdges().stream()
+                    .map(edge -> weightHandler.getInferredTrans(((TaintNodeFlowEdge) edge).pointerFlowEdge()))
+                    .flatMap(Collection::stream)
+                    .distinct()
+                    .forEach(tf -> out.println(transferToString(tf)));
         }
     }
 
@@ -296,7 +313,10 @@ public abstract class TransferInferer extends OnFlyHandler {
 
     }
 
-    private record TaintPath(List<TaintNodeFlowEdge> path, int weight) {
+    private record TaintPath(List<TaintNodeFlowEdge> path,
+                             int weight,
+                             TaintObjectFlowGraph tofg,
+                             TaintNode sinkNode) {
 
     }
 }

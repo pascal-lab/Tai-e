@@ -47,35 +47,43 @@ public class MaxFlowMinCutSolver<N> {
     }
 
     public void compute() {
-        if(result == null){
-            result = Sets.newSet();
-            inEdges = Maps.newMultiMap();
-            outEdges = Maps.newMultiMap();
-            edge2Capacity = Maps.newMap();
-            node2pred = Maps.newMap();
-            new2init = Maps.newMap();
-            graph.getNodes().forEach(node -> node2pred.put(node, null));
-            graph.getNodes().stream().map(graph::getOutEdgesOf)
-                    .flatMap(Collection::stream)
-                    .forEach(edge -> {
-                        //if (edge.source() != target && edge.target() != source) {
-                        CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
-                        this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
-                        new2init.put(newEdge1, edge);
-                        CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
-                        if (!edge2Capacity.containsKey(newEdge2)) {
-                            this.addEdge(newEdge2, 0);
-                        }
-                        //}
-                    });
+        if (result == null) {
+            init();
             computeMaxFlow();
             computeMinCut();
-            inEdges = null;
-            outEdges = null;
-            edge2Capacity = null;
-            node2pred = null;
-            new2init = null;
+            cleanUnused();
         }
+    }
+
+    private void init() {
+        result = Sets.newSet();
+        inEdges = Maps.newMultiMap();
+        outEdges = Maps.newMultiMap();
+        edge2Capacity = Maps.newMap();
+        node2pred = Maps.newMap();
+        new2init = Maps.newMap();
+        graph.getNodes().forEach(node -> node2pred.put(node, null));
+        graph.getNodes().stream().map(graph::getOutEdgesOf)
+                .flatMap(Collection::stream)
+                .forEach(edge -> {
+                    //if (edge.source() != target && edge.target() != source) {
+                    CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
+                    this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
+                    new2init.put(newEdge1, edge);
+                    CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
+                    if (!edge2Capacity.containsKey(newEdge2)) {
+                        this.addEdge(newEdge2, 0);
+                    }
+                    //}
+                });
+    }
+
+    private void cleanUnused() {
+        inEdges = null;
+        outEdges = null;
+        edge2Capacity = null;
+        node2pred = null;
+        new2init = null;
     }
 
     private void computeMinCut() {
@@ -162,7 +170,7 @@ public class MaxFlowMinCutSolver<N> {
         workList.addLast(start);
         while (!workList.isEmpty()) {
             N curr = workList.poll();
-            if(visited.add(curr)) {
+            if (visited.add(curr)) {
                 for (CapacityEdge<N> edge : getOutEdgesOf(curr)) {
                     N to = edge.target;
                     if (edge2Capacity.get(edge) > 0 && !visited.contains(to)) {
