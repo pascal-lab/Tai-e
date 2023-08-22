@@ -51,10 +51,9 @@ import java.util.List;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
- * Models APIs related to java.lang.Class, java.lang.reflect.Method,
- * and java.lang.reflect.Field. This model handles non-core reflection APIs.
+ * Models other non-core reflection APIs.
  */
-public class ClassMethodFieldModel extends AbstractModel {
+public class OthersModel extends AbstractModel {
 
     private static final Descriptor PARAM_ANNOTATIONS = () -> "ParamAnnotations";
 
@@ -70,7 +69,7 @@ public class ClassMethodFieldModel extends AbstractModel {
      */
     private final ArrayType annotation2Array;
 
-    public ClassMethodFieldModel(Solver solver, MetaObjHelper helper) {
+    public OthersModel(Solver solver, MetaObjHelper helper) {
         super(solver);
         this.helper = helper;
         ClassType annotationType = typeSystem.getClassType(ClassNames.ANNOTATION);
