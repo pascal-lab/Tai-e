@@ -3,14 +3,9 @@ package pascal.taie.util.graph;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.ToIntFunction;
 
 public class MaxFlowMinCutSolver<N> {
@@ -19,10 +14,10 @@ public class MaxFlowMinCutSolver<N> {
     private final N target;
     private final Graph<N> graph;
     private final ToIntFunction<Edge<N>> capacityCal;
-    private MultiMap<N, CapacityEdge<N>> inEdges;
-    private MultiMap<N, CapacityEdge<N>> outEdges;
-    private Map<CapacityEdge<N>, Integer> edge2Capacity;
-    private Map<CapacityEdge<N>, Edge<N>> new2init;
+    private MultiMap<N, N> successors;
+    private MultiMap<N, N> predecessors;
+    private TwoKeyMap<N, N, Integer> edge2Capacity;
+    private TwoKeyMap<N, N, Edge<N>> new2init;
     private Map<N, N> node2pred;
     private Set<Edge<N>> result;
     private int maxFlowValue = INVALID_WEIGHT;
@@ -56,30 +51,28 @@ public class MaxFlowMinCutSolver<N> {
 
     private void init() {
         result = Sets.newSet();
-        inEdges = Maps.newMultiMap();
-        outEdges = Maps.newMultiMap();
-        edge2Capacity = Maps.newMap();
+        predecessors = Maps.newMultiMap();
+        successors = Maps.newMultiMap();
+        edge2Capacity = Maps.newTwoKeyMap();
         node2pred = Maps.newMap();
-        new2init = Maps.newMap();
+        new2init = Maps.newTwoKeyMap();
         graph.getNodes().forEach(node -> node2pred.put(node, null));
         graph.getNodes().stream().map(graph::getOutEdgesOf)
                 .flatMap(Collection::stream)
                 .forEach(edge -> {
                     //if (edge.source() != target && edge.target() != source) {
-                    CapacityEdge<N> newEdge1 = new CapacityEdge<>(edge.source(), edge.target());
-                    this.addEdge(newEdge1, capacityCal.applyAsInt(edge));
-                    new2init.put(newEdge1, edge);
-                    CapacityEdge<N> newEdge2 = new CapacityEdge<>(edge.target(), edge.source());
-                    if (!edge2Capacity.containsKey(newEdge2)) {
-                        this.addEdge(newEdge2, 0);
+                    this.recordCapacity(edge.source(), edge.target(), capacityCal.applyAsInt(edge));
+                    new2init.put(edge.source(), edge.target(), edge);
+                    if (!edge2Capacity.containsKey(edge.target(), edge.source())) {
+                        this.recordCapacity(edge.target(), edge.source(), 0);
                     }
                     //}
                 });
     }
 
     private void cleanUnused() {
-        inEdges = null;
-        outEdges = null;
+        successors = null;
+        predecessors = null;
         edge2Capacity = null;
         node2pred = null;
         new2init = null;
@@ -90,12 +83,12 @@ public class MaxFlowMinCutSolver<N> {
             return;
         }
         Set<N> sourceCanReach = sourceCanReach();
-        for (N node : sourceCanReach) {
-            for (CapacityEdge<N> edge : getOutEdgesOf(node)) {
+        for (N from : sourceCanReach) {
+            for (N to : getSuccessorsOf(from)) {
                 // whether the condition need to compute nodes can reach sink or not
-                if (!sourceCanReach.contains(edge.target()) && new2init.get(edge) != null) {
+                if (!sourceCanReach.contains(to) && new2init.get(from, to) != null) {
                     // add cut edge
-                    result.add(new2init.get(edge));
+                    result.add(new2init.get(from, to));
                 }
             }
         }
@@ -108,9 +101,9 @@ public class MaxFlowMinCutSolver<N> {
         while (!workList.isEmpty()) {
             N curr = workList.poll();
             if (result.add(curr)) {
-                for (CapacityEdge<N> edge : getOutEdgesOf(curr)) {
-                    if (edge2Capacity.get(edge) > 0) {
-                        workList.addLast(edge.target());
+                for (N successor : getSuccessorsOf(curr)) {
+                    if (getCapacity(curr, successor) > 0) {
+                        workList.addLast(successor);
                     }
                 }
             }
@@ -121,15 +114,21 @@ public class MaxFlowMinCutSolver<N> {
     private void computeMaxFlow() {
         int result = 0;
         while (bfs(source)) {
-            Deque<CapacityEdge<N>> path = new ArrayDeque<>();
+            int increase = INVALID_WEIGHT;
+            List<N> path = new ArrayList<>();
             N curr = target;
             N last;
+            int temp;
+            path.add(curr);
             while (!curr.equals(source)) {
                 last = curr;
                 curr = node2pred.get(last);
-                path.addFirst(getEdge(curr, last));
+                path.add(curr);
+                temp = getCapacity(curr, last);
+                if (temp < increase) {
+                    increase = temp;
+                }
             }
-            int increase = getMinCapacity(path);
 
             // this condition indicate that there is a path without transfer edge
             if (increase == INVALID_WEIGHT) {
@@ -137,30 +136,21 @@ public class MaxFlowMinCutSolver<N> {
             }
 
             result += increase;
-            for (CapacityEdge<N> edge : path) {
-                int capacity = edge2Capacity.get(edge);
+            int length = path.size();
+            for (int i = length - 1; i > 0; i--) {
+                N from = path.get(i);
+                N to = path.get(i - 1);
+                int capacity = getCapacity(from, to);
                 if (capacity != INVALID_WEIGHT) {
-                    edge2Capacity.put(edge, capacity - increase);
+                    edge2Capacity.put(from, to, capacity - increase);
                 }
-                CapacityEdge<N> newEdge = getEdge(edge.target(), edge.source());
-                capacity = edge2Capacity.get(newEdge);
+                capacity = getCapacity(to, from);
                 if (capacity != INVALID_WEIGHT) {
-                    edge2Capacity.put(newEdge, capacity + increase);
+                    edge2Capacity.put(to, from, capacity + increase);
                 }
             }
         }
         this.maxFlowValue = result;
-    }
-
-    private int getMinCapacity(Deque<CapacityEdge<N>> path) {
-        int result = INVALID_WEIGHT;
-        for (CapacityEdge<N> edge : path) {
-            int capacity = edge2Capacity.get(edge);
-            if (capacity < result) {
-                result = capacity;
-            }
-        }
-        return result;
     }
 
     private boolean bfs(N start) {
@@ -170,9 +160,8 @@ public class MaxFlowMinCutSolver<N> {
         while (!workList.isEmpty()) {
             N curr = workList.poll();
             if (visited.add(curr)) {
-                for (CapacityEdge<N> edge : getOutEdgesOf(curr)) {
-                    N to = edge.target;
-                    if (edge2Capacity.get(edge) > 0 && !visited.contains(to)) {
+                for (N to : getSuccessorsOf(curr)) {
+                    if (getCapacity(curr, to) > 0 && !visited.contains(to)) {
                         node2pred.put(to, curr);
                         if (to.equals(target)) {
                             return true;
@@ -185,40 +174,30 @@ public class MaxFlowMinCutSolver<N> {
         return false;
     }
 
-    @Nullable
-    private CapacityEdge<N> getEdge(N from, N to) {
-        CapacityEdge<N> result = null;
-        for (CapacityEdge<N> edge : getOutEdgesOf(from)) {
-            if (edge.target().equals(to)) {
-                result = edge;
-                break;
-            }
-        }
-        return result;
-    }
-
     /**
-     * @param edge     edge
+     * @param from     source node
+     * @param to       target node
      * @param capacity if testEdge is existing, then change the capacity,
      *                 else add the edge with the capacity
      */
-    private void addEdge(CapacityEdge<N> edge, int capacity) {
-        if (!edge2Capacity.containsKey(edge)) {
-            N source = edge.source();
-            N target = edge.target();
-            edge2Capacity.put(edge, capacity);
-            inEdges.put(target, edge);
-            outEdges.put(source, edge);
-        } else {
-            edge2Capacity.put(edge, capacity);
+    private void recordCapacity(N from, N to, int capacity) {
+        if (!edge2Capacity.containsKey(from, to)) {
+            predecessors.put(to, from);
+            successors.put(from, to);
         }
+        edge2Capacity.put(from, to, capacity);
     }
 
-    private Set<CapacityEdge<N>> getOutEdgesOf(N node) {
-        return outEdges.get(node);
+
+    private Set<N> getSuccessorsOf(N node) {
+        return successors.get(node);
     }
 
-    private record CapacityEdge<N>(N source, N target) implements Edge<N> {
-
+    private int getCapacity(N from, N to) {
+        Integer capacity = edge2Capacity.get(from, to);
+        if (capacity == null)
+            throw new RuntimeException();
+        return capacity;
     }
+
 }
