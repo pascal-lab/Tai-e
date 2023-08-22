@@ -42,8 +42,9 @@ public class PathEdgeSorter<N> {
                 });
             }
             path.remove(currEdge);
+            visited.remove(currNode);
         }
-        visited.remove(currNode);
+
     }
 
     private void computePathsFrom(N node) {
