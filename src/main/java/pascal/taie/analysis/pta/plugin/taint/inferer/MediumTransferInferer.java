@@ -20,11 +20,11 @@ public class MediumTransferInferer extends TransferInferer {
     @Override
     void initStrategy() {
         generateStrategies.add(new MethodNameMatching());
+        generateStrategies.add(new ObjectFlow());
         generateStrategies.add(new TypeMatching());
         filterStrategies.add(new ScopeFilter());
         filterStrategies.add(new IgnoreCollection());
         filterStrategies.add(new IgnoreException());
         filterStrategies.add(new IgnoreInnerClass());
-        filterStrategies.add(new MethodNameMatching());
     }
 }

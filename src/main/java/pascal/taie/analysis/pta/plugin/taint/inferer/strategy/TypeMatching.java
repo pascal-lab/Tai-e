@@ -1,7 +1,5 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
@@ -10,6 +8,7 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.TransferGenerator;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -23,9 +22,7 @@ import java.util.stream.Collectors;
 
 public class TypeMatching implements TransInferStrategy {
 
-    private static final Logger logger = LogManager.getLogger(TypeMatching.class);
-
-    private static final double THRESHOLD = 0.8;
+    private double threshold;
 
     private Solver solver;
 
@@ -52,6 +49,12 @@ public class TypeMatching implements TransInferStrategy {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        threshold = switch (context.config().inferenceConfig().confidence()) {
+            case DISABLE -> throw new AnalysisException();
+            case LOW -> 0.4;
+            case MEDIUM -> 0.6;
+            case HIGH -> 0.8;
+        };
     }
 
     @Override
@@ -130,6 +133,6 @@ public class TypeMatching implements TransInferStrategy {
             similarity = getTypeSimilarity(s1, s2);
             typeSimilarityMap.put(s1, s2, similarity);
         }
-        return similarity >= THRESHOLD;
+        return similarity >= threshold;
     }
 }
