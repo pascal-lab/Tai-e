@@ -12,7 +12,7 @@ while input := sys.stdin.readline():
     for wordx in wordsx:
         for wordy in wordsy:
             sem1, sem2 = wn.synsets(wordx), wn.synsets(wordy)
-            for i, j in list(product(*[sem1, sem2])):
+            for i, j in product(sem1, sem2):
                 score = i.wup_similarity(j)
-                maxscore = score if maxscore < score else maxscore
+                maxscore = max(maxscore, score)
     print(maxscore)

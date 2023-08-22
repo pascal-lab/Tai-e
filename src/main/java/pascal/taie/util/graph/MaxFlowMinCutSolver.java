@@ -15,7 +15,6 @@ public class MaxFlowMinCutSolver<N> {
     private final Graph<N> graph;
     private final ToIntFunction<Edge<N>> capacityCal;
     private MultiMap<N, N> successors;
-    private MultiMap<N, N> predecessors;
     private TwoKeyMap<N, N, Integer> edge2Capacity;
     private TwoKeyMap<N, N, Edge<N>> new2init;
     private Map<N, N> node2pred;
@@ -51,7 +50,6 @@ public class MaxFlowMinCutSolver<N> {
 
     private void init() {
         result = Sets.newSet();
-        predecessors = Maps.newMultiMap();
         successors = Maps.newMultiMap();
         edge2Capacity = Maps.newTwoKeyMap();
         node2pred = Maps.newMap();
@@ -72,7 +70,6 @@ public class MaxFlowMinCutSolver<N> {
 
     private void cleanUnused() {
         successors = null;
-        predecessors = null;
         edge2Capacity = null;
         node2pred = null;
         new2init = null;
@@ -181,10 +178,7 @@ public class MaxFlowMinCutSolver<N> {
      *                 else add the edge with the capacity
      */
     private void recordCapacity(N from, N to, int capacity) {
-        if (!edge2Capacity.containsKey(from, to)) {
-            predecessors.put(to, from);
-            successors.put(from, to);
-        }
+        successors.put(from, to);
         edge2Capacity.put(from, to, capacity);
     }
 
