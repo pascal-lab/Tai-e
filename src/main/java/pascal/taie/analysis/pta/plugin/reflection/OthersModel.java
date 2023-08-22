@@ -77,6 +77,23 @@ public class OthersModel extends AbstractModel {
         annotation2Array = typeSystem.getArrayType(annotationType, 2);
     }
 
+    // ---------- Model for java.lang.Object starts ----------
+    @InvokeHandler(signature = "<java.lang.Object: java.lang.Class getClass()>", argIndexes = {BASE})
+    public void getClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        Var result = invoke.getResult();
+        if (result != null) {
+            Context context = csVar.getContext();
+            pts.forEach(recv -> {
+                Type type = recv.getObject().getType();
+                if (type instanceof ClassType classType) {
+                    Obj classObj = helper.getMetaObj(classType.getJClass());
+                    solver.addVarPointsTo(context, result, classObj);
+                }
+            });
+        }
+    }
+    // ---------- Model for java.lang.Object ends ----------
+
     // ---------- Model for java.lang.Class starts ----------
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>", argIndexes = {0})
     public void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
