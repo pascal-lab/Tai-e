@@ -1,0 +1,29 @@
+-------------------- <PlusPlus: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] %intconst0 = 0; {}
+[1@L3] %intconst1 = 1; {}
+[2@L3] invokestatic <PlusPlus: void test1(int,int)>(%intconst0, %intconst1); {}
+[3@L4] invokestatic <PlusPlus: void test2(int,int)>(%intconst1, %intconst0); {}
+[4@L4] return; {}
+
+-------------------- <PlusPlus: void test1(int,int)> (inter-const-prop) --------------------
+[0@L8] x = 1; {x=1, y=1}
+[1@L9] %intconst0 = 1; {x=1, y=1}
+[2@L9] x = x + %intconst0; {x=2, y=1}
+[3@L10] temp$2 = x + %intconst0; {temp$2=3, x=2, y=1}
+[4@L10] x = temp$2; {temp$2=3, x=3, y=1}
+[5@L10] y = temp$2; {temp$2=3, x=3, y=3}
+[6@L10] return; {temp$2=3, x=3, y=3}
+
+-------------------- <PlusPlus: void test2(int,int)> (inter-const-prop) --------------------
+[0@L14] x = 1; {x=1, y=0}
+[1@L15] %intconst0 = 1; {x=1, y=0}
+[2@L15] x = x + %intconst0; {x=2, y=0}
+[3@L16] x = x + %intconst0; {x=3, y=0}
+[4@L17] temp$4 = x + %intconst0; {temp$4=4, x=3, y=0}
+[5@L17] x = temp$4; {temp$4=4, x=4, y=0}
+[6@L17] y = temp$4; {temp$4=4, x=4, y=4}
+[7@L18] temp$5 = x; {temp$4=4, temp$5=4, x=4, y=4}
+[8@L18] x = temp$5 + %intconst0; {temp$4=4, temp$5=4, x=5, y=4}
+[9@L18] y = temp$5; {temp$4=4, temp$5=4, x=5, y=4}
+[10@L18] return; {temp$4=4, temp$5=4, x=5, y=4}
+

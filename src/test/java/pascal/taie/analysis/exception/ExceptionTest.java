@@ -56,11 +56,10 @@ public class ExceptionTest {
     }
 
     private static void test(String exception, String... methodNames) {
-        String[] args = new String[]{
+        Main.main(
                 "-pp", "-cp", CP, "-m", MAIN,
                 "-a", ThrowAnalysis.ID + "=exception:" + exception
-        };
-        Main.main(args);
+        );
         JClass c = World.get().getClassHierarchy().getClass(MAIN);
         for (String methodName : methodNames) {
             JMethod m = c.getDeclaredMethod(methodName);

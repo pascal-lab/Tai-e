@@ -1,0 +1,15 @@
+-------------------- <Reference: void <init>()> (inter-const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <Reference: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] %intconst0 = 1; {}
+[1@L4] a = newarray java.lang.Object[%intconst0]; {}
+[2@L5] temp$2 = new Reference; {}
+[3@L5] invokespecial temp$2.<Reference: void <init>()>(); {}
+[4@L5] temp$1 = 0; {temp$1=0}
+[5@L5] a[temp$1] = temp$2; {temp$1=0}
+[6@L6] temp$4 = 0; {temp$1=0, temp$4=0}
+[7@L6] o = a[temp$4]; {temp$1=0, temp$4=0}
+[8@L6] return; {temp$1=0, temp$4=0}
+

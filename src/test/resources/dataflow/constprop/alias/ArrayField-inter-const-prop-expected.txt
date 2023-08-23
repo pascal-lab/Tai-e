@@ -1,0 +1,51 @@
+-------------------- <ArrayField: void <init>()> (inter-const-prop) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <ArrayField: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] invokestatic <ArrayField: int array()>(); {}
+[1@L5] invokestatic <ArrayField: int field()>(); {}
+[2@L5] return; {}
+
+-------------------- <ArrayField: int array()> (inter-const-prop) --------------------
+[0@L11] %intconst0 = 3; {}
+[1@L11] temp$0 = newarray int[%intconst0]; {}
+[2@L11] %intconst1 = 0; {}
+[3@L11] %intconst2 = 1; {}
+[4@L11] temp$0[%intconst1] = %intconst2; {}
+[5@L11] %intconst3 = 2; {}
+[6@L11] temp$0[%intconst2] = %intconst3; {}
+[7@L11] temp$0[%intconst3] = %intconst0; {}
+[8@L11] arr = temp$0; {}
+[9@L12] temp$2 = 0; {temp$2=0}
+[10@L12] temp$5 = arr[temp$2]; {temp$2=0, temp$5=1}
+[11@L12] temp$4 = 1; {temp$2=0, temp$4=1, temp$5=1}
+[12@L12] temp$6 = arr[temp$4]; {temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[13@L12] if (temp$5 > temp$6) goto 15; {temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[14@L12] goto 19; {temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[15@L12] nop; {temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[16@L12] temp$8 = 0; {temp$2=0, temp$4=1, temp$5=1, temp$6=2, temp$8=0}
+[17@L12] temp$9 = arr[temp$8]; {temp$2=0, temp$4=1, temp$5=1, temp$6=2, temp$8=0, temp$9=1}
+[18@L13] return temp$9; {temp$2=0, temp$4=1, temp$5=1, temp$6=2, temp$8=0, temp$9=1}
+[19@L13] nop; {temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[20@L13] temp$11 = 1; {temp$11=1, temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[21@L13] temp$12 = arr[temp$11]; {temp$11=1, temp$12=2, temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+[22@L15] return temp$12; {temp$11=1, temp$12=2, temp$2=0, temp$4=1, temp$5=1, temp$6=2}
+
+-------------------- <ArrayField: int field()> (inter-const-prop) --------------------
+[0@L20] temp$0 = new ArrayField; {}
+[1@L20] invokespecial temp$0.<ArrayField: void <init>()>(); {}
+[2@L20] bar = temp$0; {}
+[3@L21] temp$1 = 1; {temp$1=1}
+[4@L21] bar.<ArrayField: int foo> = temp$1; {temp$1=1}
+[5@L22] temp$2 = bar.<ArrayField: int foo>; {temp$1=1, temp$2=1}
+[6@L22] %intconst0 = 0; {temp$1=1, temp$2=1}
+[7@L22] if (temp$2 > %intconst0) goto 9; {temp$1=1, temp$2=1}
+[8@L22] goto 12; {temp$1=1, temp$2=1}
+[9@L22] nop; {temp$1=1, temp$2=1}
+[10@L22] temp$3 = 1; {temp$1=1, temp$2=1, temp$3=1}
+[11@L23] return temp$3; {temp$1=1, temp$2=1, temp$3=1}
+[12@L23] nop; {temp$1=1, temp$2=1}
+[13@L23] temp$4 = -1; {temp$1=1, temp$2=1, temp$4=-1}
+[14@L25] return temp$4; {temp$1=1, temp$2=1, temp$4=-1}
+

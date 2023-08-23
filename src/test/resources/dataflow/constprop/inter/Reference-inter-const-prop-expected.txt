@@ -1,0 +1,29 @@
+-------------------- <Point: void <init>()> (inter-const-prop) --------------------
+[0@L18] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L18] return; {}
+
+-------------------- <Reference: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] temp$0 = new Point; {}
+[1@L3] invokespecial temp$0.<Point: void <init>()>(); {}
+[2@L3] p = temp$0; {}
+[3@L4] temp$1 = 2; {temp$1=2}
+[4@L4] p.<Point: int x> = temp$1; {temp$1=2}
+[5@L5] temp$2 = 3; {temp$1=2, temp$2=3}
+[6@L5] p.<Point: int y> = temp$2; {temp$1=2, temp$2=3}
+[7@L6] offset = 1; {offset=1, temp$1=2, temp$2=3}
+[8@L7] temp$3 = invokestatic <Reference: Point adjustPoint(Point,int)>(p, offset); {offset=1, temp$1=2, temp$2=3}
+[9@L7] p2 = temp$3; {offset=1, temp$1=2, temp$2=3}
+[10@L8] temp$4 = p2.<Point: int x>; {offset=1, temp$1=2, temp$2=3, temp$4=NAC}
+[11@L8] temp$5 = p2.<Point: int y>; {offset=1, temp$1=2, temp$2=3, temp$4=NAC, temp$5=NAC}
+[12@L8] z = temp$4 + temp$5; {offset=1, temp$1=2, temp$2=3, temp$4=NAC, temp$5=NAC, z=NAC}
+[13@L8] return; {offset=1, temp$1=2, temp$2=3, temp$4=NAC, temp$5=NAC, z=NAC}
+
+-------------------- <Reference: Point adjustPoint(Point,int)> (inter-const-prop) --------------------
+[0@L12] temp$0 = p.<Point: int x>; {offset=1, temp$0=NAC}
+[1@L12] temp$1 = temp$0 + offset; {offset=1, temp$0=NAC, temp$1=NAC}
+[2@L12] p.<Point: int x> = temp$1; {offset=1, temp$0=NAC, temp$1=NAC}
+[3@L13] temp$2 = p.<Point: int y>; {offset=1, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[4@L13] temp$3 = temp$2 + offset; {offset=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, temp$3=NAC}
+[5@L13] p.<Point: int y> = temp$3; {offset=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, temp$3=NAC}
+[6@L14] return p; {offset=1, temp$0=NAC, temp$1=NAC, temp$2=NAC, temp$3=NAC}
+

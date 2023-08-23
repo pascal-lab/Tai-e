@@ -47,7 +47,7 @@ public class Main {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         LoggerConfigs.reconfigure();
         Timer.runAndCount(() -> {
             Options options = processArgs(args);
@@ -66,7 +66,7 @@ public class Main {
      * If the given options is empty or specify to print help information,
      * then print help and exit immediately.
      */
-    private static Options processArgs(String[] args) {
+    private static Options processArgs(String... args) {
         Options options = Options.parse(args);
         if (options.isPrintHelp() || args.length == 0) {
             options.printHelp();

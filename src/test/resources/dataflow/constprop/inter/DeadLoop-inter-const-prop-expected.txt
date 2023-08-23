@@ -1,0 +1,27 @@
+-------------------- <DeadLoop: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] x = 5; {x=5}
+[1@L5] temp$0 = invokestatic <DeadLoop: int recursion(int)>(x); {x=5}
+[2@L5] y = temp$0; {temp$0=NAC, x=5, y=NAC}
+[3@L6] temp$1 = invokestatic <DeadLoop: int whileLoop(int)>(x); {temp$0=NAC, x=5, y=NAC}
+[4@L6] z = temp$1; {temp$0=NAC, temp$1=NAC, x=5, y=NAC, z=NAC}
+[5@L6] return; {temp$0=NAC, temp$1=NAC, x=5, y=NAC, z=NAC}
+
+-------------------- <DeadLoop: int recursion(int)> (inter-const-prop) --------------------
+[0@L10] %intconst0 = 1; {x=NAC}
+[1@L10] x = x + %intconst0; {x=NAC}
+[2@L11] invokestatic <DeadLoop: int recursion(int)>(x); {x=NAC}
+[3@L12] return x; {x=NAC}
+
+-------------------- <DeadLoop: int whileLoop(int)> (inter-const-prop) --------------------
+[0@L16] y = 2; {x=5, y=2}
+[1@L17] z = 1; {x=5, y=2, z=1}
+[2@L17] nop; {x=5, y=2, z=NAC}
+[3@L18] if (x > y) goto 5; {x=5, y=2, z=NAC}
+[4@L18] goto 9; {x=5, y=2, z=NAC}
+[5@L18] nop; {x=5, y=2, z=NAC}
+[6@L19] %intconst0 = 1; {x=5, y=2, z=NAC}
+[7@L19] z = z + %intconst0; {x=5, y=2, z=NAC}
+[8@L18] goto 2; {x=5, y=2, z=NAC}
+[9@L18] nop; {x=5, y=2, z=NAC}
+[10@L21] return z; {x=5, y=2, z=NAC}
+

@@ -1,0 +1,53 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L35] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L35] return; {}
+
+-------------------- <B: void <init>()> (inter-const-prop) --------------------
+[0@L39] invokespecial %this.<A: void <init>()>(); {}
+[1@L39] return; {}
+
+-------------------- <B: void setSuperF(int)> (inter-const-prop) --------------------
+[0@L43] %this.<A: int f> = x; {x=22}
+[1@L43] return; {x=22}
+
+-------------------- <InheritedField: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] invokestatic <InheritedField: void corner1()>(); {}
+[1@L4] invokestatic <InheritedField: void corner2()>(); {}
+[2@L4] return; {}
+
+-------------------- <InheritedField: void corner1()> (inter-const-prop) --------------------
+[0@L8] temp$0 = new B; {}
+[1@L8] invokespecial temp$0.<B: void <init>()>(); {}
+[2@L8] b = temp$0; {}
+[3@L9] %intconst0 = 22; {}
+[4@L9] invokevirtual b.<B: void setSuperF(int)>(%intconst0); {}
+[5@L10] x = b.<B: int f>; {}
+[6@L11] temp$1 = invokestatic <InheritedField: int foo(A)>(b); {}
+[7@L11] y = temp$1; {temp$1=22, y=22}
+[8@L11] return; {temp$1=22, y=22}
+
+-------------------- <InheritedField: int foo(A)> (inter-const-prop) --------------------
+[0@L14] temp$0 = a.<A: int f>; {temp$0=22}
+[1@L15] return temp$0; {temp$0=22}
+
+-------------------- <InheritedField: void corner2()> (inter-const-prop) --------------------
+[0@L19] temp$0 = new A; {}
+[1@L19] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L19] a = temp$0; {}
+[3@L20] temp$1 = 22; {temp$1=22}
+[4@L20] a.<A: int f> = temp$1; {temp$1=22}
+[5@L21] temp$2 = new B; {temp$1=22}
+[6@L21] invokespecial temp$2.<B: void <init>()>(); {temp$1=22}
+[7@L21] b = temp$2; {temp$1=22}
+[8@L22] temp$3 = 33; {temp$1=22, temp$3=33}
+[9@L22] b.<B: int f> = temp$3; {temp$1=22, temp$3=33}
+[10@L23] invokestatic <InheritedField: int bar(A)>(a); {temp$1=22, temp$3=33}
+[11@L24] x = b.<B: int f>; {temp$1=22, temp$3=33, x=33}
+[12@L25] temp$5 = invokestatic <InheritedField: int bar(A)>(b); {temp$1=22, temp$3=33, x=33}
+[13@L25] y = temp$5; {temp$1=22, temp$3=33, temp$5=22, x=33, y=22}
+[14@L25] return; {temp$1=22, temp$3=33, temp$5=22, x=33, y=22}
+
+-------------------- <InheritedField: int bar(A)> (inter-const-prop) --------------------
+[0@L28] temp$0 = a.<A: int f>; {temp$0=22}
+[1@L29] return temp$0; {temp$0=22}
+

@@ -1,0 +1,58 @@
+-------------------- <Int: void <init>()> (inter-const-prop) --------------------
+[0@L45] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L45] return; {}
+
+-------------------- <List: void <init>()> (inter-const-prop) --------------------
+[0@L26] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L26] return; {}
+
+-------------------- <List: void add(Int)> (inter-const-prop) --------------------
+[0@L31] %this.<List: Int element> = element; {}
+[1@L31] return; {}
+
+-------------------- <List: Iterator iterator()> (inter-const-prop) --------------------
+[0@L34] temp$0 = new List$ListIterator; {}
+[1@L35] invokespecial temp$0.<List$ListIterator: void <init>(List)>(%this); {}
+[2@L35] return temp$0; {}
+
+-------------------- <List$ListIterator: void <init>(List)> (inter-const-prop) --------------------
+[0@L38] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L38] %this.<List$ListIterator: List this$0> = temp$0; {}
+[2@L38] return; {}
+
+-------------------- <List$ListIterator: Int next()> (inter-const-prop) --------------------
+[0@L40] temp$0 = %this.<List$ListIterator: List this$0>; {}
+[1@L40] temp$1 = temp$0.<List: Int element>; {}
+[2@L40] return temp$1; {}
+
+-------------------- <ObjSens2: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L7] temp$0 = new List; {}
+[1@L7] invokespecial temp$0.<List: void <init>()>(); {}
+[2@L7] l1 = temp$0; {}
+[3@L8] temp$1 = new Int; {}
+[4@L8] invokespecial temp$1.<Int: void <init>()>(); {}
+[5@L8] n1 = temp$1; {}
+[6@L9] temp$2 = 22; {temp$2=22}
+[7@L9] n1.<Int: int i> = temp$2; {temp$2=22}
+[8@L10] invokevirtual l1.<List: void add(Int)>(n1); {temp$2=22}
+[9@L12] temp$3 = new List; {temp$2=22}
+[10@L12] invokespecial temp$3.<List: void <init>()>(); {temp$2=22}
+[11@L12] l2 = temp$3; {temp$2=22}
+[12@L13] temp$4 = new Int; {temp$2=22}
+[13@L13] invokespecial temp$4.<Int: void <init>()>(); {temp$2=22}
+[14@L13] n2 = temp$4; {temp$2=22}
+[15@L14] temp$5 = 33; {temp$2=22, temp$5=33}
+[16@L14] n2.<Int: int i> = temp$5; {temp$2=22, temp$5=33}
+[17@L15] invokevirtual l2.<List: void add(Int)>(n2); {temp$2=22, temp$5=33}
+[18@L17] temp$6 = invokevirtual l1.<List: Iterator iterator()>(); {temp$2=22, temp$5=33}
+[19@L17] i1 = temp$6; {temp$2=22, temp$5=33}
+[20@L18] temp$7 = invokeinterface i1.<Iterator: Int next()>(); {temp$2=22, temp$5=33}
+[21@L18] n3 = temp$7; {temp$2=22, temp$5=33}
+[22@L19] x = n3.<Int: int i>; {temp$2=22, temp$5=33, x=22}
+[23@L20] temp$8 = invokevirtual l2.<List: Iterator iterator()>(); {temp$2=22, temp$5=33, x=22}
+[24@L20] i2 = temp$8; {temp$2=22, temp$5=33, x=22}
+[25@L21] temp$9 = invokeinterface i2.<Iterator: Int next()>(); {temp$2=22, temp$5=33, x=22}
+[26@L21] n4 = temp$9; {temp$2=22, temp$5=33, x=22}
+[27@L22] y = n4.<Int: int i>; {temp$2=22, temp$5=33, x=22, y=33}
+[28@L22] return; {temp$2=22, temp$5=33, x=22, y=33}
+

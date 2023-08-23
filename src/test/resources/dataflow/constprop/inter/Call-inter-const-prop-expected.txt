@@ -1,0 +1,110 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L60] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L60] return; {}
+
+-------------------- <A: void foo(int)> (inter-const-prop) --------------------
+[0@L63] temp$0 = invokevirtual %this.<A: int ten()>(); {p=20}
+[1@L63] q = temp$0; {p=20, q=10, temp$0=10}
+[2@L64] x = p + q; {p=20, q=10, temp$0=10, x=30}
+[3@L65] invokevirtual %this.<A: void use(int)>(x); {p=20, q=10, temp$0=10, x=30}
+[4@L65] return; {p=20, q=10, temp$0=10, x=30}
+
+-------------------- <A: int ten()> (inter-const-prop) --------------------
+[0@L68] temp$0 = 10; {temp$0=10}
+[1@L69] return temp$0; {temp$0=10}
+
+-------------------- <A: void use(int)> (inter-const-prop) --------------------
+[0@L72] return; {x=30}
+
+-------------------- <A: int identity(int)> (inter-const-prop) --------------------
+[0@L76] return x; {x=NAC}
+
+-------------------- <A: int constant()> (inter-const-prop) --------------------
+[0@L79] temp$0 = 123; {temp$0=123}
+[1@L80] return temp$0; {temp$0=123}
+
+-------------------- <B: int constant()> (inter-const-prop) --------------------
+[0@L86] temp$0 = 111; {temp$0=111}
+[1@L88] return temp$0; {temp$0=111}
+
+-------------------- <Call: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = new A; {}
+[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L4] a = temp$0; {}
+[3@L5] %intconst0 = 100; {}
+[4@L5] temp$1 = invokevirtual a.<A: int identity(int)>(%intconst0); {}
+[5@L5] x = temp$1; {temp$1=NAC, x=NAC}
+[6@L6] %intconst1 = 200; {temp$1=NAC, x=NAC}
+[7@L6] temp$2 = invokevirtual a.<A: int identity(int)>(%intconst1); {temp$1=NAC, x=NAC}
+[8@L6] x = temp$2; {temp$1=NAC, temp$2=NAC, x=NAC}
+[9@L7] temp$3 = invokevirtual a.<A: int constant()>(); {temp$1=NAC, temp$2=NAC, x=NAC}
+[10@L7] y = temp$3; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[11@L8] %intconst2 = 20; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[12@L8] invokevirtual a.<A: void foo(int)>(%intconst2); {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[13@L9] invokestatic <Call: void branch()>(); {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[14@L10] invokestatic <Call: void multipleReturn()>(); {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[15@L11] invokestatic <Call: void loop1()>(); {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+[16@L11] return; {temp$1=NAC, temp$2=NAC, temp$3=NAC, x=NAC, y=NAC}
+
+-------------------- <Call: void branch()> (inter-const-prop) --------------------
+[0@L16] temp$0 = invokestatic <Call: boolean anyBool()>(); {}
+[1@L16] %intconst0 = 0; {temp$0=NAC}
+[2@L16] if (temp$0 == %intconst0) goto 7; {temp$0=NAC}
+[3@L16] goto 4; {temp$0=NAC}
+[4@L16] nop; {temp$0=NAC}
+[5@L17] x = 5; {temp$0=NAC, x=5}
+[6@L16] goto 10; {temp$0=NAC, x=5}
+[7@L16] nop; {temp$0=NAC}
+[8@L19] temp$2 = invokestatic <Call: int five()>(); {temp$0=NAC}
+[9@L19] x = temp$2; {temp$0=NAC, temp$2=5, x=5}
+[10@L19] nop; {temp$0=NAC, temp$2=5, x=5}
+[11@L22] temp$3 = invokestatic <Call: boolean anyBool()>(); {temp$0=NAC, temp$2=5, x=5}
+[12@L22] if (temp$3 == %intconst0) goto 17; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[13@L22] goto 14; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[14@L22] nop; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[15@L23] y = 10; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5, y=10}
+[16@L22] goto 20; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5, y=10}
+[17@L22] nop; {temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[18@L25] temp$5 = invokestatic <Call: int five()>(); {temp$0=NAC, temp$2=5, temp$3=NAC, x=5}
+[19@L25] y = temp$5; {temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=5}
+[20@L25] nop; {temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC}
+[21@L27] z = y; {temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC, z=NAC}
+[22@L27] return; {temp$0=NAC, temp$2=5, temp$3=NAC, temp$5=5, x=5, y=NAC, z=NAC}
+
+-------------------- <Call: void multipleReturn()> (inter-const-prop) --------------------
+[0@L31] temp$0 = invokestatic <Call: int five()>(); {}
+[1@L31] x = temp$0; {temp$0=5, x=5}
+[2@L32] temp$1 = invokestatic <Call: int five()>(); {temp$0=5, x=5}
+[3@L32] y = temp$1; {temp$0=5, temp$1=5, x=5, y=5}
+[4@L33] z = x * y; {temp$0=5, temp$1=5, x=5, y=5, z=25}
+[5@L33] return; {temp$0=5, temp$1=5, x=5, y=5, z=25}
+
+-------------------- <Call: int five()> (inter-const-prop) --------------------
+[0@L36] temp$0 = 5; {temp$0=5}
+[1@L37] return temp$0; {temp$0=5}
+
+-------------------- <Call: boolean anyBool()> (inter-const-prop) --------------------
+[0@L41] %intconst0 = 1; {}
+[1@L41] invokestatic <Call: boolean getBool(boolean)>(%intconst0); {}
+[2@L41] %intconst1 = 0; {}
+[3@L41] temp$1 = invokestatic <Call: boolean getBool(boolean)>(%intconst1); {}
+[4@L42] return temp$1; {temp$1=NAC}
+
+-------------------- <Call: boolean getBool(boolean)> (inter-const-prop) --------------------
+[0@L46] return b; {b=NAC}
+
+-------------------- <Call: void loop1()> (inter-const-prop) --------------------
+[0@L50] temp$0 = invokestatic <Call: boolean anyBool()>(); {}
+[1@L50] b = temp$0; {b=NAC, temp$0=NAC}
+[2@L51] nop; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[3@L52] %intconst0 = 0; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[4@L52] if (b == %intconst0) goto 11; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[5@L52] goto 6; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[6@L52] nop; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[7@L53] x = y; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[8@L54] y = z; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[9@L55] z = 1; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[10@L52] goto 2; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[11@L52] nop; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+[12@L52] return; {b=NAC, temp$0=NAC, x=1, y=1, z=1}
+

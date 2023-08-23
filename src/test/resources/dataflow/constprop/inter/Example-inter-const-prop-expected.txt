@@ -1,0 +1,20 @@
+-------------------- <Example: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L5] a = 6; {a=6}
+[1@L6] temp$1 = invokestatic <Example: int addOne(int)>(a); {a=6}
+[2@L6] b = temp$1; {a=6, b=7, temp$1=7}
+[3@L7] %intconst0 = 3; {a=6, b=7, temp$1=7}
+[4@L7] c = b - %intconst0; {a=6, b=7, c=4, temp$1=7}
+[5@L8] temp$3 = invokestatic <Example: int ten()>(); {a=6, b=7, c=4, temp$1=7}
+[6@L8] b = temp$3; {a=6, b=10, c=4, temp$1=7, temp$3=10}
+[7@L9] c = a * b; {a=6, b=10, c=60, temp$1=7, temp$3=10}
+[8@L9] return; {a=6, b=10, c=60, temp$1=7, temp$3=10}
+
+-------------------- <Example: int addOne(int)> (inter-const-prop) --------------------
+[0@L13] %intconst0 = 1; {x=6}
+[1@L13] y = x + %intconst0; {x=6, y=7}
+[2@L14] return y; {x=6, y=7}
+
+-------------------- <Example: int ten()> (inter-const-prop) --------------------
+[0@L17] temp$0 = 10; {temp$0=10}
+[1@L18] return temp$0; {temp$0=10}
+

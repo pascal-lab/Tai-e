@@ -1,0 +1,18 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L14] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L14] return; {}
+
+-------------------- <Interprocedural: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = new A; {}
+[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L4] a = temp$0; {}
+[3@L5] temp$1 = 555; {temp$1=555}
+[4@L5] a.<A: int f> = temp$1; {temp$1=555}
+[5@L6] temp$2 = invokestatic <Interprocedural: int getF(A)>(a); {temp$1=555}
+[6@L6] x = temp$2; {temp$1=555, temp$2=555, x=555}
+[7@L6] return; {temp$1=555, temp$2=555, x=555}
+
+-------------------- <Interprocedural: int getF(A)> (inter-const-prop) --------------------
+[0@L9] temp$0 = a.<A: int f>; {temp$0=555}
+[1@L10] return temp$0; {temp$0=555}
+

@@ -1,0 +1,15 @@
+-------------------- <A: void <init>()> (inter-const-prop) --------------------
+[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[1@L12] return; {}
+
+-------------------- <MultiLoads: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = new A; {}
+[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
+[2@L4] a = temp$0; {}
+[3@L5] temp$1 = 666; {temp$1=666}
+[4@L5] a.<A: int f> = temp$1; {temp$1=666}
+[5@L6] x = a.<A: int f>; {temp$1=666, x=666}
+[6@L7] y = a.<A: int f>; {temp$1=666, x=666, y=666}
+[7@L8] z = a.<A: int f>; {temp$1=666, x=666, y=666, z=666}
+[8@L8] return; {temp$1=666, x=666, y=666, z=666}
+

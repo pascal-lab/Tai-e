@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 import pascal.taie.analysis.dataflow.inter.InterConstantPropagation;
 
-@Disabled
 public class InterCPTest {
 
     private static final String CLASS_PATH = "src/test/resources/dataflow/constprop/inter";

@@ -71,9 +71,9 @@ public class ReflectionAnalysis implements Plugin {
 
     private ReflectiveActionModel reflectiveActionModel;
 
-    private Model classMethodFieldModel;
-
     private AnnotationModel annotationModel;
+
+    private Model othersModel;
 
     private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
 
@@ -102,8 +102,8 @@ public class ReflectionAnalysis implements Plugin {
         }
         reflectiveActionModel = new ReflectiveActionModel(solver, helper,
                 typeMatcher, invokesWithLog);
-        classMethodFieldModel = new ClassMethodFieldModel(solver, helper);
         annotationModel = new AnnotationModel(solver, helper);
+        othersModel = new OthersModel(solver, helper);
     }
 
     @Override
@@ -111,9 +111,9 @@ public class ReflectionAnalysis implements Plugin {
         method.getIR().forEach(stmt -> {
             if (stmt instanceof Invoke invoke) {
                 if (!invoke.isDynamic()) {
-                    classMethodFieldModel.handleNewInvoke(invoke);
                     inferenceModel.handleNewInvoke(invoke);
                     reflectiveActionModel.handleNewInvoke(invoke);
+                    othersModel.handleNewInvoke(invoke);
                 }
             } else {
                 inferenceModel.handleNewNonInvokeStmt(stmt);
@@ -123,14 +123,14 @@ public class ReflectionAnalysis implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        if (classMethodFieldModel.isRelevantVar(csVar.getVar())) {
-            classMethodFieldModel.handleNewPointsToSet(csVar, pts);
-        }
         if (inferenceModel.isRelevantVar(csVar.getVar())) {
             inferenceModel.handleNewPointsToSet(csVar, pts);
         }
         if (reflectiveActionModel.isRelevantVar(csVar.getVar())) {
             reflectiveActionModel.handleNewPointsToSet(csVar, pts);
+        }
+        if (othersModel.isRelevantVar(csVar.getVar())) {
+            othersModel.handleNewPointsToSet(csVar, pts);
         }
         reflectiveArgs.get(csVar.getVar())
                 .forEach(edge -> passReflectiveArgs(edge, pts));

@@ -1,0 +1,49 @@
+-------------------- <ArgRet: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] temp$0 = args.length; {temp$0=NAC}
+[1@L4] temp$1 = invokestatic <ArgRet: int branch(int)>(temp$0); {temp$0=NAC}
+[2@L4] n1 = temp$1; {n1=NAC, temp$0=NAC, temp$1=NAC}
+[3@L5] %intconst0 = 6; {n1=NAC, temp$0=NAC, temp$1=NAC}
+[4@L5] temp$2 = invokestatic <ArgRet: int loop(int)>(%intconst0); {n1=NAC, temp$0=NAC, temp$1=NAC}
+[5@L5] n2 = temp$2; {n1=NAC, n2=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+[6@L5] return; {n1=NAC, n2=NAC, temp$0=NAC, temp$1=NAC, temp$2=NAC}
+
+-------------------- <ArgRet: int branch(int)> (inter-const-prop) --------------------
+[0@L10] %intconst0 = 0; {x=NAC}
+[1@L10] if (x > %intconst0) goto 3; {x=NAC}
+[2@L10] goto 6; {x=NAC}
+[3@L10] nop; {x=NAC}
+[4@L11] n = 111; {n=111, x=NAC}
+[5@L10] goto 8; {n=111, x=NAC}
+[6@L10] nop; {x=NAC}
+[7@L13] n = -666; {n=-666, x=NAC}
+[8@L13] nop; {n=NAC, x=NAC}
+[9@L15] temp$2 = invokestatic <ArgRet: int id(int)>(n); {n=NAC, x=NAC}
+[10@L15] n = temp$2; {n=NAC, temp$2=NAC, x=NAC}
+[11@L16] return n; {n=NAC, temp$2=NAC, x=NAC}
+
+-------------------- <ArgRet: int id(int)> (inter-const-prop) --------------------
+[0@L20] return x; {x=NAC}
+
+-------------------- <ArgRet: int loop(int)> (inter-const-prop) --------------------
+[0@L24] n = 2333; {n=2333, times=6}
+[1@L25] r = 2334; {n=2333, r=2334, times=6}
+[2@L26] i = 0; {i=0, n=2333, r=2334, times=6}
+[3@L26] nop; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[4@L26] if (i < times) goto 6; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[5@L26] goto 14; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[6@L26] nop; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[7@L27] temp$0 = invokestatic <ArgRet: int add1(int)>(n); {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[8@L27] n = temp$0; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[9@L28] r = n; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[10@L28] nop; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[11@L26] %intconst0 = 1; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[12@L26] i = i + %intconst0; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[13@L26] goto 3; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[14@L26] nop; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+[15@L30] return r; {i=NAC, n=NAC, r=NAC, temp$0=NAC, times=6}
+
+-------------------- <ArgRet: int add1(int)> (inter-const-prop) --------------------
+[0@L33] %intconst0 = 1; {x=NAC}
+[1@L33] temp$1 = x + %intconst0; {temp$1=NAC, x=NAC}
+[2@L34] return temp$1; {temp$1=NAC, x=NAC}
+
