@@ -21,6 +21,7 @@ public class MethodNameMatching implements TransInferStrategy {
             new Rule(name -> startsWithWord(name, "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
             new Rule(name -> startsWithWord(name, "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
             new Rule(name -> startsWithWord(name, "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
+            new Rule(name -> startsWithWord(name, "to"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
             new Rule(name -> name.equals("clone"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW)
     );
 
