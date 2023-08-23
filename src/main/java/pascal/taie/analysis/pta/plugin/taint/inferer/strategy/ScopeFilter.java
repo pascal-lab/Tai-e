@@ -12,6 +12,7 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
@@ -22,6 +23,7 @@ public class ScopeFilter implements TransInferStrategy {
     private Set<JMethod> methodsWithTransfer;
     private Set<JClass> ignoreClasses;
     private Set<JMethod> ignoreMethods;
+    private Set<Type> ignoreTypes;
     private Set<JMethod> targetMethods;
 
     @Override
@@ -36,6 +38,7 @@ public class ScopeFilter implements TransInferStrategy {
         ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
         // Ignore sink method by default
         ignoreMethods.addAll(taintConfig.sinks().stream().map(Sink::method).toList());
+        ignoreTypes = Sets.newSet(taintConfig.inferenceConfig().ignoreTypes());
 
         PointerAnalysisResult ptaResult = solver.getResult();
         CallGraph<Invoke, JMethod> callGraph = ptaResult.getCallGraph();
@@ -78,7 +81,8 @@ public class ScopeFilter implements TransInferStrategy {
                     JMethod method = tf.getMethod();
                     return !ignoreMethods.contains(method)
                             && !ignoreClasses.contains(method.getDeclaringClass())
-                            && !methodsWithTransfer.contains(method);
+                            && !methodsWithTransfer.contains(method)
+                            && !ignoreTypes.contains(tf.getType());
                 })
                 .collect(Collectors.toUnmodifiableSet());
     }

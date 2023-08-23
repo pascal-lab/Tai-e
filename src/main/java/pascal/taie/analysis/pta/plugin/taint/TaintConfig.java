@@ -182,6 +182,9 @@ public record TaintConfig(List<Source> sources,
             sb.append("  ignoreMethods:\n");
             inferenceConfig.ignoreMethods().forEach(method ->
                     sb.append("    ").append(method.getSignature()).append("\n"));
+            sb.append("  ignoreTypes:\n");
+            inferenceConfig.ignoreTypes().forEach(type ->
+                    sb.append("    ").append(type.getName()).append("\n"));
         }
         return sb.toString();
     }
@@ -470,9 +473,11 @@ public record TaintConfig(List<Source> sources,
             JsonNode packageNode = node.path("appPackages");
             JsonNode classNode = node.path("ignoreClasses");
             JsonNode methodNode = node.path("ignoreMethods");
+            JsonNode typeNode = node.path("ignoreTypes");
             List<String> appPackages = List.of();
             List<JClass> ignoreClasses = List.of();
             List<JMethod> ignoreMethods = List.of();
+            List<Type> ignoreTypes = List.of();
 
             if(packageNode instanceof ArrayNode arrayNode) {
                 appPackages = new ArrayList<>(arrayNode.size());
@@ -507,7 +512,16 @@ public record TaintConfig(List<Source> sources,
                 }
             }
 
-            return new TransInferConfig(confidence, scope, appPackages, ignoreClasses, ignoreMethods);
+            if (typeNode instanceof ArrayNode arrayNode) {
+                ignoreTypes = new ArrayList<>(arrayNode.size());
+                for (JsonNode elem : arrayNode) {
+                    String typeName = elem.asText();
+                    Type type = typeSystem.getType(typeName);
+                    ignoreTypes.add(type);
+                }
+            }
+
+            return new TransInferConfig(confidence, scope, appPackages, ignoreClasses, ignoreMethods, ignoreTypes);
         }
     }
 }
