@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -31,6 +30,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.SetQueue;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

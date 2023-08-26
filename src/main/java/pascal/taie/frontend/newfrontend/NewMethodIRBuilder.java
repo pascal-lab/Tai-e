@@ -2,7 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import javax.annotation.Nullable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -2723,7 +2723,7 @@ public class NewMethodIRBuilder {
             public boolean visit(InstanceofExpression ie) {
                 ie.getLeftOperand().accept(this);
                 Type t = JDTTypeToTaieType(ie.getRightOperand().resolveBinding());
-                context.pushStack(new InstanceOfExp(popVar(), t));
+                context.pushStack(new InstanceOfExp(popVar(), (ReferenceType) t));
                 return false;
             }
 
