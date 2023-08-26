@@ -39,15 +39,17 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
 
     private Set<MergedNode<N>> nodes;
 
+    // Map from original node to the corresponding merged node.
+    private Map<N, MergedNode<N>> nodeMap;
+
     public MergedSCCGraph(Graph<N> graph) {
         init(graph);
     }
 
     private void init(Graph<N> graph) {
         nodes = Sets.newSet();
-        // Map from original node to the corresponding merged node.
-        Map<N, MergedNode<N>> nodeMap = Maps.newMap(graph.getNumberOfNodes());
         SCC<N> scc = new SCC<>(graph);
+        nodeMap = Maps.newMap(graph.getNumberOfNodes());
         scc.getComponents().forEach(component -> {
             MergedNode<N> node = new MergedNode<>(component);
             component.forEach(n -> nodeMap.put(n, node));
@@ -62,6 +64,10 @@ public class MergedSCCGraph<N> implements Graph<MergedNode<N>> {
                     node.addSucc(succ);
                     succ.addPred(node);
                 }));
+    }
+
+    public MergedNode<N> getMergedNode(N node) {
+        return nodeMap.get(node);
     }
 
     @Override

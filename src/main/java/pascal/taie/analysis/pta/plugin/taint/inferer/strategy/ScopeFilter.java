@@ -10,9 +10,12 @@ import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
@@ -30,6 +33,8 @@ public class ScopeFilter implements TransInferStrategy {
     public void setContext(InfererContext context) {
         Solver solver = context.solver();
         TaintConfig taintConfig = context.config();
+        TypeSystem typeSystem = solver.getTypeSystem();
+        ClassHierarchy classHierarchy = solver.getHierarchy();
         methodsWithTransfer = taintConfig.transfers().stream()
                 .map(TaintTransfer::getMethod)
                 .collect(Collectors.toSet());
@@ -38,7 +43,16 @@ public class ScopeFilter implements TransInferStrategy {
         ignoreMethods = Sets.newSet(taintConfig.inferenceConfig().ignoreMethods());
         // Ignore sink method by default
         ignoreMethods.addAll(taintConfig.sinks().stream().map(Sink::method).toList());
+        // Ignore types in ignoreTypes and their subtypes
         ignoreTypes = Sets.newSet(taintConfig.inferenceConfig().ignoreTypes());
+        for(Type type : taintConfig.inferenceConfig().ignoreTypes()) {
+            if(type instanceof ClassType classType) {
+                classHierarchy.getAllSubclassesOf(classType.getJClass())
+                        .stream()
+                        .map(jClass -> typeSystem.getClassType(jClass.getName()))
+                        .forEach(ignoreTypes::add);
+            }
+        }
 
         PointerAnalysisResult ptaResult = solver.getResult();
         CallGraph<Invoke, JMethod> callGraph = ptaResult.getCallGraph();

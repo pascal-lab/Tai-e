@@ -29,6 +29,9 @@ public class StrategyUtils {
     @Nullable
     public static CSVar getCSVar(CSManager csManager, CSCallSite csCallSite, int index) {
         Context context = csCallSite.getContext();
+        if(csCallSite.getCallSite().isStatic() && index == InvokeUtils.BASE) {
+            return null;
+        }
         Var var = InvokeUtils.getVar(csCallSite.getCallSite(), index);
         if (var == null) {
             return null;

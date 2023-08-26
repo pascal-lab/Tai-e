@@ -5,9 +5,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.taint.TaintManager;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.TransferGenerator;
@@ -18,12 +16,15 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.graph.MergedNode;
+import pascal.taie.util.graph.MergedSCCGraph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -34,17 +35,17 @@ public class ObjectFlow implements TransInferStrategy {
 
     private CSManager csManager;
 
-    private TaintManager taintManager;
-
     private TransferGenerator generator;
+
+    private MergedSCCGraph<Pointer> sccGraph;
 
     @Override
     public void setContext(InfererContext context) {
         Solver solver = context.solver();
         generator = context.generator();
         csManager = solver.getCSManager();
-        taintManager = context.taintManager();
         possibleIndex = Maps.newTwoKeyMap();
+        sccGraph = new MergedSCCGraph<>(solver.getPointerFlowGraph());
     }
 
     @Override
@@ -124,26 +125,29 @@ public class ObjectFlow implements TransInferStrategy {
         if(from.isEmpty() || to.isEmpty()) {
             return false;
         }
-        Set<Pointer> visited = Sets.newSet();
-        Deque<Pointer> stack = new ArrayDeque<>(from);
+        Set<MergedNode<Pointer>> fromNodes = from.stream()
+                .map(sccGraph::getMergedNode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Set<MergedNode<Pointer>> toNodes = to.stream()
+                .map(sccGraph::getMergedNode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<MergedNode<Pointer>> visited = Sets.newSet();
+        Deque<MergedNode<Pointer>> stack = new ArrayDeque<>(fromNodes);
 
         while(!stack.isEmpty()) {
-            Pointer entry = stack.pop();
+            MergedNode<Pointer> entry = stack.pop();
             if(visited.add(entry)) {
-                if(to.contains(entry)) {
+                if(toNodes.contains(entry)) {
                     return true;
                 }
-                entry.getOutEdges().stream()
-                        .map(PointerFlowEdge::target)
+                sccGraph.getSuccsOf(entry).stream()
                         .filter(Predicate.not(visited::contains))
                         .forEach(stack::push);
             }
         }
         return false;
-    }
-
-    private boolean hasTaint(Pointer pointer) {
-        return pointer.objects()
-                .anyMatch(csObj -> taintManager.isTaint(csObj.getObject()));
     }
 }
