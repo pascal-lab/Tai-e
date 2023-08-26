@@ -8,6 +8,7 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.analysis.pta.plugin.taint.inferer.TransferGenerator;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -15,43 +16,97 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Based on the functionality,
+ * functions can generally be divided into the following categories:
+ * 1. Access Methods    (get)   base -> result
+ * 2. Mutator Methods   (set)   arg  -> base
+ * 3. Initialization Methods    arg  -> result
+ * 4. Conversion Methods        arg  -> result  / base -> result
+ * 5. Validation Methods        ignore
+ * 6. Comparison Methods        ignore
+ * 7. Action Methods            ignore
+ * 8. Calculation Methods       ignore
+ */
 public class MethodNameMatching implements TransInferStrategy {
 
-    private static final List<Rule> allowedRules = List.of(
-            new Rule(name -> startsWithWord(name, "get"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(name -> startsWithWord(name, "new"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(name -> startsWithWord(name, "create"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(name -> startsWithWord(name, "to"), TransferPointType.ARG, TransferPointType.RESULT, RuleType.ALLOW),
-            new Rule(name -> name.equals("clone"), TransferPointType.BASE, TransferPointType.RESULT, RuleType.ALLOW)
+    private static final List<String> base2Result = List.of(
+            // Access methods
+            "get", "retrieve", "fetch", "obtain", "read",
+            "acquire", "query", "receive", "access",
+
+            // Conversion methods
+            "toString"
     );
 
-    private static final List<Rule> deniedRules = List.of(
-            new Rule(name -> name.equals("log"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(name -> name.equals("trace"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(name -> name.equals("debug"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(name -> name.equals("info"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(name -> name.equals("warn"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY),
-            new Rule(name -> name.equals("error"), TransferPointType.ARG, TransferPointType.BASE, RuleType.DENY)
+    private static final List<String> arg2Base = List.of(
+            // Mutator methods
+            "set", "update", "change", "modify", "assign",
+            "alter", "edit", "replace"
     );
 
-    private static final List<Predicate<String>> ignoreMethods = List.of(
-            name -> name.startsWith("equals"),
-            name -> name.startsWith("hashCode"),
-            name -> name.startsWith("compareTo"),
-            name -> name.startsWith("toString"),
-            name -> startsWithWord(name, "should"),
-            name -> startsWithWord(name, "match"),
-            name -> startsWithWord(name, "will"),
-            name -> startsWithWord(name, "set"),
-            name -> startsWithWord(name, "is"),
-            name -> startsWithWord(name, "has"),
-            name -> startsWithWord(name, "can"),
-            name -> startsWithWord(name, "need"),
-            name -> startsWithWord(name, "check"),
-            name -> startsWithWord(name, "may")
+    private static final List<String> arg2Result = List.of(
+            // Initialization methods
+            "new", "create", "initialize", "generate", "build",
+            "construct", "instantiate", "prepare",
+
+            // Conversion methods
+            "to", "from", "as", "parse", "convert",
+            "cast", "deserialize", "extract", "normalize", "interpolate"
     );
+
+    private static final List<String> ignoreNames = List.of(
+            // Validation methods
+            "should", "is", "has", "can", "validate",
+            "check", "ensure", "verify", "match", "confirm",
+            "assert", "test", "will", "need", "may", "must",
+            "contains", "meets",
+
+            // Comparison methods
+            "compareTo", "equals",
+
+            // Action methods
+            "run", "start", "stop", "pause", "resume",
+            "toggle", "enable", "disable", "shutdown", "reset",
+            "restart", "zoom", "scroll", "show", "hide",
+            "lock", "unlock", "discard", "on", "handle",
+            "notify", "trigger",
+
+            // Log methods in action methods
+            "log", "trace", "debug", "info", "warn", "error",
+
+            // Special case
+            "hashCode"
+    );
+
+    private static final List<Rule> allowedRules = new ArrayList<>();
+
+    private static final List<Rule> deniedRules = new ArrayList<>();
 
     private TransferGenerator generator;
+
+    static {
+        for(String prefix : base2Result) {
+            allowedRules.add(new Rule(name -> startsWithWord(name, prefix),
+                    TransferPointType.BASE,
+                    TransferPointType.RESULT,
+                    RuleType.ALLOW));
+        }
+
+        for(String prefix : arg2Base) {
+            allowedRules.add(new Rule(name -> startsWithWord(name, prefix),
+                    TransferPointType.ARG,
+                    TransferPointType.BASE,
+                    RuleType.ALLOW));
+        }
+
+        for(String prefix : arg2Result) {
+            allowedRules.add(new Rule(name -> startsWithWord(name, prefix),
+                    TransferPointType.ARG,
+                    TransferPointType.RESULT,
+                    RuleType.ALLOW));
+        }
+    }
 
     private static boolean startsWithWord(String text, String word) {
         if (text.startsWith(word)) {
@@ -68,7 +123,7 @@ public class MethodNameMatching implements TransInferStrategy {
     @Override
     public boolean shouldIgnore(CSCallSite csCallSite, int index) {
         String name = csCallSite.getCallSite().getMethodRef().getName();
-        return ignoreMethods.stream().anyMatch(ignoreRule -> ignoreRule.test(name));
+        return ignoreNames.stream().anyMatch(ignoreName -> startsWithWord(name, ignoreName));
     }
 
     @Override
