@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -40,7 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 
-import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
+import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
 
 public final class TypeUtils {
 

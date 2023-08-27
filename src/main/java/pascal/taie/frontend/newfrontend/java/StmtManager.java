@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Var;

@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import java.io.FileInputStream;
 import java.io.IOException;

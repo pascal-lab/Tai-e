@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getTaieClass;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.JDTTypeToTaieType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getTaieClass;
 
 /**
  * to corporate with Soot, we have to know the real constructor innovation of an inner class.

@@ -1,9 +1,8 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Modifier;
-import pascal.taie.World;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.MethodNames;

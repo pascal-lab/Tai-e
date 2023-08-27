@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.util.Optional;
 
-import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
+import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
 
 /**
  * Locate a method by signature in a class file({@code CompilationUnit})

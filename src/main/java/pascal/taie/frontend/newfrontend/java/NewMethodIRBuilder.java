@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,25 +153,25 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static pascal.taie.frontend.newfrontend.JDTStringReps.getBinaryName;
-import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getInitRef;
-import static pascal.taie.frontend.newfrontend.MethodCallBuilder.getMethodRef;
-import static pascal.taie.frontend.newfrontend.TypeUtils.HAS_NEXT;
-import static pascal.taie.frontend.newfrontend.TypeUtils.ITERATOR;
-import static pascal.taie.frontend.newfrontend.TypeUtils.JDTTypeToTaieType;
-import static pascal.taie.frontend.newfrontend.TypeUtils.computeIntWiden;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getIndexOfPrimitive;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getIterableInner;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getJREMethod;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getLiteral;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByIndex;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getPrimitiveByRef;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getRightPrimitiveLiteral;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getSimpleJREMethod;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getTaieClass;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getType;
-import static pascal.taie.frontend.newfrontend.TypeUtils.getWidenType;
-import static pascal.taie.frontend.newfrontend.TypeUtils.searchMethod;
+import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getInitRef;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getMethodRef;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.HAS_NEXT;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ITERATOR;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.JDTTypeToTaieType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.computeIntWiden;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getIndexOfPrimitive;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getIterableInner;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getJREMethod;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getLiteral;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getPrimitiveByIndex;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getPrimitiveByRef;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getRightPrimitiveLiteral;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getSimpleJREMethod;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getTaieClass;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getWidenType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.searchMethod;
 
 public class NewMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(NewMethodIRBuilder.class);
