@@ -33,6 +33,7 @@ dependencies {
     implementation("org.ow2.asm:asm-commons:9.5")
     implementation("org.ow2.asm:asm-tree:9.5")
     implementation("org.ow2.asm:asm-util:9.5")
+    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.28.0")
 
 
     testImplementation(platform("org.junit:junit-bom:5.13.0"))

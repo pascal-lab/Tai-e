@@ -8,6 +8,7 @@ import org.eclipse.jdt.core.dom.NullLiteral;
 import pascal.taie.frontend.newfrontend.exposed.WorldParaHolder;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
+import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.IntLiteral;
@@ -137,7 +138,7 @@ public final class TypeUtils {
             case "/" -> ArithmeticExp.Op.DIV;
             case "*" -> ArithmeticExp.Op.MUL;
             case "%" -> ArithmeticExp.Op.REM;
-            default -> throw new NewFrontendException(op + "is not arithmetic Op, why use this function?");
+            default -> throw new NewFrontendException(op + " is not arithmetic Op, why use this function?");
         };
     }
 
@@ -146,7 +147,7 @@ public final class TypeUtils {
             case ">>" -> ShiftExp.Op.SHR;
             case "<<" -> ShiftExp.Op.SHL;
             case ">>>"-> ShiftExp.Op.USHR;
-            default -> throw new NewFrontendException(op + "is not shift Op, why use this function?");
+            default -> throw new NewFrontendException(op + " is not shift Op, why use this function?");
         };
     }
 
@@ -155,7 +156,19 @@ public final class TypeUtils {
             case "|" -> BitwiseExp.Op.OR;
             case "&" -> BitwiseExp.Op.AND;
             case "^" -> BitwiseExp.Op.XOR;
-            default -> throw new NewFrontendException(op + "is not Bitwise Op, why use this function?");
+            default -> throw new NewFrontendException(op + " is not Bitwise Op, why use this function?");
+        };
+    }
+
+    public static ConditionExp.Op getConditionOp(InfixExpression.Operator op) {
+        return switch (op.toString()) {
+            case ">" -> ConditionExp.Op.GT;
+            case ">=" -> ConditionExp.Op.GE;
+            case "==" -> ConditionExp.Op.EQ;
+            case "<=" -> ConditionExp.Op.LE;
+            case "<" -> ConditionExp.Op.LT;
+            case "!=" -> ConditionExp.Op.NE;
+            default -> throw new NewFrontendException(op + " is not Condition OP, why use this function?");
         };
     }
 }

@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -15,6 +16,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NullLiteral;
@@ -38,19 +40,26 @@ import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Goto;
+import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.SootMethod;
 
@@ -259,10 +268,16 @@ public class NewMethodIRBuilder {
             });
         }
 
-        private void addStmt(int lineNo, Stmt stmt) {
+
+        /**
+         * @apiNote Important: {@code stmt} is illegal before use this function to convert
+         * @return right stmt
+         */
+        private Stmt addStmt(int lineNo, Stmt stmt) {
             stmt.setLineNumber(lineNo);
             stmt.setIndex(stmts.size());
             stmts.add(stmt);
+            return stmt;
         }
 
         private void buildThis() {
@@ -302,12 +317,51 @@ public class NewMethodIRBuilder {
             targetMethod.accept(visitor);
         }
 
+        private boolean checkEndCont() {
+            var last = stmts.get(stmts.size() - 1);
+            return last instanceof Return;
+        }
+
+        class BlockLabelGenerator {
+            private int counter;
+
+            public BlockLabelGenerator() {
+                this.counter = 0;
+            }
+
+            public String getNewLabel() {
+                return Integer.toString(counter++);
+            }
+        }
+
 
         class VisitorContext {
             private final Stack<Exp> expStack;
+            private final Stack<String> labelStack;
+            private final Map<String, Stmt> blockMap;
+            private final MultiMap<String, Integer> patchMap;
+            private final Map<String, Pair<String, String>> brkContMap;
+            private final List<String> assocList;
+            private final BlockLabelGenerator labelGenerator;
+
+            /**
+             * an expression may just generate side effects,
+             * this variable indicates if outer environment need the value of this expression
+             * <p> e.g. {@code if ( exp ) then ... else ...}
+             *                -------
+             *         this exp will just lead to {@code if ... goto ...} </p>
+             */
+            private boolean evalContext;
 
             public VisitorContext() {
+                this.blockMap = Maps.newMap();
+                this.patchMap = Maps.newMultiMap();
+                this.brkContMap = Maps.newMap();
                 expStack = new Stack<>();
+                this.labelStack = new Stack<>();
+                this.assocList = new ArrayList<>();
+                this.labelGenerator = new BlockLabelGenerator();
+                this.evalContext = true;
             }
 
             public void pushStack(Exp exp) {
@@ -318,6 +372,52 @@ public class NewMethodIRBuilder {
                 return expStack.pop();
             }
 
+            public void pushLabel(String label) {
+                labelStack.push(label);
+            }
+
+            public String popLabel() {
+                return labelStack.pop();
+            }
+
+            public void assocLabel(String label) {
+                this.assocList.add(label);
+            }
+
+            public void addPatchList(int stmtIdx, String label) {
+                this.patchMap.put(label, stmtIdx);
+            }
+
+            public void addBlockMap(String label, Stmt stmt) {
+                this.blockMap.put(label, stmt);
+            }
+
+            public void resolveGoto(String label, Stmt stmt) {
+                for (var i : patchMap.get(label)) {
+                    var nowStmt = stmts.get(i);
+                    if (nowStmt instanceof Goto g) {
+                        g.setTarget(stmt);
+                    } else if (nowStmt instanceof If ifExp) {
+                        ifExp.setTarget(stmt);
+                    }
+                }
+            }
+
+            public @Nullable Stmt getStmtByLabel(String label) {
+                return blockMap.get(label);
+            }
+
+            public String getNewLabel() {
+                return labelGenerator.getNewLabel();
+            }
+
+            public boolean isEvalContext() {
+                return evalContext;
+            }
+
+            public void setEvalContext(boolean evalContext) {
+                this.evalContext = evalContext;
+            }
         }
 
         class LinenoASTVisitor extends ASTVisitor {
@@ -333,7 +433,41 @@ public class NewMethodIRBuilder {
             }
 
             protected void addStmt(Stmt stmt) {
-                IRGenerator.this.addStmt(lineno, stmt);
+                // first use IRGenerator to get right index and lineno
+                var newStmt = IRGenerator.this.addStmt(lineno, stmt);
+                if (context.assocList.size() != 0) {
+                    for (var i : context.assocList) {
+                        context.addBlockMap(i, newStmt);
+                        context.resolveGoto(i, newStmt);
+                    }
+                }
+                context.assocList.clear();
+            }
+
+            protected void addGoto(String label) {
+                var target = context.getStmtByLabel(label);
+                var go = new Goto();
+                if (target != null) {
+                    go.setTarget(target);
+                    addStmt(go);
+                } else {
+                    var top = stmts.size();
+                    addStmt(go);
+                    context.addPatchList(top, label);
+                }
+            }
+
+            protected void addIf(ConditionExp exp, String label) {
+                var target = context.getStmtByLabel(label);
+                var go = new If(exp);
+                if (target != null) {
+                    go.setTarget(target);
+                    addStmt(go);
+                } else {
+                    var top = stmts.size();
+                    addStmt(go);
+                    context.addPatchList(top, label);
+                }
             }
 
             @Override
@@ -452,6 +586,53 @@ public class NewMethodIRBuilder {
                 }
                 return false;
             }
+
+            // Generate code like :
+            //            +--------------+
+            //            |    Branch    |------+
+            //            +--------------+      |
+            //      +-----|  goto False  |      |
+            //      |     +--------------+<-----+
+            //      |     |    True      |
+            //      |     +--------------+
+            //      |     |  goto Next   |------+
+            //      +---->+--------------+      |
+            //            |    False     |      |
+            //            +--------------+<-----+
+            //            |     Next     |
+            //            +--------------+
+            @Override
+            public boolean visit(IfStatement ifStmt) {
+                var exp = ifStmt.getExpression();
+                var thenStmt = ifStmt.getThenStatement();
+                var elseStmt = ifStmt.getElseStatement();
+                var trueLabel = context.getNewLabel();
+                var falseLabel = context.getNewLabel();
+                var endLabel = context.getNewLabel();
+                context.pushLabel(trueLabel);
+                context.setEvalContext(false);
+                exp.accept(new ExpVisitor(this.context));
+                context.setEvalContext(true);
+                // if else don't exist, we still add a goto statement
+                // which in fact goto end
+                addGoto(falseLabel);
+                context.assocLabel(trueLabel);
+                thenStmt.accept(this);
+                // if the continuation of thenStmt don't exist
+                // (i.e. the last statement of thenStmt is Return)
+                // we don't have to addGoto
+                if (!checkEndCont() && elseStmt != null) {
+                    addGoto(endLabel);
+                }
+                // here, if else don't exist, falseLabel will assoc to end
+                // true statement will just fall through
+                context.assocLabel(falseLabel);
+                if (elseStmt != null) {
+                    elseStmt.accept(this);
+                    context.assocLabel(endLabel);
+                }
+                return false;
+            }
         }
 
         class ExpVisitor extends LinenoASTVisitor {
@@ -464,9 +645,10 @@ public class NewMethodIRBuilder {
 
             private void binaryCompute(InfixExpression exp, BiFunction<Var, Var, Exp> f) {
                 exp.getLeftOperand().accept(this);
+                var lVar = popVar();
                 exp.getRightOperand().accept(this);
-                var lrVar = popVar2();
-                context.pushStack(f.apply(lrVar[0], lrVar[1]));
+                var rVar = popVar();
+                context.pushStack(f.apply(lVar, rVar));
                 var extOperands = exp.extendedOperands();
                 for (var i : extOperands) {
                     var expNow = (Expression) i;
@@ -510,8 +692,87 @@ public class NewMethodIRBuilder {
                                 new BitwiseExp(TypeUtils.getBitwiseOp(op), l, r));
                         return false;
                     }
+                    case ">", ">=", "==", "<=", "<", "!=" -> {
+                        if (context.isEvalContext()) {
+                            // Although this expression don't have evaluation context
+                            // its sub expression has an evaluation context
+                            // e.g. if (     (1 + 1) >= (2 + 2)           ) { }
+                            //         |     -------                      |
+                            //         |     is eval context              |
+                            //         +-------- not eval context --------+
+                            context.setEvalContext(true);
+                            var trueLabel = context.popLabel();
+                            binaryCompute(exp, (l, r) -> {
+                                addIf(new ConditionExp(TypeUtils.getConditionOp(op), l, r), trueLabel);
+                                return pascal.taie.ir.exp.NullLiteral.get();
+                            });
+                            context.popStack();
+                            // DO NOT forget to reset this variable
+                            context.setEvalContext(false);
+                        } else {
+                            binaryCompute(exp, (l, r) -> {
+                                var v = newTempVar(PrimitiveType.BOOLEAN);
+                                var trueLabel = context.getNewLabel();
+                                var falseLabel = context.getNewLabel();
+                                var endLabel = context.getNewLabel();
+                                addIf(new ConditionExp(TypeUtils.getConditionOp(op), l, r), trueLabel);
+                                collectBoolEval(trueLabel, falseLabel, endLabel, v);
+                                return v;
+                            });
+                        }
+                        return false;
+                    }
+                    case "||" -> {
+                        // here we can't use binaryCompute
+                        // "||" and "&&" has lazy evaluation semantic
+                        var l = getAllOperands(exp);
+                        if (context.isEvalContext()) {
+                            var trueLabel = context.labelStack.peek();
+                            for (var i : l) {
+                                i.accept(this);
+                                context.pushLabel(trueLabel);
+                            }
+                            context.popLabel();
+                        } else {
+                            context.setEvalContext(false);
+                            var trueLabel = context.getNewLabel();
+                            var falseLabel = context.getNewLabel();
+                            var endLabel = context.getNewLabel();
+                            var v = newTempVar(PrimitiveType.BOOLEAN);
+                            for (var i : l) {
+                                context.pushLabel(trueLabel);
+                                i.accept(this);
+                            }
+                            collectBoolEval(trueLabel, falseLabel, endLabel, v);
+                            context.pushStack(v);
+                        }
+                        return false;
+                    }
                     default -> throw new NewFrontendException("Operator <" + exp.getOperator() + "> not implement");
                 }
+            }
+
+            private List<Expression> getAllOperands(InfixExpression exp) {
+                var left = exp.getLeftOperand();
+                var right = exp.getRightOperand();
+                var extend = exp.extendedOperands();
+                List<Expression> l = new ArrayList<>();
+                l.add(left);
+                l.add(right);
+                for (var i : extend) {
+                    l.add((Expression) i);
+                }
+                return l;
+            }
+
+            private void collectBoolEval(String trueLabel, String falseLabel, String endLabel, Var v) {
+                addGoto(falseLabel);
+                context.assocLabel(trueLabel);
+                addStmt(new AssignLiteral(v, IntLiteral.get(1)));
+                addGoto(endLabel);
+                context.assocLabel(falseLabel);
+                addStmt(new AssignLiteral(v, IntLiteral.get(0)));
+                context.assocLabel(endLabel);
             }
 
             @Override
@@ -539,6 +800,7 @@ public class NewMethodIRBuilder {
                 // tai-e ir need to put literal into result var
                 // so just visit left will not output the correct ir
                 // this need to be carefully handled
+                // TODO: if left is arrayRef or fieldRef ?
                 if (lExp instanceof SimpleName s && isLiteral(rExp)) {
                     rExp.accept(this);
                     var rLiteral = context.popStack();
