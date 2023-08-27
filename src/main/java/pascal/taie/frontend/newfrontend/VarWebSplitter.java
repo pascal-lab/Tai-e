@@ -269,6 +269,7 @@ public class VarWebSplitter {
             AtomicInteger index = new AtomicInteger();
             visited.entrySet()
                     .stream()
+                    .filter(e -> e.getValue() != 0)
                     .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
                     .forEach((e) -> {
                         int color = e.getKey();
@@ -281,8 +282,8 @@ public class VarWebSplitter {
             }
         }
 
-        assert Arrays.stream(res).noneMatch(Objects::isNull);
-
+        // note: there may be null in `res`
+        // but if `res[i]` is null, that means color `i` does not occur in code
         return res;
     }
 
