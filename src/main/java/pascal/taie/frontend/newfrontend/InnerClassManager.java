@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -12,6 +11,7 @@ import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
