@@ -223,7 +223,7 @@ class VarManager {
         assert var.getName().startsWith(LOCAL_PREFIX);
         String sub = var.getName().substring(1);
         String[] counter = sub.split("#");
-        var.setName(newName + (counter.length >= 2 ? counter[1] : ""));
+        var.setName(newName + (counter.length >= 2 ? "#" + counter[1] : ""));
     }
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {

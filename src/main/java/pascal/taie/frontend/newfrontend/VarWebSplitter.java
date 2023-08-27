@@ -60,6 +60,9 @@ public class VarWebSplitter {
         this.locals = varManager.getLocals();
         this.colors = new Colors(locals.length);
 
+        // first, remove all local variable from ret set
+        // we'll add them back after splitting
+        List.of(locals).forEach(varManager.getRetVars()::remove);
         assert builder.isFrameUsable() || liveVariables != null;
     }
 
@@ -317,9 +320,12 @@ public class VarWebSplitter {
             }
 
             if (old == target) {
+                handleSideEffects(oldStmt);
                 continue;
             }
 
+            // this stmt occur should be subst with new var
+            // 1. build sigma
             if (kind == Kind.DEF) {
                 defMap.put(old, target);
             } else if (kind == Kind.USE) {
@@ -329,19 +335,17 @@ public class VarWebSplitter {
                 // don't set stmt
                 continue;
             }
-
+            // 2. exec subst
             assert oldStmt != null;
             Stmt newStmt = lenses.subSt(oldStmt);
-            handleSideEffects(oldStmt, newStmt);
+            handleSideEffects(newStmt);
             block.getStmts().set(idx, newStmt);
         }
     }
 
-    private void handleSideEffects(Stmt oldStmt, Stmt newStmt) {
-        if (oldStmt instanceof Return r) {
-            assert newStmt instanceof Return;
-            varManager.getRetVars().remove(r.getValue());
-            varManager.getRetVars().add(((Return) newStmt).getValue());
+    private void handleSideEffects(Stmt newStmt) {
+        if (newStmt instanceof Return r) {
+            varManager.getRetVars().add(r.getValue());
         }
     }
 
