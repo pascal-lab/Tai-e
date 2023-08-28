@@ -52,7 +52,8 @@ public class MethodNameMatching implements TransInferStrategy {
 
             // Conversion methods
             "to", "from", "as", "parse", "convert",
-            "cast", "deserialize", "extract", "normalize", "interpolate"
+            "cast", "deserialize", "extract", "normalize", "interpolate",
+            "transform"
     );
 
     private static final List<String> ignoreNames = List.of(

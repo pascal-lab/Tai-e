@@ -79,9 +79,9 @@ public class TaintAnalysis implements Plugin {
                 transferHandler,
                 new SanitizerHandler(context));
         transferInferer = switch (config.inferenceConfig().confidence()) {
-            case LOW -> new LowTransferInferer(context, transferHandler::addNewTransfer);
-            case MEDIUM -> new MediumTransferInferer(context, transferHandler::addNewTransfer);
-            case HIGH -> new HighTransferInferer(context, transferHandler::addNewTransfer);
+            case LOW -> new LowTransferInferer(context, transferHandler);
+            case MEDIUM -> new MediumTransferInferer(context, transferHandler);
+            case HIGH -> new HighTransferInferer(context, transferHandler);
             default -> null;
         };
         if(transferInferer != null) {

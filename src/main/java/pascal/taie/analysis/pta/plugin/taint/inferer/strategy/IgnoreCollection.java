@@ -9,12 +9,13 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IgnoreCollection implements TransInferStrategy {
 
-    private static final Set<String> COLLECTION_CLASS = Set.of(
+    private static final List<String> COLLECTION_CLASS = List.of(
             "java.util.Collection", "java.util.Map", "java.util.Dictionary");
 
     private ClassHierarchy hierarchy;

@@ -88,7 +88,7 @@ public record TaintConfig(List<Source> sources,
      * @return the resulting {@link TaintConfig}
      * @throws ConfigException if failed to load the config
      */
-    static TaintConfig loadConfig(
+    public static TaintConfig loadConfig(
             String path, ClassHierarchy hierarchy, TypeSystem typeSystem) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
