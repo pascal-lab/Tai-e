@@ -6,11 +6,14 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.taint.ConcreteTransfer;
+import pascal.taie.analysis.pta.plugin.taint.TaintNode;
+import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowEdge;
+import pascal.taie.analysis.pta.plugin.taint.TaintObjectFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintPointerFlowGraph;
 import pascal.taie.analysis.pta.plugin.taint.TaintTransfer;
 import pascal.taie.analysis.pta.plugin.util.StrategyUtils;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.graph.MaxFlowMinCutSolver;
@@ -20,11 +23,11 @@ import java.util.stream.Collectors;
 
 public class TaintGraphHelper {
 
-    private final MultiMap<PointerFlowEdge, TaintTransfer> edge2TaintTrans = Maps.newMultiMap();
+    private static final MultiMap<PointerFlowEdge, TaintTransfer> pfgEdge2TaintTrans = Maps.newMultiMap();
 
-    public TaintGraphHelper(Solver solver,
-                            TaintPointerFlowGraph tpfg,
-                            Set<TaintTransfer> transfers) {
+    private final MultiMap<TaintObjectFlowEdge, TaintTransfer> tofgEdge2TaintTrans = Maps.newMultiMap();
+
+    public static void init(Solver solver, TaintPointerFlowGraph tpfg, Set<TaintTransfer> transfers) {
         CSManager csManager = solver.getCSManager();
         MultiMap<JMethod, CSCallSite> method2CSCallSite = StrategyUtils.getMethod2CSCallSites(
                 solver.getCallGraph());
@@ -36,44 +39,66 @@ public class TaintGraphHelper {
                 if (from != null && to != null) {
                     tpfg.getOutEdgesOf(from).stream()
                             .filter(edge -> edge.target().equals(to) && edge.kind() == FlowKind.OTHER)
-                            .forEach(edge -> edge2TaintTrans.put(edge, tf));
+                            .forEach(edge -> pfgEdge2TaintTrans.put(edge, tf));
                 }
             });
         }
     }
 
-    private int getWeight(TaintTransfer transfer) {
-        return transfer instanceof ConcreteTransfer ? 0 : ((InferredTransfer) transfer).getWeight();
+    public TaintGraphHelper(TaintObjectFlowGraph tofg) {
+        for (TaintNode node : tofg) {
+            for (TaintObjectFlowEdge edge : tofg.getOutEdgesOf(node)) {
+                Set<TaintTransfer> possibleTrans = pfgEdge2TaintTrans.get(edge.pointerFlowEdge());
+                Type targetType = edge.target().taintObj().getObject().getType();
+                possibleTrans.stream()
+                        .filter(tf -> tf.getType().equals(targetType))
+                        .forEach(tf -> tofgEdge2TaintTrans.put(edge, tf));
+            }
+        }
     }
 
-    public int getWeight(PointerFlowEdge edge) {
-        return edge2TaintTrans.get(edge)
+    private int getWeight(TaintTransfer transfer) {
+        return transfer instanceof InferredTransfer inferredTransfer
+                ? inferredTransfer.getWeight() : 0;
+    }
+
+    public int getWeight(TaintObjectFlowEdge edge) {
+        return tofgEdge2TaintTrans.get(edge)
                 .stream()
                 .mapToInt(this::getWeight)
                 .min()
                 .orElse(0);
     }
 
-    public int getCost(PointerFlowEdge edge) {
+    public int getCost(TaintObjectFlowEdge edge) {
         return 1;
     }
 
-    public int getCapacity(PointerFlowEdge edge) {
-        if (edge2TaintTrans.containsKey(edge) && getWeight(edge) != 0) {
+    public int getCapacity(TaintObjectFlowEdge edge) {
+        if (tofgEdge2TaintTrans.containsKey(edge) && getWeight(edge) != 0) {
             return 1;
         }
         return MaxFlowMinCutSolver.INVALID_WEIGHT;
     }
 
-    public Set<TaintTransfer> getTransfers(PointerFlowEdge edge) {
-        return edge2TaintTrans.get(edge);
+    public Set<TaintTransfer> getTransfers(TaintObjectFlowEdge edge) {
+        return tofgEdge2TaintTrans.get(edge);
     }
 
-    public Set<InferredTransfer> getInferredTransfers(PointerFlowEdge edge) {
-        return edge2TaintTrans.get(edge)
+    public Set<InferredTransfer> getInferredTransfers(TaintObjectFlowEdge edge) {
+        return tofgEdge2TaintTrans.get(edge)
                 .stream()
                 .filter(tf -> tf instanceof InferredTransfer)
                 .map(tf -> (InferredTransfer) tf)
                 .collect(Collectors.toUnmodifiableSet());
     }
+
+    public Set<InferredTransfer> getAllInferredTransfers() {
+        return tofgEdge2TaintTrans.values()
+                .stream()
+                .filter(tf -> tf instanceof InferredTransfer)
+                .map(tf -> (InferredTransfer) tf)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
 }
