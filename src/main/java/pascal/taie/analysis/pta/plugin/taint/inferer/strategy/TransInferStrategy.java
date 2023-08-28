@@ -1,6 +1,7 @@
 package pascal.taie.analysis.pta.plugin.taint.inferer.strategy;
 
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
+import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 
@@ -8,6 +9,10 @@ import java.util.Collections;
 import java.util.Set;
 
 public interface TransInferStrategy {
+
+    default Set<InferredTransfer> preGenerate(Solver solver) {
+        return Set.of();
+    }
 
     default void setContext(InfererContext context) {
     }

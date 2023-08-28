@@ -4,6 +4,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InfererContext;
 import pascal.taie.analysis.pta.plugin.taint.inferer.InferredTransfer;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Sets;
@@ -18,7 +19,7 @@ public class IgnoreException implements TransInferStrategy {
     @Override
     public void setContext(InfererContext context) {
         ClassHierarchy hierarchy = context.solver().getHierarchy();
-        JClass throwableClass = hierarchy.getJREClass("java.lang.Throwable");
+        JClass throwableClass = hierarchy.getJREClass(ClassNames.THROWABLE);
         throwableSubClasses = Sets.newSet(hierarchy.getAllSubclassesOf(throwableClass));
     }
 
