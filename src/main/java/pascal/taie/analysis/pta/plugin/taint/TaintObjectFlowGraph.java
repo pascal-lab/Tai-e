@@ -22,9 +22,9 @@ import java.util.Set;
 
 public class TaintObjectFlowGraph implements Graph<TaintNode> {
 
-    private final MultiMap<TaintNode, TaintNodeFlowEdge> inEdges = Maps.newMultiMap(4096);
+    private final MultiMap<TaintNode, TaintObjectFlowEdge> inEdges = Maps.newMultiMap(4096);
 
-    private final MultiMap<TaintNode, TaintNodeFlowEdge> outEdges = Maps.newMultiMap(4096);
+    private final MultiMap<TaintNode, TaintObjectFlowEdge> outEdges = Maps.newMultiMap(4096);
 
     private final Set<TaintNode> nodes = Sets.newSet(4096);
 
@@ -63,7 +63,7 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
                     for(CSObj outObj : applyTransfer(pointerFlowEdge, taintObj)) {
                         if(target.getObjects().contains(outObj)) {
                             TaintNode newNode = taintNodeMap.computeIfAbsent(target, outObj, TaintNode::new);
-                            addEdge(new TaintNodeFlowEdge(curr, newNode, pointerFlowEdge));
+                            addEdge(new TaintObjectFlowEdge(curr, newNode, pointerFlowEdge));
                             workList.add(newNode);
                         }
                     }
@@ -82,7 +82,7 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
         return result;
     }
 
-    public void addEdge(TaintNodeFlowEdge edge) {
+    public void addEdge(TaintObjectFlowEdge edge) {
         outEdges.put(edge.source(), edge);
         inEdges.put(edge.target(), edge);
         nodes.add(edge.source());
@@ -99,21 +99,21 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
 
     @Override
     public Set<TaintNode> getPredsOf(TaintNode node) {
-        return Views.toMappedSet(getInEdgesOf(node), TaintNodeFlowEdge::source);
+        return Views.toMappedSet(getInEdgesOf(node), TaintObjectFlowEdge::source);
     }
 
     @Override
     public Set<TaintNode> getSuccsOf(TaintNode node) {
-        return Views.toMappedSet(getOutEdgesOf(node), TaintNodeFlowEdge::target);
+        return Views.toMappedSet(getOutEdgesOf(node), TaintObjectFlowEdge::target);
     }
 
     @Override
-    public Set<TaintNodeFlowEdge> getInEdgesOf(TaintNode node) {
+    public Set<TaintObjectFlowEdge> getInEdgesOf(TaintNode node) {
         return inEdges.get(node);
     }
 
     @Override
-    public Set<TaintNodeFlowEdge> getOutEdgesOf(TaintNode node) {
+    public Set<TaintObjectFlowEdge> getOutEdgesOf(TaintNode node) {
         return outEdges.get(node);
     }
 
