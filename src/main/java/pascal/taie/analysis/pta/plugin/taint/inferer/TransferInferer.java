@@ -3,7 +3,6 @@ package pascal.taie.analysis.pta.plugin.taint.inferer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
-import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
@@ -15,8 +14,7 @@ import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
-import pascal.taie.analysis.pta.plugin.taint.Sink;
-import pascal.taie.analysis.pta.plugin.taint.SinkPoint;
+import pascal.taie.analysis.pta.plugin.taint.TOFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TPFGBuilder;
 import pascal.taie.analysis.pta.plugin.taint.TaintConfig;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
@@ -222,29 +220,19 @@ public abstract class TransferInferer extends OnFlyHandler {
         }
         TaintPointerFlowGraph tpfg = new TPFGBuilder(solver, manager, taintFlows, false, true).build();
         TaintGraphHelper.init(solver, tpfg, transferHandler.getTransfers());
+        TOFGBuilder tofgBuilder = new TOFGBuilder(tpfg, solver, manager, config, taintFlows);
 
         Set<TaintTransfer> taintTransfers = Sets.newSet();
         Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
                 .filter(source -> tpfg.getOutDegreeOf(source) > 0)
                 .collect(Collectors.toSet());
 
-        Set<JMethod> sinkMethods = config.sinks().stream()
-                .map(Sink::method)
-                .collect(Collectors.toUnmodifiableSet());
-        MultiMap<Var, SinkPoint> sinkVar2SinkPoint = Maps.newMultiMap();
-        for(TaintFlow taintFlow : taintFlows) {
-            SinkPoint sinkPoint = taintFlow.sinkPoint();
-            Invoke sinkCall = sinkPoint.sinkCall();
-            Var sinkVar = InvokeUtils.getVar(sinkCall, sinkPoint.index());
-            sinkVar2SinkPoint.put(sinkVar, sinkPoint);
-        }
-
         // TODO: handle other call source type
         TwoKeyMap<Var, Var, TaintPath> taintPaths = Maps.newTwoKeyMap();
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
-            TaintObjectFlowGraph tofg = new TaintObjectFlowGraph(tpfg, source, taintObj, solver);
+            TaintObjectFlowGraph tofg = tofgBuilder.build(source, taintObj);
             TaintGraphHelper graphHelper = new TaintGraphHelper(tofg);
             taintTransfers.addAll(graphHelper.getAllInferredTransfers());
 
@@ -252,26 +240,7 @@ public abstract class TransferInferer extends OnFlyHandler {
                     tofg, tofg.getSourceNode(), graphHelper::getWeight, graphHelper::getCost);
             shortestPath.compute();
 
-            Set<TaintNode> sinkNodes = tofg.getSinkNodes().stream()
-                    .filter(node -> {
-                        if(node.pointer() instanceof CSVar csVar) {
-                            for(SinkPoint sinkPoint : sinkVar2SinkPoint.get(csVar.getVar())) {
-                                if(sinkPoint.index() != InvokeUtils.BASE) {
-                                    return true;
-                                } else {
-                                    JMethod callee = CallGraphs.resolveCallee(node.taintObj().getObject().getType(),
-                                            sinkPoint.sinkCall());
-                                    if(callee != null) {
-                                        return sinkMethods.contains(callee);
-                                    }
-                                }
-                            }
-                        }
-                        return false;
-                    })
-                    .collect(Collectors.toUnmodifiableSet());
-
-            for (TaintNode taintNode : sinkNodes) {
+            for (TaintNode taintNode : tofg.getSinkNodes()) {
                 int weight = shortestPath.getDistance(taintNode);
                 List<TaintObjectFlowEdge> path = shortestPath.getPath(taintNode);
                 if (!path.isEmpty()) {
