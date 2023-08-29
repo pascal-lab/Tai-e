@@ -14,10 +14,8 @@ import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.Map;
 import java.util.Set;
 
 public class TaintObjectFlowGraph implements Graph<TaintNode> {
@@ -34,7 +32,7 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
 
     private final TaintNode sourceNode;
 
-    private final TwoKeyMap<Pointer, CSObj, TaintNode> taintNodeMap = Maps.newTwoKeyMap();
+    private final Set<TaintNode> sinkNodes;
 
     public TaintObjectFlowGraph(TaintPointerFlowGraph tpfg,
                                 Pointer source,
@@ -44,10 +42,13 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
         this.tpfg = tpfg;
         this.solver = solver;
         this.sourceNode = new TaintNode(source, concernedObj);
+        this.sinkNodes = Sets.newHybridSet();
         build(sourceNode);
     }
 
     private void build(TaintNode node) {
+        TwoKeyMap<Pointer, CSObj, TaintNode> taintNodeMap = Maps.newTwoKeyMap();
+        Set<Pointer> sinkPointers = tpfg.getSinkPointers();
         Set<TaintNode> visited = Sets.newSet();
         Deque<TaintNode> workList = new ArrayDeque<>();
         workList.add(node);
@@ -57,6 +58,9 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
             if (visited.add(curr)) {
                 Pointer pointer = curr.pointer();
                 CSObj taintObj = curr.taintObj();
+                if(sinkPointers.contains(pointer)) {
+                    sinkNodes.add(curr);
+                }
                 assert pointer.getObjects().contains(taintObj);
                 for (PointerFlowEdge pointerFlowEdge : tpfg.getOutEdgesOf(pointer)) {
                     Pointer target = pointerFlowEdge.target();
@@ -93,8 +97,8 @@ public class TaintObjectFlowGraph implements Graph<TaintNode> {
         return sourceNode;
     }
 
-    public Collection<TaintNode> getTaintNode(Pointer pointer) {
-        return taintNodeMap.getOrDefault(pointer, Map.of()).values();
+    public Set<TaintNode> getSinkNodes() {
+        return Collections.unmodifiableSet(sinkNodes);
     }
 
     @Override
