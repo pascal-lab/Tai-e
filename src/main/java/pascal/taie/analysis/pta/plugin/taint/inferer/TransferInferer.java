@@ -264,7 +264,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void dumpInferredTrans(PrintStream out, TaintPath taintPath) {
-        out.printf("%nInferred transfers:");
+        out.printf("%nInferred transfers:%n");
         TaintGraphHelper graphHelper = taintPath.graphHelper;
         taintPath.path.stream()
                 .flatMap(edge -> graphHelper.getInferredTransfers(edge).stream())
@@ -272,7 +272,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void dumpShortestTaintPath(PrintStream out, TaintPath taintPath) {
-        out.printf("%nShortest taint path:");
+        out.printf("%nShortest taint path:%n");
         List<TaintObjectFlowEdge> path = taintPath.path;
         TaintGraphHelper graphHelper = taintPath.graphHelper;
         path.forEach(edge -> out.println(edge.pointerFlowEdge()));
@@ -283,7 +283,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void dumpMinimumCutEdge(PrintStream out, TaintPath taintPath) {
-        out.printf("%nMinimum cut edges:");
+        out.printf("%nMinimum cut edges:%n");
         TaintGraphHelper helper = taintPath.graphHelper;
         MaxFlowMinCutSolver<TaintNode> minCut = new MaxFlowMinCutSolver<>(taintPath.tofg,
                 taintPath.tofg.getSourceNode(),
