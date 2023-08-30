@@ -16,7 +16,7 @@ import java.util.function.ToIntFunction;
 
 public class ShortestPath<N, E extends Edge<N>> {
 
-    private static final int INVALID_WEIGHT = Integer.MAX_VALUE;
+    public static final int INVALID_WEIGHT = Integer.MAX_VALUE;
 
     private final Graph<N> graph;
 

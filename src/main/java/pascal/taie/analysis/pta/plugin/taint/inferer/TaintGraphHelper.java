@@ -50,6 +50,7 @@ public class TaintGraphHelper {
             for (TaintObjectFlowEdge edge : tofg.getOutEdgesOf(node)) {
                 Set<TaintTransfer> possibleTrans = pfgEdge2TaintTrans.get(edge.pointerFlowEdge());
                 Type targetType = edge.target().taintObj().getObject().getType();
+                // Only collect transfers with target type
                 possibleTrans.stream()
                         .filter(tf -> tf.getType().equals(targetType))
                         .forEach(tf -> tofgEdge2TaintTrans.put(edge, tf));
