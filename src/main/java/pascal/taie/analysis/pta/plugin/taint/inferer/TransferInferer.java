@@ -11,7 +11,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.plugin.taint.HandlerContext;
 import pascal.taie.analysis.pta.plugin.taint.OnFlyHandler;
 import pascal.taie.analysis.pta.plugin.taint.TOFGBuilder;
@@ -37,7 +36,6 @@ import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.graph.MaxFlowMinCutSolver;
-import pascal.taie.util.graph.Reachability;
 import pascal.taie.util.graph.ShortestPath;
 
 import java.io.File;
@@ -136,7 +134,7 @@ public abstract class TransferInferer extends OnFlyHandler {
 
         Set<InferredTransfer> newTransfers = Sets.newSet();
 
-        for (CSVar csArg : getTargetTaintVars()) {
+        for (CSVar csArg : newTaintVars) {
             for (Pair<CSCallSite, Integer> entry : arg2Callsites.get(csArg)) {
                 // Currently, we ignore invoke dynamic
                 CSCallSite csCallSite = entry.first();
@@ -173,21 +171,6 @@ public abstract class TransferInferer extends OnFlyHandler {
         getStrategies().forEach(TransInferStrategy::onFinish);
     }
 
-    private Set<CSVar> getTargetTaintVars() {
-//        return newTaintVars;
-        TaintPointerFlowGraph tpfg = new TPFGBuilder(solver, manager, Set.of(), false, false).build();
-        Set<Pointer> endNodes = tpfg.getNodes().stream()
-                .filter(node -> node instanceof CSVar
-                        && tpfg.getOutDegreeOf(node) == 0
-                        && newTaintVars.contains(node))
-                .collect(Collectors.toSet());
-        return new Reachability<>(tpfg).nodesCanReach(endNodes)
-                .stream()
-                .filter(node -> node instanceof CSVar csVar && newTaintVars.contains(csVar))
-                .map(node -> (CSVar) node)
-                .collect(Collectors.toSet());
-    }
-
     private LinkedHashSet<TransInferStrategy> getStrategies() {
         if (strategies == null) {
             strategies = new LinkedHashSet<>(generateStrategies);
@@ -206,35 +189,46 @@ public abstract class TransferInferer extends OnFlyHandler {
         File output = new File(World.get().getOptions().getOutputDir(), "transfer-inferer-output.log");
         logger.info("Dumping {}", output.getAbsolutePath());
         try (PrintStream out = new PrintStream(new FileOutputStream(output))) {
-            dump(taintFlows, out);
+            dump(out, taintFlows);
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump to {}", output.getAbsolutePath(), e);
         }
     }
 
-    private void dump(Set<TaintFlow> taintFlows, PrintStream out) {
+    private void dump(PrintStream out, Set<TaintFlow> taintFlows) {
         out.printf("Total inferred transfers count : %d%n", addedTransfers.size());
         out.printf("Inferred transfers (merge type) count: %d%n", countTransferIgnoreType(addedTransfers));
         if (taintFlows.isEmpty()) {
             return;
         }
+        TwoKeyMap<Var, Var, TaintPath> taintPaths = collectTaintPath(taintFlows);
+
+        dumpTaintRelatedTrans(out, taintPaths);
+        for (var entry : taintPaths.entrySet()) {
+            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
+            TaintPath taintPath = entry.value();
+            dumpInferredTrans(out, taintPath);
+            dumpShortestTaintPath(out, taintPath);
+            dumpMinimumCutEdge(out, taintPath);
+        }
+    }
+
+    // TODO: handle other call source type
+    private TwoKeyMap<Var, Var, TaintPath> collectTaintPath(Set<TaintFlow> taintFlows) {
         TaintPointerFlowGraph tpfg = new TPFGBuilder(solver, manager, taintFlows, false, true).build();
         TaintGraphHelper.init(solver, tpfg, transferHandler.getTransfers());
         TOFGBuilder tofgBuilder = new TOFGBuilder(tpfg, solver, manager, config, taintFlows);
 
-        Set<TaintTransfer> taintTransfers = Sets.newSet();
         Set<Pointer> sourcesReachSink = tpfg.getSourcePointers().stream()
                 .filter(source -> tpfg.getOutDegreeOf(source) > 0)
                 .collect(Collectors.toSet());
 
-        // TODO: handle other call source type
         TwoKeyMap<Var, Var, TaintPath> taintPaths = Maps.newTwoKeyMap();
         for (Pointer source : sourcesReachSink) {
             assert getTaintSet(source).size() == 1;
             CSObj taintObj = getTaintSet(source).iterator().next();
             TaintObjectFlowGraph tofg = tofgBuilder.build(source, taintObj);
             TaintGraphHelper graphHelper = new TaintGraphHelper(tofg);
-            taintTransfers.addAll(graphHelper.getAllInferredTransfers());
 
             ShortestPath<TaintNode, TaintObjectFlowEdge> shortestPath = new ShortestPath<>(
                     tofg, tofg.getSourceNode(), graphHelper::getWeight, graphHelper::getCost);
@@ -242,8 +236,8 @@ public abstract class TransferInferer extends OnFlyHandler {
 
             for (TaintNode taintNode : tofg.getSinkNodes()) {
                 int weight = shortestPath.getDistance(taintNode);
-                List<TaintObjectFlowEdge> path = shortestPath.getPath(taintNode);
-                if (!path.isEmpty()) {
+                if (weight != ShortestPath.INVALID_WEIGHT) {
+                    List<TaintObjectFlowEdge> path = shortestPath.getPath(taintNode);
                     Var sourceVar = ((CSVar) source).getVar();
                     Var sinkVar = ((CSVar) taintNode.pointer()).getVar();
                     TaintPath oldPath = taintPaths.get(sourceVar, sinkVar);
@@ -256,51 +250,51 @@ public abstract class TransferInferer extends OnFlyHandler {
                 }
             }
         }
+        return taintPaths;
+    }
 
+    private void dumpTaintRelatedTrans(PrintStream out, TwoKeyMap<Var, Var, TaintPath> taintPaths) {
+        Set<InferredTransfer> taintTransfers = taintPaths.values().stream()
+                .flatMap(taintPath -> taintPath.graphHelper.getAllInferredTransfers().stream())
+                .collect(Collectors.toUnmodifiableSet());
         out.printf("%n%d taint related inferred transfers: %n", taintTransfers.size());
         out.printf("%d taint related inferred transfers (ignore types): %n",
                 countTransferIgnoreType(taintTransfers));
         taintTransfers.forEach(tf -> out.printf("%s%n", tf));
+    }
 
+    private void dumpInferredTrans(PrintStream out, TaintPath taintPath) {
         out.printf("%nInferred transfers:");
-        for (var entry : taintPaths.entrySet()) {
-            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            entry.value().path.stream()
-                    .map(edge -> entry.value().graphHelper.getInferredTransfers(edge))
-                    .flatMap(Collection::stream)
-                    .forEach(tf -> out.println(transferToString(tf)));
-        }
+        TaintGraphHelper graphHelper = taintPath.graphHelper;
+        taintPath.path.stream()
+                .flatMap(edge -> graphHelper.getInferredTransfers(edge).stream())
+                .forEach(tf -> out.println(transferToString(tf)));
+    }
 
-        for (var entry : taintPaths.entrySet()) {
-            out.printf("%nShortest taint path:");
-            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            entry.value().path.forEach(edge -> {
-                PointerFlowEdge pointerFlowEdge = edge.pointerFlowEdge();
-                out.println(pointerFlowEdge);
-            });
-            out.printf("%nNeeded transfers:%n");
-            entry.value().path.stream()
-                    .map(edge -> entry.value().graphHelper.getTransfers(edge))
-                    .flatMap(Collection::stream)
-                    .forEach(tf -> out.println(transferToString(tf)));
-        }
+    private void dumpShortestTaintPath(PrintStream out, TaintPath taintPath) {
+        out.printf("%nShortest taint path:");
+        List<TaintObjectFlowEdge> path = taintPath.path;
+        TaintGraphHelper graphHelper = taintPath.graphHelper;
+        path.forEach(edge -> out.println(edge.pointerFlowEdge()));
+        out.printf("%nNeeded transfers:%n");
+        path.stream()
+                .flatMap(edge -> graphHelper.getTransfers(edge).stream())
+                .forEach(tf -> out.println(transferToString(tf)));
+    }
 
+    private void dumpMinimumCutEdge(PrintStream out, TaintPath taintPath) {
         out.printf("%nMinimum cut edges:");
-        for (var entry : taintPaths.entrySet()) {
-            out.printf("%n%s -> %s:%n", varToString(entry.key1()), varToString(entry.key2()));
-            TaintPath path = entry.value();
-            TaintGraphHelper helper = path.graphHelper;
-            MaxFlowMinCutSolver<TaintNode> minCut = new MaxFlowMinCutSolver<>(path.tofg,
-                    path.tofg.getSourceNode(),
-                    path.sinkNode,
-                    edge -> helper.getCapacity((TaintObjectFlowEdge) edge));
-            minCut.compute();
-            minCut.getMinCutEdges().stream()
-                    .map(edge -> helper.getInferredTransfers(((TaintObjectFlowEdge) edge)))
-                    .flatMap(Collection::stream)
-                    .distinct()
-                    .forEach(tf -> out.println(transferToString(tf)));
-        }
+        TaintGraphHelper helper = taintPath.graphHelper;
+        MaxFlowMinCutSolver<TaintNode> minCut = new MaxFlowMinCutSolver<>(taintPath.tofg,
+                taintPath.tofg.getSourceNode(),
+                taintPath.sinkNode,
+                edge -> helper.getCapacity((TaintObjectFlowEdge) edge));
+        minCut.compute();
+        minCut.getMinCutEdges().stream()
+                .map(edge -> helper.getInferredTransfers(((TaintObjectFlowEdge) edge)))
+                .flatMap(Collection::stream)
+                .distinct()
+                .forEach(tf -> out.println(transferToString(tf)));
     }
 
     private Set<CSObj> getTaintSet(Pointer pointer) {
