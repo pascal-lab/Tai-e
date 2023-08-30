@@ -196,8 +196,9 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void dump(PrintStream out, Set<TaintFlow> taintFlows) {
-        out.printf("Total inferred transfers count : %d%n", addedTransfers.size());
-        out.printf("Inferred transfers (merge type) count: %d%n", countTransferIgnoreType(addedTransfers));
+        out.printf("Added transfers count : %d%n", addedTransfers.size());
+        out.printf("Inferred transfers (merge type, ignore transfers with 0 weight) count: %d%n",
+                countTransfers(addedTransfers));
         if (taintFlows.isEmpty()) {
             return;
         }
@@ -258,8 +259,8 @@ public abstract class TransferInferer extends OnFlyHandler {
                 .flatMap(taintPath -> taintPath.graphHelper.getAllInferredTransfers().stream())
                 .collect(Collectors.toUnmodifiableSet());
         out.printf("%n%d taint related inferred transfers: %n", taintTransfers.size());
-        out.printf("%d taint related inferred transfers (ignore types): %n",
-                countTransferIgnoreType(taintTransfers));
+        out.printf("%d taint related inferred transfers (merge type, ignore transfers with 0 weight): %n",
+                countTransfers(taintTransfers));
         taintTransfers.forEach(tf -> out.printf("%s%n", tf));
     }
 
@@ -315,8 +316,9 @@ public abstract class TransferInferer extends OnFlyHandler {
         return v.getMethod() + "/" + v.getName();
     }
 
-    private long countTransferIgnoreType(Set<? extends TaintTransfer> transfers) {
+    private long countTransfers(Set<InferredTransfer> transfers) {
         return transfers.stream()
+                .filter(tf -> tf.getWeight() > 0)
                 .map(tf -> new Entry(tf.getMethod(), tf.getFrom(), tf.getTo()))
                 .distinct()
                 .count();
