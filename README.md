@@ -22,26 +22,24 @@ Currently, Tai-e provides the following major analysis components (and more anal
 way):
 
 - Powerful pointer analysis framework
-    - On-the-fly call graph construction
-    - Various classic and advanced techniques of heap abstraction and context sensitivity for
-      pointer analysis
-    - Extensible analysis plugin system (allows to conveniently develop and add new analyses that
-      interact with pointer analysis)
-- Various fundamental/client/utility analyses
-    - Fundamental analyses, e.g., reflection analysis and exception analysis
-    - Modern language feature analyses, e.g., lambda and method reference analysis, and
-      invokedynamic analysis
-    - Clients, e.g., configurable taint analysis (allowing to configure sources, sinks and taint
-      transfers)
-    - Utility tools like analysis timer, constraint checker (for debugging), and various graph
-      dumpers
+  - On-the-fly call graph construction
+  - Various classic and advanced techniques of heap abstraction and context sensitivity for pointer analysis
+  - Extensible analysis plugin system (allows to conveniently develop and add new analyses that interact with pointer analysis)
+- Configurable security analysis
+  - Taint analysis, which allows to configure sources, sinks, taint transfers, and sanitizers
+  - Detection of various information leakages and injection vulnerabilities
+  - Various precision and efficiency tradeoffs (benefit from the pointer analysis framework)
+- Various fundamental/utility analyses
+  - Fundamental analyses, e.g., reflection analysis and exception analysis
+  - Modern language feature analyses, e.g., lambda and method reference analysis, and invokedynamic analysis
+  - Utility tools like analysis timer, constraint checker (for debugging), and various graph dumpers
 - Control/Data-flow analysis framework
-    - Control-flow graph construction
-    - Classic data-flow analyses, e.g., live variable analysis, constant propagation
-    - Your data-flow analyses
+  - Control-flow graph construction
+  - Classic data-flow analyses, e.g., live variable analysis, constant propagation
+  - Your data-flow analyses
 - SpotBugs-like bug detection system
-    - Bug detectors, e.g., null pointer detector, incorrect `clone()` detector
-    - Your bug detectors
+  - Bug detectors, e.g., null pointer detector, incorrect `clone()` detector
+  - Your bug detectors
 
 Tai-e is developed in Java, and it can run on major operating systems including Windows, Linux, and
 macOS.
