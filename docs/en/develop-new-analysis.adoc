@@ -1,44 +1,48 @@
+[[develop-new-analysis]]
+include::attributes.adoc[]
+
+= How to Develop A New Analysis on Tai-e?
+
 Tai-e is highly extensible. To develop a new analysis and make it available in Tai-e, you just need to follow the two steps below.
 
 
-## Step 1. Develop An Analysis
+== Step 1. Develop An Analysis
 
 At first, you need to implement your analysis class, which should extend either `MethodAnalysis`, `ClassAnalysis` or `ProgramAnalysis` (all in package `pascal.taie.analysis`) depending on whether the analysis runs on method-, class- or program-level. When writing the analysis class, you need to:
 
-- Declare a public static field `ID` of type `String`, whose value is identical to the analysis id in the configuration file.
+* Declare a public static field `ID` of type `String`, whose value is identical to the analysis id in the configuration file.
 
-- Implement constructor with argument `AnalysisConfig`, and pass it to the constructor of parent class.
+* Implement constructor with argument `AnalysisConfig`, and pass it to the constructor of parent class.
 
-- Implement the analysis logic in `analyze()` method.
-    - For `MethodAnalysis`, you need to implement method `analyze(IR)`, which at each time takes the IR of a method as input.
+* Implement the analysis logic in `analyze()` method.
+** For `MethodAnalysis`, you need to implement method `analyze(IR)`, which at each time takes the IR of a method as input.
+** For `ClassAnalysis`, you need to implement method `analyze(JClass)`, which at each time takes a class as input.
+** For `ProgramAnalysis`, you need to implement method `analyze()`. Inter-procedural analyses typically require whole-program information, which can be accessed via the static methods of `World`, thus we do not pass argument to the `analyze()` method.
 
-    - For `ClassAnalysis`, you need to implement method `analyze(JClass)`, which at each time takes a class as input.
+Note that above `*Analysis` classes are generic and the type parameter is identical to the type of analysis result, which is the __return type __of the corresponding `analyze` method, i.e., Tai-e assumes that return value of `analyze` is the analysis result (and manages results based on such assumption). Below we give some tips that may be useful for developing new analysis.
 
-    - For `ProgramAnalysis`, you need to implement method `analyze()`. Inter-procedural analyses typically require whole-program information, which can be accessed via the static methods of `World`, thus we do not pass argument to the `analyze()` method.
+* _Get familiar with Tai-e_: See <<program-abstraction#program-abstraction,Program Abstraction in Tai-e>> for more information about Tai-e, such as the important classes that you might use when writing new analysis.
 
-Note that above `*Analysis` classes are generic and the type parameter is identical to the type of analysis result, which is the *return type* of the corresponding `analyze` method, i.e., Tai-e assumes that return value of `analyze` is the analysis result (and manages results based on such assumption). Below we give some tips that may be useful for developing new analysis.
+* _Obtain options_: Global options are available at `World.get().getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `getOptions()` within the analysis class.
 
-- *Get familiar with Tai-e*: See [Program Abstraction in Tai-e](https://github.com/pascal-lab/Tai-e/wiki/Program-Abstraction-in-Tai%E2%80%90e-(core-classes-and-IR)) for more information about Tai-e, such as the important classes that you might use when writing new analysis.
-
-- *Obtain options*: Global options are available at `World.get().getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `getOptions()` within the analysis class.
-
-- *Obtain results of dependent analyses*: If your analysis requires the results of some other previously-executed analyses, you can obtain them by calling `ir.getResult(id)`, `jclass.getResult(id)`, or `World.get().getResult(id)` for method/class/program-level results.
+* _Obtain results of dependent analyses_: If your analysis requires the results of some other previously-executed analyses, you can obtain them by calling `ir.getResult(id)`, `jclass.getResult(id)`, or `World.get().getResult(id)` for method/class/program-level results.
 
 
-## Step 2. Register the Analysis
+== Step 2. Register the Analysis
 
-To make an analysis available in Tai-e, you need to register it by adding its information (such as analysis id, analysis class, etc.) to the configuration file `src/main/resources/tai-e-analyses.yml` ("config file" for short), which contains the information of all available analyses. Please refer to [Analysis Management](https://github.com/pascal-lab/Tai-e/wiki/Analysis-Management) for details about analysis registration.
+To make an analysis available in Tai-e, you need to register it by adding its information (such as analysis id, analysis class, etc.) to the configuration file `src/main/resources/tai-e-analyses.yml` ("config file" for short), which contains the information of all available analyses. Please refer to <<analysis-management#analysis-management,Analysis Management>> for details about analysis registration.
 
 After adding analysis information to config file, your analysis is now available in Tai-e.
 
 
-## An Example
+== An Example
 
 We give a simple example to illustrate how to add a new analysis to Tai-e.
 
 Suppose that we are going to implement an intra-procedural dead code detection, which requires CFG and the analysis results of live variable analysis and constant propagation. We choose to extend `MethodAnalysis`, and complete the required tasks as explained in Step 1 (we omit concrete analysis logic for simplicity):
 
-```java
+[source,java,indent=0,subs="verbatim"]
+----
 package my.example;
 
 public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
@@ -64,15 +68,16 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
         return deadCode;
     }
 }
-```
+----
 
 Then we register the analysis by adding its information to `src/main/resources/tai-e-analyses.yml` (The analysis does not have options, thus we can ignore item `options`):
 
-```yaml
+[source,yaml,indent=0,subs="verbatim",configprops,configblocks]
+----
 - description: dead code detection
   analysisClass: my.example.DeadCodeDetection
   id: my-deadcode
   requires: [ cfg,constprop,livevar ]
-```
+----
 
 That's it! Now you can run the dead code detection via option `-a my-deadcode`.

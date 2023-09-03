@@ -1,73 +1,84 @@
+[[analysis-management]]
+include::attributes.adoc[]
+
+= Analysis Management
+
 It is very common for an analysis framework to conduct multiple analyses in a single run, e.g., user wants to run many bug detectors to find more bugs, or an analysis depends on the outcomes of other analyses. By design, Tai-e supports these scenarios via a systematic analysis management, as explained in this document.
 
 
-## Analysis Information Registration
+== Analysis Information Registration
 
-As mentioned in "[Develop A New Analysis](https://github.com/pascal-lab/Tai-e/wiki/How-to-Develop-A-New-Analysis-on-Tai%E2%80%90e%3F)", to add a new analysis to Tai-e, one needs to register its information in analysis configuration file `src/main/resources/tai-e-analyses.yml`. Each analysis entry consists of five (or less) attributes:
+As mentioned in <<develop-new-analysis#develop-new-analysis,Develop A New Analysis>>, to add a new analysis to Tai-e, one needs to register its information in analysis configuration file `src/main/resources/tai-e-analyses.yml`. Each analysis entry consists of five (or less) attributes:
 
-#### 1. `description`: *a description of the analysis*
+. `description`: _a description of the analysis_
++
 This attribute is only for documenting purpose.
 
-#### 2. `analysisClass`: *fully-qualified name of the analysis class*
+. `analysisClass`: _fully-qualified name of the analysis class_
++
 Tai-e loads the analysis classes based on this attribute.
 
-#### 3. `id`: *a short and unique identifier of an analysis*
+. `id`: _a short and unique identifier of an analysis_
++
 Tai-e relies on this attribute identify each analysis, so each id must be unique.
 
-#### 4. `requires` (optional): *a list of dependent analyses*
+. `requires` (optional): _a list of dependent analyses_
++
 If an analysis requires the results of any other analyses, then we can specify the ids of the dependent analyses in this attribute. At runtime, Tai-e automatically resolves analysis dependencies according to this attributes, ensuring the correctness of execution order for all dependent analyses; besides, this approach frees up developers to concentrate on the specification of their own analysis, and saves their efforts of writing command options when running an analysis.
-
++
 Each item in `requires` attribute consists of two parts:
 
-- *Analysis id*, e.g., `A`, whose result is required by this analysis.
-- *A boolean expression in parentheses (optional)*, e.g., `(x=y)`, indicates that the specified analysis is required only when the expression value is true. The expression value is determined by the runtime values of the specified options, for examples:
-    - `requires: [A(x=y)]`: requires `A` when runtime value of option `x` is `y`
-    - `requires: [A(x=y&a=b)]`: requires `A` when runtime value of option `x` is `y` and runtime value of option `a` is `b`
-    - `requires: [A(x=a|b|c)]`: requires `A` when runtime value of option `x` is `a`, `b`, or `c`
+* _Analysis id_, e.g., `A`, whose result is required by this analysis.
+* _A boolean expression in parentheses (optional)_, e.g., `(x=y)`, indicates that the specified analysis is required only when the expression value is true. The expression value is determined by the runtime values of the specified options, for examples:
+** `requires: [A(x=y)]`: requires `A` when runtime value of option `x` is `y`
+** `requires: [A(x=y&a=b)]`: requires `A` when runtime value of option `x` is `y` and runtime value of option `a` is `b`
+** `requires: [A(x=a|b|c)]`: requires `A` when runtime value of option `x` is `a`, `b`, or `c`
 
++
 This feature makes Tai-e more flexible in resolving analysis dependencies.
-
 You don't need to write this attribute for an independent analysis.
 
+. `options` [optional]: _a map of default option values_
 
-#### 5. `options` [optional]: *a map of default option values*
 This attribute allowing to specify default values for all options of the analysis. These values can be overwritten by runtime-specified option values. You don't need to write this attribute if your analysis has no options.
 
 
-You can see examples about analysis registration in Section 5.1 of [our technical report](https://arxiv.org/abs/2208.00337) and `tai-e-analyses.yml`.
+You can see examples about analysis registration in Section 5.1 of https://arxiv.org/abs/2208.00337[our technical report] and `tai-e-analyses.yml`.
 
 
-## Analysis Plan
+== Analysis Plan
 
 At runtime, Tai-e first generates an analysis plan (essentially a list of analyses to be executed) based on `tai-e-analyses.yml` and runtime-provided option values, and then runs analyses in order according to the plan.
 
-As described in [Command-Line Options](https://github.com/pascal-lab/Tai-e/wiki/How-to-Run-Tai%E2%80%90e%3F-(command%E2%80%90line-options)), there are two approaches to specify the analyses to execute. Next, we will explain how they affect the generated analysis plan.
+As described in <<command-line-options#command-line-options,Command-Line Options>>, there are two approaches to specify the analyses to execute. Next, we will explain how they affect the generated analysis plan.
 
-### By Command-Line Options (Option `-a`)
+=== By Command-Line Options (Option `-a`)
 
 If you specify analyses, say `A1,...,An`, via option `-a`, Tai-e will resolve all analyses directly/indirectly required by `A1,...,An`, and generate an analysis plan (including all these analyses) by topological sorting.
 
 
-### By Plan File (Option `-p`)
+=== By Plan File (Option `-p`)
 
 Alternatively, you can specify analyses by a plan file, which is a YAML file consisting of a list of analysis entries. Each entry has two attributes:
-- `id`: the analysis to be executed.
-- `options`: runtime option values for the analysis.
+
+* `id`: the analysis to be executed.
+* `options`: runtime option values for the analysis.
 
 When using option `-p`, Tai-e will execute the analyses in strict accordance with the plan file, i.e., it neither resolve analysis dependencies nor sort the analyses, thus, the file should include all required analyses, and each analysis should be placed in front of all the other analyses that require it; otherwise, Tai-e will alert.
 
 Composing a plan file from scratch might be tedious. To ease this task, Tai-e always generate a plan file `output/tai-e-plan.yml` each time you specify analyses with option `-a`, so that you can easily obtain a plan file and then edit your plan based on it. In addition, we provide auxiliary option `-g` (`--gen-plan-file`) and when you use it together with `-a`, Tai-e will merely generates plan file without actually running the analyses.
 
 
-## Analysis Result Management
+== Analysis Result Management
 
 Result management is important for the cases that an analysis requires the results of other analyses, which happen frequently. Depending on the type of analysis, Tai-e automatically stores the results in various locations:
-- For a method-level analysis, Tai-e stores its results in the `IR`, i.e., argument of `MethodAnalysis.analyze(IR)`.
-- For a class-level analysis, Tai-e stores its results in the `JClass`, i.e., argument of `ClassAnalysis.analyze(JClass)`.
-- For a program-level analysis, Tai-e stores its results in `World`.
+
+* For a method-level analysis, Tai-e stores its results in the `IR`, i.e., argument of `MethodAnalysis.analyze(IR)`.
+* For a class-level analysis, Tai-e stores its results in the `JClass`, i.e., argument of `ClassAnalysis.analyze(JClass)`.
+* For a program-level analysis, Tai-e stores its results in `World`.
 
 Benefiting from the result management, the developers only need to remember one API, `getResult(id)` (`id` is identifier of the analysis), to obtain results of any types of analyses, e.g., `ir.getResult(id)` for method-level analysis, `jclass.getResult(id)` for class-level analysis, and `world.getResult(id)` for program-level analysis.
 
----
+'''
 
 With aforementioned mechanisms, it is fairly simple to coordinate multiple analyses in Tai-e.
