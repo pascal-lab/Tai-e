@@ -7,7 +7,7 @@
 - Add option `--app-class-path`.
 - Add option `--keep-results`.
 - Add option `--output-dir`.
-- Add option `-XX-world-cache-mode`.
+- Add option `-wc, --world-cache-mode`.
 - Add def-use analysis.
 - Add dominator-finding algorithm.
 - Add generics signature information for Class, Method, and Field.

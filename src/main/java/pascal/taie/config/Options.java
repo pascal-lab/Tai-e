@@ -197,10 +197,9 @@ public class Options implements Serializable {
         return preBuildIR;
     }
 
-    @Experimental
     @JsonProperty
-    @Option(names = "-XX-world-cache-mode",
-            description = "Experimental Feature: Enable world cache mode to save build time"
+    @Option(names = {"-wc", "--world-cache-mode"},
+            description = "Enable world cache mode to save build time"
                     + " by caching the completed built world to the disk.",
             defaultValue = "false")
     private boolean worldCacheMode;

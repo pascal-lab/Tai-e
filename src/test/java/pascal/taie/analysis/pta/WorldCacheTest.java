@@ -36,7 +36,7 @@ public class WorldCacheTest {
     @Test
     void testWorldCache() {
         String[] args = {
-                "-XX-world-cache-mode",
+                "-wc",
                 "-java", "8",
                 "-cp", "src/test/resources/pta/contextsensitivity",
                 "-m", "LinkedQueue",

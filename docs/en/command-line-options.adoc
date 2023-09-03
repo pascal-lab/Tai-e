@@ -126,8 +126,8 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 ** Merely generate analysis plan file (the plan will not be executed) to `output/tai-e-plan.yml`.
 ** This option works only when the analysis plan is specified by option `-a`, and it is provided to help the user compose analysis plan file.
 
-* World cache mode (-XX-world-cache-mode)
-** *Experimental Feature*: enable world cache mode to save build time by caching the completed built world to the disk.
+* World cache mode (-wc, --world-cache-mode)
+** Enable world cache mode to save build time by caching the completed built world to the disk.
 ** When enabled, it will attempt to load the cached world instead of rebuilding it from scratch, provided that the analyzed program (i.e. classPath, mainClass and so on) remain unchanged. This option is particularly useful during development, when the analyzed program remains the same, but the analyzer code is modified and run repeatedly, thus saving developers' valuable time.
 
 == A Usage Example of Command-Line Options

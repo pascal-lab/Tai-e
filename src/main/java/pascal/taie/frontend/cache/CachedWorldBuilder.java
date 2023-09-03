@@ -55,9 +55,7 @@ public class CachedWorldBuilder implements WorldBuilder {
 
     public CachedWorldBuilder(WorldBuilder delegate) {
         this.delegate = delegate;
-        logger.info("[!] The world cache mode is enabled."
-                + " Please note that it is currently an experimental feature!"
-                + " Any issues can be reported in GitHub.");
+        logger.info("The world cache mode is enabled.");
     }
 
     @Override
