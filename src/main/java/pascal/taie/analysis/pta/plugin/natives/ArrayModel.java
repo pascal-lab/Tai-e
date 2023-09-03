@@ -36,6 +36,8 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
 import java.util.ArrayList;
@@ -43,10 +45,13 @@ import java.util.List;
 
 public class ArrayModel extends AbstractIRModel {
 
-    private final Type objType;
+    private final ClassType objType;
 
-    private final Type objArrayType;
+    private final ArrayType objArrayType;
 
+    /**
+     * Counter for naming temporary variables.
+     */
     private int counter = 0;
 
     ArrayModel(Solver solver) {

@@ -74,11 +74,6 @@ import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
 
 public class InvokeDynamicAnalysis implements Plugin {
 
-    /**
-     * Whether analyzes lambda-related invokedynamic
-     */
-    private static final boolean processLambdas = true;// false;
-
     private Solver solver;
 
     private CSManager csManager;
@@ -213,7 +208,10 @@ public class InvokeDynamicAnalysis implements Plugin {
     private static InvokeDynamic getInvokeDynamic(Invoke invoke) {
         InvokeExp invokeExp = invoke.getInvokeExp();
         if (invokeExp instanceof InvokeDynamic) {
-            if (processLambdas || !LambdaAnalysis.isLambdaMetaFactory(invoke)) {
+            if (!LambdaAnalysis.isLambdaMetaFactory(invoke) &&
+                    !Java9StringConcatHandler.isStringConcatFactoryMake(invoke)) {
+                // ignore lambda functions and string concat which
+                // will be handled by specific plugins
                 return (InvokeDynamic) invokeExp;
             }
         }

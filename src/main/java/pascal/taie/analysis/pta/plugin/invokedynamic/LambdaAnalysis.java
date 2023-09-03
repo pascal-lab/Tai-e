@@ -104,7 +104,7 @@ public class LambdaAnalysis implements Plugin {
     public void onNewStmt(Stmt stmt, JMethod container) {
         if (stmt instanceof Invoke invoke &&
                 invoke.isDynamic() &&
-                LambdaAnalysis.isLambdaMetaFactory(invoke)) {
+                isLambdaMetaFactory(invoke)) {
             InvokeDynamic indy = (InvokeDynamic) invoke.getInvokeExp();
             Type type = indy.getMethodType().getReturnType();
             // record lambda meta factories of new reachable methods

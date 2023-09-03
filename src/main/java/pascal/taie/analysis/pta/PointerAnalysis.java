@@ -42,6 +42,7 @@ import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
+import pascal.taie.analysis.pta.plugin.invokedynamic.Java9StringConcatHandler;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
 import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
@@ -131,12 +132,16 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 new NativeModeller(),
                 new ExceptionAnalysis()
         );
-        if (World.get().getOptions().getJavaVersion() < 9) {
+        int javaVersion = World.get().getOptions().getJavaVersion();
+        if (javaVersion < 9) {
             // current reference handler doesn't support Java 9+
             plugin.addPlugin(new ReferenceHandler());
         }
-        if (World.get().getOptions().getJavaVersion() >= 8) {
+        if (javaVersion >= 8) {
             plugin.addPlugin(new LambdaAnalysis());
+        }
+        if (javaVersion >= 9) {
+            plugin.addPlugin(new Java9StringConcatHandler());
         }
         if (options.getString("reflection-inference") != null ||
                 options.getString("reflection-log") != null) {
