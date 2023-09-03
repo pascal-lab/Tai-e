@@ -1,0 +1,10 @@
+The docs project produces the Tai-e reference documentation.
+
+To generate the documentation, it is usually recommended to execute the following command in the root directory of your project:
+
+```shell
+./gradlew :docs:asciidoctor
+./gradlew :docs:asciidoctorPdf
+```
+
+The generated documentation will be located in `./docs/build/docs/asciidoc/` and `./docs/build/docs/asciidocPdf`.

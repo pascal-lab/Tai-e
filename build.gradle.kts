@@ -3,6 +3,12 @@ plugins {
     id("tai-e.conventions")
 }
 
+group = "net.pascal-lab"
+description = "tai-e"
+allprojects {
+    version = "0.2.2-SNAPSHOT"
+}
+
 dependencies {
     // Process options
     implementation("info.picocli:picocli:4.7.3")
