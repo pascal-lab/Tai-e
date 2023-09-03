@@ -7,6 +7,12 @@ repositories {
     mavenCentral()
 }
 
+val asciidoctorExtensions: Configuration by configurations.creating
+
+dependencies {
+    asciidoctorExtensions("io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.7")
+}
+
 tasks.withType(org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask::class) {
     // set source directory to docs/ instead of docs/src/docs/asciidoc/
     sourceDir(sourceDir.parentFile.parentFile.parentFile)
@@ -25,6 +31,21 @@ tasks.withType(org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask::class) {
 }
 
 tasks.named("asciidoctor", org.asciidoctor.gradle.jvm.AsciidoctorTask::class) {
+    // apply the spring-html backend
+    configurations("asciidoctorExtensions")
+    outputOptions {
+        backends("spring-html")
+    }
+    // customize banner and background
+    doLast {
+        backendOutputDirectories.forEach { dir ->
+            listOf(
+                "img/banner-logo.svg",
+                "img/doc-background.svg",
+                "img/doc-background-dark.svg"
+            ).forEach { dir.resolve(it).delete() }
+        }
+    }
     copy {
         from(sourceDir)
         include("common/**")

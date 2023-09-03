@@ -1,0 +1,26 @@
+#banner-container {
+    height: unset;
+}
+
+#banner {
+    background-image: unset;
+}
+
+html.dark-theme #banner {
+    background-image: unset;
+}
+
+#doc {
+    background-image: unset;
+}
+
+html.dark-theme #doc {
+    background-image: unset;
+}
+
+@media screen and (max-width: 800px) {
+    html.dark-theme #doc,
+    #doc {
+        background: none;
+    }
+}

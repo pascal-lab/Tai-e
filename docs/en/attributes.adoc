@@ -8,7 +8,7 @@
 :sectanchors:
 :sectnums:
 :hide-uri-scheme:
-:docinfo: shared,private
+:docinfo: shared
 :attribute-missing: warn
 :chomp: default headers packages
 :authors: Tian Tan; Yue Li
