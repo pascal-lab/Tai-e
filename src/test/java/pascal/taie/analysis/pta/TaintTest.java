@@ -63,6 +63,7 @@ public class TaintTest {
             + "taint-config-param-source.yml"})
     @MultiStringsSource({"CallSiteMode", TAINT_CONFIG_PREFIX
             + "taint-config-call-site-model.yml"})
+    @MultiStringsSource({"Java9StringConcat", TAINT_CONFIG})
     void test(String mainClass, String opts) {
         Tests.testPTA(DIR, mainClass, opts);
     }

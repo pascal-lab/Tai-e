@@ -1,0 +1,18 @@
+Points-to sets of all variables
+[]:<Java9StringConcat: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Java9StringConcat: void main(java.lang.String[])>}]
+[]:<Java9StringConcat: void stringConcat()>/$r0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<Java9StringConcat: void stringConcat()>[0@L8] $r0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<Java9StringConcat: void stringConcat()>/$r1 -> [[]:TaintObj{alloc=<Java9StringConcat: void stringConcat()>[0@L8] $r0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<Java9StringConcat: void stringConcat()>/%stringconcat-0 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<Java9StringConcat: void stringConcat()>[0@L8] $r0 = invokestatic SourceSink.source()/result,type=java.lang.StringBuilder}]
+[]:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:TaintObj{alloc=<Java9StringConcat: void stringConcat()>[0@L8] $r0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Java9StringConcat: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Java9StringConcat: void main(java.lang.String[])>}]
+
+Detected 1 taint flow(s):
+TaintFlow{<Java9StringConcat: void stringConcat()>[0@L8] $r0 = invokestatic SourceSink.source()/result -> <Java9StringConcat: void stringConcat()>[2@L10] invokestatic SourceSink.sink($r1)/0}
+

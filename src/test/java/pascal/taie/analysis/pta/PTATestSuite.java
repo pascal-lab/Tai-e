@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.core.cs.context.ContextTest;
         ContextSensitivityTestFull.class,
         ExceptionTest.class,
         LambdaTest.class,
+        Java9StringConcatTest.class,
         ReflectionTest.class,
         TaintTest.class,
         WorldCacheTest.class,
