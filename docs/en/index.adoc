@@ -1,0 +1,9 @@
+# Documentation of Tai-e
+
+* [Setup Tai-e in IntelliJ IDEA](Setup-Tai%E2%80%90e-in-IntelliJ-IDEA.md)
+* [How to Run Tai-e (command-line options)?](How-to-Run-Tai‐e-(command‐line-options).md)
+* [How to Develop A New Analysis on Tai-e?](How-to-Develop-A-New-Analysis-on-Tai‐e.md)
+* [Program Abstraction in Tai-e (core classes and IR)](Program-Abstraction-in-Tai‐e-(core-classes-and-IR).md)
+* [Analysis Management](Analysis-Management.md)
+* [Pointer Analysis Framework](Pointer-Analysis-Framework.md)
+* [Publications](Publications.md)

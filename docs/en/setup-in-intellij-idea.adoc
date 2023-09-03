@@ -1,0 +1,61 @@
+Given the Gradle build script, setting up Tai-e in IntelliJ IDEA is easy as explained below.
+
+
+### Step 0
+
+Download IntelliJ IDEA from [JetBrains](https://www.jetbrains.com/idea/download) and install it. We recommend installing a recent version (2021.3 or newer) of IntelliJ IDEA for better support of Java 17.
+
+### Step 1
+
+Start to open a project
+
+<img src="https://user-images.githubusercontent.com/1254026/229351156-ad82b33e-61d1-41cb-b88f-845a6da66967.png" width="600" />
+
+> *Note*: If you have already used IntelliJ IDEA, and opened some projects, then you could choose `File > Open…` to open the same dialog for the next step.
+
+### Step 2
+
+Select root directory of Tai-e and click "Open".
+
+<img src="https://user-images.githubusercontent.com/1254026/229351308-b5dabda2-7f88-42b9-829b-effbbff82d33.png" width="700" />
+
+### Step 3
+
+IntelliJ IDEA may pop up a dialog asking if you trust the Gradle project. Just click "Trust Project" (Don't worry. Tai-e is benign 😃).
+
+<img src="https://user-images.githubusercontent.com/1254026/229351357-9956e846-2b8b-4fe0-8362-e8398996dbe3.png" width="500" />
+
+You may wait a moment for importing Tai-e.
+
+### Step 4
+
+Go to `File > Project Structure…`, click "Project SDK", select JDK 17. Next, expand "Language level", select "SDK default" (if the default is just 17) or "17 - Sealed types, always-strict floating-point semantics":
+
+<img src="https://user-images.githubusercontent.com/1254026/229351449-eb1a6b79-2074-4bdd-a785-6d33ef4b5af2.png" width="750" />
+
+> *Note*: If you have not installed JDK 17 yet, just select `Add SDK > Download JDK…`, and select "17" for "Version", any "Vendor" (usually "Oracle OpenJDK"), and "Location" to be installation location (default is fine), and then click "Download" to start downloading in background:
+
+<img src="https://user-images.githubusercontent.com/1254026/229351545-e3baa927-8aa1-498b-9128-18551192d411.png" width="750" />
+
+
+### Step 5 (optional)
+
+As Tai-e is a Gradle project, IntelliJ IDEA always build and run it with Gradle by default, which makes it a bit slower and always output some annoying Gradle-related messages:
+
+<img src="https://user-images.githubusercontent.com/1254026/229351605-c80734ea-8266-4fb5-ab85-907dae89b90e.png" width="700" />
+
+To get rid of these problems, you could use IntelliJ IDEA instead of Gradle to build and run Tai-e. Just go to `File > Settings`, and change the build and run tool from Gradle to IntelliJ IDEA:
+
+<img src="https://user-images.githubusercontent.com/1254026/229351653-15d41151-0ad2-4c9d-92ec-3e988c80799b.png" width="750" />
+
+### Step 6
+
+To run Tai-e in IntelliJ IDEA, first choose main class of Tai-e and open "Run Configuration":
+
+<img src="https://user-images.githubusercontent.com/1254026/229351679-7add84a3-f543-4bff-8474-a071b2ff570b.png" width="650" />
+
+then configure program arguments as follows:
+
+<img src="https://user-images.githubusercontent.com/1254026/229351725-d2c66fe1-bf7e-4b34-9878-101e799253d5.png" width="650" />
+
+That's it! If you could finish above steps without any problems, then you have successfully setup Tai-e in IntelliJ IDEA. ヽ(｡◕‿◕｡)ﾉﾟ

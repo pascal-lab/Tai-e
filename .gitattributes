@@ -7,4 +7,5 @@
 *.xml text eol=lf
 *.html text eol=lf
 *.css text eol=lf
+*.adoc text eol=lf
 *.bat text eol=crlf
