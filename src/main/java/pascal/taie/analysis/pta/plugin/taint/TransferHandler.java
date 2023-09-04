@@ -52,8 +52,10 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +63,7 @@ import java.util.Set;
 /**
  * Handles taint transfers in taint analysis.
  */
-class TransferHandler extends OnFlyHandler {
+public class TransferHandler extends OnFlyHandler {
 
     private static final Logger logger = LogManager.getLogger(TransferHandler.class);
 
@@ -69,11 +71,13 @@ class TransferHandler extends OnFlyHandler {
 
     private final Context emptyContext;
 
+    private final Set<TaintTransfer> transfers = Sets.newSet();
+
     /**
      * Map from method (which causes taint transfer) to set of relevant
      * {@link TaintTransfer}.
      */
-    private final MultiMap<JMethod, TaintTransfer> transfers = Maps.newMultiMap();
+    private final MultiMap<JMethod, TaintTransfer> method2Transfers = Maps.newMultiMap();
 
     private final Map<Type, Transfer> transferFunctions = Maps.newHybridMap();
 
@@ -119,7 +123,10 @@ class TransferHandler extends OnFlyHandler {
         csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
         context.config().transfers()
-                .forEach(t -> this.transfers.put(t.getMethod(), t));
+                .forEach(t -> {
+                    this.transfers.add(t);
+                    this.method2Transfers.put(t.getMethod(), t);
+                });
     }
 
     private void processTransfer(Context context, Invoke callSite, TaintTransfer transfer) {
@@ -276,13 +283,18 @@ class TransferHandler extends OnFlyHandler {
 
     public void addNewTransfer(TaintTransfer transfer) {
         logger.info("Add new taint transfer: {}", transfer);
-        this.transfers.put(transfer.getMethod(), transfer);
+        this.transfers.add(transfer);
+        this.method2Transfers.put(transfer.getMethod(), transfer);
         Set<CSCallSite> csCallSites = method2CSCallSite.get(transfer.getMethod());
         for(CSCallSite csCallSite : csCallSites) {
             Context context = csCallSite.getContext();
             Invoke callSite = csCallSite.getCallSite();
             processTransfer(context, callSite, transfer);
         }
+    }
+
+    public Set<TaintTransfer> getTransfers() {
+        return Collections.unmodifiableSet(transfers);
     }
 
     @Override
@@ -294,7 +306,7 @@ class TransferHandler extends OnFlyHandler {
             return;
         }
         method2CSCallSite.put(edge.getCallee().getMethod(), edge.getCallSite());
-        Set<TaintTransfer> tfs = transfers.get(edge.getCallee().getMethod());
+        Set<TaintTransfer> tfs = method2Transfers.get(edge.getCallee().getMethod());
         if (!tfs.isEmpty()) {
             Context context = edge.getCallSite().getContext();
             Invoke callSite = edge.getCallSite().getCallSite();
@@ -310,14 +322,14 @@ class TransferHandler extends OnFlyHandler {
     }
 
     @Override
-    public void onNewStmt(Stmt stmt, JMethod container) {
-        if (callSiteMode &&
-                stmt instanceof Invoke invoke &&
-                !invoke.isDynamic()) {
-            JMethod callee = invoke.getMethodRef().resolveNullable();
-            if (transfers.containsKey(callee)) {
-                callSiteTransfers.put(container, invoke);
-            }
+    public void onNewMethod(JMethod method) {
+        if (callSiteMode) {
+            method.getIR().invokes(false).forEach(callSite -> {
+                JMethod callee = callSite.getMethodRef().resolveNullable();
+                if (method2Transfers.containsKey(callee)) {
+                    callSiteTransfers.put(method, callSite);
+                }
+            });
         }
     }
 
@@ -330,7 +342,7 @@ class TransferHandler extends OnFlyHandler {
                 Context context = csMethod.getContext();
                 callSites.forEach(callSite -> {
                     JMethod callee = callSite.getMethodRef().resolve();
-                    transfers.get(callee).forEach(transfer ->
+                    method2Transfers.get(callee).forEach(transfer ->
                             processTransfer(context, callSite, transfer));
                 });
             }
