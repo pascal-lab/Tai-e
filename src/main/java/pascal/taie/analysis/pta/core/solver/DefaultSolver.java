@@ -781,14 +781,15 @@ public class DefaultSolver implements Solver {
     @Override
     public void addEntryPoint(EntryPoint entryPoint) {
         Context entryCtx = contextSelector.getEmptyContext();
-        JMethod entryMethod = entryPoint.getMethod();
+        JMethod entryMethod = entryPoint.method();
         CSMethod csEntryMethod = csManager.getCSMethod(entryCtx, entryMethod);
         callGraph.addEntryMethod(csEntryMethod);
         addCSMethod(csEntryMethod);
         IR ir = entryMethod.getIR();
+        ParamProvider paramProvider = entryPoint.paramProvider();
         // pass this objects
         if (!entryMethod.isStatic()) {
-            for (Obj thisObj : entryPoint.getThisObjs()) {
+            for (Obj thisObj : paramProvider.getThisObjs()) {
                 addVarPointsTo(entryCtx, ir.getThis(), entryCtx, thisObj);
             }
         }
@@ -796,11 +797,23 @@ public class DefaultSolver implements Solver {
         for (int i = 0; i < entryMethod.getParamCount(); ++i) {
             Var param = ir.getParam(i);
             if (propTypes.isAllowed(param)) {
-                for (Obj paramObj : entryPoint.getParamObjs(i)) {
+                for (Obj paramObj : paramProvider.getParamObjs(i)) {
                     addVarPointsTo(entryCtx, param, entryCtx, paramObj);
                 }
             }
         }
+        // pass field objects
+        paramProvider.getFieldObjs().forEach((base, field, obj) -> {
+            CSObj csBase = csManager.getCSObj(entryCtx, base);
+            InstanceField iField = csManager.getInstanceField(csBase, field);
+            addPointsTo(iField, entryCtx, obj);
+        });
+        // pass array objects
+        paramProvider.getArrayObjs().forEach((array, elem) -> {
+            CSObj csArray = csManager.getCSObj(entryCtx, array);
+            ArrayIndex arrayIndex = csManager.getArrayIndex(csArray);
+            addPointsTo(arrayIndex, entryCtx, elem);
+        });
     }
 
     @Override

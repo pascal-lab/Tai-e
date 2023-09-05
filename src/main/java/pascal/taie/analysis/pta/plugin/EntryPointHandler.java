@@ -33,9 +33,12 @@ import pascal.taie.analysis.pta.core.solver.ParamProvider;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.TwoKeyMultiMap;
 
 import java.util.Set;
 
@@ -100,6 +103,16 @@ public class EntryPointHandler implements Plugin {
                     "<main-arguments-element>", string, method);
             solver.addPointsTo(argsIndex, emptyContext, argsElem);
             return args;
+        }
+
+        @Override
+        public TwoKeyMultiMap<Obj, JField, Obj> getFieldObjs() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public MultiMap<Obj, Obj> getArrayObjs() {
+            throw new UnsupportedOperationException();
         }
     }
 }
