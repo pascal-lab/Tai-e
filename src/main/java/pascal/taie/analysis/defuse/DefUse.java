@@ -25,11 +25,10 @@ package pascal.taie.analysis.defuse;
 import pascal.taie.analysis.StmtResult;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.TwoKeyMultiMap;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,7 +36,7 @@ import java.util.Set;
  * Represents the analysis result of {@link DefUseAnalysis}, i.e.,
  * both def-use chain and use-def chain.
  */
-public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
+public class DefUse implements StmtResult<MultiMap<Var, Stmt>> {
 
     private static final String NULL_DEFS = "defs is null (not computed)" +
             " as it is disabled in def-use analysis";
@@ -46,13 +45,13 @@ public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
             " as it is disabled in def-use analysis";
 
     @Nullable
-    private final TwoKeyMap<Stmt, Var, Set<Stmt>> defs;
+    private final TwoKeyMultiMap<Stmt, Var, Stmt> defs;
 
     @Nullable
-    private final Map<Stmt, Set<Stmt>> uses;
+    private final MultiMap<Stmt, Stmt> uses;
 
-    DefUse(@Nullable TwoKeyMap<Stmt, Var, Set<Stmt>> defs,
-           @Nullable Map<Stmt, Set<Stmt>> uses) {
+    DefUse(@Nullable TwoKeyMultiMap<Stmt, Var, Stmt> defs,
+           @Nullable MultiMap<Stmt, Stmt> uses) {
         this.defs = defs;
         this.uses = uses;
     }
@@ -64,8 +63,7 @@ public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
      */
     public Set<Stmt> getDefs(Stmt stmt, Var var) {
         Objects.requireNonNull(defs, NULL_DEFS);
-        Set<Stmt> defs = this.defs.get(stmt, var);
-        return defs != null ? Collections.unmodifiableSet(defs) : Set.of();
+        return defs.get(stmt, var);
     }
 
     /**
@@ -75,8 +73,7 @@ public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
      */
     public Set<Stmt> getUses(Stmt stmt) {
         Objects.requireNonNull(uses, NULL_USES);
-        Set<Stmt> uses = this.uses.get(stmt);
-        return uses != null ? Collections.unmodifiableSet(uses) : Set.of();
+        return uses.get(stmt);
     }
 
     @Override
@@ -89,8 +86,8 @@ public class DefUse implements StmtResult<Map<Var, Set<Stmt>>> {
      * contains use-def chain, and it is mainly for testing purpose.
      */
     @Override
-    public Map<Var, Set<Stmt>> getResult(Stmt stmt) {
+    public MultiMap<Var, Stmt> getResult(Stmt stmt) {
         Objects.requireNonNull(defs, NULL_DEFS);
-        return defs.getOrDefault(stmt, Map.of());
+        return defs.get(stmt);
     }
 }
