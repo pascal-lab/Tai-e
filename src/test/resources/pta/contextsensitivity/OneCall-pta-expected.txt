@@ -19,7 +19,7 @@ Points-to sets of all variables
 [<OneCall: void main(java.lang.String[])>[3@L4] invokevirtual c.m()]:<C: void m()>/temp$4 -> [[]:NumberObj{alloc=1,type=int}]
 [<OneCall: void main(java.lang.String[])>[3@L4] invokevirtual c.m()]:<C: void m()>/x -> [[]:NewObj{<C: void m()>[0@L12] new One}]
 [<OneCall: void main(java.lang.String[])>[3@L4] invokevirtual c.m()]:<C: void m()>/y -> [[]:NewObj{<C: void m()>[3@L13] new Two}]
-[]:<OneCall: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}]
+[]:<OneCall: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<OneCall: void main(java.lang.String[])>/0},type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}]
 []:<OneCall: void main(java.lang.String[])>/c -> [[]:NewObj{<OneCall: void main(java.lang.String[])>[0@L3] new C}]
 []:<OneCall: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<OneCall: void main(java.lang.String[])>[0@L3] new C}]
 
@@ -28,5 +28,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <OneCall: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<OneCall: void main(java.lang.String[])>/0},type=java.lang.String[] in <OneCall: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<OneCall: void main(java.lang.String[])>/0}[*],type=java.lang.String in <OneCall: void main(java.lang.String[])>}]
 

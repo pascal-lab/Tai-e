@@ -16,7 +16,7 @@ Points-to sets of all variables
 []:<GetMethods: void invokeOneArg(java.lang.String)>/temp$9 -> [[]:NewObj{<GetMethods: void invokeOneArg(java.lang.String)>[24@L14] new J}]
 []:<GetMethods: void main(java.lang.String[])>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "foo"}]
 []:<GetMethods: void main(java.lang.String[])>/%stringconst1 -> [[]:ConstantObj{java.lang.String: "bar"}]
-[]:<GetMethods: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMethods: void main(java.lang.String[])>}]
+[]:<GetMethods: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<GetMethods: void main(java.lang.String[])>/0},type=java.lang.String[] in <GetMethods: void main(java.lang.String[])>}]
 []:<I: void <init>()>/%this -> [[]:NewObj{<GetMethods: void invokeOneArg(java.lang.String)>[24@L14] new J}]
 []:<I: void bar(I)>/%stringconst0 -> [[]:MergedObj{<Merged string constants>}]
 []:<I: void bar(I)>/%this -> [[]:NewObj{<GetMethods: void invokeOneArg(java.lang.String)>[24@L14] new J}]
@@ -37,7 +37,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMethods: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <GetMethods: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<GetMethods: void main(java.lang.String[])>/0},type=java.lang.String[] in <GetMethods: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<GetMethods: void main(java.lang.String[])>/0}[*],type=java.lang.String in <GetMethods: void main(java.lang.String[])>}]
 []:NewObj{<GetMethods: void invokeOneArg(java.lang.String)>[28@L15] newarray java.lang.Object[%intconst2]}[*] -> [[]:NewObj{<GetMethods: void invokeOneArg(java.lang.String)>[24@L14] new J}]
 []:ReflectionMetaObjArray{alloc=<GetMethods: void invokeOneArg(java.lang.String)>[10@L11] temp$3 = invokevirtual temp$0.getMethods(),type=java.lang.reflect.Method[] in <GetMethods: void invokeOneArg(java.lang.String)>}[*] -> [[]:UnknownReflectionMetaObj{alloc=MethodInfo[invoke=<GetMethods: void invokeOneArg(java.lang.String)>[10@L11] temp$3 = invokevirtual temp$0.getMethods(), clazz=J, name=null],type=java.lang.reflect.Method in <GetMethods: void invokeOneArg(java.lang.String)>}]
 

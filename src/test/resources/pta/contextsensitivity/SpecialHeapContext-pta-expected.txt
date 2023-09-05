@@ -7,7 +7,7 @@ Points-to sets of all variables
 [NewObj{<SpecialHeapContext: void main(java.lang.String[])>[3@L5] new A}]:<A: void <init>()>/%this -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>[3@L5] new A}]
 []:<SpecialHeapContext: void main(java.lang.String[])>/a1 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>[0@L4] new A}]
 []:<SpecialHeapContext: void main(java.lang.String[])>/a2 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>[3@L5] new A}]
-[]:<SpecialHeapContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}]
+[]:<SpecialHeapContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<SpecialHeapContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}]
 []:<SpecialHeapContext: void main(java.lang.String[])>/o1 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>[0@L4] new A}]:NewObj{<A: java.lang.Object getMyObject()>[0@L13] new java.lang.Object}]
 []:<SpecialHeapContext: void main(java.lang.String[])>/o2 -> [[NewObj{<SpecialHeapContext: void main(java.lang.String[])>[3@L5] new A}]:NewObj{<A: java.lang.Object getMyObject()>[0@L13] new java.lang.Object}]
 []:<SpecialHeapContext: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<SpecialHeapContext: void main(java.lang.String[])>[0@L4] new A}]
@@ -20,5 +20,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <SpecialHeapContext: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<SpecialHeapContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <SpecialHeapContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<SpecialHeapContext: void main(java.lang.String[])>/0}[*],type=java.lang.String in <SpecialHeapContext: void main(java.lang.String[])>}]
 

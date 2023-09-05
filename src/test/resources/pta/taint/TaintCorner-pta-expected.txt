@@ -16,14 +16,14 @@ Points-to sets of all variables
 []:<TaintCorner: void corner2()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TaintCorner: void corner2()>[0@L15] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<TaintCorner: void corner2()>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<TaintCorner: void corner2()>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic SourceSink.sourceAndSink(s1, s2)/result,type=java.lang.String}]
-[]:<TaintCorner: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintCorner: void main(java.lang.String[])>}]
+[]:<TaintCorner: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TaintCorner: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintCorner: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintCorner: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintCorner: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TaintCorner: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintCorner: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintCorner: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintCorner: void main(java.lang.String[])>}]
 
 Detected 2 taint flow(s):
 TaintFlow{<TaintCorner: void corner2()>[0@L15] temp$0 = invokestatic SourceSink.source()/result -> <TaintCorner: void corner2()>[5@L17] temp$2 = invokestatic SourceSink.sourceAndSink(s1, s2)/0}

@@ -26,7 +26,7 @@ Points-to sets of all variables
 [NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}]:<CSBackPropagation: java.lang.String transfer(java.lang.String)>/temp$3 -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
 [NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}]:<CSBackPropagation: void <init>()>/%this -> [[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}]
 [NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}]:<CSBackPropagation: void <init>()>/temp$0 -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
-[]:<CSBackPropagation: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CSBackPropagation: void main(java.lang.String[])>}]
+[]:<CSBackPropagation: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CSBackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <CSBackPropagation: void main(java.lang.String[])>}]
 []:<CSBackPropagation: void main(java.lang.String[])>/csbp1 -> [[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[0@L6] new CSBackPropagation}]
 []:<CSBackPropagation: void main(java.lang.String[])>/csbp2 -> [[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}]
 []:<CSBackPropagation: void main(java.lang.String[])>/csbp3 -> [[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[15@L16] new CSBackPropagation}]
@@ -55,7 +55,7 @@ Points-to sets of all instance fields
 []:NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}.buffer -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CSBackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CSBackPropagation: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CSBackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <CSBackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CSBackPropagation: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CSBackPropagation: void main(java.lang.String[])>}]
 
 Detected 2 taint flow(s):
 TaintFlow{<CSBackPropagation: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result -> <CSBackPropagation: void main(java.lang.String[])>[7@L9] invokestatic SourceSink.sink(s1)/0}

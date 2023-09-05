@@ -21,7 +21,7 @@ Points-to sets of all variables
 [NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:<List: void add(java.lang.String)>/e -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:<TwoObjectTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObjectTaint: void main(java.lang.String[])>}]
+[]:<TwoObjectTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TwoObjectTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoObjectTaint: void main(java.lang.String[])>}]
 []:<TwoObjectTaint: void main(java.lang.String[])>/i1 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
 []:<TwoObjectTaint: void main(java.lang.String[])>/i2 -> [[NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}]:NewObj{<List: Iterator iterator()>[0@L27] new List$ListIterator}]
 []:<TwoObjectTaint: void main(java.lang.String[])>/l1 -> [[]:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[0@L7] new List}]
@@ -44,7 +44,7 @@ Points-to sets of all instance fields
 []:NewObj{<TwoObjectTaint: void main(java.lang.String[])>[5@L9] new List}.element -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TwoObjectTaint: void main(java.lang.String[])>[8@L10] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObjectTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoObjectTaint: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TwoObjectTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoObjectTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoObjectTaint: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoObjectTaint: void main(java.lang.String[])>}]
 
 Detected 2 taint flow(s):
 TaintFlow{<TwoObjectTaint: void main(java.lang.String[])>[3@L8] temp$1 = invokestatic SourceSink.source()/result -> <TwoObjectTaint: void main(java.lang.String[])>[13@L13] invokestatic SourceSink.sink(temp$5)/0}

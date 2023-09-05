@@ -31,7 +31,7 @@ Points-to sets of all variables
 [NewObj{<TaintInList: void main(java.lang.String[])>[9@L9] new StringList}]:<StringList: void ensureCapacity(int)>/tmp -> [[NewObj{<TaintInList: void main(java.lang.String[])>[9@L9] new StringList}]:NewObj{<StringList: void ensureCapacity(int)>[9@L29] newarray java.lang.String[temp$4]}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:<TaintInList: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintInList: void main(java.lang.String[])>}]
+[]:<TaintInList: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TaintInList: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintInList: void main(java.lang.String[])>}]
 []:<TaintInList: void main(java.lang.String[])>/l1 -> [[]:NewObj{<TaintInList: void main(java.lang.String[])>[0@L4] new StringList}]
 []:<TaintInList: void main(java.lang.String[])>/l2 -> [[]:NewObj{<TaintInList: void main(java.lang.String[])>[9@L9] new StringList}]
 []:<TaintInList: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
@@ -54,7 +54,7 @@ Points-to sets of all array indexes
 [NewObj{<TaintInList: void main(java.lang.String[])>[0@L4] new StringList}]:NewObj{<StringList: void ensureCapacity(int)>[9@L29] newarray java.lang.String[temp$4]}[*] -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 [NewObj{<TaintInList: void main(java.lang.String[])>[9@L9] new StringList}]:NewObj{<StringList: void <init>()>[2@L16] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
 [NewObj{<TaintInList: void main(java.lang.String[])>[9@L9] new StringList}]:NewObj{<StringList: void ensureCapacity(int)>[9@L29] newarray java.lang.String[temp$4]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintInList: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintInList: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TaintInList: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintInList: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintInList: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintInList: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
 TaintFlow{<TaintInList: void main(java.lang.String[])>[3@L5] temp$1 = invokestatic SourceSink.source()/result -> <TaintInList: void main(java.lang.String[])>[8@L7] invokestatic SourceSink.sink(s1)/0}

@@ -2,7 +2,7 @@ Points-to sets of all variables
 []:<BackPropagation: void <init>()>/%this -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
 []:<BackPropagation: void <init>()>/temp$0 -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
 []:<BackPropagation: void <init>()>/temp$1 -> [[]:MergedObj{<Merged java.lang.StringBuilder>}]
-[]:<BackPropagation: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}]
+[]:<BackPropagation: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<BackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}]
 []:<BackPropagation: void main(java.lang.String[])>/bp -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
 []:<BackPropagation: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
 []:<BackPropagation: void taintCharArrayField()>/%taint-temp-0 -> [[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}]
@@ -46,7 +46,7 @@ Points-to sets of all instance fields
 []:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.sb -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.StringBuilder}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <BackPropagation: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<BackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<BackPropagation: void main(java.lang.String[])>/0}[*],type=java.lang.String in <BackPropagation: void main(java.lang.String[])>}]
 
 Detected 4 taint flow(s):
 TaintFlow{<BackPropagation: void taintCharArrayVar()>[0@L16] temp$0 = invokestatic SourceSink.source()/result -> <BackPropagation: void taintCharArrayVar()>[10@L20] invokestatic SourceSink.sink(s2)/0}

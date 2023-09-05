@@ -10,7 +10,7 @@ Points-to sets of all variables
 [NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}, NewObj{<House: void <init>()>[1@L13] new BedRoom}]:<BedRoom: void <init>()>/temp$0 -> [[NewObj{<House: void <init>()>[1@L13] new BedRoom}]:NewObj{<BedRoom: void <init>()>[1@L25] new Bed}]
 [NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]:<House: void <init>()>/%this -> [[]:NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]
 [NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]:<House: void <init>()>/temp$0 -> [[NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]:NewObj{<House: void <init>()>[1@L13] new BedRoom}]
-[]:<NestedHeap: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NestedHeap: void main(java.lang.String[])>}]
+[]:<NestedHeap: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<NestedHeap: void main(java.lang.String[])>/0},type=java.lang.String[] in <NestedHeap: void main(java.lang.String[])>}]
 []:<NestedHeap: void main(java.lang.String[])>/bed -> [[NewObj{<House: void <init>()>[1@L13] new BedRoom}]:NewObj{<BedRoom: void <init>()>[1@L25] new Bed}]
 []:<NestedHeap: void main(java.lang.String[])>/house1 -> [[]:NewObj{<NestedHeap: void main(java.lang.String[])>[0@L3] new House}]
 []:<NestedHeap: void main(java.lang.String[])>/house2 -> [[]:NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]
@@ -27,5 +27,5 @@ Points-to sets of all instance fields
 []:NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}.bedRoom -> [[NewObj{<NestedHeap: void main(java.lang.String[])>[3@L4] new House}]:NewObj{<House: void <init>()>[1@L13] new BedRoom}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NestedHeap: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <NestedHeap: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<NestedHeap: void main(java.lang.String[])>/0},type=java.lang.String[] in <NestedHeap: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<NestedHeap: void main(java.lang.String[])>/0}[*],type=java.lang.String in <NestedHeap: void main(java.lang.String[])>}]
 

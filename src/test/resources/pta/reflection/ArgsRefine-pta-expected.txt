@@ -19,7 +19,7 @@ Points-to sets of all variables
 []:<ArgsRefine: void invokePrint(java.lang.Class[])>/temp$8 -> [[]:ReflectionMetaObj{alloc=<B: void print()>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<B: void print(java.lang.Object)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<B: void print(java.lang.Object,B)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<B: void print(java.lang.Object,java.lang.Object)>,type=java.lang.reflect.Method}, []:ReflectionMetaObj{alloc=<B: void print(java.lang.Object,java.lang.Object,java.lang.Object)>,type=java.lang.reflect.Method}]
 []:<ArgsRefine: void invokePrint(java.lang.Class[])>/temp$9 -> [[]:NewObj{<ArgsRefine: void invokePrint(java.lang.Class[])>[24@L16] newarray java.lang.Object[%intconst3]}]
 []:<ArgsRefine: void main(java.lang.String[])>/%stringconst1 -> [[]:ConstantObj{java.lang.String: "java.lang.Object"}]
-[]:<ArgsRefine: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArgsRefine: void main(java.lang.String[])>}]
+[]:<ArgsRefine: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ArgsRefine: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArgsRefine: void main(java.lang.String[])>}]
 []:<ArgsRefine: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<ArgsRefine: void main(java.lang.String[])>[1@L6] newarray java.lang.Class[%intconst0]}]
 []:<ArgsRefine: void main(java.lang.String[])>/temp$1 -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}]
 []:<ArgsRefine: void main(java.lang.String[])>/temp$2 -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}]
@@ -44,7 +44,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArgsRefine: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ArgsRefine: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ArgsRefine: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArgsRefine: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ArgsRefine: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ArgsRefine: void main(java.lang.String[])>}]
 []:NewObj{<ArgsRefine: void invokePrint(java.lang.Class[])>[10@L13] newarray java.lang.Object[%intconst2]}[*] -> [[]:MergedObj{<Merged string constants>}]
 []:NewObj{<ArgsRefine: void invokePrint(java.lang.Class[])>[17@L14] newarray java.lang.Object[%intconst2]}[*] -> [[]:MergedObj{<Merged string constants>}]
 []:NewObj{<ArgsRefine: void invokePrint(java.lang.Class[])>[24@L16] newarray java.lang.Object[%intconst3]}[*] -> []

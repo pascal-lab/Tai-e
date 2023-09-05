@@ -3,7 +3,7 @@ Points-to sets of all variables
 []:<Primitive: void in(A,int,A)>/a1 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
 []:<Primitive: void in(A,int,A)>/a2 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
 []:<Primitive: void main(java.lang.String[])>/a -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
-[]:<Primitive: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}]
+[]:<Primitive: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Primitive: void main(java.lang.String[])>/0},type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}]
 []:<Primitive: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Primitive: void main(java.lang.String[])>[1@L5] new A}]
 
 Points-to sets of all static fields
@@ -11,5 +11,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Primitive: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Primitive: void main(java.lang.String[])>/0},type=java.lang.String[] in <Primitive: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Primitive: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Primitive: void main(java.lang.String[])>}]
 

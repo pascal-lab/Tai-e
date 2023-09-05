@@ -6,7 +6,7 @@ Points-to sets of all variables
 []:<MultiReturn: A foo(A)>/temp$2 -> [[]:NewObj{<MultiReturn: A foo(A)>[8@L4] new A}]
 []:<MultiReturn: void <init>()>/%this -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[0@L11] new MultiReturn}]
 []:<MultiReturn: void main(java.lang.String[])>/a -> [[]:NewObj{<MultiReturn: A foo(A)>[8@L4] new A}, []:NewObj{<MultiReturn: void main(java.lang.String[])>[3@L12] new A}]
-[]:<MultiReturn: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiReturn: void main(java.lang.String[])>}]
+[]:<MultiReturn: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<MultiReturn: void main(java.lang.String[])>/0},type=java.lang.String[] in <MultiReturn: void main(java.lang.String[])>}]
 []:<MultiReturn: void main(java.lang.String[])>/mr -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[0@L11] new MultiReturn}]
 []:<MultiReturn: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[0@L11] new MultiReturn}]
 []:<MultiReturn: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MultiReturn: void main(java.lang.String[])>[3@L12] new A}]
@@ -17,5 +17,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiReturn: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <MultiReturn: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<MultiReturn: void main(java.lang.String[])>/0},type=java.lang.String[] in <MultiReturn: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<MultiReturn: void main(java.lang.String[])>/0}[*],type=java.lang.String in <MultiReturn: void main(java.lang.String[])>}]
 

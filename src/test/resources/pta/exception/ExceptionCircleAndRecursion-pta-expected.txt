@@ -1,7 +1,7 @@
 Points-to sets of all variables
 []:<ExceptionCircleAndRecursion: void m(int)>/temp$1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionCircleAndRecursion: void m1(int)>/temp$1 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
+[]:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionCircleAndRecursion: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
 []:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionCircleAndRecursion: void main(java.lang.String[])>/e2 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
 
@@ -10,5 +10,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ExceptionCircleAndRecursion: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionCircleAndRecursion: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ExceptionCircleAndRecursion: void main(java.lang.String[])>}]
 

@@ -3,7 +3,7 @@ Points-to sets of all variables
 []:<Strings: java.lang.String id(java.lang.String)>/s -> [[]:ConstantObj{java.lang.String: "aaa"}]
 []:<Strings: void main(java.lang.String[])>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "aaa"}]
 []:<Strings: void main(java.lang.String[])>/a -> [[]:NewObj{<Strings: void main(java.lang.String[])>[3@L6] new A}]
-[]:<Strings: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Strings: void main(java.lang.String[])>}]
+[]:<Strings: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Strings: void main(java.lang.String[])>/0},type=java.lang.String[] in <Strings: void main(java.lang.String[])>}]
 []:<Strings: void main(java.lang.String[])>/arr -> [[]:NewObj{<Strings: void main(java.lang.String[])>[13@L13] newarray java.lang.String[%intconst1]}]
 []:<Strings: void main(java.lang.String[])>/s1 -> [[]:ConstantObj{java.lang.String: "aaa"}]
 []:<Strings: void main(java.lang.String[])>/s2 -> [[]:ConstantObj{java.lang.String: "bbb"}]
@@ -22,6 +22,6 @@ Points-to sets of all instance fields
 []:NewObj{<Strings: void main(java.lang.String[])>[3@L6] new A}.f -> [[]:ConstantObj{java.lang.String: "bbb"}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Strings: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Strings: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Strings: void main(java.lang.String[])>/0},type=java.lang.String[] in <Strings: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Strings: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Strings: void main(java.lang.String[])>}]
 []:NewObj{<Strings: void main(java.lang.String[])>[13@L13] newarray java.lang.String[%intconst1]}[*] -> [[]:ConstantObj{java.lang.String: "ddd"}]
 

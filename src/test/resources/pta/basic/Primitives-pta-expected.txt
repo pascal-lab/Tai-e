@@ -5,7 +5,7 @@ Points-to sets of all variables
 []:<Primitives: void main(java.lang.String[])>/%doubleconst0 -> [[]:NumberObj{alloc=3.14159,type=double}]
 []:<Primitives: void main(java.lang.String[])>/a1 -> [[]:NewObj{<Primitives: void main(java.lang.String[])>[3@L8] new A}]
 []:<Primitives: void main(java.lang.String[])>/a2 -> [[]:NewObj{<Primitives: void main(java.lang.String[])>[7@L10] new A}]
-[]:<Primitives: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Primitives: void main(java.lang.String[])>}]
+[]:<Primitives: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Primitives: void main(java.lang.String[])>/0},type=java.lang.String[] in <Primitives: void main(java.lang.String[])>}]
 []:<Primitives: void main(java.lang.String[])>/i100 -> [[]:NumberObj{alloc=100,type=int}]
 []:<Primitives: void main(java.lang.String[])>/i101 -> [[]:NumberObj{alloc=101,type=int}]
 []:<Primitives: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Primitives: void main(java.lang.String[])>[3@L8] new A}]
@@ -24,5 +24,5 @@ Points-to sets of all instance fields
 []:NewObj{<Primitives: void main(java.lang.String[])>[7@L10] new A}.i2 -> [[]:NumberObj{alloc=666,type=int}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Primitives: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Primitives: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Primitives: void main(java.lang.String[])>/0},type=java.lang.String[] in <Primitives: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Primitives: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Primitives: void main(java.lang.String[])>}]
 

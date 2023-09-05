@@ -11,7 +11,7 @@ Points-to sets of all variables
 [NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]:<CSTaint$A: void set(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<CSTaint: void main(java.lang.String[])>/a1 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
 []:<CSTaint: void main(java.lang.String[])>/a2 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}]
-[]:<CSTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}]
+[]:<CSTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CSTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}]
 []:<CSTaint: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<CSTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<CSTaint: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<CSTaint: void main(java.lang.String[])>[0@L4] new CSTaint$A}]
@@ -30,7 +30,7 @@ Points-to sets of all instance fields
 []:NewObj{<CSTaint: void main(java.lang.String[])>[9@L9] new CSTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CSTaint: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CSTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <CSTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CSTaint: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CSTaint: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
 TaintFlow{<CSTaint: void main(java.lang.String[])>[12@L10] temp$4 = invokestatic SourceSink.source()/result -> <CSTaint: void main(java.lang.String[])>[16@L12] invokestatic SourceSink.sink(temp$5)/0}

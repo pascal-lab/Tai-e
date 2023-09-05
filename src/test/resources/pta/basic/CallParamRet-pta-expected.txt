@@ -15,7 +15,7 @@ Points-to sets of all variables
 []:<A: void param()>/temp$1 -> [[]:NewObj{<A: void param()>[3@L15] new B}]
 []:<B: void <init>()>/%this -> [[]:NewObj{<A: void param()>[0@L14] new B}, []:NewObj{<A: void param()>[3@L15] new B}, []:NewObj{<CallParamRet: void main(java.lang.String[])>[4@L6] new B}]
 []:<CallParamRet: void main(java.lang.String[])>/a -> [[]:NewObj{<CallParamRet: void main(java.lang.String[])>[0@L4] new A}]
-[]:<CallParamRet: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallParamRet: void main(java.lang.String[])>}]
+[]:<CallParamRet: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CallParamRet: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallParamRet: void main(java.lang.String[])>}]
 []:<CallParamRet: void main(java.lang.String[])>/b -> [[]:NewObj{<CallParamRet: void main(java.lang.String[])>[4@L6] new B}]
 []:<CallParamRet: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<CallParamRet: void main(java.lang.String[])>[0@L4] new A}]
 []:<CallParamRet: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<CallParamRet: void main(java.lang.String[])>[4@L6] new B}]
@@ -26,5 +26,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallParamRet: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CallParamRet: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CallParamRet: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallParamRet: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CallParamRet: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CallParamRet: void main(java.lang.String[])>}]
 

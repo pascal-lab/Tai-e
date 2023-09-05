@@ -8,7 +8,7 @@ Points-to sets of all variables
 [NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]:<FactCalculator: int result()>/%this -> [[]:NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]
 [NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]:<FactCalculator: int result()>/temp$2 -> [[NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]:NewObj{<FactCalculator: int result()>[8@L20] new FactCalculator}]
 [NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]:<FactCalculator: void <init>(int)>/%this -> [[]:NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]
-[]:<LongObjContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LongObjContext: void main(java.lang.String[])>}]
+[]:<LongObjContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<LongObjContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <LongObjContext: void main(java.lang.String[])>}]
 []:<LongObjContext: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<LongObjContext: void main(java.lang.String[])>[0@L4] new FactCalculator}]
 
 Points-to sets of all static fields
@@ -16,5 +16,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LongObjContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LongObjContext: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<LongObjContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <LongObjContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LongObjContext: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LongObjContext: void main(java.lang.String[])>}]
 

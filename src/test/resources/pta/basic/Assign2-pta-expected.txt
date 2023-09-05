@@ -7,7 +7,7 @@ Points-to sets of all variables
 []:<A: void cycle()>/temp$0 -> [[]:NewObj{<A: void cycle()>[0@L10] new A}]
 []:<A: void cycle()>/temp$1 -> [[]:NewObj{<A: void cycle()>[3@L11] new A}]
 []:<A: void cycle()>/temp$2 -> [[]:NewObj{<A: void cycle()>[6@L12] new A}]
-[]:<Assign2: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Assign2: void main(java.lang.String[])>}]
+[]:<Assign2: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Assign2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Assign2: void main(java.lang.String[])>}]
 []:<Assign2: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Assign2: void main(java.lang.String[])>[0@L3] new A}]
 
 Points-to sets of all static fields
@@ -15,5 +15,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Assign2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Assign2: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Assign2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Assign2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Assign2: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Assign2: void main(java.lang.String[])>}]
 

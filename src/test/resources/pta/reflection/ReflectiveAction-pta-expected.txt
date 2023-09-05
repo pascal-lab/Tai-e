@@ -53,7 +53,7 @@ Points-to sets of all variables
 []:<ReflectiveAction: void invoke()>/%stringconst3 -> [[]:ConstantObj{java.lang.String: "staticFoo"}]
 []:<ReflectiveAction: void invoke()>/%stringconst7 -> [[]:ConstantObj{java.lang.String: "baz"}]
 []:<ReflectiveAction: void invoke()>/%stringconst8 -> [[]:ConstantObj{java.lang.String: "arg"}]
-[]:<ReflectiveAction: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ReflectiveAction: void main(java.lang.String[])>}]
+[]:<ReflectiveAction: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=MethodParam{<ReflectiveAction: void main(java.lang.String[])>/0},type=java.lang.String[] in <ReflectiveAction: void main(java.lang.String[])>}]
 []:<ReflectiveAction: void set()>/$r0 -> [[]:ConstantObj{java.lang.Class: U.class}]
 []:<ReflectiveAction: void set()>/$r1 -> [[]:ReflectionLogMetaObj{alloc=<U: java.lang.Object stat>,type=java.lang.reflect.Field}]
 []:<ReflectiveAction: void set()>/$r2 -> [[]:NewObj{<ReflectiveAction: void set()>[3@L90] new java.lang.Object}]
@@ -96,7 +96,7 @@ Points-to sets of all instance fields
 []:ReflectiveObj{alloc=<ReflectiveAction: void forname(W)>[2@L31] $r1 = invokevirtual $r0.newInstance(),type=U in <ReflectiveAction: void forname(W)>}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ReflectiveAction: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ReflectiveAction: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ReflectiveAction: void main(java.lang.String[])>/0},type=java.lang.String[] in <ReflectiveAction: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ReflectiveAction: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ReflectiveAction: void main(java.lang.String[])>}]
 []:NewObj{<ReflectiveAction: void ctornew()>[2@L53] newarray java.lang.Class[%intconst0]}[*] -> [[]:ConstantObj{java.lang.Class: V.class}]
 []:NewObj{<ReflectiveAction: void ctornew()>[7@L54] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<ReflectiveAction: void ctornew()>[8@L54] new V}]
 []:NewObj{<ReflectiveAction: void invoke()>[13@L70] newarray java.lang.Class[%intconst4]}[*] -> [[]:ConstantObj{java.lang.Class: V.class}, []:ConstantObj{java.lang.Class: java.lang.String.class}]

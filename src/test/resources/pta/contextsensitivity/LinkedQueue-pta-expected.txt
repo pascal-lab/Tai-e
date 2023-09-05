@@ -61,7 +61,7 @@ Points-to sets of all variables
 [NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L93] new LinkedQueue}]:<LinkedQueue: void enqueue(Fact)>/temp$6 -> [[NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L93] new LinkedQueue}]:NewObj{<LinkedQueue: void enqueue(Fact)>[1@L36] new Node}]
 [NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L95] new Fact}]:<Fact: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L95] new Fact}]
 [NewObj{<LinkedQueue: void main(java.lang.String[])>[9@L96] new Fact}]:<Fact: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[9@L96] new Fact}]
-[]:<LinkedQueue: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}]
+[]:<LinkedQueue: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0},type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}]
 []:<LinkedQueue: void main(java.lang.String[])>/q1 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L92] new LinkedQueue}]
 []:<LinkedQueue: void main(java.lang.String[])>/q2 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L93] new LinkedQueue}]
 []:<LinkedQueue: void main(java.lang.String[])>/result -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L95] new Fact}]
@@ -84,5 +84,5 @@ Points-to sets of all instance fields
 []:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L93] new LinkedQueue}.last -> [[NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L93] new LinkedQueue}]:NewObj{<LinkedQueue: void enqueue(Fact)>[1@L36] new Node}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LinkedQueue: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0},type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LinkedQueue: void main(java.lang.String[])>}]
 

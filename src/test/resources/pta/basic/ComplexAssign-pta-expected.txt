@@ -1,6 +1,6 @@
 Points-to sets of all variables
 []:<B: void <init>()>/%this -> [[]:NewObj{<ComplexAssign: void main(java.lang.String[])>[0@L4] new B}, []:NewObj{<ComplexAssign: void main(java.lang.String[])>[3@L5] new B}, []:NewObj{<ComplexAssign: void main(java.lang.String[])>[6@L6] new B}]
-[]:<ComplexAssign: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ComplexAssign: void main(java.lang.String[])>}]
+[]:<ComplexAssign: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ComplexAssign: void main(java.lang.String[])>/0},type=java.lang.String[] in <ComplexAssign: void main(java.lang.String[])>}]
 []:<ComplexAssign: void main(java.lang.String[])>/b1 -> [[]:NewObj{<ComplexAssign: void main(java.lang.String[])>[0@L4] new B}]
 []:<ComplexAssign: void main(java.lang.String[])>/b2 -> [[]:NewObj{<ComplexAssign: void main(java.lang.String[])>[3@L5] new B}]
 []:<ComplexAssign: void main(java.lang.String[])>/b3 -> [[]:NewObj{<ComplexAssign: void main(java.lang.String[])>[6@L6] new B}]
@@ -15,5 +15,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ComplexAssign: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ComplexAssign: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ComplexAssign: void main(java.lang.String[])>/0},type=java.lang.String[] in <ComplexAssign: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ComplexAssign: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ComplexAssign: void main(java.lang.String[])>}]
 

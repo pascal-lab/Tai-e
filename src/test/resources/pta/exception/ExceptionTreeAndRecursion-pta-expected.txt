@@ -2,7 +2,7 @@ Points-to sets of all variables
 []:<ExceptionTreeAndRecursion: void m()>/temp$0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionTreeAndRecursion: void m1()>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionTreeAndRecursion: void m1()>/temp$0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
+[]:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionTreeAndRecursion: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
 []:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/e2 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
 
@@ -11,5 +11,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ExceptionTreeAndRecursion: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionTreeAndRecursion: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
 
