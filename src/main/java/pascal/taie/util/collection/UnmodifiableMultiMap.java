@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -34,11 +35,8 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
 
     private final MultiMap<K, V> m;
 
-    UnmodifiableMultiMap(MultiMap<K, V> m) {
-        if (m == null) {
-            throw new NullPointerException();
-        }
-        this.m = m;
+    UnmodifiableMultiMap(@Nonnull MultiMap<K, V> m) {
+        this.m = Objects.requireNonNull(m);
     }
 
     @Override
@@ -148,5 +146,20 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
     @Override
     public int size() {
         return m.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o == this || m.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return m.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return m.toString();
     }
 }

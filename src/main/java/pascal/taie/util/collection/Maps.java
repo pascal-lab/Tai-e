@@ -132,12 +132,12 @@ public final class Maps {
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap() {
-        return newTwoKeyMap(Maps::newMap, Maps::newHybridMap);
+        return newTwoKeyMap(newMap(), Maps::newHybridMap);
     }
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap(
-            SSupplier<Map<K1, Map<K2, V>>> map1Factory,
+            Map<K1, Map<K2, V>> map1,
             SSupplier<Map<K2, V>> map2Factory) {
-        return new MapMapTwoKeyMap<>(map1Factory.get(), map2Factory);
+        return new MapMapTwoKeyMap<>(map1, map2Factory);
     }
 }

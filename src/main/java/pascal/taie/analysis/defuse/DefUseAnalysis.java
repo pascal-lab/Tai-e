@@ -67,7 +67,7 @@ public class DefUseAnalysis extends MethodAnalysis<DefUse> {
     public DefUse analyze(IR ir) {
         DataflowResult<Stmt, SetFact<Stmt>> rdResult = ir.getResult(ReachingDefinition.ID);
         TwoKeyMap<Stmt, Var, Set<Stmt>> defs = computeDefs ? Maps.newTwoKeyMap(
-                () -> new IndexMap<>(ir, ir.getStmts().size()),
+                new IndexMap<>(ir, ir.getStmts().size()),
                 Maps::newHybridMap) : null;
         Map<Stmt, Set<Stmt>> uses = computeUses ?
                 new IndexMap<>(ir, ir.getStmts().size()) : null;

@@ -76,7 +76,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     public Set<V> get(@Nonnull K key) {
         Objects.requireNonNull(key, NULL_KEY);
         Set<V> values = map.get(key);
-        return values == null ? Collections.emptySet() :
+        return values == null ? Set.of() :
                 Collections.unmodifiableSet(values);
     }
 
@@ -181,9 +181,9 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
 
         private final Iterator<Map.Entry<K, Set<V>>> mapIt;
 
-        private K currKey;
-
         private Iterator<V> valueIt;
+
+        private K currKey;
 
         private EntryIterator() {
             mapIt = map.entrySet().iterator();
