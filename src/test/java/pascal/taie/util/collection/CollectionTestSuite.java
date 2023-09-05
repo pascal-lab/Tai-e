@@ -39,6 +39,7 @@ import org.junit.platform.suite.api.Suite;
         SparseBitSetTest.class,
         StreamsTest.class,
         TwoKeyMapTest.class,
+        TwoKeyMultiMapTest.class,
         ViewsTest.class,
 })
 public class CollectionTestSuite {

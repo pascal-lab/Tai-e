@@ -140,4 +140,31 @@ public final class Maps {
             SSupplier<Map<K2, V>> map2Factory) {
         return new MapMapTwoKeyMap<>(map1, map2Factory);
     }
+
+    public static <K1, K2, V> TwoKeyMultiMap<K1, K2, V> newTwoKeyMultiMap() {
+        return new MapMultiMapTwoKeyMultiMap<>(newMap(), Maps::newMultiMap);
+    }
+
+    public static <K1, K2, V> TwoKeyMultiMap<K1, K2, V> newTwoKeyMultiMap(
+            Map<K1, MultiMap<K2, V>> map,
+            SSupplier<MultiMap<K2, V>> multimapFactory) {
+        return new MapMultiMapTwoKeyMultiMap<>(map, multimapFactory);
+    }
+
+    public static <K1, K2, V> TwoKeyMultiMap<K1, K2, V> unmodifiableTwoKeyMultiMap(
+            TwoKeyMultiMap<K1, K2, V> map) {
+        if (map instanceof UnmodifiableTwoKeyMultiMap<K1, K2, V>) {
+            return map;
+        }
+        return new UnmodifiableTwoKeyMultiMap<>(map);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static final TwoKeyMultiMap EMPTY_TWO_KEY_MULTIMAP =
+            unmodifiableTwoKeyMultiMap(newTwoKeyMultiMap());
+
+    @SuppressWarnings("unchecked")
+    public static <K1, K2, V> TwoKeyMultiMap<K1, K2, V> emptyTwoKeyMultiMap() {
+        return (TwoKeyMultiMap<K1, K2, V>) EMPTY_TWO_KEY_MULTIMAP;
+    }
 }
