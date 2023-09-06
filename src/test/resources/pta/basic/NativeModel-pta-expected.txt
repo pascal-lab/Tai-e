@@ -38,7 +38,7 @@ Points-to sets of all variables
 []:<NativeModel: void doPrivileged()>/temp$0 -> [[]:NewObj{<NativeModel: void doPrivileged()>[0@L28] new NativeModel$1Anonymous0}]
 []:<NativeModel: void doPrivileged()>/temp$1 -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>[0@L29] new A}]
 []:<NativeModel: void doPrivileged()>/temp$2 -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>[0@L29] new A}]
-[]:<NativeModel: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}]
+[]:<NativeModel: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<NativeModel: void main(java.lang.String[])>/0},type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 <java.lang.System: java.io.PrintStream out> -> []
@@ -48,7 +48,7 @@ Points-to sets of all instance fields
 []:NewObj{<NativeModel: void compareAndSwapObject()>[15@L44] new A}.str -> [[]:ConstantObj{java.lang.String: "x"}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<NativeModel: void main(java.lang.String[])>/0},type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<NativeModel: void main(java.lang.String[])>/0}[*],type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]
 []:NewObj{<NativeModel: void arraycopy()>[11@L20] newarray java.lang.Object[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
 []:NewObj{<NativeModel: void arraycopy()>[16@L22] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged java.lang.String>}]
 []:NewObj{<NativeModel: void arraycopy()>[1@L14] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<NativeModel: void arraycopy()>[2@L15] new java.lang.Object}]

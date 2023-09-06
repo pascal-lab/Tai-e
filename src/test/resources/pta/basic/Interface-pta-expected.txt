@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<Interface: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Interface: void main(java.lang.String[])>}]
+[]:<Interface: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Interface: void main(java.lang.String[])>/0},type=java.lang.String[] in <Interface: void main(java.lang.String[])>}]
 []:<Interface: void main(java.lang.String[])>/n -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
 []:<Interface: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
 []:<One: int get()>/%this -> [[]:NewObj{<Interface: void main(java.lang.String[])>[0@L8] new One}]
@@ -10,5 +10,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Interface: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Interface: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Interface: void main(java.lang.String[])>/0},type=java.lang.String[] in <Interface: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Interface: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Interface: void main(java.lang.String[])>}]
 

@@ -29,7 +29,7 @@ Points-to sets of all variables
 []:<TaintTransferEdge: void fieldToVar()>/temp$0 -> [[]:NewObj{<TaintTransferEdge: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<TaintTransferEdge: void fieldToVar()>[0@L40] temp$0 = invokestatic TaintTransferEdge.getSource()/result,type=C}]
 []:<TaintTransferEdge: void fieldToVar()>/temp$1 -> [[]:NewObj{<TaintTransferEdge: void fieldToVar()>[2@L41] new Expression}, []:TaintObj{alloc=<TaintTransferEdge: void fieldToVar()>[0@L40] temp$0 = invokestatic TaintTransferEdge.getSource()/result,type=Expression}]
 []:<TaintTransferEdge: void fieldToVar()>/temp$2 -> [[]:NewObj{<TaintTransferEdge: void fieldToVar()>[3@L41] new ABox}]
-[]:<TaintTransferEdge: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}]
+[]:<TaintTransferEdge: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TaintTransferEdge: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}]
 []:<TaintTransferEdge: void simpleTaint()>/b -> [[]:NewObj{<TaintTransferEdge: void simpleTaint()>[0@L16] new B}]
 []:<TaintTransferEdge: void simpleTaint()>/c -> [[]:NewObj{<TaintTransferEdge: void simpleTaint()>[6@L20] new C}]
 []:<TaintTransferEdge: void simpleTaint()>/merge -> [[]:NewObj{<TaintTransferEdge: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<TaintTransferEdge: void simpleTaint()>[3@L17] temp$1 = invokestatic TaintTransferEdge.getSource()/result,type=C}]
@@ -65,7 +65,7 @@ Points-to sets of all instance fields
 []:NewObj{<TaintTransferEdge: void varToField()>[2@L59] new Expression}.a -> [[]:TaintObj{alloc=<TaintTransferEdge: void varToField()>[0@L58] temp$0 = invokestatic TaintTransferEdge.getSource()/result,type=A}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TaintTransferEdge: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TaintTransferEdge: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintTransferEdge: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintTransferEdge: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintTransferEdge: void main(java.lang.String[])>}]
 []:NewObj{<TaintTransferEdge: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<TaintTransferEdge: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<TaintTransferEdge: void arrayToVar()>[0@L34] temp$0 = invokestatic TaintTransferEdge.getSource()/result,type=C}]
 []:NewObj{<TaintTransferEdge: void varToArray()>[3@L47] newarray A[%intconst0]}[*] -> [[]:TaintObj{alloc=<TaintTransferEdge: void varToArray()>[0@L46] temp$0 = invokestatic TaintTransferEdge.getSource()/result,type=A}]
 

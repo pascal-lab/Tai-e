@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<ArgToResult: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArgToResult: void main(java.lang.String[])>}]
+[]:<ArgToResult: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ArgToResult: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArgToResult: void main(java.lang.String[])>}]
 []:<ArgToResult: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<ArgToResult: void main(java.lang.String[])>/s2 -> [[]:TaintObj{alloc=<ArgToResult: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<ArgToResult: void main(java.lang.String[])>/taint -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ArgToResult: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
@@ -14,7 +14,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ArgToResult: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ArgToResult: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ArgToResult: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArgToResult: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ArgToResult: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ArgToResult: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
 TaintFlow{<ArgToResult: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result -> <ArgToResult: void main(java.lang.String[])>[7@L7] invokestatic SourceSink.sink(s2)/0}

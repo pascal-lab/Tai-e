@@ -14,7 +14,7 @@ Points-to sets of all variables
 [<StaticThrower: void throwE()>[0@L22] invokestatic ExceptionFromClinit.throwE()]:<ExceptionFromClinit: void throwE()>/temp$1 -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}]
 [<StaticThrower: void throwE()>[0@L22] invokestatic ExceptionFromClinit.throwE()]:<ExceptionFromClinit: void throwE()>/temp$2 -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}]
 [<StaticThrower: void throwE()>[0@L22] invokestatic ExceptionFromClinit.throwE()]:<ExceptionFromClinit: void throwE()>/temp$4 -> [[]:MergedObj{<Merged java.lang.RuntimeException>}]
-[]:<ExceptionFromClinit: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionFromClinit: void main(java.lang.String[])>}]
+[]:<ExceptionFromClinit: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionFromClinit: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionFromClinit: void main(java.lang.String[])>}]
 []:<ExceptionFromClinit: void main(java.lang.String[])>/it -> [[]:NewObj{<ExceptionFromClinit: void main(java.lang.String[])>[0@L3] new InstanceThrower}]
 []:<ExceptionFromClinit: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<ExceptionFromClinit: void main(java.lang.String[])>[0@L3] new InstanceThrower}]
 
@@ -24,5 +24,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionFromClinit: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ExceptionFromClinit: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ExceptionFromClinit: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionFromClinit: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionFromClinit: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ExceptionFromClinit: void main(java.lang.String[])>}]
 

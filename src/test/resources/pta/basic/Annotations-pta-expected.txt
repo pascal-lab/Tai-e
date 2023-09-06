@@ -19,7 +19,7 @@ Points-to sets of all variables
 []:<Annotations: void main(java.lang.String[])>/a -> [[]:AnnotationObj{alloc=@ClassAnno(A.class),type=ClassAnno}, []:AnnotationObj{alloc=@ClassAnno(B.class),type=ClassAnno}, []:AnnotationObj{alloc=@StringAnno("xxx"),type=StringAnno}]
 []:<Annotations: void main(java.lang.String[])>/annoType -> [[]:ConstantObj{java.lang.Class: ClassAnno.class}, []:ConstantObj{java.lang.Class: StringAnno.class}]
 []:<Annotations: void main(java.lang.String[])>/annotations -> [[]:ParamAnnotations{alloc=<Annotations: void main(java.lang.String[])>[39@L11] temp$11 = invokevirtual foo.getParameterAnnotations(),type=java.lang.annotation.Annotation[][] in <Annotations: void main(java.lang.String[])>}]
-[]:<Annotations: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Annotations: void main(java.lang.String[])>}]
+[]:<Annotations: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Annotations: void main(java.lang.String[])>/0},type=java.lang.String[] in <Annotations: void main(java.lang.String[])>}]
 []:<Annotations: void main(java.lang.String[])>/classAnno -> [[]:AnnotationObj{alloc=@ClassAnno(Annotations.class),type=ClassAnno}]
 []:<Annotations: void main(java.lang.String[])>/foo -> [[]:ReflectionMetaObj{alloc=<A: void foo(java.lang.String,java.lang.Object)>,type=java.lang.reflect.Method}]
 []:<Annotations: void main(java.lang.String[])>/temp$0 -> [[]:ConstantObj{java.lang.Class: A.class}]
@@ -55,7 +55,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Annotations: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Annotations: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Annotations: void main(java.lang.String[])>/0},type=java.lang.String[] in <Annotations: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Annotations: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Annotations: void main(java.lang.String[])>}]
 []:NewObj{<Annotations: void main(java.lang.String[])>[11@L10] newarray java.lang.Class[%intconst1]}[*] -> [[]:ConstantObj{java.lang.Class: java.lang.Object.class}, []:ConstantObj{java.lang.Class: java.lang.String.class}]
 []:ParamAnnotations{alloc=<Annotations: void main(java.lang.String[])>[39@L11] temp$11 = invokevirtual foo.getParameterAnnotations(),type=java.lang.annotation.Annotation[] in <Annotations: void main(java.lang.String[])>}[*] -> [[]:AnnotationObj{alloc=@ClassAnno(A.class),type=ClassAnno}, []:AnnotationObj{alloc=@ClassAnno(B.class),type=ClassAnno}, []:AnnotationObj{alloc=@StringAnno("xxx"),type=StringAnno}]
 []:ParamAnnotations{alloc=<Annotations: void main(java.lang.String[])>[39@L11] temp$11 = invokevirtual foo.getParameterAnnotations(),type=java.lang.annotation.Annotation[][] in <Annotations: void main(java.lang.String[])>}[*] -> [[]:ParamAnnotations{alloc=<Annotations: void main(java.lang.String[])>[39@L11] temp$11 = invokevirtual foo.getParameterAnnotations(),type=java.lang.annotation.Annotation[] in <Annotations: void main(java.lang.String[])>}]

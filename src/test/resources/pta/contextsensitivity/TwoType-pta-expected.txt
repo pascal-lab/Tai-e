@@ -44,7 +44,7 @@ Points-to sets of all variables
 [TwoType]:<B: void b()>/temp$1 -> [[TwoType]:NewObj{<B: void b()>[3@L29] new java.lang.Object}]
 [TwoType]:<B: void b()>/temp$2 -> [[B]:NewObj{<List: Iterator iterator()>[0@L44] new List$ListIterator}]
 [TwoType]:<B: void b()>/temp$3 -> [[TwoType]:NewObj{<B: void b()>[3@L29] new java.lang.Object}]
-[]:<TwoType: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoType: void main(java.lang.String[])>}]
+[]:<TwoType: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TwoType: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoType: void main(java.lang.String[])>}]
 []:<TwoType: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TwoType: void main(java.lang.String[])>[0@L7] new A}]
 []:<TwoType: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<TwoType: void main(java.lang.String[])>[3@L8] new B}]
 
@@ -58,5 +58,5 @@ Points-to sets of all instance fields
 [TwoType]:NewObj{<B: void b()>[0@L28] new List}.element -> [[TwoType]:NewObj{<B: void b()>[3@L29] new java.lang.Object}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoType: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoType: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TwoType: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoType: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoType: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoType: void main(java.lang.String[])>}]
 

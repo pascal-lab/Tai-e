@@ -144,7 +144,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * a two-key pair if and only if this map maps that key pair to
      * a non-{@code null} value.
      */
-    Set<KeyPair<K1, K2>> keyPairSet();
+    Set<Pair<K1, K2>> twoKeySet();
 
     /**
      * @return an unmodifiable view of first keys of all mappings contained
@@ -246,17 +246,5 @@ public interface TwoKeyMap<K1, K2, V> {
      * the entry was returned by the iterator.
      */
     record Entry<K1, K2, V>(K1 key1, K2 key2, V value) implements Serializable {
-    }
-
-    /**
-     * A key pair (key1-key2 pair). The {@link #keyPairSet()} method returns
-     * a collection-view of the map, whose elements are of this class.
-     * The only way to obtain a reference to a map entry is from the iterator
-     * of this collection-view. These {@link KeyPair} objects are valid only
-     * for the duration of the iteration; more formally, the behavior of a
-     * key pair is undefined if the backing map has been modified after
-     * the pair was returned by the iterator.
-     */
-    record KeyPair<K1, K2>(K1 key1, K2 key2) implements Serializable {
     }
 }

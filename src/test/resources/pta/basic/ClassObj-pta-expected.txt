@@ -2,7 +2,7 @@ Points-to sets of all variables
 []:<ClassObj: void main(java.lang.String[])>/%classconst0 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
 []:<ClassObj: void main(java.lang.String[])>/r0 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
 []:<ClassObj: void main(java.lang.String[])>/r1 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
-[]:<ClassObj: void main(java.lang.String[])>/r2 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}]
+[]:<ClassObj: void main(java.lang.String[])>/r2 -> [[]:EntryPointObj{alloc=MethodParam{<ClassObj: void main(java.lang.String[])>/0},type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 <ClassObj: java.lang.Class klass> -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
@@ -10,5 +10,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ClassObj: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ClassObj: void main(java.lang.String[])>/0},type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ClassObj: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ClassObj: void main(java.lang.String[])>}]
 

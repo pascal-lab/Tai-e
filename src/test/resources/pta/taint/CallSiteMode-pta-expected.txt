@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<CallSiteMode: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallSiteMode: void main(java.lang.String[])>}]
+[]:<CallSiteMode: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CallSiteMode: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallSiteMode: void main(java.lang.String[])>}]
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst0 -> [[]:MergedObj{<Merged string constants>}]
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst1 -> [[]:MergedObj{<Merged string constants>}]
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/input -> [[]:TaintObj{alloc=<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>[0@L8] temp$0 = invokeinterface source.getSource()/result,type=java.lang.String}]
@@ -17,7 +17,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallSiteMode: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CallSiteMode: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CallSiteMode: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallSiteMode: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CallSiteMode: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CallSiteMode: void main(java.lang.String[])>}]
 
 Detected 1 taint flow(s):
 TaintFlow{<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>[0@L8] temp$0 = invokeinterface source.getSource()/result -> <CallSiteMode: void testConnection(Source,StringBuilder,Connection)>[11@L14] temp$6 = invokeinterface stmt.executeQuery(sql)/0}

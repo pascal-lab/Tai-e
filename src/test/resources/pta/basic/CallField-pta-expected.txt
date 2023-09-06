@@ -22,7 +22,7 @@ Points-to sets of all variables
 []:<B: void setC(B)>/temp$0 -> [[]:NewObj{<B: void setC(B)>[0@L40] new C}]
 []:<C: void <init>()>/%this -> [[]:NewObj{<A: void setget()>[3@L15] new C}, []:NewObj{<B: void setC(B)>[0@L40] new C}]
 []:<CallField: void main(java.lang.String[])>/a -> [[]:NewObj{<CallField: void main(java.lang.String[])>[0@L4] new A}]
-[]:<CallField: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallField: void main(java.lang.String[])>}]
+[]:<CallField: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CallField: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallField: void main(java.lang.String[])>}]
 []:<CallField: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<CallField: void main(java.lang.String[])>[0@L4] new A}]
 
 Points-to sets of all static fields
@@ -32,5 +32,5 @@ Points-to sets of all instance fields
 []:NewObj{<A: void setget()>[0@L14] new B}.c -> [[]:NewObj{<A: void setget()>[3@L15] new C}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallField: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CallField: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CallField: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallField: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CallField: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CallField: void main(java.lang.String[])>}]
 

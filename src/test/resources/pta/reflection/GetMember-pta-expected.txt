@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<GetMember: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}]
+[]:<GetMember: void main(java.lang.String[])>/r0 -> [[]:EntryPointObj{alloc=MethodParam{<GetMember: void main(java.lang.String[])>/0},type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}]
 []:<GetMember: void testConstructor()>/$r1 -> [[]:NewObj{<GetMember: void testConstructor()>[4@L14] newarray java.lang.Class[%intconst0]}]
 []:<GetMember: void testConstructor()>/$r2 -> [[]:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}]
 []:<GetMember: void testConstructor()>/$r3 -> [[]:NewObj{<GetMember: void testConstructor()>[9@L15] newarray java.lang.Class[%intconst1]}]
@@ -47,7 +47,7 @@ Points-to sets of all instance fields
 []:NewObj{<GetMember: void testGetClass()>[0@L27] new U}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <GetMember: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<GetMember: void main(java.lang.String[])>/0},type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<GetMember: void main(java.lang.String[])>/0}[*],type=java.lang.String in <GetMember: void main(java.lang.String[])>}]
 []:NewObj{<GetMember: void testConstructor()>[12@L16] newarray java.lang.Object[%intconst3]}[*] -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>,type=java.lang.reflect.Constructor}]
 []:NewObj{<GetMember: void testConstructor()>[4@L14] newarray java.lang.Class[%intconst0]}[*] -> [[]:ConstantObj{java.lang.Class: V.class}]
 []:NewObj{<GetMember: void testGetClass()>[10@L30] newarray java.lang.Class[%intconst0]}[*] -> [[]:ConstantObj{java.lang.Class: U.class}]

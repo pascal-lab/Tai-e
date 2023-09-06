@@ -23,8 +23,12 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMultiMap;
 
 import java.util.Collections;
 import java.util.Set;
@@ -40,9 +44,17 @@ public class SpecifiedParamProvider implements ParamProvider {
 
     private final Set<Obj>[] paramObjs;
 
-    private SpecifiedParamProvider(Set<Obj> thisObjs, Set<Obj>[] paramObjs) {
+    private final TwoKeyMultiMap<Obj, JField, Obj> fieldContents;
+
+    private final MultiMap<Obj, Obj> arrayContents;
+
+    private SpecifiedParamProvider(Set<Obj> thisObjs, Set<Obj>[] paramObjs,
+                                   TwoKeyMultiMap<Obj, JField, Obj> fieldContents,
+                                   MultiMap<Obj, Obj> arrayContents) {
         this.thisObjs = thisObjs;
         this.paramObjs = paramObjs;
+        this.fieldContents = fieldContents;
+        this.arrayContents = arrayContents;
     }
 
     @Override
@@ -55,7 +67,17 @@ public class SpecifiedParamProvider implements ParamProvider {
         return paramObjs[i];
     }
 
-    // TODO: validate input this/param objects?
+    @Override
+    public TwoKeyMultiMap<Obj, JField, Obj> getFieldObjs() {
+        return fieldContents;
+    }
+
+    @Override
+    public MultiMap<Obj, Obj> getArrayObjs() {
+        return arrayContents;
+    }
+
+    // TODO: validate types of input this/param objects?
     public static class Builder {
 
         private ParamProvider delegate;
@@ -66,11 +88,17 @@ public class SpecifiedParamProvider implements ParamProvider {
 
         private final Set<Obj>[] paramObjs;
 
+        private final TwoKeyMultiMap<Obj, JField, Obj> fieldObjs;
+
+        private final MultiMap<Obj, Obj> arrayObjs;
+
         @SuppressWarnings("unchecked")
         public Builder(JMethod method) {
             this.delegate = EmptyParamProvider.get();
             this.method = method;
             this.paramObjs = (Set<Obj>[]) new Set[method.getParamCount()];
+            this.fieldObjs = Maps.newTwoKeyMultiMap();
+            this.arrayObjs = Maps.newMultiMap();
         }
 
         public Builder setDelegate(ParamProvider delegate) {
@@ -94,6 +122,16 @@ public class SpecifiedParamProvider implements ParamProvider {
             return this;
         }
 
+        public Builder addFieldObj(Obj base, JField field, Obj obj) {
+            fieldObjs.put(base, field, obj);
+            return this;
+        }
+
+        public Builder addArrayObj(Obj array, Obj elem) {
+            arrayObjs.put(array, elem);
+            return this;
+        }
+
         public SpecifiedParamProvider build() {
             if (thisObjs == null) {
                 thisObjs = delegate.getThisObjs();
@@ -105,7 +143,19 @@ public class SpecifiedParamProvider implements ParamProvider {
                 }
                 paramObjs[i] = Collections.unmodifiableSet(paramObjs[i]);
             }
-            return new SpecifiedParamProvider(thisObjs, paramObjs);
+            delegate.getFieldObjs().forEach((base, field, obj) -> {
+                if (!fieldObjs.containsKey(base, field)) {
+                    fieldObjs.put(base, field, obj);
+                }
+            });
+            delegate.getArrayObjs().forEach((array, elem) -> {
+                if (!arrayObjs.containsKey(array)) {
+                    arrayObjs.put(array, elem);
+                }
+            });
+            return new SpecifiedParamProvider(thisObjs, paramObjs,
+                    Maps.unmodifiableTwoKeyMultiMap(fieldObjs),
+                    Maps.unmodifiableMultiMap(arrayObjs));
         }
     }
 }

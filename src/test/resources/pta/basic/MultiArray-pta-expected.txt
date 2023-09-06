@@ -15,7 +15,7 @@ Points-to sets of all variables
 []:<A: A f()>/temp$9 -> [[]:NewObj{<A: A f()>[11@L15] new A}]
 []:<A: void <init>()>/%this -> [[]:NewObj{<A: A f()>[11@L15] new A}, []:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
 []:<MultiArray: void main(java.lang.String[])>/a -> [[]:NewObj{<A: A f()>[11@L15] new A}]
-[]:<MultiArray: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}]
+[]:<MultiArray: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<MultiArray: void main(java.lang.String[])>/0},type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}]
 []:<MultiArray: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<MultiArray: void main(java.lang.String[])>[0@L4] new A}]
 []:<MultiArray: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<A: A f()>[11@L15] new A}]
 
@@ -24,7 +24,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <MultiArray: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<MultiArray: void main(java.lang.String[])>/0},type=java.lang.String[] in <MultiArray: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<MultiArray: void main(java.lang.String[])>/0}[*],type=java.lang.String in <MultiArray: void main(java.lang.String[])>}]
 []:MultiArrayObj{alloc=arr = newmultiarray A[%intconst1][%intconst1][%intconst1],type=A[] in <A: A f()>}[*] -> [[]:NewObj{<A: A f()>[11@L15] new A}]
 []:MultiArrayObj{alloc=arr = newmultiarray A[%intconst1][%intconst1][%intconst1],type=A[][] in <A: A f()>}[*] -> [[]:MultiArrayObj{alloc=arr = newmultiarray A[%intconst1][%intconst1][%intconst1],type=A[] in <A: A f()>}]
 []:MultiArrayObj{alloc=arr2 = newmultiarray A[%intconst0][%intconst0][],type=A[][] in <A: A f()>}[*] -> [[]:NewObj{<A: A f()>[25@L19] newarray A[%intconst2]}]

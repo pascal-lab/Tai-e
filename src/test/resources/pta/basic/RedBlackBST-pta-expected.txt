@@ -168,7 +168,7 @@ Points-to sets of all variables
 []:<RedBlackBST: void flipColors(Node)>/temp$3 -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 []:<RedBlackBST: void flipColors(Node)>/temp$6 -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 []:<RedBlackBST: void flipColors(Node)>/temp$7 -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
-[]:<RedBlackBST: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <RedBlackBST: void main(java.lang.String[])>}]
+[]:<RedBlackBST: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<RedBlackBST: void main(java.lang.String[])>/0},type=java.lang.String[] in <RedBlackBST: void main(java.lang.String[])>}]
 []:<RedBlackBST: void main(java.lang.String[])>/st -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}]
 []:<RedBlackBST: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}]
 []:<RedBlackBST: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[3@L413] new java.lang.Object}]
@@ -190,5 +190,5 @@ Points-to sets of all instance fields
 []:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}.root -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <RedBlackBST: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <RedBlackBST: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<RedBlackBST: void main(java.lang.String[])>/0},type=java.lang.String[] in <RedBlackBST: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<RedBlackBST: void main(java.lang.String[])>/0}[*],type=java.lang.String in <RedBlackBST: void main(java.lang.String[])>}]
 

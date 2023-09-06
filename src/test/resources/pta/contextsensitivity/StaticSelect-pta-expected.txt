@@ -4,7 +4,7 @@ Points-to sets of all variables
 [NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]:<Int: int staticFact(Int)>/n -> [[NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]:NewObj{<Int: int staticFact(Int)>[8@L20] new Int}, []:NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]
 [NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]:<Int: int staticFact(Int)>/temp$2 -> [[NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]:NewObj{<Int: int staticFact(Int)>[8@L20] new Int}]
 [NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]:<Int: void <init>(int)>/%this -> [[]:NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]
-[]:<StaticSelect: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticSelect: void main(java.lang.String[])>}]
+[]:<StaticSelect: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<StaticSelect: void main(java.lang.String[])>/0},type=java.lang.String[] in <StaticSelect: void main(java.lang.String[])>}]
 []:<StaticSelect: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<StaticSelect: void main(java.lang.String[])>[0@L3] new Int}]
 
 Points-to sets of all static fields
@@ -12,5 +12,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StaticSelect: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <StaticSelect: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<StaticSelect: void main(java.lang.String[])>/0},type=java.lang.String[] in <StaticSelect: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<StaticSelect: void main(java.lang.String[])>/0}[*],type=java.lang.String in <StaticSelect: void main(java.lang.String[])>}]
 

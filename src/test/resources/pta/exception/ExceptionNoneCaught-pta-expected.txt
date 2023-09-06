@@ -1,12 +1,12 @@
 Points-to sets of all variables
 []:<ExceptionNoneCaught: void m()>/temp$0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionNoneCaught: void m1()>/temp$0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
-[]:<ExceptionNoneCaught: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionNoneCaught: void main(java.lang.String[])>}]
+[]:<ExceptionNoneCaught: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionNoneCaught: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionNoneCaught: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ExceptionNoneCaught: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ExceptionNoneCaught: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ExceptionNoneCaught: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionNoneCaught: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionNoneCaught: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ExceptionNoneCaught: void main(java.lang.String[])>}]
 

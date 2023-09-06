@@ -33,11 +33,9 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.TwoKeyMap;
-
-import java.util.Map;
-import java.util.Set;
+import pascal.taie.util.collection.TwoKeyMultiMap;
 
 /**
  * Computes intra-procedural def-use and use-def chains
@@ -66,11 +64,14 @@ public class DefUseAnalysis extends MethodAnalysis<DefUse> {
     @Override
     public DefUse analyze(IR ir) {
         DataflowResult<Stmt, SetFact<Stmt>> rdResult = ir.getResult(ReachingDefinition.ID);
-        TwoKeyMap<Stmt, Var, Set<Stmt>> defs = computeDefs ? Maps.newTwoKeyMap(
-                () -> new IndexMap<>(ir, ir.getStmts().size()),
-                Maps::newHybridMap) : null;
-        Map<Stmt, Set<Stmt>> uses = computeUses ?
-                new IndexMap<>(ir, ir.getStmts().size()) : null;
+        TwoKeyMultiMap<Stmt, Var, Stmt> defs = computeDefs ?
+                Maps.newTwoKeyMultiMap(new IndexMap<>(ir, ir.getStmts().size()),
+                        () -> Maps.newMultiMap(Maps.newHybridMap()))
+                : null;
+        MultiMap<Stmt, Stmt> uses = computeUses ?
+                Maps.newMultiMap(new IndexMap<>(ir, ir.getStmts().size()),
+                        Sets::newHybridSet)
+                : null;
         for (Stmt stmt : ir) {
             SetFact<Stmt> reachDefs = rdResult.getInFact(stmt);
             for (RValue use : stmt.getUses()) {
@@ -79,14 +80,10 @@ public class DefUseAnalysis extends MethodAnalysis<DefUse> {
                         reachDef.getDef().ifPresent(lhs -> {
                             if (lhs.equals(use)) {
                                 if (computeDefs) {
-                                    defs.computeIfAbsent(stmt, useVar,
-                                                    (s, v) -> Sets.newHybridSet())
-                                            .add(reachDef);
+                                    defs.put(stmt, useVar, reachDef);
                                 }
                                 if (computeUses) {
-                                    uses.computeIfAbsent(reachDef,
-                                                    s -> Sets.newHybridSet())
-                                            .add(stmt);
+                                    uses.put(reachDef, stmt);
                                 }
                             }
                         });

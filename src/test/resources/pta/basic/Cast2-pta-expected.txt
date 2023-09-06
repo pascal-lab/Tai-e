@@ -22,7 +22,7 @@ Points-to sets of all variables
 []:<Cast2: void m()>/temp$6 -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}]
 []:<Cast2: void m()>/temp$7 -> [[]:NewObj{<Cast2: void m()>[26@L24] new Cat}]
 []:<Cast2: void m()>/temp$8 -> [[]:NewObj{<Cast2: void m()>[30@L27] new Animal}]
-[]:<Cast2: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}]
+[]:<Cast2: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Cast2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}]
 []:<Cat: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[26@L24] new Cat}, []:NewObj{<Cast2: void m()>[6@L9] new Cat}]
 []:<Dog: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[13@L14] new Dog}, []:NewObj{<Cast2: void m()>[17@L17] new Dog}, []:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[3@L8] new Dog}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
 []:<Pupi: void <init>()>/%this -> [[]:NewObj{<Cast2: void m()>[21@L20] new Pupi}, []:NewObj{<Cast2: void m()>[9@L10] new Pupi}]
@@ -32,5 +32,5 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Cast2: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Cast2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cast2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Cast2: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Cast2: void main(java.lang.String[])>}]
 

@@ -7,7 +7,7 @@ Points-to sets of all variables
 [<MustUseHeap: void main(java.lang.String[])>[8@L6] invokespecial temp$3.<init>()]:<B: void <init>()>/%this -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
 []:<MustUseHeap: void main(java.lang.String[])>/a1 -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
 []:<MustUseHeap: void main(java.lang.String[])>/a2 -> [[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
-[]:<MustUseHeap: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}]
+[]:<MustUseHeap: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<MustUseHeap: void main(java.lang.String[])>/0},type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}]
 []:<MustUseHeap: void main(java.lang.String[])>/result -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
 []:<MustUseHeap: void main(java.lang.String[])>/temp$0 -> [[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}]
 []:<MustUseHeap: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
@@ -21,5 +21,5 @@ Points-to sets of all instance fields
 [<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.f -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <MustUseHeap: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<MustUseHeap: void main(java.lang.String[])>/0},type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<MustUseHeap: void main(java.lang.String[])>/0}[*],type=java.lang.String in <MustUseHeap: void main(java.lang.String[])>}]
 

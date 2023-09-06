@@ -18,7 +18,7 @@ Points-to sets of all variables
 [<Outer1: A get(Inner)>[1@L24] temp$1 = invokevirtual inner.identity(temp$0)]:<Inner: A identity(A)>/a -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[0@L6] new B}]
 [<Outer2: A get(Inner)>[1@L38] temp$1 = invokevirtual inner.identity(temp$0)]:<Inner: A identity(A)>/%this -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[12@L10] new Inner}]
 [<Outer2: A get(Inner)>[1@L38] temp$1 = invokevirtual inner.identity(temp$0)]:<Inner: A identity(A)>/a -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[3@L7] new C}]
-[]:<CallOnly: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallOnly: void main(java.lang.String[])>}]
+[]:<CallOnly: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CallOnly: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallOnly: void main(java.lang.String[])>}]
 []:<CallOnly: void main(java.lang.String[])>/bb -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[0@L6] new B}]
 []:<CallOnly: void main(java.lang.String[])>/cc -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[3@L7] new C}]
 []:<CallOnly: void main(java.lang.String[])>/inner -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[12@L10] new Inner}]
@@ -41,5 +41,5 @@ Points-to sets of all instance fields
 []:NewObj{<CallOnly: void main(java.lang.String[])>[9@L9] new Outer2}.c -> [[]:NewObj{<CallOnly: void main(java.lang.String[])>[3@L7] new C}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <CallOnly: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <CallOnly: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<CallOnly: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallOnly: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CallOnly: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CallOnly: void main(java.lang.String[])>}]
 

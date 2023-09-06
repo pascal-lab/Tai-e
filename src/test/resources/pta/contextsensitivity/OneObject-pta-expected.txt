@@ -23,7 +23,7 @@ Points-to sets of all variables
 []:<OneObject: void m()>/temp$3 -> [[]:NewObj{<OneObject: void m()>[9@L10] new B}]
 []:<OneObject: void m()>/temp$4 -> [[]:NewObj{<OneObject: void m()>[6@L9] new B}]
 []:<OneObject: void m()>/x -> [[]:NewObj{<OneObject: void m()>[6@L9] new B}]
-[]:<OneObject: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}]
+[]:<OneObject: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<OneObject: void main(java.lang.String[])>/0},type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
@@ -32,5 +32,5 @@ Points-to sets of all instance fields
 []:NewObj{<OneObject: void m()>[3@L8] new A}.f -> [[]:NewObj{<OneObject: void m()>[9@L10] new B}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <OneObject: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<OneObject: void main(java.lang.String[])>/0},type=java.lang.String[] in <OneObject: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<OneObject: void main(java.lang.String[])>/0}[*],type=java.lang.String in <OneObject: void main(java.lang.String[])>}]
 

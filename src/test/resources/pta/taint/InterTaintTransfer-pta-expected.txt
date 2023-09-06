@@ -14,7 +14,7 @@ Points-to sets of all variables
 [<InterTaintTransfer: void main(java.lang.String[])>[9@L8] temp$4 = invokestatic InterTaintTransfer.transfer(t1, s)]:<InterTaintTransfer: java.lang.String transfer(java.lang.String,java.lang.String)>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 [<InterTaintTransfer: void main(java.lang.String[])>[9@L8] temp$4 = invokestatic InterTaintTransfer.transfer(t1, s)]:<InterTaintTransfer: java.lang.String transfer(java.lang.String,java.lang.String)>/s2 -> [[]:MergedObj{<Merged java.lang.String>}]
 [<InterTaintTransfer: void main(java.lang.String[])>[9@L8] temp$4 = invokestatic InterTaintTransfer.transfer(t1, s)]:<InterTaintTransfer: java.lang.String transfer(java.lang.String,java.lang.String)>/temp$0 -> [[]:TaintObj{alloc=<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:<InterTaintTransfer: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InterTaintTransfer: void main(java.lang.String[])>}]
+[]:<InterTaintTransfer: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<InterTaintTransfer: void main(java.lang.String[])>/0},type=java.lang.String[] in <InterTaintTransfer: void main(java.lang.String[])>}]
 []:<InterTaintTransfer: void main(java.lang.String[])>/s -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<InterTaintTransfer: void main(java.lang.String[])>/t1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<InterTaintTransfer: void main(java.lang.String[])>/t2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<InterTaintTransfer: void main(java.lang.String[])>[2@L5] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
@@ -32,7 +32,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <InterTaintTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <InterTaintTransfer: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<InterTaintTransfer: void main(java.lang.String[])>/0},type=java.lang.String[] in <InterTaintTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<InterTaintTransfer: void main(java.lang.String[])>/0}[*],type=java.lang.String in <InterTaintTransfer: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
 TaintFlow{<InterTaintTransfer: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result -> <InterTaintTransfer: void main(java.lang.String[])>[10@L8] invokestatic SourceSink.sink(temp$4)/0}

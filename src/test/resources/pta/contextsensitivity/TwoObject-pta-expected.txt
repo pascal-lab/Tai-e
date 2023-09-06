@@ -33,7 +33,7 @@ Points-to sets of all variables
 []:<TwoObject: void m()>/temp$5 -> [[]:NewObj{<TwoObject: void m()>[3@L12] new java.lang.Object}]
 []:<TwoObject: void m()>/temp$6 -> [[NewObj{<TwoObject: void m()>[6@L13] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}]
 []:<TwoObject: void m()>/temp$7 -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
-[]:<TwoObject: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}]
+[]:<TwoObject: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TwoObject: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
@@ -44,5 +44,5 @@ Points-to sets of all instance fields
 []:NewObj{<TwoObject: void m()>[6@L13] new List}.element -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <TwoObject: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<TwoObject: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoObject: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoObject: void main(java.lang.String[])>}]
 

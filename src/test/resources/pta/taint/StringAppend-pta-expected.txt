@@ -1,7 +1,7 @@
 Points-to sets of all variables
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<SourceSink: void sink(java.lang.String)>/s -> [[]:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<StringAppend: void stringBuffer()>[0@L16] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<StringAppend: void stringBuilder()>[0@L26] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:<StringAppend: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}]
+[]:<StringAppend: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<StringAppend: void main(java.lang.String[])>/0},type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}]
 []:<StringAppend: void stringAdd()>/%stringconst0 -> [[]:MergedObj{<Merged string constants>}]
 []:<StringAppend: void stringAdd()>/%stringconst1 -> [[]:MergedObj{<Merged string constants>}]
 []:<StringAppend: void stringAdd()>/s -> [[]:TaintObj{alloc=<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
@@ -31,7 +31,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <StringAppend: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<StringAppend: void main(java.lang.String[])>/0},type=java.lang.String[] in <StringAppend: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<StringAppend: void main(java.lang.String[])>/0}[*],type=java.lang.String in <StringAppend: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
 TaintFlow{<StringAppend: void stringAdd()>[0@L10] temp$0 = invokestatic SourceSink.source()/result -> <StringAppend: void stringAdd()>[11@L12] invokestatic SourceSink.sink(s)/0}

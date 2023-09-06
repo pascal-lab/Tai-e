@@ -15,7 +15,7 @@ Points-to sets of all variables
 [<LongCallContext: void main(java.lang.String[])>[8@L5] invokevirtual a1.foo(temp$2)]:<A: void foo(B)>/b -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}]
 []:<LongCallContext: void main(java.lang.String[])>/a1 -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[0@L3] new A}]
 []:<LongCallContext: void main(java.lang.String[])>/a2 -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[3@L4] new A}]
-[]:<LongCallContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LongCallContext: void main(java.lang.String[])>}]
+[]:<LongCallContext: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<LongCallContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <LongCallContext: void main(java.lang.String[])>}]
 []:<LongCallContext: void main(java.lang.String[])>/result -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
 []:<LongCallContext: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[0@L3] new A}]
 []:<LongCallContext: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[3@L4] new A}]
@@ -29,5 +29,5 @@ Points-to sets of all instance fields
 []:NewObj{<LongCallContext: void main(java.lang.String[])>[3@L4] new A}.b -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <LongCallContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <LongCallContext: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<LongCallContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <LongCallContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LongCallContext: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LongCallContext: void main(java.lang.String[])>}]
 

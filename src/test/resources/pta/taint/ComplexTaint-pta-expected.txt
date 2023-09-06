@@ -1,5 +1,5 @@
 Points-to sets of all variables
-[]:<ComplexTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ComplexTaint: void main(java.lang.String[])>}]
+[]:<ComplexTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ComplexTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <ComplexTaint: void main(java.lang.String[])>}]
 []:<ComplexTaint: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<ComplexTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<ComplexTaint: void main(java.lang.String[])>/s3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
@@ -20,7 +20,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <ComplexTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <ComplexTaint: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<ComplexTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <ComplexTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ComplexTaint: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ComplexTaint: void main(java.lang.String[])>}]
 
 Detected 3 taint flow(s):
 TaintFlow{<ComplexTaint: void main(java.lang.String[])>[3@L4] temp$1 = invokestatic SourceSink.source()/result -> <ComplexTaint: void main(java.lang.String[])>[7@L7] invokestatic SourceSink.sink(s3)/0}

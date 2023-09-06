@@ -56,7 +56,7 @@ Points-to sets of all variables
 []:<UnknownMethodName: void main(java.lang.String[])>/%stringconst3 -> [[]:ConstantObj{java.lang.String: "D"}]
 []:<UnknownMethodName: void main(java.lang.String[])>/%stringconst5 -> [[]:ConstantObj{java.lang.String: "java.lang.Object"}]
 []:<UnknownMethodName: void main(java.lang.String[])>/%stringconst6 -> [[]:ConstantObj{java.lang.String: "oneArgRet"}]
-[]:<UnknownMethodName: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <UnknownMethodName: void main(java.lang.String[])>}]
+[]:<UnknownMethodName: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<UnknownMethodName: void main(java.lang.String[])>/0},type=java.lang.String[] in <UnknownMethodName: void main(java.lang.String[])>}]
 []:<UnknownMethodName: void main(java.lang.String[])>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<UnknownMethodName: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}]
 []:<UnknownMethodName: void main(java.lang.String[])>/temp$10 -> [[]:ConstantObj{java.lang.Class: D.class}, []:ConstantObj{java.lang.Class: java.lang.Object.class}]
@@ -87,7 +87,7 @@ Points-to sets of all static fields
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <UnknownMethodName: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <UnknownMethodName: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<UnknownMethodName: void main(java.lang.String[])>/0},type=java.lang.String[] in <UnknownMethodName: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<UnknownMethodName: void main(java.lang.String[])>/0}[*],type=java.lang.String in <UnknownMethodName: void main(java.lang.String[])>}]
 []:NewObj{<UnknownMethodName: D invokeOneArgRet(java.lang.String,java.lang.Class[])>[7@L28] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<UnknownMethodName: D invokeOneArgRet(java.lang.String,java.lang.Class[])>[3@L27] new E}]
 []:NewObj{<UnknownMethodName: void invokeNonArg(java.lang.String)>[5@L15] newarray java.lang.Object[%intconst0]}[*] -> []
 []:NewObj{<UnknownMethodName: void invokeOneArg(java.lang.String,java.lang.Class[])>[7@L21] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<UnknownMethodName: void invokeOneArg(java.lang.String,java.lang.Class[])>[3@L20] new E}]

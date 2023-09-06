@@ -176,7 +176,7 @@ public class TwoKeyMapTest {
     @Test
     void testTwoKeySet() {
         TwoKeyMap<Integer, Integer, Integer> m = Maps.newTwoKeyMap();
-        var twoKeySet = m.keyPairSet();
+        var twoKeySet = m.twoKeySet();
         m.put(1, 1, 1);
         m.putAll(10, Map.of(1, 10, 2, 20, 3, 30));
         m.putAll(11, Map.of(4, 44, 5, 55, 6, 66));

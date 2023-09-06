@@ -9,12 +9,12 @@ Points-to sets of all variables
 []:<Cast: void m()>/temp$0 -> [[]:NewObj{<Cast: void m()>[0@L7] new A}]
 []:<Cast: void m()>/temp$1 -> [[]:NewObj{<Cast: void m()>[3@L8] new B}]
 []:<Cast: void m()>/temp$2 -> [[]:NewObj{<Cast: void m()>[6@L9] new C}]
-[]:<Cast: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast: void main(java.lang.String[])>}]
+[]:<Cast: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Cast: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cast: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
-[]:EntryPointObj{alloc=<main-arguments>,type=java.lang.String[] in <Cast: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=<main-arguments-element>,type=java.lang.String in <Cast: void main(java.lang.String[])>}]
+[]:EntryPointObj{alloc=MethodParam{<Cast: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cast: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Cast: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Cast: void main(java.lang.String[])>}]
 
