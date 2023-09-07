@@ -4,7 +4,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class JDTStringReps {
     public static String getBinaryName(ITypeBinding binding) {
-        String name = binding.getErasure().getBinaryName();
-        return name;
+        return binding.getErasure().getBinaryName();
     }
 }

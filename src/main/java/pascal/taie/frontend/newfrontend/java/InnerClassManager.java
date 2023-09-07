@@ -1,48 +1,67 @@
 package pascal.taie.frontend.newfrontend.java;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.type.Type;
+import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
-import javax.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
-import static pascal.taie.frontend.newfrontend.java.TypeUtils.JDTTypeToTaieType;
-import static pascal.taie.frontend.newfrontend.java.TypeUtils.getTaieClass;
+enum InnerClassCategory {
+    ANONYMOUS,
+    LOCAL,
+    MEMBER
+}
+
+
+record InnerClassDescriptor(
+        ITypeBinding type,
+        List<String> synParaNames,
+        List<ITypeBinding> synParaTypes,
+        boolean isStatic,
+        InnerClassCategory category,
+        // key is origin name, not field/captured name
+        Map<String, IVariableBinding> varBindingMap) { }
+
 
 /**
- * to corporate with Soot, we have to know the real constructor innovation of an inner class.
+ * JLS 8. chap. 8.1.3,
+ * <p>
+ * An inner class may be a non-static member class (§8.5), a local class (§14.3), or
+ * an anonymous class. A member class of an interface is implicitly static
+ * (§9.5) so is never considered to be an inner class.
+ * </p>
  */
-
-record InnerClassDescriptor(List<Var> defaultCtorArgs,
-                            List<Type> defaultCtorTypes,
-                            FieldRef ref) { }
-
 public class InnerClassManager {
 
     public final static String VAL = "val$";
+
+    public final static String OUTER_THIS = "this$1";
 
     private final static InnerClassManager instance = new InnerClassManager();
 
     /**
      * <p>use this map to record all captured local bindings of inner classes.</p>
      */
-    private final Map<JClass, InnerClassDescriptor> innerBindingMap;
+    private final Map<String, InnerClassDescriptor> innerBindingMap;
+
+    private final Map<JClass, JField> outerFieldRef;
+
+    private boolean resolved;
 
     private InnerClassManager() {
         this.innerBindingMap = Maps.newMap();
+        this.outerFieldRef = Maps.newMap();
+        resolved = false;
     }
 
     public static InnerClassManager get() {
@@ -53,71 +72,130 @@ public class InnerClassManager {
         return VAL + name;
     }
 
-    /**
-     * add a new Inner Class(local class) declared in a method
-     */
-    public void addLocalClass(TypeDeclaration td,
-                              IMethodBinding method,
-                              Function<IVariableBinding, Var> map,
-                              Var thisVar) {
-        JClass jClass = getTaieClass(td.getName().resolveTypeBinding());
-        if (jClass == null) {
-            throw new NewFrontendException("class " + td + " can't be resolved in tai-e world");
+    public static String getOrigName(String capName) {
+        return capName.substring(VAL.length());
+    }
+
+    public void noticeInnerClass(ASTNode typeDeclaration,
+                                 ITypeBinding outer,
+                                 boolean inStaticContext) {
+       ITypeBinding binding = ClassExtractor.getBinding(typeDeclaration);
+       boolean needSynThis;
+       boolean needSynVal;
+       InnerClassCategory category;
+
+       if (binding.isMember()) {
+           if (outer.isInterface() || TypeUtils.isStatic(binding.getModifiers())) {
+               // static member, same with normal class
+               return;
+           }
+           needSynThis = true;
+           needSynVal = false;
+           category = InnerClassCategory.MEMBER;
+       } else {
+           if (binding.isAnonymous()) {
+               category = InnerClassCategory.ANONYMOUS;
+           } else {
+               assert binding.isLocal();
+               category = InnerClassCategory.LOCAL;
+           }
+           needSynThis = ! inStaticContext;
+           needSynVal = true;
+       }
+
+       List<String> synParaNames = new ArrayList<>();
+       List<ITypeBinding> synParaTypes = new ArrayList<>();
+
+       if (needSynThis) {
+           synParaNames.add(OUTER_THIS);
+           synParaTypes.add(outer);
+       }
+
+       Map<String, IVariableBinding> variableBindingMap = new HashMap<>();
+       if (needSynVal) {
+           typeDeclaration.accept(new ASTVisitor() {
+               @Override
+               public boolean visit(SimpleName sn) {
+                   IBinding b = sn.resolveBinding();
+                   if (b instanceof IVariableBinding v) {
+                       if (! v.isField() && v.getDeclaringMethod().getDeclaringClass() != binding) {
+                           synParaNames.add(getCaptureName(v.getName()));
+                           synParaTypes.add(v.getType());
+                           variableBindingMap.put(v.getName(), v);
+                       }
+                   }
+                   return false;
+               }
+           });
+       }
+
+       innerBindingMap.put(JDTStringReps.getBinaryName(binding),
+               new InnerClassDescriptor(binding,
+                       synParaNames, synParaTypes, inStaticContext, category, variableBindingMap));
+    }
+
+    public FieldRef getOuterClassRef(JClass jClass) {
+        JField field = outerFieldRef.get(jClass);
+        assert field != null;
+        return field.getRef();
+    }
+
+    public void noticeOuterClassRef(JClass jClass, JField ref) {
+        outerFieldRef.put(jClass, ref);
+    }
+
+    InnerClassDescriptor getInnerClassDesc(ITypeBinding binding) {
+        return getInnerClassDesc(JDTStringReps.getBinaryName(binding));
+    }
+
+    InnerClassDescriptor getInnerClassDesc(String binaryName) {
+        if (! resolved) {
+            resolveDescriptors();
         }
-        // note: [td] can only be handled once, so it's safe to add a new object to map
-        List<Var> vars = new ArrayList<>();
-        vars.add(thisVar);
-        List<Type> typeList = new ArrayList<>();
-        assert jClass.getOuterClass() != null;
-        typeList.add(jClass.getOuterClass().getType());
-        td.accept(new ASTVisitor() {
-            @Override
-            public boolean visit(SimpleName sn) {
-                IBinding b = sn.resolveBinding();
-                if (b instanceof IVariableBinding v) {
-                    if (! v.isField() &&
-                            v.getDeclaringMethod().isSubsignature(method)) {
-                        vars.add(map.apply(v));
-                        typeList.add(JDTTypeToTaieType(v.getType()));
-                    }
-                }
-                return false;
-            }
+        return innerBindingMap.get(binaryName);
+    }
+
+    boolean isInnerClass(String binaryName) {
+        return innerBindingMap.containsKey(binaryName);
+    }
+
+    private void resolveDescriptors() {
+        innerBindingMap.forEach((k, v) -> {
+            fixTransitiveCaptures(v);
         });
-        innerBindingMap.put(jClass, new InnerClassDescriptor(vars, typeList, _getOuterClassRef(jClass)));
+        resolved = true;
     }
 
-    private @Nullable FieldRef _getOuterClassRef(JClass jClass) {
-        var fields = jClass.getDeclaredFields();
-        for (var i : fields) {
-            if (i.getName().startsWith("this$")) {
-                return i.getRef();
+    private void fixTransitiveCaptures(InnerClassDescriptor descriptor) {
+        ITypeBinding current = descriptor.type();
+        ITypeBinding superClass = current.getSuperclass();
+        assert ! superClass.isAnonymous();
+        while (superClass != null && isLocal(superClass)) {
+            addSynArgs(descriptor, getDesc(superClass));
+            superClass = superClass.getSuperclass();
+        }
+    }
+
+    private boolean isLocal(ITypeBinding binding) {
+        return binding.isLocal();
+    }
+
+    private void addSynArgs(InnerClassDescriptor current, InnerClassDescriptor superClass) {
+        boolean isStatic = current.isStatic();
+        assert current.isStatic() == superClass.isStatic();
+        int start = isStatic ? 0 : 1;
+        for (int i = start; i < superClass.synParaNames().size(); ++i) {
+            String nowName = superClass.synParaNames().get(i);
+            ITypeBinding nowType = superClass.synParaTypes().get(i);
+            if (! current.synParaNames().contains(nowName)) {
+                current.synParaNames().add(nowName);
+                current.synParaTypes().add(nowType);
             }
         }
-        return null;
+        superClass.varBindingMap().forEach((k, v) -> current.varBindingMap().put(k, v));
     }
 
-    public @Nullable FieldRef getOuterClassRef(JClass jClass) {
-        InnerClassDescriptor descriptor = innerBindingMap.get(jClass);
-        if (descriptor == null) {
-            var ref = _getOuterClassRef(jClass);
-            innerBindingMap.put(jClass, new InnerClassDescriptor(null, null, ref));
-            return ref;
-        } else {
-            return descriptor.ref();
-        }
-    }
-
-    public List<Type> resolveCtorType(JClass jClass, List<Type> userDefinedType) {
-        InnerClassDescriptor descriptor = innerBindingMap.get(jClass);
-        if (descriptor != null) {
-            return Stream.concat(descriptor.defaultCtorTypes().stream(),
-                    userDefinedType.stream()).toList();
-        } else {
-            return userDefinedType;
-        }
-    }
-
-    public void resolveConstructor() {
+    private InnerClassDescriptor getDesc(ITypeBinding binding) {
+        return innerBindingMap.get(JDTStringReps.getBinaryName(binding));
     }
 }

@@ -1,9 +1,12 @@
 package pascal.taie.frontend.newfrontend;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import pascal.taie.frontend.newfrontend.java.BinaryNameExtractor;
+import pascal.taie.frontend.newfrontend.java.ClassExtractor;
+import pascal.taie.frontend.newfrontend.java.JDTStringReps;
 import pascal.taie.frontend.newfrontend.java.JavaInit;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +18,23 @@ public class JavaSource implements ClassSource {
 
     private final List<JavaInit> instanceInits;
 
-    public JavaSource(CompilationUnit unit) {
+    public ASTNode getTypeDeclaration() {
+        return typeDeclaration;
+    }
+
+    private final ASTNode typeDeclaration;
+
+    public @Nullable String getOuterClass() {
+        return outerClass;
+    }
+
+    private final String outerClass;
+
+    public JavaSource(CompilationUnit unit, ASTNode typeDeclaration, String outerClass) {
         this.unit = unit;
-        binaryName = BinaryNameExtractor.getBinaryNameFromCompilationUnit(unit);
+        this.typeDeclaration = typeDeclaration;
+        this.outerClass = outerClass;
+        binaryName = JDTStringReps.getBinaryName(ClassExtractor.getBinding(typeDeclaration));
         instanceInits = new ArrayList<>();
     }
 

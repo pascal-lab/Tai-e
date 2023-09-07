@@ -33,13 +33,15 @@ public class MethodCallBuilder {
         for (var i : binding.getParameterTypes()) {
             paras.add(TypeUtils.JDTTypeToTaieType(i));
         }
+        paras = TypeUtils.getInitParamTypeWithSyn(paras, binding.getDeclaringClass());
+        assert jClass != null;
         return MethodRef.get(jClass, MethodNames.INIT, paras, retType, Modifier.isStatic(binding.getModifiers()));
     }
 
-    public static MethodRef getNonArgInitRef(JClass jClass) {
+    public static MethodRef getNonArgInitRef(JClass jClass, ITypeBinding binding) {
         assert jClass != null;
         Type retType = VoidType.VOID;
-        List<Type> paras = List.of();
+        List<Type> paras = TypeUtils.getInitParamTypeWithSyn(List.of(), binding);
         return MethodRef.get(jClass, MethodNames.INIT, paras, retType, false);
     }
 }

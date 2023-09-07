@@ -152,8 +152,10 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
             // DO NOT change the order of next 2 stmts
             List<String> deps = JavaClassManager.get().getImports(project, javaSourceFile);
-            JavaSource source = JavaClassManager.get().getJavaSource(javaSourceFile);
-            sourceMap.put(source.getClassName(), source);
+            JavaSource[] sources = JavaClassManager.get().getJavaSources(javaSourceFile);
+            for (JavaSource s : sources) {
+                sourceMap.put(s.getClassName(), s);
+            }
             return deps;
         } else if (f instanceof ClassFile classFile) {
             return buildClassDeps(binaryName, classFile);

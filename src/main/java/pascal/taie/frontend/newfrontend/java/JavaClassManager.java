@@ -4,9 +4,7 @@ package pascal.taie.frontend.newfrontend.java;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import pascal.taie.World;
@@ -14,11 +12,9 @@ import pascal.taie.frontend.newfrontend.JavaSource;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.FileContainer;
 import pascal.taie.project.FileResource;
-import pascal.taie.project.JarContainer;
 import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.Resource;
-import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,9 +66,14 @@ public class JavaClassManager {
         return extractor.getDependencies();
     }
 
-    public JavaSource getJavaSource(JavaSourceFile file) {
+    public JavaSource[] getJavaSources(JavaSourceFile file) {
         CompilationUnit unit = parseSourceCode(file);
-        return new JavaSource(unit);
+        ClassExtractor extractor = new ClassExtractor();
+        unit.accept(extractor);
+        return extractor.getTypeDeclarations()
+                .stream()
+                .map(t -> new JavaSource(unit, t, extractor.getOuterClass(t)))
+                .toArray(JavaSource[]::new);
     }
 
     private CompilationUnit parseSourceCode(JavaSourceFile file) {

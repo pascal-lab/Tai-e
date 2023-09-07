@@ -1,10 +1,11 @@
 package pascal.taie.frontend.newfrontend.java;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -28,8 +29,8 @@ import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
-import pascal.taie.project.JavaSourceFile;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,10 +54,9 @@ public class JavaClassBuilder implements JClassBuilder  {
 
     private JClass outerClass;
 
-    private List<JField> fields;
+    private final List<JField> fields;
 
-    private List<JMethod> methods;
-
+    private final List<JMethod> methods;
 
     public JavaClassBuilder(JavaSource sourceFile, JClass jClass) {
         this.sourceFile = sourceFile;
@@ -68,9 +68,30 @@ public class JavaClassBuilder implements JClassBuilder  {
 
     // TODO: handle annotation
     public void build() {
+        String outerClassBinaryName = sourceFile.getOuterClass();
+        if (outerClassBinaryName != null) {
+            outerClass = BuildContext.get().getClassByName(outerClassBinaryName);
+            assert outerClass != null;
+        } else {
+            outerClass = null;
+        }
+        ASTNode typeDeclaration = sourceFile.getTypeDeclaration();
         CompilationUnit cu = sourceFile.getUnit();
         AtomicBoolean meetCtor = new AtomicBoolean(false);
-        cu.accept(new ASTVisitor() {
+        ITypeBinding binding = ClassExtractor.getBinding(typeDeclaration);
+        modifiers = TypeUtils.computeModifier(binding);
+        simpleName = binding.getName();
+        interfaces = Arrays.stream(binding.getInterfaces())
+                .map(t -> (ClassType) TypeUtils.JDTTypeToTaieType(t))
+                .map(ClassType::getJClass)
+                .toList();
+        superClass = TypeUtils.getSuperClass(binding);
+        @Nullable InnerClassDescriptor descriptor = InnerClassManager.get()
+                .getInnerClassDesc(binding);
+        List<Type> synParaTypes = descriptor == null ? List.of() :
+                TypeUtils.fromJDTTypeList(descriptor.synParaTypes().stream());
+
+        typeDeclaration.accept(new ASTVisitor() {
 
             @Override
             public boolean visit(Initializer node) {
@@ -99,7 +120,12 @@ public class JavaClassBuilder implements JClassBuilder  {
                     String paraName = svd.getName().getIdentifier();
                     paraNames.add(paraName);
                 }
-                JMethod method = new JMethod(jClass, name, current, methodType.getParamTypes(),
+                List<Type> paraTypes = methodType.getParamTypes();
+                if (binding.isConstructor() && descriptor != null) {
+                    paraTypes = TypeUtils.addList(synParaTypes, paraTypes);
+                    paraNames = TypeUtils.addList(descriptor.synParaNames(), paraNames);
+                }
+                JMethod method = new JMethod(jClass, name, current, paraTypes,
                         methodType.getReturnType(), TypeUtils.toClassTypes(binding.getExceptionTypes()),
                         null, null, paraNames,
                         new JavaMethodSource(cu, node, sourceFile));
@@ -109,18 +135,12 @@ public class JavaClassBuilder implements JClassBuilder  {
 
             @Override
             public boolean visit(TypeDeclaration node) {
-                ITypeBinding binding = node.resolveBinding();
-                if (binding.getBinaryName().equals(sourceFile.getClassName())) {
-                    modifiers = TypeUtils.computeModifier(binding);
-                    simpleName = binding.getName();
-                    interfaces = Arrays.stream(binding.getInterfaces())
-                            .map(t -> (ClassType) TypeUtils.JDTTypeToTaieType(t))
-                            .map(ClassType::getJClass)
-                            .toList();
-                    superClass = TypeUtils.getSuperClass(binding);
-                    outerClass = null;
-                }
-                return true;
+                return node.resolveBinding() == binding;
+            }
+
+            @Override
+            public boolean visit(AnonymousClassDeclaration node) {
+                return node.resolveBinding() == binding;
             }
 
             @Override
@@ -146,16 +166,31 @@ public class JavaClassBuilder implements JClassBuilder  {
 
         if (! meetCtor.get()) {
             // add a default non-arg ctor
+            List<Type> paraTypes = descriptor == null ? List.of() : synParaTypes;
+            List<String> paraNames = descriptor == null ? List.of() : descriptor.synParaNames();
             JMethod method = new JMethod(jClass, MethodNames.INIT,
                     TypeUtils.copyVisuality(getModifiers()),
-                    List.of(),
+                    paraTypes,
                     VoidType.VOID,
                     List.of(),
                     null,
                     List.of(),
-                    List.of(),
+                    paraNames,
                     new JavaMethodSource(cu, null, sourceFile));
             methods.add(method);
+        }
+
+        if (descriptor != null) {
+            for (int i = 0; i < synParaTypes.size(); ++i) {
+                Type type = synParaTypes.get(i);
+                String name = descriptor.synParaNames().get(i);
+                JField f = new JField(jClass, name,
+                            Set.of(Modifier.FINAL, Modifier.SYNTHETIC), type, null);
+                if (name.startsWith("this$")) {
+                    InnerClassManager.get().noticeOuterClassRef(jClass, f);
+                }
+                fields.add(f);
+            }
         }
     }
 

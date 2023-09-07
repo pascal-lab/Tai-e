@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
 
@@ -75,6 +76,25 @@ public final class TypeUtils {
 
     public static boolean hasModifier(int modifier, int target) {
         return (modifier & target) != 0;
+    }
+
+    public static boolean isSameMethod(IMethodBinding binding1, IMethodBinding binding2) {
+        return binding1.getMethodDeclaration() == binding2.getMethodDeclaration();
+    }
+
+    public static List<Type> getInitParamTypeWithSyn(List<Type> orig, ITypeBinding declClass) {
+        InnerClassDescriptor descriptor = InnerClassManager.get().getInnerClassDesc(declClass);
+        if (descriptor == null) {
+            return orig;
+        }
+        return addList(fromJDTTypeList(descriptor.synParaTypes().stream()), orig);
+    }
+
+    public static <T> List<T> addList(List<T> l1, List<T> l2) {
+        List<T> res = new ArrayList<>();
+        res.addAll(l1);
+        res.addAll(l2);
+        return res;
     }
 
     /**
@@ -342,8 +362,11 @@ public final class TypeUtils {
     }
 
     public static List<Type> fromJDTTypeList(ITypeBinding[] types) {
-        return Arrays.stream(types)
-                .map(TypeUtils::JDTTypeToTaieType)
+        return fromJDTTypeList(Arrays.stream(types));
+    }
+
+    public static List<Type> fromJDTTypeList(Stream<ITypeBinding> types) {
+        return types.map(TypeUtils::JDTTypeToTaieType)
                 .toList();
     }
 
