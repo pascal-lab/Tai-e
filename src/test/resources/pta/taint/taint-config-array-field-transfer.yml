@@ -1,0 +1,13 @@
+sources:
+  - { kind: call, method: "<ArrayFieldTransfer: A getSource()>", index: result, type: "C" }
+
+sinks:
+  - { method: "<B: void sink(A)>", index: 0 }
+  - { method: "<Expression: java.lang.Object getValue()>", index: base }
+
+transfers:
+  - { method: "<A: void transfer(A)>", from: 0, to: base, type: "C" }
+  - { method: "<Expression: void <init>(java.lang.Object[])>", from: "0[*]", to: base }
+  - { method: "<Expression: void <init>(ABox)>", from: 0.a, to: base }
+  - { method: "<ArrayFieldTransfer: void transfer(A,A[])>", from: 0, to: "1[*]" }
+  - { method: "<ArrayFieldTransfer: void transfer(A,Expression)>", from: 0, to: 1.a }

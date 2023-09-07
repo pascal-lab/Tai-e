@@ -1,0 +1,78 @@
+Points-to sets of all variables
+[]:<A: void <init>()>/%this -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:NewObj{<ArrayFieldTransfer: void varToArray()>[5@L49] new B}, []:NewObj{<ArrayFieldTransfer: void varToField()>[6@L61] new B}]
+[]:<A: void transfer(A)>/%this -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<A: void transfer(A)>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ABox: void <init>(A)>/%this -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}]
+[]:<ABox: void <init>(A)>/a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: A getSource()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}]
+[]:<ArrayFieldTransfer: void arrayToVar()>/exp -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<ArrayFieldTransfer: void arrayToVar()>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void arrayToVar()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void arrayToVar()>/temp$1 -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<ArrayFieldTransfer: void arrayToVar()>/temp$2 -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}]
+[]:<ArrayFieldTransfer: void fieldToVar()>/exp -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<ArrayFieldTransfer: void fieldToVar()>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void fieldToVar()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void fieldToVar()>/temp$1 -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<ArrayFieldTransfer: void fieldToVar()>/temp$2 -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}]
+[]:<ArrayFieldTransfer: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ArrayFieldTransfer: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArrayFieldTransfer: void main(java.lang.String[])>}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/b -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/c -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/merge -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/merge2 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/temp$1 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void simpleTaint()>/temp$2 -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}]
+[]:<ArrayFieldTransfer: void transfer(A,A[])>/a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void transfer(A,A[])>/array -> [[]:NewObj{<ArrayFieldTransfer: void varToArray()>[3@L47] newarray A[%intconst0]}]
+[]:<ArrayFieldTransfer: void transfer(A,Expression)>/a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void transfer(A,Expression)>/exp -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}]
+[]:<ArrayFieldTransfer: void varToArray()>/a -> [[]:NewObj{<ArrayFieldTransfer: void varToArray()>[3@L47] newarray A[%intconst0]}]
+[]:<ArrayFieldTransfer: void varToArray()>/b -> [[]:NewObj{<ArrayFieldTransfer: void varToArray()>[5@L49] new B}]
+[]:<ArrayFieldTransfer: void varToArray()>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void varToArray()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void varToArray()>/temp$1 -> [[]:NewObj{<ArrayFieldTransfer: void varToArray()>[5@L49] new B}]
+[]:<ArrayFieldTransfer: void varToArray()>/temp$4 -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+[]:<ArrayFieldTransfer: void varToField()>/b -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[6@L61] new B}]
+[]:<ArrayFieldTransfer: void varToField()>/exp -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}]
+[]:<ArrayFieldTransfer: void varToField()>/taint -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void varToField()>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<ArrayFieldTransfer: void varToField()>/temp$1 -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}]
+[]:<ArrayFieldTransfer: void varToField()>/temp$2 -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[6@L61] new B}]
+[]:<ArrayFieldTransfer: void varToField()>/temp$3 -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+[]:<B: void <init>()>/%this -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void varToArray()>[5@L49] new B}, []:NewObj{<ArrayFieldTransfer: void varToField()>[6@L61] new B}]
+[]:<B: void sink(A)>/%this -> [[]:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void varToArray()>[5@L49] new B}, []:NewObj{<ArrayFieldTransfer: void varToField()>[6@L61] new B}]
+[]:<B: void sink(A)>/a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}, []:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+[]:<C: void <init>()>/%this -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}]
+[]:<C: void sink(A)>/%this -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<C: void sink(A)>/a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[0@L16] new B}, []:NewObj{<ArrayFieldTransfer: void simpleTaint()>[6@L20] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<Expression: java.lang.Object getValue()>/%this -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}, []:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<Expression: java.lang.Object getValue()>/temp$0 -> [[]:ConstantObj{java.lang.String: "value"}]
+[]:<Expression: void <init>()>/%this -> [[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}]
+[]:<Expression: void <init>(ABox)>/%this -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<Expression: void <init>(ABox)>/abox -> [[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}]
+[]:<Expression: void <init>(ABox)>/temp$0 -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:<Expression: void <init>(java.lang.Object[])>/%this -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=Expression}]
+[]:<Expression: void <init>(java.lang.Object[])>/cmds -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}.cmds -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}]
+[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}.a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}.a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}.a -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+
+Points-to sets of all array indexes
+[]:EntryPointObj{alloc=MethodParam{<ArrayFieldTransfer: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArrayFieldTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ArrayFieldTransfer: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ArrayFieldTransfer: void main(java.lang.String[])>}]
+[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:NewObj{<ArrayFieldTransfer: void varToArray()>[3@L47] newarray A[%intconst0]}[*] -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+
+Detected 5 taint flow(s):
+TaintFlow{<ArrayFieldTransfer: void simpleTaint()>[3@L17] temp$1 = invokestatic ArrayFieldTransfer.getSource()/result -> <ArrayFieldTransfer: void simpleTaint()>[14@L30] invokevirtual merge2.sink(merge2)/0}
+TaintFlow{<ArrayFieldTransfer: void arrayToVar()>[0@L34] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result -> <ArrayFieldTransfer: void arrayToVar()>[9@L36] invokevirtual exp.getValue()/base}
+TaintFlow{<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result -> <ArrayFieldTransfer: void fieldToVar()>[7@L42] invokevirtual exp.getValue()/base}
+TaintFlow{<ArrayFieldTransfer: void varToArray()>[0@L46] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result -> <ArrayFieldTransfer: void varToArray()>[10@L50] invokevirtual b.sink(temp$4)/0}
+TaintFlow{<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result -> <ArrayFieldTransfer: void varToField()>[10@L62] invokevirtual b.sink(temp$3)/0}
+

@@ -1,4 +1,4 @@
-class TaintTransferEdge {
+class ArrayFieldTransfer {
 
     public static void main(String args[]) {
         simpleTaint();
