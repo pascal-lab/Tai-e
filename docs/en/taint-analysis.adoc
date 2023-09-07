@@ -1,0 +1,52 @@
+[[taint-analysis]]
+include::attributes.adoc[]
+
+= Taint Analysis
+
+Tai-e provides a configurable and powerful taint analysis for detecting security vulnerabilities.
+We develop taint analysis based on the pointer analysis framework, so that it can benefit from the techniques (e.g., various context sensitivity and heap abstraction techniques) and implementations (e.g., the handling of complex language features such as reflection and lambda functions) provided by the pointer analysis framework.
+In this documentation, we introduce how to use our taint analysis.
+
+== Enabling Taint Analysis
+
+In Tai-e, taint analysis is designed and implemented as a plugin of pointer analysis framework.
+To enable taint analysis, just start pointer analysis with option `taint-config`, for example:
+
+[source,indent=0,subs="verbatim"]
+----
+-a pta=...;taint-config:<path/to/config>;...
+----
+
+then Tai-e will run taint analysis (together with pointer analysis) using configuration file specified by `<path/to/config>`.
+We will introduce how to write a configuration file in the next section.
+
+You could use various pointer analysis techniques to obtain different precision/efficiency tradeoffs.
+For more information, see <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
+
+== Configuring Taint Analysis
+
+In this section, we introduce how to configure sources, sinks, taint transfers, and sanitizers of the taint analysis through a configuration file written in YAML.
+As an example. you could first take a look at https://github.com/pascal-lab/Tai-e/blob/master/src/test/resources/pta/taint/taint-config.yml[taint-config.yml] from our test cases to get a general impression.
+
+=== General Notions
+
+We first introduce some general notions used in the configuration.
+
+* Method signature
+* Variable index
+* Field signature
+* Type name
+
+=== Sources
+
+=== Sinks
+
+=== Taint Transfers
+
+=== Sanitizers
+
+=== Call-Site Mode
+
+=== Multiple Configuration Files
+
+== Output of Taint Analysis
