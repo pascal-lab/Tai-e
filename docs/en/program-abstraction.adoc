@@ -2,7 +2,9 @@ include::attributes.adoc[]
 
 = Program Abstraction in Tai-e (core classes and IR)
 
-This document introduces Tai-e's abstraction of the Java program being analyzed. You will likely need to use the classes introduced in this document when developing analyses on top of Tai-e. See Section 2 of https://arxiv.org/abs/2208.00337[our technical report] for more discussions.
+This document introduces Tai-e's abstraction of the Java program being analyzed.
+You will likely need to use the classes introduced in this document when developing analyses on top of Tai-e.
+See Section 2 of https://dl.acm.org/doi/pdf/10.1145/3597926.3598120[Tai-e's paper] for more discussions.
 
 
 == Core Classes
