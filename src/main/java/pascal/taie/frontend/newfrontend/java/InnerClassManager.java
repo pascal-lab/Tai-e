@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
+import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
@@ -47,7 +48,7 @@ public class InnerClassManager {
 
     public final static String OUTER_THIS = "this$1";
 
-    private final static InnerClassManager instance = new InnerClassManager();
+    private static InnerClassManager instance = new InnerClassManager();
 
     /**
      * <p>use this map to record all captured local bindings of inner classes.</p>
@@ -62,6 +63,14 @@ public class InnerClassManager {
         this.innerBindingMap = Maps.newMap();
         this.outerFieldRef = Maps.newMap();
         resolved = false;
+    }
+
+    public static void reset() {
+        instance = new InnerClassManager();
+    }
+
+    static {
+        World.registerResetCallback(InnerClassManager::reset);
     }
 
     public static InnerClassManager get() {
@@ -169,7 +178,7 @@ public class InnerClassManager {
     private void fixTransitiveCaptures(InnerClassDescriptor descriptor) {
         ITypeBinding current = descriptor.type();
         ITypeBinding superClass = current.getSuperclass();
-        assert ! superClass.isAnonymous();
+        assert superClass == null || ! superClass.isAnonymous();
         while (superClass != null && isLocal(superClass)) {
             addSynArgs(descriptor, getDesc(superClass));
             superClass = superClass.getSuperclass();

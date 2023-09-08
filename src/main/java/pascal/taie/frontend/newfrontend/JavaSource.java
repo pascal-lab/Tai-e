@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import pascal.taie.frontend.newfrontend.java.ClassExtractor;
 import pascal.taie.frontend.newfrontend.java.JDTStringReps;
 import pascal.taie.frontend.newfrontend.java.JavaInit;
@@ -34,7 +35,8 @@ public class JavaSource implements ClassSource {
         this.unit = unit;
         this.typeDeclaration = typeDeclaration;
         this.outerClass = outerClass;
-        binaryName = JDTStringReps.getBinaryName(ClassExtractor.getBinding(typeDeclaration));
+        ITypeBinding binding = ClassExtractor.getBinding(typeDeclaration);
+        binaryName = JDTStringReps.getBinaryName(binding);
         instanceInits = new ArrayList<>();
     }
 

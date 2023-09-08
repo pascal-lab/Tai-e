@@ -1087,7 +1087,7 @@ public class JavaMethodIRBuilder {
         protected Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
             ClassType classType = (ClassType) declClassType;
             List<Var> synArgs = makeSynArgs(classType);
-            return (Var) listCompute(args, init.getParameterTypes(),
+            return (Var) listCompute(args, init.getParameterTypes().stream().skip(synArgs.size()).toList(),
                     l -> genNewObject1(init, addList(synArgs, l), classType));
         }
 

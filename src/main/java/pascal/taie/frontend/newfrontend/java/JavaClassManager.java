@@ -1,8 +1,11 @@
 package pascal.taie.frontend.newfrontend.java;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -42,11 +45,21 @@ public class JavaClassManager {
 
     private static JavaClassManager manager;
 
+    private final static Logger logger = LogManager.getLogger(JavaClassManager.class);
+
     public static JavaClassManager get() {
         if (manager == null) {
             manager = new JavaClassManager();
         }
         return manager;
+    }
+
+    public static void reset() {
+        manager = null;
+    }
+
+    static {
+        World.registerResetCallback(JavaClassManager::reset);
     }
 
     private JavaClassManager() {
@@ -90,13 +103,20 @@ public class JavaClassManager {
         String[] cp = getClassPath();
         String[] sourceFiles = getAllJavaSources();
         // TODO: currently not able to handle java >= 9
-        parser.setEnvironment(cp, null, null, false);
+        //  (But if `-pp` specified, JDT can handle any java version)
+        parser.setEnvironment(cp, null, null,
+                World.get().getOptions().isPrependJVM());
         parser.createASTs(sourceFiles, null, new String[0], new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit ast) {
                 JavaSourceFile file = sourceFileMap.get(sourceFilePath);
                 assert file != null;
                 class2Source.put(file, ast);
+                for (IProblem problem : ast.getProblems()) {
+                    if (problem.isError()) {
+                        logger.error(makeLogError(problem));
+                    }
+                }
             }
         }, new NullProgressMonitor());
         parsed = true;
@@ -178,5 +198,13 @@ public class JavaClassManager {
             // TODO: add warning or try to handle it
             return Optional.empty();
         }
+    }
+
+    private static String makeLogError(IProblem problem) {
+        String fileName = new String(problem.getOriginatingFileName());
+        String message = problem.getMessage();
+        int loc = problem.getSourceLineNumber();
+        return "[JDT ERROR] in [" + fileName + "], line " + loc + ":\n" +
+                "            " + message;
     }
 }
