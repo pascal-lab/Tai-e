@@ -32,10 +32,136 @@ As an example. you could first take a look at https://github.com/pascal-lab/Tai-
 
 We first introduce some general notions used in the configuration.
 
-* Method signature
-* Variable index
-* Field signature
-* Type name
+==== Type
+
+You may write following types in configuration.
+
+[cols="1,2,2"]
+|===
+| Type | Description | Examples
+
+| Class type
+| Fully-qualified class name.
+| `java.lang.String`, `org.example.MyClass`
+
+| Array type
+| A type following by one or more `[]`, where the number of `[]` equals the number of the array dimension.
+| `java.lang.String[]`, `org.example.MyClass[][]`
+
+| Primitive type
+| The primitive types in Java.
+| `int`, `char`, etc.
+|===
+
+==== Method Signature
+
+In the configuration, we use method signature to uniquely identify a method in the program being analyzed.
+The format of a method signature is given below:
+
+[source,indent=0,subs="verbatim"]
+----
+<CLASS_TYPE: RETURN_TYPE METHOD_NAME(PARAMETER_TYPES)>
+----
+
+* `CLASS_TYPE`: The class in which the method is declared.
+* `RETURN_TYPE`: The return type of the method.
+* `METHOD_NAME`: The name of the method.
+* `PARAMETER_TYPES`: The list of parameters types of the method.
+Multiple parameter types are separated by `,` (NOTE: do not insert spaces around `,`).
+If the method has no parameters, just write `()`.
+
+For example, the signatures of methods `equals` and `toString` of `Object` are:
+[source,indent=0,subs="verbatim"]
+
+----
+<java.lang.Object: boolean equals(java.lang.Object)>
+<java.lang.Object: java.lang.String toString()>
+----
+
+==== Field Signature
+
+Similar to methods, we use field signature to uniquely identify a field in the program being analyzed.
+The format of a field signature is given below:
+
+[source,indent=0,subs="verbatim"]
+----
+<CLASS_TYPE: FIELD_TYPE FIELD_NAME>
+----
+
+* `CLASS_TYPE`: The class in which the method is declared.
+* `FIELD_TYPE`: The type of the field.
+* `FIELD_NAME`: The name of the field.
+
+For example, the signature of the field `info` below
+[source,java,indent=0,subs="verbatim"]
+
+----
+package org.example;
+
+class MyClass {
+    String info;
+}
+----
+
+is
+[source,indent=0,subs="verbatim"]
+
+----
+<org.example.MyClass: java.lang.String info>
+----
+
+==== Variable Index
+
+When configuring taint analysis, we usually need to specify a variable of a call site or a method, and this can be done by _variable index_.
+
+===== Variable Index of A Call Site
+
+We classify variables at a call site into following kinds:
+
+[cols="1,3,1"]
+|===
+| Kind | Description | Index
+
+| Result variable
+| The variable that receives the result of the method call, i.e., the LHS variable of the call site.
+| `result`
+
+| Base variable
+| The variable that points to the receiver object of the method call. This variable is absent for static method calls.
+| `base`
+
+| Arguments
+| The arguments of the call site, counting from 0.
+| `0`, `1`, `2`, ...
+|===
+
+For example, for a method call
+[source,java,indent=0,subs="verbatim"]
+
+----
+r = o.foo(p, q);
+----
+
+* The index of variable `r` is `result`.
+* The index of variable `o` is `base`.
+* The indexes of variables `p` and `q` are `0` and `1`.
+
+===== Variable Index of A Method
+
+Currently, we support specifying parameters of a method using indexes.
+Similar to arguments of a call site, the parameters are counted from 0.
+For example, the indexes of parameters `t`, `s`, and `o` of method `foo` below are `0`, `1`, and `2`.
+
+[source,java,indent=0,subs="verbatim"]
+----
+package org.example;
+
+class MyClass {
+    void foo(T t, String s, Object o) {
+        ...
+    }
+}
+----
 
 === Sources
 
