@@ -354,22 +354,83 @@ User just needs to put all relevant configuration files into one directory, and 
 NOTE: The taint analysis will walk the directory iteratively when loading configuration, thus you can organize the configuration files as you wish, e.g., put them into multiple subdirectories.
 
 == Output of Taint Analysis
+Currently, the output of taint analysis consists of two parts: console output and taint flow graph.
 
-console:
+=== Console Output
+In console output, the taint analysis reports the detected taint flows with format:
 
-[source,indent=0,subs="verbatim"]
+[source]
 ----
 Detected n taint flow(s):
 TaintFlow{SOURCE_POINT -> SINK_POINT}
 ...
 ----
 
-[source,indent=0,subs="verbatim"]
+Each taint flow is a pair of source point and sink point.
+A source point is a variable pointing to a new-generated taint object, and a sink point is a variable pointing to taint objects flowed from the source point.
+
+Since we have several kinds of <<Sources>>, each kind of sources has a corresponding kind of source point:
+
+[cols="1,2,2,3"]
+|===
+| Source | Source Point Description | Source Point Format | Explanation
+
+| Call source
+| A variable at a call site of the source method.
+| `METHOD_SIGNATURE[i@Ln] CALL_STMT/INDEX`
+a| * `METHOD_SIGNATURE`: The method containing the call site.
+   * `[i@Ln]`: Position of the call site.
+   * `CALL_STMT`: The call statement (site).
+   * `INDEX`: <<Variable Index of A Call Site,Index>> of the source point variable.
+
+| Parameter source
+| A parameter of the source method.
+| `METHOD_SIGNATURE/INDEX`
+a| * `METHOD_SIGNATURE`: The source method.
+   * `INDEX`: <<Variable Index of A Method,Index>> of the source point variable.
+
+| Field source
+| A variable that receives loaded value from the source field.
+| `METHOD_SIGNATURE[i@Ln] LOAD_STMT`
+a| * `METHOD_SIGNATURE`: The method containing the load statement.
+   * `[i@Ln]`: Position of the load statement.
+   * `LOAD_STMT`: The load statement.
+|===
+
+The `[i@Ln]` represent the position of a statement, where `i` is the index of the statement in the IR, and `n` is the line number of the statement in the source code, which can help you locate the statement.
+
+Here we give some examples of source points:
+
+* Call source: `<Main: void main(java.lang.String[])>[3@L7] pw = invokestatic Data.getPassword()/result`
+* Parameter source: `<Controller: void doGet(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)>/0`
+* Field source: `<Main: void main(java.lang.String[])> [29@L24] name = p.<Person: java.lang.String name>`
+
+The format of the sink point is exactly the same as call source point, so we won't repeat the explanation here.
+
+=== Taint Flow Graph
+Console output only shows the start and end of the taint flows.
+However, to validate the reported taint flows (and the relevant security vulnerabilities), users need to examine detailed propagation path of taint objects.
+To meet such needs, we define _taint flow graph_ (TFG for short), whose nodes are the program pointers (e.g., variables and fields) that point to taint objects, and edges represent how taint objects flow among the pointers, so that users can check taint flows by going over the TFG.
+
+Tai-e will output the path of the dumped TFG:
+
+[source]
 ----
-Detected 1 taint flow(s):
-TaintFlow{<Server: void main(java.lang.String[])>[12@L8] temp$4 = invokestatic Server.getInput()/result -> <org.apache.logging.log4j.core.net.JndiManager: java.lang.Object lookup(java.lang.String)>[1@L172] $r3 = invokeinterface $r2.lookup(name)/0}
+Dumping ...\tai-e\output\taint-flow-graph.dot
 ----
 
-_taint flow graph_ (TFG)
+TFG is dumped as https://graphviz.org/doc/info/lang.html[DOT] graph.
+For better experience, we recommend you install https://graphviz.org/[Graphviz] and use it to convert DOT to SVG via commend:
+
+[source,shell]
+----
+$ dot -Tsvg taint-flow-graph.dot -o taint-flow-graph.svg
+----
+
+then you can open the TFG with your web browser and examine it.
+
+// TODO: Explain what the different arrows and node shapes represent
+
+NOTE: We will develop more user-friendly mechanism to examine taint analysis result in the future.
 
 // TODO: == Troubleshooting
