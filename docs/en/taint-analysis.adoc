@@ -226,6 +226,111 @@ If you write such a sink in the configuration, then when the taint analysis find
 For how to specify `METHOD_SIGNATURE` and `INDEX`, please see <<Method Signature>> and <<Variable Index of A Method>>.
 
 === Taint Transfers
+In taint analysis, taint is associated with the contents of the data, so that it can be transferred among objects, and such phenomenon is called _taint transfer_.
+Taint transfer happens frequently in real code, and if we cannot handle them properly, many security vulnerabilities would be missed.
+
+==== Introduction
+Below we use an example to illustrate what taint transfer is and how it affects taint analysis.
+
+[source,java,linenums,indent=0,subs="verbatim"]
+----
+String taint = getSecret(); // source
+StringBuilder sb = new StringBuilder();
+sb.append("abc");
+sb.append(taint); // taint is transferred to sb
+sb.append("xyz");
+String s = sb.toString(); // taint is transferred to s
+leak(s); // sink
+----
+
+Suppose that we consider `getSecret()` and `leak()` as source and sink, respectively.
+In this example, the code at line 1 retrieves secret data (in form of a string) and stores it in variable `taint`, and the secret data will finally flow to sink (line 7) via two taint transfers:
+
+1. The method call to `append()` at line 4 appends the contents of `taint` to `sb`, so the `StringBuilder` pointed to by `sb` contains the secret data and should also be treated as tainted data; in other words, `append()` at line 4 transfers taint from `taint` to `sb`.
+2. The method call to `toString()` at line 6 converts the `StringBuilder` to a `String`, which contains the same contents of the `StringBuilder`, so the `String` includes the secret data; in other words, `toString()` transfers taint from `sb` to `s`.
+
+In this example, if the taint analysis cannot propagate taint from `taint` to `sb` and from `sb` to `s`, it will fail to detect the privacy leakage.
+To address such issues, our taint analysis allows users to specify which methods cause taint transfers, and propagates taint flow accordingly.
+
+==== Configuration
+In this section, we introduce how to configure taint transfers.
+The essence of taint transfer is that the method calls to some methods will trigger propagation of taints from specific variables to some other variables of the call sites.
+We call source of taint transfer _from-variable_, and target of taint transfer _to-variable_, e.g., for `sb.append(taint)` in the above example, `taint` is the from-variable and `sb` is the to-variable.
+
+In the configuration file, taint transfers are specified as a list of transfer entries following key `transfers`, for example:
+
+[source,yaml,indent=0,subs="verbatim"]
+----
+transfers:
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.String toString()>", from: base, to: result }
+----
+
+which can handle the taint transfers of the example in <<Introduction>>.
+Specifically, The format of transfer entry is:
+
+[source,yaml,indent=0,subs="verbatim"]
+----
+- { method: METHOD_SIGNATURE, from: INDEX, to: INDEX, type: TYPE }
+----
+
+Here, `METHOD_SIGNATURE` is the method that causes taint transfer, `from` and `to` specify the indexes of from-variable and to-variable at the call site.
+`TYPE` is the type of the transferred taint object, which is also *optional*.
+
+Taint transfer is complicated in real-world programs.
+To detect more security vulnerabilities, our taint analysis supports several kinds of taint transfers.
+You can write different expressions for `from` and `to` in transfer entries to enable different kinds of taint transfers, as listed below:
+
+|===
+| Transfer | From | To
+
+| variable -> variable
+| `INDEX`
+| `INDEX`
+
+| variable -> array
+| `INDEX`
+| `INDEX[*]`
+
+| variable -> field
+| `INDEX`
+| `INDEX.FIELD_NAME`
+
+| array -> variable
+| `INDEX[*]`
+| `INDEX`
+
+| field -> variable
+| `INDEX.FIELD_NAME`
+| `INDEX`
+|===
+
+As a reference, we use an example here to show usefulness of array -> variable transfer.
+
+[source,java,linenums,indent=0,subs="verbatim"]
+----
+String cmd = request.getParameter("cmd"); // source
+Object[] cmds = new Object[]{cmd};
+Expression expr = Factory.newExpression(cmds); // taint transfer: cmds[0] -> expr
+execute(expr); // sink
+----
+
+Suppose that we consider `getParameter()` and `execute()` as source and sink, respectively.
+In this example, the code at line 1 retrieves value from http request (which is uncontrollable and thus treated as source), and stores it in `cmd`.
+The code at line 2 stores `cmd` into an `Object` array, which is used to create an `Expression` at line 3.
+Finally, the `Expression` is passed to `execute()`, which may cause command injection.
+
+To detect this injection, we need to propagate taint from `cmd` to `expr` when analyzing method call `expr = Factory.newExpression(cmds)`.
+At this call, the taint stored in array `cmds` is passed to `expr`, and we can capture this behavior by writing such a taint transfer entry:
+
+[source,yaml,indent=0,subs="verbatim"]
+----
+- { method: "<Factory: Expression newExpression(java.lang.Object[])>", from: "0[*]", to: result }
+----
+
+Here, `from: "0[*]"` means that the taint analysis will search _all elements_ in the array pointed to by _0-th parameter_ (i.e., `cmds`), and if it detects any taint objects, it will propagate them to the variable specified by `to: result` (i.e., `expr`).
+
+NOTE: `[` and `]` are special characters in YAML, so you need to quote them like `"0[*]"`.
 
 === Sanitizers
 
