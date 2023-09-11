@@ -80,6 +80,11 @@ public class OthersModel extends AbstractModel {
     // ---------- Model for java.lang.Object starts ----------
     @InvokeHandler(signature = "<java.lang.Object: java.lang.Class getClass()>", argIndexes = {BASE})
     public void getClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+        if (!invoke.getContainer().isApplication()) {
+            // ignore Object.getClass() in library code, until
+            // we have better treatment with relevant reflective calls
+            return;
+        }
         Var result = invoke.getResult();
         if (result != null) {
             Context context = csVar.getContext();
