@@ -348,6 +348,10 @@ Then the taint analysis will block the propagation of taint objects to the param
 // TODO: === Call-Site Mode
 
 === Multiple Configuration Files
+The taint analysis can load multiple configuration files so that users do not need to write all configuration into one huge file.
+User just needs to put all relevant configuration files into one directory, and pass the path of the directory (`<path/to/config>`) to Tai-e when enabling taint analysis.
+
+NOTE: The taint analysis will walk the directory iteratively when loading configuration, thus you can organize the configuration files as you wish, e.g., put them into multiple subdirectories.
 
 == Output of Taint Analysis
 
