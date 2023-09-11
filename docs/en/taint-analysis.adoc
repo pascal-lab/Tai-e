@@ -333,6 +333,17 @@ Here, `from: "0[*]"` means that the taint analysis will search _all elements_ in
 NOTE: `[` and `]` are special characters in YAML, so you need to quote them like `"0[*]"`.
 
 === Sanitizers
+Our taint analysis allows users to specify sanitizers to reduce false positives.
+This can be done by writing a list of sanitizer entries following key `sanitizers` in the configuration:
+
+[source,yaml,indent=0,subs="verbatim"]
+----
+sanitizers:
+  - { kind: param, method: METHOD_SIGNATURE, index: INDEX }
+  - ...
+----
+
+Then the taint analysis will block the propagation of taint objects to the parameter (specified by `INDEX`) of method `METHOD_SIGNATURE`.
 
 // TODO: === Call-Site Mode
 
