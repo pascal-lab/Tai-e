@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -93,8 +94,12 @@ public class InnerClassManager {
        boolean needSynVal;
        InnerClassCategory category;
 
+       if (outer.isInterface() || binding.isInterface() || TypeUtils.isEnumType(binding)) {
+           return;
+       }
+
        if (binding.isMember()) {
-           if (outer.isInterface() || TypeUtils.isStatic(binding.getModifiers())) {
+           if (TypeUtils.isStatic(binding.getModifiers())) {
                // static member, same with normal class
                return;
            }
@@ -104,11 +109,14 @@ public class InnerClassManager {
        } else {
            if (binding.isAnonymous()) {
                category = InnerClassCategory.ANONYMOUS;
+               boolean hasExplicitEnclosedInstance =
+                       ((ClassInstanceCreation) typeDeclaration.getParent()).getExpression() != null;
+               needSynThis = ! inStaticContext || hasExplicitEnclosedInstance;
            } else {
                assert binding.isLocal();
                category = InnerClassCategory.LOCAL;
+               needSynThis = ! inStaticContext;
            }
-           needSynThis = ! inStaticContext;
            needSynVal = true;
        }
 
@@ -140,7 +148,7 @@ public class InnerClassManager {
 
        innerBindingMap.put(JDTStringReps.getBinaryName(binding),
                new InnerClassDescriptor(binding,
-                       synParaNames, synParaTypes, inStaticContext, category, variableBindingMap));
+                       synParaNames, synParaTypes, ! needSynThis, category, variableBindingMap));
     }
 
     public FieldRef getOuterClassRef(JClass jClass) {

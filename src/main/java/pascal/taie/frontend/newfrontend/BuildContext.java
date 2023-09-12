@@ -70,7 +70,9 @@ public class BuildContext {
     }
 
     public JClass getClassByName(String name) {
-        return defaultClassLoader.loadClass(name);
+        JClass klass = defaultClassLoader.loadClass(name);
+        assert klass != null;
+        return klass;
     }
 
     public ReferenceType fromAsmInternalName(String internalName) {

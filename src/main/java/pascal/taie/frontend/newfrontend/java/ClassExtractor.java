@@ -6,6 +6,8 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -69,6 +71,17 @@ public class ClassExtractor extends ASTVisitor {
 
     @Override
     public boolean visit(AnonymousClassDeclaration node) {
+        noticeNewClass(node);
+        return true;
+    }
+
+    @Override
+    public void endVisit(EnumDeclaration node) {
+        outerClasses.pop();
+    }
+
+    @Override
+    public boolean visit(EnumDeclaration node) {
         noticeNewClass(node);
         return true;
     }
@@ -142,6 +155,17 @@ public class ClassExtractor extends ASTVisitor {
 
     @Override
     public boolean visit(SuperConstructorInvocation node) {
+        inStaticContext.push(true);
+        return true;
+    }
+
+    @Override
+    public void endVisit(EnumConstantDeclaration node) {
+        inStaticContext.pop();
+    }
+
+    @Override
+    public boolean visit(EnumConstantDeclaration node) {
         inStaticContext.push(true);
         return true;
     }

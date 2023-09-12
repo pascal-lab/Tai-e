@@ -23,6 +23,8 @@ import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -60,7 +62,6 @@ import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -68,6 +69,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.JavaMethodSource;
 import pascal.taie.ir.DefaultIR;
@@ -130,10 +132,12 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
+import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -160,6 +164,7 @@ import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.*;
 import static pascal.taie.frontend.newfrontend.java.TypeUtils.*;
 
 
+// TODO: check all the .clone() calls
 public class JavaMethodIRBuilder {
     private static final Logger logger = LogManager.getLogger(JavaMethodIRBuilder.class);
 
@@ -183,6 +188,12 @@ public class JavaMethodIRBuilder {
 
     private final AST rootAst;
 
+    private final ASTNode anonymousParent;
+
+    private final List<ITypeBinding> synParaTypes;
+
+    private final List<String> synParaNames;
+
     public JavaMethodIRBuilder(JavaMethodSource methodSource, JMethod jMethod) {
         this.jMethod = jMethod;
         this.className = jMethod.getDeclaringClass().getName();
@@ -193,6 +204,28 @@ public class JavaMethodIRBuilder {
         this.rootAst = targetMethod == null ? methodSource.cu().getAST() : targetMethod.getAST();
         this.innerDesc = InnerClassManager.get().getInnerClassDesc(
                 getDeclClass());
+        if (getDeclClass().isAnonymous()) {
+            anonymousParent = source.source().getTypeDeclaration().getParent();
+        } else {
+            anonymousParent = null;
+        }
+
+        if (isCtor()) {
+            if (isEnumType(getDeclClass())) {
+                synParaTypes = List.of(rootAst.resolveWellKnownType(ClassNames.STRING),
+                        rootAst.resolveWellKnownType(JDT_INT));
+                synParaNames = List.of(getAnonymousSynCtorArgName(0), getAnonymousSynCtorArgName(1));
+            } else if (innerDesc != null) {
+                synParaTypes = innerDesc.synParaTypes();
+                synParaNames = innerDesc.synParaNames();
+            } else {
+                synParaTypes = List.of();
+                synParaNames = List.of();
+            }
+        } else {
+            synParaTypes = List.of();
+            synParaNames = List.of();
+        }
     }
 
     private ITypeBinding getDeclClass() {
@@ -200,14 +233,8 @@ public class JavaMethodIRBuilder {
     }
 
     public IR build() {
-        try {
-            IRGenerator generator = new IRGenerator();
-            return generator.build();
-        } catch (NewFrontendException e) {
-            logger.error("method " + targetMethod.getName() + " will use Soot IRGenerator");
-            logger.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+        IRGenerator generator = new IRGenerator();
+        return generator.build();
     }
 
     private MethodDeclaration getTargetMethod() {
@@ -225,11 +252,19 @@ public class JavaMethodIRBuilder {
     }
 
     private boolean isCtor() {
-        return (targetMethod == null || targetMethod.isConstructor());
+        return jMethod.isConstructor();
     }
 
-    private boolean needSynParam() {
+    private boolean needToBuildInnerClassAssign() {
         return isCtor() && innerDesc != null;
+    }
+
+    private boolean needToSendArgToAnotherCtor() {
+        return !synParaNames.isEmpty();
+    }
+
+    private boolean isEnumCtor() {
+        return isCtor() && getDeclClass().isEnum();
     }
 
     class IRGenerator {
@@ -385,29 +420,22 @@ public class JavaMethodIRBuilder {
         }
 
         private void buildPara() {
-            if (needSynParam()) {
-                for (int i = 0; i < innerDesc.synParaTypes().size(); ++i) {
-                    Type type = JDTTypeToTaieType(innerDesc.synParaTypes().get(i));
-                    String name = innerDesc.synParaNames().get(i);
-                    Var param = newVar(name, type);
-                    params.add(param);
-                    // don't need to record binding.
-                    // any further reference will use the assigned field, instead of this param
-                }
+            for (int i = 0; i < jMethod.getParamCount(); ++i) {
+                String name = jMethod.getParamName(i);
+                assert name != null;
+                params.add(newVar(name, jMethod.getParamType(i)));
             }
 
             if (targetMethod != null) {
-                var paraTree = targetMethod.parameters();
-                for (var i : paraTree) {
-                    SingleVariableDeclaration svd = (SingleVariableDeclaration) i;
-                    var name = svd.getName();
-                    var nameString = name.getIdentifier();
-                    var type = TypeUtils.JDTTypeToTaieType(svd.resolveBinding().getType());
-                    var aVar = newVar(nameString, type);
-                    params.add(aVar);
-                    context.putBinding((IVariableBinding) name.resolveBinding(), aVar);
+                List<SingleVariableDeclaration> paraTree = targetMethod.parameters();
+                for (int i = 0; i < paraTree.size(); ++i) {
+                    SingleVariableDeclaration svd_i = paraTree.get(i);
+                    context.putBinding((IVariableBinding) svd_i.getName().resolveBinding(),
+                            params.get(i + synParaNames.size()));
                 }
             }
+
+            assert params.size() == jMethod.getParamCount();
         }
 
         private ITypeBinding getSuperClass(ITypeBinding binding) {
@@ -420,11 +448,20 @@ public class JavaMethodIRBuilder {
         }
 
         private void buildBody() {
-            buildCtor();
-            if (targetMethod != null) {
-                buildStmt();
-            } else {
+            if (jMethod.getName().equals(MethodNames.CLINIT)) {
+                buildClinit();
                 context.pushFlow(true);
+            } else if (isEnumType(getDeclClass()) && jMethod.getName().equals(ENUM_METHOD_VALUES)) {
+                buildEnumValues();
+            } else if (isEnumType(getDeclClass()) && jMethod.getName().equals(ENUM_METHOD_VALUE_OF)) {
+                buildEnumValuesOf();
+            } else {
+                buildCtor();
+                if (targetMethod != null) {
+                    buildStmt();
+                } else {
+                    context.pushFlow(true);
+                }
             }
             buildEnd();
         }
@@ -440,12 +477,12 @@ public class JavaMethodIRBuilder {
          * This occurs when this class is an inner class
          */
         private void buildInnerClassAssign() {
-            if (! needSynParam()) {
+            if (! needToBuildInnerClassAssign()) {
                 return;
             }
 
-            for (int i = 0; i < innerDesc.synParaTypes().size(); ++i) {
-                String name = innerDesc.synParaNames().get(i);
+            for (int i = 0; i < synParaTypes.size(); ++i) {
+                String name = synParaNames.get(i);
                 JField field = jMethod.getDeclaringClass().getDeclaredField(name);
                 assert field != null;
                 assert params.size() > i;
@@ -454,10 +491,84 @@ public class JavaMethodIRBuilder {
             }
         }
 
+        private void buildEnumValues() {
+            JField values = jMethod.getDeclaringClass().getDeclaredField(ENUM_VALUES);
+            assert values != null;
+            context.pushStack(new StaticFieldAccess(values.getRef()));
+            Var v = popVar();
+            context.pushStack(new InvokeVirtual(getArrayClone(), v, List.of()));
+            v = popVar();
+            context.pushStack(new CastExp(v, values.getType()));
+            v = popVar();
+            addStmt(new Return(v));
+            addRetVar(v);
+            context.pushFlow(false);
+        }
+
+        private void buildEnumValuesOf() {
+            context.pushStack(ClassLiteral.get(jMethod.getDeclaringClass().getType()));
+            Var v = popVar();
+            context.pushStack(new InvokeStatic(getEnumMethodValueOf(), List.of(v, params.get(0))));
+            v = popVar();
+            context.pushStack(new CastExp(v, jMethod.getDeclaringClass().getType()));
+            v = popVar();
+            addStmt(new Return(v));
+            addRetVar(v);
+            context.pushFlow(false);
+        }
+
+        private void buildClinit() {
+            for (JavaClassInit init : source.source().getClassInits()) {
+                if (init instanceof StaticInit init1) {
+                    visitStmt(init1.initializer().getBody());
+                } else if (init instanceof EnumInit init2) {
+                    buildEnumInit(init2);
+                }
+            }
+        }
+
+        private void buildEnumInit(EnumInit enumInit) {
+            List<Var> consts = new ArrayList<>();
+            for (int i = 0; i < enumInit.enumConsts().size(); ++i) {
+                EnumConstantDeclaration enumConst = enumInit.enumConsts().get(i);
+                String name = enumConst.getName().toString();
+                List<Var> args = new ArrayList<>();
+                context.pushStack(pascal.taie.ir.exp.StringLiteral.get(name));
+                args.add(popVar());
+                context.pushStack(IntLiteral.get(i));
+                args.add(popVar());
+                IMethodBinding ctor = enumConst.resolveConstructorBinding();
+                List<Expression> arguments = enumConst.arguments();
+                Pair<List<Type>, List<Expression>> argTypes = makeParamAndArgs(ctor, arguments);
+                for (Expression exp : argTypes.second()) {
+                    visitExp(exp);
+                    args.add(popVar());
+                }
+                ClassType type = Objects.requireNonNull(getTaieClass(ctor.getDeclaringClass())).getType();
+                MethodRef enumAnonymousInitRef = getEnumInitRef(ctor, false);
+                Var now = genNewObject1(enumAnonymousInitRef, args, type);
+                assert now.getType() != null;
+                JField f = jMethod.getDeclaringClass().getDeclaredField(name);
+                assert f != null;
+                newAssignment(new StaticFieldAccess(f.getRef()), now);
+                consts.add(now);
+            }
+            JField values = jMethod.getDeclaringClass().getDeclaredField(ENUM_VALUES);
+            assert values != null;
+            context.pushStack(IntLiteral.get(enumInit.enumConsts().size()));
+            Var length = popVar();
+            context.pushStack(new NewArray((ArrayType) values.getType(), length));
+            Var arr = popVar();
+            for (int i = 0; i < consts.size(); ++i) {
+                context.pushStack(IntLiteral.get(i));
+                Var idx = popVar();
+                newAssignment(new ArrayAccess(arr, idx), consts.get(i));
+            }
+            newAssignment(new StaticFieldAccess(values.getRef()), arr);
+        }
+
         private void buildCtor() {
-            boolean isCtor = targetMethod == null ||
-                    targetMethod.resolveBinding().isConstructor();
-            if (!isCtor) {
+            if (!isCtor()) {
                 return;
             }
 
@@ -478,10 +589,10 @@ public class JavaMethodIRBuilder {
                         meetThisCall.set(true);
                         IMethodBinding binding = node.resolveConstructorBinding();
                         List<Var> synArgs = new ArrayList<>();
-                        if (needSynParam()) {
-                            for (int i = 0; i < innerDesc.synParaTypes().size(); ++i) {
+                        if (needToSendArgToAnotherCtor()) {
+                            for (int i = 0; i < synParaNames.size(); ++i) {
                                 assert params.get(i).getType().equals(
-                                        JDTTypeToTaieType(innerDesc.synParaTypes().get(i)));
+                                        JDTTypeToTaieType(synParaTypes.get(i)));
                                 synArgs.add(params.get(i));
                             }
                         }
@@ -498,22 +609,9 @@ public class JavaMethodIRBuilder {
                     public boolean visit(SuperConstructorInvocation node) {
                         meetSuperCall.set(true);
                         buildInnerClassAssign();
-                        List<Var> synArgs = new ArrayList<>();
-                        Expression exp = node.getExpression();
-                        IMethodBinding binding = node.resolveConstructorBinding();
-                        ITypeBinding declaringClass = binding.getDeclaringClass();
-                        InnerClassDescriptor descriptor = InnerClassManager.get().getInnerClassDesc(declaringClass);
-                        if (exp != null) {
-                            visitExp(exp);
-                            synArgs.add(popVar());
-                            assert descriptor != null;
-                            appendCaptureSynArgs(synArgs, descriptor);
-                        } else {
-                            appendSynArgsForSuperInit(synArgs, declaringClass);
-                        }
-                        List<Expression> args = node.arguments();
-                        InvokeInstanceExp invoke = getInitInvoke(getThisVar(), synArgs, args,
-                                binding, getInitRef(binding));
+                        InvokeInstanceExp invoke = getSuperInitInvoke(node.getExpression(),
+                                node.resolveConstructorBinding(),
+                                node.arguments());
                         addStmt(new Invoke(jMethod, invoke));
                         context.pushFlow(true);
                         return false;
@@ -547,7 +645,7 @@ public class JavaMethodIRBuilder {
         private void appendSynArgsForSuperInit(List<Var> synArgs, ITypeBinding superType) {
             InnerClassDescriptor descriptor = InnerClassManager.get().getInnerClassDesc(superType);
             if (descriptor != null) {
-                appendEnclosedInstance(synArgs, descriptor);
+                appendEnclosedInstance(null, synArgs, descriptor);
                 appendCaptureSynArgs(synArgs, descriptor);
             }
         }
@@ -564,11 +662,40 @@ public class JavaMethodIRBuilder {
             // Object can never be built by this class
             JClass superClass = Objects.requireNonNull(jMethod.getDeclaringClass().getSuperClass());
             ITypeBinding superClassBinding = getSuperClass(getDeclClass());
-            List<Var> args = new ArrayList<>();
-            appendSynArgsForSuperInit(args, superClassBinding);
-            InvokeInstanceExp invoke = new InvokeSpecial(
-                    getNonArgInitRef(superClass, superClassBinding), getThisVar(), args);
-            addStmt(new Invoke(jMethod, invoke));
+            if (anonymousParent != null) {
+                if (anonymousParent instanceof EnumConstantDeclaration enumConst) {
+                    assert isEnumCtor();
+                    InvokeInstanceExp invoke = new InvokeSpecial(
+                            getEnumInitRef(enumConst.resolveConstructorBinding(), true), getThisVar(),
+                            params);
+                    addStmt(new Invoke(jMethod, invoke));
+                } else if (anonymousParent instanceof ClassInstanceCreation creation) {
+                    Expression enclosedInstance = creation.getExpression();
+                    List<Expression> args = creation.arguments();
+                    IMethodBinding binding = resolveSuperInitForAnonymous(
+                            creation.resolveConstructorBinding());
+                    InvokeInstanceExp invoke = getSuperInitInvoke(enclosedInstance, binding, args);
+                    addStmt(new Invoke(jMethod, invoke));
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            } else {
+                if (superClass.getName().equals(ENUM)) {
+                    assert params.size() >= 2;
+                    List<Var> args = List.of(params.get(0), params.get(1));
+                    MethodRef ref = MethodRef.get(getClassByName(ENUM).getJClass(),
+                            MethodNames.INIT,
+                            getEnumCtorType(), VoidType.VOID, false);
+                    InvokeInstanceExp invoke = new InvokeSpecial(ref, getThisVar(), args);
+                    addStmt(new Invoke(jMethod, invoke));
+                } else {
+                    List<Var> args = new ArrayList<>();
+                    appendSynArgsForSuperInit(args, superClassBinding);
+                    InvokeInstanceExp invoke = new InvokeSpecial(
+                            getNonArgInitRef(superClass, superClassBinding), getThisVar(), args);
+                    addStmt(new Invoke(jMethod, invoke));
+                }
+            }
         }
 
         /**
@@ -1050,21 +1177,28 @@ public class JavaMethodIRBuilder {
             return new CastExp(v, t);
         }
 
-        private List<Var> makeSynArgs(ClassType declClassType) {
+        private List<Var> makeSynArgs(Expression enclosedInstance, ClassType declClassType) {
             String binaryName = declClassType.getName();
             List<Var> synArgs = new ArrayList<>();
             if (InnerClassManager.get().isInnerClass(binaryName)) {
                 InnerClassDescriptor descriptor = InnerClassManager.get().getInnerClassDesc(binaryName);
-                appendEnclosedInstance(synArgs, descriptor);
+                appendEnclosedInstance(enclosedInstance, synArgs, descriptor);
                 appendCaptureSynArgs(synArgs, descriptor);
             }
             return synArgs;
         }
 
-        private void appendEnclosedInstance(List<Var> synArgs, InnerClassDescriptor descriptor) {
+        private void appendEnclosedInstance(Expression enclosedInstance,
+                                            List<Var> synArgs, InnerClassDescriptor descriptor) {
             if (! descriptor.isStatic()) {
+                Var arg;
                 ITypeBinding outerType = descriptor.synParaTypes().get(0);
-                Var arg = getOuterClassOrThis(outerType, false);
+                if (enclosedInstance != null) {
+                    visitExp(enclosedInstance);
+                    arg = popVar();
+                } else {
+                    arg = getOuterClassOrThis(outerType, false);
+                }
                 synArgs.add(arg);
             }
         }
@@ -1084,10 +1218,13 @@ public class JavaMethodIRBuilder {
             }
         }
 
-        protected Var genNewObject(MethodRef init, List<Expression> args, Type declClassType) {
+        protected Var genNewObject(Expression enclosedInstance, IMethodBinding origBinding,
+                                   MethodRef init, List<Expression> args, Type declClassType) {
             ClassType classType = (ClassType) declClassType;
-            List<Var> synArgs = makeSynArgs(classType);
-            return (Var) listCompute(args, init.getParameterTypes().stream().skip(synArgs.size()).toList(),
+            List<Var> synArgs = makeSynArgs(enclosedInstance, classType);
+            Pair<List<Type>, List<Expression>> argTypes = makeParamAndArgs(origBinding, args);
+            assert argTypes.second().size() + synArgs.size() == init.getParameterTypes().size();
+            return (Var) listCompute(argTypes.second(), argTypes.first(),
                     l -> genNewObject1(init, addList(synArgs, l), classType));
         }
 
@@ -1533,7 +1670,7 @@ public class JavaMethodIRBuilder {
                 if (Modifier.isStatic(binding.getModifiers())) {
                     // 1. if this variable is a static field
                     return getSimpleField(binding, null);
-                } else if (isTargetClass(binding.getDeclaringClass())) {
+                } else if (isSuperClass(binding.getDeclaringClass())) {
                     // 2. this variable is an instance field, and this field belongs to this class instance
                     return getSimpleField(binding, getThisVar());
                 } else {
@@ -1579,13 +1716,9 @@ public class JavaMethodIRBuilder {
             }
         }
 
-        protected FieldAccess getOuterClass(IVariableBinding binding, Var thisVar) {
-            return getOuterClass(binding.getDeclaringClass(), thisVar);
-        }
-
         protected FieldAccess getOuterClass(ITypeBinding outerClass, Var thisVar) {
             JClass targetOuterClass = getTaieClass(outerClass);
-            assert targetClass != null;
+            assert targetClass != null && targetOuterClass != null;
             JClass nowClass = targetClass;
             FieldRef ref;
             context.pushStack(thisVar);
@@ -1597,12 +1730,13 @@ public class JavaMethodIRBuilder {
                     throw new NewFrontendException("failed to resolve outer class: " + outerClass);
                 }
                 context.pushStack(new InstanceFieldAccess(ref, thisVar));
-            } while (!Objects.equals(targetOuterClass, nowClass));
+            } while (! isSubType(targetOuterClass.getType(), nowClass.getType()));
             return (InstanceFieldAccess) context.popStack();
         }
 
         protected FieldAccess getOuterClassField(IVariableBinding binding, Var thisVar) {
-            return getSimpleField(binding, expToVar(getOuterClass(binding, thisVar)));
+            return getSimpleField(binding, expToVar(
+                    getOuterClass(binding.getDeclaringClass(), thisVar)));
         }
 
         protected Var getOuterClassOrThis(ITypeBinding type, boolean allowSuper) {
@@ -1710,6 +1844,16 @@ public class JavaMethodIRBuilder {
                             l -> new InvokeSpecial(ref, target, addList(synArgs, l)));
         }
 
+        private InvokeInstanceExp getSuperInitInvoke(Expression enclosedInstance,
+                                                     IMethodBinding binding,
+                                                     List<Expression> args) {
+            ITypeBinding declaringClass = binding.getDeclaringClass();
+            ClassType type = (ClassType) JDTTypeToTaieType(declaringClass);
+            List<Var> synArgs = makeSynArgs(enclosedInstance, type);
+            return getInitInvoke(getThisVar(), synArgs, args,
+                    binding, getInitRef(binding));
+        }
+
         @SuppressWarnings("unchecked")
         private ArrayCreation makeArrCreate(AST ast, List<Expression> exps, Type arrType) {
             ArrayCreation ac = ast.newArrayCreation();
@@ -1738,22 +1882,6 @@ public class JavaMethodIRBuilder {
             public boolean visit(EmptyStatement es) {
                 return false;
             }
-
-//            @Override
-//            public boolean visit(TypeDeclarationStatement tds) {
-//                var decl = tds.getDeclaration();
-//                if (decl instanceof TypeDeclaration td) {
-//                    InnerClassManager.get().addLocalClass(
-//                            td,
-//                            getTargetMethod().resolveBinding(),
-//                            // note: this function just used to handle local variable, so it must return a [Var]
-//                            (k) -> (Var) getSimpleNameBinding(k),
-//                            getThisVar());
-//                }
-//                context.pushFlow(true);
-//                // if enum, not handle.
-//                return false;
-//            }
 
             @SuppressWarnings("unchecked")
             @Override
@@ -1798,8 +1926,8 @@ public class JavaMethodIRBuilder {
             }
 
             /**
-             * If encounter here, then {@code ass} is a {@code Expression Statement}
-             * e.g. x = 10;
+             * If encounter here, then {@code ass} is a Expression Statement
+             * e.g. {@code x = 10};
              */
             @Override
             public boolean visit(Assignment ass) {
@@ -2396,6 +2524,12 @@ public class JavaMethodIRBuilder {
                 context.pushFlow(true);
                 return false;
             }
+
+            @Override
+            public boolean visit(EnumDeclaration enumDeclaration) {
+                context.pushFlow(true);
+                return false;
+            }
         }
 
         class ExpVisitor extends LinenoASTVisitor {
@@ -2475,7 +2609,7 @@ public class JavaMethodIRBuilder {
                 assert exp.getOperator() == InfixExpression.Operator.PLUS;
                 ClassType sb = TypeUtils.getStringBuilder();
                 MethodRef newSb = TypeUtils.getNewStringBuilder();
-                Var sbVar = genNewObject(newSb, List.of(), sb);
+                Var sbVar = genNewObject1(newSb, List.of(), sb);
                 genStringBuilderAppend(sbVar, getAllOperands(exp));
                 context.pushStack(new InvokeVirtual(TypeUtils.getToString(), sbVar, new ArrayList<>()));
             }
@@ -2690,7 +2824,8 @@ public class JavaMethodIRBuilder {
                 Type type = TypeUtils.JDTTypeToTaieType(binding);
                 IMethodBinding methodBinding = cic.resolveConstructorBinding();
                 MethodRef init = getInitRef(methodBinding);
-                Var temp = genNewObject(init, cic.arguments(), type);
+                Expression exp = cic.getExpression();
+                Var temp = genNewObject(exp, methodBinding, init, cic.arguments(), type);
                 context.pushStack(temp);
                 return false;
             }

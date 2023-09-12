@@ -70,8 +70,17 @@ public final class TypeUtils {
     public static final String HAS_NEXT = "hasNext";
     public static final String ITERATOR_TYPE = "java.lang.Iterator";
 
+    public static final String ENUM = "java.lang.Enum";
+
     public static boolean isObject(JClass jClass) {
         return jClass.getName().equals(ClassNames.OBJECT);
+    }
+
+    /**
+     * @return if {@code t1 <: t2}
+     */
+    public static boolean isSubType(ClassType t1, ClassType t2) {
+        return BuildContext.get().getTypeSystem().isSubtype(t1, t2);
     }
 
     public static boolean hasModifier(int modifier, int target) {
@@ -97,6 +106,49 @@ public final class TypeUtils {
         return res;
     }
 
+    public static ClassType getStringType() {
+        return getClassByName(ClassNames.STRING);
+    }
+
+    public static List<Type> getEnumCtorType() {
+        return List.of(getStringType(), PrimitiveType.INT);
+    }
+    public static List<Type> getEnumCtorArgType(List<Type> orig) {
+        return addList(getEnumCtorType(), orig);
+    }
+
+    public static List<String> getAnonymousSynCtorArgName(List<String> orig) {
+        return addList(List.of(getAnonymousSynCtorArgName(0), getAnonymousSynCtorArgName(1)),
+                orig);
+    }
+
+    public static boolean isEnumType(ITypeBinding binding) {
+        return binding.isEnum() || (binding.isAnonymous() && binding.getSuperclass().isEnum());
+    }
+
+    public static String getAnonymousSynCtorArgName(int index) {
+        return "val$" + index;
+    }
+
+    public static MethodRef getEnumMethodValueOf() {
+        JClass enumKlass = getClassByName(ENUM).getJClass();
+        assert enumKlass != null;
+        return MethodRef.get(enumKlass,
+                ENUM_METHOD_VALUE_OF, List.of(getClassByName(ClassNames.CLASS),
+                        getClassByName(ClassNames.STRING)),
+                getClassByName(ENUM), true);
+    }
+
+    public static String ENUM_VALUES = "VALUES";
+
+    public static String ENUM_METHOD_VALUES = "values";
+
+    public static String ENUM_METHOD_VALUE_OF = "valueOf";
+
+    public static MethodRef getArrayClone() {
+        return MethodRef.get(getClassByName(ClassNames.ARRAY).getJClass(),
+                "clone", List.of(), getClassByName(ClassNames.OBJECT), false);
+    }
     /**
      * Only handle modifier in source
      */
@@ -332,6 +384,10 @@ public final class TypeUtils {
             case "!=" -> ConditionExp.Op.NE;
             default -> throw new NewFrontendException(op + " is not Condition OP, why use this function?");
         };
+    }
+
+    public static ClassType getClassByName(String name) {
+       return (ClassType) BuildContext.get().fromAsmInternalName(name);
     }
 
     public static Type anyException() {
