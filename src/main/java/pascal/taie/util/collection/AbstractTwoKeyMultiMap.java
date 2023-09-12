@@ -101,7 +101,7 @@ public abstract class AbstractTwoKeyMultiMap<K1, K2, V> implements
                     return false;
                 }
             }
-        } catch (ClassCastException | NullPointerException __) {
+        } catch (ClassCastException | NullPointerException ignored) {
             return false;
         }
         return true;

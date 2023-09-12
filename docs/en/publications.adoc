@@ -1,4 +1,3 @@
-[[publications]]
 include::attributes.adoc[]
 
 = Publications

@@ -1,4 +1,3 @@
-[[index]]
 include::attributes.adoc[]
 
 = Tai-e Reference Documentation

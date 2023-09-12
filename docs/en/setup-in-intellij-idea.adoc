@@ -1,4 +1,3 @@
-[[setup-in-intellij-idea]]
 include::attributes.adoc[]
 
 = Setup Tai-e in IntelliJ IDEA

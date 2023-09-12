@@ -1,4 +1,3 @@
-[[pointer-analysis-framework]]
 include::attributes.adoc[]
 
 = Pointer Analysis Framework
@@ -101,7 +100,7 @@ Suppose we are implementing a taint analysis that interacts with pointer analysi
 1. Create a plugin class that implements `Plugin` interface.
 
 +
-[source,java,indent=0,subs="verbatim"]
+[source,java,subs="verbatim"]
 ----
 package my.example;
 
@@ -112,7 +111,7 @@ public class TaintAnalysis implements Plugin {
 2. Implement necessary APIs of `Plugin` with the analysis logics.
 
 +
-[source,java,indent=0,subs="verbatim"]
+[source,java,subs="verbatim"]
 ----
     private Solver solver;
 
@@ -142,7 +141,7 @@ public class TaintAnalysis implements Plugin {
 
 Analysis plugins are loaded via reflection, so that you do not need to modify existing code to integrate the plugin. Simply add the plugin class name to the `plugins` option of pointer analysis to turn it on:
 
-[source,shell,indent=0]
+[source,shell]
 ----
 ... -a pta=plugins:[my.example.TaintAnalysis];...
 ----

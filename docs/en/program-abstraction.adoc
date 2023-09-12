@@ -1,4 +1,3 @@
-[[program-abstraction]]
 include::attributes.adoc[]
 
 = Program Abstraction in Tai-e (core classes and IR)

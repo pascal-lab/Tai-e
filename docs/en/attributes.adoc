@@ -10,5 +10,6 @@
 :hide-uri-scheme:
 :docinfo: shared
 :attribute-missing: warn
+:source-highlighter: coderay
 :chomp: default headers packages
 :authors: Tian Tan; Yue Li

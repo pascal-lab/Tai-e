@@ -1,4 +1,3 @@
-[[develop-new-analysis]]
 include::attributes.adoc[]
 
 = How to Develop A New Analysis on Tai-e?
@@ -21,7 +20,7 @@ At first, you need to implement your analysis class, which should extend either 
 
 Note that above `*Analysis` classes are generic and the type parameter is identical to the type of analysis result, which is the __return type __of the corresponding `analyze` method, i.e., Tai-e assumes that return value of `analyze` is the analysis result (and manages results based on such assumption). Below we give some tips that may be useful for developing new analysis.
 
-* _Get familiar with Tai-e_: See <<program-abstraction#program-abstraction,Program Abstraction in Tai-e>> for more information about Tai-e, such as the important classes that you might use when writing new analysis.
+* _Get familiar with Tai-e_: See <<program-abstraction#,Program Abstraction in Tai-e>> for more information about Tai-e, such as the important classes that you might use when writing new analysis.
 
 * _Obtain options_: Global options are available at `World.get().getOptions()`; options with respect to each analysis are dispatched to each `Analysis` object, and can be accessed by `getOptions()` within the analysis class.
 
@@ -41,7 +40,7 @@ We give a simple example to illustrate how to add a new analysis to Tai-e.
 
 Suppose that we are going to implement an intra-procedural dead code detection, which requires CFG and the analysis results of live variable analysis and constant propagation. We choose to extend `MethodAnalysis`, and complete the required tasks as explained in Step 1 (we omit concrete analysis logic for simplicity):
 
-[source,java,indent=0,subs="verbatim"]
+[source,java,subs="verbatim"]
 ----
 package my.example;
 
@@ -72,7 +71,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
 
 Then we register the analysis by adding its information to `src/main/resources/tai-e-analyses.yml` (The analysis does not have options, thus we can ignore item `options`):
 
-[source,yaml,indent=0,subs="verbatim",configprops,configblocks]
+[source,yaml,subs="verbatim",configprops,configblocks]
 ----
 - description: dead code detection
   analysisClass: my.example.DeadCodeDetection
