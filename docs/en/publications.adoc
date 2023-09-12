@@ -4,24 +4,24 @@ include::attributes.adoc[]
 
 * Tian Tan and Yue Li. *Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics*. In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis, Seattle, WA, USA. July 17--21, 2023 (ISSTA'23).
 
-* Wenjie Ma, Shengyuan Yang, Tian Tan, Xiaoxing Ma, Chang Xu and Yue Li. *Context Sensitivity without Context: A Cut-Shortcut Approach to Fast and Precise Pointer Analysis*. In Proceedings of the ACM on Programming Languages, 2023 (PLDI'23).
+* Wenjie Ma, Shengyuan Yang, Tian Tan, Xiaoxing Ma, Chang Xu and Yue Li. _Context Sensitivity without Context: A Cut-Shortcut Approach to Fast and Precise Pointer Analysis_. In Proceedings of the ACM on Programming Languages, 2023 (PLDI'23).
 
-* Tian Tan, Yue Li, Xiaoxing Ma, Chang Xu, and Yannis Smaragdakis. *Making Pointer Analysis More Precise by Unleashing the Power of Selective Context Sensitivity*. In Proceedings of the ACM on Programming Languages, 2021 (OOPSLA'21).
+* Tian Tan, Yue Li, Xiaoxing Ma, Chang Xu, and Yannis Smaragdakis. _Making Pointer Analysis More Precise by Unleashing the Power of Selective Context Sensitivity_. In Proceedings of the ACM on Programming Languages, 2021 (OOPSLA'21).
 
-* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. *A Principled Approach to Selective Context Sensitivity for Pointer Analysis*. ACM Transactions on Programming Languages and Systems, 2020 (TOPLAS'20).
+* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. _A Principled Approach to Selective Context Sensitivity for Pointer Analysis_. ACM Transactions on Programming Languages and Systems, 2020 (TOPLAS'20).
 
-* Yue Li, Tian Tan, and Jingling Xue. *Understanding and Analyzing Java Reflection*. ACM Transactions on Software Engineering and Methodology, 2019 (TOSEM'19).
+* Yue Li, Tian Tan, and Jingling Xue. _Understanding and Analyzing Java Reflection_. ACM Transactions on Software Engineering and Methodology, 2019 (TOSEM'19).
 
-* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. *Scalability-First Pointer Analysis with Self-Tuning Context-Sensitivity*. In Proceedings of the 2018 ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering, Lake Buena Vista, FL, USA, November 04-09, 2018 (ESEC/FSE'18).
+* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. _Scalability-First Pointer Analysis with Self-Tuning Context-Sensitivity_. In Proceedings of the 2018 ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering, Lake Buena Vista, FL, USA, November 04-09, 2018 (ESEC/FSE'18).
 
-* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. *Precision-Guided Context Sensitivity for Pointer Analysis*. Proceedings of the ACM on Programming Languages, 2018 (OOPSLA'18).
+* Yue Li, Tian Tan, Anders Møller, and Yannis Smaragdakis. _Precision-Guided Context Sensitivity for Pointer Analysis_. Proceedings of the ACM on Programming Languages, 2018 (OOPSLA'18).
 
-* Tian Tan, Yue Li, and Jingling Xue. *Efficient and Precise Points-to Analysis: Modeling the Heap by Merging Equivalent Automata*. In Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation, Barcelona, Spain, June 18-23, 2017 (PLDI'17).
+* Tian Tan, Yue Li, and Jingling Xue. _Efficient and Precise Points-to Analysis: Modeling the Heap by Merging Equivalent Automata_. In Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation, Barcelona, Spain, June 18-23, 2017 (PLDI'17).
 
-* Tian Tan, Yue Li, and Jingling Xue. *Making k-Object-Sensitive Pointer Analysis More Precise with Still k-Limiting*. In 23rd International Static Analysis Symposium, Edinburgh, UK, September 8-10, 2016, Proceedings (SAS'16).
+* Tian Tan, Yue Li, and Jingling Xue. _Making k-Object-Sensitive Pointer Analysis More Precise with Still k-Limiting_. In 23rd International Static Analysis Symposium, Edinburgh, UK, September 8-10, 2016, Proceedings (SAS'16).
 
-* Yue Li, Tian Tan, Yifei Zhang, and Jingling Xue. *Program Tailoring: Slicing by Sequential Criteria*. In Proceeding of 30th European Conference on Object-Oriented Programming, July 18-22, 2016, Rome, Italy (ECOOP'16).
+* Yue Li, Tian Tan, Yifei Zhang, and Jingling Xue. _Program Tailoring: Slicing by Sequential Criteria_. In Proceeding of 30th European Conference on Object-Oriented Programming, July 18-22, 2016, Rome, Italy (ECOOP'16).
 
-* Yue Li, Tian Tan, and Jingling Xue. *Effective Soundness-Guided Reflection Analysis*. In  22nd International Static Analysis Symposium, Saint-Malo, France, September 9-11, 2015, Proceedings (SAS'15).
+* Yue Li, Tian Tan, and Jingling Xue. _Effective Soundness-Guided Reflection Analysis_. In  22nd International Static Analysis Symposium, Saint-Malo, France, September 9-11, 2015, Proceedings (SAS'15).
 
-* Yue Li, Tian Tan, Yulei Sui, and Jingling Xue. *Self-Inferencing Reflection Resolution for Java*. In 28th European Conference, Uppsala, Sweden, July 28 * August 1, 2014. Proceedings (ECOOP'14).
+* Yue Li, Tian Tan, Yulei Sui, and Jingling Xue. _Self-Inferencing Reflection Resolution for Java_. In 28th European Conference, Uppsala, Sweden, July 28 * August 1, 2014. Proceedings (ECOOP'14).

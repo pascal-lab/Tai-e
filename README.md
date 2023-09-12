@@ -5,6 +5,7 @@
 
 [![test](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml/badge.svg)](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml)
 [![java](https://img.shields.io/badge/Java-17-informational)](http://openjdk.java.net/)
+[![maven-central](https://img.shields.io/badge/dynamic/xml.svg?label=maven-central&color=f1834d&query=//metadata/versioning/latest&url=https://repo1.maven.org/maven2/net/pascal-lab/tai-e/maven-metadata.xml)](https://search.maven.org/artifact/net.pascal-lab/tai-e)
 [![codecov](https://codecov.io/gh/pascal-lab/Tai-e/branch/master/graph/badge.svg)](https://codecov.io/gh/pascal-lab/Tai-e)
 [![DOI](https://img.shields.io/badge/DOI-10.1145/3597926.3598120-blue)](https://doi.org/10.1145/3597926.3598120)
 
@@ -49,6 +50,67 @@ As a courtesy to the developers, we expect that you **please [cite](CITATION.bib
 Tian Tan and Yue Li. 2023.
 **Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics.**
 In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, USA ([pdf](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf), [bibtex](CITATION.bib)).
+
+## Including Tai-e in your Project
+
+Tai-e is available on Maven Central, allowing you to easily add it to your Java projects using Gradle, Maven, etc.
+
+### Stable version
+
+* Gradle:
+
+```kotlin
+dependencies {
+    implementation("net.pascal-lab:tai-e:0.2.2")
+}
+```
+
+* Maven:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>net.pascal-lab</groupId>
+        <artifactId>tai-e</artifactId>
+        <version>0.2.2</version>
+    </dependency>
+</dependencies>
+```
+
+### Latest version
+
+* Gradle:
+
+```kotlin
+repositories {
+    mavenCentral()
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+}
+
+dependencies {
+    implementation("net.pascal-lab:tai-e:0.5.1-SNAPSHOT")
+}
+```
+
+* Maven:
+
+```xml
+<repositories>
+    <repository>
+        <id>snapshots</id>
+        <name>Sonatype snapshot server</name>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>net.pascal-lab</groupId>
+        <artifactId>tai-e</artifactId>
+        <version>0.5.1-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+```
 
 ## How to Obtain Runnable Jar of Tai-e?
 

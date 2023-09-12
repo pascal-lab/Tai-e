@@ -77,8 +77,9 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                 throw new RuntimeException("""
                         Failed to locate Java library.
                         Please clone submodule 'java-benchmarks' by command:
-                        git submodule update --init --recursive
-                        and put it in Tai-e's working directory.""");
+                        'git submodule update --init --recursive' (if you are running Tai-e)
+                        or 'git clone https://github.com/pascal-lab/java-benchmarks' (if you are using Tai-e as a dependency),
+                        then put it in Tai-e's working directory.""");
             }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());

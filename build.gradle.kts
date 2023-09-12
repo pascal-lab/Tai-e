@@ -1,13 +1,12 @@
 plugins {
     application
     id("tai-e.conventions")
+    id("maven-publish.conventions")
 }
 
-group = "net.pascal-lab"
-description = "tai-e"
-allprojects {
-    version = "0.2.2-SNAPSHOT"
-}
+group = projectGroupId
+description = projectArtifactId
+version = projectVersion
 
 dependencies {
     // Process options
@@ -21,7 +20,8 @@ dependencies {
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
         // Disable transitive dependencies from Soot in compile classpath
-        implementation(it) { isTransitive = false }
+        compileOnly(it) { isTransitive = false }
+        testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
     // Use ASM to read Java class files

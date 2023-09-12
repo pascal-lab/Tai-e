@@ -28,8 +28,8 @@ tasks.withType<Javadoc> {
     options {
         this as StandardJavadocDocletOptions
         // style
-        title = "Tai-e API"
-        overview = javadocConfigDir.resolve("overview.html").path
+        title = "Tai-e $projectVersion API"
+            overview = javadocConfigDir.resolve("overview.html").path
         addStringOption("-add-stylesheet",
             javadocConfigDir.resolve("javadoc.css").path)
         header = javadocConfigDir.resolve("header.html").readText().escapeLineBreaking()

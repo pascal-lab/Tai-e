@@ -7,6 +7,8 @@ repositories {
     mavenCentral()
 }
 
+version = projectVersion
+
 val asciidoctorExtensions: Configuration by configurations.creating
 
 dependencies {
