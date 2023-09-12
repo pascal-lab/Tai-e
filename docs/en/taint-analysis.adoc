@@ -1,43 +1,47 @@
 [[taint-analysis]]
 include::attributes.adoc[]
 
-= Taint Analysis
+= How to Use Taint Analysis?
 
 Tai-e provides a configurable and powerful taint analysis for detecting security vulnerabilities.
-We develop taint analysis based on the pointer analysis framework, so that it can benefit from the techniques (e.g., various context sensitivity and heap abstraction techniques) and implementations (e.g., the handling of complex language features such as reflection and lambda functions) provided by the pointer analysis framework.
-In this documentation, we introduce how to use our taint analysis.
+We develop taint analysis based on the pointer analysis framework, enabling it to leverage advanced techniques (including various context sensitivity and heap abstraction techniques) and implementations (including the handling of complex language features such as reflection and lambda functions) provided by the pointer analysis framework.
+This documentation is dedicated to providing guidance on using our taint analysis.
 
 == Enabling Taint Analysis
+
 In Tai-e, taint analysis is designed and implemented as a plugin of pointer analysis framework.
-To enable taint analysis, just start pointer analysis with option `taint-config`, for example:
+To enable taint analysis, simply start pointer analysis with option `taint-config`, for example:
 
 [source]
 ----
 -a pta=...;taint-config:<path/to/config>;...
 ----
 
-then Tai-e will run taint analysis (together with pointer analysis) using a configuration file specified by `<path/to/config>` (if you need to specify multiple configuration files, please see <<Multiple Configuration Files>>).
-We will introduce how to write a configuration file in the next section.
+then Tai-e will run taint analysis (together with pointer analysis) using a configuration file specified by `<path/to/config>` (if you need to specify multiple configuration files, please refer to <<Multiple Configuration Files>>).
+In the upcoming section, we will provide a comprehensive guide on crafting a configuration file.
 
 TIP: You could use various pointer analysis techniques to obtain different precision/efficiency tradeoffs.
-For more information, see <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
+For additional details, please refer to <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
 
 == Configuring Taint Analysis
-In this section, we introduce how to configure sources, sinks, taint transfers, and sanitizers of the taint analysis through a configuration file written in YAML.
-As an example. you could first take a look at https://github.com/pascal-lab/Tai-e/blob/master/src/test/resources/pta/taint/taint-config.yml[taint-config.yml] from our test cases to get a general impression.
 
-NOTE: Some configuration values contain special characters, e.g., spaces, `[` and `]`.
-To ensure that they can be properly processed by YAML parser, remember to *quote* such values.
+In this section, we present instructions on configuring sources, sinks, taint transfers, and sanitizers for the taint analysis using a YAML configuration file.
+To get a broad understanding, you can start by examining the https://github.com/pascal-lab/Tai-e/blob/master/src/test/resources/pta/taint/taint-config.yml[taint-config.yml] file from our test cases as an illustrative example.
 
-=== General Notions
-We first introduce some general notions used in the configuration.
+NOTE: Certain configuration values include special characters, such as spaces, `[`, and `]`.
+To ensure these values are correctly interpreted by the YAML parser, please make sure to enclose them within *quotation marks*.
+
+=== Basic Concepts
+
+We first present several basic concepts employed in the configuration.
 
 ==== Type
-You may write following types in configuration.
+
+You may write following types in configuration:
 
 [cols="1,2,2"]
 |===
-| Type | Description | Examples
+| Type | Format | Examples
 
 | Class type
 | Fully-qualified class name.
@@ -45,15 +49,16 @@ You may write following types in configuration.
 
 | Array type
 | A type following by one or more `[]`, where the number of `[]` equals the number of the array dimension.
-| `java.lang.String[]`, `org.example.MyClass[][]`
+| `java.lang.String[]`, `org.example.MyClass[][]`, `char[]`
 
 | Primitive type
-| The primitive types in Java.
+| Primitive type names in Java.
 | `int`, `char`, etc.
 |===
 
 ==== Method Signature
-In the configuration, we use method signature to uniquely identify a method in the program being analyzed.
+
+In the configuration, we employ a method signature to provide a unique identifier for a method in the analyzed program.
 The format of a method signature is given below:
 
 [source]
@@ -65,7 +70,7 @@ The format of a method signature is given below:
 * `RETURN_TYPE`: The return type of the method.
 * `METHOD_NAME`: The name of the method.
 * `PARAMETER_TYPES`: The list of parameters types of the method.
-Multiple parameter types are separated by `,` (NOTE: do not insert spaces around `,`).
+Multiple parameter types are separated by `,` (Do not insert spaces around `,`!).
 If the method has no parameters, just write `()`.
 
 For example, the signatures of methods `equals` and `toString` of `Object` are:
@@ -77,7 +82,8 @@ For example, the signatures of methods `equals` and `toString` of `Object` are:
 ----
 
 ==== Field Signature
-Similar to methods, we use field signature to uniquely identify a field in the program being analyzed.
+
+Just like methods, field signatures serve the purpose of uniquely identifying fields within the analyzed program.
 The format of a field signature is given below:
 
 [source]
@@ -85,7 +91,7 @@ The format of a field signature is given below:
 <CLASS_TYPE: FIELD_TYPE FIELD_NAME>
 ----
 
-* `CLASS_TYPE`: The class in which the method is declared.
+* `CLASS_TYPE`: The class in which the field is declared.
 * `FIELD_TYPE`: The type of the field.
 * `FIELD_NAME`: The name of the field.
 
@@ -108,25 +114,28 @@ is
 ----
 
 ==== Variable Index
-When configuring taint analysis, we usually need to specify a variable of a call site or a method, and this can be done by _variable index_.
+
+When setting up taint analysis, it's typically necessary to indicate a variable at a call site or within a method.
+This can be accomplished using _variable index_.
 
 ===== Variable Index of A Call Site
-We classify variables at a call site into following kinds:
+
+We classify variables at a call site into several kinds, and provide their corresponding indexes below:
 
 [cols="1,3,1"]
 |===
 | Kind | Description | Index
 
 | Result variable
-| The variable that receives the result of the method call, i.e., the LHS variable of the call site.
+| The variable that receives the result of the method call, also known as the left-hand side (LHS) variable of the call site.
 | `result`
 
 | Base variable
-| The variable that points to the receiver object of the method call. This variable is absent for static method calls.
+| The variable that points to the receiver object of the method call. Note that this variable is absent in the cases of static method calls.
 | `base`
 
 | Arguments
-| The arguments of the call site, counting from 0.
+| The arguments of the call site, indexed starting from 0.
 | `0`, `1`, `2`, ...
 |===
 
@@ -142,8 +151,9 @@ r = o.foo(p, q);
 * The indexes of variables `p` and `q` are `0` and `1`.
 
 ===== Variable Index of A Method
+
 Currently, we support specifying parameters of a method using indexes.
-Similar to arguments of a call site, the parameters are counted from 0.
+Similar to arguments of a call site, the parameters are indexed starting from 0.
 For example, the indexes of parameters `t`, `s`, and `o` of method `foo` below are `0`, `1`, and `2`.
 
 [source,java]
@@ -172,6 +182,7 @@ sources:
 Our taint analysis supports several kinds of sources, as introduced in the next sections.
 
 ==== Call Sources
+
 This should be the most-commonly used source kind, for the cases that the taint objects are generated at call sites.
 The format of this kind of sources is:
 
@@ -180,15 +191,41 @@ The format of this kind of sources is:
 - { kind: call, method: METHOD_SIGNATURE, index: INDEX, [underline]#type: TYPE# }
 ----
 
-If you write such a source in the configuration, then when the taint analysis finds that method  `METHOD_SIGNATURE` is called by call site _l_, it will generate a taint object of type `TYPE` for the variable specified by `INDEX` at call site _l_.
-For how to specify `METHOD_SIGNATURE` and `INDEX`, please see <<Method Signature>> and <<Variable Index of A Call Site>>.
+If you write such a source in the configuration, then when the taint analysis finds that method  `METHOD_SIGNATURE` is invoked at call site _l_, it will generate a taint object of type `TYPE` for the variable indicated by `INDEX` at call site _l_.
+For how to specify `METHOD_SIGNATURE` and `INDEX`, please refer to <<Method Signature>> and <<Variable Index of A Call Site>>.
 
-We highlight [underline]#`type: TYPE`# by [underline]#underline# to represent that it is *optional* in call source configuration.
-When it is omitted, the taint analysis will use corresponding declared type from the method (return type for _result variable_, declaring class type for _base variable_, and parameter types for _arguments_) as the type for the generated taint object.
+We use [underline]#underlining# to emphasize the optional nature of [underline]#`type: TYPE`# in call source configuration.
+When it is not specified, the taint analysis will utilize the corresponding declared type from the method.
+This includes using the return type for the _result variable_, the declaring class type for the _base variable_, and the parameter types for _arguments_ as the type for the generated taint object.
 
-NOTE: In the rest of this documentation, we also use [underline]#underline# to represent *optional*.
+TIP: Someone may wonder why we need to include `type: TYPE` in the configuration for taint objects when we can already obtain the declared type from the method.
+This is because the type of taint objects should align with the corresponding actual objects.
+However, in certain situations, the actual object type related to the method might be a *subclass* of the declared type.
+Therefore, we use `type: TYPE` to specify the precise object type in such cases.
+As an illustration, consider the code snippet below.
+In this snippet, the source method `Z.source()` declares its return type as `X`, but it actually returns an object of type `Y`, which is a subclass of `X`.
+Therefore, we can define `type: Y` for the taint object generated by `Z.source()` method.
+
+[source,java]
+----
+class X {...}
+
+class Y extends X { ... }
+
+class Z {
+    X source() {
+        ...
+        return new Y();
+    }
+}
+----
+
+NOTE: Throughout the rest of this documentation, we will also use [underline]#underlining# to indicate *optional* elements.
+The reasons for specifying `type: TYPE` in other cases are similar to those for call sources.
+In these situations, the type of generated taint object may be a *subclass* of the corresponding declared type.
 
 ==== Parameter Sources
+
 Some methods, e.g., entry methods, have no explicit call sites in the program, so we cannot generate taint objects for the variables at their call sites.
 However, it is sometime useful to generate taint objects for their parameters.
 To meet such needs, our taint analysis allows you to configure parameter sources:
