@@ -21,9 +21,12 @@ import pascal.taie.project.Resource;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,11 +115,7 @@ public class JavaClassManager {
                 JavaSourceFile file = sourceFileMap.get(sourceFilePath);
                 assert file != null;
                 class2Source.put(file, ast);
-                for (IProblem problem : ast.getProblems()) {
-                    if (problem.isError()) {
-                        logger.error(makeLogError(problem));
-                    }
-                }
+                logJDTError(ast);
             }
         }, new NullProgressMonitor());
         parsed = true;
@@ -200,11 +199,66 @@ public class JavaClassManager {
         }
     }
 
-    private static String makeLogError(IProblem problem) {
-        String fileName = new String(problem.getOriginatingFileName());
+    private static void logJDTError(CompilationUnit unit) {
+        List<IProblem> errors = Arrays.stream(unit.getProblems())
+                .filter(IProblem::isError)
+                .toList();
+        if (! errors.isEmpty()) {
+            String fileName = new String(errors.get(0).getOriginatingFileName());
+            Path p = Paths.get(fileName);
+            try {
+                String sourceCode = Files.readString(p);
+                for (IProblem error : errors) {
+                    logger.error(makeLogError(error, unit, sourceCode, fileName));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static String makeLogError(IProblem problem,
+                                       CompilationUnit unit,
+                                       String sourceCode,
+                                       String fileName) {
         String message = problem.getMessage();
         int loc = problem.getSourceLineNumber();
-        return "[JDT ERROR] in [" + fileName + "], line " + loc + ":\n" +
-                "            " + message;
+        int sourceStart = problem.getSourceStart();
+        int columnStart = unit.getColumnNumber(sourceStart);
+        int sourceEnd = problem.getSourceEnd();
+        int columnEnd = unit.getColumnNumber(sourceEnd);
+        int lineStart = unit.getPosition(loc, 0);
+        int lineEnd = unit.getPosition(loc + 1, 0);
+        if (lineEnd < 0) {
+            lineEnd = sourceCode.length();
+        }
+
+        String spaces = "            ";
+        StringBuilder code = new StringBuilder(spaces);
+        StringBuilder highLight = new StringBuilder(spaces);
+        for (int i = lineStart; i < lineEnd; ++i) {
+            char current = sourceCode.charAt(i);
+            code.append(current);
+            if (i >= sourceStart && i <= sourceEnd) {
+                highLight.append(buildErrorHighlight(current, '^'));
+            } else {
+                highLight.append(buildErrorHighlight(current, ' '));
+            }
+        }
+        String codeStr = code.toString();
+        return "[JDT ERROR] in [" + fileName + "], line " + loc +
+                "(" + columnStart + "," + columnEnd + ")" + ":" + System.lineSeparator() +
+                codeStr.stripTrailing() + System.lineSeparator() +
+                highLight.toString().stripTrailing() + System.lineSeparator() +
+                spaces + message;
+    }
+
+    private static boolean isLatin(char c) {
+        return StandardCharsets.ISO_8859_1.newEncoder().canEncode(c);
+    }
+
+    private static String buildErrorHighlight(char c, char what) {
+        String res = String.valueOf(what);
+        return isLatin(c) ? res : res + res;
     }
 }
