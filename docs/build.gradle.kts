@@ -60,3 +60,20 @@ tasks.named("asciidoctorPdf", org.asciidoctor.gradle.jvm.pdf.AsciidoctorPdfTask:
         sources { include("index-single.adoc") }
     }
 }
+
+task("all", type = Zip::class) {
+    group = "documentation"
+    description = "Builds all documentation"
+    archiveFileName.set("tai-e-docs.zip")
+    destinationDirectory.set(layout.buildDirectory)
+    dependsOn(":docs:asciidoctor", ":docs:asciidoctorPdf", ":javadoc")
+    from(layout.buildDirectory.dir("docs/asciidoc")) {
+        into("$projectVersion/reference")
+    }
+    from(layout.buildDirectory.dir("docs/asciidocPdf")) {
+        into("$projectVersion/reference")
+    }
+    from(rootProject.layout.buildDirectory.dir("docs/javadoc")) {
+        into("$projectVersion/api")
+    }
+}

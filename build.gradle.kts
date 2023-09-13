@@ -53,7 +53,7 @@ task("fatJar", type = Jar::class) {
         }
     )
     from("COPYING", "COPYING.LESSER")
-    destinationDirectory.set(rootProject.getLayout().getBuildDirectory())
+    destinationDirectory.set(rootProject.layout.buildDirectory)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     with(tasks["jar"] as CopySpec)
 }
@@ -61,7 +61,7 @@ task("fatJar", type = Jar::class) {
 tasks.jar {
     from("COPYING", "COPYING.LESSER")
     from(zipTree("lib/sootclasses-modified.jar"))
-    destinationDirectory.set(rootProject.getLayout().getBuildDirectory())
+    destinationDirectory.set(rootProject.layout.buildDirectory)
 }
 
 tasks.withType<Test> {
