@@ -66,11 +66,8 @@ task("all", type = Zip::class) {
     description = "Builds all documentation"
     archiveFileName.set("tai-e-docs.zip")
     destinationDirectory.set(layout.buildDirectory)
-    dependsOn(":docs:asciidoctor", ":docs:asciidoctorPdf", ":javadoc")
+    dependsOn(":docs:asciidoctor", ":javadoc")
     from(layout.buildDirectory.dir("docs/asciidoc")) {
-        into("$projectVersion/reference")
-    }
-    from(layout.buildDirectory.dir("docs/asciidocPdf")) {
         into("$projectVersion/reference")
     }
     from(rootProject.layout.buildDirectory.dir("docs/javadoc")) {

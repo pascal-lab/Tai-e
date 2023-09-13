@@ -2,7 +2,8 @@ include::attributes.adoc[]
 
 = Tai-e Reference Documentation
 
-This documentation is also available as link:index-single.html[a single-page html] and as link:index-single.pdf[a PDF].
+This documentation is also available as link:index-single.html[a single-page html].
+// and as link:index-single.pdf[a PDF].
 
 The reference documentation consists of the following sections:
 
