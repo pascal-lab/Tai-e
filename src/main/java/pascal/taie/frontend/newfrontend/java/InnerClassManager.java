@@ -183,6 +183,36 @@ public class InnerClassManager {
         resolved = true;
     }
 
+    /**
+     * Consider such situation:
+     * <pre>
+     *  {@code
+     *  void f() {
+     *      int k, h = 0;
+     *      class A {
+     *          void g() {
+     *              System.out.println(k);
+     *          }
+     *      }
+     *
+     *      class B extends A {
+     *          void g() {
+     *              super.g();
+     *              System.out.println(h);
+     *          }
+     *      }
+     *  }
+     *  }
+     * </pre>
+     * <p>
+     * Clearly, both {@code k} and {@code h} should be captured by {@code B},
+     * but our algorithm in prev stage can only detect {@code A capture k}, {@code B capture h}.
+     * </p>
+     * <p>
+     * So, after the extraction stage, we perform closure computing to
+     * collect all captured variables
+     * </p>
+     */
     private void fixTransitiveCaptures(InnerClassDescriptor descriptor) {
         ITypeBinding current = descriptor.type();
         ITypeBinding superClass = current.getSuperclass();

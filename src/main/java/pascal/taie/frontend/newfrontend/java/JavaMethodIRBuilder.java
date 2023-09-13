@@ -491,6 +491,9 @@ public class JavaMethodIRBuilder {
             }
         }
 
+        /**
+         * build IR for the values() function of an enum
+         */
         private void buildEnumValues() {
             JField values = jMethod.getDeclaringClass().getDeclaredField(ENUM_VALUES);
             assert values != null;
@@ -505,6 +508,9 @@ public class JavaMethodIRBuilder {
             context.pushFlow(false);
         }
 
+        /**
+         * build IR for the valueOf() function of an enum
+         */
         private void buildEnumValuesOf() {
             context.pushStack(ClassLiteral.get(jMethod.getDeclaringClass().getType()));
             Var v = popVar();
@@ -527,6 +533,14 @@ public class JavaMethodIRBuilder {
             }
         }
 
+        /**
+         * build the init function of an enum.
+         *
+         * <ol>
+         *     <li>for each constant, create and assign it to a static field</li>
+         *     <li>collect all created constants to an array, assign it to VALUES field</li>
+         * </ol>
+         */
         private void buildEnumInit(EnumInit enumInit) {
             List<Var> consts = new ArrayList<>();
             for (int i = 0; i < enumInit.enumConsts().size(); ++i) {
