@@ -2587,20 +2587,6 @@ public class JavaMethodIRBuilder {
                 }
             }
 
-            private Var getThis(ITypeBinding classBinding) {
-                Type classType = TypeUtils.JDTTypeToTaieType(classBinding);
-                if (thisVar.getType().equals(classType)) {
-                    return thisVar;
-                } else {
-                    // TODO: check if it's correct for inner class
-                    return newVar(THIS, classType);
-                }
-            }
-
-            private Var getThis() {
-                return thisVar;
-            }
-
             private void genStringBuilderAppend(Var sb, List<Expression> exp) {
                 // don't use [listCompute]
                 for (var i : exp) {
@@ -3065,7 +3051,7 @@ public class JavaMethodIRBuilder {
                 JClass superClass = c.getSuperClass();
                 FieldRef ref = FieldRef.get(superClass, binding.getName(),
                         JDTTypeToTaieType(binding.getType()), false);
-                FieldAccess res = new InstanceFieldAccess(ref, getThis());
+                FieldAccess res = new InstanceFieldAccess(ref, getThisVar());
                 context.pushStack(res);
                 return false;
             }

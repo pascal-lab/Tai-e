@@ -1,8 +1,12 @@
 package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
@@ -20,6 +24,19 @@ import pascal.taie.ir.exp.LongLiteral;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.AnnotationElement;
+import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.BooleanElement;
+import pascal.taie.language.annotation.ClassElement;
+import pascal.taie.language.annotation.DoubleElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.EnumElement;
+import pascal.taie.language.annotation.FloatElement;
+import pascal.taie.language.annotation.IntElement;
+import pascal.taie.language.annotation.LongElement;
+import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -39,8 +56,10 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
@@ -681,5 +700,70 @@ public final class TypeUtils {
         }
 
         throw new NewFrontendException(l + " can't be converted to " + t);
+    }
+
+    public static AnnotationHolder getAnnotations(IBinding binding) {
+        IAnnotationBinding[] annotations = binding.getAnnotations();
+        List<Annotation> annotationList = new ArrayList<>();
+        for (IAnnotationBinding annotation : annotations) {
+            Annotation current = fromJDTAnnotation(annotation);
+            annotationList.add(current);
+        }
+
+        return AnnotationHolder.make(annotationList);
+    }
+
+    /**
+     * See JDT doc of {@link IAnnotationBinding}
+     */
+    public static Annotation fromJDTAnnotation(IAnnotationBinding annotation) {
+        String type = annotation.getName();
+        Map<String, Element> kvs = new HashMap<>();
+        for (IMemberValuePairBinding kv : annotation.getAllMemberValuePairs()) {
+            String key = kv.getName();
+            Object value = kv.getValue();
+            Element ele = fromJDTAnnotationValue(value);
+            kvs.put(key, ele);
+        }
+        return new Annotation(type, kvs);
+    }
+
+    /**
+     * See JDT doc of {@link IMemberValuePairBinding}
+     */
+    public static Element fromJDTAnnotationValue(Object obj) {
+        if (obj instanceof Integer i) {
+            return new IntElement(i);
+        } else if (obj instanceof Character c) {
+            return new IntElement(c);
+        } else if (obj instanceof Byte b) {
+            return new IntElement(b);
+        } else if (obj instanceof Short s) {
+            return new IntElement(s);
+        } else if (obj instanceof Float f) {
+            return new FloatElement(f);
+        } else if (obj instanceof Long l) {
+            return new LongElement(l);
+        } else if (obj instanceof Double d) {
+            return new DoubleElement(d);
+        } else if (obj instanceof Boolean b) {
+            return new BooleanElement(b);
+        } else if (obj instanceof String s) {
+            return new StringElement(s);
+        } else if (obj instanceof ITypeBinding typeBinding) {
+            return new ClassElement(getErasedName(typeBinding));
+        } else if (obj instanceof IVariableBinding variableBinding) {
+            String type = getErasedName(variableBinding.getType());
+            String name = variableBinding.getName();
+            return new EnumElement(type, name);
+        } else if (obj instanceof IAnnotationBinding annotationBinding) {
+            return new AnnotationElement(fromJDTAnnotation(annotationBinding));
+        } else if (obj instanceof Object[] arr) {
+            return new ArrayElement(
+                    Arrays.stream(arr).map(TypeUtils::fromJDTAnnotationValue)
+                    .toList());
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

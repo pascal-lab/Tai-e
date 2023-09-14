@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend.java;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -78,6 +79,17 @@ public class ClassExtractor extends ASTVisitor {
     @Override
     public void endVisit(EnumDeclaration node) {
         outerClasses.pop();
+    }
+
+    @Override
+    public void endVisit(AnnotationTypeDeclaration node) {
+        outerClasses.pop();
+    }
+
+    @Override
+    public boolean visit(AnnotationTypeDeclaration node) {
+        noticeNewClass(node);
+        return true;
     }
 
     @Override

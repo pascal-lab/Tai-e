@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -68,6 +69,8 @@ public class JavaClassBuilder implements JClassBuilder  {
 
     private ASTNode typeDeclaration;
 
+    private AnnotationHolder holder;
+
     public JavaClassBuilder(JavaSource sourceFile, JClass jClass) {
         this.sourceFile = sourceFile;
         this.jClass = jClass;
@@ -98,9 +101,7 @@ public class JavaClassBuilder implements JClassBuilder  {
         superClass = TypeUtils.getSuperClass(binding);
         descriptor = InnerClassManager.get()
                 .getInnerClassDesc(binding);
-        List<Type> synParaTypes = descriptor == null ? List.of() :
-                TypeUtils.fromJDTTypeList(descriptor.synParaTypes().stream());
-
+        holder = TypeUtils.getAnnotations(binding);
         List<EnumConstantDeclaration> enumConstDecls = new ArrayList<>();
 
         typeDeclaration.accept(new ASTVisitor() {
@@ -143,7 +144,7 @@ public class JavaClassBuilder implements JClassBuilder  {
                 }
                 JMethod method = new JMethod(jClass, name, current, paraTypes,
                         methodType.getReturnType(), TypeUtils.toClassTypes(methodBinding.getExceptionTypes()),
-                        null, null, paraNames,
+                        TypeUtils.getAnnotations(methodBinding), null, paraNames,
                         new JavaMethodSource(cu, node, sourceFile));
                 methods.add(method);
                 return false;
@@ -165,6 +166,11 @@ public class JavaClassBuilder implements JClassBuilder  {
             }
 
             @Override
+            public boolean visit(AnnotationTypeDeclaration node) {
+                return node.resolveBinding() == binding;
+            }
+
+            @Override
             public boolean visit(FieldDeclaration node) {
                 Set<Modifier> current = TypeUtils.fromJDTModifier(node.getModifiers());
                 List<VariableDeclarationFragment> l = node.fragments();
@@ -173,7 +179,8 @@ public class JavaClassBuilder implements JClassBuilder  {
                     IVariableBinding binding = fragment.resolveBinding();
                     Type type = TypeUtils.JDTTypeToTaieType(binding.getType());
                     JField field = new JField(jClass, name.getIdentifier(),
-                            current, type, null);
+                            current, type,
+                            TypeUtils.getAnnotations(binding));
                     fields.add(field);
 
                     Expression init = fragment.getInitializer();
@@ -202,19 +209,20 @@ public class JavaClassBuilder implements JClassBuilder  {
                     paraTypes,
                     VoidType.VOID,
                     List.of(),
+                    AnnotationHolder.emptyHolder(),
                     null,
-                    List.of(),
                     paraNames,
                     new JavaMethodSource(cu, null, sourceFile));
             methods.add(method);
         }
 
         if (descriptor != null) {
+            List<Type> synParaTypes = TypeUtils.fromJDTTypeList(descriptor.synParaTypes().stream());
             for (int i = 0; i < synParaTypes.size(); ++i) {
                 Type type = synParaTypes.get(i);
                 String name = descriptor.synParaNames().get(i);
                 JField f = new JField(jClass, name,
-                            Set.of(Modifier.FINAL, Modifier.SYNTHETIC), type, null);
+                            Set.of(Modifier.FINAL, Modifier.SYNTHETIC), type, AnnotationHolder.emptyHolder());
                 if (name.startsWith("this$")) {
                     InnerClassManager.get().noticeOuterClassRef(jClass, f);
                 }
@@ -230,7 +238,7 @@ public class JavaClassBuilder implements JClassBuilder  {
                     Type t = getClassType();
                     JField f = new JField(jClass, name,
                             Set.of(Modifier.STATIC, Modifier.PUBLIC, Modifier.FINAL, Modifier.ENUM),
-                            t, null);
+                            t, AnnotationHolder.emptyHolder());
                     fields.add(f);
                 }
                 sourceFile.addNewCinit(new EnumInit(enumConstDecls));
@@ -238,17 +246,18 @@ public class JavaClassBuilder implements JClassBuilder  {
             ArrayType values = BuildContext.get().getTypeSystem().getArrayType(getClassType(), 1);
             fields.add(new JField(jClass, TypeUtils.ENUM_VALUES,
                     Set.of(Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL, Modifier.SYNTHETIC),
-                    values, null));
+                    values, AnnotationHolder.emptyHolder()));
 
             methods.add(new JMethod(jClass, TypeUtils.ENUM_METHOD_VALUES,
                     Set.of(Modifier.PUBLIC, Modifier.STATIC),
-                    List.of(), values, List.of(), null, null, List.of(),
+                    List.of(), values, List.of(), AnnotationHolder.emptyHolder(),
+                    null, List.of(),
                     empty));
 
             methods.add(new JMethod(jClass, TypeUtils.ENUM_METHOD_VALUE_OF,
                     Set.of(Modifier.PUBLIC, Modifier.STATIC),
                     List.of(TypeUtils.getStringType()), getClassType(), List.of(),
-                    null, null,
+                    AnnotationHolder.emptyHolder(), null,
                     List.of(TypeUtils.getAnonymousSynCtorArgName(0)),
                     empty));
         }
@@ -256,7 +265,7 @@ public class JavaClassBuilder implements JClassBuilder  {
         if (! sourceFile.getClassInits().isEmpty()) {
             JMethod method = new JMethod(jClass, MethodNames.CLINIT,
                     Set.of(Modifier.STATIC), List.of(), VoidType.VOID, List.of(),
-                    null, List.of(), List.of(),
+                    AnnotationHolder.emptyHolder(), null, List.of(),
                     new JavaMethodSource(cu, null, sourceFile));
             methods.add(method);
         }
@@ -312,7 +321,7 @@ public class JavaClassBuilder implements JClassBuilder  {
 
     @Override
     public AnnotationHolder getAnnotationHolder() {
-        return null;
+        return holder;
     }
 
     @Override
