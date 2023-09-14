@@ -1,5 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
@@ -13,6 +16,7 @@ import pascal.taie.util.collection.Sets;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,11 +35,13 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private static final Logger logger = LogManager.getLogger(DepCWBuilder.class);
 
+    private static final String BASIC_CLASSES = "basic-classes.yml";
+
+    private static final List<String> basicClassesList = loadBasicClasses();
+
     private static final int THREAD_POOL_SIZE = 8;
 
     private final ConcurrentMap<String, ClassSource> sourceMap;
-
-    private final Set<String> founded;
 
     private final CompletionService<Completed> completionService;
 
@@ -43,7 +49,6 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     public DepCWBuilder() {
         sourceMap = Maps.newConcurrentMap();
-        founded = Sets.newHybridSet();
         Executor executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         completionService = new ExecutorCompletionService<>(executor);
     }
@@ -69,6 +74,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             }
             target.addAll(p.getInputClasses());
             target.addAll(loadNecessaryClasses());
+            target.addAll(basicClassesList);
             buildClosure(target);
         } catch (IOException e) {
             // TODO: fail info
@@ -78,6 +84,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private void buildClosure(List<String> binaryNames) throws IOException {
         Queue<String> workList = new LinkedList<>(binaryNames);
+        Set<String> founded = Sets.newHybridSet();
 
         // deltaCount means (founded, not completed) - completed, a.k.a "on the fly"
         // it MUST be equal to the task that
@@ -97,7 +104,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                     founded.add(binaryName);
                     completionService.submit(() ->
                             new Completed(binaryName, buildDeps(binaryName)));
-                    tempDeltaCount ++;
+                    tempDeltaCount++;
                 }
             }
             deltaCount += tempDeltaCount;
@@ -124,6 +131,12 @@ public class DepCWBuilder implements ClosedWorldBuilder {
     private List<String> buildDeps(String binaryName) throws IOException {
         AnalysisFile f = project.locate(binaryName);
         if (f == null) {
+            if (basicClassesList.contains(binaryName)) {
+                // if some classes in basicClassesList are not found, then just ignore them
+                // for that we use try-catch style here to load them.
+                // E.g. you usually only load one of the three concrete FileSystem s.
+                return List.of();
+            }
             if (World.get().getOptions().isAllowPhantom()) {
                 return List.of();
             }
@@ -156,6 +169,23 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private List<String> loadNecessaryClasses() {
         return List.of("java.lang.ref.Finalizer");
+    }
+
+    /**
+     * Reads basic classes specified by file {@link #BASIC_CLASSES}
+     */
+    private static List<String> loadBasicClasses() {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        JavaType type = mapper.getTypeFactory()
+                .constructCollectionType(List.class, String.class);
+        try {
+            InputStream content = DepCWBuilder.class
+                    .getClassLoader()
+                    .getResourceAsStream(BASIC_CLASSES);
+            return mapper.readValue(content, type);
+        } catch (IOException e) {
+            throw new AsmFrontendException("Failed to read newfrontend basic classes", e);
+        }
     }
 
     private record Completed(String input, List<String> res) {}

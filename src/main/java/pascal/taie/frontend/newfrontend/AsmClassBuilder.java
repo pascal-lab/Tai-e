@@ -144,7 +144,7 @@ public class AsmClassBuilder implements JClassBuilder {
         if (lastIndex == -1) {
             return binaryName;
         }
-        return binaryName.substring(lastIndex);
+        return binaryName.substring(lastIndex + 1);
     }
 
     private static JClass getClassByName(String internalName) {
