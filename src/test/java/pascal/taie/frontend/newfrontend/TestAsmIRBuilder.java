@@ -22,6 +22,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.Timer;
+import pascal.taie.util.collection.Streams;
 import soot.Body;
 import soot.G;
 import soot.Scene;
@@ -32,10 +33,13 @@ import soot.jimple.Constant;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static soot.SootClass.HIERARCHY;
@@ -283,31 +287,62 @@ public class TestAsmIRBuilder {
     }
 
     @Test
-    public void benchmarkForSoot() {
+    public void benchmarkForSootJRE() throws IOException {
+        int javaVersion = 8;
+        benchmarkForSoot(jrePaths(javaVersion), "", false);
+    }
+
+    @Test
+    public void benchmarkForSootCrypto() throws IOException {
+        String acp = "crypto-benchmarks/dubbo3/original-classes.jar";
+        var dependencies = TestCrypto.listRootContainers("crypto-benchmarks/dubbo3/dependencies");
+        benchmarkForSoot(
+                acp,
+                String.join(File.pathSeparator, dependencies),
+                true
+        );
+    }
+
+    private void benchmarkForSoot(String acp, String cp, boolean forcedToRetrieveBody) {
         int javaVersion = 8;
         String worldPath = "src/test/resources/world";
 
         Options options = getOptionsAndAnalysisConfig(
                 "-java", Integer.toString(javaVersion),
-                "-acp", jrePaths(javaVersion),
+                "-acp", acp,
+                "-cp", cp,
                 "--pre-build-ir"
         );
 
         initSoot(options);
 
         List<String> args = new ArrayList<>();
-        Collections.addAll(args, "-cp", jrePaths(javaVersion));
-        // process --app-class-path
-        String appClassPath = options.getAppClassPath();
-        if (appClassPath != null) {
-            for (String path : appClassPath.split(File.pathSeparator)) {
-                args.addAll(ClassNameExtractor.extract(path));
-            }
+        Collections.addAll(args, "-cp", getClassPath(options));
+        // set main class
+        String mainClass = options.getMainClass();
+        if (mainClass != null) {
+            Collections.addAll(args, "-main-class", mainClass, mainClass);
         }
+        // add input classes
+        args.addAll(getInputClasses(options));
+
+        System.out.println(args);
 
         Timer.runAndCount(
-                () -> runSoot(args.toArray(new String[0])),
-                "Soot builds all the classes in jre1.8"
+                () -> {
+                    runSoot(args.toArray(new String[0]));
+                    if (forcedToRetrieveBody) {
+                        Scene scene = Scene.v();
+                        var l = new ArrayList<>(scene.getClasses());
+                        l.forEach(c -> // can we use paralleledStream?
+                                c.getMethods().forEach(m -> {
+                                    if (!m.isConcrete()) return;
+                                    m.retrieveActiveBody();
+                                })
+                        );
+                    }
+                },
+                "Soot builds all the classes in " + acp
         );
 
         boolean includeAssignLiteral = false;
@@ -317,33 +352,33 @@ public class TestAsmIRBuilder {
         AtomicLong methodCount = new AtomicLong();
 
         Scene scene = Scene.v();
-        scene.getClasses()
-                .forEach(c -> {
-                    c.getMethods().forEach(m -> {
-                        methodCount.addAndGet(1);
-                        if (!m.isConcrete()) return;
-                        Body body = m.retrieveActiveBody();
-                        if (includeAssignLiteral) {
-                            stmtCount.addAndGet(body.getUnits().size());
-                        } else {
-                            int assignLiteral = 0;
-                            for (var unit : body.getUnits()) {
-                                if (unit instanceof AssignStmt assignStmt) {
-                                    var leftOp = assignStmt.getLeftOp();
-                                    var rightOp = assignStmt.getRightOp();
-                                    // The condition below may not be the exact condition of a AssignLiteral.
-                                    // What type does the leftOp be? Local? JimpleLocal?
-                                    if (rightOp instanceof Constant) {
-                                        assignLiteral++;
-                                    }
-                                }
+        var l = new ArrayList<>(scene.getClasses());
+        l.parallelStream().forEach(c -> {
+            c.getMethods().forEach(m -> {
+                methodCount.addAndGet(1);
+                if (!m.isConcrete()) return;
+                Body body = m.retrieveActiveBody();
+                if (includeAssignLiteral) {
+                    stmtCount.addAndGet(body.getUnits().size());
+                } else {
+                    int assignLiteral = 0;
+                    for (var unit : body.getUnits()) {
+                        if (unit instanceof AssignStmt assignStmt) {
+                            var leftOp = assignStmt.getLeftOp();
+                            var rightOp = assignStmt.getRightOp();
+                            // The condition below may not be the exact condition of a AssignLiteral.
+                            // What type does the leftOp be? Local? JimpleLocal?
+                            if (rightOp instanceof Constant) {
+                                assignLiteral++;
                             }
-                            stmtCount.addAndGet(body.getUnits().size() - assignLiteral);
                         }
-                        varCount.addAndGet(body.getLocalCount());
-                    });
-                    classCount.addAndGet(1);
-                });
+                    }
+                    stmtCount.addAndGet(body.getUnits().size() - assignLiteral);
+                }
+                varCount.addAndGet(body.getLocalCount());
+            });
+            classCount.addAndGet(1);
+        });
 
         System.out.println("Count of all the classes: " + classCount.get());
         System.out.println("Count of all the methods: " + methodCount.get());
@@ -403,9 +438,23 @@ public class TestAsmIRBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        soot.options.Options.v().set_allow_phantom_refs(true); // allow phantom
-        soot.options.Options.v().set_drop_bodies_after_load(false); // pre-build-ir
+        if (options.isPrependJVM()) {
+            // TODO: figure out why -prepend-classpath makes Soot faster
+            soot.options.Options.v().set_prepend_classpath(true);
+        }
+        if (options.isAllowPhantom()) {
+            soot.options.Options.v().set_allow_phantom_refs(true);
+        }
+        if (options.isPreBuildIR()) {
+            // we need to set this option to false when pre-building IRs,
+            // otherwise Soot throws RuntimeException saying
+            // "No method source set for method ...".
+            // TODO: figure out the reason of "No method source"
+            soot.options.Options.v().set_drop_bodies_after_load(false);
+        }
 //        soot.options.Options.v().set_process_jar_dir(List.of("java-benchmarks/JREs/jre1.8"));
+//        soot.options.Options.v().set_process_jar_dir(List.of("crypto-benchmarks/dubbo3/"));
+        soot.options.Options.v().set_process_dir(List.of("crypto-benchmarks/dubbo3/original-classes"));
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
@@ -460,6 +509,60 @@ public class TestAsmIRBuilder {
         } catch (IOException e) {
             throw new RuntimeException("Failed to read Soot basic classes", e);
         }
+    }
+
+    protected static final String JREs = "java-benchmarks/JREs";
+    protected static String getClassPath(Options options) {
+        if (options.isPrependJVM()) {
+            return options.getClassPath();
+        } else { // when prependJVM is not set, we manually specify JRE jars
+            // check existence of JREs
+            File jreDir = new File(JREs);
+            if (!jreDir.exists()) {
+                throw new RuntimeException("""
+                        Failed to locate Java library.
+                        Please clone submodule 'java-benchmarks' by command:
+                        git submodule update --init --recursive
+                        and put it in Tai-e's working directory.""");
+            }
+            String jrePath = String.format("%s/jre1.%d",
+                    JREs, options.getJavaVersion());
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+                return Streams.concat(
+                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                                Stream.ofNullable(options.getAppClassPath()),
+                                Stream.ofNullable(options.getClassPath()))
+                        .collect(Collectors.joining(File.pathSeparator));
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
+            }
+        }
+    }
+
+    protected static List<String> getInputClasses(Options options) {
+        List<String> classes = new ArrayList<>();
+        // process --input-classes
+        options.getInputClasses().forEach(value -> {
+            if (value.endsWith(".txt")) {
+                // value is a path to a file that contains class names
+                try (Stream<String> lines = Files.lines(Path.of(value))) {
+                    lines.forEach(classes::add);
+                } catch (IOException e) {
+                }
+            } else {
+                // value is a class name
+                classes.add(value);
+            }
+        });
+        // process --app-class-path
+        String appClassPath = options.getAppClassPath();
+        if (appClassPath != null) {
+            for (String path : appClassPath.split(File.pathSeparator)) {
+                classes.addAll(ClassNameExtractor.extract(path));
+            }
+        }
+        return classes;
     }
 
     private String jrePaths(int javaVersion) {

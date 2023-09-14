@@ -35,7 +35,7 @@ public class TestCrypto {
 
     @Test
     public void test_bt() throws IOException {
-        test("aliyun-oss-java-sdk", true, true);
+        test("bt", true, true);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class TestCrypto {
     }
 
     @Test
-    public void testFastBoot() throws IOException  {
+    public void test_fast_boot_weixin() throws IOException  {
         test("fast-boot-weixin", true, true);
     }
 
@@ -162,7 +162,11 @@ public class TestCrypto {
             Collections.addAll(args, "--pre-build-ir");
         }
         Collections.addAll(args, "-acp", appClassPath);
-        Collections.addAll(args, "-cp", String.join(File.pathSeparator, dependencies));
+        if (true) {
+            Collections.addAll(args, "-cp", String.join(File.pathSeparator, dependencies));
+        } else {
+            Collections.addAll(args, "-cp", testPath + "/out.jar");
+        }
         Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder");
         String[] argsArr = args.toArray(new String[0]);
 
@@ -200,8 +204,7 @@ public class TestCrypto {
                 .getClassHierarchy()
                 .allClasses()
                 .filter(JClass::isPhantom).count();
-        System.out.println(phantomCount);
-        System.out.println(World.get().getClassHierarchy().allClasses().count());
+        System.out.println("Phantom Class count: " + phantomCount);
         World.get()
                 .getClassHierarchy()
                 .allClasses()
