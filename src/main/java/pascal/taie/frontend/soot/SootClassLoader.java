@@ -73,6 +73,11 @@ class SootClassLoader implements JClassLoader {
     }
 
     @Override
+    public JClass loadClass(String name, boolean allowPhantom) {
+        return loadClass(name); // current workaround. The second argument has no effect here.
+    }
+
+    @Override
     public Collection<JClass> getLoadedClasses() {
         return classes.values();
     }

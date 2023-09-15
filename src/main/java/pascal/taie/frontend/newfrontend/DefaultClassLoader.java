@@ -22,9 +22,14 @@ public class DefaultClassLoader implements JClassLoader {
 
     @Override
     public JClass loadClass(String name) {
+        return loadClass(name, allowPhantom);
+    }
+
+    @Override
+    public JClass loadClass(String name, boolean allowPhantom) {
         JClass jclass = mapping.get(name);
         if (jclass == null) {
-            if (allowPhantom) {
+            if (this.allowPhantom && allowPhantom) {
                 // phantom class
                 jclass = new JClass(this, name, null); // what should a moduleName for a phantom class be?
                 mapping.put(name, jclass);

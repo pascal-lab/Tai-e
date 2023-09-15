@@ -61,7 +61,13 @@ public interface ClassHierarchy extends Indexer<JClass> {
     JClass getClass(JClassLoader loader, String name);
 
     @Nullable
+    JClass getClass(JClassLoader loader, String name, boolean allowPhantom);
+
+    @Nullable
     JClass getClass(String name);
+
+    @Nullable
+    JClass getClass(String name, boolean allowPhantom);
 
     /**
      * Obtains a method by its signature.

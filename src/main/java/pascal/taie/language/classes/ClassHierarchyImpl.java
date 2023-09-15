@@ -182,9 +182,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     @Nullable
+    public JClass getClass(JClassLoader loader, String name, boolean allowPhantom) {
+        return loader.loadClass(name, allowPhantom);
+    }
+
+    @Override
+    @Nullable
     public JClass getClass(String name) {
         // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name);
+    }
+
+    @Override
+    @Nullable
+    public JClass getClass(String name, boolean allowPhantom) {
+        // TODO: add warning for missing class loader
+        return getClass(getDefaultClassLoader(), name, allowPhantom);
     }
 
     @Override
@@ -220,7 +233,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     @Nullable
     public JClass getJREClass(String name) {
-        return getClass(getBootstrapClassLoader(), name);
+        return getClass(getBootstrapClassLoader(), name, false);
     }
 
     @Override
