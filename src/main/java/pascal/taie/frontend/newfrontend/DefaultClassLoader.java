@@ -31,7 +31,7 @@ public class DefaultClassLoader implements JClassLoader {
                 new PhantomClassBuilder(name).build(jclass);
                 hierarchy.addClass(jclass);
             } else {
-                throw new RuntimeException(String.format("Class not found: %s", name));
+                return null;
             }
         }
 

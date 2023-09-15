@@ -77,13 +77,6 @@ public class DepCWBuilder implements ClosedWorldBuilder {
     }
 
     private void buildClosure(List<String> binaryNames) throws IOException {
-        String excluded = "android$widget$RemoteViews$BaseReflectionAction";
-        if (binaryNames.contains(excluded)) {
-            // FIX ME: a workaround to skip android test case in test/resources/android$widget$RemoteViews$BaseReflectionAction.class
-            binaryNames.remove(excluded);
-            return;
-        }
-
         Queue<String> workList = new LinkedList<>(binaryNames);
 
         // deltaCount means (founded, not completed) - completed, a.k.a "on the fly"
@@ -119,14 +112,10 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                         Future<Completed> future = completionService.take();
                         Completed res = future.get();
                         workList.addAll(res.res);
-                    } catch (ExecutionException e) {
-                        if (!(World.get().getOptions().isAllowPhantom() && e.getCause() instanceof FileNotFoundException)) {
-                            throw new RuntimeException(e);
-                        }
-                    } catch (InterruptedException e) {
+                        deltaCount--;
+                    } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    deltaCount--;
                 }
             }
         }
@@ -135,6 +124,9 @@ public class DepCWBuilder implements ClosedWorldBuilder {
     private List<String> buildDeps(String binaryName) throws IOException {
         AnalysisFile f = project.locate(binaryName);
         if (f == null) {
+            if (World.get().getOptions().isAllowPhantom()) {
+                return List.of();
+            }
             throw new FileNotFoundException(binaryName);
         }
 
