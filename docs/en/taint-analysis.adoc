@@ -301,7 +301,6 @@ In this example, if the taint analysis fails to propagate taint from `taint` to 
 To address such scenarios, our taint analysis allows users to specify which methods trigger taint transfers, facilitating the appropriate propagation of taint flow.
 
 ==== Configuration
-
 In this section, we provide instructions on configuring taint transfers.
 Taint transfer essentially involves the triggering of taint propagation from specific variables to other variables at call sites through method calls.
 We refer to the source of taint transfer as the _from-variable_ and the target as the _to-variable_.
@@ -382,8 +381,8 @@ Here, `from: "0[*]"` indicates that the taint analysis will examine _all element
 NOTE: `[` and `]` are special characters in YAML, so you need to enclose them in quotes like `"0[*]"`.
 
 === Sanitizers
-Our taint analysis allows users to specify sanitizers to reduce false positives.
-This can be done by writing a list of sanitizer entries following key `sanitizers` in the configuration:
+Our taint analysis allows users to define sanitizers in order to reduce false positives.
+This can be accomplished by writing a list of sanitizer entries under the key `sanitizers` in the configuration, as demonstrated below:
 
 [source,yaml]
 ----
@@ -392,21 +391,23 @@ sanitizers:
   - ...
 ----
 
-Then the taint analysis will block the propagation of taint objects to the parameter (specified by `INDEX`) of method `METHOD_SIGNATURE`.
+Subsequently, the taint analysis will prevent the propagation of taint objects to the parameter specified by `INDEX` in the method `METHOD_SIGNATURE`.
 
 // TODO: === Call-Site Mode
 
 === Multiple Configuration Files
-The taint analysis can load multiple configuration files so that users do not need to write all configuration into one huge file.
-User just needs to put all relevant configuration files into one directory, and pass the path of the directory (`<path/to/config>`) to Tai-e when enabling taint analysis.
 
-TIP: The taint analysis will walk the directory iteratively when loading configuration, thus you can organize the configuration files as you wish, e.g., put them into multiple subdirectories.
+The taint analysis supports the loading of multiple configuration files, eliminating the need for users to consolidate all configurations into a single extensive file.
+Users can simply place all relevant configuration files within a designated directory and then provide the path to this directory (`<path/to/config>`) when enabling the taint analysis.
+
+TIP: The taint analysis will traverse the directory iteratively during the configuration loading process.
+Therefore, you have the flexibility to organize the configuration files as you see fit, including placing them in multiple subdirectories if desired.
 
 == Output of Taint Analysis
-Currently, the output of taint analysis consists of two parts: console output and taint flow graph.
+Currently, the output of the taint analysis consists of two parts: console output and taint flow graph.
 
 === Console Output
-In console output, the taint analysis reports the detected taint flows with format:
+In console output, the taint analysis reports the detected taint flows using the following format:
 
 [source]
 ----
@@ -416,9 +417,9 @@ TaintFlow{SOURCE_POINT -> SINK_POINT}
 ----
 
 Each taint flow is a pair of source point and sink point.
-A source point is a variable pointing to a new-generated taint object, and a sink point is a variable pointing to taint objects flowed from the source point.
+A source point refers to a variable that points to a newly-generated taint object, while a sink point designates a variable pointing to taint objects that have flowed from the source point.
 
-Since we have several kinds of <<Sources>>, each kind of sources has a corresponding kind of source point:
+Given that there are several kinds of <<Sources>>, each kind has a corresponding source point representation with a specific format:
 
 [cols="1,2,2,3"]
 |===
@@ -448,7 +449,7 @@ a| * `METHOD_SIGNATURE`: The method containing the load statement.
 
 The `[i@Ln]` represent the position of a statement, where `i` is the index of the statement in the IR, and `n` is the line number of the statement in the source code, which can help you locate the statement.
 
-Here we give some examples of source points:
+Here are some examples of source points for each kind:
 
 * Call source: `<Main: void main(java.lang.String[])>[3@L7] pw = invokestatic Data.getPassword()/result`
 * Parameter source: `<Controller: void doGet(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)>/0`
@@ -457,9 +458,13 @@ Here we give some examples of source points:
 The format of the sink point is exactly the same as call source point, so we won't repeat the explanation here.
 
 === Taint Flow Graph
-Console output only shows the start and end of the taint flows.
-However, to validate the reported taint flows (and the relevant security vulnerabilities), users need to examine detailed propagation path of taint objects.
+The console output only provides the starting and ending points of the taint flows.
+However, for users to validate the reported taint flows and associated security vulnerabilities, it is crucial to investigate the detailed propagation path of taint objects.
 To meet such needs, we define _taint flow graph_ (TFG for short), whose nodes are the program pointers (e.g., variables and fields) that point to taint objects, and edges represent how taint objects flow among the pointers, so that users can check taint flows by going over the TFG.
+
+To address this requirement, we introduce the concept of _taint flow graph_ (TFG).
+In a TFG, nodes represent program pointers (such as variables and fields) that point to taint objects, while edges illustrate how taint objects move between these pointers.
+This allows users to review taint flows by analyzing the TFG.
 
 Tai-e will output the path of the dumped TFG:
 
@@ -468,8 +473,8 @@ Tai-e will output the path of the dumped TFG:
 Dumping ...\tai-e\output\taint-flow-graph.dot
 ----
 
-TFG is dumped as https://graphviz.org/doc/info/lang.html[DOT] graph.
-For better experience, we recommend you install https://graphviz.org/[Graphviz] and use it to convert DOT to SVG via commend:
+TFG is dumped as a https://graphviz.org/doc/info/lang.html[DOT] graph.
+For a better experience, we recommend installing https://graphviz.org/[Graphviz] and using it to convert DOT to SVG with the following command:
 
 [source,shell]
 ----
@@ -480,6 +485,6 @@ then you can open the TFG with your web browser and examine it.
 
 // TODO: Explain what the different arrows and node shapes represent
 
-NOTE: We will develop more user-friendly mechanism to examine taint analysis result in the future.
+NOTE: We plan to develop more user-friendly mechanisms for examining taint analysis results in the future.
 
 // TODO: == Troubleshooting
