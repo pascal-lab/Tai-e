@@ -225,33 +225,34 @@ The reasons for specifying `type: TYPE` in other cases are similar to those for 
 In these situations, the type of generated taint object may be a *subclass* of the corresponding declared type.
 
 ==== Parameter Sources
-
-Some methods, e.g., entry methods, have no explicit call sites in the program, so we cannot generate taint objects for the variables at their call sites.
-However, it is sometime useful to generate taint objects for their parameters.
-To meet such needs, our taint analysis allows you to configure parameter sources:
+Certain methods, such as entry methods, do not have explicit call sites within the program, making it impossible to generate taint objects for variables at their call sites.
+Nevertheless, there are situations where generating taint objects for their parameters can be useful.
+To address this requirement, our taint analysis provides the capability to configure parameter sources:
 
 [source,yaml,subs="+normal"]
 ----
 - { kind: param, method: METHOD_SIGNATURE, index: INDEX, [underline]#type: TYPE# }
 ----
 
-If you write such a source in the configuration, then when the taint analysis finds that method `METHOD_SIGNATURE` is reachable, it will generate a taint object of type `TYPE` for the parameter specified by `INDEX`.
-For how to specify `METHOD_SIGNATURE` and `INDEX`, please see <<Method Signature>> and <<Variable Index of A Method>>.
+If you include this type of source in the configuration, when the taint analysis determines that the method `METHOD_SIGNATURE` is reachable, it will create a taint object of `TYPE` for the parameter indicated by `INDEX`.
+For guidance on specifying `METHOD_SIGNATURE` and `INDEX`, please refer to the <<Method Signature>> and <<Variable Index of A Method>>.
 
 ==== Field Sources
-Our taint analysis also supports users to specify fields as taint sources using format:
+
+Our taint analysis also enables users to designate fields as taint sources using the following format:
 
 [source,yaml,subs="+normal"]
 ----
 - { kind: field, field: FIELD_SIGNATURE, [underline]#type: TYPE# }
 ----
 
-If you write such a source in the configuration, then when the taint analysis finds that field `FIELD_SIGNATURE` is loaded to variable `v` (e.g., `v = o.f`), it will generate a taint object of type `TYPE` for `v`.
-For how to specify `FIELD_SIGNATURE`, please see <<Field Signature>>.
+When you include this type of source in the configuration, if the taint analysis identifies that the field `FIELD_SIGNATURE` is loaded into a variable `v` (e.g., `v = o.f`), it will generate a taint object of `TYPE` for `v`.
+For instructions on specifying `FIELD_SIGNATURE`, please refer to <<Field Signature>>.
 
 === Sinks
-Currently, our taint analysis supports specifying specific variables at call sites of sink methods as sinks.
-In the configuration file, sinks are specified as a list of sink entries following key `sinks`:
+
+At present, our taint analysis supports specifying specific variables at call sites of sink methods as sinks.
+In the configuration file, sinks are defined as a list of sink entries under the key `sinks`:
 
 [source,yaml]
 ----
@@ -260,16 +261,19 @@ sinks:
   - ...
 ----
 
-If you write such a sink in the configuration, then when the taint analysis finds that method `METHOD_SIGNATURE` is called by call site _l_ and the variable at _l_ specified by `INDEX` points-to any taint objects, it will report the detected taint flows.
+If you include this type of sink in the configuration, when the taint analysis identifies that the method `METHOD_SIGNATURE` is invoked at call site `l` and the variable at `l`, as indicated by `INDEX`, points to any taint objects, it will generate reports for the detected taint flows.
 
-For how to specify `METHOD_SIGNATURE` and `INDEX`, please see <<Method Signature>> and <<Variable Index of A Method>>.
+For guidance on specifying `METHOD_SIGNATURE` and `INDEX`, please refer to <<Method Signature>> and <<Variable Index of A Method>>.
 
 === Taint Transfers
-In taint analysis, taint is associated with the contents of the data, so that it can be transferred among objects, and such phenomenon is called _taint transfer_.
-Taint transfer happens frequently in real code, and if we cannot handle them properly, many security vulnerabilities would be missed.
+
+In taint analysis, taint is associated with the data's content, allowing it to move between objects.
+This process is referred to as _taint transfer_, and it occurs frequently in real-world code.
+If not managed effectively, the failure to address these transfers can result in the oversight of numerous security vulnerabilities.
 
 ==== Introduction
-Below we use an example to illustrate what taint transfer is and how it affects taint analysis.
+
+Here, we utilize an example to demonstrate the concept of taint transfer and its impact on taint analysis.
 
 [source,java,linenums]
 ----
@@ -282,21 +286,28 @@ String s = sb.toString(); // taint is transferred to s
 leak(s); // sink
 ----
 
-Suppose that we consider `getSecret()` and `leak()` as source and sink, respectively.
-In this example, the code at line 1 retrieves secret data (in form of a string) and stores it in variable `taint`, and the secret data will finally flow to sink (line 7) via two taint transfers:
+Suppose we consider `getSecret()` as the source and `leak()` as the sink.
+In this scenario, the code at line 1 acquires secret data in the form of a string and stores it in the variable `taint`.
+This secret data eventually flows to the sink at line 7 through two taint transfers:
 
-1. The method call to `append()` at line 4 appends the contents of `taint` to `sb`, so the `StringBuilder` pointed to by `sb` contains the secret data and should also be treated as tainted data; in other words, `append()` at line 4 transfers taint from `taint` to `sb`.
-2. The method call to `toString()` at line 6 converts the `StringBuilder` to a `String`, which contains the same contents of the `StringBuilder`, so the `String` includes the secret data; in other words, `toString()` transfers taint from `sb` to `s`.
+1. The method call to `append()` at line 4 adds the contents of `taint` to `sb`, resulting in the `StringBuilder` object pointed to by `sb` containing the secret data.
+Therefore, it should also be regarded as tainted data.
+In essence, the `append()` call at line 4 transfers taint from `taint` to `sb`.
 
-In this example, if the taint analysis cannot propagate taint from `taint` to `sb` and from `sb` to `s`, it will fail to detect the privacy leakage.
-To address such issues, our taint analysis allows users to specify which methods cause taint transfers, and propagates taint flow accordingly.
+2. The method call to `toString()` at line 6 converts the `StringBuilder` to a `String`, which holds the same content as the `StringBuilder`, including the secret data.
+In essence, `toString()` transfers taint from `sb` to `s`.
+
+In this example, if the taint analysis fails to propagate taint from `taint` to `sb` and from `sb` to `s`, it will be unable to detect the privacy leakage.
+To address such scenarios, our taint analysis allows users to specify which methods trigger taint transfers, facilitating the appropriate propagation of taint flow.
 
 ==== Configuration
-In this section, we introduce how to configure taint transfers.
-The essence of taint transfer is that the method calls to some methods will trigger propagation of taints from specific variables to some other variables of the call sites.
-We call source of taint transfer _from-variable_, and target of taint transfer _to-variable_, e.g., for `sb.append(taint)` in the above example, `taint` is the from-variable and `sb` is the to-variable.
 
-In the configuration file, taint transfers are specified as a list of transfer entries following key `transfers`, for example:
+In this section, we provide instructions on configuring taint transfers.
+Taint transfer essentially involves the triggering of taint propagation from specific variables to other variables at call sites through method calls.
+We refer to the source of taint transfer as the _from-variable_ and the target as the _to-variable_.
+For example, in the case of `sb.append(taint)` from the previous example, `taint` serves as the from-variable, and `sb` acts as the to-variable.
+
+In the configuration file, taint transfers are defined as a list of transfer entries under the key `transfers`, as shown in the example below:
 
 [source,yaml]
 ----
@@ -306,19 +317,19 @@ transfers:
 ----
 
 which can handle the taint transfers of the example in <<Introduction>>.
-Specifically, The format of transfer entry is:
+Each transfer entry follows this format:
 
 [source,yaml,subs="+normal"]
 ----
 - { method: METHOD_SIGNATURE, from: INDEX, to: INDEX, [underline]#type: TYPE# }
 ----
 
-Here, `METHOD_SIGNATURE` is the method that causes taint transfer, `from` and `to` specify the indexes of from-variable and to-variable at the call site.
-`TYPE` is the type of the transferred taint object, which is also *optional*.
+Here, `METHOD_SIGNATURE` represents the method that triggers taint transfer, `from` and `to` specify the indexes of from-variable and to-variable at the call site.
+`TYPE` denotes the type of the transferred taint object, which is also *optional*.
 
-Taint transfer is complicated in real-world programs.
-To detect more security vulnerabilities, our taint analysis supports several kinds of taint transfers.
-You can write different expressions for `from` and `to` in transfer entries to enable different kinds of taint transfers, as listed below:
+Taint transfer can be intricate in real-world programs.
+To detect a broader range of security vulnerabilities, our taint analysis supports various types of taint transfers.
+You can use different expressions for `from` and `to` in transfer entries to enable different types of taint transfers, as outlined below:
 
 |===
 | Transfer | From | To
@@ -354,22 +365,21 @@ Expression expr = Factory.newExpression(cmds); // taint transfer: cmds[0] -> exp
 execute(expr); // sink
 ----
 
-Suppose that we consider `getParameter()` and `execute()` as source and sink, respectively.
-In this example, the code at line 1 retrieves value from http request (which is uncontrollable and thus treated as source), and stores it in `cmd`.
-The code at line 2 stores `cmd` into an `Object` array, which is used to create an `Expression` at line 3.
-Finally, the `Expression` is passed to `execute()`, which may cause command injection.
+Here, assuming we consider `getParameter()` as the source and `execute()` as the sink, the code retrieves a value from an HTTP request at line 1 (which is uncontrollable and thus treated as a source) and stores it in `cmd`.
+At line 2, `cmd` is stored in an `Object` array, which is then used to create an `Expression` at line 3.
+Finally, the `Expression` is passed to `execute()`, which might lead to a command injection.
 
 To detect this injection, we need to propagate taint from `cmd` to `expr` when analyzing method call `expr = Factory.newExpression(cmds)`.
-At this call, the taint stored in array `cmds` is passed to `expr`, and we can capture this behavior by writing such a taint transfer entry:
+At this call, the taint stored in array `cmds` is transferred to `expr`, and we can capture this behavior by specifying the following taint transfer entry:
 
 [source,yaml]
 ----
 - { method: "<Factory: Expression newExpression(java.lang.Object[])>", from: "0[*]", to: result }
 ----
 
-Here, `from: "0[*]"` means that the taint analysis will search _all elements_ in the array pointed to by _0-th parameter_ (i.e., `cmds`), and if it detects any taint objects, it will propagate them to the variable specified by `to: result` (i.e., `expr`).
+Here, `from: "0[*]"` indicates that the taint analysis will examine _all elements_ in the array pointed to by _0-th parameter_ (i.e., `cmds`), and if it detects any taint objects, it will propagate them to the variable specified by `to: result` (i.e., `expr`).
 
-NOTE: `[` and `]` are special characters in YAML, so you need to quote them like `"0[*]"`.
+NOTE: `[` and `]` are special characters in YAML, so you need to enclose them in quotes like `"0[*]"`.
 
 === Sanitizers
 Our taint analysis allows users to specify sanitizers to reduce false positives.
