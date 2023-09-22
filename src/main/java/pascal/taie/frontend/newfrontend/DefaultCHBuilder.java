@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.java.JavaClassBuilder;
 import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -50,9 +51,10 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             ClassSource source,  JClass jClass) {
         if (source instanceof AsmSource i) {
             return new AsmClassBuilder(i, jClass);
+        } else if (source instanceof JavaSource j) {
+            return new JavaClassBuilder(j, jClass);
         } else{
-            // TODO: fill in here
-            throw new IllegalStateException();
+            throw new UnsupportedOperationException();
         }
     }
 }

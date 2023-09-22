@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.World;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
@@ -143,12 +144,17 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             throw new FileNotFoundException(binaryName);
         }
 
-        if (f instanceof JavaSourceFile) {
-            logger.warn(
-                    "WARNING: currently new frontend does not support java source code("
-                    + ((JavaSourceFile) f).getClassName()
-                    + "). So this class would be ignored and the rest task continues on.");
-            return List.of();
+        if (f instanceof JavaSourceFile javaSourceFile) {
+//            logger.warn(
+//                    "WARNING: currently new frontend does not support java source code("
+//                    + ((JavaSourceFile) f).getClassName()
+//                    + "). So this class would be ignored and the rest task continues on.");
+
+            // DO NOT change the order of next 2 stmts
+            List<String> deps = JavaClassManager.get().getImports(project, javaSourceFile);
+            JavaSource source = JavaClassManager.get().getJavaSource(javaSourceFile);
+            sourceMap.put(source.getClassName(), source);
+            return deps;
         } else if (f instanceof ClassFile classFile) {
             return buildClassDeps(binaryName, classFile);
         } else {

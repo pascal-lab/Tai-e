@@ -2,6 +2,7 @@ package pascal.taie.project;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public interface Resource {
 
@@ -9,4 +10,5 @@ public interface Resource {
 
     byte[] getContent() throws IOException;
 
+    Path getPath();
 }

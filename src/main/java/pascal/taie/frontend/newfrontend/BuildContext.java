@@ -50,7 +50,7 @@ public class BuildContext {
 
     static BuildContext buildContext;
 
-    static BuildContext get() {
+    public static BuildContext get() {
         if (buildContext == null) {
             throw new IllegalStateException();
         }
@@ -144,6 +144,7 @@ public class BuildContext {
         }
 
         AsmSource source = jclass2Node.get(method.getDeclaringClass());
+        assert source != null;
         BuildContext ctx = this;
 
         JClass c = method.getDeclaringClass();

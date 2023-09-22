@@ -5,8 +5,10 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import pascal.taie.World;
+import pascal.taie.frontend.newfrontend.BuildContext;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -22,12 +24,14 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
+import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.SetQueue;
 import javax.annotation.Nullable;
@@ -35,10 +39,13 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
 
@@ -61,6 +68,86 @@ public final class TypeUtils {
     public static final String ITERATOR = "iterator";
     public static final String HAS_NEXT = "hasNext";
     public static final String ITERATOR_TYPE = "java.lang.Iterator";
+
+    public static boolean isObject(JClass jClass) {
+        return jClass.getName().equals(ClassNames.OBJECT);
+    }
+
+    public static boolean hasModifier(int modifier, int target) {
+        return (modifier & target) != 0;
+    }
+
+    /**
+     * Only handle modifier in source
+     */
+    public static Set<Modifier> fromJDTModifier(int modifier) {
+        // TODO: this set should be mutable
+        return Arrays.stream(Modifier.values())
+                .filter(m -> hasModifier(modifier, toJDTModifier(m)))
+                .collect(Collectors.toSet());
+    }
+
+    public static JClass getSuperClass(ITypeBinding binding) {
+        ITypeBinding superTypeBinding = binding.getSuperclass();
+        if (superTypeBinding != null) {
+            return getTaieClass(superTypeBinding);
+        } else {
+            return BuildContext.get().getClassByName(ClassNames.OBJECT);
+        }
+    }
+
+    public static boolean isStatic(int modifiers) {
+        return hasModifier(modifiers, org.eclipse.jdt.core.dom.Modifier.STATIC);
+    }
+
+    public static Set<Modifier> computeModifier(ITypeBinding binding) {
+        binding = binding.getErasure();
+        Set<Modifier> res = new HashSet<>(fromJDTModifier(binding.getModifiers()));
+
+        if (binding.isInterface()) {
+            res.add(Modifier.INTERFACE);
+        }
+
+        if (binding.isAnnotation()) {
+            res.add(Modifier.ANNOTATION);
+        }
+
+        if (binding.isEnum()) {
+            res.add(Modifier.ENUM);
+        }
+
+        return res;
+    }
+
+    public static int toJDTModifier(Modifier m) {
+        return switch (m) {
+            case PUBLIC -> org.eclipse.jdt.core.dom.Modifier.PUBLIC;
+            case PRIVATE -> org.eclipse.jdt.core.dom.Modifier.PRIVATE;
+            case PROTECTED -> org.eclipse.jdt.core.dom.Modifier.PROTECTED;
+            case STATIC -> org.eclipse.jdt.core.dom.Modifier.STATIC;
+            case FINAL -> org.eclipse.jdt.core.dom.Modifier.FINAL;
+            case SYNCHRONIZED -> org.eclipse.jdt.core.dom.Modifier.SYNCHRONIZED;
+            case VOLATILE -> org.eclipse.jdt.core.dom.Modifier.VOLATILE;
+            case TRANSIENT -> org.eclipse.jdt.core.dom.Modifier.TRANSIENT;
+            case NATIVE -> org.eclipse.jdt.core.dom.Modifier.NATIVE;
+            // case INTERFACE
+            case STRICTFP -> org.eclipse.jdt.core.dom.Modifier.STRICTFP;
+            // case BRIDGE
+            // case VARARGS
+            // case SYNTHETIC
+            // case ANNOTATION
+            // case ENUM
+            // case MANDATED
+            default -> 0;
+        };
+    }
+
+    public static Set<Modifier> copyVisuality(Set<Modifier> modifiers) {
+        Set<Modifier> targets = Set.of(Modifier.PUBLIC, Modifier.PROTECTED, Modifier.PRIVATE);
+        return modifiers.stream()
+                .filter(targets::contains)
+                .collect(Collectors.toSet());
+    }
 
     public static String getErasedName(ITypeBinding iTypeBinding) {
         if (iTypeBinding.isPrimitive()) {
@@ -131,11 +218,10 @@ public final class TypeUtils {
         } else if (typeBinding.isNullType()) {
             return NullType.NULL;
         } else {
-            var erased = typeBinding.getErasure();
-            var tm = World.get().getTypeSystem();
-            var loader = World.get().getClassHierarchy().getDefaultClassLoader();
+            ITypeBinding erased = typeBinding.getErasure();
+            TypeSystem tm = BuildContext.get().getTypeSystem();
             if (erased.isClass() || erased.isInterface() || erased.isEnum()) {
-                return tm.getType(loader, getBinaryName(erased));
+                return tm.getType(getBinaryName(erased));
             } else if (erased.isArray()) {
                 return tm.getArrayType(JDTTypeToTaieType(erased.getElementType()), erased.getDimensions());
             }
@@ -144,7 +230,7 @@ public final class TypeUtils {
     }
 
     public static @Nullable JClass getTaieClass(ITypeBinding binding) {
-        return World.get().getClassHierarchy().getClass(getBinaryName(binding));
+        return BuildContext.get().getClassByName(getBinaryName(binding));
     }
 
     public static Literal getRightPrimitiveLiteral(Expression e) {
@@ -153,6 +239,12 @@ public final class TypeUtils {
         if (res == null) {
             if (e instanceof NullLiteral) {
                 return pascal.taie.ir.exp.NullLiteral.get();
+            } else if (e instanceof NumberLiteral numberLiteral) {
+                // only used by JavaMethodIRBuilder
+                // currently, just literal 0
+                String value = numberLiteral.getToken();
+                assert Objects.equals(value, "0");
+                return IntLiteral.get(0);
             } else {
                 throw new NewFrontendException(e + " is not literal, why use this function?");
             }
@@ -245,10 +337,20 @@ public final class TypeUtils {
         assert (binding != null);
 
         Type retType = JDTTypeToTaieType(binding.getReturnType());
-        List<Type> paraType = Arrays.stream(binding.getParameterTypes())
+        List<Type> paraType = fromJDTTypeList(binding.getParameterTypes());
+        return MethodType.get(paraType, retType);
+    }
+
+    public static List<Type> fromJDTTypeList(ITypeBinding[] types) {
+        return Arrays.stream(types)
                 .map(TypeUtils::JDTTypeToTaieType)
                 .toList();
-        return MethodType.get(paraType, retType);
+    }
+
+    public static List<ClassType> toClassTypes(ITypeBinding[] types) {
+        return fromJDTTypeList(types).stream()
+                .map(t -> (ClassType) t)
+                .toList();
     }
 
     public static MethodRef getMetaFactory() {

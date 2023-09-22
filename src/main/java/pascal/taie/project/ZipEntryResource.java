@@ -47,4 +47,9 @@ public class ZipEntryResource implements Resource {
         }
         return cache;
     }
+
+    @Override
+    public Path getPath() {
+        return fs.getPath(path);
+    }
 }

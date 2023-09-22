@@ -112,9 +112,13 @@ public class Utils {
     }
 
     static Set<Modifier> fromAsmModifier(int opcodes) {
-        return Arrays.stream(Modifier.values())
-                .filter(i -> hasAsmModifier(opcodes, toAsmModifier(i)))
-                .collect(Collectors.toSet());
+        Set<Modifier> res = new HashSet<>();
+        for (Modifier m : Modifier.values()) {
+            if (hasAsmModifier(opcodes, toAsmModifier(m))) {
+                res.add(m);
+            }
+        }
+        return res;
     }
 
     /**

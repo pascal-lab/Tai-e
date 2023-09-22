@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -25,8 +26,11 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
                 AsmIRBuilder builder = new AsmIRBuilder(method, BuildContext.get().getSource(method));
                 builder.build();
                 return builder.getIr();
+            } else if (source instanceof JavaMethodSource javaMethodSource) {
+                JavaMethodIRBuilder builder = new JavaMethodIRBuilder(javaMethodSource, method);
+                return builder.build();
             } else {
-                throw new FrontendException("NewFrontend currently does not support " + source.getClass().getName());
+                throw new UnsupportedOperationException();
             }
         } catch (RuntimeException e) {
             if (e.getStackTrace()[0].getClassName().startsWith("Asm")) {

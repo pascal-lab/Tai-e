@@ -7,6 +7,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +28,18 @@ public class MethodCallBuilder {
     public static MethodRef getInitRef(IMethodBinding binding) {
         ITypeBinding declClass = binding.getDeclaringClass();
         JClass jClass = TypeUtils.getTaieClass(declClass);
-        Type retType = TypeUtils.JDTTypeToTaieType(binding.getReturnType());
+        Type retType = VoidType.VOID;
         List<Type> paras = new ArrayList<>();
         for (var i : binding.getParameterTypes()) {
             paras.add(TypeUtils.JDTTypeToTaieType(i));
         }
         return MethodRef.get(jClass, MethodNames.INIT, paras, retType, Modifier.isStatic(binding.getModifiers()));
+    }
+
+    public static MethodRef getNonArgInitRef(JClass jClass) {
+        assert jClass != null;
+        Type retType = VoidType.VOID;
+        List<Type> paras = List.of();
+        return MethodRef.get(jClass, MethodNames.INIT, paras, retType, false);
     }
 }

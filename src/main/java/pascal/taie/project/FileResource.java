@@ -32,4 +32,9 @@ public class FileResource implements Resource {
         }
         return readCache;
     }
+
+    @Override
+    public Path getPath() {
+        return path;
+    }
 }
