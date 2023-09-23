@@ -73,4 +73,12 @@ task("all", type = Zip::class) {
     from(rootProject.layout.buildDirectory.dir("docs/javadoc")) {
         into("$projectVersion/api")
     }
+    if (!isSnapshot) {
+        from(layout.buildDirectory.dir("docs/asciidoc")) {
+            into("current/reference")
+        }
+        from(rootProject.layout.buildDirectory.dir("docs/javadoc")) {
+            into("current/api")
+        }
+    }
 }
