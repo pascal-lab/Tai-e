@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2023-08-07
+## [0.2.2] - 2023-09-23
 
 ### New Features
 
@@ -11,6 +11,7 @@
 - Add def-use analysis.
 - Add dominator-finding algorithm.
 - Add generics signature information for Class, Method, and Field.
+- Include documentation source in the repository.
 - Taint analysis
   - Support taint source for arguments of method calls and method parameters.
   - Support taint source for field loads.
