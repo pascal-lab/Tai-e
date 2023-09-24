@@ -1,9 +1,13 @@
 # Changelog
 
+## [Unreleased] - 2023-09-24
+
+### New Features
+- Add side-effect analysis
+
 ## [0.2.2] - 2023-09-23
 
 ### New Features
-
 - Add option `--app-class-path`.
 - Add option `--keep-results`.
 - Add option `--output-dir`.
@@ -30,7 +34,6 @@
   - Support dumping points-to set in YAML format.
 
 ### Breaking Changes
-
 - Option and configuration changes
   - Change All `dump` related options. Previously, most `dump` options require users to specify a path to dump file; now, Tai-e uses fixed path for dump file (the file name is fully fixed, and users can still change dump directory via option `--output-dir`), so that users only need to specify `true` or `false` for all `dump` options.
   - Rename analysis `class-dumper` to `ir-dumper`.
