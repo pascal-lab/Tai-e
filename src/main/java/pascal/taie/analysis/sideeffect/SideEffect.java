@@ -21,9 +21,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,17 +30,23 @@ import java.util.stream.Collectors;
  */
 public class SideEffect implements StmtResult<Set<Obj>> {
 
+    /**
+     * Maps from a method to all objects directly or indirectly modified by it.
+     */
     private final Map<JMethod, Set<Obj>> methodMods;
 
-    private final Map<Stmt, Set<Obj>> stmtMods;
+    /**
+     * Maps from a stmt to the objects directly modified by it.
+     */
+    private final Map<Stmt, Set<Obj>> stmtDirectMods;
 
     private final CallGraph<Invoke, JMethod> callGraph;
 
     SideEffect(Map<JMethod, Set<Obj>> methodMods,
-               Map<Stmt, Set<Obj>> stmtMods,
+               Map<Stmt, Set<Obj>> stmtDirectMods,
                CallGraph<Invoke, JMethod> callGraph) {
         this.methodMods = methodMods;
-        this.stmtMods = stmtMods;
+        this.stmtDirectMods = stmtDirectMods;
         this.callGraph = callGraph;
     }
 
@@ -58,21 +62,22 @@ public class SideEffect implements StmtResult<Set<Obj>> {
      */
     public Set<Obj> getModifiedObjects(Stmt stmt) {
         if (stmt instanceof Invoke invoke) {
+            // to save space, we compute modified objects of
+            // Invoke stmt on demand, and do not cache them
             return callGraph.getCalleesOf(invoke)
                     .stream()
                     .map(this::getModifiedObjects)
                     .flatMap(Set::stream)
                     .collect(Collectors.toUnmodifiableSet());
         }
-        return stmtMods.getOrDefault(stmt, Set.of());
+        return stmtDirectMods.getOrDefault(stmt, Set.of());
     }
 
     /**
-     * @return set of impure methods that may have side effects.
+     * @return {@code true} if given method does not modify any objects.
      */
-    public Set<JMethod> getImpureMethods() {
-        return Collections.unmodifiableSet(
-                Objects.requireNonNull(methodMods.keySet()));
+    public boolean isPure(JMethod method) {
+        return !methodMods.containsKey(method);
     }
 
     @Override
