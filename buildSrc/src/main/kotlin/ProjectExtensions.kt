@@ -1,4 +1,8 @@
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
+import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 
 fun Project.getProperty(key: String) =
     providers.gradleProperty(key).get()
@@ -20,3 +24,12 @@ val Project.projectDescription: String
 
 val Project.isSnapshot: Boolean
     get() = projectVersion.endsWith("-SNAPSHOT")
+
+val Project.javaVersion: JavaLanguageVersion
+    get() = JavaLanguageVersion.of(17)
+
+val Project.javaExecutablePath: RegularFile
+    get() = (this as ProjectInternal).services.get(JavaToolchainService::class.java)
+        .launcherFor { languageVersion.set(javaVersion) }
+        .map { it.executablePath }
+        .get()
