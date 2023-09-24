@@ -1,0 +1,31 @@
+-------------------- <A: void <init>()> (side-effect) --------------------
+[0@L41] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Recursion: void main(java.lang.String[])> (side-effect) --------------------
+[1@L3] invokestatic <Recursion: void recur1(int)>(%intconst0); [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void recur1(int)>[1@L8] new A}, NewObj{<Recursion: void recur2(int)>[0@L13] new A}]
+
+-------------------- <Recursion: void recur1(int)> (side-effect) --------------------
+[0@L7] invokestatic <Recursion: void recur2(int)>(n); [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void recur1(int)>[1@L8] new A}, NewObj{<Recursion: void recur2(int)>[0@L13] new A}]
+[2@L8] invokespecial temp$0.<A: void <init>()>(); []
+[5@L9] a.<A: java.lang.String name> = temp$1; [NewObj{<Recursion: void recur1(int)>[1@L8] new A}]
+
+-------------------- <Recursion: void recur2(int)> (side-effect) --------------------
+[1@L13] invokespecial temp$0.<A: void <init>()>(); []
+[4@L14] a.<A: java.lang.String name> = temp$1; [NewObj{<Recursion: void recur2(int)>[0@L13] new A}]
+[5@L15] invokestatic <Recursion: void recur3(int)>(n); [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void recur1(int)>[1@L8] new A}, NewObj{<Recursion: void recur2(int)>[0@L13] new A}]
+[6@L16] invokestatic <Recursion: void leaf1()>(); [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}]
+
+-------------------- <Recursion: void recur3(int)> (side-effect) --------------------
+[6@L21] invokestatic <Recursion: void recur1(int)>(temp$1); [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void recur1(int)>[1@L8] new A}, NewObj{<Recursion: void recur2(int)>[0@L13] new A}]
+[9@L23] invokestatic <Recursion: void leaf2()>(); [NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}, NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}]
+
+-------------------- <Recursion: void leaf1()> (side-effect) --------------------
+[4@L28] temp$0[%intconst1] = %stringconst2; [NewObj{<Recursion: void leaf1()>[1@L28] newarray java.lang.String[%intconst0]}]
+
+-------------------- <Recursion: void leaf2()> (side-effect) --------------------
+[4@L32] temp$0[%intconst1] = %stringconst2; [NewObj{<Recursion: void leaf2()>[1@L32] newarray java.lang.String[%intconst0]}]
+[6@L33] invokestatic <Recursion: void leaf3()>(); [NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}]
+
+-------------------- <Recursion: void leaf3()> (side-effect) --------------------
+[4@L37] temp$0[%intconst1] = %stringconst2; [NewObj{<Recursion: void leaf3()>[1@L37] newarray java.lang.String[%intconst0]}]
+

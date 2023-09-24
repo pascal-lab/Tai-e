@@ -28,8 +28,10 @@ import pascal.taie.analysis.Tests;
 
 public class CHATest {
 
-    protected static void test(String main) {
-        Tests.testMain(main, "src/test/resources/cha/", "cg", "algorithm:cha");
+    private static final String CLASS_PATH = "src/test/resources/cha/";
+
+    static void test(String mainClass) {
+        Tests.testMain(mainClass, CLASS_PATH, "cg", "algorithm:cha");
     }
 
     @ParameterizedTest
