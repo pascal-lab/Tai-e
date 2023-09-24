@@ -13,6 +13,7 @@
 package pascal.taie.analysis.sideeffect;
 
 import pascal.taie.analysis.StmtResult;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents result of side-effect analysis.
@@ -34,9 +36,14 @@ public class SideEffect implements StmtResult<Set<Obj>> {
 
     private final Map<Stmt, Set<Obj>> stmtMods;
 
-    SideEffect(Map<JMethod, Set<Obj>> methodMods, Map<Stmt, Set<Obj>> stmtMods) {
+    private final CallGraph<Invoke, JMethod> callGraph;
+
+    SideEffect(Map<JMethod, Set<Obj>> methodMods,
+               Map<Stmt, Set<Obj>> stmtMods,
+               CallGraph<Invoke, JMethod> callGraph) {
         this.methodMods = methodMods;
         this.stmtMods = stmtMods;
+        this.callGraph = callGraph;
     }
 
     /**
@@ -50,6 +57,13 @@ public class SideEffect implements StmtResult<Set<Obj>> {
      * @return set of objects that may be modified by given stmt.
      */
     public Set<Obj> getModifiedObjects(Stmt stmt) {
+        if (stmt instanceof Invoke invoke) {
+            return callGraph.getCalleesOf(invoke)
+                    .stream()
+                    .map(this::getModifiedObjects)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toUnmodifiableSet());
+        }
         return stmtMods.getOrDefault(stmt, Set.of());
     }
 
