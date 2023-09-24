@@ -49,11 +49,11 @@ tasks.named("asciidoctor", org.asciidoctor.gradle.jvm.AsciidoctorTask::class) {
                 "img/doc-background-dark.svg"
             ).forEach { dir.resolve(it).delete() }
         }
-    }
-    copy {
-        from(sourceDir)
-        include("common/**")
-        into(outputDir)
+        copy {
+            from(sourceDir)
+            include("common/**")
+            into(outputDir)
+        }
     }
 }
 
@@ -75,7 +75,7 @@ task("all", type = Zip::class) {
     from(rootProject.layout.buildDirectory.dir("docs/javadoc")) {
         into("$projectVersion/api")
     }
-    if (!isSnapshot) {
+    if (isSnapshot) {
         from(layout.buildDirectory.dir("docs/asciidoc")) {
             into("current/reference")
         }
