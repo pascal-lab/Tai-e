@@ -28,7 +28,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
-import pascal.taie.util.graph.TopoSorter;
+import pascal.taie.util.graph.TopologicalSorter;
 
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +56,7 @@ class TopologicalSolver {
         Map<JMethod, Set<Obj>> selfMods = computeSelfMMods(ptaResult);
         Map<JMethod, Set<Obj>> sccMods = Maps.newMap();
         MergedSCCGraph<JMethod> mg = new MergedSCCGraph<>(callGraph);
-        TopoSorter<MergedNode<JMethod>> sorter = new TopoSorter<>(mg, true);
+        TopologicalSorter<MergedNode<JMethod>> sorter = new TopologicalSorter<>(mg, true);
         // compute method mods of each SCC in the call graph
         sorter.get().forEach(scc -> {
             Set<Obj> mods = Sets.newHybridSet();

@@ -91,13 +91,13 @@ public class GraphTest {
     @Test
     void testTopsort() {
         Graph<Integer> g = readGraph("src/test/resources/util/graph-topsort.txt");
-        List<Integer> l = new TopoSorter<>(g).get();
+        List<Integer> l = new TopologicalSorter<>(g).get();
         assertTrue(l.indexOf(1) < l.indexOf(4));
         assertTrue(l.indexOf(5) < l.indexOf(3));
         assertTrue(l.indexOf(5) < l.indexOf(4));
         assertTrue(l.indexOf(6) < l.indexOf(4));
 
-        List<Integer> rl = new TopoSorter<>(g, true).get();
+        List<Integer> rl = new TopologicalSorter<>(g, true).get();
         assertTrue(rl.indexOf(1) > rl.indexOf(4));
         assertTrue(rl.indexOf(5) > rl.indexOf(3));
         assertTrue(rl.indexOf(5) > rl.indexOf(4));

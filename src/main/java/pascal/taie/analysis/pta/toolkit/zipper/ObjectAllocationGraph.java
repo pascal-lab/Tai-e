@@ -34,7 +34,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
 import pascal.taie.util.graph.SimpleGraph;
-import pascal.taie.util.graph.TopoSorter;
+import pascal.taie.util.graph.TopologicalSorter;
 
 import java.util.Map;
 import java.util.Set;
@@ -79,7 +79,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
     private void computeAllocatees(PointerAnalysisResultEx pta) {
         // compute allocatees of objects
         MergedSCCGraph<Obj> mg = new MergedSCCGraph<>(this);
-        TopoSorter<MergedNode<Obj>> sorter = new TopoSorter<>(mg, true);
+        TopologicalSorter<MergedNode<Obj>> sorter = new TopologicalSorter<>(mg, true);
         Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
         sorter.get().forEach(node -> {
             Set<Obj> allocatees = canonicalizer.get(getAllocatees(node, mg));

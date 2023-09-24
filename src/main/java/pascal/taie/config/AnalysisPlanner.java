@@ -28,7 +28,7 @@ import pascal.taie.util.collection.Lists;
 import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.SCC;
 import pascal.taie.util.graph.SimpleGraph;
-import pascal.taie.util.graph.TopoSorter;
+import pascal.taie.util.graph.TopologicalSorter;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -162,7 +162,7 @@ public class AnalysisPlanner {
         }
         Graph<AnalysisConfig> graph = buildDependenceGraph(configs);
         validateDependenceGraph(graph);
-        List<AnalysisConfig> analyses = new TopoSorter<>(graph, configs).get();
+        List<AnalysisConfig> analyses = new TopologicalSorter<>(graph, configs).get();
         if (reachableScope) {
             analyses = shiftCG(analyses);
         }

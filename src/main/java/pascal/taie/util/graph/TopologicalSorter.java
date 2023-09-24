@@ -37,17 +37,17 @@ import java.util.Set;
  *
  * @param <N> type of nodes
  */
-public class TopoSorter<N> {
+public class TopologicalSorter<N> {
 
     private Graph<N> graph;
     private List<N> sortedList;
     private Set<N> visited;
 
-    public TopoSorter(Graph<N> graph) {
+    public TopologicalSorter(Graph<N> graph) {
         this(graph, false);
     }
 
-    public TopoSorter(Graph<N> graph, boolean reverse) {
+    public TopologicalSorter(Graph<N> graph, boolean reverse) {
         this(graph, reverse, List.of());
     }
 
@@ -60,11 +60,11 @@ public class TopoSorter<N> {
      * @param preservedOrder the order of the nodes that the client code
      *                       wishes to preserve
      */
-    public TopoSorter(Graph<N> graph, List<N> preservedOrder) {
+    public TopologicalSorter(Graph<N> graph, List<N> preservedOrder) {
         this(graph, false, preservedOrder);
     }
 
-    private TopoSorter(Graph<N> graph, boolean reverse, List<N> preservedOrder) {
+    private TopologicalSorter(Graph<N> graph, boolean reverse, List<N> preservedOrder) {
         initialize(graph);
         preservedOrder.forEach(this::visit);
         graph.getNodes()
