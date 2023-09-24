@@ -98,10 +98,19 @@ public class TypeInference0 {
                 } else if (res.size() == 1) {
                     now = res.iterator().next();
                 } else {
-                    now = res.stream()
-                            .filter(i -> constrains.stream().allMatch(j -> isAssignable(j, i)))
-                            .findFirst()
-                            .orElse(Utils.getObject());
+                    now = null;
+                    int count = 0;
+                    for (ReferenceType type : res) {
+                        int newCount = (int) constrains.stream()
+                                .filter(c -> isAssignable(c, type)).count();
+                        if (newCount > count) {
+                            now = type;
+                            count = newCount;
+                        }
+                    }
+                    if (now == null) {
+                        now = getObject();
+                    }
                 }
                 break;
             }

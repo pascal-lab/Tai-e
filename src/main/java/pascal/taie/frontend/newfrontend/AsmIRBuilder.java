@@ -329,6 +329,19 @@ public class AsmIRBuilder {
         return exp2origin.get(e);
     }
 
+    private List<Stmt> clearStmt(AbstractInsnNode node) {
+        List<Stmt> res = new ArrayList<>();
+        if (asm2Stmt.containsKey(node)) {
+            res.add(asm2Stmt.get(node));
+            asm2Stmt.remove(node);
+        }
+        if (auxiliaryStmts.containsKey(node)) {
+            res.addAll(auxiliaryStmts.get(node));
+            auxiliaryStmts.remove(node);
+        }
+        return res;
+    }
+
     private void assocStmt(AbstractInsnNode node, Stmt stmt) {
         if (! asm2Stmt.containsKey(node)) {
             asm2Stmt.put(node, stmt);
@@ -476,7 +489,7 @@ public class AsmIRBuilder {
             if (next instanceof LabelNode labelNode) {
                 return getFirstStmt(labelNode);
             } else {
-                logger.atWarn().log("[IR] All possible method fail to get a valid stmt for a label" + "\n" +
+                logger.atTrace().log("[IR] All possible method fail to get a valid stmt for a label" + "\n" +
                                     "     Please check IR of this method: " + method);
                 while (! asm2Stmt.containsKey(next)) {
                     next = next.getNext();
@@ -840,13 +853,17 @@ public class AsmIRBuilder {
         }
         if (!auxiliary.isEmpty()) {
             AbstractInsnNode lastBytecode = bb.getLastBytecode();
-            Stmt last = asm2Stmt.get(lastBytecode);
-            if (last != null && isCFEdge(lastBytecode)) {
+            if (isCFEdge(lastBytecode)) {
                 // last stmt may attach goto, if, switch ...
-                asm2Stmt.remove(lastBytecode);
-                auxiliary.add(last);
+                List<Stmt> stmts = clearStmt(lastBytecode);
+                for (int i = 0; i < stmts.size() - 1; ++i) {
+                    assocStmt(lastBytecode, stmts.get(i));
+                }
+                auxiliary.forEach(stmt -> assocStmt(lastBytecode, stmt));
+                assocStmt(lastBytecode, stmts.get(stmts.size() - 1));
+            } else {
+                auxiliary.forEach(stmt -> assocStmt(lastBytecode, stmt));
             }
-            auxiliary.forEach(stmt -> assocStmt(lastBytecode, stmt));
         }
         assert target1.empty();
     }
@@ -1509,11 +1526,17 @@ public class AsmIRBuilder {
                     tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.size());
                 } else {
                     AbstractInsnNode insnNode = node.end;
-                    while (insnNode instanceof LabelNode && !label2Block.containsKey(insnNode)) {
+                    while (insnNode != null && (
+                            !(insnNode instanceof LabelNode) || !label2Block.containsKey(insnNode))) {
                         insnNode = insnNode.getNext();
                     }
-                    assert insnNode instanceof LabelNode; // make sure that the while loop above stops due to !label2Block.containsKey(insnNode).
-                    end = label2Block.get((LabelNode) insnNode);
+//                    assert insnNode instanceof LabelNode; // make sure that the while loop above stops due to !label2Block.containsKey(insnNode).
+                    if (insnNode == null) {
+                        end = blockSortedList.get(blockSortedList.size() - 1);
+                    } else {
+                        end = label2Block.get((LabelNode) insnNode);
+                    }
+
                     tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
                 }
             }
