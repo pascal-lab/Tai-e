@@ -3,7 +3,7 @@
 ## [Unreleased] - 2023-09-24
 
 ### New Features
-- Add side-effect analysis
+- Add side-effect analysis.
 
 ## [0.2.2] - 2023-09-23
 
