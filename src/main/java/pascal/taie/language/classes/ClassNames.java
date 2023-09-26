@@ -31,7 +31,7 @@ public final class ClassNames {
     // Names of special important classes
     public static final String OBJECT = "java.lang.Object";
 
-    public static final String SERIALIZABLE = "java.lang.Serializable";
+    public static final String SERIALIZABLE = "java.io.Serializable";
 
     public static final String CLONEABLE = "java.lang.Cloneable";
 
