@@ -1,43 +1,36 @@
 package pascal.taie.interp;
 
-import pascal.taie.ir.exp.IntLiteral;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
 public interface JValue {
-    public enum ValueType {
-        JLiteral,
-        JArray,
-        JObject
-    }
 
-    static ValueType TypeToJValueType(Type t) {
-        if (t instanceof PrimitiveType || t instanceof NullType) {
-            return ValueType.JLiteral;
-        } else if (t instanceof ArrayType) {
-            return ValueType.JArray;
-        } else {
-            return ValueType.JObject;
-        }
-    }
-    Object toJavaObj();
+    Object toJVMObj();
 
-    static int getInt(JValue v) throws IllegalStateException {
-        if (v instanceof JLiteral l &&
-            l.value instanceof IntLiteral i) {
-            return i.getValue();
+    Type getType();
+
+    static int getInt(JValue v) {
+        if (v instanceof JPrimitive l &&
+            l.value instanceof Integer i) {
+            return i;
         } else {
-            throw new IllegalStateException(v + " is not int value");
+            throw new InterpreterException(v + " is not int value");
         }
     }
 
-    static JArray getJArray(JValue v) throws IllegalStateException {
+    static long getLong(JValue v) {
+        if (v instanceof JPrimitive l &&
+                l.value instanceof Long i) {
+            return i;
+        } else {
+            throw new InterpreterException(v + " is not long value");
+        }
+    }
+
+    static JArray getJArray(JValue v) {
         if (v instanceof JArray j) {
             return j;
         } else {
-            throw new IllegalStateException(v + " is not array value");
+            throw new InterpreterException(v + " is not array value");
         }
     }
 
@@ -45,15 +38,7 @@ public interface JValue {
         if (v instanceof JObject j) {
             return j;
         } else {
-            throw new IllegalStateException(v + " is not Object value");
-        }
-    }
-
-    static JClassObj getClassObj(JValue v) {
-        if (v instanceof JClassObj j) {
-            return j;
-        } else {
-            throw new IllegalStateException(v + " is not Class Object value");
+            throw new InterpreterException(v + " is not Object value");
         }
     }
 }
