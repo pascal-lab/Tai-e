@@ -529,6 +529,8 @@ public class JavaMethodIRBuilder {
                     visitStmt(init1.initializer().getBody());
                 } else if (init instanceof EnumInit init2) {
                     buildEnumInit(init2);
+                } else if (init instanceof FieldInit init3) {
+                    buildFieldInit(init3);
                 }
             }
         }
@@ -725,13 +727,19 @@ public class JavaMethodIRBuilder {
                 if (init instanceof BlockInit blockInit) {
                     stmtVisitor.visit(blockInit.init().getBody());
                 } else if (init instanceof FieldInit fieldInit) {
-                    JField field = fieldInit.field();
-                    Expression initExp = fieldInit.init();
-                    visitExp(initExp);
-                    Exp exp = context.popStack();
-                    newAssignmentMayConversion(new InstanceFieldAccess(field.getRef(), getThisVar()), exp);
+                    buildFieldInit(fieldInit);
                 }
             }
+        }
+
+        private void buildFieldInit(FieldInit fieldInit) {
+            JField field = fieldInit.field();
+            boolean isStatic = field.isStatic();
+            Expression initExp = fieldInit.init();
+            visitExp(initExp);
+            Exp exp = context.popStack();
+            newAssignmentMayConversion(isStatic ? new StaticFieldAccess(field.getRef())
+                    : new InstanceFieldAccess(field.getRef(), getThisVar()), exp);
         }
 
         private void buildStmt() {

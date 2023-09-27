@@ -185,7 +185,12 @@ public class JavaClassBuilder implements JClassBuilder  {
 
                     Expression init = fragment.getInitializer();
                     if (init != null) {
-                        sourceFile.addNewInit(new FieldInit(field, init));
+                        FieldInit init1 = new FieldInit(field, init);
+                        if (field.isStatic()) {
+                            sourceFile.addNewCinit(init1);
+                        } else {
+                            sourceFile.addNewInit(init1);
+                        }
                     }
                 }
                 return false;
