@@ -32,8 +32,22 @@ public class JPrimitive implements JValue {
         return new JPrimitive(value);
     }
 
+    public JPrimitive getNegValue() {
+        if (value instanceof Integer i) {
+            return get(-i);
+        } else if (value instanceof Long l) {
+            return get(-l);
+        } else if (value instanceof Float f) {
+            return get(-f);
+        } else if (value instanceof Double d) {
+            return get(-d);
+        } else {
+            throw new InterpreterException();
+        }
+    }
+
     public static JPrimitive getBoolean(boolean b) {
-        return new JPrimitive(b ? 1 : 0);
+        return new JPrimitive(Utils.toInt(b));
     }
 
     public static JPrimitive getDefault(PrimitiveType t) {

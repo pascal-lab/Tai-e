@@ -7,7 +7,7 @@ public class InterpreterException extends UnsupportedOperationException {
 
     public InterpreterException() {}
 
-    public InterpreterException(Exception e) {
+    public InterpreterException(Throwable e) {
         super(e);
     }
 }

@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class JObject implements JValue {
 
+    private final VM vm;
+
     private final ClassType type;
 
     private final Map<String, JValue> fields;
@@ -26,11 +28,12 @@ public class JObject implements JValue {
 
     private JObject superObj;
 
-    public JObject(JClassObject jClassObj) {
-        this(jClassObj, null);
+    public JObject(VM vm, JClassObject jClassObj) {
+        this(vm, jClassObj, null);
     }
 
-    public JObject(JClassObject jClassObj, JObject superObj) {
+    public JObject(VM vm, JClassObject jClassObj, JObject superObj) {
+        this.vm = vm;
         this.klass = jClassObj;
         this.type = klass.type;
         fields = Maps.newMap();
@@ -38,7 +41,7 @@ public class JObject implements JValue {
     }
 
     public void setField(VM vm, FieldRef ref, JValue value) {
-        if (ref.getDeclaringClass().getType() != type) {
+        if (ref.resolve().getDeclaringClass().getType() != type) {
             superObj.setField(vm, ref, value);
         } else {
             String name = ref.getName();
@@ -53,7 +56,7 @@ public class JObject implements JValue {
 
     public JValue getField(VM vm, FieldRef field) {
         String name = field.getName();
-        if (field.getDeclaringClass().getType() != type) {
+        if (field.resolve().getDeclaringClass().getType() != type) {
             // super field
             return superObj.getField(vm, field);
         }
@@ -102,7 +105,14 @@ public class JObject implements JValue {
 
     @Override
     public String toString() {
-        return "JObject " + ": [" + type + "]";
+        assert vm != null;
+        JMethod mtd = type.getJClass().getDeclaredMethod("toString");
+        assert mtd != null;
+        JValue v = invokeInstance(vm, mtd, List.of());
+        assert v instanceof JVMObject;
+        Object o = v.toJVMObj();
+        assert o instanceof String;
+        return (String) o;
     }
 
     @Override

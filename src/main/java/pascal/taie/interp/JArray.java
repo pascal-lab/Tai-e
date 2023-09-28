@@ -2,6 +2,7 @@ package pascal.taie.interp;
 
 import pascal.taie.World;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
 import java.util.Arrays;
@@ -26,18 +27,26 @@ public class JArray implements JValue {
     }
 
     public static JArray createArray(int count, Type baseType, int dims) {
-        return new JArray(new JValue[count], baseType, dims);
+        JArray arr = new JArray(new JValue[count], baseType, dims);
+        if (dims == 1 && baseType instanceof PrimitiveType t) {
+            for (int i = 0; i < count; ++i) {
+                arr.setIdx(i, JPrimitive.getDefault(t));
+            }
+        }
+        return arr;
     }
 
-    public static JArray createMultiArray(ArrayType at, List<Integer> dims, int dimIdx) {
-        int maxSize = at.dimensions();
-        if (maxSize - dimIdx <= 1) {
-            return createArray(dims.get(dimIdx), at.baseType(), 1);
-        }
-        int now = dims.get(dimIdx);
+    public static JArray createMultiArray(ArrayType at, List<Integer> counts, int countIdx) {
+        int now = counts.get(countIdx);
         JArray arr = createArray(now, at.baseType(), at.dimensions());
-        for (int i = 0; i < now; ++i) {
-            arr.setIdx(i, createMultiArray((ArrayType) at.elementType(), dims, dimIdx + 1));
+        if (countIdx + 1 < counts.size()) {
+            for (int i = 0; i < now; ++i) {
+                Type eleType = at.elementType();
+                JValue ele = eleType instanceof ArrayType eleAt ?
+                        createMultiArray(eleAt, counts, countIdx + 1) :
+                        createArray(counts.get(countIdx + 1), eleType, 1);
+                arr.setIdx(i, ele);
+            }
         }
         return arr;
     }
@@ -49,7 +58,7 @@ public class JArray implements JValue {
 
     @Override
     public Object toJVMObj() {
-        Object[] arr = new JObject[this.arr.length];
+        Object[] arr = new Object[this.arr.length];
         for (int i = 0; i < arr.length; ++i) {
             arr[i] = this.arr[i].toJVMObj();
         }
@@ -59,5 +68,9 @@ public class JArray implements JValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    public Class<?> mockGetClass() {
+        return Utils.toJVMType(type);
     }
 }

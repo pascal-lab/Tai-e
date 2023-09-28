@@ -25,7 +25,7 @@ public class JVMClassObject extends JClassObject {
     public JValue invokeStatic(VM vm, JMethod method, List<JValue> args)  {
         try {
             Method mtd = Utils.toJVMMethod(method);
-            Object v = mtd.invoke(null, Utils.toJVMObjects(args));
+            Object v = mtd.invoke(null, Utils.toJVMObjects(args, method.getParamTypes()));
             return Utils.fromJVMObject(vm, v, method.getReturnType());
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new InterpreterException(e);

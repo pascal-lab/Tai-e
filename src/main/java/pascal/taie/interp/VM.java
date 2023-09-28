@@ -2,10 +2,46 @@ package pascal.taie.interp;
 
 import pascal.taie.World;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.*;
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.DoubleLiteral;
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.FloatLiteral;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.InvokeDynamic;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.InvokeStatic;
+import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.Literal;
+import pascal.taie.ir.exp.LongLiteral;
+import pascal.taie.ir.exp.MethodType;
+import pascal.taie.ir.exp.NegExp;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NewExp;
+import pascal.taie.ir.exp.NewInstance;
+import pascal.taie.ir.exp.NewMultiArray;
+import pascal.taie.ir.exp.RValue;
+import pascal.taie.ir.exp.StaticFieldAccess;
+import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
-import pascal.taie.ir.stmt.*;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.Catch;
+import pascal.taie.ir.stmt.DefinitionStmt;
+import pascal.taie.ir.stmt.Goto;
+import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Monitor;
+import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.Return;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -17,7 +53,15 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
-import java.util.*;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Stack;
 
 public class VM {
     final World world;
@@ -73,7 +117,7 @@ public class VM {
                     f.setPc(aCatch.getIndex());
                 } else {
                     // TODO: this approach will cause client code catch some internal exception
-                    //       correct this by catch all jvm exceptions
+                    //       correct this by explicitly throw all jvm exceptions
 
                     // throw to outer frame
                     frames.pop();
@@ -116,7 +160,7 @@ public class VM {
     }
 
     public void execStmt(Stmt stmt, IR ir, Frame f) {
-        if (stmt instanceof Nop || stmt instanceof Catch) {
+        if (stmt instanceof Nop || stmt instanceof Catch || stmt instanceof Monitor) {
             // do nothing
         }
         else if (stmt instanceof Return r) {
@@ -152,7 +196,7 @@ public class VM {
             f.setPc(g.getTarget().getIndex());
             return;
         } else if (stmt instanceof If i) {
-            if (JValue.getInt(evalExp(i.getCondition(), ir, f)) == 1) {
+            if (JValue.getInt(evalExp(i.getCondition(), ir, f)) == Utils.INT_TRUE) {
                 f.setPc(i.getTarget().getIndex());
                 return;
             }
@@ -188,9 +232,66 @@ public class VM {
         List<JValue> args = ii.getArgs().stream()
                 .map(e -> evalExp(e, ir, f))
                 .toList();
-        JObject obj = JValue.getObject(evalExp(ii.getBase(), ir, f));
-        JMethod method = ii.getMethodRef().resolve();
-        return obj.invokeInstance(this, method, args);
+        JValue v = evalExp(ii.getBase(), ir, f);
+        if (v instanceof JObject obj) {
+            JMethod method = ii.getMethodRef().resolve();
+            return obj.invokeInstance(this, method, args);
+        } else if (v instanceof JArray arr) {
+            if (Utils.isGetClass(ii.getMethodRef())) {
+                Class<?> klass = arr.mockGetClass();
+                return getClassLiteral(klass);
+            } else {
+                throw new InterpreterException();
+            }
+        } else {
+            throw new InterpreterException();
+        }
+    }
+
+    private JValue invokeDynamic(InvokeDynamic id, IR ir, Frame f) {
+        MethodRef bootStrap = id.getBootstrapMethodRef();
+        JMethod bootMtd = bootStrap.resolve();
+        assert bootMtd.isStatic();
+        Method m = Utils.toJVMMethod(bootMtd);
+        assert m.getParameterCount() == bootMtd.getParamCount();
+        MethodHandles.Lookup k = MethodHandles.lookup();
+        MethodType methodType = id.getMethodType();
+        java.lang.invoke.MethodType methodType1 = java.lang.invoke.MethodType.methodType(
+                Utils.toJVMType(methodType.getReturnType()),
+                Utils.toJVMTypeList(methodType.getParamTypes()));
+        List<JValue> bootstrapMtdArgs = id.getBootstrapArgs()
+                .stream().map(l -> evalExp(l, ir, f)).toList();
+        List<Object> args = new ArrayList<>();
+        args.add(k);
+        args.add(id.getMethodName());
+        args.add(methodType1);
+        for (int i = 3, j = 0; i < m.getParameterCount(); ++i, ++j) {
+            if (i == m.getParameterCount() - 1 && bootMtd.getParamType(i) instanceof ArrayType at) {
+                assert at.dimensions() == 1; // need not worry, only constants can reach here
+                int size = bootstrapMtdArgs.size() - j;
+                Object[] varargs = new Object[size];
+                args.add(varargs);
+                for (; j < bootstrapMtdArgs.size(); ++j) {
+                    varargs[bootstrapMtdArgs.size() - j] = Utils.typedToJVMObj(
+                            bootstrapMtdArgs.get(i), at.baseType());
+                }
+                break;
+            }
+            JValue now = bootstrapMtdArgs.get(j);
+            Type t = bootMtd.getParamType(i);
+            args.add(Utils.typedToJVMObj(now, t));
+        }
+        try {
+            CallSite callSite = (CallSite)
+                    m.invoke(null, args.toArray());
+            java.lang.invoke.MethodHandle handle = callSite.getTarget();
+            List<JValue> realArgs = id.getArgs().stream().map(e -> evalExp(e, ir, f)).toList();
+            Object[] realJVMArgs = Utils.toJVMObjects(realArgs, methodType.getParamTypes());
+            Object o = handle.invokeWithArguments(realJVMArgs);
+            return Utils.fromJVMObject(this, o, methodType.getReturnType());
+        } catch (Throwable e) {
+            throw new InterpreterException(e);
+        }
     }
 
     private JValue evalInvoke(InvokeExp ie, IR ir, Frame f) {
@@ -198,6 +299,8 @@ public class VM {
             return invokeStatic(is, ir, f);
         } else if (ie instanceof InvokeInstanceExp ii) {
             return invokeInstance(ii, ir, f);
+        } else if (ie instanceof InvokeDynamic id) {
+            return invokeDynamic(id, ir, f);
         } else {
             throw new InterpreterException();
         }
@@ -211,19 +314,30 @@ public class VM {
                 return JPrimitive.get(floatLiteral.getValue());
             } else if (l instanceof DoubleLiteral doubleLiteral) {
                 return JPrimitive.get(doubleLiteral.getValue());
+            } else if (l instanceof LongLiteral longLiteral) {
+                return JPrimitive.get(longLiteral.getValue());
             } else if (l instanceof StringLiteral stringLiteral) {
                 return new JVMObject(getSpecialClass(ClassNames.STRING),
                         stringLiteral.getString());
+            } else if (l instanceof ClassLiteral classLiteral) {
+                try {
+                    return getClassLiteral(classLiteral);
+                } catch (ClassNotFoundException ex) {
+                    throw new InterpreterException(ex);
+                }
             } else {
                 throw new InterpreterException();
             }
         } else if (e instanceof Var v) {
-            return f.getRegs().get(v);
+            if (v.isConst()) {
+                return evalExp(v.getConstValue(), ir, f);
+            } else {
+                return f.getRegs().get(v);
+            }
         } else if (e instanceof BinaryExp b) {
             JValue v1 = evalExp(b.getOperand1(), ir, f);
             JValue v2 = evalExp(b.getOperand2(), ir, f);
-            return BinaryEval.evalBinary(
-                    b.getOperator(), v1, v2);
+            return BinaryEval.evalBinary(b.getOperator(), v1, v2);
         } else if (e instanceof NewExp n) {
             if (n instanceof NewInstance ni) {
                 ClassType ct = ni.getType();
@@ -284,9 +398,21 @@ public class VM {
             } else {
                 throw new InterpreterException();
             }
+        } else if (e instanceof NegExp neg) {
+            JValue value = evalExp(neg.getValue(), ir, f);
+            assert value instanceof JPrimitive;
+            return ((JPrimitive) value).getNegValue();
         } else {
             throw new InterpreterException(e + " is not implemented");
         }
+    }
+
+    private JVMObject getClassLiteral(ClassLiteral classLiteral) throws ClassNotFoundException {
+        return getClassLiteral(Class.forName(classLiteral.getTypeValue().getName()));
+    }
+
+    private JVMObject getClassLiteral(Class<?> klass) {
+        return new JVMObject(getSpecialClass(ClassNames.CLASS), klass);
     }
 
     private Object performPrimitiveConv(JValue v, PrimitiveType type) {
@@ -295,9 +421,7 @@ public class VM {
         Object o = p.value;
         if (o instanceof Integer i) {
             return switch (type) {
-                case BOOLEAN -> toBoolean(i.byteValue());
-                case BYTE -> i.byteValue();
-                case CHAR, SHORT -> i.shortValue();
+                case BOOLEAN, BYTE, CHAR, SHORT -> Utils.getIntValue(Utils.downCastInt(i, type));
                 case INT -> i;
                 case LONG -> i.longValue();
                 case FLOAT -> i.floatValue();
@@ -305,21 +429,33 @@ public class VM {
             };
         } else if (o instanceof Long l) {
             return switch (type) {
-                case BOOLEAN -> toBoolean(l.byteValue());
-                case BYTE -> l.byteValue();
-                case CHAR, SHORT -> l.shortValue();
+                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
                 case INT -> l.intValue();
                 case LONG -> l;
                 case FLOAT -> l.floatValue();
                 case DOUBLE -> l.doubleValue();
             };
+        } else if (o instanceof Float f) {
+            return switch (type) {
+                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
+                case INT -> f.intValue();
+                case LONG -> f.longValue();
+                case FLOAT -> f;
+                case DOUBLE -> f.doubleValue();
+            };
+        } else if (o instanceof Double d) {
+            return switch (type) {
+                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
+                case INT -> d.intValue();
+                case LONG -> d.longValue();
+                case FLOAT -> d.floatValue();
+                case DOUBLE -> d;
+            };
         }
         throw new InterpreterException();
     }
 
-    private boolean toBoolean(byte b) {
-        return (b & 1) == 0;
-    }
+
 
     private JVMClassObject getSpecialClass(String name) {
         ClassType type = World.get().getTypeSystem().getClassType(name);
@@ -330,9 +466,9 @@ public class VM {
         ClassType superType = Objects.requireNonNull(ct.getJClass().getSuperClass()).getType();
         JClassObject klass = loadClass(ct);
         if (Utils.isJVMClass(superType)) {
-            return new JObject(klass);
+            return new JObject(this, klass);
         } else {
-            return new JObject(klass, createJObject(superType));
+            return new JObject(this, klass, createJObject(superType));
         }
     }
 }
