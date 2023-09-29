@@ -23,6 +23,10 @@ public class Utils {
 
     public static String GET_CLASS = "getClass";
 
+    public static String CLONE = "clone";
+
+    public static String EQUALS = "equals";
+
     public static List<String> PRIMITIVE_TYPES = List.of(
             ClassNames.BOOLEAN, ClassNames.BYTE, ClassNames.CHARACTER,
             ClassNames.SHORT, ClassNames.INTEGER, ClassNames.FLOAT,
@@ -30,6 +34,14 @@ public class Utils {
 
     public static boolean isGetClass(MethodRef ref) {
         return ref.getName().equals(GET_CLASS) && ref.getParameterTypes().isEmpty();
+    }
+
+    public static boolean isClone(MethodRef ref) {
+        return ref.getName().equals(CLONE) && ref.getParameterTypes().isEmpty();
+    }
+
+    public static boolean isEquals(MethodRef ref) {
+        return ref.getName().equals(EQUALS);
     }
 
     public static Class<?> toJVMType(Type t) {

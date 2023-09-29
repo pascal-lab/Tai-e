@@ -40,6 +40,12 @@ public class JObject implements JValue {
         this.superObj = superObj;
     }
 
+    public JObject(JObject obj) {
+        // TODO: use correct, deep copy semantic
+        this(obj.vm, obj.klass, obj.superObj == null ? null : new JObject(obj.superObj));
+        fields.putAll(obj.fields);
+    }
+
     public void setField(VM vm, FieldRef ref, JValue value) {
         if (ref.resolve().getDeclaringClass().getType() != type) {
             superObj.setField(vm, ref, value);
@@ -80,6 +86,9 @@ public class JObject implements JValue {
 
     public JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
         ClassType declType = method.getDeclaringClass().getType();
+        if (Utils.isClone(method.getRef())) {
+            return new JObject(this);
+        }
         if (declType != type) {
             if (Utils.isJVMClass(declType) && method.getName().equals(MethodNames.INIT)) {
                 // create an instance here

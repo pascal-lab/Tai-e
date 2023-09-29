@@ -10,6 +10,7 @@ import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
@@ -24,6 +25,7 @@ import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
+import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
@@ -240,6 +242,12 @@ public class VM {
             if (Utils.isGetClass(ii.getMethodRef())) {
                 Class<?> klass = arr.mockGetClass();
                 return getClassLiteral(klass);
+            } else if (Utils.isClone(ii.getMethodRef())) {
+                return new JArray(arr);
+            } else if (Utils.isEquals(ii.getMethodRef())) {
+                JValue value = evalExp(ii.getArg(0), ir, f);
+                JValue base = evalExp(ii.getBase(), ir, f);
+                return JPrimitive.getBoolean(base.equals(value));
             } else {
                 throw new InterpreterException();
             }
@@ -325,6 +333,8 @@ public class VM {
                 } catch (ClassNotFoundException ex) {
                     throw new InterpreterException(ex);
                 }
+            } else if (l instanceof NullLiteral) {
+                return null;
             } else {
                 throw new InterpreterException();
             }
@@ -402,6 +412,10 @@ public class VM {
             JValue value = evalExp(neg.getValue(), ir, f);
             assert value instanceof JPrimitive;
             return ((JPrimitive) value).getNegValue();
+        } else if (e instanceof InstanceOfExp instanceOf) {
+            JValue value = evalExp(instanceOf.getValue(), ir, f);
+            return JPrimitive.getBoolean(World.get().getTypeSystem()
+                    .isSubtype(instanceOf.getCheckedType(), value.getType()));
         } else {
             throw new InterpreterException(e + " is not implemented");
         }
@@ -454,8 +468,6 @@ public class VM {
         }
         throw new InterpreterException();
     }
-
-
 
     private JVMClassObject getSpecialClass(String name) {
         ClassType type = World.get().getTypeSystem().getClassType(name);

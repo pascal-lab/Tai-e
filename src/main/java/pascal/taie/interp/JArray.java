@@ -70,6 +70,10 @@ public class JArray implements JValue {
         return type;
     }
 
+    public JArray(JArray another)  {
+        this(another.arr.clone(), another.type.baseType(), another.type.dimensions());
+    }
+
     public Class<?> mockGetClass() {
         return Utils.toJVMType(type);
     }
