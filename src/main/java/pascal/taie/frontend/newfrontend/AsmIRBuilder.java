@@ -802,8 +802,12 @@ public class AsmIRBuilder {
     private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx);
+        storeExp(varNode, v, stack);
+    }
+
+    private void storeExp(AbstractInsnNode node, Var v, Stack<Exp> stack) {
         Stmt stmt = popToVar(stack, v);
-        assocStmt(varNode, stmt);
+        assocStmt(node, stmt);
     }
 
     private void storeExp(AbstractInsnNode node, LValue left, RValue right) {
@@ -1111,8 +1115,8 @@ public class AsmIRBuilder {
             pushConst(node, nowStack, IntLiteral.get(inc.incr));
             Var cst = popVar(nowStack);
             Var v = manager.getLocal(inc.var);
-            Stmt next = getAssignStmt(v, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            assocStmt(node, next);
+            nowStack.push(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            storeExp(inc, v, nowStack);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
