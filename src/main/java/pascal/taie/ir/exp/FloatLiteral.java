@@ -38,7 +38,7 @@ public class FloatLiteral implements FloatingPointLiteral {
     }
 
     public static FloatLiteral get(float value) {
-        return value == 0 ? ZERO : new FloatLiteral(value);
+        return Float.compare(value, 0) == 0 ? ZERO : new FloatLiteral(value);
     }
 
     @Override

@@ -88,6 +88,8 @@ public class JObject implements JValue {
         ClassType declType = method.getDeclaringClass().getType();
         if (Utils.isClone(method.getRef())) {
             return new JObject(this);
+        } else if (Utils.isGetClass(method.getRef())) {
+            return new JMockClassObject(vm, type.getJClass());
         }
         if (declType != type) {
             if (Utils.isJVMClass(declType) && method.getName().equals(MethodNames.INIT)) {

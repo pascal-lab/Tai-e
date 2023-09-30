@@ -1,8 +1,10 @@
 package pascal.taie.interp;
 
 import pascal.taie.World;
+import pascal.taie.frontend.newfrontend.java.NewFrontendException;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
@@ -15,6 +17,8 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.InvokeInterface;
+import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Literal;
@@ -37,12 +41,11 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
-import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Monitor;
-import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -54,6 +57,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Pair;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
@@ -89,7 +93,7 @@ public class VM {
             Stmt stmt = ir.getStmt(f.getPc());
             try {
                 execStmt(stmt, ir, f);
-            } catch (InterpreterException e) {
+            } catch (InterpreterException | NewFrontendException e) {
                 throw e;
             } catch (Exception e) {
                 Exception exception;
@@ -210,7 +214,18 @@ public class VM {
             } else {
                 throw new ClientException(new ClientDefinedException(value));
             }
-        }  else {
+        } else if (stmt instanceof SwitchStmt s) {
+            JValue v = evalExp(s.getVar(), ir, f);
+            int i = JValue.getInt(v);
+            Stmt target = s.getCaseTargets()
+                    .stream()
+                    .filter(e -> e.first() == i)
+                    .findAny()
+                    .orElse(new Pair<>(i, s.getDefaultTarget()))
+                    .second();
+            f.setPc(target.getIndex());
+            return;
+        } else {
             throw new InterpreterException();
         }
 
@@ -236,12 +251,23 @@ public class VM {
                 .toList();
         JValue v = evalExp(ii.getBase(), ir, f);
         if (v instanceof JObject obj) {
-            JMethod method = ii.getMethodRef().resolve();
+            JMethod method;
+            if (! (ii instanceof InvokeSpecial)) {
+                method = World.get().getClassHierarchy()
+                        .dispatch(obj.getType(), ii.getMethodRef());
+            } else {
+                // TODO: check default calls
+                method = ii.getMethodRef().resolve();
+            }
+            assert method != null;
+            if (obj instanceof JVMObject jvmObject && method.getName().equals(MethodNames.INIT)) {
+                jvmObject.init(method, args);
+                return null;
+            }
             return obj.invokeInstance(this, method, args);
         } else if (v instanceof JArray arr) {
             if (Utils.isGetClass(ii.getMethodRef())) {
-                Class<?> klass = arr.mockGetClass();
-                return getClassLiteral(klass);
+                return arr.mockGetClass(this);
             } else if (Utils.isClone(ii.getMethodRef())) {
                 return new JArray(arr);
             } else if (Utils.isEquals(ii.getMethodRef())) {
@@ -251,6 +277,8 @@ public class VM {
             } else {
                 throw new InterpreterException();
             }
+        } else if (v instanceof JNull) {
+            throw new ClientException(new NullPointerException());
         } else {
             throw new InterpreterException();
         }
@@ -334,7 +362,7 @@ public class VM {
                     throw new InterpreterException(ex);
                 }
             } else if (l instanceof NullLiteral) {
-                return null;
+                return JNull.NULL;
             } else {
                 throw new InterpreterException();
             }
@@ -353,18 +381,7 @@ public class VM {
                 ClassType ct = ni.getType();
                 JClassObject klass = loadClass(ct);
                 if (klass instanceof JVMClassObject jvmClassObject) {
-                    int pc = f.getPc();
-                    assert ir.getStmts().get(pc) instanceof New;
-                    Stmt next = ir.getStmts().get(pc + 1);
-                    assert next instanceof Invoke;
-                    Invoke init = (Invoke) next;
-                    assert init.getInvokeExp().getMethodRef().getName().equals(MethodNames.INIT);
-                    JMethod ctor = init.getInvokeExp().getMethodRef().resolve();
-                    List<JValue> args = init.getInvokeExp().getArgs()
-                            .stream().map(arg -> evalExp(arg, ir, f))
-                            .toList();
-                    f.setPc(pc + 1); // move next, skip the next init call
-                    return new JVMObject(jvmClassObject, ctor, args);
+                    return new JVMObject(jvmClassObject);
                 } else {
                     return createJObject(ct);
                 }
@@ -403,7 +420,7 @@ public class VM {
                 if (world.getTypeSystem().isSubtype(r, v.getType())) {
                     return v;
                 } else {
-                    throw new InterpreterException();
+                    throw new ClientException(new ClassCastException());
                 }
             } else {
                 throw new InterpreterException();
@@ -414,18 +431,38 @@ public class VM {
             return ((JPrimitive) value).getNegValue();
         } else if (e instanceof InstanceOfExp instanceOf) {
             JValue value = evalExp(instanceOf.getValue(), ir, f);
+            if (value instanceof JNull) {
+                return JPrimitive.getBoolean(false);
+            }
             return JPrimitive.getBoolean(World.get().getTypeSystem()
                     .isSubtype(instanceOf.getCheckedType(), value.getType()));
+        } else if (e instanceof ArrayLengthExp arrayLengthExp) {
+            JValue v = evalExp(arrayLengthExp.getOperand(), ir, f);
+            JArray array = JValue.getJArray(v);
+            return JPrimitive.get(array.length());
         } else {
             throw new InterpreterException(e + " is not implemented");
         }
     }
 
-    private JVMObject getClassLiteral(ClassLiteral classLiteral) throws ClassNotFoundException {
-        return getClassLiteral(Class.forName(classLiteral.getTypeValue().getName()));
+    private JObject getClassLiteral(ClassLiteral classLiteral) throws ClassNotFoundException {
+        Type t = classLiteral.getTypeValue();
+        if (Utils.isJVMClass(t)) {
+            return getClassLiteral(Utils.toJVMType(t));
+        } else {
+            if (t instanceof ClassType ct) {
+                return new JMockClassObject(this, ct.getJClass());
+            } else if (t instanceof ArrayType at) {
+                assert at.baseType() instanceof ClassType;
+                JClass klass = ((ClassType) at.baseType()).getJClass();
+                return new JMockClassObject(this, klass, at.dimensions());
+            } else {
+                throw new InterpreterException();
+            }
+        }
     }
 
-    private JVMObject getClassLiteral(Class<?> klass) {
+    JVMObject getClassLiteral(Class<?> klass) {
         return new JVMObject(getSpecialClass(ClassNames.CLASS), klass);
     }
 
@@ -469,7 +506,7 @@ public class VM {
         throw new InterpreterException();
     }
 
-    private JVMClassObject getSpecialClass(String name) {
+    public JVMClassObject getSpecialClass(String name) {
         ClassType type = World.get().getTypeSystem().getClassType(name);
         return (JVMClassObject) loadClass(type);
     }

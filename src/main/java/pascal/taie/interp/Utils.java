@@ -11,6 +11,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -87,9 +88,7 @@ public class Utils {
     }
 
     public static Object typedToJVMObj(JValue value, Type type) {
-        if (value == null) {
-            return null;
-        }
+        assert value != null;
         if (value instanceof JPrimitive primitive) {
             if (primitive.toJVMObj() instanceof Integer i) {
                 assert type instanceof PrimitiveType;
@@ -155,11 +154,17 @@ public class Utils {
                 .toArray(Class[]::new);
     }
 
-    public static boolean isJVMClass(ClassType t) {
-        JClass klass = t.getJClass();
-        assert klass != null;
-        return klass.getName().startsWith("java.") ||
-                isBoxedType(t);
+    public static boolean isJVMClass(Type t) {
+        if (t instanceof ClassType ct) {
+            JClass klass = ct.getJClass();
+            assert klass != null;
+            return klass.getName().startsWith("java.") ||
+                    isBoxedType(ct);
+        } else if (t instanceof ArrayType at) {
+            return isJVMClass(at.baseType());
+        } else {
+            return true;
+        }
     }
 
     public static boolean isBoxedType(ClassType t) {
@@ -197,14 +202,12 @@ public class Utils {
 
     public static JValue fromJVMObject(VM vm, Object o, Type t) {
         if (o == null) {
-            return null;
+            return JNull.NULL;
         } else if (PRIMITIVE_TYPES.contains(o.getClass().getName())) {
             return fromPrimitiveJVMObject(vm, o, t);
         } else if (o instanceof JObject jObject) {
             return jObject;
-        } else {
-            assert t instanceof ClassType;
-            ClassType ct = (ClassType) t;
+        } else if (t instanceof ClassType ct) {
             Class<?> klass = o.getClass();
             Class<?> klassDecl = toJVMType(ct);
             assert klassDecl.isAssignableFrom(klass);
@@ -213,6 +216,16 @@ public class Utils {
             JClassObject klassObj;
             klassObj = vm.loadClass(ct);
             return new JVMObject((JVMClassObject) klassObj, o);
+        } else if (t instanceof ArrayType at) {
+            int count = Array.getLength(o);
+            JValue[] arr = new JValue[count];
+            for (int i = 0; i < count; ++i) {
+                Object oi = Array.get(o, i);
+                arr[i] = fromJVMObject(vm, oi, at.elementType());
+            }
+            return new JArray(arr, at.baseType(), at.dimensions());
+        } else {
+            throw new InterpreterException();
         }
     }
 

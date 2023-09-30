@@ -26,11 +26,17 @@ public class BinaryEval {
                 if (v1 instanceof JObject o1 && v2 instanceof JObject o2) {
                     if (v1 instanceof JVMObject vmo1 && v2 instanceof JVMObject vmo2) {
                         res = vmo1.toJVMObj() == vmo2.toJVMObj();
+                    } else if (v1 instanceof JMockClassObject mockClassObject1
+                            && v2 instanceof JMockClassObject mockClassObject2) {
+                        res = mockClassObject1.klass == mockClassObject2.klass &&
+                                mockClassObject1.dimensions == mockClassObject2.dimensions;
                     } else {
                         res = o1 == o2;
                     }
                 } else if (v1 instanceof JArray arr1 && v2 instanceof JArray arr2) {
                     res = arr1 == arr2;
+                } else if (v1 instanceof JNull || v2 instanceof JNull) {
+                    res = v1 instanceof JNull && v2 instanceof JNull;
                 } else {
                     throw new InterpreterException();
                 }

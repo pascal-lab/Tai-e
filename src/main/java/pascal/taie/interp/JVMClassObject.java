@@ -27,8 +27,10 @@ public class JVMClassObject extends JClassObject {
             Method mtd = Utils.toJVMMethod(method);
             Object v = mtd.invoke(null, Utils.toJVMObjects(args, method.getParamTypes()));
             return Utils.fromJVMObject(vm, v, method.getReturnType());
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new InterpreterException(e);
+        } catch (InvocationTargetException e) {
+            throw new ClientException(e);
         }
     }
 

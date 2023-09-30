@@ -2,6 +2,7 @@ package pascal.taie.interp;
 
 import pascal.taie.World;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
@@ -26,12 +27,16 @@ public class JArray implements JValue {
         arr[idx] = v;
     }
 
+    public int length() {
+        return arr.length;
+    }
+
     public static JArray createArray(int count, Type baseType, int dims) {
         JArray arr = new JArray(new JValue[count], baseType, dims);
-        if (dims == 1 && baseType instanceof PrimitiveType t) {
-            for (int i = 0; i < count; ++i) {
-                arr.setIdx(i, JPrimitive.getDefault(t));
-            }
+        JValue ele = dims == 1 && baseType instanceof PrimitiveType t ?
+                JPrimitive.getDefault(t) : JNull.NULL;
+        for (int i = 0; i < count; ++i) {
+            arr.setIdx(i, ele);
         }
         return arr;
     }
@@ -74,7 +79,12 @@ public class JArray implements JValue {
         this(another.arr.clone(), another.type.baseType(), another.type.dimensions());
     }
 
-    public Class<?> mockGetClass() {
-        return Utils.toJVMType(type);
+    public JObject mockGetClass(VM vm) {
+        if (Utils.isJVMClass(type)) {
+            return vm.getClassLiteral(Utils.toJVMType(type));
+        } else {
+            assert type.elementType() instanceof ClassType;
+            return new JMockClassObject(vm, ((ClassType) type.baseType()).getJClass());
+        }
     }
 }
