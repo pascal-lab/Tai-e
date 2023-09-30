@@ -566,7 +566,7 @@ public class Utils {
     /**
      * @return if <code>t1 <- t2</code> is valid
      */
-    static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
+    public static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
         if (t1 instanceof PrimitiveType) {
             return t1 == t2 || isIntAssignable(t1, t2);
         } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {

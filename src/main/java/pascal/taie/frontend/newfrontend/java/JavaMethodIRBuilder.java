@@ -72,6 +72,7 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.JavaMethodSource;
+import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -81,6 +82,7 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
@@ -1285,9 +1287,12 @@ public class JavaMethodIRBuilder {
 
         private Exp boxingConversion(Exp exp, PrimitiveType expType, ReferenceType targetType) {
             Var v = expToVar(exp, expType);
+            ClassType boxedType = getClassByName(TypeUtils.getRefNameOfPrimitive(expType.getName()));
+            assert targetType instanceof ClassType;
+            // TODO: choose correct actions
             return new InvokeStatic(
-                    getJREMethod(targetType.getName(), "valueOf",
-                            List.of(getPrimitiveByRef(targetType)), targetType),
+                    getJREMethod(boxedType.getName(), "valueOf",
+                            List.of(expType), boxedType),
                     List.of(v));
         }
 
@@ -1352,6 +1357,7 @@ public class JavaMethodIRBuilder {
         }
 
         protected void newAssignment(LValue left, Exp right) {
+            assert Utils.isAssignable(left.getType(), right.getType());
             if (left instanceof Var v) {
                 if (right instanceof BinaryExp exp) {
                     addStmt(new Binary(v, exp));
@@ -1476,11 +1482,11 @@ public class JavaMethodIRBuilder {
             Expression cond = ce.getExpression();
             Expression thenExp = ce.getThenExpression();
             Expression elseExp = ce.getElseExpression();
-            Var v = newTempVar(PrimitiveType.BOOLEAN);
             String trueLabel = context.getNewLabel();
             String falseLabel = context.getNewLabel();
             String endLabel = context.getNewLabel();
             Type t = JDTTypeToTaieType(ce.resolveTypeBinding());
+            Var v = newTempVar(t);
             transformCond(cond, trueLabel, falseLabel, false);
             context.assocLabel(falseLabel);
             visitExp(elseExp);
@@ -1499,7 +1505,7 @@ public class JavaMethodIRBuilder {
                 cond = e;
             } else {
                 Var v = expToVar(exp, PrimitiveType.BOOLEAN);
-                cond = new ConditionExp(ConditionExp.Op.EQ, v, getInt(0));
+                cond = new ConditionExp(ConditionExp.Op.EQ, v, getInt(1));
             }
             genIfHeader(cond, trueLabel, falseLabel, next);
         }
@@ -1762,7 +1768,7 @@ public class JavaMethodIRBuilder {
         }
 
         protected Var getOuterClassOrThis(ITypeBinding type, boolean allowSuper) {
-            if (isTargetClass(type) || (allowSuper && isSuperClass(type))) {
+            if (isTargetClass(type) || isSuperClass(type)) {
                 return getThisVar();
             } else {
                 return expToVar(getOuterClass(type, getThisVar()));
@@ -1913,10 +1919,15 @@ public class JavaMethodIRBuilder {
                 return false;
             }
 
+            public boolean needToProccessLabel(String i) {
+               return (BlockLabelGenerator.isTryBlock(i) || BlockLabelGenerator.isCatchBlock(i)) &&
+                       ! context.getExceptionManager().pausedList.contains(i);
+            }
+
             private void genAllFinBlock(Runnable r) {
                 boolean next = true;
                 for (var i : context.getContextCtrlList()) {
-                    if (BlockLabelGenerator.isTryBlock(i) || BlockLabelGenerator.isCatchBlock(i)) {
+                    if (needToProccessLabel(i)) {
                         Block fin = context.getFinallyBlockBy(i);
                         context.getExceptionManager().pauseRecording(i);
                         if (fin != null) {
@@ -1934,12 +1945,13 @@ public class JavaMethodIRBuilder {
             @Override
             public boolean visit(ReturnStatement rs) {
                 var exp = rs.getExpression();
-                Var retVar;
                 if (exp != null) {
-                    visitExp(exp);
-                    retVar = popVar(getReturnType());
-                    genAllFinBlock(() -> addStmt(new Return(retVar)));
-                    addRetVar(retVar);
+                    genAllFinBlock(() -> {
+                        visitExp(exp);
+                        Var retVar = popVar(getReturnType());
+                        addRetVar(retVar);
+                        addStmt(new Return(retVar));
+                    });
                 } else {
                     genAllFinBlock(() -> addStmt(new Return()));
                 }
@@ -2063,14 +2075,15 @@ public class JavaMethodIRBuilder {
                 context.getContextCtrlList().addFirst(contLabel);
                 context.assocBreakAndContinue(contLabel, breakLabel, contLabel);
                 genCond.accept(bodyLabel, breakLabel);
+
                 context.assocLabel(bodyLabel);
                 genBody.run();
-                boolean next = context.popFlow();
+                // ignore this, we don't care about if loop body can fallthrough or not
+                context.popFlow();
                 context.getContextCtrlList().removeFirst();
+
                 genUpdates.run();
-                if (next) {
-                    addGoto(contLabel);
-                }
+                addGoto(contLabel);
                 context.assocLabel(breakLabel);
                 // note: we consider a loop to always reach next
                 context.pushFlow(true);
@@ -2206,8 +2219,7 @@ public class JavaMethodIRBuilder {
             @SuppressWarnings("unchecked")
             private void genContBrk(@Nullable SimpleName label, int brkOrCont) {
                 for (var i : context.getContextCtrlList()) {
-                    if (BlockLabelGenerator.isTryBlock(i) ||
-                            BlockLabelGenerator.isCatchBlock(i)) {
+                    if (needToProccessLabel(i)) {
                         // First, pause the record of this [Try]/[Catch] Block
                         // Because the code to be generated is not belong to this [Try]/[Catch] Block
                         // It's belong to the [Finally] of the [Try]/[Catch] Block
@@ -2449,6 +2461,7 @@ public class JavaMethodIRBuilder {
             //        +----------------+
             @Override
             public boolean visit(SwitchStatement ss) {
+                // TODO: may be not correct for fallthrough
                 visitExp(ss.getExpression());
                 Var v = popVar();
                 boolean isPrimitive = v.getType() instanceof PrimitiveType;
@@ -2695,14 +2708,50 @@ public class JavaMethodIRBuilder {
                     }
                     case ">", ">=", "<=", "<" -> {
                         Type t = resolveNumericPromotion(0, getAllOperands(exp));
-                        numericBinaryCompute(exp, t, t, (l, r) ->
-                                new ConditionExp(TypeUtils.getConditionOp(op), l, r));
+                        numericBinaryCompute(exp, t, t, (l, r) -> {
+                            assert t instanceof PrimitiveType;
+                            if (t == PrimitiveType.FLOAT || t == PrimitiveType.DOUBLE) {
+                                ComparisonExp.Op cmpOp;
+                                ConditionExp.Op condOp;
+                                Var condOperand2 = getInt(0);
+                                switch (opStr) {
+                                    case ">":
+                                        cmpOp = ComparisonExp.Op.CMPL;
+                                        condOp = ConditionExp.Op.GT; break;
+                                    case ">=":
+                                        cmpOp = ComparisonExp.Op.CMPL;
+                                        condOp = ConditionExp.Op.GE; break;
+                                    case "<":
+                                        cmpOp = ComparisonExp.Op.CMPG;
+                                        condOp = ConditionExp.Op.LT; break;
+                                    case "<=":
+                                        cmpOp = ComparisonExp.Op.CMPG;
+                                        condOp = ConditionExp.Op.LE; break;
+                                    default: throw new UnsupportedOperationException();
+                                }
+                                context.pushStack(new ComparisonExp(cmpOp, l, r));
+                                Var condOperand1 = popVar();
+                                return new ConditionExp(condOp, condOperand1, condOperand2);
+                            } else {
+                                return new ConditionExp(TypeUtils.getConditionOp(op), l, r);
+                            }
+                        });
                         return false;
                     }
                     case "==", "!=" -> {
-                        binaryCompute2(
-                                exp,
-                                (l, r) -> new ConditionExp(TypeUtils.getConditionOp(op), l, r));
+                        binaryCompute2(exp, (l, r) -> {
+                            Type t = l.getType();
+                            if (t == PrimitiveType.FLOAT || t == PrimitiveType.DOUBLE) {
+                                ComparisonExp.Op cmpOp = ComparisonExp.Op.CMPL;
+                                ConditionExp.Op condOp = TypeUtils.getConditionOp(op);
+                                Var condOperand2 = getInt(0);
+                                context.pushStack(new ComparisonExp(cmpOp, l, r));
+                                Var condOperand1 = popVar();
+                                return new ConditionExp(condOp, condOperand1, condOperand2);
+                            } else {
+                                return new ConditionExp(TypeUtils.getConditionOp(op), l, r);
+                            }
+                        });
                         return false;
                     }
                     case "||", "&&" -> {
