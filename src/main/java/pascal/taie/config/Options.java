@@ -23,13 +23,21 @@
 package pascal.taie.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
-import pascal.taie.util.Experimental;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -60,8 +68,6 @@ public class Options implements Serializable {
     private static final String OPTIONS_FILE = "options.yml";
 
     private static final String DEFAULT_OUTPUT_DIR = "output";
-
-    private static final String AUTO_GEN = "$AUTO-GEN";
 
     // ---------- file-based options ----------
     @JsonProperty
@@ -174,9 +180,11 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
+    @JsonSerialize(using = OutputDirSerializer.class)
+    @JsonDeserialize(using = OutputDirDeserializer.class)
     @Option(names = "--output-dir",
             description = "Specify output directory (default: ${DEFAULT-VALUE})"
-                    + ", '" + AUTO_GEN + "' can be used as a placeholder"
+                    + ", '" + PlaceholderAwareFile.AUTO_GEN + "' can be used as a placeholder"
                     + " for an automatically generated timestamp",
             defaultValue = DEFAULT_OUTPUT_DIR,
             converter = OutputDirConverter.class)
@@ -364,23 +372,96 @@ public class Options implements Serializable {
         }
     }
 
+    /**
+     * Represents a file that supports placeholder and automatically replaces it
+     * with current timestamp values. This class extends the standard File class.
+     */
+    private static class PlaceholderAwareFile extends File {
+
+        /**
+         * The placeholder for an automatically generated timestamp.
+         */
+        private static final String AUTO_GEN = "$AUTO-GEN";
+
+        private final String rawPathname;
+
+        public PlaceholderAwareFile(String pathname) {
+            super(resolvePathname(pathname));
+            this.rawPathname = pathname;
+        }
+
+        public String getRawPathname() {
+            return rawPathname;
+        }
+
+        private static String resolvePathname(String pathname) {
+            if (pathname.contains(AUTO_GEN)) {
+                String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                        .withZone(ZoneId.systemDefault())
+                        .format(Instant.now());
+                pathname = pathname.replace(AUTO_GEN, timestamp);
+                // check if the output dir already exists
+                File file = Path.of(pathname).toAbsolutePath().normalize().toFile();
+                if (file.exists()) {
+                    throw new RuntimeException("The generated file already exists, "
+                            + "please wait for a second to start again: " + pathname);
+                }
+            }
+            return Path.of(pathname).toAbsolutePath().normalize().toString();
+        }
+
+    }
+
+    /**
+     * @see #outputDir
+     */
     private static class OutputDirConverter implements CommandLine.ITypeConverter<File> {
         @Override
         public File convert(String outputDir) {
-            if (outputDir.contains(AUTO_GEN)) {
-                String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                    .withZone(ZoneId.systemDefault())
-                    .format(Instant.now());
-                outputDir = outputDir.replace(AUTO_GEN, timestamp);
-                // check if the output dir already exists
-                File file = Path.of(outputDir).toAbsolutePath().normalize().toFile();
-                if (file.exists()) {
-                    throw new RuntimeException("The generated output dir already exists, "
-                            + "please wait for a second to start again: " + outputDir);
-                }
-            }
-            return Path.of(outputDir).toAbsolutePath().normalize().toFile();
+            return new PlaceholderAwareFile(outputDir);
         }
+    }
+
+    /**
+     * Serializer for raw {@link #outputDir}.
+     */
+    private static class OutputDirSerializer extends JsonSerializer<File> {
+        @Override
+        public void serialize(File value, JsonGenerator gen,
+                              SerializerProvider serializers) throws IOException {
+            if (value instanceof PlaceholderAwareFile file) {
+                gen.writeString(toSerializedFilePath(file.getRawPathname()));
+            } else {
+                throw new RuntimeException("Unexpected type: " + value);
+            }
+        }
+    }
+
+    /**
+     * Deserializer for {@link #outputDir}.
+     */
+    private static class OutputDirDeserializer extends JsonDeserializer<File> {
+
+        @Override
+        public File deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException, JacksonException {
+            return new PlaceholderAwareFile(p.getValueAsString());
+        }
+    }
+
+    /**
+     * Convert a file to a relative path using the "/" (forward slash)
+     * from the working directory, thus preserving the portability of
+     * the dumped options file.
+     *
+     * @param file the file to be processed
+     * @return a relative path from the working directory
+     */
+    private static String toSerializedFilePath(String file) {
+        Path workingDir = Path.of("").toAbsolutePath();
+        Path path = Path.of(file).toAbsolutePath().normalize();
+        return workingDir.relativize(path).toString()
+                .replace('\\', '/');
     }
 
     @Override
