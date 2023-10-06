@@ -69,7 +69,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
-            return options.getClassPath();
+            return String.join(File.pathSeparator, options.getClassPath());
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
@@ -86,8 +86,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                Stream.ofNullable(options.getAppClassPath()),
-                                Stream.ofNullable(options.getClassPath()))
+                                options.getAppClassPath().stream(),
+                                options.getClassPath().stream())
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
@@ -124,11 +124,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             }
         });
         // process --app-class-path
-        String appClassPath = options.getAppClassPath();
-        if (appClassPath != null) {
-            for (String path : appClassPath.split(File.pathSeparator)) {
-                classes.addAll(ClassNameExtractor.extract(path));
-            }
+        for (String path : options.getAppClassPath()) {
+            classes.addAll(ClassNameExtractor.extract(path));
         }
         return classes;
     }

@@ -49,9 +49,12 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Option class for Tai-e.
@@ -95,21 +98,25 @@ public class Options implements Serializable {
 
     // ---------- program options ----------
     @JsonProperty
+    @JsonSerialize(contentUsing = FilePathSerializer.class)
     @Option(names = {"-cp", "--class-path"},
-            description = "Class path. Multiple paths are split by system path separator.")
-    private String classPath;
+            description = "Class path. Multiple paths are split by system path separator.",
+            converter = ClassPathConverter.class)
+    private List<String> classPath = List.of();
 
-    public String getClassPath() {
+    public List<String> getClassPath() {
         return classPath;
     }
 
     @JsonProperty
+    @JsonSerialize(contentUsing = FilePathSerializer.class)
     @Option(names = {"-acp", "--app-class-path"},
             description = "Application class path." +
-                    " Multiple paths are split by system path separator.")
-    private String appClassPath;
+                    " Multiple paths are split by system path separator.",
+            converter = ClassPathConverter.class)
+    private List<String> appClassPath = List.of();
 
-    public String getAppClassPath() {
+    public List<String> getAppClassPath() {
         return appClassPath;
     }
 
@@ -446,6 +453,32 @@ public class Options implements Serializable {
         public File deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException, JacksonException {
             return new PlaceholderAwareFile(p.getValueAsString());
+        }
+    }
+
+    /**
+     * Converter for classpath with system path separator.
+     */
+    private static class ClassPathConverter implements CommandLine.ITypeConverter<List<String>> {
+        @Override
+        public List<String> convert(String value) throws Exception {
+            return Arrays.stream(value.split(File.pathSeparator))
+                    .map(String::trim)
+                    .filter(Predicate.not(String::isEmpty))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Serializer for file path. Ensures a path is serialized as a relative path
+     * from the working directory rather than an absolute path, thus
+     * preserving the portability of the dumped options file.
+     */
+    private static class FilePathSerializer extends JsonSerializer<String> {
+        @Override
+        public void serialize(String value, JsonGenerator gen,
+                              SerializerProvider serializers) throws IOException {
+            gen.writeString(toSerializedFilePath(value));
         }
     }
 
