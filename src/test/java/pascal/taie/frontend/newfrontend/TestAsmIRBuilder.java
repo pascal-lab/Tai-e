@@ -213,6 +213,11 @@ public class TestAsmIRBuilder {
         Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
 
         Printer.printTestRes(false);
+
+        StageTimer timer = StageTimer.getInstance();
+        System.out.println("Typeless IR: " + (double) timer.getTotalTypelessIRTime() / 1000 + "s.");
+        System.out.println("Splitting: " + (double) timer.getTotalSplittingTime() / 1000 + "s.");
+        System.out.println("Typing: " + (double) timer.getTotalTypingTime() / 1000 + "s.");
     }
 
     /**
@@ -260,6 +265,11 @@ public class TestAsmIRBuilder {
 
         System.out.println("Count of all the stmts: " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
+
+        StageTimer timer = StageTimer.getInstance();
+        System.out.println("Typeless IR: " + (double) timer.getTotalTypelessIRTime() / 1000 + "s.");
+        System.out.println("Splitting: " + (double) timer.getTotalSplittingTime() / 1000 + "s.");
+        System.out.println("Typing: " + (double) timer.getTotalTypingTime() / 1000 + "s.");
     }
 
     @Test

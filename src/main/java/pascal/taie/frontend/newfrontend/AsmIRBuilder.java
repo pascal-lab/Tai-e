@@ -157,17 +157,22 @@ public class AsmIRBuilder {
     public void build() {
         // a.analyze()
         if (! isEmpty) {
+            StageTimer stageTimer = StageTimer.getInstance();
+            stageTimer.startTypelessIR();
             buildCFG();
             this.isFrameUsable = classFileVersion >= Opcodes.V1_6 && checkFrameValid();
             traverseBlocks();
             setLineNumber();
+            stageTimer.endTypelessIR();
             if (isFrameUsable()) {
                 inferTypeWithFrame();
             } else {
                 inferTypeWithoutFrame();
             }
+            stageTimer.startTypelessIR();
             makeStmts();
             makeExceptionTable();
+            stageTimer.endTypelessIR();
             verify();
             this.ir = getIR();
         }
@@ -175,13 +180,20 @@ public class AsmIRBuilder {
     }
 
     void inferTypeWithFrame() {
+        StageTimer stageTimer = StageTimer.getInstance();
+        stageTimer.startSplitting();
         VarWebSplitter splitter = new VarWebSplitter(this);
         splitter.build();
+        stageTimer.endSplitting();
+        stageTimer.startTyping();
         TypeInference0 inference = new TypeInference0(this);
         inference.build();
+        stageTimer.endTyping();
     }
 
     void inferTypeWithoutFrame() {
+        StageTimer stageTimer = StageTimer.getInstance();
+        stageTimer.startSplitting();
         makeStmts();
         makeExceptionTable();
         IR untyped = getIR();
@@ -204,10 +216,13 @@ public class AsmIRBuilder {
         var result = liveVar.analyze(untyped);
         VarWebSplitter splitter = new VarWebSplitter(this, result);
         splitter.build();
+        stageTimer.endSplitting();
+        stageTimer.startTyping();
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
         makeStmts();
+        stageTimer.endTyping();
     }
 
     public BytecodeBlock getEntryBlock() {
