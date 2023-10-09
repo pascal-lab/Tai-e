@@ -4,4 +4,5 @@
 	branch = master
 [submodule "android-benchmarks"]
 	path = android-benchmarks
-	url = https://github.com/pascal-lab/android-benchmarks.git
+	url = ../android-benchmarks.git
+	branch = master
