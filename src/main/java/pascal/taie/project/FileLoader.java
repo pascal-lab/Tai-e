@@ -160,6 +160,9 @@ public class FileLoader {
                     // rootContainer == null means that the container currently
                     // being processed is a root.
                     rootContainer = currentContainer;
+                } else {
+                    // skip
+                    return;
                 }
 
                 loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
