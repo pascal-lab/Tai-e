@@ -10,7 +10,9 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -69,6 +71,8 @@ public class Utils {
                 res = res.arrayType();
             }
             return res;
+        } else if (t == VoidType.VOID) {
+            return void.class;
         } else {
             throw new InterpreterException();
         }
@@ -159,6 +163,8 @@ public class Utils {
             JClass klass = ct.getJClass();
             assert klass != null;
             return klass.getName().startsWith("java.") ||
+                    klass.getName().startsWith("org.junit.") ||
+                    klass.getName().startsWith("org.gradle") ||
                     isBoxedType(ct);
         } else if (t instanceof ArrayType at) {
             return isJVMClass(at.baseType());
@@ -173,6 +179,37 @@ public class Utils {
 
     public static ClassType fromJVMClass(Class<?> klass) {
         return World.get().getTypeSystem().getClassType(klass.getName());
+    }
+
+    public static Type fromJVMType(Class<?> klass) {
+        assert klass != null;
+        if (klass == boolean.class) {
+            return PrimitiveType.BOOLEAN;
+        } else if (klass == char.class) {
+            return PrimitiveType.CHAR;
+        } else if (klass == byte.class) {
+            return PrimitiveType.BYTE;
+        } else if (klass == short.class) {
+            return PrimitiveType.SHORT;
+        } else if (klass == int.class) {
+            return PrimitiveType.INT;
+        } else if (klass == long.class) {
+            return PrimitiveType.LONG;
+        } else if (klass == float.class) {
+            return PrimitiveType.FLOAT;
+        } else if (klass == double.class) {
+            return PrimitiveType.DOUBLE;
+        } else if (klass.isArray()) {
+            Class<?> arr = klass;
+            int dimensionCount = 0;
+            while (arr.isArray()) {
+                arr = arr.getComponentType();
+                dimensionCount++;
+            }
+            return World.get().getTypeSystem().getArrayType(fromJVMType(arr), dimensionCount);
+        } else {
+            return fromJVMClass(klass);
+        }
     }
 
     public static JValue fromPrimitiveJVMObject(VM vm, Object o, Type t) {
@@ -194,8 +231,9 @@ public class Utils {
             } else if (o instanceof Double d) {
                 return JPrimitive.get(d);
             }
-        } else if (t instanceof ClassType ct) {
-            return new JVMObject((JVMClassObject) vm.loadClass(ct), o);
+        } else if (t instanceof ClassType) {
+            return new JVMObject((JVMClassObject)
+                    vm.loadClass(fromJVMClass(o.getClass())), o);
         }
         throw new InterpreterException();
     }
@@ -207,16 +245,8 @@ public class Utils {
             return fromPrimitiveJVMObject(vm, o, t);
         } else if (o instanceof JObject jObject) {
             return jObject;
-        } else if (t instanceof ClassType ct) {
-            Class<?> klass = o.getClass();
-            Class<?> klassDecl = toJVMType(ct);
-            assert klassDecl.isAssignableFrom(klass);
-            // TODO: fix this, check if jvm class
-            // TODO: use correct type
-            JClassObject klassObj;
-            klassObj = vm.loadClass(ct);
-            return new JVMObject((JVMClassObject) klassObj, o);
-        } else if (t instanceof ArrayType at) {
+        } else if (o.getClass().isArray()) {
+            ArrayType at = (ArrayType) fromJVMType(o.getClass());
             int count = Array.getLength(o);
             JValue[] arr = new JValue[count];
             for (int i = 0; i < count; ++i) {
@@ -224,9 +254,29 @@ public class Utils {
                 arr[i] = fromJVMObject(vm, oi, at.elementType());
             }
             return new JArray(arr, at.baseType(), at.dimensions());
-        } else {
+        } else if (t instanceof ClassType ct) {
+            Class<?> klass = o.getClass();
+            Class<?> klassDecl = toJVMType(ct);
+            assert klassDecl.isAssignableFrom(klass);
+            // TODO: fix this, check if jvm class
+            // TODO: use correct type
+            JClass jClass = World.get().getClassHierarchy().getClass(klass.getName());
+            JClassObject klassObj;
+            if (jClass != null) {
+                klassObj = vm.loadJVMClass(klass);
+            } else {
+                klassObj = vm.loadClass(ct);
+            }
+            return new JVMObject((JVMClassObject) klassObj, o);
+        }  else {
             throw new InterpreterException();
         }
+    }
+
+    public static MethodType toJVMMethodType(pascal.taie.ir.exp.MethodType methodType) {
+        return java.lang.invoke.MethodType.methodType(
+                Utils.toJVMType(methodType.getReturnType()),
+                Utils.toJVMTypeList(methodType.getParamTypes()));
     }
 
     public static boolean toBoolean(byte b) {

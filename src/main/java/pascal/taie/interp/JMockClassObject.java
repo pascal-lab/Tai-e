@@ -58,6 +58,8 @@ public final class JMockClassObject extends JObject {
             } else {
                 return new JMockClassObject(vm, outer);
             }
+        } else if (method.getName().equals("desiredAssertionStatus")) {
+            return JPrimitive.getBoolean(true);
         }
         throw new InterpreterException();
     }

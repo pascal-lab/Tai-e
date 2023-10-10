@@ -17,7 +17,6 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
-import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.InvokeSpecial;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.LValue;
@@ -106,7 +105,7 @@ public class VM {
                 ClassType t;
                 JObject aCatchObj;
                 if (exception instanceof ClientDefinedException cde) {
-                    t = cde.inner.getType();
+                    t = (ClassType) cde.inner.getType();
                     aCatchObj = cde.inner;
                 } else {
                     t = Utils.fromJVMClass(exception.getClass());
@@ -133,6 +132,18 @@ public class VM {
         }
         frames.pop();
         return f.getRets();
+    }
+
+    public JVMClassObject loadJVMClass(Class<?> klass) {
+        ClassType ct = Utils.fromJVMClass(klass);
+        assert ct != null;
+        if (classObjs.containsKey(ct)) {
+            return (JVMClassObject) classObjs.get(ct);
+        } else {
+            JVMClassObject obj = new JVMClassObject(ct, klass);
+            classObjs.put(ct, obj);
+            return obj;
+        }
     }
 
     public JClassObject loadClass(ClassType t) {
@@ -252,7 +263,7 @@ public class VM {
         JValue v = evalExp(ii.getBase(), ir, f);
         if (v instanceof JObject obj) {
             JMethod method;
-            if (! (ii instanceof InvokeSpecial)) {
+            if (! (ii instanceof InvokeSpecial) && ! (obj instanceof JVMObject)) {
                 method = World.get().getClassHierarchy()
                         .dispatch(obj.getType(), ii.getMethodRef());
             } else {
@@ -292,9 +303,7 @@ public class VM {
         assert m.getParameterCount() == bootMtd.getParamCount();
         MethodHandles.Lookup k = MethodHandles.lookup();
         MethodType methodType = id.getMethodType();
-        java.lang.invoke.MethodType methodType1 = java.lang.invoke.MethodType.methodType(
-                Utils.toJVMType(methodType.getReturnType()),
-                Utils.toJVMTypeList(methodType.getParamTypes()));
+        java.lang.invoke.MethodType methodType1 = Utils.toJVMMethodType(methodType);
         List<JValue> bootstrapMtdArgs = id.getBootstrapArgs()
                 .stream().map(l -> evalExp(l, ir, f)).toList();
         List<Object> args = new ArrayList<>();
@@ -363,6 +372,9 @@ public class VM {
                 }
             } else if (l instanceof NullLiteral) {
                 return JNull.NULL;
+            } else if (l instanceof MethodType methodType) {
+                return new JVMObject(getSpecialClass(ClassNames.METHOD_TYPE),
+                        Utils.toJVMMethodType(methodType));
             } else {
                 throw new InterpreterException();
             }

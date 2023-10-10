@@ -6,11 +6,12 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
 public class JArray implements JValue {
-    private final JValue[] arr;
+    private JValue[] arr;
 
     private final ArrayType type;
 
@@ -63,11 +64,13 @@ public class JArray implements JValue {
 
     @Override
     public Object toJVMObj() {
-        Object[] arr = new Object[this.arr.length];
+        Class<?> klass = Utils.toJVMType(type);
+        Object res = Array.newInstance(klass.getComponentType(), this.arr.length);
         for (int i = 0; i < arr.length; ++i) {
-            arr[i] = this.arr[i].toJVMObj();
+            // TODO: warning when try to convert from non-jvm objects
+            Array.set(res, i, Utils.typedToJVMObj(arr[i], type.elementType()));
         }
-        return arr;
+        return res;
     }
 
     @Override
@@ -77,6 +80,10 @@ public class JArray implements JValue {
 
     public JArray(JArray another)  {
         this(another.arr.clone(), another.type.baseType(), another.type.dimensions());
+    }
+
+    public void update(JArray another) {
+        this.arr = another.arr;
     }
 
     public JObject mockGetClass(VM vm) {

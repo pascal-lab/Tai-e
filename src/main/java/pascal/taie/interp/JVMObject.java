@@ -58,7 +58,7 @@ public class JVMObject extends JObject {
         try {
             Object res = mtd.invoke(object, Utils.toJVMObjects(args, method.getParamTypes()));
             return Utils.fromJVMObject(vm, res, method.getReturnType());
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             throw new InterpreterException(e);
         }
     }
@@ -87,4 +87,5 @@ public class JVMObject extends JObject {
     public String toString() {
         return object.toString();
     }
+
 }

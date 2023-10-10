@@ -8,10 +8,8 @@ import pascal.taie.World;
 public class Simple {
 
     static void init(String mainClass) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/interp", "--input-classes", mainClass,
+        Main.buildWorld("-pp", "-cp", "src/test/resources/interp", "--main-class", mainClass,
                 "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder");
-        World world = World.get();
-        world.setMainMethod(world.getClassHierarchy().getClass(mainClass).getDeclaredMethod("main"));
     }
 
     @Test

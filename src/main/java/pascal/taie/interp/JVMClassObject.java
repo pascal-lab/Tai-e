@@ -21,13 +21,27 @@ public class JVMClassObject extends JClassObject {
         }
     }
 
+    public JVMClassObject(ClassType ct, Class<?> klass) {
+        super(ct);
+        this.klass = klass;
+    }
+
     @Override
     public JValue invokeStatic(VM vm, JMethod method, List<JValue> args)  {
         try {
             Method mtd = Utils.toJVMMethod(method);
-            Object v = mtd.invoke(null, Utils.toJVMObjects(args, method.getParamTypes()));
-            return Utils.fromJVMObject(vm, v, method.getReturnType());
-        } catch (IllegalAccessException e) {
+            Object[] arr = Utils.toJVMObjects(args, method.getParamTypes());
+            Object v = mtd.invoke(null, arr);
+            JValue res = Utils.fromJVMObject(vm, v, method.getReturnType());
+            for (int i = 0; i < arr.length; ++i) {
+                JValue vi = args.get(i);
+                Object oi = arr[i];
+                if (vi instanceof JArray arri) {
+                    arri.update((JArray) Utils.fromJVMObject(vm, oi, arri.getType()));
+                }
+            }
+            return res;
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new InterpreterException(e);
         } catch (InvocationTargetException e) {
             throw new ClientException(e);
