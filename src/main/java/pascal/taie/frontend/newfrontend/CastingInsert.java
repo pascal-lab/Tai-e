@@ -9,8 +9,10 @@ import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.DefinitionStmt;
@@ -24,6 +26,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -124,6 +127,9 @@ public class CastingInsert {
                     public Stmt visit(Copy stmt) {
                         Var right = stmt.getRValue();
                         Type t = maySplitStmt(stmt.getLValue(), right);
+                        if (t == NullType.NULL) {
+                            return new AssignLiteral(stmt.getLValue(), NullLiteral.get());
+                        }
                         if (t != null) {
                             Pair<DefinitionStmt<?, ?>, Integer> newInBlock =
                                     findNewInBlock(newStmts, right);

@@ -217,8 +217,12 @@ public class TypeInference {
             if (v.primitiveType != null) {
                 k.setType(v.primitiveType);
             } else {
-                assert v.referenceType != null;
-                k.setType(v.referenceType);
+                if (v.referenceType != null) {
+                    k.setType(v.referenceType);
+                } else {
+                    // TODO: add warning here
+                    k.setType(NullType.NULL);
+                }
             }
         });
     }
@@ -499,6 +503,10 @@ public class TypeInference {
                 // any type in types is use valid
                 return types.get(0);
             } else {
+                if (newType.isEmpty()) {
+                    // normally impossible, but possible for phantom
+                    return Utils.getObject();
+                }
                 ReferenceType t1 = newType.iterator().next();
                 if (t1 instanceof ClassType) {
                     return Utils.getObject();

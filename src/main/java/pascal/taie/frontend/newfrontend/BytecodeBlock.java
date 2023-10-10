@@ -257,7 +257,7 @@ public final class BytecodeBlock {
             return;
         }
         AbstractInsnNode last = instr.get(instr.size() - 1);
-        if (!Utils.isReturn(last) || isInTry) {
+        if (!(Utils.isReturn(last) || Utils.isThrow(last)) || isInTry) {
             return;
         }
         // the last node is return

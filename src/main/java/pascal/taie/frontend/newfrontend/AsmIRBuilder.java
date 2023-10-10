@@ -464,7 +464,13 @@ public class AsmIRBuilder {
 
     private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
         if (manager.peekConstVar(literal)) {
+            // note: if this code is reached, and `node` is `Ldc`,
+            // pushExp cannot automatically push a `Top`
             pushExp(node, stack, manager.getConstVar(literal));
+            // TODO: ugly hack here, try to fix that
+            if (node instanceof LdcInsnNode && isDword(node, literal)) {
+                stack.push(Top.Top);
+            }
         } else {
             pushExp(node, stack, literal);
         }
