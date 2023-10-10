@@ -307,6 +307,15 @@ public class Options implements Serializable {
         return extractAllClasses;
     }
 
+    @JsonProperty
+    @Option(names = {"--no-append-java"},
+            description = "Do not load jre from java-benchmark")
+    private boolean noAppendJava;
+
+    public boolean getNoAppendJava() {
+        return noAppendJava;
+    }
+
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */
