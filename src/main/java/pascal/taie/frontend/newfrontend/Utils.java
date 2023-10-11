@@ -69,6 +69,7 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -142,9 +143,12 @@ public class Utils {
             return new DoubleElement(d);
         } else if (ele instanceof String s) {
             return new StringElement(s);
-        } else if (ele instanceof Object[] a) {
-            return new ArrayElement(
-                    Arrays.stream(a).map(Utils::toElement).toList());
+        } else if (ele.getClass().isArray()) {
+            List<Element> elements = new ArrayList<>();
+            for (int i = 0; i < Array.getLength(ele); ++i) {
+                elements.add(toElement(Array.get(ele, i)));
+            }
+            return new ArrayElement(elements);
         } else if (ele instanceof Type c) {
             // TODO: Does ClassElement really hold asm descriptor ?
             return new ClassElement(c.getDescriptor());
