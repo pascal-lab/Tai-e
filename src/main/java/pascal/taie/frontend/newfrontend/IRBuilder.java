@@ -2,12 +2,17 @@ package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
+import pascal.taie.config.Options;
 import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
+
+import java.util.List;
 
 class IRBuilder implements pascal.taie.ir.IRBuilder {
 
@@ -52,7 +57,18 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
     public void buildAll(ClassHierarchy hierarchy) {
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
-        hierarchy.allClasses().toList().parallelStream().forEach(c -> {
+        List<JClass> classes;
+        Options options = World.get().getOptions();
+        if (options.getNoAppendJava()) {
+            // Here only for benchmark testing. The whole implementation of getting
+            // input classes please refer to AbstractProjectBuilder.getInputClasses().
+            List<String> classesStr = options.getInputClasses();
+            classesStr.add(options.getMainClass());
+            classes = classesStr.stream().map(hierarchy::getClass).toList();
+        } else {
+            classes = hierarchy.allClasses().toList();
+        }
+        classes.parallelStream().forEach(c -> {
             for (JMethod m : c.getDeclaredMethods()) {
                 if (! m.isAbstract() && ! m.isNative()) {
                     m.getIR();
