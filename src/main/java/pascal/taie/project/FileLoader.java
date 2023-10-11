@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
 public class FileLoader {
@@ -124,15 +125,31 @@ public class FileLoader {
                 List<AnalysisFile> files = new ArrayList<>();
                 FileTime time = Files.getLastModifiedTime(path);
                 String name = path.getFileName().toString();
-                FileContainer currentContainer = new DirContainer(fileContainers, files, time, name);
-                if (rootContainer == null) {
-                    // rootContainer == null means that the container currently
-                    // being processed is a root.
-                    rootContainer = currentContainer;
+                if (name.equals("BOOT-INF") && parent.fs() != FileSystems.getDefault()) {
+                    // spring boot fatjar
+                    // load `classes` and `lib/*` as rootContainer
+                    Path classesPath = path.resolve("classes");
+                    if (Files.isDirectory(classesPath)) {
+                        loadFile(parent, classesPath, null, null, auxContainers::add);
+                    }
+                    Path libsPath = path.resolve("lib");
+                    if (Files.isDirectory(libsPath)) {
+                        try (Stream<Path> pathStream = Files.list(libsPath)) {
+                            for (Path path1 : pathStream.toList()) {
+                                loadFile(parent, path1, null, (f) -> null, (d) -> null);
+                            };
+                        }
+                    }
+                } else {
+                    FileContainer currentContainer = new DirContainer(fileContainers, files, time, name);
+                    if (rootContainer == null) {
+                        // rootContainer == null means that the container currently
+                        // being processed is a root.
+                        rootContainer = currentContainer;
+                    }
+                    loadChildren(parent, path, rootContainer, files, fileContainers);
+                    containerWorker.apply(currentContainer);
                 }
-
-                loadChildren(parent, path, rootContainer, files, fileContainers);
-                containerWorker.apply(currentContainer);
             }  else if (isZipFile(path)) {
                 FileSystem fs;
                 try {
