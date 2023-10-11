@@ -18,6 +18,10 @@ public class StageTimer {
 
     private long totalTypingTime = 0;
 
+    private long irTime;
+
+    private long cwTime;
+
     private StageTimer() {
     }
 
@@ -65,4 +69,19 @@ public class StageTimer {
         return totalTypingTime;
     }
 
+    public void reportIRTime(long irTime) {
+        this.irTime = irTime;
+    }
+
+    public void reportCWTime(long cwTime) {
+        this.cwTime = cwTime;
+    }
+
+    public long getIrTime() {
+        return irTime;
+    }
+
+    public long getCwTime() {
+        return cwTime;
+    }
 }
