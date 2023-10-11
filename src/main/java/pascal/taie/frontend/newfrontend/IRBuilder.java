@@ -77,5 +77,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
         });
         timer.stop();
         logger.info(timer);
+        StageTimer.getInstance().reportIRTime((long)
+                (timer.inSecond() * 1000));
     }
 }

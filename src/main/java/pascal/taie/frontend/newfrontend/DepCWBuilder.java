@@ -12,6 +12,7 @@ import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
+import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -66,6 +67,8 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     @Override
     public void build(Project p) {
+        Timer timer = new Timer("closed-world");
+        timer.start();
         String entry = p.getMainClass();
         this.project = p;
         List<String> target = new ArrayList<>();
@@ -77,6 +80,8 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             target.addAll(loadNecessaryClasses());
             target.addAll(basicClassesList);
             buildClosure(target);
+            timer.stop();
+            StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
         } catch (IOException e) {
             // TODO: fail info
             throw new FrontendException(e.getMessage());

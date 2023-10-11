@@ -57,6 +57,13 @@ public class CastingInsert {
                             "          Var " + right + " With Type: " + right.getType() + "\n" +
                             "          Excepted Type: " + t + "\n" +
                             "          In method: " + builder.method);
+        TaieCastingReporter.get().reportCasting(new TaieCastingReporter.TaieCastingInfo(
+                builder.method,
+                currentStmt,
+                t,
+                right,
+                right.getType()
+        ));
         return new Cast(left, new CastExp(right, t));
     }
 
