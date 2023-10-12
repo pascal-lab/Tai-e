@@ -48,7 +48,6 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String... args) {
-        LoggerConfigs.reconfigure();
         Timer.runAndCount(() -> {
             Options options = processArgs(args);
             LoggerConfigs.setOutput(options.getOutputDir());
@@ -59,6 +58,7 @@ public class Main {
             }
             buildWorld(options, plan.analyses());
             executePlan(plan);
+            LoggerConfigs.reconfigure();
         }, "Tai-e");
     }
 
@@ -113,11 +113,11 @@ public class Main {
      * Convenient method for building the world from String arguments.
      */
     public static void buildWorld(String... args) {
-        LoggerConfigs.reconfigure();
         Options options = Options.parse(args);
         LoggerConfigs.setOutput(options.getOutputDir());
         Plan plan = processConfigs(options);
         buildWorld(options, plan.analyses());
+        LoggerConfigs.reconfigure();
     }
 
     private static void buildWorld(Options options, List<AnalysisConfig> analyses) {

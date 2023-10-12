@@ -1,0 +1,54 @@
+-------------------- <Cell: void <init>(java.lang.Object,Cell)> (side-effect) --------------------
+[0@L44] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L45] %this.<Cell: java.lang.Object data> = d; [NewObj{<List: void add(java.lang.Object)>[0@L36] new Cell}]
+[2@L46] %this.<Cell: Cell next> = n; [NewObj{<List: void add(java.lang.Object)>[0@L36] new Cell}]
+
+-------------------- <LinkedList: float sumX(List)> (side-effect) --------------------
+[1@L8] temp$0 = invokevirtual list.<List: Iterator iterator()>(); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+[4@L9] temp$1 = invokeinterface it.<Iterator: boolean hasNext()>(); []
+[9@L10] temp$2 = invokeinterface it.<Iterator: java.lang.Object next()>(); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+
+-------------------- <LinkedList: void flipAll(List)> (side-effect) --------------------
+[0@L17] temp$0 = invokevirtual list.<List: Iterator iterator()>(); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+[3@L18] temp$1 = invokeinterface it.<Iterator: boolean hasNext()>(); []
+[8@L19] temp$2 = invokeinterface it.<Iterator: java.lang.Object next()>(); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+[10@L20] invokevirtual p.<Point: void flip()>(); [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+
+-------------------- <LinkedList: void main(java.lang.String[])> (side-effect) --------------------
+[1@L25] invokespecial temp$0.<List: void <init>()>(); [NewObj{<LinkedList: void main(java.lang.String[])>[0@L25] new List}]
+[6@L26] invokespecial temp$1.<Point: void <init>(float,float)>(%floatconst0, %floatconst1); [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+[7@L26] invokevirtual list.<List: void add(java.lang.Object)>(temp$1); [NewObj{<LinkedList: void main(java.lang.String[])>[0@L25] new List}, NewObj{<List: void add(java.lang.Object)>[0@L36] new Cell}]
+[10@L27] invokespecial temp$2.<Point: void <init>(float,float)>(%floatconst1, %floatconst2); [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+[11@L27] invokevirtual list.<List: void add(java.lang.Object)>(temp$2); [NewObj{<LinkedList: void main(java.lang.String[])>[0@L25] new List}, NewObj{<List: void add(java.lang.Object)>[0@L36] new Cell}]
+[12@L28] invokestatic <LinkedList: float sumX(List)>(list); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+[13@L29] invokestatic <LinkedList: void flipAll(List)>(list); [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}, NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+
+-------------------- <List: void <init>()> (side-effect) --------------------
+[0@L33] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[2@L34] %this.<List: Cell head> = temp$0; [NewObj{<LinkedList: void main(java.lang.String[])>[0@L25] new List}]
+
+-------------------- <List: void add(java.lang.Object)> (side-effect) --------------------
+[2@L36] invokespecial temp$0.<Cell: void <init>(java.lang.Object,Cell)>(e, temp$1); [NewObj{<List: void add(java.lang.Object)>[0@L36] new Cell}]
+[3@L36] %this.<List: Cell head> = temp$0; [NewObj{<LinkedList: void main(java.lang.String[])>[0@L25] new List}]
+
+-------------------- <List: Iterator iterator()> (side-effect) --------------------
+[2@L39] invokespecial temp$0.<ListItr: void <init>(Cell)>(temp$1); [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+
+-------------------- <ListItr: void <init>(Cell)> (side-effect) --------------------
+[0@L58] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L59] %this.<ListItr: Cell cell> = head; [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+
+-------------------- <ListItr: boolean hasNext()> (side-effect) --------------------
+
+-------------------- <ListItr: java.lang.Object next()> (side-effect) --------------------
+[4@L67] %this.<ListItr: Cell cell> = temp$2; [NewObj{<List: Iterator iterator()>[0@L38] new ListItr}]
+
+-------------------- <Point: void <init>(float,float)> (side-effect) --------------------
+[0@L73] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L74] %this.<Point: float x> = x; [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+[2@L75] %this.<Point: float y> = y; [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+
+-------------------- <Point: void flip()> (side-effect) --------------------
+[2@L79] %this.<Point: float x> = temp$0; [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+[3@L79] %this.<Point: float y> = t; [NewObj{<LinkedList: void main(java.lang.String[])>[3@L26] new Point}, NewObj{<LinkedList: void main(java.lang.String[])>[8@L27] new Point}]
+

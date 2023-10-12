@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  workflow_dispatch: # add manually button
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Run Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            docs:all
+            publish
+        env:
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_signingKeyId }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralUsername }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralPassword }}
+
+      - uses: manyuanrong/setup-ossutil@v2.0
+        with:
+          endpoint: ${{ secrets.OSS_ACCESS_ENDPOINT }}
+          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+
+      - name: Deploy documentation website
+        run: |
+          unzip -q -d docs/build/all docs/build/tai-e-docs.zip
+          ossutil cp docs/build/all oss://${{ secrets.OSS_BUCKET_NAME }}/docs -rf

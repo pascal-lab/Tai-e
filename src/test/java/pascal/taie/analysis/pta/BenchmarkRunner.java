@@ -80,6 +80,7 @@ public class BenchmarkRunner {
                 "-java", Integer.toString(jdkVersion),
                 "-acp", buildClassPath(info.apps()),
                 "-cp", buildClassPath(info.libs()),
+                "-wc",
                 "-m", info.main());
         if (info.allowPhantom()) {
             args.add("--allow-phantom");

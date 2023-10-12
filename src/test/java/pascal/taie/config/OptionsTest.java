@@ -24,6 +24,7 @@ package pascal.taie.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -90,4 +91,17 @@ public class OptionsTest {
         options = Options.parse("-kr", "pta,def-use");
         assertEquals(Set.of("pta", "def-use"), options.getKeepResult());
     }
+
+    @Test
+    void testClasspath() {
+        Options options = Options.parse(
+                "-cp", ".\\a.jar",
+                "-cp", "./dir\\b",
+                "-cp", "./c" + File.pathSeparator + "d.jar",
+                "-cp", "e.jar" + File.pathSeparator
+        );
+        assertEquals(List.of(".\\a.jar", "./dir\\b", "./c", "d.jar", "e.jar"),
+                options.getClassPath());
+    }
+
 }

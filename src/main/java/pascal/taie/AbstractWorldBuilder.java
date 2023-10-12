@@ -69,7 +69,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
-            return options.getClassPath();
+            return String.join(File.pathSeparator, options.getClassPath());
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
@@ -77,16 +77,17 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                 throw new RuntimeException("""
                         Failed to locate Java library.
                         Please clone submodule 'java-benchmarks' by command:
-                        git submodule update --init --recursive
-                        and put it in Tai-e's working directory.""");
+                        'git submodule update --init --recursive' (if you are running Tai-e)
+                        or 'git clone https://github.com/pascal-lab/java-benchmarks' (if you are using Tai-e as a dependency),
+                        then put it in Tai-e's working directory.""");
             }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                Stream.ofNullable(options.getAppClassPath()),
-                                Stream.ofNullable(options.getClassPath()))
+                                options.getAppClassPath().stream(),
+                                options.getClassPath().stream())
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
@@ -123,11 +124,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             }
         });
         // process --app-class-path
-        String appClassPath = options.getAppClassPath();
-        if (appClassPath != null) {
-            for (String path : appClassPath.split(File.pathSeparator)) {
-                classes.addAll(ClassNameExtractor.extract(path));
-            }
+        for (String path : options.getAppClassPath()) {
+            classes.addAll(ClassNameExtractor.extract(path));
         }
         return classes;
     }

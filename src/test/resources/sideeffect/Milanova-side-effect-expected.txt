@@ -1,0 +1,36 @@
+-------------------- <A: void <init>(X)> (side-effect) --------------------
+[0@L37] invokespecial %this.<O: void <init>(X)>(xa); [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+
+-------------------- <B: void <init>(X)> (side-effect) --------------------
+[0@L43] invokespecial %this.<A: void <init>(X)>(xb); [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+
+-------------------- <B: void m()> (side-effect) --------------------
+[1@L47] invokevirtual xb.<X: void n()>(); []
+
+-------------------- <C: void <init>(X)> (side-effect) --------------------
+[0@L53] invokespecial %this.<A: void <init>(X)>(xc); [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+
+-------------------- <C: void m()> (side-effect) --------------------
+[1@L57] invokevirtual xc.<X: void n()>(); []
+
+-------------------- <Milanova: void main(java.lang.String[])> (side-effect) --------------------
+[1@L7] invokespecial temp$0.<Y: void <init>()>(); []
+[4@L8] invokespecial temp$1.<Z: void <init>()>(); []
+[7@L9] invokespecial temp$2.<B: void <init>(X)>(y); [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+[10@L10] invokespecial temp$3.<C: void <init>(X)>(z); [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+[12@L11] invokevirtual b.<B: void m()>(); []
+[13@L12] invokevirtual c.<C: void m()>(); []
+
+-------------------- <O: void <init>(X)> (side-effect) --------------------
+[0@L31] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L31] %this.<O: X f> = xo; [NewObj{<Milanova: void main(java.lang.String[])>[6@L9] new B}, NewObj{<Milanova: void main(java.lang.String[])>[9@L10] new C}]
+
+-------------------- <X: void <init>()> (side-effect) --------------------
+[0@L16] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Y: void <init>()> (side-effect) --------------------
+[0@L20] invokespecial %this.<X: void <init>()>(); []
+
+-------------------- <Z: void <init>()> (side-effect) --------------------
+[0@L24] invokespecial %this.<X: void <init>()>(); []
+

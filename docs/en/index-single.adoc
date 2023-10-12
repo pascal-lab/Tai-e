@@ -1,10 +1,10 @@
-[[index]]
 include::attributes.adoc[]
 
 = Tai-e Reference Documentation
 
 ifndef::backend-pdf[]
-This documentation is also available as link:index.html[multiple HTML pages] and as link:index-single.pdf[a PDF].
+This documentation is also available as link:index.html[multiple HTML pages].
+// and as link:index-single.pdf[a PDF].
 endif::[]
 // ifdef::backend-pdf[]
 // This documentation is also available as https://domain/{revnumber}/html/index.html[multiple HTML pages] and as https://domain/{revnumber}/html/index.htmlindex-single.html[a single-page html].
@@ -13,6 +13,8 @@ endif::[]
 include::setup-in-intellij-idea.adoc[leveloffset=+1]
 
 include::command-line-options.adoc[leveloffset=+1]
+
+include::taint-analysis.adoc[leveloffset=+1]
 
 include::develop-new-analysis.adoc[leveloffset=+1]
 

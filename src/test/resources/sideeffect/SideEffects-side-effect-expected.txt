@@ -1,0 +1,17 @@
+-------------------- <IntPair: void <init>()> (side-effect) --------------------
+[0@L5] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <SideEffects: void assignFields(IntPair)> (side-effect) --------------------
+[1@L8] p.<IntPair: int x> = temp$0; [NewObj{<SideEffects: void main(java.lang.String[])>[0@L14] new IntPair}]
+
+-------------------- <SideEffects: void nonRefParams(int,IntPair,int)> (side-effect) --------------------
+[0@L9] p.<IntPair: int x> = a; [NewObj{<SideEffects: void main(java.lang.String[])>[0@L14] new IntPair}]
+
+-------------------- <SideEffects: int binop(int,int,int)> (side-effect) --------------------
+
+-------------------- <SideEffects: void main(java.lang.String[])> (side-effect) --------------------
+[1@L14] invokespecial temp$0.<IntPair: void <init>()>(); []
+[3@L16] invokestatic <SideEffects: void assignFields(IntPair)>(p); [NewObj{<SideEffects: void main(java.lang.String[])>[0@L14] new IntPair}]
+[6@L17] invokestatic <SideEffects: void nonRefParams(int,IntPair,int)>(%intconst0, p, %intconst1); [NewObj{<SideEffects: void main(java.lang.String[])>[0@L14] new IntPair}]
+[9@L18] invokestatic <SideEffects: int binop(int,int,int)>(%intconst1, %intconst2, %intconst3); []
+

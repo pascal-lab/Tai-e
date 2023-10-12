@@ -1,0 +1,62 @@
+-------------------- <OOP: void <init>()> (side-effect) --------------------
+[0@L15] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[2@L17] invokespecial temp$0.<OOP: void <init>()>(); [NewObj{<OOP: void <init>()>[1@L15] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[3@L17] %this.<OOP: OOP field2> = temp$0; [NewObj{<OOP: void <init>()>[1@L15] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+
+-------------------- <OOP: void setFieldToX(Tree)> (side-effect) --------------------
+[0@L19] %this.<OOP: Tree field1> = x; [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+
+-------------------- <OOP: void setXFieldToField(OOP)> (side-effect) --------------------
+[1@L20] x.<OOP: OOP field2> = temp$0; [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: void setXFieldToThis(OOP)> (side-effect) --------------------
+[0@L21] x.<OOP: OOP field2> = %this; [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: OOP returnThis()> (side-effect) --------------------
+
+-------------------- <OOP: void setFieldToXTransferSameObject(Tree)> (side-effect) --------------------
+[0@L25] invokevirtual %this.<OOP: void setFieldToX(Tree)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+
+-------------------- <OOP: void setFieldToXTransferOtherObject(Tree,OOP)> (side-effect) --------------------
+[0@L27] invokevirtual o.<OOP: void setFieldToX(Tree)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+
+-------------------- <OOP: void setXFieldToFieldTransferSameObject(OOP)> (side-effect) --------------------
+[0@L30] invokevirtual %this.<OOP: void setXFieldToField(OOP)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: void setXFieldToFieldTransferOtherObject(OOP,OOP)> (side-effect) --------------------
+[0@L32] invokevirtual y.<OOP: void setXFieldToField(OOP)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: void setXFieldToThisTransferSameObject(OOP)> (side-effect) --------------------
+[0@L35] invokevirtual %this.<OOP: void setXFieldToThis(OOP)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: void setXFieldToThisTransferOtherObject(OOP,OOP)> (side-effect) --------------------
+[0@L37] invokevirtual y.<OOP: void setXFieldToThis(OOP)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+
+-------------------- <OOP: OOP returnThisTransferSameObject()> (side-effect) --------------------
+[0@L40] temp$0 = invokevirtual %this.<OOP: OOP returnThis()>(); []
+
+-------------------- <OOP: OOP returnThisTransferOtherObject(OOP)> (side-effect) --------------------
+[0@L41] temp$0 = invokevirtual x.<OOP: OOP returnThis()>(); []
+
+-------------------- <OOP: void main(java.lang.String[])> (side-effect) --------------------
+[1@L46] invokespecial temp$0.<OOP: void <init>()>(); [NewObj{<OOP: void <init>()>[1@L15] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[4@L47] invokespecial temp$1.<OOP: void <init>()>(); [NewObj{<OOP: void <init>()>[1@L15] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[7@L48] invokespecial temp$2.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<OOP: void main(java.lang.String[])>[6@L48] new Tree}]
+[9@L50] invokevirtual a.<OOP: void setFieldToX(Tree)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[10@L51] invokevirtual a.<OOP: void setXFieldToField(OOP)>(a); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[11@L52] invokevirtual a.<OOP: void setXFieldToThis(OOP)>(a); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[12@L53] invokevirtual a.<OOP: OOP returnThis()>(); []
+[13@L55] invokevirtual a.<OOP: void setFieldToXTransferSameObject(Tree)>(x); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[14@L56] invokevirtual a.<OOP: void setFieldToXTransferOtherObject(Tree,OOP)>(x, b); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}, NewObj{<OOP: void main(java.lang.String[])>[3@L47] new OOP}]
+[15@L57] invokevirtual a.<OOP: void setXFieldToFieldTransferSameObject(OOP)>(a); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[16@L58] invokevirtual a.<OOP: void setXFieldToFieldTransferOtherObject(OOP,OOP)>(a, b); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[17@L59] invokevirtual a.<OOP: void setXFieldToThisTransferSameObject(OOP)>(a); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[18@L60] invokevirtual a.<OOP: void setXFieldToThisTransferOtherObject(OOP,OOP)>(a, b); [NewObj{<OOP: void main(java.lang.String[])>[0@L46] new OOP}]
+[19@L61] invokevirtual a.<OOP: OOP returnThisTransferSameObject()>(); []
+[20@L62] invokevirtual a.<OOP: OOP returnThisTransferOtherObject(OOP)>(a); []
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L10] %this.<Tree: Tree l> = l; [NewObj{<OOP: void main(java.lang.String[])>[6@L48] new Tree}]
+[2@L11] %this.<Tree: Tree r> = r; [NewObj{<OOP: void main(java.lang.String[])>[6@L48] new Tree}]
+

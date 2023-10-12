@@ -1,0 +1,32 @@
+-------------------- <A: void <init>()> (side-effect) --------------------
+[0@L41] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Body: void <init>()> (side-effect) --------------------
+[0@L28] invokespecial %this.<Node: void <init>()>(); []
+
+-------------------- <Body: void foo()> (side-effect) --------------------
+
+-------------------- <Cell: void <init>()> (side-effect) --------------------
+[0@L34] invokespecial %this.<Node: void <init>()>(); []
+
+-------------------- <Cell: void foo()> (side-effect) --------------------
+[1@L36] invokespecial temp$0.<A: void <init>()>(); []
+[2@L36] %this.<Cell: A f> = temp$0; [NewObj{<PolyLoop: void test()>[6@L6] new Cell}]
+
+-------------------- <Node: void <init>()> (side-effect) --------------------
+[0@L22] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <PolyLoop: void <init>()> (side-effect) --------------------
+[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <PolyLoop: void test()> (side-effect) --------------------
+[3@L5] invokespecial temp$2.<Body: void <init>()>(); []
+[5@L5] nodes[temp$1] = temp$2; [NewObj{<PolyLoop: void test()>[1@L4] newarray Node[%intconst0]}]
+[7@L6] invokespecial temp$5.<Cell: void <init>()>(); []
+[9@L6] nodes[temp$4] = temp$5; [NewObj{<PolyLoop: void test()>[1@L4] newarray Node[%intconst0]}]
+[24@L11] invokevirtual n.<Node: void foo()>(); [NewObj{<PolyLoop: void test()>[6@L6] new Cell}]
+
+-------------------- <PolyLoop: void main(java.lang.String[])> (side-effect) --------------------
+[1@L17] invokespecial temp$0.<PolyLoop: void <init>()>(); []
+[3@L18] invokevirtual a.<PolyLoop: void test()>(); [NewObj{<PolyLoop: void test()>[1@L4] newarray Node[%intconst0]}, NewObj{<PolyLoop: void test()>[6@L6] new Cell}]
+

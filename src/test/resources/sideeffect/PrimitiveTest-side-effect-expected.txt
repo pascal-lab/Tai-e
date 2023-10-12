@@ -1,0 +1,15 @@
+-------------------- <A: void <init>(int)> (side-effect) --------------------
+[0@L17] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L18] %this.<A: int a> = a; [NewObj{<PrimitiveTest: void main(java.lang.String[])>[0@L7] new A}]
+
+-------------------- <A: void mod()> (side-effect) --------------------
+[3@L22] %this.<A: int a> = temp$1; [NewObj{<PrimitiveTest: void main(java.lang.String[])>[0@L7] new A}]
+
+-------------------- <PrimitiveTest: void pure(A)> (side-effect) --------------------
+
+-------------------- <PrimitiveTest: void main(java.lang.String[])> (side-effect) --------------------
+[2@L7] invokespecial temp$0.<A: void <init>(int)>(%intconst0); [NewObj{<PrimitiveTest: void main(java.lang.String[])>[0@L7] new A}]
+[4@L8] invokestatic <PrimitiveTest: void pure(A)>(a); []
+[5@L9] invokevirtual a.<A: void mod()>(); [NewObj{<PrimitiveTest: void main(java.lang.String[])>[0@L7] new A}]
+[6@L10] invokestatic <PrimitiveTest: void pure(A)>(a); []
+

@@ -1,4 +1,3 @@
-[[analysis-management]]
 include::attributes.adoc[]
 
 = Analysis Management
@@ -8,7 +7,7 @@ It is very common for an analysis framework to conduct multiple analyses in a si
 
 == Analysis Information Registration
 
-As mentioned in <<develop-new-analysis#develop-new-analysis,Develop A New Analysis>>, to add a new analysis to Tai-e, one needs to register its information in analysis configuration file `src/main/resources/tai-e-analyses.yml`. Each analysis entry consists of five (or less) attributes:
+As mentioned in <<develop-new-analysis#,Develop A New Analysis>>, to add a new analysis to Tai-e, one needs to register its information in analysis configuration file `src/main/resources/tai-e-analyses.yml`. Each analysis entry consists of five (or less) attributes:
 
 . `description`: _a description of the analysis_
 +
@@ -50,7 +49,7 @@ You can see examples about analysis registration in Section 5.1 of https://arxiv
 
 At runtime, Tai-e first generates an analysis plan (essentially a list of analyses to be executed) based on `tai-e-analyses.yml` and runtime-provided option values, and then runs analyses in order according to the plan.
 
-As described in <<command-line-options#command-line-options,Command-Line Options>>, there are two approaches to specify the analyses to execute. Next, we will explain how they affect the generated analysis plan.
+As described in <<command-line-options#,Command-Line Options>>, there are two approaches to specify the analyses to execute. Next, we will explain how they affect the generated analysis plan.
 
 === By Command-Line Options (Option `-a`)
 

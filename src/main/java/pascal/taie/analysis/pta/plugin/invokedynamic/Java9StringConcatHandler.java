@@ -81,14 +81,14 @@ public class Java9StringConcatHandler implements Plugin {
         TypeSystem typeSystem = solver.getTypeSystem();
         stringBuilder = typeSystem.getClassType(ClassNames.STRING_BUILDER);
         string = typeSystem.getClassType(ClassNames.STRING);
-        JClass SB = stringBuilder.getJClass();
-        appendString = Objects.requireNonNull(SB.getDeclaredMethod(Subsignature.get(
+        JClass sb = stringBuilder.getJClass();
+        appendString = Objects.requireNonNull(sb.getDeclaredMethod(Subsignature.get(
                         "java.lang.StringBuilder append(java.lang.String)")))
                 .getRef();
-        appendObject = Objects.requireNonNull(SB.getDeclaredMethod(Subsignature.get(
+        appendObject = Objects.requireNonNull(sb.getDeclaredMethod(Subsignature.get(
                         "java.lang.StringBuilder append(java.lang.Object)")))
                 .getRef();
-        toString = Objects.requireNonNull(SB.getDeclaredMethod(Subsignature.get(
+        toString = Objects.requireNonNull(sb.getDeclaredMethod(Subsignature.get(
                         "java.lang.String toString()")))
                 .getRef();
     }

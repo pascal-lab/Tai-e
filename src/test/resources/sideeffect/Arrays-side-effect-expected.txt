@@ -1,0 +1,55 @@
+-------------------- <ArrayWrapper: void <init>()> (side-effect) --------------------
+[0@L17] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Arrays: void intArrayCopyFst(int[],int[])> (side-effect) --------------------
+[3@L21] tgt[temp$1] = temp$4; [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+
+-------------------- <Arrays: void treeArrayCopyFst(Tree[],Tree[])> (side-effect) --------------------
+[3@L24] tgt[temp$1] = temp$4; [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+
+-------------------- <Arrays: void treeArrayCopyAllLoop(Tree[],Tree[])> (side-effect) --------------------
+[7@L28] tgt[i] = temp$5; [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+
+-------------------- <Arrays: void treeArrayPtrAssign(ArrayWrapper,Tree[])> (side-effect) --------------------
+[0@L32] aw.<ArrayWrapper: Tree[] trees> = a; [NewObj{<Arrays: void main(java.lang.String[])>[0@L50] new ArrayWrapper}]
+
+-------------------- <Arrays: Tree[] treeArrayPtrReturn(ArrayWrapper)> (side-effect) --------------------
+
+-------------------- <Arrays: void intArrayCopyFstTransfer(int[],int[])> (side-effect) --------------------
+[0@L39] invokestatic <Arrays: void intArrayCopyFst(int[],int[])>(src, tgt); [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+
+-------------------- <Arrays: void treeArrayCopyFstTransfer(Tree[],Tree[])> (side-effect) --------------------
+[0@L42] invokestatic <Arrays: void treeArrayCopyFst(Tree[],Tree[])>(src, tgt); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+
+-------------------- <Arrays: void treeArrayCopyAllLoopTransfer(Tree[],Tree[])> (side-effect) --------------------
+[0@L45] invokestatic <Arrays: void treeArrayCopyAllLoop(Tree[],Tree[])>(src, tgt); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+
+-------------------- <Arrays: void main(java.lang.String[])> (side-effect) --------------------
+[1@L50] invokespecial temp$0.<ArrayWrapper: void <init>()>(); []
+[4@L51] invokespecial temp$1.<Tree: void <init>()>(); []
+[7@L52] invokespecial temp$2.<Tree: void <init>()>(); []
+[12@L53] invokespecial temp$4.<Tree: void <init>(Tree,Tree)>(l, r); [NewObj{<Arrays: void main(java.lang.String[])>[11@L53] new Tree}]
+[14@L53] temp$3[%intconst1] = temp$4; [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+[16@L53] invokespecial temp$5.<Tree: void <init>()>(); []
+[18@L53] temp$3[%intconst2] = temp$5; [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+[22@L54] temp$6[%intconst1] = %intconst2; [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+[23@L54] temp$6[%intconst2] = %intconst0; [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+[24@L54] temp$6[%intconst0] = %intconst3; [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+[26@L55] aw.<ArrayWrapper: Tree[] trees> = ts; [NewObj{<Arrays: void main(java.lang.String[])>[0@L50] new ArrayWrapper}]
+[27@L57] invokestatic <Arrays: void intArrayCopyFst(int[],int[])>(is, is); [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+[28@L58] invokestatic <Arrays: void treeArrayCopyFst(Tree[],Tree[])>(ts, ts); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+[29@L59] invokestatic <Arrays: void treeArrayCopyAllLoop(Tree[],Tree[])>(ts, ts); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+[30@L60] invokestatic <Arrays: void treeArrayPtrAssign(ArrayWrapper,Tree[])>(aw, ts); [NewObj{<Arrays: void main(java.lang.String[])>[0@L50] new ArrayWrapper}]
+[31@L61] invokestatic <Arrays: Tree[] treeArrayPtrReturn(ArrayWrapper)>(aw); []
+[32@L63] invokestatic <Arrays: void intArrayCopyFstTransfer(int[],int[])>(is, is); [NewObj{<Arrays: void main(java.lang.String[])>[21@L54] newarray int[%intconst3]}]
+[33@L64] invokestatic <Arrays: void treeArrayCopyFstTransfer(Tree[],Tree[])>(ts, ts); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+[34@L65] invokestatic <Arrays: void treeArrayCopyAllLoopTransfer(Tree[],Tree[])>(ts, ts); [NewObj{<Arrays: void main(java.lang.String[])>[10@L53] newarray Tree[%intconst0]}]
+
+-------------------- <Tree: void <init>()> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L11] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L12] %this.<Tree: Tree l> = l; [NewObj{<Arrays: void main(java.lang.String[])>[11@L53] new Tree}]
+[2@L13] %this.<Tree: Tree r> = r; [NewObj{<Arrays: void main(java.lang.String[])>[11@L53] new Tree}]
+

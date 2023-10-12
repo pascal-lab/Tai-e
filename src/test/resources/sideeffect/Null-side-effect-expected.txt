@@ -1,0 +1,23 @@
+-------------------- <Null: void setXLToNull(Tree)> (side-effect) --------------------
+[1@L18] x.<Tree: Tree l> = temp$0; [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+
+-------------------- <Null: Null returnNull()> (side-effect) --------------------
+
+-------------------- <Null: void setXLToNullTransfer(Tree)> (side-effect) --------------------
+[0@L26] invokestatic <Null: void setXLToNull(Tree)>(x); [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+
+-------------------- <Null: Null returnNullTransfer()> (side-effect) --------------------
+[0@L29] temp$0 = invokestatic <Null: Null returnNull()>(); []
+
+-------------------- <Null: void main(java.lang.String[])> (side-effect) --------------------
+[1@L34] invokespecial temp$0.<Tree: void <init>(Tree,Tree)>(%nullconst, %nullconst); [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+[3@L36] invokestatic <Null: void setXLToNull(Tree)>(x); [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+[4@L37] invokestatic <Null: Null returnNull()>(); []
+[5@L39] invokestatic <Null: void setXLToNullTransfer(Tree)>(x); [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+[6@L40] invokestatic <Null: Null returnNullTransfer()>(); []
+
+-------------------- <Tree: void <init>(Tree,Tree)> (side-effect) --------------------
+[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[1@L10] %this.<Tree: Tree l> = l; [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+[2@L11] %this.<Tree: Tree r> = r; [NewObj{<Null: void main(java.lang.String[])>[0@L34] new Tree}]
+

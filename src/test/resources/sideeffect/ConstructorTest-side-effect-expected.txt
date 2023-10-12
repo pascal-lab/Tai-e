@@ -1,0 +1,7 @@
+-------------------- <A: void <init>()> (side-effect) --------------------
+[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[2@L10] %this.<A: A a> = temp$0; [NewObj{<ConstructorTest: void main(java.lang.String[])>[0@L4] new A}]
+
+-------------------- <ConstructorTest: void main(java.lang.String[])> (side-effect) --------------------
+[1@L4] invokespecial temp$0.<A: void <init>()>(); [NewObj{<ConstructorTest: void main(java.lang.String[])>[0@L4] new A}]
+

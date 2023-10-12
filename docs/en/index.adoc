@@ -1,16 +1,17 @@
-[[index]]
 include::attributes.adoc[]
 
 = Tai-e Reference Documentation
 
-This documentation is also available as link:index-single.html[a single-page html] and as link:index-single.pdf[a PDF].
+This documentation is also available as link:index-single.html[a single-page html].
+// and as link:index-single.pdf[a PDF].
 
 The reference documentation consists of the following sections:
 
-* <<setup-in-intellij-idea#setup-in-intellij-idea,Setup Tai-e in IntelliJ IDEA>>
-* <<command-line-options#command-line-options,How to Run Tai-e (command-line options)?>>
-* <<develop-new-analysis#develop-new-analysis,How to Develop A New Analysis on Tai-e?>>
-* <<program-abstraction#program-abstraction,Program Abstraction in Tai-e (core classes and IR)>>
-* <<analysis-management#analysis-management,Analysis Management>>
-* <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>
-* <<publications#publications,Publications>>
+* <<setup-in-intellij-idea#,Setup Tai-e in IntelliJ IDEA>>
+* <<command-line-options#,How to Run Tai-e (command-line options)?>>
+* <<taint-analysis#,How to Use Taint Analysis?>>
+* <<develop-new-analysis#,How to Develop A New Analysis on Tai-e?>>
+* <<program-abstraction#,Program Abstraction in Tai-e (core classes and IR)>>
+* <<analysis-management#,Analysis Management>>
+* <<pointer-analysis-framework#,Pointer Analysis Framework>>
+* <<publications#,Publications>>

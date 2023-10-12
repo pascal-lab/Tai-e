@@ -1,0 +1,35 @@
+-------------------- <A: void <init>()> (side-effect) --------------------
+[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[2@L13] invokespecial temp$0.<java.lang.Object: void <init>()>(); []
+[3@L13] %this.<A: java.lang.Object a> = temp$0; [NewObj{<Inheritance: void main(java.lang.String[])>[0@L7] new B}, NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+
+-------------------- <B: void <init>()> (side-effect) --------------------
+[0@L16] invokespecial %this.<A: void <init>()>(); [NewObj{<Inheritance: void main(java.lang.String[])>[0@L7] new B}, NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+
+-------------------- <B: java.lang.Object m()> (side-effect) --------------------
+
+-------------------- <B: java.lang.Object n()> (side-effect) --------------------
+
+-------------------- <B: java.lang.Object f()> (side-effect) --------------------
+
+-------------------- <C: void <init>()> (side-effect) --------------------
+[0@L22] invokespecial %this.<A: void <init>()>(); [NewObj{<Inheritance: void main(java.lang.String[])>[0@L7] new B}, NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+[2@L23] invokespecial temp$0.<java.lang.Object: void <init>()>(); []
+[3@L23] %this.<C: java.lang.Object a> = temp$0; [NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+
+-------------------- <C: java.lang.Object m()> (side-effect) --------------------
+
+-------------------- <C: java.lang.Object n()> (side-effect) --------------------
+
+-------------------- <C: java.lang.Object f()> (side-effect) --------------------
+
+-------------------- <Inheritance: void main(java.lang.String[])> (side-effect) --------------------
+[1@L7] invokespecial temp$0.<B: void <init>()>(); [NewObj{<Inheritance: void main(java.lang.String[])>[0@L7] new B}, NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+[3@L7] invokevirtual bb.<B: java.lang.Object m()>(); []
+[4@L7] invokevirtual bb.<B: java.lang.Object n()>(); []
+[5@L7] invokevirtual bb.<B: java.lang.Object f()>(); []
+[7@L8] invokespecial temp$4.<C: void <init>()>(); [NewObj{<Inheritance: void main(java.lang.String[])>[0@L7] new B}, NewObj{<Inheritance: void main(java.lang.String[])>[6@L8] new C}]
+[9@L8] invokevirtual cc.<C: java.lang.Object m()>(); []
+[10@L8] invokevirtual cc.<C: java.lang.Object n()>(); []
+[11@L8] invokevirtual cc.<C: java.lang.Object f()>(); []
+

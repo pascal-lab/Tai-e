@@ -1,4 +1,3 @@
-[[command-line-options]]
 include::attributes.adoc[]
 
 = How to Run Tai-e (command-line options)?
@@ -10,7 +9,7 @@ Before running Tai-e, please finish following steps:
 * Install **Java 17** (or higher version) on your system (Tai-e is developed in Java, and it runs on all major operating systems including Windows/Linux/macOS).
 * Clone submodule `java-benchmarks` (this repo contains the Java libraries used by the analysis; it is large and may take a while to clone):
 
-[source,shell,indent=0,subs="verbatim"]
+[source,shell,subs="verbatim"]
 ----
 git submodule update --init --recursive
 ----
@@ -86,14 +85,14 @@ There are two mutually-exclusive approaches to specify the analyses, by command-
 
 Specify analyses by command-line options. For running analysis with id `A`, just give `-a A`. For specifying some analysis options for `A`, just append them to analysis id (connected by `=`), and separate them by `;`, for example:
 
-[source,indent=0,subs="verbatim"]
+[source,subs="verbatim"]
 ----
 -a A=enableX:true;threshold:100;log-level:info
 ----
 
 > Note that on Unix-like systems (e.g., Linux), you may need to quote the option values when they include `;`, for example:
 
-[source,indent=0,subs="verbatim"]
+[source,subs="verbatim"]
 ----
 -a "A=enableX:true;threshold:100;log-level:info"
 ----
@@ -141,7 +140,7 @@ We give an example of how to analyze a program by Tai-e. Suppose we want to anal
 
 Then the options would be:
 
-[source,shell,indent=0,subs="verbatim"]
+[source,shell,subs="verbatim"]
 ----
 java -cp tai-e-all.jar pascal.taie.Main -cp foo.jar;bar.jar -m baz.Main -java 8 -a pta=cs:2-type;time-limit:60
 ----

@@ -57,8 +57,8 @@ public class TaintTest {
             + "taint-config-static-taint-transfer.yml"})
     @MultiStringsSource({"InstanceSourceSink", TAINT_CONFIG_PREFIX
             + "taint-config-instance-source-sink.yml"})
-    @MultiStringsSource({"TaintTransferEdge", TAINT_CONFIG_PREFIX
-            + "taint-config-taint-transfer-edge.yml"})
+    @MultiStringsSource({"ArrayFieldTransfer", TAINT_CONFIG_PREFIX
+            + "taint-config-array-field-transfer.yml"})
     @MultiStringsSource({"TaintParam", TAINT_CONFIG_PREFIX
             + "taint-config-param-source.yml"})
     @MultiStringsSource({"CallSiteMode", TAINT_CONFIG_PREFIX

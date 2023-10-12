@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -162,14 +161,8 @@ public class CachedWorldBuilder implements WorldBuilder {
                 ? options.getWorldBuilderClass().getName().hashCode() : 0);
         // add the timestamp to the cache key calculation
         List<String> paths = new ArrayList<>();
-        if (options.getClassPath() != null) {
-            paths.addAll(Arrays.asList(options.getClassPath()
-                    .split(File.pathSeparator)));
-        }
-        if (options.getAppClassPath() != null) {
-            paths.addAll(Arrays.asList(options.getAppClassPath()
-                    .split(File.pathSeparator)));
-        }
+        paths.addAll(options.getClassPath());
+        paths.addAll(options.getAppClassPath());
         for (String path : paths) {
             File file = new File(path);
             if (file.exists()) {
