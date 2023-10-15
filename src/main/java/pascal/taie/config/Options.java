@@ -100,7 +100,8 @@ public class Options implements Serializable {
     @JsonProperty
     @JsonSerialize(contentUsing = FilePathSerializer.class)
     @Option(names = {"-cp", "--class-path"},
-            description = "Class path. Multiple paths are split by system path separator.",
+            description = "Class path. This option can be repeated"
+                    + " multiple times to specify multiple paths.",
             converter = ClassPathConverter.class)
     private List<String> classPath = List.of();
 
@@ -111,8 +112,8 @@ public class Options implements Serializable {
     @JsonProperty
     @JsonSerialize(contentUsing = FilePathSerializer.class)
     @Option(names = {"-acp", "--app-class-path"},
-            description = "Application class path." +
-                    " Multiple paths are split by system path separator.",
+            description = "Application class path. This option can be repeated"
+                    + " multiple times to specify multiple paths.",
             converter = ClassPathConverter.class)
     private List<String> appClassPath = List.of();
 

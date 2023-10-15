@@ -1,9 +1,12 @@
 # Changelog
 
-## [Unreleased] - 2023-09-24
+## [Unreleased] - 2023-10-15
 
 ### New Features
 - Add side-effect analysis.
+
+### Changes
+- The options `--class-path` and `--app-class-path` can be repeated multiple times to specify multiple paths.
 
 ## [0.2.2] - 2023-09-23
 
