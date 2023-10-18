@@ -1,11 +1,20 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+We use the following terminology:
+- `New Features` instead of `Added`
+- `Breaking Changes` instead of `Removed`
+
 ## [Unreleased] - 2023-10-15
 
 ### New Features
 - Add side-effect analysis.
 
-### Changes
+### Changed
 - The options `--class-path` and `--app-class-path` can be repeated multiple times to specify multiple paths.
 
 ## [0.2.2] - 2023-09-23
@@ -53,3 +62,8 @@
 
 ## [0.0.3] - 2022-08-02
 - First release.
+
+
+[Unreleased]: https://github.com/pascal-lab/Tai-e/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/pascal-lab/Tai-e/compare/v0.0.3...v0.2.2
+[0.0.3]: https://github.com/pascal-lab/Tai-e/releases/tag/v0.0.3
