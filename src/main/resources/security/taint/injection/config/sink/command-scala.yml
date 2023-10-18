@@ -1,0 +1,20 @@
+sinks:
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,scala.collection.Seq)>", index: 1 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,java.io.File,scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,java.io.File,scala.collection.Seq)>", index: 2 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(scala.collection.Seq,java.io.File,scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(scala.collection.Seq,java.io.File,scala.collection.Seq)>", index: 2 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,scala.Option,scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,scala.Option,scala.collection.Seq)>", index: 2 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(scala.collection.Seq,scala.Option,scala.collection.Seq)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(scala.collection.Seq,scala.Option,scala.collection.Seq)>", index: 2 }
+  - { method: "<scala.sys.process.Process$: scala/sys/process/ProcessBuilder apply(java.lang.String,scala.Function0)>", index: 1 }
+  - { method: "<scala.sys.process.Process$: scala/collection/Seq apply(scala.collection.Seq,scala.Function1)>", index: 0 }
+  - { method: "<scala.sys.process.Process$: scala/collection/Seq apply(scala.collection.Seq,scala.Function1)>", index: 1 }
+
+  - { method: "<scala.sys.process.package$: scala/sys/process/ProcessBuilder stringToProcess(java.lang.String)>", index: 0 }
+  - { method: "<scala.sys.process.package$: scala/sys/process/ProcessBuilder stringSeqToProcess(scala.collection.Seq)>", index: 0}
+

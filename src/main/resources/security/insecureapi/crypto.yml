@@ -1,0 +1,84 @@
+- bugType: WEAK_MESSAGE_DIGEST
+  severity: CRITICAL
+  description: The algorithms MD2, MD5 and SHA-1 are not a recommended MessageDigest.
+  methodList:
+    - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String)>"
+      parameter: 'p1 = /(?i)"MD[25]"/ \\| p1 = /(?i)"SHA(-?1)?"/'
+    - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.lang.String)>"
+      parameter: 'p1 = /(?i)"MD[25]"/ \\| p1 = /(?i)"SHA(-?1)?"/'
+    - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /(?i)"MD[25]"/ \\| p1 = /(?i)"SHA(-?1)?"/'
+
+- bugType: NULL_CIPHER_USE #063
+  severity: CRITICAL
+  description: >-
+             The NullCipher provides the same cipher text as plaintext,
+             which is dangerous for the confidentiality.
+  methodList:
+    - reference: "<javax.crypto.NullCipher: void init()>"
+
+- bugType: UNENCRYPTED_SOCKET #064 065
+  severity: CRITICAL
+  description: >-
+             If the communication channel used is not encrypted,
+             the traffic can be read by an attacker, which is dangerous.
+  methodList:
+    - reference: "<java.net.Socket: void init(java.lang.String, int)>"
+    - reference: "<java.net.Socket: void init(java.lang.String, int, boolean)>"
+    - reference: "<java.net.Socket: void init(java.lang.String, int, java.net.InetAddress, int)>"
+    - reference: "<java.net.Socket: void init(java.net.InetAddress, int)>"
+    - reference: "<java.net.ServerSocket: void init(int)>"
+    - reference: "<java.net.ServerSocket: void init()>"
+    - reference: "<java.net.ServerSocket: void init(int, int)>"
+    - reference: "<java.net.ServerSocket: void init(int, int, java.net.InetAddress)>"
+
+- bugType: DES_AND_DESede_IS_INSECURE #066 067
+  severity: CRITICAL
+  description: >-
+             The DES/DESede algorithm, cannot provide a strong enough protection
+             for classified information and should be deprecated.
+  methodList:
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.string)>"
+      parameter: 'p1 = /"^DES.*"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.string, java.lang.string)>"
+      parameter: 'p1 = /"^DES.*"/'
+
+- bugType: RSA_WITHOUT_PADDING_IS_INSECURE #068
+  severity: MINOR
+  description: >-
+             The RSA algorithm without paddling can allow an attacker to obtain the statistical
+             properties of the plaintext from a large number of ciphertexts, which is vulnerable.
+  methodList:
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.string)>"
+      parameter: 'p1 = /"RSA.+NoPaddling"/' # to do
+
+- bugType: CIPHER_WITHOUT_INTEGRITY_IS_INSECURE #088 089 090
+  severity: CRITICAL
+  description: >-
+             CBC/OFB/CTR/ECB encryption algorithms do not undergo integrity checking,
+             and an attacker can arbitrarily tamper with the encrypted ciphertext
+             without passing the integrity check, which is dangerous.
+  methodList:
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.string)>"
+      parameter: 'p1 = /"\w+?\/CBC\/\w+"/ \\| p1 = /"\w+?\/ECB\/\w+"/' # when the parameter contains CBC or ECB, it is dangerous // 090 088
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.string)>"
+      parameter: 'p1 = /".*CBC\/PKCS5Padding$"/' # when the parameter contains CBC/PKCS5Padding, it is dangerous // 089
+
+# 088-090 further information
+# javax.crypto.Cipher.getInstance 可出现的参数
+# AES/CBC/NoPadding (128)
+# AES/CBC/PKCS5Padding (128)
+# AES/ECB/NoPadding (128)
+# AES/ECB/PKCS5Padding (128)
+# AES/GCM/NoPadding (128)
+# DES/CBC/NoPadding (56)
+# DES/CBC/PKCS5Padding (56)
+# DES/ECB/NoPadding (56)
+# DES/ECB/PKCS5Padding (56)
+# DESede/CBC/NoPadding (168)
+# DESede/CBC/PKCS5Padding (168)
+# DESede/ECB/NoPadding (168)
+# DESede/ECB/PKCS5Padding (168)
+# RSA/ECB/PKCS1Padding (1024, 2048)
+# RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
+# RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)

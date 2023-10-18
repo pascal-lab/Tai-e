@@ -1,0 +1,14 @@
+sinks:
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String,java.lang.String,boolean)>", index: 2 }
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String,boolean,org.apache.turbine.util.db.pool.DBConnection)>", index: 2 }
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String,int,int,boolean,org.apache.turbine.util.db.pool.DBConnection)>", index: 4 }
+  - { method: "<org.apache.turbine.om.peer.BasePeer: java.util.Vector executeQuery(java.lang.String,int,int,java.lang.String,boolean)>", index: 4 }
+
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String,java.lang.String,boolean)>", index: 2 }
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String,boolean,org.apache.turbine.util.db.pool.DBConnection)>", index: 2 }
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String,int,int,boolean,org.apache.turbine.util.db.pool.DBConnection)>", index: 4 }
+  - { method: "<org.apache.torque.util.BasePeer: java.util.Vector executeQuery(java.lang.String,int,int,java.lang.String,boolean)>", index: 4 }

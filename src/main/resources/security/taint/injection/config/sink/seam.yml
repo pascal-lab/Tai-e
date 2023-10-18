@@ -1,0 +1,13 @@
+sinks:
+  - { method: "<org.jboss.seam.log.Log: void debug(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void debug(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }
+  - { method: "<org.jboss.seam.log.Log: void error(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void error(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }
+  - { method: "<org.jboss.seam.log.Log: void fatal(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void fatal(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }
+  - { method: "<org.jboss.seam.log.Log: void info(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void info(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }
+  - { method: "<org.jboss.seam.log.Log: void trace(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void trace(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }
+  - { method: "<org.jboss.seam.log.Log: void warn(java.lang.Object,java.lang.Object[])>", index: 1 }
+  - { method: "<org.jboss.seam.log.Log: void warn(java.lang.Object,java.lang.Throwable,java.lang.Object[])>", index: 2 }

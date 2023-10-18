@@ -159,3 +159,21 @@
 - description: find the method that may drop or ignore exceptions
   analysisClass: pascal.taie.analysis.bugfinder.DroppedException
   id: dropped-exception
+
+- description: find possible injection vulnerabilities
+  analysisClass: pascal.taie.analysis.bugfinder.security.injection.InjectionDetector
+  id: injection
+  options:
+    bugInfoList: src/main/resources/security/taint/injection/injection.yml
+
+- description: find possible information leak vulnerabilities
+  analysisClass: pascal.taie.analysis.bugfinder.security.infoleak.InfoLeakDetector
+  id: info-leak
+  options:
+    bugInfoList: src/main/resources/security/taint/infoleak/infoleak.yml
+
+- description: find insecure API usage
+  analysisClass: pascal.taie.analysis.bugfinder.security.insecureapi.InsecureAPIUsageDetector
+  id: insecure-api
+  options:
+    config-dir: src/main/resources/security/insecureapi

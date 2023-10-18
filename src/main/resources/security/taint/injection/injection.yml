@@ -1,0 +1,220 @@
+- bugType: COMMAND_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as a 'COMMAND' without verification
+        may lead to 'Command Injection' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/command.yml
+
+- bugType: AWS_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as a 'SIMPLEDB QUERY' without verification
+        may lead to 'AWS INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/aws.yml
+
+- bugType: BEAN_INJECTION
+  severity: CRITICAL
+  description: |
+        Allowing user to set arbitrary bean properties
+        may lead to  "BEAN INJECTION" vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/beans.yml
+
+- bugType: CRLF_INJECTION
+  severity: CRITICAL
+  description: |
+        CRLF may be used to cut off original command and carry out command from attacker
+  configPath: src/main/resources/security/taint/injection/config/sink/crlf-logs.yml
+
+- bugType: FORMATTER_INJECTION
+  severity: CRITICAL
+  description: |
+        Using user input as a part of 'FORMATTER'
+        may lead to 'FORMATTER_INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/formatter.yml
+
+- bugType: LDAP_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as a part of 'LDAP QUERY' without verification
+        may lead to 'LDAP INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/ldap.yml
+
+- bugType: PATH_TRAVERSAL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly Using user input as a parameter to open a file
+        may lead to accessing files or directories without proper read and write permissions.
+  configPath: src/main/resources/security/taint/injection/config/sink/path-traversal.yml
+
+- bugType: FILE_DISCLOSURE_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input constructing server-side redirects without verification
+        may leak information such as confidential files to attackers
+  configPath: src/main/resources/security/taint/injection/config/sink/file-disclosure.yml
+
+- bugType: HTTP_RESPONSE_SPLITTING_INJECTION
+  severity: MINOR
+  description: |
+        Directly using user input contained unexpected CR and LF as a HTTP request without verification
+        may lead to 'HTTP RESPONSE SPLITTING INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/response-splitting.yml
+
+- bugType: SCRIPT_ENGINE_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly evaluating dynamic code without applying a proper sandbox
+        may lead to 'SCRIPT ENGINE INJECTION'
+  configPath: src/main/resources/security/taint/injection/config/sink/script-engine.yml
+
+- bugType: SEAM_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using dynamic values to build expression in Seam Logging API without verification
+        may lead to unfiltered values falling into risky code evaluation
+  configPath: src/main/resources/security/taint/injection/config/sink/seam.yml
+
+- bugType: SPEL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using dynamic values to build expression in Spring Expression API without verification
+        may lead to unfiltered values falling into risky code evaluation
+  configPath: src/main/resources/security/taint/injection/config/sink/spring-expression.yml
+
+- bugType: SMTP_HEADER_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input contained unexpected CR and LF as part of SMTP Header without verification
+        may lead to 'SMTP HEADER INJECTION'
+  configPath: src/main/resources/security/taint/injection/config/sink/smtp.yml
+
+- bugType: SPRING_FILE_DISCLOSURE_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input constructing server-side redirects without verification
+        may leak information such as confidential files to attackers
+  configPath: src/main/resources/security/taint/injection/config/sink/spring-file-disclosure.yml
+
+- bugType: ANDROID_SQL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'Android SQL Statement' without verification in SQLite
+        may lead to 'ANDROID SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-android.yml
+
+- bugType: HIBERNATE_SQL_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as part of 'HQL Statement' without verification
+        may lead to 'HIBERNATE SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-hibernate.yml
+
+- bugType: JDBC_SQL_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as part of 'JDBC SQL Statement' without verification
+        may lead to 'JDBC SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-jdbc.yml
+
+- bugType: JDO_SQL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'JDOQL Statement' without verification
+        may lead to 'JDO SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-jdo.yml
+
+- bugType: JPA_SQL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'JPQL Statement' without verification
+        may lead to 'JDA SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-jpa.yml
+
+- bugType: SPRING_SQL_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as part of 'SPRING SQL Statement' without verification
+        may lead to 'SPRING SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-spring.yml
+
+- bugType: TURBINE_SQL_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as part of 'TURBINE SQL Statement' without verification
+        may lead to 'TURBINE SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-turbine.yml
+
+- bugType: VERTX_SQL_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'VERTX SQL Statement' without verification
+        may lead to 'VERTX SQL INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/sql-vertx-sql-client.yml
+
+- bugType: STRUTS_INJECTION
+  severity: CRITICAL
+  description: |
+        Some methods in struts2 may lead to arbitrary code execution
+  configPath: src/main/resources/security/taint/injection/config/sink/struts.yml
+
+- bugType: STRUTS_FILE_DISCLOSURE_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input constructing server-side redirects without verification
+        may leak information such as confidential files to attackers
+  configPath: src/main/resources/security/taint/injection/config/sink/struts-file-disclosure.yml
+
+- bugType: TRUST_BOUNDARY_INJECTION
+  severity: CRITICAL
+  description: |
+        Before crossing the trust boundary, some validation should have been done
+  configPath: src/main/resources/security/taint/injection/config/sink/trust-boundary-violation.yml
+
+- bugType: XPATH_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'XPATH Query' without verification
+        may lead to 'XPATH INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/xpath.yml
+
+- bugType: XSLT_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as part of 'XSLT Expression' without verification
+        may lead to untrusted code execution and 'XSLT INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/xslt.yml
+
+- bugType: XSS_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input without verification
+        may lead to 'XSS INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/xss.yml
+
+- bugType: EL_INJECTION
+  severity: CRITICAL
+  description: ｜
+        Directly using user input as 'EXPRESSION' without verification
+        may lead to 'XSS INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/el.yml
+
+- bugType: HTTP_PARA_POLLUTION_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as parameters in HTTP API without verification
+        may lead to 'HTTP PARA POLLUTION INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/http-para-pollution.yml
+
+- bugType: LOGGER_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input in LOGGER API without verification
+        may lead to 'LOGGER INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/logger.yml
+
+- bugType: URL_CONNECTION_INJECTION
+  severity: CRITICAL
+  description: |
+        Directly using user input as URL without verification
+        may lead to 'URL CONNECTION INJECTION' vulnerability
+  configPath: src/main/resources/security/taint/injection/config/sink/urlconnection-ssrf.yml

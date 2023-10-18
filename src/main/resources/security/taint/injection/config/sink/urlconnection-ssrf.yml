@@ -1,0 +1,6 @@
+sinks:
+  #- { method: "<java.net.URL: java.net.URLConnection openConnection()>", index: 0 }
+  #- { method: "<java.net.URL: java.net.URLConnection openConnection(java.net.Proxy)>", index: 0,1 }
+  #- { method: "<java.net.URL: java.io.InputStream openStream()>", index: 0 }
+  #- { method: "<java.net.URL: java.lang.Object getContent()>", index: 0 }
+  #- { method: "<java.net.URL: java.lang.Object getContent(java.lang.Class[])>", index: 1 }

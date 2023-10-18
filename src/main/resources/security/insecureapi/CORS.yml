@@ -1,0 +1,14 @@
+- bugType: PERMISSIVE_CORS #104
+  severity: CRITICAL
+  description: >-
+             An overly broad CORS policy can lead to potential
+             information disclosure or other attacks
+  methodList:
+    - reference:  "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.string, java.lang.string)>"
+      parameter: 'p2 = /"\*.*"/' # when the second parameter's header is '*', it's dangerous
+    - reference:  "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.string, java.lang.string)>"
+      parameter: 'p2 = /"null"/' # when the second parameter is "null", it's dangerous
+    - reference:  "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.string, java.lang.string)>"
+      parameter: 'p2 = /"\*.*"/' # when the second parameter's header is '*', it's dangerous
+    - reference:  "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.string, java.lang.string)>"
+      parameter: 'p2 = /"null"/' # when the second parameter is "null", it's dangerous

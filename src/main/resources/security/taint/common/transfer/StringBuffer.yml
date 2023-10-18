@@ -1,0 +1,49 @@
+transfers:
+  - { method: "<java.lang.StringBuffer: void <init>(java.lang.String)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: void <init>(java.lang.CharSequence)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(boolean)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(int)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(long)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char[])>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char[],int,int)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(double)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(float)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence,int,int)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.StringBuffer)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer appendCodePoint(int)>", from: 0, to: base, type: "java.lang.StringBuffer" }
+
+  - { method: "<java.lang.StringBuffer: char charAt(int)>", from: base, to: result, type: "char" }
+
+  - { method: "<java.lang.StringBuffer: void getChars(int,int,char[],int)>", from: base, to: 2, type: "char[]" }
+
+  - { method: "<java.lang.StringBuffer: int codePointAt(int)>", from: base, to: result, type: "int" }
+  - { method: "<java.lang.StringBuffer: int codePointBefore(int)>", from: base, to: result, type: "int" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,boolean)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[])>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[],int,int)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,double)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,float)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,int)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,long)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence,int,int)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.Object)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.String)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer replace(int,int,java.lang.String)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+
+  - { method: "<java.lang.StringBuffer: void setCharAt(int,char)>", from: 1, to: base, type: "java.lang.StringBuffer" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.CharSequence subSequence(int,int)>", from: base, to: result, type: "java.lang.CharSequence" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.String substring(int)>", from: base, to: result, type: "java.lang.String" }
+  - { method: "<java.lang.StringBuffer: java.lang.String substring(int,int)>", from: base, to: result, type: "java.lang.String" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.String toString()>", from: base, to: result, type: "java.lang.String" }

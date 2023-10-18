@@ -1,0 +1,7 @@
+sinks:
+  - { method: "<org.hibernate.criterion.Restrictions: org.hibernate.criterion.Criterion sqlRestriction(java.lang.String)>", index: 0 }
+  - { method: "<org.hibernate.criterion.Restrictions: org.hibernate.criterion.Criterion sqlRestriction(java.lang.String,java.lang.Object,org.hibernate.type.Type)>", index: 2 }
+  - { method: "<org.hibernate.criterion.Restrictions: org.hibernate.criterion.Criterion sqlRestriction(java.lang.String,java.lang.Object[],org.hibernate.type.Type[])>", index: 2 }
+  - { method: "<org.hibernate.Session: org.hibernate.Query createQuery(java.lang.String)>", index: 0 }
+  - { method: "<org.hibernate.Session: org.hibernate.query.Query createQuery(java.lang.String)>", index: 0 }
+  - { method: "<org.hibernate.Session: org.hibernate.SQLQuery createSQLQuery(java.lang.String)>", index: 0 }

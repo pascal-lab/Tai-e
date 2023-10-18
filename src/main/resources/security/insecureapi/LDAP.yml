@@ -1,0 +1,11 @@
+- bugType:  LDAP_ENTRY_POISONING  # 106
+  severity: CRITICAL
+  description: >-
+             The JNDI API supports binding serialized objects in the LDAP directory,
+             and when calling some APIs, if some parameters are not set correctly,
+             the deserialization will be carried out.
+  methodList:
+    - reference: "<javax.naming.directory.SearchControls: void init(int, long, int, java.lang.string[], boolean, boolean)"
+      parameter: 'p4 = /"true"/'
+    - reference: "<javax.naming.directory.SearchControls: void setReturningObjFlag(boolean)"
+      parameter: 'p1 = /"true"/'

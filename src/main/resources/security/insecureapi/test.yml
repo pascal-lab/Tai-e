@@ -1,0 +1,8 @@
+- bugType: INSECURE_API_USE
+  severity: CRITICAL
+  description: These APIs are insecure.
+  methodList:
+    - reference: '<InsecureAPITest: void unsafe()>'
+    - reference: '<A: void unsafe1()>'
+    - reference: '<B: int unsafe2(int,java.lang.String)>'
+      parameter: '(p1=/[0-9]/ | p2=/null/)'

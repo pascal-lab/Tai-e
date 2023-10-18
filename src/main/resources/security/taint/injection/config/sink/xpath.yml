@@ -1,0 +1,35 @@
+sinks:
+  # apache
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String,org.apache.xml.utils.PrefixResolver)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: com.sun.org.apache.xpath.internal.objects.XObject eval(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: com.sun.org.apache.xpath.internal.objects.XObject eval(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: com.sun.org.apache.xpath.internal.objects.XObject eval(org.w3c.dom.Node,java.lang.String,com.sun.org.apache.xml.internal.utils.PrefixResolver)>", index: 1 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<com.sun.org.apache.xpath.internal.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+
+  - { method: "<org.apache.xml.security.utils.XPathAPI: boolean evaluate(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.JDKXPathAPI: boolean evaluate(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.JDKXPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.XalanXPathAPI: boolean evaluate(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.XalanXPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+
+  # javax
+  - { method: "<javax.xml.xpath.XPath: javax.xml.xpath.XPathExpression compile(java.lang.String)>", index: 0 }
+  - { method: "<javax.xml.xpath.XPath: java.lang.String evaluate(java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<javax.xml.xpath.XPath: java.lang.Object evaluate(java.lang.String,java.lang.Object,javax.xml.namespace.QName)>", index: 2 }
+  - { method: "<javax.xml.xpath.XPath: java.lang.String evaluate(java.lang.String,org.xml.sax.InputSource)>", index: 1 }
+  - { method: "<javax.xml.xpath.XPath: java.lang.Object evaluate(java.lang.String,org.xml.sax.InputSource,javax.xml.namespace.QName)>", index: 2 }

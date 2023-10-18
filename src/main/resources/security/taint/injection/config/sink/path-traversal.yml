@@ -1,0 +1,36 @@
+sinks:
+  # in
+  - { method: "<java.io.File: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<java.io.File: void <init>(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.io.File: void <init>(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<java.io.File: void <init>(java.io.File,java.lang.String)>", index: 0 }
+  - { method: "<java.io.File: void <init>(java.net.URI)>", index: 0 }
+  - { method: "<java.io.RandomAccessFile: void <init>(java.lang.String,java.lang.String)>", index: 1 }
+
+  - { method: "<java.io.FileReader: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<java.io.FileInputStream: void <init>(java.lang.String)>", index: 0 }
+
+  - { method: "<java.nio.file.Paths: java.nio.file.Path get(java.lang.String,java.lang.String[])>", index: 0 }
+  - { method: "<java.nio.file.Paths: java.nio.file.Path get(java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<java.nio.file.Paths: java.nio.file.Path get(java.net.URI)>", index: 0 }
+
+  - { method: "<java.io.File: java.io.File createTempFile(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.io.File: java.io.File createTempFile(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<java.io.File: java.io.File createTempFile(java.lang.String,java.lang.String,java.io.File)>", index: 0 }
+  - { method: "<java.io.File: java.io.File createTempFile(java.lang.String,java.lang.String,java.io.File)>", index: 1 }
+  - { method: "<java.io.File: java.io.File createTempFile(java.lang.String,java.lang.String,java.io.File)>", index: 2 }
+
+  - { method: "<javax.activation.FileDataSource: void <init>(java.lang.String)>", index: 0 }
+
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempFile(java.nio.file.Path,java.lang.String,java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 1 }
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempFile(java.nio.file.Path,java.lang.String,java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 2 }
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempFile(java.lang.String,java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 1 }
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempFile(java.lang.String,java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 2 }
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempDirectory(java.nio.file.Path,java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 1 }
+  - { method: "<java.nio.file.Files: java.nio.file.Path createTempDirectory(java.lang.String,java.nio.file.attribute.FileAttribute[])>", index: 1 }
+
+  # out
+  - { method: "<java.io.FileWriter: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<java.io.FileWriter: void <init>(java.lang.String,boolean)>", index: 1 }
+  - { method: "<java.io.FileOutputStream: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<java.io.FileOutputStream: void <init>(java.lang.String,boolean)>", index: 1 }

@@ -1,0 +1,6 @@
+sinks:
+  - { method: "<javax.mail.Message: void setSubject(java.lang.String)>", index: 0 }
+  - { method: "<javax.mail.Message: void addHeader(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.mail.Message: void addHeader(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<javax.mail.Message: void setDescription(java.lang.String)>", index: 0 }
+  - { method: "<javax.mail.Message: void setDisposition(java.lang.String)>", index: 0 }

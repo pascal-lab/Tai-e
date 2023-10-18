@@ -1,0 +1,36 @@
+sources:
+  #- { kind: call, method: "<java.io.BufferedReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.io.Console: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.Console: java.lang.String readLine(java.lang.String,java.lang.Object[])>", index: result, type: "java.lang.String" }
+
+  #- { kind: call, method: "<java.io.DataInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  #- { kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+  #- { kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF(java.io.DataInput)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.io.LineNumberReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.File)>", index: 0, type: "java.io.File" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.File,java.lang.String)>", index: 0, type: "java.io.File" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.InputStream)>", index: 0, type: "java.io.InputStream" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.InputStream,java.lang.String)>", index: 0, type: "java.io.InputStream" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.file.Path)>", index: 0, type: "java.nio.file.Path" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.file.Path,java.lang.String)>", index: 0, type: "java.nio.file.Path" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.lang.Readable)>", index: 0, type: "java.lang.Readable" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.channels.ReadableByteChannel)>", index: 0, type: "java.nio.channels.ReadableByteChannel" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.channels.ReadableByteChannel,java.lang.String)>", index: 0, type: "java.nio.channels.ReadableByteChannel" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.lang.String)>", index: 0, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.sql.ResultSet: java.lang.String getNString(int)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.sql.ResultSet: java.lang.String getNString(long)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.sql.ResultSet: java.lang.String getString(int)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.sql.ResultSet: java.lang.String getString(long)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.awt.TextComponent: java.lang.String getSelectedText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.awt.TextComponent: java.lang.String getText()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getSelectedText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getText(int,int)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<Source.SourceFirst: java.lang.String getSource()>", index: result, type: "java.lang.String"}

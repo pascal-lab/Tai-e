@@ -1,0 +1,4 @@
+sinks:
+  - { method: "<com.amazonaws.services.simpledb.model.SelectRequest: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<com.amazonaws.services.simpledb.model.SelectRequest: void <init>(java.lang.String,java.lang.Boolean)>", index: 1 }
+  - { method: "<com.amazonaws.services.simpledb.model.SelectRequest: com.amazonaws.services.simpledb.model.SelectRequest withSelectExpression(java.lang.String)>", index: 0 }

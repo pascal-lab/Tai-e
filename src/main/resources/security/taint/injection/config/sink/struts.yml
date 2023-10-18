@@ -1,0 +1,88 @@
+sink:
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(java.lang.String,com.opensymphony.xwork2.util.ValueStack)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(java.lang.String,com.opensymphony.xwork2.util.ValueStack,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Collection translateVariablesCollection(java.lang.String,com.opensymphony.xwork2.util.ValueStack,boolean,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Collection translateVariablesCollection(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,boolean,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: boolean shallBeIncluded(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Set commaDelimitedStringToSet(java.lang.String)>", index: 0 }
+
+  - { method: "<com.opensymphony.xwork2.util.TextParser: java.lang.Object evaluate(char[],java.lang.String,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.OgnlTextParser: java.lang.Object evaluate(char[],java.lang.String,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 2 }
+
+  # reflection need to be solved?
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.lang.reflect.Method getGetMethod(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.lang.reflect.Method getSetMethod(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.lang.reflect.Field getField(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setProperties(java.util.Map,java.lang.Object,java.util.Map)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setProperties(java.util.Map,java.lang.Object,java.util.Map,boolean)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setProperties(java.util.Map,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.beans.PropertyDescriptor getPropertyDescriptor(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.lang.Object getRealTarget(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map,boolean)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlReflectionProvider: void setValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Object)>", index: 3 }
+
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.lang.reflect.Method getGetMethod(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.lang.reflect.Method getSetMethod(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.lang.reflect.Field getField(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setProperties(java.util.Map,java.lang.Object,java.util.Map)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setProperties(java.util.Map,java.lang.Object,java.util.Map,boolean)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setProperties(java.util.Map,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.beans.PropertyDescriptor getPropertyDescriptor(java.lang.Class,java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void copy(java.lang.Object,java.lang.Object,java.util.Map,java.util.Collection,java.util.Collection)>", index: 4}
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.lang.Object getRealTarget(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map,boolean)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.util.Map getBeanMap(com.opensymphony.xwork2.util.reflection.Object)>", index: 0}
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: void setValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Object)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.reflection.ReflectionProvider: java.beans.PropertyDescriptor[] getPropertyDescriptors(java.lang.Object)>", index: 0}
+
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,java.util.Map)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,java.util.Map,boolean)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map,boolean)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Object)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object callMethod(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Class)>", index: 3 }
+
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compile(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compileAndExecute(java.lang.String,java.util.Map,com.opensymphony.xwork2.ognl.OgnlTask)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compileAndExecuteMethod(java.lang.String,java.util.Map,com.opensymphony.xwork2.ognl.OgnlTask)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compile(java.lang.String,java.util.Map)>", index: 1 }
+
+  - { method: "<org.apache.struts2.util.VelocityStrutsUtil: java.lang.String evaluate(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object bean(org.apache.struts2.util.Object)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: boolean isTrue(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object findString(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String include(org.apache.struts2.util.Object)>", index: 0}
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String urlEncode(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object findValue(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String getText(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String translateVariables(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 2 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 3 }
+  - { method: "<org.apache.struts2.views.jsp.ui.OgnlTool: org.apache.struts2.views.jsp.ui.Object findValue(java.lang.String,org.apache.struts2.views.jsp.ui.Object)>", index: 1 }
+
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.String findString(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.String findString(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,java.lang.Class)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,java.lang.Class,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setValue(java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setValue(java.lang.String,java.lang.Object,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setParameter(java.lang.String,java.lang.Object)>", index: 1 }
+

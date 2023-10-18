@@ -1,0 +1,4 @@
+sinks:
+  - { method: "<org.apache.commons.httpclient.methods.GetMethod: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.commons.httpclient.methods.GetMethod: void setQueryString(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.http.client.methods.HttpGet: void <init>(java.lang.String)>", index: 0 }

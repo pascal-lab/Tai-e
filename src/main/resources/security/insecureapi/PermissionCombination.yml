@@ -1,0 +1,15 @@
+- bugType:  DANGEROUS_PERMISSION_COMBINATION
+  severity: CRITICAL
+  description: >-
+    Certain combinations of permission can produce significant capability increases and should not
+    be granted
+  methodList:
+    - reference: "<java.lang.reflect.ReflectPermission: void init(java.lang.String)>"
+      parameter: 'p1 = /"suppressAccessChecks"/'
+    - reference: "<java.lang.reflect.ReflectPermission: void init(java.lang.String, java.lang.String)>"
+      parameter: 'p1 = /"suppressAccessChecks"/'
+    - reference: "<java.lang.RuntimePermission: void init(java.lang.String)>"
+      parameter: 'p1 = /"createClassLoader"/'
+    - reference: "<java.lang.RuntimePermission: void init(java.lang.String, java.lang.String)>"
+      parameter: 'p1 = /"createClassLoader"/'
+

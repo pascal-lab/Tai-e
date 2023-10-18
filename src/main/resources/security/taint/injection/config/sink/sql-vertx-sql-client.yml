@@ -1,0 +1,5 @@
+sinks:
+  - { method: "<io.vertx.sqlclient.SqlClient: io.vertx.sqlclient.Query query(java.lang.String)>", index: 0 }
+  - { method: "<io.vertx.sqlclient.SqlClient: io.vertx.sqlclient.PreparedQuery preparedQuery(java.lang.String)>", index: 0 }
+  - { method: "<io.vertx.sqlclient.SqlConnection: io.vertx.sqlclient.SqlConnection prepare(java.lang.String,io.vertx.core.Handler)>", index: 1 }
+  - { method: "<io.vertx.sqlclient.SqlConnection: io.vertx.core.Future prepare(java.lang.String)>", index: 0 }

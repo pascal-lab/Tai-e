@@ -1,0 +1,17 @@
+sinks:
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String)>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>", index: 1 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>", index: 1 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>", index: 2 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>", index: 1 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>", index: 2 }
+
+  - { method: "<java.lang.ProcessBuilder: void <init>(java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.ProcessBuilder: void <init>(java.util.List)>", index: 0 }
+  - { method: "<java.lang.ProcessBuilder: java.lang.ProcessBuilder command(java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.ProcessBuilder: java.lang.ProcessBuilder command(java.util.List)>", index: 0 }
+

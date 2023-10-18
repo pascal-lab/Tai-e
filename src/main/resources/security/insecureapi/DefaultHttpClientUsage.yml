@@ -1,0 +1,9 @@
+# ID:023 (deprecated)
+- bugType: DEFAULTHTTPCLIENT_CONSTRUCTOR_USAGE
+  severity: MAJOR
+  description: This constructor of DefaultHttpClient is not recommended, because it does not include TLSv1.2.
+  methodList:
+  - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>()>"
+  - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.params.HttpParams)>"
+  - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.conn.ClientConnectionManager)>"
+  - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.conn.ClientConnectionManager,org.apache.http.params.HttpParams)>"

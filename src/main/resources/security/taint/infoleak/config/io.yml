@@ -1,0 +1,324 @@
+sinks:
+{ method: "<java.io.BufferedOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.BufferedOutputStream: void write(int)>", index: 0 }
+
+{ method: "<java.io.BufferedWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.BufferedWriter: void write(int)>", index: 0 }
+{ method: "<java.io.BufferedWriter: void write(java.lang.String,int,int)>", index: 0 }
+
+{ method: "<java.io.ByteArrayOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.ByteArrayOutputStream: void write(int)>", index: 0 }
+{ method: "<java.io.ByteArrayOutputStream: void writeTo(java.io.OutputStream)>", index: 0 }
+
+{ method: "<java.io.CharArrayWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: void write(int)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: void write(java.lang.String,int,int)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: void writeTo(java.io.Writer)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: java.lang.CharSequence append(java.lang.CharSequence)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: java.lang.CharSequence append(java.lang.CharSequence,int,int)>", index: 0 }
+{ method: "<java.io.CharArrayWriter: java.lang.CharSequence append(char)>", index: 0 }
+
+
+{ method: "<java.io.DataOutputStream: void write(int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeBoolean(boolean)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeByte(int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeBytes(java.lang.String)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeChar(int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeChars(java.lang.String)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeDouble(double)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeFloat(float)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeInt(int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeLong(long)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeShort(int)>", index: 0 }
+{ method: "<java.io.DataOutputStream: void writeUTF(java.lang.String)>", index: 0 }
+
+{ method: "<java.io.FileOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.FileOutputStream: void write(int)>", index: 0 }
+{ method: "<java.io.FileOutputStream: void write(byte[])>", index: 0 }
+
+{ method: "<java.io.FilterOutputStream: void write(byte[])>", index: 0 }
+{ method: "<java.io.FilterOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.FilterOutputStream: void write(int)>", index: 0 }
+
+{ method: "<java.io.ObjectOutputStream: void write(int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void write(byte[])>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeBoolean(boolean)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeByte(int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeBytes(java.lang.String)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeChar(int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeChars(java.lang.String)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeDouble(double)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeFloat(float)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeInt(int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeLong(long)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeObject(java.lang.Object)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeShort(int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeUTF(java.lang.String)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void defaultWriteObject()>", index: 0 }
+{ method: "<java.io.ObjectOutputStream: void writeUnshared(java.lang.Object)>", index: 0 }
+
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,boolean)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,byte)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,char)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,short)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,int)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,long)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,float)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,double)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,java.lang.Object)>", index: 0 }
+{ method: "<java.io.ObjectOutputStream.PutFiled: void write(java.io.ObjectOutput)>", index: 0 }
+
+{ method: "<java.io.RandomAccessFile: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.RandomAccessFile: void write(int)>", index: 0 }
+{ method: "<java.io.RandomAccessFile: void write(byte[])>", index: 0 }
+
+{ method: "<java.io.OutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.OutputStream: void write(byte[])>", index: 0 }
+{ method: "<java.io.OutputStream: void write(int)>", index: 0 }
+
+{ method: "<java.io.OutputStreamWriter: void write(java.lang.String,int,int)>", index: 0 }
+{ method: "<java.io.OutputStreamWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.OutputStreamWriter: void write(int)>", index: 0 }
+
+{ method: "<java.io.PipedOutputStream: void write(byte[],int,int)>", index: 0 }
+{ method: "<java.io.PipedOutputStream: void write(int)>", index: 0 }
+
+{ method: "<java.io.PipedWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.PipedWriter: void write(int)>", index: 0 }
+
+{ method: "<java.io.PrintStream: void print(boolean)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(char)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(int)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(long)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(float)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(double)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(char[])>", index: 0 }
+{ method: "<java.io.PrintStream: void print(java.lang.String)>", index: 0 }
+{ method: "<java.io.PrintStream: void print(java.lang.Object)>", index: 0 }
+
+{ method: "<java.io.PrintStream: void println()>", index: 0 }
+{ method: "<java.io.PrintStream: void println(boolean)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(char)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(int)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(long)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(float)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(double)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(char[])>", index: 0 }
+{ method: "<java.io.PrintStream: void println(java.lang.String)>", index: 0 }
+{ method: "<java.io.PrintStream: void println(java.lang.Object)>", index: 0 }
+
+{ method: "<java.io.PrintStream: java.io.PrintStream printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+{ method: "<java.io.PrintStream: java.io.PrintStream printf(java.lang.String,java.lang.Object[])>", index: 1 }
+
+{ method: "<java.io.PrintStream: java.io.PrintStream append(java.lang.CharSequence)>", index: 0 }
+{ method: "<java.io.PrintStream: java.io.PrintStream append(java.lang.CharSequence,int,int)>", index: 0 }
+{ method: "<java.io.PrintStream: java.io.PrintStream append(char)>", index: 0 }
+
+{ method: "<java.io.PrintStream: java.io.PrintStream format(java.lang.String,java.lang.Object[])>", index: 1 }
+{ method: "<java.io.PrintStream: java.io.PrintStream format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+
+{ method: "<java.io.PrintStream: void write(int)>", index: 0 }
+{ method: "<java.io.PrintStream: void write(byte[],int,int)>", index: 0 }
+
+
+{ method: "<java.io.PrintWriter: void print(boolean)>", index: 0 }
+{ method: "<java.io.PrintWriter: void print(char)>", index: 0 }
+{ method: "<java.io.PrintWriter: void print(int)>", index: 0 }
+{ method: "<java.io.PrintWriter: void print(long)>", index: 0 }
+{ method: "<java.io.PrintWriter: void print(float)>", index: 0}
+
+{ method: "<java.io.PrintWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.PrintWriter: void write(int)>", index: 0 }
+{ method: "<java.io.PrintWriter: void write(java.lang.String,int,int)>", index: 0 }
+{ method: "<java.io.PrintWriter: void write(java.lang.String)>", index: 0 }
+{ method: "<java.io.PrintWriter: void write(char[])>", index: 0 }
+
+{ method: "<java.io.PrintWriter: void println(boolean)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(char)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(char[])>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(double)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(float)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(int)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(long)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(java.lang.Object)>", index: 0 }
+{ method: "<java.io.PrintWriter: void println(java.lang.String)>", index: 0 }
+
+{ method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence)>", index: 0 }
+{ method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence,int,int)>", index: 0 }
+{ method: "<java.io.PrintWriter: java.io.PrintWriter append(char)>", index: 0 }
+
+{ method: "<java.io.PrintWrite: java.io.PrintWrite printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+{ method: "<java.io.PrintWrite: java.io.PrintWrite printf(java.lang.String,java.lang.Object[])>", index: 1 }
+
+{ method: "<java.io.StringWriter: java.io.StringWriter append(java.lang.CharSequence)>", index: 0 }
+{ method: "<java.io.StringWriter: java.io.StringWriter append(java.lang.CharSequence,int,int)>", index: 0 }
+{ method: "<java.io.StringWriter: java.io.StringWriter append(char)>", index: 0 }
+
+{ method: "<java.io.StringWriter: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.StringWriter: void write(int)>", index: 0 }
+{ method: "<java.io.StringWriter: void write(java.lang.String,int,int)>", index: 0 }
+{ method: "<java.io.StringWriter: void write(java.lang.String)>", index: 0 }
+{ method: "<java.io.StringWriter: void write(char[])>", index: 0 }
+
+{ method: "<java.io.Writer: java.io.Writer append(java.lang.CharSequence)>", index: 0 }
+{ method: "<java.io.Writer: java.io.Writer append(java.lang.CharSequence,int,int)>", index: 0 }
+{ method: "<java.io.Writer: java.io.Writer append(char)>", index: 0 }
+
+{ method: "<java.io.Writer: void write(char[],int,int)>", index: 0 }
+{ method: "<java.io.Writer: void write(int)>", index: 0 }
+{ method: "<java.io.Writer: void write(java.lang.String,int,int)>", index: 0 }
+{ method: "<java.io.Writer: void write(java.lang.String)>", index: 0 }
+{ method: "<java.io.Writer: void write(char[])>", index: 0 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sources:
+{ kind: call, method: "<java.io.BufferedInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.BufferedInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.BufferedReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.BufferedReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.BufferedReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+{ kind: call, method: "<java.io.ByteArrayInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ByteArrayInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.CharArrayReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.CharArrayReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+{ kind: call, method: "<java.io.DataInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.DataInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.DataInputStream: void readFully(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.DataInputStream: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.DataInputStream: boolean readBoolean()>", index: result, type: "boolean" }
+{ kind: call, method: "<java.io.DataInputStream: byte readByte()>", index: result, type: "byte" }
+{ kind: call, method: "<java.io.DataInputStream: int readUnsignedByte()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.DataInputStream: short readShort()>", index: result, type: "short" }
+{ kind: call, method: "<java.io.DataInputStream: int readUnsignedShort()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.DataInputStream: char readChar()>", index: result, type: "char" }
+{ kind: call, method: "<java.io.DataInputStream: int readInt()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.DataInputStream: long readLong()>", index: result, type: "long" }
+{ kind: call, method: "<java.io.DataInputStream: float readFloat()>", index: result, type: "float" }
+{ kind: call, method: "<java.io.DataInputStream: double readDouble()>", index: result, type: "double" }
+{ kind: call, method: "<java.io.DataInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.DataInputStream: int readUnsignedByte()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.DataInputStream: int readUnsignedShort()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+
+{ kind: call, method: "<java.io.FileInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.FileInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.FileInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.FilterInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.FilterInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.FilterInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.FilterReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.FilterReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+{ kind: call, method: "<java.io.InputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.InputStream: int read(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.InputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.InputStreamReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.InputStreamReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+{ kind: call, method: "<java.io.LineNumberInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.LineNumberInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+{ kind: call, method: "<java.io.LineNumberReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.LineNumberReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.LineNumberReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+
+{ kind: call, method: "<java.io.ObjectInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ObjectInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.ObjectInputStream: boolean readBoolean()>", index: result, type: "boolean" }
+{ kind: call, method: "<java.io.ObjectInputStream: byte readByte()>", index: result, type: "byte" }
+{ kind: call, method: "<java.io.ObjectInputStream: char readChar()>", index: result, type: "char" }
+{ kind: call, method: "<java.io.ObjectInputStream: double readDouble()>", index: result, type: "double" }
+{ kind: call, method: "<java.io.ObjectInputStream: float readFloat()>", index: result, type: "float" }
+{ kind: call, method: "<java.io.ObjectInputStream: void readFully(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.ObjectInputStream: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.ObjectInputStream: int readInt()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.ObjectInputStream: long readLong()>", index: result, type: "long" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readObject()>", index: result, type: "java.lang.Object" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readObjectOverride()>", index: result, type: "java.lang.Object" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readUnshared()>", index: result, type: "java.lang.Object" }
+{ kind: call, method: "<java.io.ObjectInputStream: short readShort()>", index: result, type: "short" }
+{ kind: call, method: "<java.io.ObjectInputStream: int readUnsignedByte()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ObjectInputStream: int readUnsignedShort()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.ObjectInputStream: java.io.ObjectInputStream.GetField readFields()>", index: result, type: "java.io.ObjectInputStream.GetField" }
+
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: boolean defaulted(java.lang.String)>", index: result, type: "boolean" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: boolean get(java.lang.String,boolean)>", index: result, type: "boolean" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: byte get(java.lang.String,byte)>", index: result, type: "byte" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: char get(java.lang.String,char)>", index: result, type: "char" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: double get(java.lang.String,double)>", index: result, type: "double" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: float get(java.lang.String,float)>", index: result, type: "float" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: int get(java.lang.String,int)>", index: result, type: "int" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: java.lang.Object get(java.lang.String,java.lang.Object)>", index: result, type: "java.lang.Object" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: long get(java.lang.String,long)>", index: result, type: "long" }
+{ kind: call, method: "<java.io.ObjectInputStream.GetField: short get(java.lang.String,short)>", index: result, type: "short" }
+
+
+{ kind: call, method: "<java.io.PipedInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.PipedInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.PipedReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.PipedReader: int read(char[], int, int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.PushbackInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.PushbackInputStream: int read(byte[], int, int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.PushbackReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.PushbackReader: int read(char[], int, int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.RandomAccessFile: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: int read(byte[], int, int)>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: int read(byte[])>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: void readFully(byte[])>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.RandomAccessFile: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+{ kind: call, method: "<java.io.RandomAccessFile: boolean readBoolean()>", index: result, type: "boolean" }
+{ kind: call, method: "<java.io.RandomAccessFile: byte readByte()>", index: result, type: "byte" }
+{ kind: call, method: "<java.io.RandomAccessFile: int readUnsignedByte()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: short readShort()>", index: result, type: "short" }
+{ kind: call, method: "<java.io.RandomAccessFile: int readUnsignedShort()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: char readChar()>", index: result, type: "char" }
+{ kind: call, method: "<java.io.RandomAccessFile: int readInt()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: long readLong()>", index: result, type: "long" }
+{ kind: call, method: "<java.io.RandomAccessFile: float readFloat()>", index: result, type: "float" }
+{ kind: call, method: "<java.io.RandomAccessFile: double readDouble()>", index: result, type: "double" }
+{ kind: call, method: "<java.io.RandomAccessFile: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+{ kind: call, method: "<java.io.RandomAccessFile: int readUnsignedByte()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: int readUnsignedShort()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.RandomAccessFile: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+
+{ kind: call, method: "<java.io.Reader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.Reader: int read(char[], int, int)>", index: result, type: "int" }
+{ kind: call, method: "<java.io.Reader: int read(char[])>", index: result, type: "int" }
+{ kind: call, method: "<java.io.Reader: int read(java.nio.CharBuffer)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.SequenceInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.SequenceInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.StringBufferInputStream: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.StringBufferInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+{ kind: call, method: "<java.io.StringReader: int read()>", index: result, type: "int" }
+{ kind: call, method: "<java.io.StringReader: int read(char[],int,int)>", index: result, type: "int" }

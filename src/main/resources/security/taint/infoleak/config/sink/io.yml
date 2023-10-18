@@ -1,0 +1,172 @@
+sinks:
+  - { method: "<java.io.BufferedOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.BufferedOutputStream: void write(int)>", index: 0 }
+
+  - { method: "<java.io.BufferedWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.BufferedWriter: void write(int)>", index: 0 }
+  - { method: "<java.io.BufferedWriter: void write(java.lang.String,int,int)>", index: 0 }
+
+  - { method: "<java.io.ByteArrayOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.ByteArrayOutputStream: void write(int)>", index: 0 }
+  - { method: "<java.io.ByteArrayOutputStream: void writeTo(java.io.OutputStream)>", index: 0 }
+
+  - { method: "<java.io.CharArrayWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: void write(int)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: void write(java.lang.String,int,int)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: void writeTo(java.io.Writer)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: java.lang.CharSequence append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: java.lang.CharSequence append(java.lang.CharSequence,int,int)>", index: 0 }
+  - { method: "<java.io.CharArrayWriter: java.lang.CharSequence append(char)>", index: 0 }
+
+
+  - { method: "<java.io.DataOutputStream: void write(int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeBoolean(boolean)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeByte(int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeBytes(java.lang.String)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeChar(int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeChars(java.lang.String)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeDouble(double)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeFloat(float)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeInt(int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeLong(long)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeShort(int)>", index: 0 }
+  - { method: "<java.io.DataOutputStream: void writeUTF(java.lang.String)>", index: 0 }
+
+  - { method: "<java.io.FileOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.FileOutputStream: void write(int)>", index: 0 }
+  - { method: "<java.io.FileOutputStream: void write(byte[])>", index: 0 }
+
+  - { method: "<java.io.FilterOutputStream: void write(byte[])>", index: 0 }
+  - { method: "<java.io.FilterOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.FilterOutputStream: void write(int)>", index: 0 }
+
+  - { method: "<java.io.ObjectOutputStream: void write(int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void write(byte[])>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeBoolean(boolean)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeByte(int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeBytes(java.lang.String)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeChar(int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeChars(java.lang.String)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeDouble(double)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeFloat(float)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeInt(int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeLong(long)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeObject(java.lang.Object)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeShort(int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeUTF(java.lang.String)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void defaultWriteObject()>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream: void writeUnshared(java.lang.Object)>", index: 0 }
+
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,boolean)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,byte)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,char)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,short)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,int)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,long)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,float)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,double)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void put(java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.io.ObjectOutputStream.PutFiled: void write(java.io.ObjectOutput)>", index: 0 }
+
+  - { method: "<java.io.RandomAccessFile: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.RandomAccessFile: void write(int)>", index: 0 }
+  - { method: "<java.io.RandomAccessFile: void write(byte[])>", index: 0 }
+
+  - { method: "<java.io.OutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.OutputStream: void write(byte[])>", index: 0 }
+  - { method: "<java.io.OutputStream: void write(int)>", index: 0 }
+
+  - { method: "<java.io.OutputStreamWriter: void write(java.lang.String,int,int)>", index: 0 }
+  - { method: "<java.io.OutputStreamWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.OutputStreamWriter: void write(int)>", index: 0 }
+
+  - { method: "<java.io.PipedOutputStream: void write(byte[],int,int)>", index: 0 }
+  - { method: "<java.io.PipedOutputStream: void write(int)>", index: 0 }
+
+  - { method: "<java.io.PipedWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.PipedWriter: void write(int)>", index: 0 }
+
+  - { method: "<java.io.PrintStream: void print(boolean)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(char)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(int)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(long)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(float)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(double)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(char[])>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintStream: void print(java.lang.Object)>", index: 0 }
+
+  - { method: "<java.io.PrintStream: void println(boolean)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(char)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(int)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(long)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(float)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(double)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(char[])>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintStream: void println(java.lang.Object)>", index: 0 }
+
+  - { method: "<java.io.PrintStream: java.io.PrintStream printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream printf(java.lang.String,java.lang.Object[])>", index: 1 }
+
+  - { method: "<java.io.PrintStream: java.io.PrintStream append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream append(java.lang.CharSequence,int,int)>", index: 0 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream append(char)>", index: 0 }
+
+  - { method: "<java.io.PrintStream: java.io.PrintStream format(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+
+  - { method: "<java.io.PrintStream: void write(int)>", index: 0 }
+  - { method: "<java.io.PrintStream: void write(byte[],int,int)>", index: 0 }
+
+
+  - { method: "<java.io.PrintWriter: void print(boolean)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(char)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(long)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(float)>", index: 0}
+
+  - { method: "<java.io.PrintWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(java.lang.String,int,int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(char[])>", index: 0 }
+
+  - { method: "<java.io.PrintWriter: void println(boolean)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(char)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(char[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(double)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(float)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(long)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(java.lang.Object)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(java.lang.String)>", index: 0 }
+
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence,int,int)>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(char)>", index: 0 }
+
+  - { method: "<java.io.PrintWrite: java.io.PrintWrite printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 2 }
+  - { method: "<java.io.PrintWrite: java.io.PrintWrite printf(java.lang.String,java.lang.Object[])>", index: 1 }
+
+  - { method: "<java.io.StringWriter: java.io.StringWriter append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.StringWriter: java.io.StringWriter append(java.lang.CharSequence,int,int)>", index: 0 }
+  - { method: "<java.io.StringWriter: java.io.StringWriter append(char)>", index: 0 }
+
+  - { method: "<java.io.StringWriter: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.StringWriter: void write(int)>", index: 0 }
+  - { method: "<java.io.StringWriter: void write(java.lang.String,int,int)>", index: 0 }
+  - { method: "<java.io.StringWriter: void write(java.lang.String)>", index: 0 }
+  - { method: "<java.io.StringWriter: void write(char[])>", index: 0 }
+
+  - { method: "<java.io.Writer: java.io.Writer append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.Writer: java.io.Writer append(java.lang.CharSequence,int,int)>", index: 0 }
+  - { method: "<java.io.Writer: java.io.Writer append(char)>", index: 0 }
+
+  - { method: "<java.io.Writer: void write(char[],int,int)>", index: 0 }
+  - { method: "<java.io.Writer: void write(int)>", index: 0 }
+  - { method: "<java.io.Writer: void write(java.lang.String,int,int)>", index: 0 }
+  - { method: "<java.io.Writer: void write(java.lang.String)>", index: 0 }
+  - { method: "<java.io.Writer: void write(char[])>", index: 0 }
