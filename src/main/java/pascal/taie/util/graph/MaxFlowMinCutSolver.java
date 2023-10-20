@@ -1,15 +1,23 @@
 package pascal.taie.util.graph;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.util.MutableInt;
-import pascal.taie.util.collection.*;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.SetQueue;
+import pascal.taie.util.collection.Sets;
+import pascal.taie.util.collection.TwoKeyMap;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.ToIntFunction;
 
 public class MaxFlowMinCutSolver<N> {
-    private static final Logger logger = LogManager.getLogger(MaxFlowMinCutSolver.class);
     public static final int INVALID_WEIGHT = Integer.MAX_VALUE;
     private final N source;
     private final N target;
