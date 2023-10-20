@@ -29,14 +29,12 @@ These options specify the Java program (say _P_) and library to be analyzed.
 > Currently, Tai-e leverages Soot frontend to parse Java programs and help build Tai-e’s IR. Soot contains two frontends, one for parsing Java source files (.java) and the other one for bytecode files (.class). The former is outdated (only partially supports Java versions up to 7); while the latter, though quite robust (works properly for the .class files compiled by up to Java 17), cannot fully satisfy our requirements. Hence, we plan to develop our own frontend for Tai-e to address the above issues. For now, we advice using Tai-e to analyze _bytecode_, instead of source code, if possible.
 
 
-* Class paths (-cp, --class-path): `-cp <path>[:<path>...]`
-** Class paths for Tai-e to locate the classes of _P_, and multiple paths are separated by `;`. Currently, Tai-e supports following types of paths:
+* Class paths (-cp, --class-path): `-cp <path>[ -cp <path>...]`
+** Class paths for Tai-e to locate the classes of _P_, and this option can be repeated multiple times to specify multiple paths. Currently, Tai-e supports following types of paths:
 *** Relative/Absolute path to a jar file
 *** Relative/Absolute path to a directory which contains `.class` (or `.java`) files
 
-> Note that the path separator varies on different systems: it is `:` on Unix-like systems, and `;` on Windows.
-
-* Application class paths (-acp, --app-class-path): `-acp <path>[:<path>...]`
+* Application class paths (-acp, --app-class-path): `-acp <path>[ -acp <path>...]`
 ** Class paths for Tai-e to locate the application classes of _P_. The usage of this option is exactly the same as `-cp`.
 ** The difference between `-cp` and `-acp` is that for the classes in `-cp`, only the ones referenced by the application/main/input classes are added to the closed world of _P_; but all classes in `-acp` will be added to the closed world.
 
@@ -133,15 +131,16 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 
 We give an example of how to analyze a program by Tai-e. Suppose we want to analyze a program _P_ as described below:
 
-* _P_ consists of two jar files: `foo.jar` and `bar.jar`
+* _P_ consists of two files: `foo.jar` (a JAR file) and `my program/dir/bar.class` (a class file).
 * _P_'s main class is `baz.Main`
 * _P_ is analyzed together with Java 8
 * we run 2-type-sensitive pointer analysis and limit the execution time of pointer analysis to 60 seconds
 
 Then the options would be:
 
-[source,shell,subs="verbatim"]
+[source,shell,subs="+normal"]
 ----
-java -cp tai-e-all.jar pascal.taie.Main -cp foo.jar;bar.jar -m baz.Main -java 8 -a pta=cs:2-type;time-limit:60
+java -jar tai-e-all.jar -cp foo.jar -cp [underline]#"my program/dir/"# -m baz.Main -java 8 -a [underline]#"pta=cs:2-type;time-limit:60;"#
 ----
 
+> Note again that you need to [underline]#enclose command-line parameters in quotes# if they contain semicolons `;` or spaces `&#32;`.
