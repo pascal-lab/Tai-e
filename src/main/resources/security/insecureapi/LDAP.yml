@@ -5,7 +5,7 @@
              and when calling some APIs, if some parameters are not set correctly,
              the deserialization will be carried out.
   methodList:
-    - reference: "<javax.naming.directory.SearchControls: void init(int, long, int, java.lang.string[], boolean, boolean)"
+    - reference: "<javax.naming.directory.SearchControls: void init(int,long,int,java.lang.String[],boolean,boolean)"
       parameter: 'p4 = /"true"/'
     - reference: "<javax.naming.directory.SearchControls: void setReturningObjFlag(boolean)"
       parameter: 'p1 = /"true"/'

@@ -6,10 +6,9 @@
   methodList:
     - reference: "<java.lang.reflect.ReflectPermission: void init(java.lang.String)>"
       parameter: 'p1 = /"suppressAccessChecks"/'
-    - reference: "<java.lang.reflect.ReflectPermission: void init(java.lang.String, java.lang.String)>"
+    - reference: "<java.lang.reflect.ReflectPermission: void init(java.lang.String,java.lang.String)>"
       parameter: 'p1 = /"suppressAccessChecks"/'
     - reference: "<java.lang.RuntimePermission: void init(java.lang.String)>"
       parameter: 'p1 = /"createClassLoader"/'
-    - reference: "<java.lang.RuntimePermission: void init(java.lang.String, java.lang.String)>"
+    - reference: "<java.lang.RuntimePermission: void init(java.lang.String,java.lang.String)>"
       parameter: 'p1 = /"createClassLoader"/'
-

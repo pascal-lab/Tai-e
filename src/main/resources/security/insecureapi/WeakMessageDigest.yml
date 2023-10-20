@@ -10,9 +10,9 @@
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.security.Provider)>"
       parameter: 'p1 = /(?i)"MD[45]"/ | p1 = /(?i)"SHA(-?1)?"/'
     - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getDigest(java.util.String)>"
-      parameter: 'p1=/(?i)"MD[245]"|"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
     - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getDigest(java.util.String,java.security.MessageDigest)>"
-      parameter: 'p1=/(?i)"MD[245]"|"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
     - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getMd2Digest()>"
     - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md2(byte[])>"
     - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md2(java.io.InputStream)>"
@@ -42,8 +42,8 @@
     - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String shaHex(java.io.InputStream)>"
     - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String shaHex(java.lang.String)>"
     - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String)>"
-      parameter: 'p1=/(?i)"MD[245]"|"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
     - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String,java.security.Provider)>"
-      parameter: 'p1=/(?i)"MD[245]"|"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
     - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String,java.util.String)>"
-      parameter: 'p1=/(?i)"MD[245]"|"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
