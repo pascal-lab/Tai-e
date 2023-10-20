@@ -152,7 +152,13 @@ public class JavaClassManager {
         // TODO: add real paths;
         String JREs = "java-benchmarks/JREs";
         int javaVersion = World.get().getOptions().getJavaVersion();
-        String[] cps = World.get().getOptions().getClassPath().split(File.pathSeparator);
+        String classPath = World.get().getOptions().getClassPath();
+        String[] cps;
+        if (classPath != null) {
+            cps = classPath.split(File.pathSeparator);
+        } else {
+            cps = new String[0];
+        }
         List<String> res = new ArrayList<>(List.of(cps));
         if (javaVersion <= 8) {
             String jrePath = String.format("%s/jre" + "1.%d",

@@ -155,7 +155,12 @@ public final class StringReps {
         Type returnType = typeSystem.getType(subsig.substring(0, space));
         String name = subsig.substring(space + 1, leftBracket);
         String parameterTypesStr = subsig.substring(leftBracket + 1, subsig.length() - 1);
-        List<Type> parameterTypes = Arrays.stream(parameterTypesStr.split(",")).map(typeSystem::getType).toList();
+        List<Type> parameterTypes;
+        if (parameterTypesStr.isEmpty()) {
+            parameterTypes = List.of();
+        } else {
+            parameterTypes = Arrays.stream(parameterTypesStr.split(",")).map(typeSystem::getType).toList();
+        }
         return new Triple<>(name, parameterTypes, returnType);
     }
 
