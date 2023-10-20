@@ -1,29 +1,22 @@
 package pascal.taie.util.graph;
 
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.TwoKeyMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pascal.taie.util.MutableInt;
+import pascal.taie.util.collection.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.ToIntFunction;
 
 public class MaxFlowMinCutSolver<N> {
+    private static final Logger logger = LogManager.getLogger(MaxFlowMinCutSolver.class);
     public static final int INVALID_WEIGHT = Integer.MAX_VALUE;
     private final N source;
     private final N target;
     private final Graph<N> graph;
     private final ToIntFunction<Edge<N>> capacityCal;
     private MultiMap<N, N> successors;
-    private TwoKeyMap<N, N, Integer> edge2Capacity;
+    private TwoKeyMap<N, N, MutableInt> edge2Capacity;
     private TwoKeyMap<N, N, Edge<N>> new2init;
     private Map<N, N> node2pred;
     private Set<Edge<N>> result;
@@ -67,7 +60,7 @@ public class MaxFlowMinCutSolver<N> {
                 .flatMap(Collection::stream)
                 .forEach(edge -> {
                     //if (edge.source() != target && edge.target() != source) {
-                    recordCapacity(edge.source(), edge.target(), capacityCal.applyAsInt(edge));
+                    setCapacity(edge.source(), edge.target(), capacityCal.applyAsInt(edge));
                     new2init.put(edge.source(), edge.target(), edge);
                     //}
                 });
@@ -86,7 +79,7 @@ public class MaxFlowMinCutSolver<N> {
         }
         Set<N> sourceCanReach = sourceCanReach();
         for (N from : sourceCanReach) {
-            for (N to : getSuccessorsOf(from)) {
+            for (N to : graph.getSuccsOf(from)) {
                 // whether the condition need to compute nodes can reach sink or not
                 if (!sourceCanReach.contains(to) && new2init.get(from, to) != null) {
                     // add cut edge
@@ -104,9 +97,7 @@ public class MaxFlowMinCutSolver<N> {
             N curr = workList.poll();
             if (result.add(curr)) {
                 for (N successor : getSuccessorsOf(curr)) {
-                    if (getCapacity(curr, successor) > 0) {
-                        workList.addLast(successor);
-                    }
+                    workList.addLast(successor);
                 }
             }
         }
@@ -144,11 +135,11 @@ public class MaxFlowMinCutSolver<N> {
                 N to = path.get(i - 1);
                 int capacity = getCapacity(from, to);
                 if (capacity != INVALID_WEIGHT) {
-                    edge2Capacity.put(from, to, capacity - increase);
+                    setCapacity(from, to, capacity - increase);
                 }
                 capacity = getCapacity(to, from);
                 if (capacity != INVALID_WEIGHT) {
-                    edge2Capacity.put(to, from, capacity + increase);
+                    setCapacity(to, from, capacity + increase);
                 }
             }
         }
@@ -157,18 +148,19 @@ public class MaxFlowMinCutSolver<N> {
 
     private boolean bfs(N start) {
         Set<N> visited = Sets.newSet();
-        Deque<N> workList = new ArrayDeque<>();
-        workList.addLast(start);
+        SetQueue<N> workList = new SetQueue<>();
+        workList.add(start);
         while (!workList.isEmpty()) {
             N curr = workList.poll();
+            //logger.info("current visited nodes: {}", visited.size());
             if (visited.add(curr)) {
                 for (N to : getSuccessorsOf(curr)) {
-                    if (getCapacity(curr, to) > 0 && !visited.contains(to)) {
+                    if (!visited.contains(to)) {
                         node2pred.put(to, curr);
                         if (to.equals(target)) {
                             return true;
                         }
-                        workList.addLast(to);
+                        workList.add(to);
                     }
                 }
             }
@@ -176,26 +168,25 @@ public class MaxFlowMinCutSolver<N> {
         return false;
     }
 
-    /**
-     * @param from     source node
-     * @param to       target node
-     * @param capacity if testEdge is existing, then change the capacity,
-     *                 else add the edge with the capacity
-     */
-    private void recordCapacity(N from, N to, int capacity) {
-        successors.put(from, to);
-        edge2Capacity.put(from, to, capacity);
-    }
-
-
     private Set<N> getSuccessorsOf(N node) {
         return successors.get(node);
     }
 
     private int getCapacity(N from, N to) {
-        Integer capacity = edge2Capacity.get(from, to);
+        MutableInt capacity = edge2Capacity.get(from, to);
         // return 0 for avoiding initialize the edge capacity of the edge out of init graph
-        return Objects.requireNonNullElse(capacity, 0);
+        if (capacity == null) {
+            return 0;
+        }
+        return capacity.intValue();
     }
 
+    private void setCapacity(N from, N to, int capacity) {
+        if (capacity <= 0) {
+            successors.remove(from, to);
+        } else {
+            successors.put(from, to);
+        }
+        edge2Capacity.computeIfAbsent(from, to, (__, ___) -> new MutableInt(0)).set(capacity);
+    }
 }
