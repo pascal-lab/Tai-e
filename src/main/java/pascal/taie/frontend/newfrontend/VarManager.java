@@ -96,6 +96,17 @@ class VarManager {
         int slotOfCurrentParam = firstParamIndex;
         for (int NoOfParam = firstParamIndex; NoOfParam < method.getParamCount() + firstParamIndex; ++NoOfParam) {
             Var v = getLocal(slotOfCurrentParam);
+            if (existsLocalVariableTable) {
+                // in our assumption, the parameters would occupy a certain slot during the whole method.
+                int finalSlotOfCurrentParam = slotOfCurrentParam;
+                parsedLocalVarTable
+                        .keySet()
+                        .stream()
+                        .filter(t -> finalSlotOfCurrentParam == t.first())
+                        .findAny()
+                        .map(k -> parsedLocalVarTable.get(k).name)
+                        .ifPresent(v::setName);
+            }
             params.add(v);
             if (Utils.isTwoWord(method.getParamType(NoOfParam - firstParamIndex))) {
                 slotOfCurrentParam += 2;
