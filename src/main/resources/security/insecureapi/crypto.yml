@@ -144,7 +144,7 @@
 
 # ID:091
 - bugType: USAGE_OF_ESAPI_ENCRYPTOR
-  severity: Minor
+  severity: MINOR
   description: The ESAPI encryptor config needs being checked out.
   methodList:
     - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.CipherText encrypt(org.owasp.esapi.crypto.PlainText)>"

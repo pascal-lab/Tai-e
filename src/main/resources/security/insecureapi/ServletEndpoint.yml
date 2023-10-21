@@ -3,13 +3,13 @@
   severity: MINOR
   description: These APIs are insecure.
   methodList:
-    - reference: "<javax.servlet.ServletRequest: java.lang.String getParameter(java.lang.String)>"
-    - reference: "<javax.servlet.ServletRequest: java.util.Map getParameterMap()>"
-    - reference: "<javax.servlet.ServletRequest: java.util.Enumeration getParameterNames()>"
-    - reference: "<javax.servlet.ServletRequest: java.lang.String[] getParameterValues(java.lang.String)>"
-    - reference: "<javax.servlet.ServletRequest: java.lang.String getContentType()>"
-    - reference: "<javax.servlet.ServletRequest: java.lang.String getServerName()>"
-    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestedSessionId()>"
-    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getQueryString()>"
-    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestedSessionId()>"
-    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getHeader(java.lang.String)>"
+#    - reference: "<javax.servlet.ServletRequest: java.lang.String getParameter(java.lang.String)>"
+#    - reference: "<javax.servlet.ServletRequest: java.util.Map getParameterMap()>"
+#    - reference: "<javax.servlet.ServletRequest: java.util.Enumeration getParameterNames()>"
+#    - reference: "<javax.servlet.ServletRequest: java.lang.String[] getParameterValues(java.lang.String)>"
+#    - reference: "<javax.servlet.ServletRequest: java.lang.String getContentType()>"
+#    - reference: "<javax.servlet.ServletRequest: java.lang.String getServerName()>"
+#    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestedSessionId()>"
+#    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getQueryString()>"
+#    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestedSessionId()>"
+#    - reference: "<javax.servlet.http.HttpServletRequest: java.lang.String getHeader(java.lang.String)>"

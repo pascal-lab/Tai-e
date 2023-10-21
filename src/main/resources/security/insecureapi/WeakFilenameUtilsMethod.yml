@@ -3,13 +3,13 @@
   severity: MINOR
   description: Using these api without checking is insecure.
   methodList:
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getExtension(java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getBaseName(java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getName(java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalize(java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalize(java.lang.String,boolean)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalizeNoEndSeparator(java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalizeNoEndSeparator(java.lang.String,boolean)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: boolean isExtension(java.lang.String,java.lang.String)>"
-    - reference: "<org.apache.commons.io.FilenameUtils: boolean isExtension(java.lang.String,java.util.Collection)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getExtension(java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getBaseName(java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getName(java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalize(java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalize(java.lang.String,boolean)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalizeNoEndSeparator(java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String normalizeNoEndSeparator(java.lang.String,boolean)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: boolean isExtension(java.lang.String,java.lang.String)>"
+#    - reference: "<org.apache.commons.io.FilenameUtils: boolean isExtension(java.lang.String,java.util.Collection)>"
 
