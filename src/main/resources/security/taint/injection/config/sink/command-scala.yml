@@ -16,5 +16,5 @@ sinks:
   - { method: "<scala.sys.process.Process$: scala/collection/Seq apply(scala.collection.Seq,scala.Function1)>", index: 1 }
 
   - { method: "<scala.sys.process.package$: scala/sys/process/ProcessBuilder stringToProcess(java.lang.String)>", index: 0 }
-  - { method: "<scala.sys.process.package$: scala/sys/process/ProcessBuilder stringSeqToProcess(scala.collection.Seq)>", index: 0}
+  - { method: "<scala.sys.process.package$: scala/sys/process/ProcessBuilder stringSeqToProcess(scala.collection.Seq)>", index: 0 }
 

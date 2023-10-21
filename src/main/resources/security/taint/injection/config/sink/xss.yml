@@ -31,7 +31,7 @@ sinks:
   - { method: "<javax.servlet.ServletOutputStream: void print(java.lang.String)>", index: 0 }
   - { method: "<javax.servlet.ServletOutputStream: void println(java.lang.String)>", index: 0 }
 
-    # jsp
+  # jsp
   - { method: "<javax.servlet.jsp.JspWriter: void write(java.lang.String)>", index: 0 }
   - { method: "<javax.servlet.jsp.JspWriter: void write(java.lang.String,int,int)>", index: 2 }
   - { method: "<javax.servlet.jsp.JspWriter: void write(char[])>", index: 0 }

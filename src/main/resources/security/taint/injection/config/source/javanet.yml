@@ -1,3 +1,3 @@
 sources:
-- { kind: call, method: "<java.net.URL: java.lang.Object getContent()>", index: result, type: "java.lang.Object" }
-- { kind: call, method: "<java.net.URL: java.lang.Object getContent(java.lang.Class[])>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.net.URL: java.lang.Object getContent()>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.net.URL: java.lang.Object getContent(java.lang.Class[])>", index: result, type: "java.lang.Object" }
