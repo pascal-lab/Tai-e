@@ -45,15 +45,15 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
     private static final Logger logger = LogManager.getLogger(InsecureAPIUsageDetector.class);
 
     /**
-     Store the map from methodRef(String) to parameters(Set<String>)
-    */
+     * Store the map from methodRef(String) to parameters(Set<String>)
+     */
     private final MultiMap<String, String> paramPatternMap;
 
     /**
-     Store the map from InsecureAPI to APIBugInfo
-     it's convenient to get the information to create
-     the BugInstance via this map
-    */
+     * Store the map from InsecureAPI to APIBugInfo
+     * it's convenient to get the information to create
+     * the BugInstance via this map
+     */
     private final Map<InsecureAPI, SecurityBugInfo> bugInfoMap;
 
     /**
@@ -61,7 +61,7 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
      */
     private final Set<String> insecureMethodRef;
 
-    public InsecureAPIUsageDetector(AnalysisConfig config){
+    public InsecureAPIUsageDetector(AnalysisConfig config) {
         super(config);
         String configPath = config.getOptions().get("config-dir").toString();
         InsecureAPIBugConfig bugConfig = InsecureAPIBugConfig.readConfig(configPath);
@@ -71,12 +71,12 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
 
         bugConfig.getBugSet().forEach(bug ->
                 bug.getInsecureAPISet().forEach(insecureAPI -> {
-                    if(insecureAPI.paramRegex() != null) {
+                    if (insecureAPI.paramRegex() != null) {
                         paramPatternMap.put(insecureAPI.reference(), insecureAPI.paramRegex());
                     }
                     bugInfoMap.put(insecureAPI, bug);
                     insecureMethodRef.add(insecureAPI.reference());
-        }));
+                }));
     }
 
     @Override
@@ -85,26 +85,29 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
         ir.invokes(false)
                 .filter(invoke -> insecureMethodRef.contains(invoke.getMethodRef().toString()))
                 .forEach(invoke -> {
-            SecurityBugInfo info = getBugInfo(invoke);
-            if(info != null){
-                bugInstances.add(new BugInstance(info.getBugType(), info.getSeverity(), ir.getMethod())
-                        .setSourceLine(invoke.getLineNumber()));
-            }
-        });
+                    SecurityBugInfo info = getBugInfo(invoke);
+                    if (info != null) {
+                        bugInstances.add(new BugInstance(info.getBugType(), info.getSeverity(), ir.getMethod())
+                                .setSourceLine(invoke.getLineNumber()));
+                    }
+                });
+        if (!bugInstances.isEmpty()) {
+            bugInstances.forEach(logger::info);
+        }
         return bugInstances;
     }
 
     /**
-     Use the information of invoke to get APIBugInfo.
-     APIBugInfo may be null, which means matching failed
-
-     @return corresponding APIBugInfo if matching successful, otherwise null
+     * Use the information of invoke to get APIBugInfo.
+     * APIBugInfo may be null, which means matching failed
+     *
+     * @return corresponding APIBugInfo if matching successful, otherwise null
      */
     @Nullable
-    private SecurityBugInfo getBugInfo(Invoke invoke){
+    private SecurityBugInfo getBugInfo(Invoke invoke) {
         String matchedPattern = null;
-        for(String patternRegex : paramPatternMap.get(invoke.getMethodRef().toString())){
-            if(ParamCondPredictor.test(invoke.getInvokeExp().getArgs(), patternRegex)){
+        for (String patternRegex : paramPatternMap.get(invoke.getMethodRef().toString())) {
+            if (ParamCondPredictor.test(invoke.getInvokeExp().getArgs(), patternRegex)) {
                 matchedPattern = patternRegex;
                 break;
             }
