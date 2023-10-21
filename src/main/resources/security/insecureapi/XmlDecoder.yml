@@ -1,0 +1,13 @@
+# ID:086
+- bugType: XML_DECODER_WITHOUT_SECURE_PROCESSING
+  severity: MAJOR
+  description: >-
+              XMLDecoder supports arbitrary method invocation,
+              which may lead to RCE if the input is from an untrusted source without secure processing.
+  methodList:
+    - reference: "<java.beans.XMLDecoder: void init(org.xml.sax.InputSource)>"
+    - reference: "<java.beans.XMLDecoder: void init(java.io.InputStream)>"
+    - reference: "<java.beans.XMLDecoder: void init(java.io.InputStream,java.lang.Object)>"
+    - reference: "<java.beans.XMLDecoder: void init(java.io.InputStream,java.lang.Object,java.beans.ExceptionListener)>"
+    - reference: "<java.beans.XMLDecoder: void init(java.io.InputStream,java.lang.Object,java.beans.ExceptionListener,java.lang.ClassLoader)>"
+

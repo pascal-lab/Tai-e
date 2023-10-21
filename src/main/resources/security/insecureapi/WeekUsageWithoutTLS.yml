@@ -1,0 +1,22 @@
+# ID:023
+- bugType: DEFAULTHTTPCLIENT_CONSTRUCTOR_USAGE # which is not compatible with TLSv1.2.
+  severity: MAJOR
+  description: This constructor of DefaultHttpClient is not recommended, because it does not include TLSv1.2.
+  methodList:
+    - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>()>"
+    - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.params.HttpParams)>"
+    - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.conn.ClientConnectionManager)>"
+    - reference: "<org.apache.http.impl.client.DefaultHttpClient: void <init>(org.apache.http.conn.ClientConnectionManager,org.apache.http.params.HttpParams)>"
+
+# ID:024
+- bugType: SSL_CONTEXT_USAGE # which is worse than TLS
+  severity: CRITICAL
+  description: The SSLContext.getInstance() method with argument SSL is not recommended, because it uses SSL instead of TLS.
+  methodList:
+    - reference: "<javax.net.ssl.SSLContext: javax.net.ssl.SSLContext getInstance(java.lang.String)>"
+      parameter: 'p1 = /(?i)"SSL"/'
+    - reference: "<javax.net.ssl.SSLContext: javax.net.ssl.SSLContext getInstance(java.lang.String,java.lang.String)>"
+      parameter: 'p1 = /(?i)"SSL"/'
+    - reference: "<javax.net.ssl.SSLContext: javax.net.ssl.SSLContext getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /(?i)"SSL"/'
+    - reference: "<javax.net.ssl.SSLContext: javax.net.ssl.SSLContext getDefault()>"

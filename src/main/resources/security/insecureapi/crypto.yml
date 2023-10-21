@@ -1,15 +1,55 @@
+# ID:021 022
 - bugType: WEAK_MESSAGE_DIGEST
   severity: CRITICAL
-  description: The algorithms MD2, MD5 and SHA-1 are not a recommended MessageDigest.
+  description: The algorithms MD2, MD4, MD5 and SHA-1 are not recommended MessageDigests.
   methodList:
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String)>"
-      parameter: 'p1 = /(?i)"MD[25]"/ | p1 = /(?i)"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[45]"/ | p1 = /(?i)"SHA(-?1)?"/'
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.lang.String)>"
-      parameter: 'p1 = /(?i)"MD[25]"/ | p1 = /(?i)"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[45]"/ | p1 = /(?i)"SHA(-?1)?"/'
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.security.Provider)>"
-      parameter: 'p1 = /(?i)"MD[25]"/ | p1 = /(?i)"SHA(-?1)?"/'
+      parameter: 'p1 = /(?i)"MD[45]"/ | p1 = /(?i)"SHA(-?1)?"/'
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getDigest(java.util.String)>"
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getDigest(java.util.String,java.security.MessageDigest)>"
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getMd2Digest()>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md2(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md2(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md2(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md2Hex(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md2Hex(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md2Hex(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getMd5Digest()>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md5(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md5(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] md5(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md5Hex(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md5Hex(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String md5Hex(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getSha1Digest()>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.security.MessageDigest getShaDigest()>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha1(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha1(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: byte[] sha1(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String sha1Hex(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String sha1Hex(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String sha1Hex(java.lang.String)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String shaHex(byte[])>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String shaHex(java.io.InputStream)>"
+    - reference: "<org.apache.commons.codec.digest.DigestUtils: java.util.String shaHex(java.lang.String)>"
+    - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String)>"
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
+    - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String,java.security.Provider)>"
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
+    - reference: "<java.security.Signature: java.security.Signature getInstance(java.util.String,java.util.String)>"
+      parameter: 'p1 = /(?i)"MD[245]"|"SHA(-?1)?"/'
 
-- bugType: NULL_CIPHER_USE #063
+# ID:063
+- bugType: NULL_CIPHER_USE
   severity: CRITICAL
   description: >-
              The NullCipher provides the same cipher text as plaintext,
@@ -17,7 +57,8 @@
   methodList:
     - reference: "<javax.crypto.NullCipher: void init()>"
 
-- bugType: UNENCRYPTED_SOCKET #064 065
+# ID:064 065
+- bugType: UNENCRYPTED_SOCKET
   severity: CRITICAL
   description: >-
              If the communication channel used is not encrypted,
@@ -32,27 +73,36 @@
     - reference: "<java.net.ServerSocket: void init(int,int)>"
     - reference: "<java.net.ServerSocket: void init(int,int,java.net.InetAddress)>"
 
-- bugType: DES_AND_DESede_IS_INSECURE #066 067
+# ID:066 067
+- bugType: DES_AND_DESede_IS_INSECURE
   severity: CRITICAL
   description: >-
              The DES/DESede algorithm, cannot provide a strong enough protection
              for classified information and should be deprecated.
   methodList:
     - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String)>"
-      parameter: 'p1 = /"^DES.*"/'
+      parameter: 'p1 = /"DES.*"/'
     - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.lang.String)>"
-      parameter: 'p1 = /"^DES.*"/'
+      parameter: 'p1 = /"DES.*"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /"DES.*"/'
 
-- bugType: RSA_WITHOUT_PADDING_IS_INSECURE #068
+# ID:068
+- bugType: RSA_WITHOUT_PADDING_IS_INSECURE
   severity: MINOR
   description: >-
              The RSA algorithm without paddling can allow an attacker to obtain the statistical
              properties of the plaintext from a large number of ciphertexts, which is vulnerable.
   methodList:
     - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String)>"
-      parameter: 'p1 = /"RSA.+NoPaddling"/' # to do
+      parameter: 'p1 = /"RSA.+NoPaddling"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.lang.String)>"
+      parameter: 'p1 = /"RSA.+NoPaddling"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /"RSA.+NoPaddling"/'
 
-- bugType: CIPHER_WITHOUT_INTEGRITY_IS_INSECURE #088 089 090
+# ID:088 089 090
+- bugType: CIPHER_WITHOUT_INTEGRITY_IS_INSECURE
   severity: CRITICAL
   description: >-
              CBC/OFB/CTR/ECB encryption algorithms do not undergo integrity checking,
@@ -60,9 +110,17 @@
              without passing the integrity check, which is dangerous.
   methodList:
     - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String)>"
-      parameter: 'p1 = /"\w+?\/CBC\/\w+"/ | p1 = /"\w+?\/ECB\/\w+"/' # when the parameter contains CBC or ECB, it is dangerous // 090 088
+      parameter: 'p1 = /".*CBC.*"/ | p1 = /"(AES|DES(ede)?)\/ECB.*"/' # when the parameter contains CBC or ECB, it is dangerous // 090 088
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.lang.String)>"
+      parameter: 'p1 = /".*CBC.*"/ | p1 = /"(AES|DES(ede)?)\/ECB.*"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /".*CBC.*"/ | p1 = /"(AES|DES(ede)?)\/ECB.*"/'
     - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String)>"
-      parameter: 'p1 = /".*CBC\/PKCS5Padding$"/' # when the parameter contains CBC/PKCS5Padding, it is dangerous // 089
+      parameter: 'p1 = /".*CBC\/PKCS5Padding"/' # when the parameter contains CBC/PKCS5Padding, it is dangerous // 089
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.lang.String)>"
+      parameter: 'p1 = /".*CBC\/PKCS5Padding"/'
+    - reference: "<javax.crypto.Cipher: javax.crypto.Cipher getInstance(java.lang.String,java.security.Provider)>"
+      parameter: 'p1 = /".*CBC\/PKCS5Padding"/'
 
 # 088-090 further information
 # javax.crypto.Cipher.getInstance 可出现的参数
@@ -80,5 +138,16 @@
 # DESede/ECB/NoPadding (168)
 # DESede/ECB/PKCS5Padding (168)
 # RSA/ECB/PKCS1Padding (1024, 2048)
-# RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
-# RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
+# RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)  is OK
+# RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048) is OK
+
+
+# ID:091
+- bugType: USAGE_OF_ESAPI_ENCRYPTOR
+  severity: Minor
+  description: The ESAPI encryptor config needs being checked out.
+  methodList:
+    - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.CipherText encrypt(org.owasp.esapi.crypto.PlainText)>"
+    - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.CipherText encrypt(javax.crypto.SecretKey,org.owasp.esapi.crypto.PlainText)>"
+    - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.PlainText decrypt(org.owasp.esapi.crypto.CipherText)>"
+    - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.PlainText decrypt(javax.crypto.SecretKey,org.owasp.esapi.crypto.CipherText)>"

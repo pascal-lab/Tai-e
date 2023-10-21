@@ -1,0 +1,12 @@
+# ID:121
+- bugType:  SAML_NOT_IGNORE_COMMENTS
+  severity: CRITICAL
+  description: >-
+    The SAMLResponse message include statements that describe the authenticated user.
+    If a user manage to place XML comments (<!-- -->),
+    it may caused issue in the way the parser extract literal value.
+  methodList:
+    - reference: "<org.opensaml.xml.parse.BasicParserPool: void setIgnoreComments(boolean)>"
+      parameter: 'p1 = /false/'
+    - reference: "<org.opensaml.xml.parse.StaticBasicParserPool: void setIgnoreComments(boolean)>"
+      parameter: 'p1 = /false/'

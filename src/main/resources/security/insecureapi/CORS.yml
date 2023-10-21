@@ -1,4 +1,5 @@
-- bugType: PERMISSIVE_CORS #104
+# ID:104
+- bugType: PERMISSIVE_CORS
   severity: CRITICAL
   description: >-
              An overly broad CORS policy can lead to potential

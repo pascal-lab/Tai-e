@@ -1,0 +1,12 @@
+# ID:074
+- bugType: INSUFFICIENT_KEY_SIZE_OF_BLOWFISH
+  severity: MINOR
+  description: The key size of Blowfish might be not enough, please check out.
+  methodList:
+
+
+# ID:075
+- bugType: INSUFFICIENT_KEY_SIZE_OF_RSA
+  severity: MINOR
+  description: The key size of RSA might be not enough, please check out.
+  methodList:

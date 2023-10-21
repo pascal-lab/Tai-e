@@ -1,0 +1,9 @@
+# ID:107
+- bugType:  PERSISTENT_COOKIE_USAGE
+  severity: MINOR
+  description: >-
+    Storing sensitive data in a persistent cookie for an extended period
+    can lead to a breach of confidentiality or account compromise.
+    So please check the maximum age of the cookie.
+  methodList:
+    - reference: "<javax.servlet.http.Cookie: void setMaxAge(int)>"
