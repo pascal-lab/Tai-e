@@ -1,5 +1,7 @@
 package pascal.taie.project;
 
+import pascal.taie.World;
+
 public abstract class AbstractFileContainer implements FileContainer {
     public AnalysisFile locate(ClassLocation restLocation) {
         assert restLocation.hasNext() : "If a ClassLocation is terminated, never pass it to another locate call.";
@@ -23,7 +25,8 @@ public abstract class AbstractFileContainer implements FileContainer {
     }
 
     protected static boolean isTarget(AnalysisFile file, String className) {
-        if (!(file instanceof ClassFile) && ! (file instanceof JavaSourceFile)) {
+        if (!(file instanceof ClassFile) && ! (!World.get().getOptions().getNoAppendJava()
+            && file instanceof JavaSourceFile)) {
             return false;
         }
 

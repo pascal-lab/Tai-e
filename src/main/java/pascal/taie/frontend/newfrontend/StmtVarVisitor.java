@@ -46,9 +46,9 @@ import java.util.function.Consumer;
  * }
  * </pre>
  */
-class StmtVarVisitor {
+public class StmtVarVisitor {
 
-    static void visitUse(Stmt stmt, Consumer<Var> consumer) {
+    public static void visitUse(Stmt stmt, Consumer<Var> consumer) {
         if (stmt instanceof Cast cast) {
             consumer.accept(cast.getRValue().getValue());
         } else if (stmt instanceof InstanceOf instanceOf) {
@@ -104,7 +104,7 @@ class StmtVarVisitor {
         }
     }
 
-    static void visitDef(Stmt stmt, Consumer<Var> consumer) {
+    public static void visitDef(Stmt stmt, Consumer<Var> consumer) {
         if (stmt instanceof AssignStmt<?,?> assignStmt) {
             LValue l = assignStmt.getLValue();
             if (l instanceof Var v) {

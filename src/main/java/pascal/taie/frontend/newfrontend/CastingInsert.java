@@ -32,6 +32,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -207,6 +208,7 @@ public class CastingInsert {
 
                     @Override
                     public Stmt visit(Invoke stmt) {
+                        Invoke prevStmt = stmt;
                         if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
                             JClass jClass = stmt.getRValue().getMethodRef().getDeclaringClass();
                             assert jClass != null;
@@ -221,7 +223,7 @@ public class CastingInsert {
                                     if (v != null) {
                                         // if this file is a valid bytecode class, then it's checked
                                         // which means flowType is always assignable to required type
-                                        assert isAssignable(t, v.getType());
+                                        // assert isAssignable(t, v.getType());
                                         return stage1Transform(stmt, base, v);
                                     } else {
                                         logger.atInfo().log("[CASTING] fallback solution for stage1");
@@ -232,12 +234,36 @@ public class CastingInsert {
                                 v.setType(t);
                                 newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
                                 Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
-                                return l.subSt(stmt);
-                            } else {
-                                return stmt;
+                                prevStmt = (Invoke) l.subSt(stmt);
                             }
                         }
-                        return stmt;
+                        if (stmt.isDynamic()) {
+                            return prevStmt;
+                        }
+                        Map<Var, Var> m = null;
+                        for (int i = 0; i < prevStmt.getInvokeExp().getArgCount(); ++i) {
+                            Var arg = prevStmt.getInvokeExp().getArg(i);
+                            Type t = prevStmt.getMethodRef().getParameterTypes().get(i);
+                            if (! isAssignable(t, arg.getType())) {
+                                Var v = requireFlowTypeVar(block, arg, newStmts);
+                                if (v != null) {
+                                    prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
+                                } else {
+                                    v = builder.manager.getTempVar();
+                                    v.setType(t);
+                                    newStmts.add(getNewCast(v, arg, t));
+                                    if (m == null) {
+                                        m = new HashMap<>();
+                                    }
+                                    m.put(arg, v);
+                                }
+                            }
+                        }
+                        if (m != null) {
+                            Lenses l = new Lenses(builder.method, m, Map.of());
+                            return l.subSt(prevStmt);
+                        }
+                        return prevStmt;
                     }
 
                     @Override

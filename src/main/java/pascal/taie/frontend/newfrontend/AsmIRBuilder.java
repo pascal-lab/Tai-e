@@ -27,6 +27,7 @@ import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.graph.cfg.ExtraEdgeAppender;
 import pascal.taie.config.AnalysisConfig;
+import pascal.taie.frontend.newfrontend.info.VarReporter;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -68,6 +69,7 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Catch;
+import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
@@ -127,7 +129,7 @@ public class AsmIRBuilder {
 
     private final Map<Exp, AbstractInsnNode> exp2origin;
 
-    final Map<AbstractInsnNode, Stmt> asm2Stmt;
+    final Stmt[] asm2Stmt;
 
     final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
 
@@ -139,19 +141,23 @@ public class AsmIRBuilder {
 
     private List<ExceptionEntry> exceptionEntries;
 
+    private final List<Phi> phiList;
+
     private static final Logger logger = LogManager.getLogger();
 
     public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
         this.method = method;
         this.source = methodSource.adapter();
+        assert method.getName().equals(source.name);
         this.classFileVersion = methodSource.classFileVersion();
         this.isEmpty = source.instructions.size() == 0;
         this.manager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals);
-        this.asm2Stmt = Maps.newMap(source.instructions.size());
+        this.asm2Stmt = new Stmt[source.instructions.size()];
         this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
         this.stmts = new ArrayList<>();
+        this.phiList = new ArrayList<>();
     }
 
     public void build() {
@@ -175,6 +181,8 @@ public class AsmIRBuilder {
             stageTimer.endTypelessIR();
             verify();
             this.ir = getIR();
+
+            VarReporter.get().report(source.maxLocals, manager.getVars().size());
         }
         // TODO: check how to handle empty method
     }
@@ -286,7 +294,13 @@ public class AsmIRBuilder {
     }
 
     private boolean verifyInStmts(Stmt stmt) {
-        return this.stmts.get(stmt.getIndex()) == stmt;
+        return stmt.getIndex() != -1 &&
+                this.stmts.size() > stmt.getIndex() &&
+                this.stmts.get(stmt.getIndex()) == stmt;
+    }
+
+    private int getIndex(AbstractInsnNode node) {
+        return source.instructions.indexOf(node);
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
@@ -346,9 +360,10 @@ public class AsmIRBuilder {
 
     private List<Stmt> clearStmt(AbstractInsnNode node) {
         List<Stmt> res = new ArrayList<>();
-        if (asm2Stmt.containsKey(node)) {
-            res.add(asm2Stmt.get(node));
-            asm2Stmt.remove(node);
+        int idx = getIndex(node);
+        if (asm2Stmt[idx] != null) {
+            res.add(asm2Stmt[idx]);
+            asm2Stmt[idx] = null;
         }
         if (auxiliaryStmts.containsKey(node)) {
             res.addAll(auxiliaryStmts.get(node));
@@ -358,8 +373,9 @@ public class AsmIRBuilder {
     }
 
     private void assocStmt(AbstractInsnNode node, Stmt stmt) {
-        if (! asm2Stmt.containsKey(node)) {
-            asm2Stmt.put(node, stmt);
+        int idx = getIndex(node);
+        if (asm2Stmt[idx] == null) {
+            asm2Stmt[idx] = stmt;
         } else {
             assocListStmt(node, stmt);
         }
@@ -375,6 +391,17 @@ public class AsmIRBuilder {
     }
 
     private Var toVar(Exp e) {
+        assert ! (e instanceof Var v && manager.isTempVar(v));
+        if (e instanceof Phi phi) {
+            if (phi.getVar() != null) {
+                return phi.getVar();
+            }
+            phi.setUsed();
+            Var v = manager.getTempVar();
+            phi.setVar(v);
+            return v;
+        }
+
         Var v;
         if (e instanceof NullLiteral) {
             // $null could be used without assign
@@ -392,7 +419,7 @@ public class AsmIRBuilder {
         // if reach here
         // this method should only be called once (normally)
         AbstractInsnNode orig = getOrig(e);
-        if (! asm2Stmt.containsKey(orig)) {
+        if (false) {
 //            logger.atInfo().log("[IR] Multiple expression belonging to one bytecode" + "\n" +
 //                                "     It may be an error, you should check IR." + "\n" +
 //                                "     In method: " + method.toString());
@@ -414,7 +441,11 @@ public class AsmIRBuilder {
     private Stmt popToVar(Stack<Exp> stack, Var v) {
         Exp top = popExp(stack);
         // Note: Var . getUses() will return empty set
-        ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
+        if (top instanceof Phi phi) {
+            top = toVar(phi);
+        } else {
+            ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
+        }
         return getAssignStmt(v, top);
     }
 
@@ -454,7 +485,7 @@ public class AsmIRBuilder {
     private void ensureStackSafety(Stack<Exp> stack, Function<Exp, Boolean> predicate) {
         for (int i = 0; i < stack.size(); ++i) {
             Exp e = stack.get(i);
-            if (e instanceof Top) {
+            if (e instanceof Top || e instanceof Phi) {
                 continue;
             }
             if (predicate.apply(e)) {
@@ -464,7 +495,7 @@ public class AsmIRBuilder {
     }
 
     private boolean maySideEffect(Exp e) {
-        return !(e instanceof Var);
+        return !(e instanceof Var || e instanceof Phi);
     }
 
     private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
@@ -504,7 +535,7 @@ public class AsmIRBuilder {
         BytecodeBlock block = label2Block.get(label);
         if (block == null || block.getStmts().isEmpty()) {
             if (block != null) {
-                logger.atWarn().log(method + ", empty block / labels : " + label);
+                logger.atTrace().log(method + ", empty block / labels : " + label);
             }
             AbstractInsnNode next = label.getNext();
             if (next instanceof LabelNode labelNode) {
@@ -512,11 +543,11 @@ public class AsmIRBuilder {
             } else {
                 logger.atTrace().log("[IR] All possible method fail to get a valid stmt for a label" + "\n" +
                                     "     Please check IR of this method: " + method);
-                while (! asm2Stmt.containsKey(next)) {
+                while (asm2Stmt[getIndex(next)] == null) {
                     next = next.getNext();
                     assert next != null;
                 }
-                return asm2Stmt.get(next);
+                return asm2Stmt[getIndex(next)];
             }
         }
 
@@ -536,8 +567,10 @@ public class AsmIRBuilder {
         if (node instanceof JumpInsnNode jump) {
             Stmt first = getFirstStmt(jump.label);
             if (stmt instanceof Goto gotoStmt) {
+                assert first != null;
                 gotoStmt.setTarget(first);
             } else if (stmt instanceof If ifStmt) {
+                assert first != null;
                 ifStmt.setTarget(first);
             } else if (stmt instanceof Return) {
                 return;
@@ -867,15 +900,7 @@ public class AsmIRBuilder {
         }
     }
 
-    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
-        List<Stmt> auxiliary = new ArrayList<>();
-        Stack<Exp> nowStack1 = new Stack<>();
-        Stack<Exp> target1 = new Stack<>();
-        nowStack1.addAll(nowStack);
-        target1.addAll(target);
-        while (! nowStack1.isEmpty()) {
-            mergeStack1(auxiliary, nowStack1, target1);
-        }
+    private void appendStackMergeStmts(BytecodeBlock bb, List<Stmt> auxiliary) {
         if (!auxiliary.isEmpty()) {
             AbstractInsnNode lastBytecode = bb.getLastBytecode();
             if (isCFEdge(lastBytecode)) {
@@ -890,6 +915,18 @@ public class AsmIRBuilder {
                 auxiliary.forEach(stmt -> assocStmt(lastBytecode, stmt));
             }
         }
+    }
+
+    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
+        List<Stmt> auxiliary = new ArrayList<>();
+        Stack<Exp> nowStack1 = new Stack<>();
+        Stack<Exp> target1 = new Stack<>();
+        nowStack1.addAll(nowStack);
+        target1.addAll(target);
+        while (! nowStack1.isEmpty()) {
+            mergeStack1(auxiliary, nowStack1, target1);
+        }
+        appendStackMergeStmts(bb, auxiliary);
         assert target1.empty();
     }
 
@@ -900,7 +937,18 @@ public class AsmIRBuilder {
                 popToEffect(stack);
                 popToEffect(stack);
             }
-            case Opcodes.DUP -> dup(stack, 1, 0);
+            case Opcodes.DUP -> {
+                Exp e = stack.pop();
+                assert ! (e instanceof Top);
+                Var op;
+                if (e instanceof Var v) {
+                    op = v;
+                } else {
+                    op = toVar(e);
+                }
+                stack.push(op);
+                stack.push(op);
+            }
             case Opcodes.DUP2 -> dup(stack, 2, 0);
             case Opcodes.DUP_X1 -> dup(stack, 1, 1);
             case Opcodes.DUP_X2 -> dup(stack, 1, 2);
@@ -920,7 +968,14 @@ public class AsmIRBuilder {
 
     private void buildBlockStmt(BytecodeBlock block) {
         manager.clearConstCache();
-        Stack<Exp> inStack = block.getInStack();
+        Stack<Exp> inStack;
+        if (block.getInStack() == null) {
+            inStack = getInStack(block);
+            block.setInStack(inStack);
+        } else {
+            inStack = block.getInStack();
+        }
+        assert inStack != null || block.isCatch();
         Stack<Exp> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
@@ -942,6 +997,7 @@ public class AsmIRBuilder {
                 }
             }
         } else {
+            assert inStack != null;
             nowStack.addAll(inStack);
         }
 
@@ -953,21 +1009,185 @@ public class AsmIRBuilder {
         // if there is no out edges, it must be a return / throw block
         // do nothing
         // else, perform stack assign merge
-        if (!block.outEdges().isEmpty()) {
-            if (block.getOutStack() == null) {
-                // Web has not been constructed. So all the succs do not have inStack.
-                block.setOutStack(regularizeStack(block, nowStack));
-            } else {
-                Stack<Exp> target = block.getOutStack();
-                mergeStack(block, nowStack, target);
+//        if (!block.outEdges().isEmpty()) {
+//            if (block.getOutStack() == null) {
+//                // Web has not been constructed. So all the succs do not have inStack.
+//                block.setOutStack(regularizeStack(block, nowStack));
+//            } else {
+//                Stack<Exp> target = block.getOutStack();
+//                mergeStack(block, nowStack, target);
+//            }
+//        }
+
+//        if (block.outEdges().size() > 1) {
+//            for (int i = 0; i < nowStack.size(); ++i) {
+//                Exp e = nowStack.get(i);
+//                if (! (e instanceof Top || e instanceof Var || e instanceof Phi)) {
+//                    nowStack.set(i, toVar(e));
+//                }
+//            }
+//        }
+
+        for (BytecodeBlock outEdge : block.outEdges()) {
+            if (outEdge.getInStack() != null) {
+                assert outEdge.getInStack().size() == nowStack.size();
+                for (int i = 0; i < nowStack.size(); ++i) {
+                    Exp exp = outEdge.getInStack().get(i);
+                    if (nowStack.get(i) == Top.Top) {
+                        assert exp == Top.Top;
+                        continue;
+                    }
+                    assert exp instanceof Phi;
+                    Phi phi = (Phi) exp;
+                    phi.addNodes(nowStack.get(i));
+                }
+            }
+        }
+        block.setOutStack(nowStack);
+
+        // collect all the stmts associated with this block.
+
+    }
+
+    private Stack<Exp> getInStack(BytecodeBlock block) {
+        Stack<Exp> inStack;
+        if (block.inEdges().isEmpty()) {
+            inStack = null;
+        } else {
+            inStack = new Stack<>();
+            List<Stack<Exp>> stacks = new ArrayList<>();
+            for (BytecodeBlock inEdge : block.inEdges()) {
+                if (inEdge.getOutStack() != null) {
+                    stacks.add(inEdge.getOutStack());
+                }
+            }
+            boolean canFastMerge = stacks.size() == block.inEdges().size();
+            for (int i = 0; i < stacks.get(0).size(); ++i) {
+                List<Exp> exps = new ArrayList<>();
+                for (Stack<Exp> stack : stacks) {
+                    Exp exp = stack.get(i);
+                    if (!exps.contains(exp)) {
+                        exps.add(exp);
+                    }
+                }
+                boolean allSame = exps.size() == 1;
+                Exp e = exps.get(0);
+                if ((e instanceof Top) ||
+                        (allSame && canFastMerge && exps.get(0) instanceof Var)) {
+                    inStack.add(e);
+                } else {
+                    Phi phi = new Phi(i, exps, block);
+                    inStack.add(phi);
+                    phiList.add(phi);
+                }
+            }
+        }
+        return inStack;
+    }
+
+    private void solveAllPhiAndOutput() {
+        solvePhis();
+        label2Block.forEach((k, v) -> {
+            applyPhis(v);
+            outputIR(v);
+        });
+    }
+
+    MultiMap<Phi, Var> mergedVars = Maps.newMultiMap();
+
+    private void solvePhis() {
+        for (Phi phi : phiList) {
+            if (phi.getVar() != null) {
+                propagatePhiVar(phi, phi.getVar());
             }
         }
 
-        // collect all the stmts associated with this block.
+        for (Phi phi : phiList) {
+            if (phi.getVar() == null) {
+                Set<Var> merged = mergedVars.get(phi);
+                if (merged.size() == 1) {
+                    phi.setVar(merged.iterator().next());
+                } else if (merged.size() > 1) {
+                    phi.setVar(manager.getTempVar());
+                }
+            }
+        }
+    }
+
+    private void propagatePhiVar(Phi current, Var var) {
+        if (! mergedVars.get(current).contains(var)) {
+            mergedVars.put(current, var);
+            for (Exp node : current.getNodes()) {
+                if (node instanceof Phi phi) {
+                    propagatePhiVar(phi, var);
+                }
+            }
+        }
+    }
+
+    private void applyPhis(BytecodeBlock block) {
+        if (block.getOutStack().isEmpty()) {
+            return;
+        }
+        Map<Var, Integer> killed = Maps.newMap();
+        List<Stmt> auxiliary = new ArrayList<>();
+        for (BytecodeBlock outEdge : block.outEdges()) {
+            Stack<Exp> inStack = outEdge.getInStack();
+            Stack<Exp> outStack = block.getOutStack();
+            for (int i = 0; i < inStack.size(); ++i) {
+                if (inStack.get(i) == Top.Top) {
+                    assert outStack.get(i) == Top.Top;
+                    continue;
+                }
+                Var var;
+                if (inStack.get(i) instanceof Phi phi){
+                    var = phi.getVar();
+                } else {
+                    continue;
+                }
+                Exp e = outStack.get(i);
+                if (var != null) {
+                    if (e instanceof Var v) {
+                        if (var != v) {
+                            auxiliary.add(new Copy(var, v));
+                        }
+                    } else if (e instanceof Phi phi1) {
+                        Var right = phi1.getVar();
+                        assert right != null;
+                        if (var != right) {
+                            if (killed.containsKey(right)) {
+                                Var temp = manager.getTempVar();
+                                int pos = killed.get(right);
+                                Stmt stmt = auxiliary.get(pos);
+                                auxiliary.add(pos, new Copy(temp, right));
+                                auxiliary.set(pos + 1, new Lenses(this.method,
+                                        Map.of(right, temp), Map.of())
+                                        .subSt(stmt));
+                                right = temp;
+                            }
+                            auxiliary.add(new Copy(var, right));
+                            killed.put(var, auxiliary.size() - 1);
+                        }
+                    } else {
+                        // TODO: current impl is not safe
+                        auxiliary.add(getAssignStmt(var, e));
+                    }
+                } else {
+                    if (maySideEffect(e)) {
+                        Var v = toVar(e);
+                        outStack.set(i, v);
+                    }
+                }
+            }
+        }
+        appendStackMergeStmts(block, auxiliary);
+    }
+
+    private void outputIR(BytecodeBlock block) {
         List<Integer> stmt2Asm = new ArrayList<>();
         for (int i = 0; i < block.instr().size(); ++i) {
             AbstractInsnNode insnNode = block.instr().get(i);
-            Stmt stmt = asm2Stmt.get(insnNode);
+            Stmt stmt = asm2Stmt[getIndex(insnNode)];
             if (stmt != null) {
                 block.getStmts().add(stmt);
                 stmt2Asm.add(i);
@@ -1240,9 +1460,11 @@ public class AsmIRBuilder {
             }
             collectJumpLabels(bb, now).forEach(label -> {
                 BytecodeBlock target = getBlock(label);
-                target.inEdges().add(bb);
-                bb.outEdges().add(target);
-                queue.add(label);
+                if (! bb.outEdges().contains(target)) {
+                    target.inEdges().add(bb);
+                    bb.outEdges().add(target);
+                    queue.add(label);
+                }
             });
             bb.setComplete();
         }
@@ -1432,8 +1654,7 @@ public class AsmIRBuilder {
         // because they could be separated by exception labelNodes.
         // i.e. GOTO, SWITCH.
         // But if succ is empty, the concatenation is ok.
-        int opcode = pred.getLastBytecode().getOpcode();
-        if ((opcode == Opcodes.GOTO || opcode == Opcodes.TABLESWITCH || opcode == Opcodes.LOOKUPSWITCH) && !succ.instr().isEmpty())
+        if (isCFEdge(pred.getLastBytecode()) && !succ.instr().isEmpty())
             return false;
 
         // Main concatenating process:
@@ -1505,6 +1726,7 @@ public class AsmIRBuilder {
                 }
             }
         }
+        solveAllPhiAndOutput();
     }
 
     private void setLineNumber() {
@@ -1518,7 +1740,7 @@ public class AsmIRBuilder {
                         logger.atDebug().log("[IR] no line number info, method: " + method);
                         return;
                     }
-                    var stmt = asm2Stmt.get(insnNode);
+                    var stmt = asm2Stmt[getIndex(insnNode)];
                     if (stmt != null) {
                         stmt.setLineNumber(currentLineNumber);
                     }

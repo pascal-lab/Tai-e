@@ -80,9 +80,9 @@ class VarManager {
         this.parsedLocalVarTable = existsLocalVariableTable ? Maps.newMap() : null;
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
-        this.vars = new ArrayList<>();
+        this.vars = new ArrayList<>(maxLocal * 6);
         this.retVars = new HashSet<>();
-        this.blockConstCache = Maps.newMap();
+        this.blockConstCache = Maps.newHybridMap();
 
         if (existsLocalVariableTable) {
             processLocalVarTable();
@@ -95,6 +95,7 @@ class VarManager {
         int firstParamIndex = method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
         for (int NoOfParam = firstParamIndex; NoOfParam < method.getParamCount() + firstParamIndex; ++NoOfParam) {
+            assert slotOfCurrentParam < maxLocal;
             Var v = getLocal(slotOfCurrentParam);
             if (existsLocalVariableTable) {
                 // in our assumption, the parameters would occupy a certain slot during the whole method.
@@ -376,7 +377,7 @@ class VarManager {
         return Objects.requireNonNullElse(i, -1);
     }
 
-    int getSlotFast(Var var) {
+    static int getSlotFast(Var var) {
         return var.getIndex();
     }
 }

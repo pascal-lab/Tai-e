@@ -265,7 +265,7 @@ public class AsmClassBuilder implements JClassBuilder {
                     .toList();
             this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
-            this.paramAnnotations = Maps.newMap();
+            this.paramAnnotations = null;
         }
 
 
@@ -294,16 +294,16 @@ public class AsmClassBuilder implements JClassBuilder {
         @Override
         public void visitEnd() {
             super.visitEnd();
-            List<AnnotationHolder> l = new ArrayList<>();
-            for (int i = 0; i < paramTypes.size(); ++i) {
-                List<Annotation> annotations1 = paramAnnotations.getOrDefault(i, null);
-                AnnotationHolder h = annotations1 == null ?
-                        null : AnnotationHolder.make(annotations1);
-                l.add(h);
-            }
+//            List<AnnotationHolder> l = new ArrayList<>();
+//            for (int i = 0; i < paramTypes.size(); ++i) {
+//                List<Annotation> annotations1 = paramAnnotations;
+//                AnnotationHolder h = annotations1 == null ?
+//                        null : AnnotationHolder.make(annotations1);
+//                l.add(h);
+//            }
             JMethod method = new JMethod(jClass, methodName, modifiers, paramTypes,
                     retType, exceptions,
-                    AnnotationHolder.make(annotations), l,
+                    AnnotationHolder.make(annotations), null,
                     paramName,
                     null);
             AsmClassBuilder.this.methods.add(method);

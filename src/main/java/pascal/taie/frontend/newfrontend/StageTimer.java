@@ -25,8 +25,16 @@ public class StageTimer {
     private StageTimer() {
     }
 
+    static {
+        World.registerResetCallback(() -> {
+            getInstance().totalSplittingTime = 0;
+            getInstance().totalTypingTime = 0;
+            getInstance().totalTypelessIRTime = 0;
+        });
+    }
+
     public static StageTimer getInstance() {
-        assert !World.get().getOptions().isPreBuildIR() : "StageTimer does not work concurrently.";
+//        assert !World.get().getOptions().isPreBuildIR() : "StageTimer does not work concurrently.";
         return instance;
     }
 

@@ -64,7 +64,11 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
             // input classes please refer to AbstractProjectBuilder.getInputClasses().
             List<String> classesStr = options.getInputClasses();
             classesStr.add(options.getMainClass());
-            classes = classesStr.stream().map(hierarchy::getClass).toList();
+            classes = classesStr.stream()
+                    .filter(s -> s != null && !s.isEmpty())
+                    .map(hierarchy::getClass)
+                    .distinct()
+                    .toList();
         } else {
             classes = hierarchy.allClasses().toList();
         }

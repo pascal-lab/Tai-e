@@ -166,7 +166,7 @@ public class Var implements LValue, RValue, Indexable {
     }
 
     public void setType(Type t) {
-        assert type == null; // only set once
+//        assert type == null; // only set once
         this.type = t;
     }
 

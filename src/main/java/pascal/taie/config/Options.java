@@ -316,6 +316,15 @@ public class Options implements Serializable {
         return noAppendJava;
     }
 
+    @JsonProperty
+    @Option(names = {"--no-parallel-cw"},
+            defaultValue = "false")
+    private boolean useNonParallelCWAlgorithm;
+
+    public boolean getUseNonParallelCWAlgorithm() {
+        return useNonParallelCWAlgorithm;
+    }
+
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */

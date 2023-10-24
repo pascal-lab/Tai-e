@@ -208,7 +208,7 @@ public class VarWebSplitter {
             int finalI = i;
             StmtVarVisitor.visitUse(stmt, (use) -> {
                 if (varManager.isLocalFast(use)) {
-                    int slot = varManager.getSlotFast(use);
+                    int slot = VarManager.getSlotFast(use);
                     int color = currentDefs[slot];
                     assert color != Colors.NOT_EXIST;
                     StmtOccur occur = new StmtOccur(block, finalI, Kind.USE, slot, color);
@@ -218,7 +218,7 @@ public class VarWebSplitter {
 
             StmtVarVisitor.visitDef(stmt, (def) -> {
                 if (varManager.isLocalFast(def)) {
-                    int slot = varManager.getSlotFast(def);
+                    int slot = VarManager.getSlotFast(def);
                     int newColor = colors.getNewColor(slot);
                     StmtOccur occur = new StmtOccur(block, finalI, Kind.DEF, slot, newColor);
                     colors.noticeOneOccur(occur);

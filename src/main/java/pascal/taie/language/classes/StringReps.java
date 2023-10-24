@@ -132,14 +132,30 @@ public final class StringReps {
                 ")";
     }
 
+//    public static String toSubsignature(String name, List<Type> parameterTypes, Type returnType) {
+//        return returnType + " " +
+//                name +
+//                "(" +
+//                parameterTypes.stream()
+//                        .map(Type::toString)
+//                        .collect(Collectors.joining(",")) +
+//                ")";
+//    }
+
     public static String toSubsignature(String name, List<Type> parameterTypes, Type returnType) {
-        return returnType + " " +
-                name +
-                "(" +
-                parameterTypes.stream()
-                        .map(Type::toString)
-                        .collect(Collectors.joining(",")) +
-                ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append(returnType.toString());
+        sb.append(" ");
+        sb.append(name);
+        sb.append("(");
+        for (int i = 0; i < parameterTypes.size(); i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(parameterTypes.get(i).toString());
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     /**

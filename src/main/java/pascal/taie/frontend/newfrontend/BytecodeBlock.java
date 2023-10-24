@@ -118,24 +118,38 @@ public final class BytecodeBlock {
 
     public void setInStack(Stack<Exp> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
-        assert frame == null ||
-                inStack.stream().filter(i -> i instanceof Var).count() == frame.stack.size();
+//        assert frame == null ||
+//                inStack.stream().filter(i -> i instanceof Var).count() == frame.stack.size();
         this.inStack = inStack;
-        for (var pred : inEdges) {
-            if (pred.outStack == null) {
-                pred.setOutStack(inStack);
-            }
-        }
+//        AbstractInsnNode node = instr.get(0);
+//        int popHeight = 0;
+//        while (node != null &&
+//                (node.getOpcode() == Opcodes.POP || node.getOpcode() == Opcodes.POP2)) {
+//            if (node.getOpcode() == Opcodes.POP) {
+//                popHeight++;
+//            } else {
+//                popHeight += 2;
+//            }
+//            node = node.getNext();
+//        }
+//        if (popHeight == inStack.size()) {
+//            return;
+//        }
+//        for (var pred : inEdges) {
+//            if (pred.outStack == null) {
+//                pred.setOutStack(inStack);
+//            }
+//        }
     }
 
     public void setOutStack(Stack<Exp> outStack) {
         assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
-        for (var succ : outEdges) {
-            if (succ.inStack == null) {
-                succ.setInStack(outStack);
-            }
-        }
+//        for (var succ : outEdges) {
+//            if (succ.inStack == null) {
+//                succ.setInStack(outStack);
+//            }
+//        }
     }
 
     public AbstractInsnNode getLastBytecode() {
@@ -172,11 +186,19 @@ public final class BytecodeBlock {
                 Var v;
                 if (e instanceof Top) {
                     n++;
-                    v = (Var) inStack.get(n);
-                } else {
-                    v = (Var) e;
+                    e = inStack.get(n);
                 }
-                typing.put(v, Utils.fromAsmFrameType(frame.stack.get(i)));
+
+                if (e instanceof Phi phi) {
+                    v = phi.getVar();
+                } else if (e instanceof Var v1) {
+                    v = v1;
+                } else {
+                    v = null;
+                }
+                if (v != null) {
+                    typing.put(v, Utils.fromAsmFrameType(frame.stack.get(i)));
+                }
                 n++;
             }
         } else {
@@ -199,6 +221,24 @@ public final class BytecodeBlock {
             }
         }
         tryCorrectFrame(n);
+        if (inStack != null) {
+            n = 0;
+            for (Exp e : inStack) {
+                if (e == Top.Top) {
+                    continue;
+                }
+                if (e instanceof Var v) {
+                    int slot = VarManager.getSlotFast(v);
+                    if (slot != -1) {
+                        for (int k = frameLocalType.size(); k <= slot; ++k) {
+                            frameLocalType.add(0);
+                        }
+                        frameLocalType.set(slot, frame.stack.get(n));
+                    }
+                }
+                n++;
+            }
+        }
     }
 
     private void ensureLocalType() {

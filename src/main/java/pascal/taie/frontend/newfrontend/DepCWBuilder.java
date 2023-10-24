@@ -79,7 +79,11 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             target.addAll(p.getInputClasses());
             target.addAll(loadNecessaryClasses());
             target.addAll(basicClassesList);
-            buildClosure(target);
+            if (World.get().getOptions().getUseNonParallelCWAlgorithm()) {
+                buildClosureNonParallel(target);
+            } else {
+                buildClosure(target);
+            }
             timer.stop();
             StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
         } catch (IOException e) {
@@ -129,6 +133,24 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                     } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }
+                }
+            }
+        }
+    }
+
+    private void buildClosureNonParallel(List<String> binaryNames) {
+        Queue<String> workList = new LinkedList<>(binaryNames);
+        Set<String> founded = Sets.newHybridSet();
+
+        while (! workList.isEmpty()) {
+            String now = workList.poll();
+            if (! founded.contains(now)) {
+                founded.add(now);
+                try {
+                    List<String> deps = buildDeps(now);
+                    workList.addAll(deps);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }

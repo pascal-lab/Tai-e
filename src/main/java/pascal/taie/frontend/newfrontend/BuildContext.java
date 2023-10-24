@@ -26,7 +26,6 @@ import pascal.taie.util.collection.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 public class BuildContext {
@@ -150,7 +149,8 @@ public class BuildContext {
         BuildContext ctx = this;
 
         JClass c = method.getDeclaringClass();
-        synchronized (c) {
+        assert source.getClassName().equals(c.getName());
+        synchronized (source) {
             if (method2Source.get(method) == null) {
                 source.r().accept(new ClassVisitor(Opcodes.ASM9) {
                     @Override

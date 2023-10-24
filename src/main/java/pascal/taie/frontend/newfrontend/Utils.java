@@ -357,12 +357,12 @@ public class Utils {
     static Set<ReferenceType> minimum(Set<ClassType> in) {
         Set<ClassType> removed = Sets.newHybridSet();
         for (ClassType t1: in) {
-            for (ClassType t2 : in) {
-                if (isAssignable(t1, t2)) {
-                    if (t1 != t2) {
-                        removed.add(t1);
-                    }
-                }
+            if (removed.contains(t1)) {
+                continue;
+            } else {
+                Set<ClassType> upper = upperClosure(t1);
+                upper.remove(t1);
+                removed.addAll(upper);
             }
         }
         in.removeAll(removed);
@@ -472,7 +472,7 @@ public class Utils {
         }
     }
 
-    static Set<ClassType> upperClosure(ClassType type) {
+    public static Set<ClassType> upperClosure(ClassType type) {
         Queue<JClass> workList = new LinkedList<>();
         workList.add(type.getJClass());
         Set<ClassType> res = Sets.newHybridSet();
@@ -511,6 +511,7 @@ public class Utils {
         ClassType CLONEABLE = Utils.getCloneable();
         ClassType SERIALIZABLE = Utils.getSerializable();
 
+        assert subtype != null;
         if (subtype.equals(supertype)) {
             return true;
         } else if (subtype instanceof NullType) {
@@ -547,16 +548,50 @@ public class Utils {
     }
 
     private static boolean isSubclass(ClassType supertype, ClassType subtype) {
-        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
         // disable type checking for phantom
         if (World.get().getOptions().isAllowPhantom()) {
             if (supertype.getJClass().isPhantom() || subtype.getJClass().isPhantom()) {
                 return true;
             }
         }
-        return hierarchy.isSubclass(
-                supertype.getJClass(),
-                subtype.getJClass());
+        JClass subClass = subtype.getJClass();
+        JClass superClass = supertype.getJClass();
+        if (subClass.getName().equals(ClassNames.OBJECT)) {
+            return subClass == superClass;
+        }
+        if (!subClass.isInterface() && !superClass.isInterface()) {
+            return isSubclassOnly(subClass, superClass);
+        } else if (subClass.isInterface() && !superClass.isInterface()) {
+            return subClass.getSuperClass() == superClass;
+        } else {
+            return isSubInterfaces(subClass, superClass);
+        }
+    }
+
+    private static boolean isSubclassOnly(JClass subClass, JClass superClass) {
+        assert !subClass.isInterface() && !superClass.isInterface();
+        JClass realSuperClass = subClass.getSuperClass();
+        if (realSuperClass == null) {
+            return false;
+        }
+        return realSuperClass == superClass || isSubclassOnly(realSuperClass, superClass);
+    }
+
+    private static boolean isSubInterfaces(JClass subClass, JClass superClass) {
+        assert superClass.isInterface();
+        JClass realSuperClass = subClass.getSuperClass();
+        if (realSuperClass == null) {
+            return false;
+        }
+        if (isSubInterfaces(realSuperClass, superClass)) {
+            return true;
+        }
+        for (JClass i : subClass.getInterfaces()) {
+            if (i == superClass || isSubInterfaces(i, superClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {
@@ -571,8 +606,11 @@ public class Utils {
      * @return if <code>t1 <- t2</code> is valid
      */
     public static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
+        if (t1 == t2) {
+            return true;
+        }
         if (t1 instanceof PrimitiveType) {
-            return t1 == t2 || isIntAssignable(t1, t2);
+            return isIntAssignable(t1, t2);
         } else if (t1 == getReflectArray() && t2 instanceof ArrayType) {
             return true;
         } else {
