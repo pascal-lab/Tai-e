@@ -1,6 +1,6 @@
 # ID:?
 - bugType: SERVLET_ENDPOINT
-  severity: MINOR
+  severity: MINOR # LOW
   description: These APIs are insecure.
   methodList:
 #    - reference: "<javax.servlet.ServletRequest: java.lang.String getParameter(java.lang.String)>"

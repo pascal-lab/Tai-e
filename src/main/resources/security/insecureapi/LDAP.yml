@@ -1,6 +1,6 @@
 # ID:106
 - bugType:  LDAP_ENTRY_POISONING
-  severity: CRITICAL
+  severity: CRITICAL # NORMAL
   description: >-
              The JNDI API supports binding serialized objects in the LDAP directory,
              and when calling some APIs, if some parameters are not set correctly,

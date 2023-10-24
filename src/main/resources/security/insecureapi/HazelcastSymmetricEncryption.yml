@@ -1,6 +1,6 @@
 # ID:062
 - bugType: HAZELCAST_SYMMETRIC_ENCRYPTION
-  severity: CRITICAL
+  severity: CRITICAL # NORMAL
   description: Hazelcast symmetric encryption is useless in encryption, which is insecure, but it is deprecated.
   methodList:
     - reference: "<com.hazelcast.config.SymmetricEncryptionConfig: void <init>()>"

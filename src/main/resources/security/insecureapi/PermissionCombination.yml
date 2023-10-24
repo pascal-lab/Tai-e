@@ -1,6 +1,6 @@
 # ID:126
 - bugType:  DANGEROUS_PERMISSION_COMBINATION
-  severity: CRITICAL
+  severity: CRITICAL # NORMAL
   description: >-
     Certain combinations of permission can produce significant capability increases and should not
     be granted

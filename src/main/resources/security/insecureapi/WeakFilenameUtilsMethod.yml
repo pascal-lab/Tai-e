@@ -1,6 +1,6 @@
 # ID:014
 - bugType: WEAK_FILENAME_UTILS_METHOD
-  severity: MINOR
+  severity: MINOR # LOW
   description: Using these api without checking is insecure.
   methodList:
 #    - reference: "<org.apache.commons.io.FilenameUtils: java.lang.String getExtension(java.lang.String)>"

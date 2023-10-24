@@ -1,6 +1,6 @@
 # ID:086
 - bugType: XML_DECODER_WITHOUT_SECURE_PROCESSING
-  severity: MAJOR
+  severity: MAJOR # HIGH
   description: >-
               XMLDecoder supports arbitrary method invocation,
               which may lead to RCE if the input is from an untrusted source without secure processing.

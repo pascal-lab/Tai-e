@@ -1,6 +1,6 @@
 # ID:119
 - bugType:  ENABLED_EXTENSIONS_IN_APACHE_XML_RPC
-  severity: CRITICAL
+  severity: CRITICAL # HIGH
   description: >-
     Enabling extensions in Apache XML RPC server or client can lead to deserialization vulnerability,
     which would allow an attacker to execute arbitrary code.

@@ -1,6 +1,6 @@
 # ID:039
 - bugType: SPRING_CSRF_PROTECTION_DISABLED
-  severity: CRITICAL
+  severity: CRITICAL # HIGH
   description: Spring CSRF protection is disabled, which is insecure.
   methodList:
     - reference: "<org.springframework.security.config.annotation.web.configurers.CsrfConfigurer: java.lang.Object disable()>"

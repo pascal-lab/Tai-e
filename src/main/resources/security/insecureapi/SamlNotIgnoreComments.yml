@@ -1,6 +1,6 @@
 # ID:121
 - bugType:  SAML_NOT_IGNORE_COMMENTS
-  severity: CRITICAL
+  severity: CRITICAL # HIGH
   description: >-
     The SAMLResponse message include statements that describe the authenticated user.
     If a user manage to place XML comments (<!-- -->),

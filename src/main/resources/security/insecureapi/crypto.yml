@@ -1,6 +1,6 @@
 # ID:021 022
 - bugType: WEAK_MESSAGE_DIGEST
-  severity: CRITICAL
+  severity: CRITICAL # 021->HIGH 022->NORMAL
   description: The algorithms MD2, MD4, MD5 and SHA-1 are not recommended MessageDigests.
   methodList:
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String)>"
@@ -50,7 +50,7 @@
 
 # ID:063
 - bugType: NULL_CIPHER_USE
-  severity: CRITICAL
+  severity: CRITICAL # NORMAL
   description: >-
              The NullCipher provides the same cipher text as plaintext,
              which is dangerous for the confidentiality.
@@ -59,7 +59,7 @@
 
 # ID:064 065
 - bugType: UNENCRYPTED_SOCKET
-  severity: CRITICAL
+  severity: CRITICAL # 064->NORMAL 065->NORMAL
   description: >-
              If the communication channel used is not encrypted,
              the traffic can be read by an attacker, which is dangerous.
@@ -75,7 +75,7 @@
 
 # ID:066 067
 - bugType: DES_AND_DESede_IS_INSECURE
-  severity: CRITICAL
+  severity: CRITICAL # 066->NORMAL 067->LOW
   description: >-
              The DES/DESede algorithm, cannot provide a strong enough protection
              for classified information and should be deprecated.
@@ -89,7 +89,7 @@
 
 # ID:068
 - bugType: RSA_WITHOUT_PADDING_IS_INSECURE
-  severity: MINOR
+  severity: MINOR # NORMAL
   description: >-
              The RSA algorithm without paddling can allow an attacker to obtain the statistical
              properties of the plaintext from a large number of ciphertexts, which is vulnerable.
@@ -103,7 +103,7 @@
 
 # ID:088 089 090
 - bugType: CIPHER_WITHOUT_INTEGRITY_IS_INSECURE
-  severity: CRITICAL
+  severity: CRITICAL # HIGH
   description: >-
              CBC/OFB/CTR/ECB encryption algorithms do not undergo integrity checking,
              and an attacker can arbitrarily tamper with the encrypted ciphertext
@@ -144,7 +144,7 @@
 
 # ID:091
 - bugType: USAGE_OF_ESAPI_ENCRYPTOR
-  severity: MINOR
+  severity: MINOR # NORMAL
   description: The ESAPI encryptor config needs being checked out.
   methodList:
     - reference: "<org.owasp.esapi.reference.crypto.JavaEncryptor: org.owasp.esapi.crypto.CipherText encrypt(org.owasp.esapi.crypto.PlainText)>"
