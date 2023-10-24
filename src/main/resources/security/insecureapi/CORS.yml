@@ -6,10 +6,10 @@
              information disclosure or other attacks
   methodList:
     - reference:  "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.String,java.lang.String)>"
-      parameter: 'p2 = /"\*.*"/' # when the second parameter's header is '*', it's dangerous
+      parameter: 'p1 = /"Access-Control-Allow-Origin"/ & p2 = /".*\*.*"/' # when the second parameter's header contains '*', it's dangerous
     - reference:  "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.String,java.lang.String)>"
-      parameter: 'p2 = /"null"/' # when the second parameter is "null", it's dangerous
+      parameter: 'p1 = /"Access-Control-Allow-Origin"/ & p2 = /"null"/' # when the second parameter is "null", it's dangerous
     - reference:  "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.String,java.lang.String)>"
-      parameter: 'p2 = /"\*.*"/' # when the second parameter's header is '*', it's dangerous
+      parameter: 'p1 = /"Access-Control-Allow-Origin"/ & p2 = /".*\*.*"/' # when the second parameter's header contains '*', it's dangerous
     - reference:  "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.String,java.lang.String)>"
-      parameter: 'p2 = /"null"/' # when the second parameter is "null", it's dangerous
+      parameter: 'p1 = /"Access-Control-Allow-Origin"/ & p2 = /"null"/' # when the second parameter is "null", it's dangerous
