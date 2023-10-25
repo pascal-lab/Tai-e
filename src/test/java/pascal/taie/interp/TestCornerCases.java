@@ -31,6 +31,25 @@ public class TestCornerCases {
         Assert.assertEquals("0\n1\n", outputStream.toString());
     }
 
+    @Test
+    public void testSwap2() {
+        init("SwapExample2");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        VM vm = new VM();
+        vm.exec();
+        Assert.assertEquals("0\n1\n", outputStream.toString());
+    }
+
+    @Test
+    public void testSwap3() {
+        init("SwapExample3");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+        VM vm = new VM();
+        vm.exec();
+        Assert.assertEquals("0\n1\n", outputStream.toString());
+    }
 
     @Test
     public void testCornerCase1() {
