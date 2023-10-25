@@ -39,12 +39,11 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,22 +51,39 @@ import static pascal.taie.frontend.newfrontend.Utils.*;
 
 public class TypeInference0 {
 
-    AsmIRBuilder builder;
+    private final AsmIRBuilder builder;
 
-    MultiMap<Var, Type> localTypeConstrains;
+    private final List<Set<Type>> localTypeConstrains;
 
-    MultiMap<Var, Type> localTypeAssigns;
+    private final List<Set<Type>> localTypeAssigns;
+
+    private final int[] localCells;
+
+    private final int varSize;
 
     public TypeInference0(AsmIRBuilder builder) {
         this.builder = builder;
-        localTypeConstrains = Maps.newMultiMap();
-        localTypeAssigns = Maps.newMultiMap();
+        varSize = builder.manager.getVars().size();
+
+        localTypeConstrains = new ArrayList<>(Collections.nCopies(varSize, null));
+        localTypeAssigns = new ArrayList<>(Collections.nCopies(varSize, null));
+        localCells = builder.manager.getSlotTable();
     }
 
+    private void putMultiSet(List<Set<Type>> set, Var v, Type t) {
+        if (set.get(v.getIndex()) == null) {
+            set.set(v.getIndex(), Sets.newHybridSet());
+        }
+        set.get(v.getIndex()).add(t);
+    }
 
     private void setTypeForLocal() {
-        for (Var v : localTypeAssigns.keySet()) {
+        for (int i = 0; i < varSize; ++i) {
+            Var v = builder.manager.getVars().get(i);
             if (v.getType() != null) {
+                continue;
+            }
+            if (localTypeAssigns.get(i) == null) {
                 continue;
             }
             Type now = computeLocalType(v);
@@ -77,13 +93,16 @@ public class TypeInference0 {
     }
 
     private Type computeLocalType(Var v) {
-        Set<Type> allTypes = localTypeAssigns.get(v);
+        Set<Type> allTypes = localTypeAssigns.get(v.getIndex());
         assert !allTypes.isEmpty();
         Type now = allTypes.iterator().next();
         if (allTypes.size() == 1) {
             return now;
         }
-        Set<Type> constrains = localTypeConstrains.get(v);
+        Set<Type> constrains = localTypeConstrains.get(v.getIndex());
+        if (constrains == null) {
+            constrains = Set.of();
+        }
         for (Type t : allTypes) {
             if (now instanceof PrimitiveType) {
                 assert t == now || canHoldsInt(t) && canHoldsInt(now);
@@ -99,7 +118,7 @@ public class TypeInference0 {
                     now = res.iterator().next();
                 } else {
                     now = null;
-                    int count = 0;
+                    int count = -1;
                     for (ReferenceType type : res) {
                         int newCount = (int) constrains.stream()
                                 .filter(c -> isAssignable(c, type)).count();
@@ -122,14 +141,14 @@ public class TypeInference0 {
         if (v.getType() != null) {
             return v.getType();
         } else {
-            Type t = typing.typing().get(v);
+            Type t = typing.getType(v);
             if (t == null) {
-                int slot = builder.manager.getSlot(v);
+                int slot = localCells[v.getIndex()];
                 assert slot != -1;
                 Object frameLocalType = typing.frameLocalType().get(slot);
                 Type currentType = fromAsmFrameType(frameLocalType);
-                typing.typing().put(v, currentType);
-                localTypeConstrains.put(v, currentType);
+                typing.setType(v, currentType);
+                putMultiSet(localTypeConstrains, v, currentType);
                 return currentType;
             } else {
                 return t;
@@ -139,7 +158,7 @@ public class TypeInference0 {
 
     private void setTypeForTemp(Var var, Type t) {
         if (isLocal(var)) {
-            localTypeAssigns.put(var, t);
+            putMultiSet(localTypeAssigns, var, t);
         }
         else if (builder.manager.isNotSpecialVar(var)) {
             var.setType(t);
@@ -147,11 +166,12 @@ public class TypeInference0 {
     }
 
     private boolean isLocal(Var v) {
-        return localTypeConstrains.containsKey(v) || builder.manager.getSlot(v) != -1;
+        return localTypeConstrains.get(v.getIndex()) != null
+                || localCells[v.getIndex()] != -1;
     }
 
     private void setType(Typing typing, Var v, Type t) {
-        typing.typing().put(v, t);
+        typing.setType(v, t);
         setTypeForTemp(v, t);
     }
 
@@ -160,11 +180,18 @@ public class TypeInference0 {
     }
 
     private void newTypeAssign(Var var, List<Var> rValues, Typing typing) {
-        List<Type> types = rValues
-                .stream()
-                .map(v -> getType(typing, v))
-                .distinct()
-                .toList();
+        // Reference impl:
+        // types = rValues
+        //         .map(v -> getType(typing, v))
+        //         .distinct()
+        //         .toList();
+        List<Type> types = new ArrayList<>(rValues.size());
+        for (Var v : rValues) {
+            Type t = getType(typing, v);
+            if (!types.contains(t)) {
+                types.add(t);
+            }
+        }
         assert types.size() == 1 ||
                 types.stream().allMatch(Utils::canHoldsInt);
         Type resultType = types.get(0);
@@ -198,7 +225,7 @@ public class TypeInference0 {
             if (block.getFrame() != null) {
                 block.getInitTyping().forEach((k, v) -> {
                     if (v != Uninitialized.UNINITIALIZED) {
-                        localTypeConstrains.put(k, v);
+                        putMultiSet(localTypeConstrains, k, v);
                     }
                 });
             }
@@ -214,7 +241,7 @@ public class TypeInference0 {
 
     private void addTypeConstrain(Var base, Type constrain) {
         if (isLocal(base)) {
-            localTypeConstrains.put(base, constrain);
+            putMultiSet(localTypeConstrains, base, constrain);
         }
     }
 
@@ -235,14 +262,17 @@ public class TypeInference0 {
     private void inferTypes() {
         visited = Sets.newHybridSet();
         for (BytecodeBlock block : builder.blockSortedList) {
-            Map<Var, Type> initTyping;
+            Type[] initTyping;
+            initTyping = new Type[varSize];
             List<Object> frameLocalType;
             if (! visited.contains(block)) {
                 if (block.inEdges().isEmpty() && ! block.isCatch()) {
-                    initTyping = Maps.newMap();
                     frameLocalType = List.of();
                 } else {
-                    initTyping = block.getInitTyping();
+                    var tempInitTyping = block.getInitTyping();
+                    tempInitTyping.forEach((k, v) -> {
+                        initTyping[k.getIndex()] = v;
+                    });
                     frameLocalType = block.getFrameLocalType();
                 }
                 inferTypesForBlock(block, new Typing(initTyping, frameLocalType));
@@ -293,7 +323,7 @@ public class TypeInference0 {
                     if (isLocal(base)) {
                         Type t = getType(typing, stmt.getRValue());
                         if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                            localTypeAssigns.put(base, wrap1(referenceType));
+                            putMultiSet(localTypeAssigns, base, wrap1(referenceType));
                         }
                     }
                     return StmtVisitor.super.visit(stmt);
@@ -403,6 +433,14 @@ public class TypeInference0 {
         return block.getStmts();
     }
 
-    private record Typing(Map<Var, Type> typing, List<Object> frameLocalType) {}
+    private record Typing(Type[] typing, List<Object> frameLocalType) {
+        Type getType(Var v) {
+            return typing[v.getIndex()];
+        }
+
+        void setType(Var v, Type t) {
+            typing[v.getIndex()] = t;
+        }
+    }
 
 }

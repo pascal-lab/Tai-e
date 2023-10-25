@@ -247,7 +247,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
         private final List<Annotation> annotations;
 
-        private final Map<Integer, List<Annotation>> paramAnnotations;
+        private Map<Integer, List<Annotation>> paramAnnotations;
 
         @Nullable
         private List<String> paramName;
@@ -287,8 +287,10 @@ public class AsmClassBuilder implements JClassBuilder {
         public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
             // Note: this handle may cause problem for <init>()
             // of inner class (check doc of this function)
-            return new AnnoVisitor(descriptor, paramAnnotations
-                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
+            // TODO: fix this
+//            return new AnnoVisitor(descriptor, paramAnnotations
+//                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
+            return null;
         }
 
         @Override

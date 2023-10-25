@@ -19,6 +19,7 @@ import pascal.taie.util.collection.Triple;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -375,6 +376,15 @@ class VarManager {
     int getSlot(Var var) {
         Integer i = var2Local.get(var);
         return Objects.requireNonNullElse(i, -1);
+    }
+
+    int[] getSlotTable() {
+        int[] res = new int[vars.size()];
+        Arrays.fill(res, -1);
+        var2Local.forEach((k ,v) -> {
+            res[k.getIndex()] = v;
+        });
+        return res;
     }
 
     static int getSlotFast(Var var) {
