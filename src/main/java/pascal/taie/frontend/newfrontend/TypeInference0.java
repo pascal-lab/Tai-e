@@ -87,7 +87,7 @@ public class TypeInference0 {
                 continue;
             }
             Type now = computeLocalType(v);
-            // assert ! (now instanceof Uninitialized);
+            assert ! (now instanceof Uninitialized);
             v.setType(now);
         }
     }
@@ -97,6 +97,9 @@ public class TypeInference0 {
         assert !allTypes.isEmpty();
         Type now = allTypes.iterator().next();
         if (allTypes.size() == 1) {
+            if (now == Uninitialized.UNINITIALIZED) {
+                return getObject();
+            }
             return now;
         }
         Set<Type> constrains = localTypeConstrains.get(v.getIndex());
@@ -159,9 +162,12 @@ public class TypeInference0 {
     private void setTypeForTemp(Var var, Type t) {
         if (isLocal(var)) {
             putMultiSet(localTypeAssigns, var, t);
-        }
-        else if (builder.manager.isNotSpecialVar(var)) {
-            var.setType(t);
+        } else if (builder.manager.isNotSpecialVar(var)) {
+            if (t == Uninitialized.UNINITIALIZED) {
+                var.setType(getObject());
+            } else {
+                var.setType(t);
+            }
         }
     }
 
