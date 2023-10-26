@@ -94,8 +94,8 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
         if (!bugInstances.isEmpty()) {
             for (BugInstance bugInstance : bugInstances) {
                 logger.info(String.format(
-                    "Class: %s\nMethod: %s\nLineNumber: %s\nBugType: %s\nSeverity: %s\n",
-                    bugInstance.getJClass(),bugInstance.getjMethod(),bugInstance.getSourceLineStart(),
+                    "\nClass: %s\nMethod: %s\nLineNumber: %s\nBugType: %s\nSeverity: %s",
+                    bugInstance.getJClass(),bugInstance.getJMethod(),bugInstance.getSourceLineStart(),
                     bugInstance.getType(),bugInstance.getSeverity()
                 ));
             }

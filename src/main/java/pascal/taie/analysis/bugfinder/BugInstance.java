@@ -68,7 +68,7 @@ public class BugInstance implements Comparable<BugInstance> {
         return jClass;
     }
 
-    public JMethod gJMethod() {
+    public JMethod getJMethod() {
         return jMethod;
     }
 
