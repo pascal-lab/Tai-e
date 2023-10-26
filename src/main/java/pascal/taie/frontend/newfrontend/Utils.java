@@ -417,7 +417,7 @@ public class Utils {
     /**
      * s1 <- s1 /\ s2
      */
-    private static void intersection(Set<ClassType> s1, Set<ClassType> s2) {
+    static <T> void intersection(Set<T> s1, Set<T> s2) {
         s1.removeIf(t -> ! s2.contains(t));
     }
 

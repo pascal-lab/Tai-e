@@ -1,23 +1,20 @@
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.analysis.dataflow.fact.DataflowResult;
-import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.UnionFindSet;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Queue;
+import java.util.Set;
 
 public class VarWebSplitter {
 
@@ -31,6 +28,8 @@ public class VarWebSplitter {
                     int[]
                     > block2inDefs;
 
+    private final Map<BytecodeBlock, int[]> block2outDefs;
+
     private final Map
             <
                     BytecodeBlock,
@@ -39,31 +38,29 @@ public class VarWebSplitter {
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
-    @Nullable
-    private final DataflowResult<Stmt, SetFact<Var>> liveVariables;
-
     private final Var[] locals;
 
     private final Colors colors;
 
-    public VarWebSplitter(AsmIRBuilder builder) {
-        this(builder, null);
-    }
+    private final BytecodeBlock entry;
 
-    public VarWebSplitter(AsmIRBuilder builder, DataflowResult<Stmt, SetFact<Var>> liveVariables) {
+    public VarWebSplitter(AsmIRBuilder builder) {
         this.builder = builder;
         this.varManager = builder.manager;
         this.block2inDefs = new HashMap<>();
+        this.block2outDefs = new HashMap<>();
         this.mayFlowToCatchOfBlocks = new HashMap<>();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
-        this.liveVariables = liveVariables;
         this.locals = varManager.getLocals();
-        this.colors = new Colors(locals.length);
-
+        this.colors = new Colors(locals.length,
+                locals.length * builder.blockSortedList.size());
+        this.entry = builder.getEntryBlock();
         // first, remove all local variable from ret set
         // we'll add them back after splitting
-        List.of(locals).forEach(varManager.getRetVars()::remove);
-        assert builder.isFrameUsable() || liveVariables != null;
+        Set<Var> ret = varManager.getRetVars();
+        for (Var v : locals) {
+            ret.remove(v);
+        }
     }
 
     public void build() {
@@ -72,15 +69,17 @@ public class VarWebSplitter {
     }
 
     public void constructWeb() {
-        BytecodeBlock entry = builder.getEntryBlock();
-
         // construct inDefs by dfs
-        constructWebInsideBlock(entry, getPhantomInDefs(entry));
-        for (Pair<List<BytecodeBlock>, BytecodeBlock> tryCatchPair : tryAndHandlerBlocks) {
-            BytecodeBlock handler = tryCatchPair.second();
-            if (!block2inDefs.containsKey(handler)) {
-                constructWebInsideBlock(handler, getPhantomInDefs(handler));
-            }
+//        constructWebInsideBlock(entry);
+//        for (Pair<List<BytecodeBlock>, BytecodeBlock> tryCatchPair : tryAndHandlerBlocks) {
+//            BytecodeBlock handler = tryCatchPair.second();
+//            if (!block2inDefs.containsKey(handler)) {
+//                constructWebInsideBlock(handler);
+//            }
+//        }
+
+        for (BytecodeBlock bb : builder.blockSortedList) {
+            constructWebInsideBlock(bb);
         }
 
         // merge inDefs of catch block
@@ -93,49 +92,37 @@ public class VarWebSplitter {
         }
     }
 
-    private void mergeDefs(int[] succInDef, int[] predOutDef) {
-        for (int i = 0; i < locals.length; ++i) {
-            int inColor = succInDef[i];
-            if (inColor != Colors.NOT_EXIST) {
-                int outColor = predOutDef[i];
-                assert outColor != Colors.NOT_EXIST;
-                colors.mergeTwoColor(i, inColor, outColor);
+    private void mergeTwoDefs(int[] outDef, int[] inDef) {
+        assert outDef.length == inDef.length;
+        for (int i = 0; i < inDef.length; ++i) {
+            if (inDef[i] != Colors.NOT_EXIST && outDef[i] != Colors.NOT_EXIST) {
+                colors.mergeTwoColor(i, outDef[i], inDef[i]);
             }
         }
-    }
-
-    private int[] washDefs(BytecodeBlock block, int[] inDef) {
-        int[] res = inDef.clone();
-        for (int i = 0; i < locals.length; ++i) {
-            if (isVarNotExistsInFrame(block, i)) {
-                res[i] = Colors.NOT_EXIST;
-            }
-        }
-        return res;
     }
 
     private boolean isVarNotExistsInFrame(BytecodeBlock block, int slot) {
         if (builder.isFrameUsable()) {
             return !block.isLocalExistInFrame(slot);
-        } else {
-            return !getInFact(block).contains(locals[slot]);
         }
+        assert false;
+        return false;
     }
 
     private boolean canInferLiveVar(BytecodeBlock block) {
-        return !builder.isFrameUsable() || block.getFrame() != null;
+        return block.getFrame() != null;
     }
 
     private int[] getPhantomInDefs(BytecodeBlock entry) {
         int[] res = getEmptyColors();
-        boolean isEntry = entry == builder.getEntryBlock();
+        boolean isEntry = entry == this.entry;
 
         List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
         Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
 
         for (Var v : allPhantoms) {
-            int slot = varManager.getSlotFast(v);
-            if (phantomType == Kind.PHANTOM &&
+            int slot = VarManager.getSlotFast(v);
+            if (phantomType == Kind.PHANTOM && canInferLiveVar(entry) &&
                     isVarNotExistsInFrame(entry, slot)) {
                 continue;
             }
@@ -143,7 +130,7 @@ public class VarWebSplitter {
                     isVarNotExistsInFrame(entry, slot)) {
                 continue;
             }
-            int color = isEntry ? colors.getAllColors(slot).get(0) : colors.getNewColor(slot);
+            int color = colors.getNewColor(slot);
             StmtOccur occur = new StmtOccur(entry, -1, phantomType, slot, color);
             colors.noticeOneOccur(occur);
             res[slot] = color;
@@ -158,31 +145,72 @@ public class VarWebSplitter {
         return res;
     }
 
-    private void constructWebInsideBlock(BytecodeBlock block, int[] inDefs) {
+    private void constructWebInsideBlock(BytecodeBlock block) {
         boolean isInTry = block.isInTry();
         int[] currentDefs;
-        int size = block.inEdges().size();
-        if (size > 1 || block == builder.getEntryBlock()) {
-            if (block2inDefs.containsKey(block)) {
-                int[] otherInDefs = block2inDefs.get(block);
-                mergeDefs(otherInDefs, inDefs);
-                return;
-            } else {
-                int[] realInDef;
-                if (block == builder.getEntryBlock()) {
-                    realInDef = inDefs;
-                } else {
-                    realInDef = washDefs(block, inDefs);
-                }
-                block2inDefs.put(block, realInDef);
-                currentDefs = realInDef.clone();
-            }
+//        int size = block.inEdges().size();
+//        if (size > 1 || block == builder.getEntryBlock()) {
+//            if (block2inDefs.containsKey(block)) {
+//                int[] otherInDefs = block2inDefs.get(block);
+//                mergeDefs(otherInDefs, inDefs);
+//                return;
+//            } else {
+//                int[] realInDef;
+//                if (block == builder.getEntryBlock()) {
+//                    realInDef = ;
+//                } else {
+//                    realInDef = washDefs(block, inDefs);
+//                }
+//                block2inDefs.put(block, realInDef);
+//                currentDefs = realInDef.clone();
+//            }
+//        } else {
+//            assert block2inDefs.get(block) == null;
+//            block2inDefs.put(block, inDefs);
+//            currentDefs = inDefs.clone();
+//        }
+//        if (block != this.entry &&
+//                block.inEdges().stream().allMatch(block2outDefs::containsKey)) {
+//            List<int[]> outDefs = new ArrayList<>();
+//            for (BytecodeBlock bb : block.inEdges()) {
+//                int[] outDef = block2outDefs.get(bb);
+//                outDefs.add(outDef);
+//            }
+//            currentDefs = mergeDefs(block, outDefs);
+//        } else {
+//            currentDefs = getPhantomInDefs(block);
+//            for (BytecodeBlock bb : block.inEdges()) {
+//                if (block2outDefs.containsKey(bb)) {
+//                    int[] outDef = block2outDefs.get(bb);
+//                    mergeTwoDefs(outDef, currentDefs);
+//                }
+//            }
+//        }
+        if (block.inEdges().isEmpty() || block == entry) {
+            currentDefs = getPhantomInDefs(block);
+        } else if (block.inEdges().size() == 1 &&
+                block2outDefs.containsKey(block.inEdges().get(0))) {
+            currentDefs = block2outDefs.get(block.inEdges().get(0)).clone();
         } else {
-            assert block2inDefs.get(block) == null;
-            block2inDefs.put(block, inDefs);
-            currentDefs = inDefs.clone();
+            currentDefs = new int[locals.length];
+            for (int j = 0; j < locals.length; ++j) {
+                currentDefs[j] = colors.getNewColor(j);
+            }
+            for (int i = 0; i < block.inEdges().size(); ++i) {
+                int[] out = block2outDefs.get(block.inEdges().get(i));
+                if (out != null) {
+                    for (int j = 0; j < locals.length; ++j) {
+                        if (out[j] == Colors.NOT_EXIST) {
+                            currentDefs[j] = Colors.NOT_EXIST;
+                        }
+                        if (currentDefs[j] != Colors.NOT_EXIST) {
+                            colors.mergeTwoColor(j, out[j], currentDefs[j]);
+                        }
+                    }
+                }
+            }
         }
-
+        block2inDefs.put(block, currentDefs.clone());
         List<List<Integer>> mayFlowToCatch;
         if (isInTry) {
             mayFlowToCatch = mayFlowToCatchOfBlocks.computeIfAbsent(block,
@@ -233,52 +261,79 @@ public class VarWebSplitter {
 
 
         for (BytecodeBlock bytecodeBlock : block.outEdges()) {
-            constructWebInsideBlock(bytecodeBlock, currentDefs);
+            if (block2inDefs.containsKey(bytecodeBlock)) {
+                int[] inDefs = block2inDefs.get(bytecodeBlock);
+                mergeTwoDefs(currentDefs, inDefs);
+            }
         }
+
+        block2outDefs.put(block, currentDefs);
     }
 
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
         List<List<Integer>> blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
+        assert blockAllDefs != null;
         int[] handlerInDefs = block2inDefs.get(handler);
         for (int i = 0; i < locals.length; ++i) {
             int inColor = handlerInDefs[i];
             if (inColor != Colors.NOT_EXIST) {
                 for (int outColor : blockAllDefs.get(i)) {
-                    colors.mergeTwoColor(i, inColor, outColor);
+                    colors.mergeTwoColor(i, outColor, inColor);
                 }
             }
         }
     }
 
-    // TODO: further optimize?
+    // TODO: now var name is too random, need to fix it
     private Var[] splitLocals() {
         int allColorSize = colors.getAllColorCount();
         Var[] res = new Var[allColorSize];
 
+        var all = colors.build();
         for (int i = 0; i < locals.length; ++i) {
-            int slot = i;
-            List<Integer> allColors = colors.getAllColors(i);
-            Map<Integer, Integer> visited = Maps.newMap();
-            for (int color : allColors) {
-                int rootColor = colors.getRootColor(slot, color);
-                int currentCount = colors.getColorCount(color);
-                visited.compute(rootColor, (k, v) ->
-                        (v == null) ? currentCount : currentCount + v);
+//            List<Integer> allColors = colors.getAllColors(i);
+//            Map<Integer, Integer> visited = Maps.newMap();
+//            for (int color : allColors) {
+//                int rootColor = colors.getRootColor(slot, color);
+//                int currentCount = colors.getColorCount(color);
+//                visited.compute(rootColor, (k, v) ->
+//                        (v == null) ? currentCount : currentCount + v);
+//            }
+//
+//            AtomicInteger index = new AtomicInteger();
+//            visited.entrySet()
+//                    .stream()
+//                    .filter(e -> e.getValue() != 0)
+//                    .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
+//                    .forEach((e) -> {
+//                        int color = e.getKey();
+//                        Var v = varManager.splitLocal(slot, index.incrementAndGet());
+//                        res[color] = v;
+//                    });
+
+//            for (int color : allColors) {
+//                res[color] = res[colors.getRootColor(slot, color)];
+//            }
+            var g = all.get(i);
+            int maxPos = 0;
+            int maxVal = -1;
+            for (int pos = 0; pos < g.size(); ++pos) {
+                int val = g.get(pos).get(0);
+                if (val > maxVal) {
+                    maxVal = val;
+                    maxPos = pos;
+                }
             }
-
-            AtomicInteger index = new AtomicInteger();
-            visited.entrySet()
-                    .stream()
-                    .filter(e -> e.getValue() != 0)
-                    .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
-                    .forEach((e) -> {
-                        int color = e.getKey();
-                        Var v = varManager.splitLocal(slot, index.incrementAndGet());
-                        res[color] = v;
-                    });
-
-            for (int color : allColors) {
-                res[color] = res[colors.getRootColor(slot, color)];
+            int index = 1;
+            for (var s : g) {
+                int idx = index == maxPos + 1 ? 1 : index + 1;
+                if (s.size() > 1) {
+                    Var v = varManager.splitLocal(i, idx);
+                    for (int j = 1; j < s.size(); ++j) {
+                        res[s.get(j)] = v;
+                    }
+                }
+                index++;
             }
         }
 
@@ -350,16 +405,16 @@ public class VarWebSplitter {
         }
     }
 
-    private SetFact<Var> getInFact(BytecodeBlock block) {
-        assert liveVariables != null;
-        if (block.getStmts().isEmpty()) {
-            assert block.outEdges().size() == 1;
-            assert block.fallThrough() != null;
-            return getInFact(block.fallThrough());
-        } else {
-            return liveVariables.getInFact(getStmts(block).get(0));
-        }
-    }
+//    private SetFact<Var> getInFact(BytecodeBlock block) {
+//        assert liveVariables != null;
+//        if (block.getStmts().isEmpty()) {
+//            assert block.outEdges().size() == 1;
+//            assert block.fallThrough() != null;
+//            return getInFact(block.fallThrough());
+//        } else {
+//            return liveVariables.getInFact(getStmts(block).get(0));
+//        }
+//    }
 
     private List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
@@ -379,72 +434,150 @@ public class VarWebSplitter {
 
         private final List<StmtOccur> occurs;
 
-        private final List<Integer> colorCount;
+        private final List<MergeGraphNode> g;
 
-        private final List<List<Integer>> allColors;
+        private int counter;
 
-        private final UnionFindSet<Integer> unionFindSet;
+        private final int maxLocal;
 
         static final int NOT_EXIST = -1;
 
-        Colors(int maxLocal) {
-            occurs = new ArrayList<>();
-            colorCount = new ArrayList<>(maxLocal);
-            unionFindSet = new UnionFindSet<>(new ArrayList<>());
-            allColors = new ArrayList<>();
-            for (int i = 0; i < maxLocal; ++i) {
-                List<Integer> colorList = new ArrayList<>();
-                allColors.add(colorList);
-                getNewColor(i);
-            }
+        Colors(int maxLocal, int stmtSize) {
+            occurs = new ArrayList<>(stmtSize);
+            counter = 0;
+            this.maxLocal = maxLocal;
+            g = new ArrayList<>();
         }
 
         void noticeOneOccur(StmtOccur occur) {
             occurs.add(occur);
             int color = occur.color();
-            assert color < colorCount.size();
-            int oldCount = colorCount.get(color);
-            colorCount.set(color, oldCount + 1);
+            g.get(color).incr();
+            if (occur.second != Kind.PHANTOM) {
+                g.get(color).u();
+            }
         }
 
         int getNewColor(int slot) {
-            int newColor = colorCount.size();
-            colorCount.add(0);
-            allColors.get(slot).add(newColor);
-            unionFindSet.addElement(newColor);
+            int newColor = counter++;
+            g.add(new MergeGraphNode(newColor, slot));
             return newColor;
         }
 
         void mergeTwoColor(int slot, int color1, int color2) {
-            assert allColors.get(slot).contains(color1) &&
-                    allColors.get(slot).contains(color2);
+            assert g.get(color1).slot == g.get(color2).slot;
             if (color1 == color2) {
                 return;
             }
-            unionFindSet.union(color1, color2);
-        }
-
-        int getColorCount(int color) {
-            return colorCount.get(color);
-        }
-
-        List<Integer> getAllColors(int slot) {
-            return allColors.get(slot);
+            g.get(color1).outEdges.add(g.get(color2));
+            g.get(color2).inEdges.add(g.get(color1));
         }
 
         int getAllColorCount() {
-            return colorCount.size();
+            return counter;
         }
 
-        int getRootColor(int slot, int color) {
-            int res = unionFindSet.findRoot(color);
-            assert allColors.get(slot).contains(res)
-                    && allColors.get(slot).contains(color);
-            return res;
+        /**
+         * @return a list, in the form:
+         * <p>[slot] -> [web1, web2, ...]</p>
+         * <p>[web]  -> [ count, color1, color2 ]</p>
+         */
+        List<List<List<Integer>>> build() {
+            boolean[] visited = new boolean[getAllColorCount()];
+            for (int i = 0; i < getAllColorCount(); ++i) {
+                if (visited[i] || !g.get(i).used) {
+                    continue;
+                }
+                Queue<MergeGraphNode> queue = new LinkedList<>();
+                queue.add(g.get(i));
+                while (!queue.isEmpty()) {
+                    MergeGraphNode node = queue.poll();
+                    int color = node.color;
+                    if (!visited[color]) {
+                        visited[color] = true;
+                        g.get(color).u();
+                        queue.addAll(node.inEdges);
+                    }
+                }
+            }
+
+            List<List<List<Integer>>> connected = new ArrayList<>();
+            for (int i = 0; i < maxLocal; ++i) {
+                connected.add(new ArrayList<>());
+            }
+            Arrays.fill(visited, false);
+            for (int i = 0; i < getAllColorCount(); ++i) {
+                MergeGraphNode node = g.get(i);
+                if (visited[i] || !node.used) {
+                    continue;
+                }
+                List<Integer> current = new ArrayList<>();
+                Queue<MergeGraphNode> queue1 = new LinkedList<>();
+                queue1.add(node);
+                current.add(node.count);
+                int slot = node.slot;
+                while (!queue1.isEmpty()) {
+                    MergeGraphNode now = queue1.poll();
+                    assert now.slot == slot;
+                    int c = now.color;
+                    if (!visited[c]) {
+                        visited[c] = true;
+                        int currentCount = current.get(0);
+                        int nodeCount = now.count;
+                        current.set(0, currentCount + nodeCount);
+                        current.add(c);
+                        for (MergeGraphNode node1 : now.outEdges) {
+                            if (node1.used) {
+                                queue1.add(node1);
+                            }
+                        }
+                        for (MergeGraphNode node1 : now.inEdges) {
+                            if (node1.used) {
+                                queue1.add(node1);
+                            }
+                        }
+                    }
+                }
+                if (current.get(0) != 0) {
+                    connected.get(slot).add(current);
+                }
+            }
+            return connected;
         }
 
         List<StmtOccur> getOccurs() {
             return occurs;
+        }
+    }
+
+    private static class MergeGraphNode {
+        int color;
+
+        int count;
+
+        boolean used;
+
+        int slot;
+
+        List<MergeGraphNode> inEdges;
+
+        List<MergeGraphNode> outEdges;
+
+        MergeGraphNode(int color, int slot) {
+            this.color = color;
+            this.slot = slot;
+            inEdges = new ArrayList<>();
+            outEdges = new ArrayList<>();
+            count = 0;
+            used = false;
+        }
+
+        void incr() {
+            count++;
+        }
+
+        void u() {
+            used = true;
         }
     }
 }

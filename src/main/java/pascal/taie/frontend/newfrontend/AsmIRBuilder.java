@@ -22,11 +22,6 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.analysis.dataflow.analysis.LiveVariable;
-import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.CFGBuilder;
-import pascal.taie.analysis.graph.cfg.ExtraEdgeAppender;
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.frontend.newfrontend.info.VarReporter;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -203,29 +198,32 @@ public class AsmIRBuilder {
         StageTimer stageTimer = StageTimer.getInstance();
         stageTimer.startSplitting();
         makeStmts();
-        makeExceptionTable();
-        IR untyped = getIR();
-        AnalysisConfig config = AnalysisConfig.of(CFGBuilder.ID,
-                "exception", null,
-                "dump", false);
-        CFGBuilder builder = new CFGBuilder(config);
-        CFG<Stmt> cfg = builder.analyze(untyped);
-        MultiMap<Stmt, Stmt> exceptionMap = Maps.newMultiMap();
-        for (ExceptionEntry entry : exceptionEntries) {
-            for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
-                exceptionMap.put(stmts.get(i), entry.handler());
-            }
-        }
-        untyped.storeResult(CFGBuilder.ID, cfg);
-        AnalysisConfig config1 = AnalysisConfig.of(LiveVariable.ID,
-                "strongly", false);
-        ExtraEdgeAppender.append(cfg, exceptionMap);
-        LiveVariable liveVar = new LiveVariable(config1);
-        var result = liveVar.analyze(untyped);
-        VarWebSplitter splitter = new VarWebSplitter(this, result);
+//        makeExceptionTable();
+//        IR untyped = getIR();
+//        AnalysisConfig config = AnalysisConfig.of(CFGBuilder.ID,
+//                "exception", null,
+//                "dump", false);
+//        CFGBuilder builder = new CFGBuilder(config);
+//        CFG<Stmt> cfg = builder.analyze(untyped);
+//        MultiMap<Stmt, Stmt> exceptionMap = Maps.newMultiMap();
+//        for (ExceptionEntry entry : exceptionEntries) {
+//            for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
+//                exceptionMap.put(stmts.get(i), entry.handler());
+//            }
+//        }
+//        untyped.storeResult(CFGBuilder.ID, cfg);
+//        AnalysisConfig config1 = AnalysisConfig.of(LiveVariable.ID,
+//                "strongly", false);
+//        ExtraEdgeAppender.append(cfg, exceptionMap);
+//        LiveVariable liveVar = new LiveVariable(config1);
+//        var result = liveVar.analyze(untyped);
+        VarWebSplitter splitter = new VarWebSplitter(this);
         splitter.build();
         stageTimer.endSplitting();
         stageTimer.startTyping();
+        // very important, need to build the exception table
+        // e.g. (catch %1), we store type info in exception table,
+        //      TypeInference need to know what type %1 is
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();

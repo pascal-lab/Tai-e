@@ -187,7 +187,7 @@ class VarManager {
 
     public List<Var> getParamThis() {
         List<Var> temp = new ArrayList<>();
-        if (! method.isStatic()) {
+        if (thisVar != null) {
             temp.add(thisVar);
         }
         temp.addAll(params);
@@ -371,11 +371,6 @@ class VarManager {
         vars.add(v);
         blockConstCache.put(literal, v);
         return v;
-    }
-
-    int getSlot(Var var) {
-        Integer i = var2Local.get(var);
-        return Objects.requireNonNullElse(i, -1);
     }
 
     int[] getSlotTable() {
