@@ -36,7 +36,7 @@
 
 # ID:022
 - bugType: WEAK_MESSAGE_DIGEST_SHA
-  severity: NORMAL # 022->NORMAL
+  severity: MINOR # 022->NORMAL
   description: The algorithms SHA-1 is not strong enough.
   methodList:
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String)>"
