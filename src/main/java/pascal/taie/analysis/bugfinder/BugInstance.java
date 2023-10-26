@@ -64,6 +64,14 @@ public class BugInstance implements Comparable<BugInstance> {
         return severity;
     }
 
+    public JClass getJClass() {
+        return jClass;
+    }
+
+    public JMethod gJMethod() {
+        return jMethod;
+    }
+
     public BugInstance setSourceLine(int start, int end) {
         sourceLineStart = start;
         sourceLineEnd = end;

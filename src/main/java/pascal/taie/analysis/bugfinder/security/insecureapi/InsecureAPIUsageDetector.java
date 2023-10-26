@@ -92,7 +92,13 @@ public class InsecureAPIUsageDetector extends MethodAnalysis<Set<BugInstance>> {
                     }
                 });
         if (!bugInstances.isEmpty()) {
-            bugInstances.forEach(logger::info);
+            for (BugInstance bugInstance : bugInstances) {
+                logger.info(String.format(
+                    "Class: %s\nMethod: %s\nLineNumber: %s\nBugType: %s\nSeverity: %s\n",
+                    bugInstance.getJClass(),bugInstance.getjMethod(),bugInstance.getSourceLineStart(),
+                    bugInstance.getType(),bugInstance.getSeverity()
+                ));
+            }
         }
         return bugInstances;
     }
