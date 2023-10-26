@@ -1,6 +1,6 @@
 # ID:001
 - bugType: PREDICTABLE_PSEUDORANDOM_NUMBER
-  severity: CRITICAL # NORMAL
+  severity: MINOR # NORMAL
   description: Generic random number generators do not meet security requirements.
   methodList:
     - reference: "<java.util.Random: void <init>()>"
