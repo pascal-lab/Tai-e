@@ -22,6 +22,8 @@ import java.util.Stack;
 public final class BytecodeBlock {
     private final LabelNode label;
 
+    private int index = -1;
+
     private final List<AbstractInsnNode> instr;
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
@@ -284,6 +286,14 @@ public final class BytecodeBlock {
                 Objects.equals(this.inEdges, that.inEdges) &&
                 Objects.equals(this.outEdges, that.outEdges) &&
                 Objects.equals(this.fallThrough, that.fallThrough);
+    }
+
+    public void setIndex(int i) {
+        this.index = i;
+    }
+
+    public int getIndex() {
+        return this.index;
     }
 
     @Nullable

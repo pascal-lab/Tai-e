@@ -186,11 +186,14 @@ class VarManager {
     }
 
     public List<Var> getParamThis() {
-        List<Var> temp = new ArrayList<>();
+        List<Var> temp;
         if (thisVar != null) {
+            temp = new ArrayList<>(params.size() + 1);
             temp.add(thisVar);
+            temp.addAll(params);
+        } else {
+            temp = new ArrayList<>(params);
         }
-        temp.addAll(params);
         return temp;
     }
 

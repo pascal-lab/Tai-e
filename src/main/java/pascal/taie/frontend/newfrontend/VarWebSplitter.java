@@ -8,7 +8,6 @@ import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +21,9 @@ public class VarWebSplitter {
 
     private final VarManager varManager;
 
-    private final Map
-            <
-                    BytecodeBlock,
-                    int[]
-                    > block2inDefs;
+    private final int[][] block2inDefs;
 
-    private final Map<BytecodeBlock, int[]> block2outDefs;
+    private final int[][] block2outDefs;
 
     private final Map
             <
@@ -47,9 +42,10 @@ public class VarWebSplitter {
     public VarWebSplitter(AsmIRBuilder builder) {
         this.builder = builder;
         this.varManager = builder.manager;
-        this.block2inDefs = new HashMap<>();
-        this.block2outDefs = new HashMap<>();
-        this.mayFlowToCatchOfBlocks = new HashMap<>();
+        int blockSize = builder.blockSortedList.size();
+        this.block2inDefs = new int[blockSize][];
+        this.block2outDefs = new int[blockSize][];
+        this.mayFlowToCatchOfBlocks = Maps.newHybridMap();
         this.tryAndHandlerBlocks = builder.getTryAndHandlerBlocks();
         this.locals = varManager.getLocals();
         this.colors = new Colors(locals.length,
@@ -78,7 +74,9 @@ public class VarWebSplitter {
 //            }
 //        }
 
-        for (BytecodeBlock bb : builder.blockSortedList) {
+        for (int i = 0; i < builder.blockSortedList.size(); ++i) {
+            BytecodeBlock bb = builder.blockSortedList.get(i);
+            bb.setIndex(i);
             constructWebInsideBlock(bb);
         }
 
@@ -113,14 +111,26 @@ public class VarWebSplitter {
         return block.getFrame() != null;
     }
 
+    private int getParamThisSize() {
+        if (varManager.getParams().isEmpty()) {
+            return varManager.getThisVar() == null ? 0 : 1;
+        } else {
+            int preParamSize = varManager.getParams().size();
+            return varManager.getParams()
+                    .get(preParamSize - 1)
+                    .getIndex() + 1;
+        }
+    }
+
     private int[] getPhantomInDefs(BytecodeBlock entry) {
         int[] res = getEmptyColors();
         boolean isEntry = entry == this.entry;
 
-        List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
         Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
+        int phantomSize = isEntry ? getParamThisSize() : locals.length;
 
-        for (Var v : allPhantoms) {
+        for (int i = 0; i < phantomSize; ++i) {
+            Var v = locals[i];
             int slot = VarManager.getSlotFast(v);
             if (phantomType == Kind.PHANTOM && canInferLiveVar(entry) &&
                     isVarNotExistsInFrame(entry, slot)) {
@@ -143,6 +153,22 @@ public class VarWebSplitter {
         int[] res = new int[locals.length];
         Arrays.fill(res, Colors.NOT_EXIST);
         return res;
+    }
+
+    private int[] getInDefs(BytecodeBlock bb) {
+        if (bb.getIndex() == -1) {
+            return null;
+        } else {
+            return block2inDefs[bb.getIndex()];
+        }
+    }
+
+    private int[] getOutDefs(BytecodeBlock bb) {
+        if (bb.getIndex() == -1) {
+            return null;
+        } else {
+            return block2outDefs[bb.getIndex()];
+        }
     }
 
     private void constructWebInsideBlock(BytecodeBlock block) {
@@ -189,15 +215,17 @@ public class VarWebSplitter {
         if (block.inEdges().isEmpty() || block == entry) {
             currentDefs = getPhantomInDefs(block);
         } else if (block.inEdges().size() == 1 &&
-                block2outDefs.containsKey(block.inEdges().get(0))) {
-            currentDefs = block2outDefs.get(block.inEdges().get(0)).clone();
+                block.inEdges().get(0).getIndex() != -1) {
+            int[] in = getOutDefs(block.inEdges().get(0));
+            assert in != null;
+            currentDefs = in.clone();
         } else {
             currentDefs = new int[locals.length];
             for (int j = 0; j < locals.length; ++j) {
                 currentDefs[j] = colors.getNewColor(j);
             }
             for (int i = 0; i < block.inEdges().size(); ++i) {
-                int[] out = block2outDefs.get(block.inEdges().get(i));
+                int[] out = getOutDefs(block.inEdges().get(i));
                 if (out != null) {
                     for (int j = 0; j < locals.length; ++j) {
                         if (out[j] == Colors.NOT_EXIST) {
@@ -210,7 +238,7 @@ public class VarWebSplitter {
                 }
             }
         }
-        block2inDefs.put(block, currentDefs.clone());
+        block2inDefs[block.getIndex()] = currentDefs.clone();
         List<List<Integer>> mayFlowToCatch;
         if (isInTry) {
             mayFlowToCatch = mayFlowToCatchOfBlocks.computeIfAbsent(block,
@@ -261,19 +289,21 @@ public class VarWebSplitter {
 
 
         for (BytecodeBlock bytecodeBlock : block.outEdges()) {
-            if (block2inDefs.containsKey(bytecodeBlock)) {
-                int[] inDefs = block2inDefs.get(bytecodeBlock);
+            int[] inDefs = getInDefs(bytecodeBlock);
+            assert !(bytecodeBlock.getIndex() != -1 && inDefs == null);
+            if (inDefs != null) {
                 mergeTwoDefs(currentDefs, inDefs);
             }
         }
 
-        block2outDefs.put(block, currentDefs);
+        block2outDefs[block.getIndex()] = currentDefs;
     }
 
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {
         List<List<Integer>> blockAllDefs = mayFlowToCatchOfBlocks.get(tryBlock);
         assert blockAllDefs != null;
-        int[] handlerInDefs = block2inDefs.get(handler);
+        int[] handlerInDefs = getInDefs(handler);
+        assert handlerInDefs != null;
         for (int i = 0; i < locals.length; ++i) {
             int inColor = handlerInDefs[i];
             if (inColor != Colors.NOT_EXIST) {
@@ -495,8 +525,17 @@ public class VarWebSplitter {
                     int color = node.color;
                     if (!visited[color]) {
                         visited[color] = true;
+                        boolean before = g.get(color).used;
                         g.get(color).u();
-                        queue.addAll(node.inEdges);
+                        if (!before) {
+                            queue.addAll(node.inEdges);
+                        } else {
+                            for (MergeGraphNode n : node.inEdges) {
+                                if (!n.used) {
+                                    queue.add(n);
+                                }
+                            }
+                        }
                     }
                 }
             }
