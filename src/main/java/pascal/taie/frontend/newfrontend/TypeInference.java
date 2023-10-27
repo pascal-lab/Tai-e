@@ -450,24 +450,15 @@ public class TypeInference {
         }
 
         public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
-            if (isPrimitiveArrayType(t)) {
-                if (isPrimitiveArrayType(referenceType)) {
-                    if (kind == EdgeKind.VAR_ARRAY) {
-                        return false;
-                    } else {
-                        referenceType = t;
-                    }
-                }
-
-                if (referenceType == null) {
-                    for (ReferenceType r : useValidConstrains) {
-                        if (isPrimitiveArrayType(r)) {
-                            assert ((ArrayType) r).dimensions() == ((ArrayType) t).dimensions();
-                            referenceType = r;
-                            return true;
-                        }
-                    }
-                }
+            if (isPrimitiveArrayType(t) && kind == EdgeKind.VAR_ARRAY) {
+                // example for that:
+                // 1. a = new int[10]
+                // 2. a[1] = 1
+                // the right `ByteLiteral(1)` MUST NOT infer `a` to be `byte[]`
+                // i.e. we only trust the line 1., not line 2.
+                // and there must be something like line 1.,
+                // or the classfile will not pass the verification
+                return false;
             }
 
             if (referenceType == null) {
