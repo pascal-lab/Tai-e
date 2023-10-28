@@ -42,6 +42,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 public class TaintAnalysis implements Plugin {
@@ -132,6 +133,14 @@ public class TaintAnalysis implements Plugin {
                             new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
                 },
                 "TFGDumper");
+
+        try {
+            TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager).build();
+            new DumperStruct(tfg).dump(new File(World.get().getOptions().getOutputDir(), "tfg.yml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         if (config.inferenceConfig().inferenceEnable()) {
             Timer.runAndCount(() -> transferInferer.collectInferredTrans(taintFlows), "TransferInfererDumper");
         }
