@@ -328,6 +328,8 @@ public class TypeInference0 {
                     Var base = stmt.getArrayAccess().getBase();
                     if (isLocal(base)) {
                         Type t = getType(typing, stmt.getRValue());
+                        // TODO: this rule is useless, and may not be safe
+                        //       But currently works well, check & remove this in the future
                         if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
                             putMultiSet(localTypeAssigns, base, wrap1(referenceType));
                         }

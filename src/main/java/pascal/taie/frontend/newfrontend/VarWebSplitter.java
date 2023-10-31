@@ -126,11 +126,10 @@ public class VarWebSplitter {
         int[] res = getEmptyColors();
         boolean isEntry = entry == this.entry;
 
+        List<Var> allPhantoms = isEntry ? varManager.getParamThis() : List.of(locals);
         Kind phantomType = isEntry ? Kind.PARAM : Kind.PHANTOM;
-        int phantomSize = isEntry ? getParamThisSize() : locals.length;
 
-        for (int i = 0; i < phantomSize; ++i) {
-            Var v = locals[i];
+        for (Var v : allPhantoms) {
             int slot = VarManager.getSlotFast(v);
             if (phantomType == Kind.PHANTOM && canInferLiveVar(entry) &&
                     isVarNotExistsInFrame(entry, slot)) {
