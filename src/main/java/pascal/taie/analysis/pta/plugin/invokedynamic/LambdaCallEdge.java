@@ -29,7 +29,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.util.Hashes;
 
 import java.util.List;
 
@@ -77,6 +76,9 @@ class LambdaCallEdge extends Edge<CSCallSite, CSMethod> {
 
     @Override
     public int hashCode() {
-        return Hashes.hash(super.hashCode(), lambdaIndy, lambdaContext);
+        int result = super.hashCode();
+        result = 31 * result + lambdaIndy.hashCode();
+        result = 31 * result + lambdaContext.hashCode();
+        return result;
     }
 }
