@@ -26,7 +26,6 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
-import pascal.taie.util.Indexable;
 import pascal.taie.util.ResultHolder;
 import pascal.taie.util.collection.ArraySet;
 
@@ -39,11 +38,9 @@ import java.util.function.Supplier;
 /**
  * Represents context-sensitive methods.
  */
-public class CSMethod extends AbstractCSElement implements Indexable {
+public class CSMethod extends AbstractCSElement {
 
     private final JMethod method;
-
-    private final int index;
 
     /**
      * Call edges to this CS method.
@@ -52,10 +49,9 @@ public class CSMethod extends AbstractCSElement implements Indexable {
 
     private final ResultHolder resultHolder = new AbstractResultHolder() {};
 
-    CSMethod(JMethod method, Context context, int index) {
+    CSMethod(JMethod method, Context context) {
         super(context);
         this.method = method;
-        this.index = index;
     }
 
     /**
@@ -80,11 +76,6 @@ public class CSMethod extends AbstractCSElement implements Indexable {
 
     public <R> Optional<R> getResult(String id) {
         return Optional.ofNullable(resultHolder.getResult(id));
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
     }
 
     @Override

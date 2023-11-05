@@ -124,9 +124,4 @@ public interface CSManager {
      * The indexer is useful for creating efficient points-to sets.
      */
     Indexer<CSObj> getObjectIndexer();
-
-    /**
-     * @return {@link Indexer} for {@link CSMethod} maintained by this manager.
-     */
-    Indexer<CSMethod> getMethodIndexer();
 }

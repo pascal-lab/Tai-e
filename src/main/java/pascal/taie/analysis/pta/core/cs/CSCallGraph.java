@@ -32,7 +32,6 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Views;
 
 import java.util.ArrayList;
@@ -49,7 +48,6 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
 
     public CSCallGraph(CSManager csManager) {
         this.csManager = csManager;
-        this.reachableMethods = new IndexerBitSet<>(csManager.getMethodIndexer(), false);
     }
 
     /**

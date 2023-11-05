@@ -37,11 +37,9 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Streams;
 import pascal.taie.util.collection.TwoKeyMap;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -56,9 +54,9 @@ public class MapBasedCSManager implements CSManager {
 
     private final CSObjManager objManager = new CSObjManager();
 
-    private final CSMethodManager mtdManager = new CSMethodManager();
-
     private final TwoKeyMap<Invoke, Context, CSCallSite> callSites = Maps.newTwoKeyMap();
+
+    private final TwoKeyMap<JMethod, Context, CSMethod> methods = Maps.newTwoKeyMap();
 
     @Override
     public CSVar getCSVar(Context context, Var var) {
@@ -138,19 +136,14 @@ public class MapBasedCSManager implements CSManager {
     @Override
     public CSCallSite getCSCallSite(Context context, Invoke callSite) {
         return callSites.computeIfAbsent(callSite, context, (cs, ctx) -> {
-            CSMethod container = mtdManager.getCSMethod(ctx, cs.getContainer());
+            CSMethod container = getCSMethod(ctx, cs.getContainer());
             return new CSCallSite(cs, ctx, container);
         });
     }
 
     @Override
     public CSMethod getCSMethod(Context context, JMethod method) {
-        return mtdManager.getCSMethod(context, method);
-    }
-
-    @Override
-    public Indexer<CSMethod> getMethodIndexer() {
-        return mtdManager;
+        return methods.computeIfAbsent(method, context, CSMethod::new);
     }
 
     private static class PointerManager {
@@ -314,36 +307,6 @@ public class MapBasedCSManager implements CSManager {
         @Override
         public CSObj getObject(int index) {
             return objs[index];
-        }
-    }
-
-    private static class CSMethodManager implements Indexer<CSMethod> {
-
-        private final TwoKeyMap<JMethod, Context, CSMethod> methodMap = Maps.newTwoKeyMap();
-
-        /**
-         * Counter for assigning unique indexes to CSMethods.
-         */
-        private int counter = 0;
-
-        private final List<CSMethod> methods = new ArrayList<>(65536);
-
-        private CSMethod getCSMethod(Context context, JMethod method) {
-            return methodMap.computeIfAbsent(method, context, (m, c) -> {
-                CSMethod csMethod = new CSMethod(m, c, counter++);
-                methods.add(csMethod);
-                return csMethod;
-            });
-        }
-
-        @Override
-        public int getIndex(CSMethod m) {
-            return m.getIndex();
-        }
-
-        @Override
-        public CSMethod getObject(int index) {
-            return methods.get(index);
         }
     }
 }
