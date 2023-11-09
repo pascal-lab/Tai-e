@@ -1,7 +1,6 @@
 package pascal.taie.project;
 
 import org.junit.Test;
-import pascal.taie.frontend.newfrontend.ClassInfoCWBuilder;
 import pascal.taie.frontend.newfrontend.ClassSource;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
 
@@ -41,39 +40,5 @@ public class TestDepCWBuilder {
         depCWBuilder.build(project);
         var w = depCWBuilder.getClosedWorld();
         System.out.println("All Classes:" + w.size());
-    }
-
-    @Test
-    public void testClassInfo() {
-        String mainClass = "PrintClassPath";
-
-        Project project = createProject(path, mainClass);
-        DepCWBuilder depCWBuilder = new DepCWBuilder();
-        depCWBuilder.build(project);
-        var w1 = depCWBuilder.getClosedWorld();
-
-        Project project2 = createProject(path, mainClass);
-        ClassInfoCWBuilder classInfoCWBuilder = new ClassInfoCWBuilder();
-        classInfoCWBuilder.build(project2);
-        var w2 = classInfoCWBuilder.getClosedWorld();
-
-        var w1ClassNames = w1.stream().map(ClassSource::getClassName).toList();
-        var w2ClassNames = w2.stream().map(ClassSource::getClassName).toList();
-
-        System.out.println("DepCWBuilder exclusive:");
-        for (String s : w1ClassNames) {
-            if (!w2ClassNames.contains(s)) {
-                System.out.println("    " + s);
-            }
-        }
-
-        System.out.println("------------------------------------------");
-
-        System.out.println("ClassInfoCWBuilder exclusive:");
-        for (String s : w2ClassNames) {
-            if (!w1ClassNames.contains(s)) {
-                System.out.println("    " + s);
-            }
-        }
     }
 }
