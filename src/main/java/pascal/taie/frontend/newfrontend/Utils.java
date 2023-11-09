@@ -1,6 +1,5 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -71,7 +70,6 @@ import pascal.taie.util.collection.Sets;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -114,10 +112,59 @@ public class Utils {
 
     static Set<Modifier> fromAsmModifier(int opcodes) {
         Set<Modifier> res = new HashSet<>();
-        for (Modifier m : Modifier.values()) {
-            if (hasAsmModifier(opcodes, toAsmModifier(m))) {
-                res.add(m);
-            }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_PUBLIC)) {
+            res.add(Modifier.PUBLIC);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_PRIVATE)) {
+            res.add(Modifier.PRIVATE);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_PROTECTED)) {
+            res.add(Modifier.PROTECTED);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_STATIC)) {
+            res.add(Modifier.STATIC);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_FINAL)) {
+            res.add(Modifier.FINAL);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_SYNCHRONIZED)) {
+            res.add(Modifier.SYNCHRONIZED);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_VOLATILE)) {
+            res.add(Modifier.VOLATILE);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_TRANSIENT)) {
+            res.add(Modifier.TRANSIENT);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_NATIVE)) {
+            res.add(Modifier.NATIVE);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_INTERFACE)) {
+            res.add(Modifier.INTERFACE);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_ABSTRACT)) {
+            res.add(Modifier.ABSTRACT);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_STRICT)) {
+            res.add(Modifier.STRICTFP);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_BRIDGE)) {
+            res.add(Modifier.BRIDGE);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_VARARGS)) {
+            res.add(Modifier.VARARGS);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_SYNTHETIC)) {
+            res.add(Modifier.SYNTHETIC);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_ANNOTATION)) {
+            res.add(Modifier.ANNOTATION);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_ENUM)) {
+            res.add(Modifier.ENUM);
+        }
+        if (hasAsmModifier(opcodes, Opcodes.ACC_MANDATED)) {
+            res.add(Modifier.MANDATED);
         }
         return res;
     }
@@ -224,7 +271,7 @@ public class Utils {
         } else if (o instanceof Handle handle) {
             return fromAsmHandle(handle);
         } else {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -293,7 +340,7 @@ public class Utils {
                 return new InstanceOf(v, instanceOfExp);
             }
             else {
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             }
         } else if (left instanceof ArrayAccess arrayAccess) {
             assert e instanceof Var;
@@ -302,7 +349,7 @@ public class Utils {
             assert e instanceof Var;
             return new StoreField(fieldAccess, (Var) e);
         }
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
@@ -330,27 +377,68 @@ public class Utils {
         return "java/lang/Throwable";
     }
 
-    static ClassType getObject() {
-        return getClassType(ClassNames.OBJECT);
+
+    private static ClassType object;
+    private static ClassType serializable;
+    private static ClassType cloneable;
+    private static ClassType string;
+    private static ClassType reflectArray;
+    private static ClassType klass;
+
+    static {
+        World.registerResetCallback(() -> {
+            object = null;
+            serializable = null;
+            cloneable = null;
+            string = null;
+            reflectArray = null;
+            klass = null;
+        });
     }
 
-    static ClassType getSerializable() {
-        return getClassType(ClassNames.SERIALIZABLE);
+    static synchronized ClassType getObject() {
+        if (object == null) {
+            object = getClassType(ClassNames.OBJECT);
+        }
+        return object;
     }
 
-    static ClassType getCloneable() {
-        return getClassType(ClassNames.CLONEABLE);
+    static synchronized ClassType getSerializable() {
+        if (serializable == null) {
+            serializable = getClassType(ClassNames.SERIALIZABLE);
+        }
+        return serializable;
     }
 
-    static ClassType getString() {
-        return getClassType(ClassNames.STRING);
+    static synchronized ClassType getCloneable() {
+        if (cloneable == null) {
+            cloneable = getClassType(ClassNames.CLONEABLE);
+        }
+        return cloneable;
     }
 
-    static ClassType getReflectArray() {
-        return getClassType(ClassNames.ARRAY);
+    static synchronized ClassType getString() {
+        if (string == null) {
+            string = getClassType(ClassNames.STRING);
+        }
+        return string;
     }
 
-    static ClassType getClassType(String s) {
+    static synchronized ClassType getReflectArray() {
+        if (reflectArray == null) {
+            reflectArray = getClassType(ClassNames.ARRAY);
+        }
+        return reflectArray;
+    }
+
+    static synchronized  ClassType getKlass() {
+        if (klass == null) {
+            klass = getClassType(ClassNames.CLASS);
+        }
+        return klass;
+    }
+
+    private static ClassType getClassType(String s) {
         return BuildContext.get().getTypeSystem().getClassType(s);
     }
 
@@ -512,7 +600,7 @@ public class Utils {
         ClassType SERIALIZABLE = Utils.getSerializable();
 
         assert subtype != null;
-        if (subtype.equals(supertype)) {
+        if (subtype == supertype) {
             return true;
         } else if (subtype instanceof NullType) {
             return supertype instanceof ReferenceType;
@@ -555,6 +643,7 @@ public class Utils {
             }
         }
         JClass subClass = subtype.getJClass();
+        assert subClass != null;
         JClass superClass = supertype.getJClass();
         if (subClass.getName().equals(ClassNames.OBJECT)) {
             return subClass == superClass;

@@ -124,9 +124,9 @@ public class CastingInsert {
 
     public void build() {
 
-        for (BytecodeBlock block : builder.getAllBlocks()) {
+        for (BytecodeBlock block : builder.blockSortedList) {
 
-            List<Stmt> newStmts = new ArrayList<>();
+            List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
 
             for (Stmt stmt : getStmts(block)) {
                 currentStmt = stmt;
@@ -275,6 +275,7 @@ public class CastingInsert {
                             newStmts.add(getNewCast(v, stmt.getValue(), t));
                             builder.manager.getRetVars().remove(stmt.getValue());
                             builder.manager.getRetVars().add(v);
+                            v.setType(t);
                             return new Return(v);
                         } else {
                             return stmt;

@@ -28,9 +28,9 @@ public final class BytecodeBlock {
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
 
-    private Stack<Exp> inStack;
+    private Stack<StackItem> inStack;
 
-    private Stack<Exp> outStack;
+    private Stack<StackItem> outStack;
 
     private List<Stmt> stmts;
 
@@ -110,15 +110,15 @@ public final class BytecodeBlock {
         complete = true;
     }
 
-    public Stack<Exp> getInStack() {
+    public Stack<StackItem> getInStack() {
         return inStack;
     }
 
-    public Stack<Exp> getOutStack() {
+    public Stack<StackItem> getOutStack() {
         return outStack;
     }
 
-    public void setInStack(Stack<Exp> inStack) {
+    public void setInStack(Stack<StackItem> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
 //        assert frame == null ||
 //                inStack.stream().filter(i -> i instanceof Var).count() == frame.stack.size();
@@ -144,7 +144,7 @@ public final class BytecodeBlock {
 //        }
     }
 
-    public void setOutStack(Stack<Exp> outStack) {
+    public void setOutStack(Stack<StackItem> outStack) {
         assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
 //        for (var succ : outEdges) {
@@ -184,11 +184,11 @@ public final class BytecodeBlock {
         if (inStack != null) {
             int n = 0;
             for (int i = 0; i < frame.stack.size(); ++i) {
-                Exp e = inStack.get(n);
+                Exp e = inStack.get(n).e();
                 Var v;
                 if (e instanceof Top) {
                     n++;
-                    e = inStack.get(n);
+                    e = inStack.get(n).e();
                 }
 
                 if (e instanceof Phi phi) {
@@ -225,7 +225,8 @@ public final class BytecodeBlock {
         tryCorrectFrame(n);
         if (inStack != null) {
             n = 0;
-            for (Exp e : inStack) {
+            for (StackItem item : inStack) {
+                Exp e = item.e();
                 if (e == Top.Top) {
                     continue;
                 }

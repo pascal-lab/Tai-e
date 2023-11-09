@@ -1,8 +1,35 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.ConditionExp;
+import pascal.taie.ir.exp.FieldAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.AssignLiteral;
+import pascal.taie.ir.stmt.AssignStmt;
+import pascal.taie.ir.stmt.Binary;
+import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Catch;
+import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Goto;
+import pascal.taie.ir.stmt.If;
+import pascal.taie.ir.stmt.InstanceOf;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Monitor;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.ir.stmt.SwitchStmt;
+import pascal.taie.ir.stmt.Throw;
+import pascal.taie.ir.stmt.Unary;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
@@ -14,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class VarWebSplitter {
 
@@ -260,30 +288,87 @@ public class VarWebSplitter {
         for (int i = 0; i < stmts.size(); ++i) {
             Stmt stmt = stmts.get(i);
             // uses first
-            int finalI = i;
-            StmtVarVisitor.visitUse(stmt, (use) -> {
-                if (varManager.isLocalFast(use)) {
-                    int slot = VarManager.getSlotFast(use);
-                    int color = currentDefs[slot];
-                    assert color != Colors.NOT_EXIST;
-                    StmtOccur occur = new StmtOccur(block, finalI, Kind.USE, slot, color);
-                    colors.noticeOneOccur(occur);
+            // inlined by idea, origin impl is more simple
+            // but this impl will eliminate the overhead of lambda creation
+            if (stmt instanceof Cast cast) {
+                visitUse(block, currentDefs, i, cast.getRValue().getValue());
+            } else if (stmt instanceof InstanceOf instanceOf) {
+                visitUse(block, currentDefs, i, instanceOf.getRValue().getValue());
+            } else if (stmt instanceof StoreField storeField) {
+                visitUse(block, currentDefs, i, storeField.getRValue());
+                FieldAccess fieldAccess = storeField.getFieldAccess();
+                if (fieldAccess instanceof InstanceFieldAccess instanceFieldAccess) {
+                    visitUse(block, currentDefs, i, instanceFieldAccess.getBase());
                 }
-            });
-
-            StmtVarVisitor.visitDef(stmt, (def) -> {
-                if (varManager.isLocalFast(def)) {
-                    int slot = VarManager.getSlotFast(def);
-                    int newColor = colors.getNewColor(slot);
-                    StmtOccur occur = new StmtOccur(block, finalI, Kind.DEF, slot, newColor);
-                    colors.noticeOneOccur(occur);
-                    currentDefs[slot] = newColor;
-
-                    if (isInTry) {
-                        mayFlowToCatch.get(slot).add(newColor);
-                    }
+            } else if (stmt instanceof LoadField loadField) {
+                FieldAccess fieldAccess = loadField.getRValue();
+                if (fieldAccess instanceof InstanceFieldAccess instanceFieldAccess) {
+                    visitUse(block, currentDefs, i, instanceFieldAccess.getBase());
                 }
-            });
+            } else if (stmt instanceof Binary binary) {
+                BinaryExp rValue = binary.getRValue();
+                Var use1 = rValue.getOperand1();
+                visitUse(block, currentDefs, i, use1);
+                Var use = rValue.getOperand2();
+                visitUse(block, currentDefs, i, use);
+            } else if (stmt instanceof Unary unary) {
+                Var use = unary.getRValue().getOperand();
+                visitUse(block, currentDefs, i, use);
+            } else if (stmt instanceof Copy copy) {
+                visitUse(block, currentDefs, i, copy.getRValue());
+            } else if (stmt instanceof LoadArray loadArray) {
+                ArrayAccess arrayAccess = loadArray.getArrayAccess();
+                visitUse(block, currentDefs, i, arrayAccess.getBase());
+                visitUse(block, currentDefs, i, arrayAccess.getIndex());
+            } else if (stmt instanceof StoreArray storeArray) {
+                visitUse(block, currentDefs, i, storeArray.getRValue());
+                ArrayAccess arrayAccess = storeArray.getArrayAccess();
+                visitUse(block, currentDefs, i, arrayAccess.getBase());
+                visitUse(block, currentDefs, i, arrayAccess.getIndex());
+            } else if (stmt instanceof Invoke invoke) {
+                InvokeExp exp = invoke.getInvokeExp();
+                if (exp instanceof InvokeInstanceExp invokeInstanceExp) {
+                    visitUse(block, currentDefs, i, invokeInstanceExp.getBase());
+                }
+
+                for (Var v : exp.getArgs()) {
+                    visitUse(block, currentDefs, i, v);
+                }
+            } else if (stmt instanceof Return r) {
+                Var use1 = r.getValue();
+                if (use1 != null) {
+                    visitUse(block, currentDefs, i, use1);
+                }
+            } else if (stmt instanceof Monitor monitor) {
+                visitUse(block, currentDefs, i, monitor.getObjectRef());
+            } else if (stmt instanceof If ifStmt) {
+                ConditionExp condition = ifStmt.getCondition();
+                visitUse(block, currentDefs, i, condition.getOperand1());
+                visitUse(block, currentDefs, i, condition.getOperand2());
+            } else if (stmt instanceof SwitchStmt switchStmt) {
+                visitUse(block, currentDefs, i, switchStmt.getVar());
+            } else if (stmt instanceof Throw throwStmt) {
+                visitUse(block, currentDefs, i, throwStmt.getExceptionRef());
+            } else if (stmt instanceof Catch | stmt instanceof Goto
+                    | stmt instanceof New | stmt instanceof AssignLiteral) {
+                // Do nothing
+            } else {
+                throw new UnsupportedOperationException();
+            }
+
+            if (stmt instanceof AssignStmt<?,?> assignStmt) {
+                LValue l = assignStmt.getLValue();
+                if (l instanceof Var v) {
+                    visitDef(block, v, i, currentDefs, isInTry, mayFlowToCatch);
+                }
+            } else if (stmt instanceof Catch catchStmt) {
+                visitDef(block, catchStmt.getExceptionRef(), i, currentDefs, isInTry, mayFlowToCatch);
+            } else if (stmt instanceof Invoke invoke) {
+                Var v = invoke.getLValue();
+                if (v != null) {
+                    visitDef(block, v, i, currentDefs, isInTry, mayFlowToCatch);
+                }
+            }
         }
 
 
@@ -296,6 +381,31 @@ public class VarWebSplitter {
         }
 
         block2outDefs[block.getIndex()] = currentDefs;
+    }
+
+    private void visitDef(BytecodeBlock block, Var def, int finalI, int[] currentDefs,
+                          boolean isInTry, List<List<Integer>> mayFlowToCatch) {
+        if (varManager.isLocalFast(def)) {
+            int slot = VarManager.getSlotFast(def);
+            int newColor = colors.getNewColor(slot);
+            StmtOccur occur = new StmtOccur(block, finalI, Kind.DEF, slot, newColor);
+            colors.noticeOneOccur(occur);
+            currentDefs[slot] = newColor;
+
+            if (isInTry) {
+                mayFlowToCatch.get(slot).add(newColor);
+            }
+        }
+    }
+
+    public void visitUse(BytecodeBlock block, int[] currentDefs, int finalI, Var use) {
+        if (varManager.isLocalFast(use)) {
+            int slot = VarManager.getSlotFast(use);
+            int color = currentDefs[slot];
+            assert color != Colors.NOT_EXIST;
+            StmtOccur occur = new StmtOccur(block, finalI, Kind.USE, slot, color);
+            colors.noticeOneOccur(occur);
+        }
     }
 
     private void constructWebBetweenTryAndHandler(BytecodeBlock tryBlock, BytecodeBlock handler) {

@@ -26,6 +26,8 @@ public class TempTypeSystem implements TypeSystem {
 
     private final Map<JClassLoader, Map<String, ClassType>> classTypes = newConcurrentMap();
 
+    private final Map<String, ClassType> defaultClassTypes = newConcurrentMap();
+
     /**
      * This map may be concurrently written during IR construction,
      * thus we use concurrent map to ensure its thread-safety.
@@ -44,6 +46,7 @@ public class TempTypeSystem implements TypeSystem {
     private final ClassType DOUBLE;
 
     public TempTypeSystem(JClassLoader loader) {
+        defaultClassLoader = loader;
         BOOLEAN = getClassType(loader, ClassNames.BOOLEAN);
         BYTE = getClassType(loader, ClassNames.BYTE);
         SHORT = getClassType(loader, ClassNames.SHORT);
@@ -52,7 +55,6 @@ public class TempTypeSystem implements TypeSystem {
         LONG = getClassType(loader, ClassNames.LONG);
         FLOAT = getClassType(loader, ClassNames.FLOAT);
         DOUBLE = getClassType(loader, ClassNames.DOUBLE);
-        defaultClassLoader = loader;
     }
 
     @Override
@@ -90,6 +92,11 @@ public class TempTypeSystem implements TypeSystem {
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
+        assert loader == defaultClassLoader;
+        if (loader == defaultClassLoader) {
+            return defaultClassTypes.computeIfAbsent(className,
+                    name -> new ClassType(loader, name));
+        }
         return classTypes.computeIfAbsent(loader, l -> newConcurrentMap())
                 .computeIfAbsent(className, name -> new ClassType(loader, name));
     }

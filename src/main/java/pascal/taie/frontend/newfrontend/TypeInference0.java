@@ -31,10 +31,10 @@ import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
@@ -42,7 +42,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,13 +60,22 @@ public class TypeInference0 {
 
     private final int varSize;
 
+    private final ClassType stringType;
+
     public TypeInference0(AsmIRBuilder builder) {
         this.builder = builder;
         varSize = builder.manager.getVars().size();
 
-        localTypeConstrains = new ArrayList<>(Collections.nCopies(varSize, null));
-        localTypeAssigns = new ArrayList<>(Collections.nCopies(varSize, null));
+        localTypeConstrains = new ArrayList<>(varSize);
+        for (int i = 0; i < varSize; ++i) {
+            localTypeConstrains.add(null);
+        }
+        localTypeAssigns = new ArrayList<>(varSize);
+        for (int i = 0; i < varSize; ++i) {
+            localTypeAssigns.add(null);
+        }
         localCells = builder.manager.getSlotTable();
+        stringType = getString();
     }
 
     private void putMultiSet(List<Set<Type>> set, Var v, Type t) {
@@ -99,6 +107,12 @@ public class TypeInference0 {
         if (allTypes.size() == 1) {
             if (now == Uninitialized.UNINITIALIZED) {
                 return getObject();
+            }
+            if (now == getObject()) {
+                Set<Type> constrains = localTypeConstrains.get(v.getIndex());
+                if (constrains != null && constrains.size() == 1) {
+                    return constrains.iterator().next();
+                }
             }
             return now;
         }
@@ -162,7 +176,11 @@ public class TypeInference0 {
     private void setTypeForTemp(Var var, Type t) {
         if (isLocal(var)) {
             putMultiSet(localTypeAssigns, var, t);
-        } else if (builder.manager.isNotSpecialVar(var)) {
+        } else {
+            if (var.getType() != null) {
+//                assert !builder.manager.isNotSpecialVar(var);
+                return;
+            }
             if (t == Uninitialized.UNINITIALIZED) {
                 var.setType(getObject());
             } else {
@@ -215,7 +233,7 @@ public class TypeInference0 {
         }
     }
 
-    private Set<BytecodeBlock> visited;
+    private boolean[] visited;
 
     public void build() {
         buildLocalTypes();
@@ -266,12 +284,12 @@ public class TypeInference0 {
     }
 
     private void inferTypes() {
-        visited = Sets.newHybridSet();
+        visited = new boolean[builder.blockSortedList.size()];
         for (BytecodeBlock block : builder.blockSortedList) {
             Type[] initTyping;
             initTyping = new Type[varSize];
             List<Object> frameLocalType;
-            if (! visited.contains(block)) {
+            if (! visited[block.getIndex()]) {
                 if (block.inEdges().isEmpty() && ! block.isCatch()) {
                     frameLocalType = List.of();
                 } else {
@@ -287,7 +305,7 @@ public class TypeInference0 {
     }
 
     private void inferTypesForBlock(BytecodeBlock block, Typing typing) {
-        visited.add(block);
+        visited[block.getIndex()] = true;
         for (Stmt stmt : getStmts(block)) {
             stmt.accept(new StmtVisitor<Void> () {
                 @Override
@@ -301,9 +319,9 @@ public class TypeInference0 {
                     Literal l = stmt.getRValue();
                     Type t;
                     if (l instanceof StringLiteral) {
-                        t = Utils.getString();
+                        t = stringType;
                     } else if (l instanceof ClassLiteral) {
-                        t = Utils.getClassType(ClassNames.CLASS);
+                        t = Utils.getKlass();
                     } else {
                         t = l.getType();
                     }

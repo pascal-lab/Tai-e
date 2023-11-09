@@ -87,120 +87,122 @@ public class TypeInference {
         addThisParam();
         addExceptionRef();
 
-        for (Stmt stmt : builder.getAllStmts()) {
-            stmt.accept(new StmtVisitor<Void>() {
-                @Override
-                public Void visit(New stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                    return null;
-                }
-
-                @Override
-                public Void visit(AssignLiteral stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                    return null;
-                }
-
-                @Override
-                public Void visit(Copy stmt) {
-                    graph.addVarEdge(stmt.getRValue(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                    return null;
-                }
-
-                @Override
-                public Void visit(LoadArray stmt) {
-                    graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.ARRAY_VAR);
-                    return null;
-                }
-
-                @Override
-                public Void visit(StoreArray stmt) {
-                    graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
-                    return null;
-                }
-
-                @Override
-                public Void visit(LoadField stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                    if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
-                        // TODO: maybe resolve() or can just setType() ?
-                        graph.addUseConstrain(instanceFieldAccess.getBase(),
-                                instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void visit(StoreField stmt) {
-                    if (stmt.getLValue().getType() instanceof ReferenceType r) {
-                        graph.addUseConstrain(stmt.getRValue(), r);
-                    }
-                    return StmtVisitor.super.visit(stmt);
-                }
-
-                @Override
-                public Void visit(Binary stmt) {
-                    graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                    return null;
-                }
-
-                @Override
-                public Void visit(Unary stmt) {
-                    if (stmt.getRValue() instanceof ArrayLengthExp) {
-                        graph.addConstantEdge(PrimitiveType.INT, stmt.getLValue());
-                    } else {
-                        graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void visit(InstanceOf stmt) {
-                    graph.addConstantEdge(PrimitiveType.BOOLEAN, stmt.getLValue());
-                    return null;
-                }
-
-                @Override
-                public Void visit(Cast stmt) {
-                    graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                    return null;
-                }
-
-                @Override
-                public Void visit(Invoke stmt) {
-                    Var lValue = stmt.getLValue();
-                    if (lValue != null) {
-                        graph.addConstantEdge(stmt.getRValue().getType(), lValue);
+        for (BytecodeBlock block : builder.blockSortedList) {
+            for (Stmt stmt : block.getStmts()) {
+                stmt.accept(new StmtVisitor<Void>() {
+                    @Override
+                    public Void visit(New stmt) {
+                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+                        return null;
                     }
 
-                    if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                        if (! stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
-                            graph.addUseConstrain(invokeInstanceExp.getBase(),
-                                    invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                    @Override
+                    public Void visit(AssignLiteral stmt) {
+                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(Copy stmt) {
+                        graph.addVarEdge(stmt.getRValue(), stmt.getLValue(), EdgeKind.VAR_VAR);
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(LoadArray stmt) {
+                        graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.ARRAY_VAR);
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(StoreArray stmt) {
+                        graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(LoadField stmt) {
+                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+                        if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
+                            // TODO: maybe resolve() or can just setType() ?
+                            graph.addUseConstrain(instanceFieldAccess.getBase(),
+                                    instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
                         }
+                        return null;
                     }
 
-                    List<Type> paraTypes = stmt.getRValue().getMethodRef().getParameterTypes();
-                    List<Var> args = stmt.getRValue().getArgs();
-                    for (int i = 0; i < args.size(); ++i) {
-                        Type paraType = paraTypes.get(i);
-                        Var arg = args.get(i);
-                        if (paraType instanceof ReferenceType r) {
-                            graph.addUseConstrain(arg, r);
+                    @Override
+                    public Void visit(StoreField stmt) {
+                        if (stmt.getLValue().getType() instanceof ReferenceType r) {
+                            graph.addUseConstrain(stmt.getRValue(), r);
                         }
+                        return StmtVisitor.super.visit(stmt);
                     }
-                    return null;
-                }
 
-                @Override
-                public Void visit(Return stmt) {
-                    Type retType = builder.method.getReturnType();
-                    if (retType instanceof ReferenceType r) {
-                        graph.addUseConstrain(stmt.getValue(), r);
+                    @Override
+                    public Void visit(Binary stmt) {
+                        graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
+                        return null;
                     }
-                    return StmtVisitor.super.visit(stmt);
-                }
-            });
+
+                    @Override
+                    public Void visit(Unary stmt) {
+                        if (stmt.getRValue() instanceof ArrayLengthExp) {
+                            graph.addConstantEdge(PrimitiveType.INT, stmt.getLValue());
+                        } else {
+                            graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(InstanceOf stmt) {
+                        graph.addConstantEdge(PrimitiveType.BOOLEAN, stmt.getLValue());
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(Cast stmt) {
+                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(Invoke stmt) {
+                        Var lValue = stmt.getLValue();
+                        if (lValue != null) {
+                            graph.addConstantEdge(stmt.getRValue().getType(), lValue);
+                        }
+
+                        if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
+                            if (!stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
+                                graph.addUseConstrain(invokeInstanceExp.getBase(),
+                                        invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                            }
+                        }
+
+                        List<Type> paraTypes = stmt.getRValue().getMethodRef().getParameterTypes();
+                        List<Var> args = stmt.getRValue().getArgs();
+                        for (int i = 0; i < args.size(); ++i) {
+                            Type paraType = paraTypes.get(i);
+                            Var arg = args.get(i);
+                            if (paraType instanceof ReferenceType r) {
+                                graph.addUseConstrain(arg, r);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(Return stmt) {
+                        Type retType = builder.method.getReturnType();
+                        if (retType instanceof ReferenceType r) {
+                            graph.addUseConstrain(stmt.getValue(), r);
+                        }
+                        return StmtVisitor.super.visit(stmt);
+                    }
+                });
+            }
         }
 
         graph.inferTypes();

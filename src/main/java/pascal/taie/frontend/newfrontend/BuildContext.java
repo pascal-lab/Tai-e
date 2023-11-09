@@ -5,16 +5,13 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
+import pascal.taie.World;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -49,14 +46,19 @@ public class BuildContext {
 
     static BuildContext buildContext;
 
+    static {
+        World.registerResetCallback(() -> {
+            buildContext = null;
+        });
+    }
+
     public static BuildContext get() {
-        if (buildContext == null) {
-            throw new IllegalStateException();
-        }
+        assert buildContext != null;
         return buildContext;
     }
 
     static void make(JClassLoader loader) {
+        assert buildContext == null;
         buildContext = new BuildContext(loader, new TempTypeSystem(loader));
     }
 
@@ -85,15 +87,25 @@ public class BuildContext {
     }
 
     public Type fromAsmType(org.objectweb.asm.Type t) {
-        if (t.getSort() == org.objectweb.asm.Type.VOID) {
+        int sort = t.getSort();
+        if (sort == org.objectweb.asm.Type.VOID) {
             return VoidType.VOID;
-        } else if (t.getSort() < org.objectweb.asm.Type.ARRAY) {
-            // t is a primitive type
-            return PrimitiveType.get(StringReps.toTaieTypeDesc(t.getDescriptor()));
-        } else if (t.getSort() == org.objectweb.asm.Type.ARRAY) {
+        } else if (sort < org.objectweb.asm.Type.ARRAY) {
+            return switch (sort) {
+                case org.objectweb.asm.Type.BOOLEAN -> PrimitiveType.BOOLEAN;
+                case org.objectweb.asm.Type.BYTE -> PrimitiveType.BYTE;
+                case org.objectweb.asm.Type.CHAR -> PrimitiveType.CHAR;
+                case org.objectweb.asm.Type.SHORT -> PrimitiveType.SHORT;
+                case org.objectweb.asm.Type.INT -> PrimitiveType.INT;
+                case org.objectweb.asm.Type.LONG -> PrimitiveType.LONG;
+                case org.objectweb.asm.Type.FLOAT -> PrimitiveType.FLOAT;
+                case org.objectweb.asm.Type.DOUBLE -> PrimitiveType.DOUBLE;
+                default -> throw new UnsupportedOperationException();
+            };
+        } else if (sort == org.objectweb.asm.Type.ARRAY) {
             return typeSystem.getArrayType(fromAsmType(t.getElementType()), t.getDimensions());
-        } else if(t.getSort() == org.objectweb.asm.Type.OBJECT) {
-            return typeSystem.getType(t.getClassName());
+        } else if(sort == org.objectweb.asm.Type.OBJECT) {
+            return typeSystem.getClassType(t.getClassName());
         } else {
             // t maybe a function ? error
             throw new IllegalArgumentException();
@@ -124,13 +136,10 @@ public class BuildContext {
     }
 
     public JClass toJClass(String internalName) {
-        ReferenceType type = fromAsmInternalName(internalName);
-        if (type instanceof ArrayType) {
-            return typeSystem.getClassType(ClassNames.ARRAY).getJClass();
-        } else if (type instanceof ClassType t) {
-            return t.getJClass();
+        if (internalName.startsWith("[")) {
+            return Utils.getReflectArray().getJClass();
         } else {
-            throw new UnsupportedOperationException();
+            return getClassByName(org.objectweb.asm.Type.getObjectType(internalName).getClassName());
         }
     }
 
@@ -139,6 +148,7 @@ public class BuildContext {
     }
 
     public AsmMethodSource getSource(JMethod method) {
+        assert !World.get().getOptions().isPreBuildIR();
         if (method2Source.get(method) != null) {
             return new AsmMethodSource(method2Source.get(method),
                     jclass2Node.get(method.getDeclaringClass()).getClassFileVersion());
@@ -169,7 +179,9 @@ public class BuildContext {
             }
 
             assert method2Source.get(method) != null;
-            return new AsmMethodSource(method2Source.get(method),
+            JSRInlinerAdapter source1 = method2Source.get(method);
+            method2Source.remove(method);
+            return new AsmMethodSource(source1,
                     jclass2Node.get(method.getDeclaringClass()).getClassFileVersion());
         }
     }

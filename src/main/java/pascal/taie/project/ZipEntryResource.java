@@ -52,4 +52,9 @@ public class ZipEntryResource implements Resource {
     public Path getPath() {
         return fs.getPath(path);
     }
+
+    @Override
+    public void release() {
+        cache = null;
+    }
 }

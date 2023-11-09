@@ -7,6 +7,12 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
+import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ParameterNode;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -57,6 +63,8 @@ public class AsmClassBuilder implements JClassBuilder {
      */
     private final List<Annotation> annotations;
 
+    private final int version;
+
     public AsmClassBuilder(
             AsmSource source, JClass jClass) {
         this.source = source;
@@ -64,7 +72,7 @@ public class AsmClassBuilder implements JClassBuilder {
         this.fields = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        BuildContext.get().jclass2Node.put(jClass, source);
+        this.version = source.getClassFileVersion();
     }
 
     @Override
@@ -130,13 +138,75 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public boolean isPhantom() {
-        // TODO: handle phantom class
         return false;
     }
 
     private void buildAll() {
-        CVisitor visitor = new CVisitor();
-        source.r().accept(visitor, ClassReader.SKIP_CODE);
+        if (source.node() == null) {
+            CVisitor visitor = new CVisitor();
+            source.r().accept(visitor, ClassReader.SKIP_CODE);
+        } else {
+            ClassNode node = source.node();
+            if (node.superName != null) {
+                this.superClass = getClassByName(node.superName);
+            }
+            this.interfaces = node.interfaces.stream()
+                    .map(AsmClassBuilder::getClassByName)
+                    .toList();
+            if (node.outerClass != null) {
+                this.outerClass = getClassByName(node.outerClass);
+            }
+            this.modifiers = fromAsmModifier(node.access);
+            for (FieldNode fieldNode : node.fields) {
+                fields.add(new JField(jClass, fieldNode.name,
+                        fromAsmModifier(fieldNode.access),
+                        BuildContext.get().fromAsmType(fieldNode.desc),
+                        AnnotationHolder.make(new FVisitor(annotations -> {
+                        }).annotations)));
+            }
+            if (node.visibleAnnotations != null) {
+                for (AnnotationNode annotationNode : node.visibleAnnotations) {
+                    annotationNode.accept(new AnnoVisitor(annotationNode.desc, annotations::add));
+                }
+            }
+            for (MethodNode methodNode : node.methods) {
+                assert methodNode instanceof JSRInlinerAdapter;
+                Set<Modifier> modifiers1 = fromAsmModifier(methodNode.access);
+                List<Type> paramTypes = new ArrayList<>();
+                org.objectweb.asm.Type methodType = org.objectweb.asm.Type.getMethodType(methodNode.desc);
+                for (org.objectweb.asm.Type t1 : methodType.getArgumentTypes()) {
+                    paramTypes.add(BuildContext.get().fromAsmType(t1));
+                }
+                Type retType = BuildContext.get().fromAsmType(methodType.getReturnType());
+                List<ClassType> exceptions = new ArrayList<>();
+                if (methodNode.exceptions != null) {
+                    for (String exception : methodNode.exceptions) {
+                        exceptions.add((ClassType) BuildContext.get().fromAsmInternalName(exception));
+                    }
+                }
+                List<Annotation> annotations1 = new ArrayList<>();
+                if (methodNode.visibleAnnotations != null) {
+                    for (AnnotationNode annotationNode : methodNode.visibleAnnotations) {
+                        annotationNode.accept(
+                                new AnnoVisitor(annotationNode.desc, annotations1::add));
+                    }
+                }
+                List<String> paramName = null;
+                if (methodNode.parameters != null) {
+                    paramName = new ArrayList<>();
+                    for (ParameterNode parameterNode : methodNode.parameters) {
+                        paramName.add(parameterNode.name);
+                    }
+                }
+                JMethod method = new JMethod(jClass, methodNode.name, modifiers1, paramTypes,
+                        retType, exceptions,
+                        AnnotationHolder.make(annotations1), null,
+                        paramName,
+                        new AsmMethodSource((JSRInlinerAdapter) methodNode, version));
+                methods.add(method);
+            }
+
+        }
     }
 
     private String getSimpleName(String binaryName) {
@@ -205,7 +275,6 @@ public class AsmClassBuilder implements JClassBuilder {
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-
             return new MVisitor(access, name, descriptor, exceptions);
         }
 
@@ -257,12 +326,16 @@ public class AsmClassBuilder implements JClassBuilder {
             org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             this.modifiers = fromAsmModifier(access);
             this.methodName = name;
-            this.exceptions =  exceptions == null ? List.of() : Arrays.stream(exceptions)
-                    .map(i -> (ClassType) BuildContext.get().fromAsmInternalName(i))
-                    .toList();
-            this.paramTypes = Arrays.stream(t.getArgumentTypes())
-                    .map(BuildContext.get()::fromAsmType)
-                    .toList();
+            this.exceptions = new ArrayList<>();
+            if (exceptions != null) {
+                for (String exception : exceptions) {
+                    this.exceptions.add((ClassType) BuildContext.get().fromAsmInternalName(exception));
+                }
+            }
+            this.paramTypes = new ArrayList<>();
+            for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
+                paramTypes.add(BuildContext.get().fromAsmType(t1));
+            }
             this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
             this.paramAnnotations = null;

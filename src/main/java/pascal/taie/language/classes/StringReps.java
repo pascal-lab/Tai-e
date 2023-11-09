@@ -77,6 +77,10 @@ public final class StringReps {
                 ">";
     }
 
+    public static String getSignatureOf1(JMethod method, String subSig) {
+        return "<" + method.declaringClass + ": " + subSig + ">";
+    }
+
     public static String getSignatureOf(JField field) {
         return getFieldSignature(field.getDeclaringClass(),
                 field.getName(), field.getType());

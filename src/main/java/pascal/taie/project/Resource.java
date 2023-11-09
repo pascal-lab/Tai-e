@@ -11,4 +11,6 @@ public interface Resource {
     byte[] getContent() throws IOException;
 
     Path getPath();
+
+    void release();
 }

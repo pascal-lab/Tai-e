@@ -17,9 +17,9 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
     public ClassHierarchy build(Collection<ClassSource> sources) {
         ClassHierarchyImpl ch = new ClassHierarchyImpl();
         DefaultClassLoader dcl = new DefaultClassLoader(ch, World.get().getOptions().isAllowPhantom());
-        Map<String, JClass> m = Maps.newConcurrentMap();
+        Map<String, JClass> m = Maps.newMap();
         dcl.setMapping(m);
-        sources.parallelStream().forEach(i -> {
+        sources.forEach(i -> {
             String name = i.getClassName();
             m.put(name, new JClass(dcl, name));
         });
@@ -28,6 +28,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         ch.setBootstrapClassLoader(dcl);
         BuildContext.make(dcl);
 
+        boolean preBuild = World.get().getOptions().isPreBuildIR();
         sources.parallelStream().forEach(i -> {
             JClass klass = m.getOrDefault(i.getClassName(), null);
             if (klass == null) {
@@ -35,6 +36,9 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             }
             JClassBuilder asb = getClassBuilder(i, klass);
             asb.build(klass);
+            if (!preBuild && i instanceof AsmSource as) {
+                BuildContext.get().jclass2Node.put(klass, as);
+            }
         });
 
         for (var i : m.values()) {

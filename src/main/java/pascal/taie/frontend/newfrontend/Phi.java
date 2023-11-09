@@ -6,21 +6,19 @@ import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.Type;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 class Phi implements Exp {
 
-    private final List<Exp> nodes;
+    private final List<StackItem> nodes;
     private Var var;
     private final int height;
     boolean used;
     int nodeSize;
     BytecodeBlock createPos;
 
-    Phi(int i, List<Exp> exps, BytecodeBlock block) {
+    Phi(int i, List<StackItem> exps, BytecodeBlock block) {
         this.nodes = exps;
         this.height = i;
         this.createPos = block;
@@ -28,17 +26,7 @@ class Phi implements Exp {
         nodeSize = nodes.size();
     }
 
-    Phi(int i, Exp first, BytecodeBlock block) {
-        height = i;
-        nodes = new ArrayList<>();
-        var = null;
-        addNodes(first);
-        used = false;
-        createPos = block;
-        nodeSize = 0;
-    }
-
-    void addNodes(Exp n) {
+    void addNodes(StackItem n) {
         if (!nodes.contains(n)) {
             this.nodes.add(n);
         }
@@ -57,7 +45,7 @@ class Phi implements Exp {
         return this.var;
     }
 
-    List<Exp> getNodes() {
+    List<StackItem> getNodes() {
         return nodes;
     }
 

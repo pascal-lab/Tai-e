@@ -22,7 +22,6 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.newfrontend.info.VarReporter;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -86,7 +85,6 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,8 +120,6 @@ public class AsmIRBuilder {
 
     final VarManager manager;
 
-    private final Map<Exp, AbstractInsnNode> exp2origin;
-
     final Stmt[] asm2Stmt;
 
     final Map<AbstractInsnNode, List<Stmt>> auxiliaryStmts;
@@ -140,6 +136,8 @@ public class AsmIRBuilder {
 
     private static final Logger logger = LogManager.getLogger();
 
+    private static final StackItem TOP = new StackItem(Top.Top, null);
+
     public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
         this.method = method;
         this.source = methodSource.adapter();
@@ -149,7 +147,6 @@ public class AsmIRBuilder {
         this.manager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals);
         this.asm2Stmt = new Stmt[source.instructions.size()];
-        this.exp2origin = Maps.newMap();
         this.auxiliaryStmts = Maps.newMap();
         this.stmts = new ArrayList<>();
         this.phiList = new ArrayList<>();
@@ -176,8 +173,6 @@ public class AsmIRBuilder {
             stageTimer.endTypelessIR();
             verify();
             this.ir = getIR();
-
-            VarReporter.get().report(source.maxLocals, manager.getVars().size());
         }
         // TODO: check how to handle empty method
     }
@@ -298,6 +293,7 @@ public class AsmIRBuilder {
     }
 
     private int getIndex(AbstractInsnNode node) {
+        assert node != null;
         return source.instructions.indexOf(node);
     }
 
@@ -330,11 +326,11 @@ public class AsmIRBuilder {
         };
     }
 
-    private Exp popExp(Stack<Exp> stack) {
-        Exp e = stack.pop();
-        if (e instanceof Top) {
-            Exp e1 = stack.pop();
-            assert ! (e1 instanceof Top);
+    private StackItem popExp(Stack<StackItem> stack) {
+        StackItem e = stack.pop();
+        if (e.e() instanceof Top) {
+            StackItem e1 = stack.pop();
+            assert ! (e1.e() instanceof Top);
             return e1;
         } else {
             return e;
@@ -352,9 +348,9 @@ public class AsmIRBuilder {
         }
     }
 
-    private AbstractInsnNode getOrig(Exp e) {
-        return exp2origin.get(e);
-    }
+//    private AbstractInsnNode getOrig(Exp e) {
+//        return exp2origin.get(e);
+//    }
 
     private List<Stmt> clearStmt(AbstractInsnNode node) {
         List<Stmt> res = new ArrayList<>();
@@ -384,11 +380,11 @@ public class AsmIRBuilder {
         aux.add(stmt);
     }
 
-    private void assocStmt(Exp e, Stmt stmt) {
-        assocStmt(exp2origin.get(e), stmt);
+    private void assocStmt(StackItem item, Stmt stmt) {
+        assocStmt(item.origin(), stmt);
     }
 
-    private Var toVar(Exp e) {
+    private Var toVar(Exp e, AbstractInsnNode orig) {
         assert ! (e instanceof Var v && manager.isTempVar(v));
         if (e instanceof Phi phi) {
             if (phi.getVar() != null) {
@@ -416,7 +412,6 @@ public class AsmIRBuilder {
         }
         // if reach here
         // this method should only be called once (normally)
-        AbstractInsnNode orig = getOrig(e);
         if (false) {
 //            logger.atInfo().log("[IR] Multiple expression belonging to one bytecode" + "\n" +
 //                                "     It may be an error, you should check IR." + "\n" +
@@ -427,50 +422,51 @@ public class AsmIRBuilder {
         return v;
     }
 
-    private Var popVar(Stack<Exp> stack) {
-        Exp e = popExp(stack);
-        if (e instanceof Var v) {
+    private Var popVar(Stack<StackItem> stack) {
+        StackItem e = popExp(stack);
+        if (e.e() instanceof Var v) {
             return v;
         } else {
-            return toVar(e);
+            return toVar(e.e(), e.origin());
         }
     }
 
-    private Stmt popToVar(Stack<Exp> stack, Var v) {
-        Exp top = popExp(stack);
+    private Stmt popToVar(Stack<StackItem> stack, Var v) {
+        StackItem top = popExp(stack);
         // Note: Var . getUses() will return empty set
-        if (top instanceof Phi phi) {
-            top = toVar(phi);
+        if (top.e() instanceof Phi phi) {
+            top = new StackItem(toVar(phi, null), null);
         } else {
             ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
         }
-        return getAssignStmt(v, top);
+        return getAssignStmt(v, top.e());
     }
 
-    private void popToEffect(Stack<Exp> stack) {
+    private void popToEffect(Stack<StackItem> stack) {
         // normally, this should only be used to pop a InvokeExp
-        Exp e = stack.pop();
+        StackItem item = stack.pop();
+        Exp e = item.e();
         if (e instanceof Top) {
             return;
         } else if (e instanceof InvokeExp invokeExp) {
-            assocStmt(e, new Invoke(method, invokeExp));
+            assocStmt(item, new Invoke(method, invokeExp));
         } else if (maySideEffect(e)) {
-            assocStmt(e, getAssignStmt(manager.getTempVar(), e));
+            assocStmt(item, getAssignStmt(manager.getTempVar(), e));
         }
     }
 
-    private void dup(Stack<Exp> stack, int takes, int seps) {
-        List<Exp> takesList = new ArrayList<>(takes);
+    private void dup(Stack<StackItem> stack, int takes, int seps) {
+        List<StackItem> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
-            Exp e = stack.pop();
-            if (e instanceof Top || e instanceof Var) {
+            StackItem e = stack.pop();
+            if (e.e() instanceof Top || e.e() instanceof Var) {
                 takesList.add(e);
             } else {
-                takesList.add(toVar(e));
+                takesList.add(new StackItem(toVar(e.e(), e.origin()), null));
             }
         }
         Collections.reverse(takesList);
-        List<Exp> sepsList = new ArrayList<>(seps);
+        List<StackItem> sepsList = new ArrayList<>(seps);
         for (int i = 0; i < seps; ++i) {
             sepsList.add(stack.pop());
         }
@@ -480,14 +476,15 @@ public class AsmIRBuilder {
         stack.addAll(takesList);
     }
 
-    private void ensureStackSafety(Stack<Exp> stack, Function<Exp, Boolean> predicate) {
+    private void ensureStackSafety(Stack<StackItem> stack, Function<Exp, Boolean> predicate) {
         for (int i = 0; i < stack.size(); ++i) {
-            Exp e = stack.get(i);
+            StackItem item = stack.get(i);
+            Exp e = item.e();
             if (e instanceof Top || e instanceof Phi) {
                 continue;
             }
             if (predicate.apply(e)) {
-                stack.set(i, toVar(e));
+                stack.set(i, new StackItem(toVar(e, item.origin()), null));
             }
         }
     }
@@ -496,24 +493,23 @@ public class AsmIRBuilder {
         return !(e instanceof Var || e instanceof Phi);
     }
 
-    private void pushExp(AbstractInsnNode node, Stack<Exp> stack, Exp e) {
+    private void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp e) {
         assert ! (e instanceof Top);
-        exp2origin.put(e, node);
         ensureStackSafety(stack, this::maySideEffect);
-        stack.push(e);
+        stack.push(new StackItem(e, node));
         if (isDword(node, e)) {
-            stack.push(Top.Top);
+            stack.push(TOP);
         }
     }
 
-    private void pushConst(AbstractInsnNode node, Stack<Exp> stack, Literal literal) {
+    private void pushConst(AbstractInsnNode node, Stack<StackItem> stack, Literal literal) {
         if (manager.peekConstVar(literal)) {
             // note: if this code is reached, and `node` is `Ldc`,
             // pushExp cannot automatically push a `Top`
             pushExp(node, stack, manager.getConstVar(literal));
             // TODO: ugly hack here, try to fix that
             if (node instanceof LdcInsnNode && isDword(node, literal)) {
-                stack.push(Top.Top);
+                stack.push(TOP);
             }
         } else {
             pushExp(node, stack, literal);
@@ -722,7 +718,7 @@ public class AsmIRBuilder {
         };
     }
 
-    private ConditionExp getIfExp(Stack<Exp> stack, int opcode) {
+    private ConditionExp getIfExp(Stack<StackItem> stack, int opcode) {
         Var v1;
         Var v2;
         if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
@@ -794,7 +790,7 @@ public class AsmIRBuilder {
         };
     }
 
-    private BinaryExp getBinaryExp(Stack<Exp> stack, int opcode) {
+    private BinaryExp getBinaryExp(Stack<StackItem> stack, int opcode) {
         Var v2 = popVar(stack);
         Var v1 = popVar(stack);
         if (isArithmeticInsn(opcode)) {
@@ -810,16 +806,16 @@ public class AsmIRBuilder {
         }
     }
 
-    private CastExp getCastExp(Stack<Exp> stack, int opcode) {
+    private CastExp getCastExp(Stack<StackItem> stack, int opcode) {
         return getCastExp(stack, getCastType(opcode));
     }
 
-    private CastExp getCastExp(Stack<Exp> stack, Type t) {
+    private CastExp getCastExp(Stack<StackItem> stack, Type t) {
         Var v1 = popVar(stack);
         return new CastExp(v1, t);
     }
 
-    private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<Exp> stack) {
+    private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<StackItem> stack) {
         int opcode = methodInsnNode.getOpcode();
         JClass owner = BuildContext.get().toJClass(methodInsnNode.owner);
         assert owner != null;
@@ -845,19 +841,19 @@ public class AsmIRBuilder {
         };
     }
 
-    private ArrayAccess getArrayAccess(Stack<Exp> nowStack) {
+    private ArrayAccess getArrayAccess(Stack<StackItem> nowStack) {
         Var idx = popVar(nowStack);
         Var ref = popVar(nowStack);
         return new ArrayAccess(ref, idx);
     }
 
-    private void storeExp(VarInsnNode varNode, Stack<Exp> stack) {
+    private void storeExp(VarInsnNode varNode, Stack<StackItem> stack) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx);
         storeExp(varNode, v, stack);
     }
 
-    private void storeExp(AbstractInsnNode node, Var v, Stack<Exp> stack) {
+    private void storeExp(AbstractInsnNode node, Var v, Stack<StackItem> stack) {
         Stmt stmt = popToVar(stack, v);
         assocStmt(node, stmt);
     }
@@ -867,7 +863,7 @@ public class AsmIRBuilder {
         assocStmt(node, stmt);
     }
 
-    private void returnExp(Stack<Exp> stack, InsnNode node) {
+    private void returnExp(Stack<StackItem> stack, InsnNode node) {
         int opcode = node.getOpcode();
         if (opcode == Opcodes.RETURN) {
             assocStmt(node, new Return());
@@ -878,25 +874,25 @@ public class AsmIRBuilder {
         }
     }
 
-    private void throwException(InsnNode node, Stack<Exp> stack) {
+    private void throwException(InsnNode node, Stack<StackItem> stack) {
         Var v = popVar(stack);
         assocStmt(node, new Throw(v));
     }
 
-    private void mergeStack1(List<Stmt> auxiliary, Stack<Exp> nowStack, Stack<Exp> targetStack) {
-        Exp v = targetStack.pop();
-        if (v instanceof Top) {
-            return;
-        }
-        assert v instanceof Var: "merge target should be var of top";
-        Exp e = peekExp(nowStack);
-        if (e == v) {
-            popExp(nowStack);
-        } else {
-            Stmt stmt = popToVar(nowStack, (Var) v);
-            auxiliary.add(stmt);
-        }
-    }
+//    private void mergeStack1(List<Stmt> auxiliary, Stack<StackItem> nowStack, Stack<StackItem> targetStack) {
+//        Exp v = targetStack.pop();
+//        if (v instanceof Top) {
+//            return;
+//        }
+//        assert v instanceof Var: "merge target should be var of top";
+//        Exp e = peekExp(nowStack);
+//        if (e == v) {
+//            popExp(nowStack);
+//        } else {
+//            Stmt stmt = popToVar(nowStack, (Var) v);
+//            auxiliary.add(stmt);
+//        }
+//    }
 
     private void appendStackMergeStmts(BytecodeBlock bb, List<Stmt> auxiliary) {
         if (!auxiliary.isEmpty()) {
@@ -915,20 +911,20 @@ public class AsmIRBuilder {
         }
     }
 
-    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
-        List<Stmt> auxiliary = new ArrayList<>();
-        Stack<Exp> nowStack1 = new Stack<>();
-        Stack<Exp> target1 = new Stack<>();
-        nowStack1.addAll(nowStack);
-        target1.addAll(target);
-        while (! nowStack1.isEmpty()) {
-            mergeStack1(auxiliary, nowStack1, target1);
-        }
-        appendStackMergeStmts(bb, auxiliary);
-        assert target1.empty();
-    }
+//    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
+//        List<Stmt> auxiliary = new ArrayList<>();
+//        Stack<Exp> nowStack1 = new Stack<>();
+//        Stack<Exp> target1 = new Stack<>();
+//        nowStack1.addAll(nowStack);
+//        target1.addAll(target);
+//        while (! nowStack1.isEmpty()) {
+//            mergeStack1(auxiliary, nowStack1, target1);
+//        }
+//        appendStackMergeStmts(bb, auxiliary);
+//        assert target1.empty();
+//    }
 
-    private void performStackOp(Stack<Exp> stack, int opcode) {
+    private void performStackOp(Stack<StackItem> stack, int opcode) {
         switch (opcode) {
             case Opcodes.POP -> popToEffect(stack);
             case Opcodes.POP2 -> {
@@ -936,13 +932,14 @@ public class AsmIRBuilder {
                 popToEffect(stack);
             }
             case Opcodes.DUP -> {
-                Exp e = stack.pop();
+                StackItem item = stack.pop();
+                Exp e = item.e();
                 assert ! (e instanceof Top);
-                Var op;
-                if (e instanceof Var v) {
-                    op = v;
+                StackItem op;
+                if (e instanceof Var) {
+                    op = item;
                 } else {
-                    op = toVar(e);
+                    op = new StackItem(toVar(e, item.origin()), null);
                 }
                 stack.push(op);
                 stack.push(op);
@@ -954,9 +951,9 @@ public class AsmIRBuilder {
             case Opcodes.DUP2_X2 -> dup(stack, 2, 2);
             case Opcodes.SWAP -> {
                 // swap can only be used when v1 and v2 are both category 1 c.t.
-                Exp e1 = stack.pop();
-                Exp e2 = stack.pop();
-                assert ! (e1 instanceof Top) && ! (e2 instanceof Top);
+                StackItem e1 = stack.pop();
+                StackItem e2 = stack.pop();
+                assert ! (e1.e() instanceof Top) && ! (e2.e() instanceof Top);
                 stack.push(e1);
                 stack.push(e2);
             }
@@ -966,7 +963,7 @@ public class AsmIRBuilder {
 
     private void buildBlockStmt(BytecodeBlock block) {
         manager.clearConstCache();
-        Stack<Exp> inStack;
+        Stack<StackItem> inStack;
         if (block.getInStack() == null) {
             inStack = getInStack(block);
             block.setInStack(inStack);
@@ -974,7 +971,7 @@ public class AsmIRBuilder {
             inStack = block.getInStack();
         }
         assert inStack != null || block.isCatch();
-        Stack<Exp> nowStack = new Stack<>();
+        Stack<StackItem> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
         if (block.isCatch()) {
@@ -1030,8 +1027,9 @@ public class AsmIRBuilder {
             if (outEdge.getInStack() != null) {
                 assert outEdge.getInStack().size() == nowStack.size();
                 for (int i = 0; i < nowStack.size(); ++i) {
-                    Exp exp = outEdge.getInStack().get(i);
-                    if (nowStack.get(i) == Top.Top) {
+                    StackItem item = outEdge.getInStack().get(i);
+                    Exp exp = item.e();
+                    if (nowStack.get(i).e() == Top.Top) {
                         assert exp == Top.Top;
                         continue;
                     }
@@ -1047,13 +1045,13 @@ public class AsmIRBuilder {
 
     }
 
-    private Stack<Exp> getInStack(BytecodeBlock block) {
-        Stack<Exp> inStack;
+    private Stack<StackItem> getInStack(BytecodeBlock block) {
+        Stack<StackItem> inStack;
         if (block.inEdges().isEmpty()) {
             inStack = null;
         } else {
             inStack = new Stack<>();
-            List<Stack<Exp>> stacks = new ArrayList<>();
+            List<Stack<StackItem>> stacks = new ArrayList<>();
             for (BytecodeBlock inEdge : block.inEdges()) {
                 if (inEdge.getOutStack() != null) {
                     stacks.add(inEdge.getOutStack());
@@ -1061,21 +1059,22 @@ public class AsmIRBuilder {
             }
             boolean canFastMerge = stacks.size() == block.inEdges().size();
             for (int i = 0; i < stacks.get(0).size(); ++i) {
-                List<Exp> exps = new ArrayList<>();
-                for (Stack<Exp> stack : stacks) {
-                    Exp exp = stack.get(i);
+                List<StackItem> exps = new ArrayList<>();
+                for (Stack<StackItem> stack : stacks) {
+                    StackItem exp = stack.get(i);
                     if (!exps.contains(exp)) {
                         exps.add(exp);
                     }
                 }
                 boolean allSame = exps.size() == 1;
-                Exp e = exps.get(0);
+                StackItem item = exps.get(0);
+                Exp e = item.e();
                 if ((e instanceof Top) ||
-                        (allSame && canFastMerge && exps.get(0) instanceof Var)) {
-                    inStack.add(e);
+                        (allSame && canFastMerge && e instanceof Var)) {
+                    inStack.add(item);
                 } else {
                     Phi phi = new Phi(i, exps, block);
-                    inStack.add(phi);
+                    inStack.add(new StackItem(phi, null));
                     phiList.add(phi);
                 }
             }
@@ -1085,10 +1084,10 @@ public class AsmIRBuilder {
 
     private void solveAllPhiAndOutput() {
         solvePhis();
-        label2Block.forEach((k, v) -> {
-            applyPhis(v);
-            outputIR(v);
-        });
+        for (BytecodeBlock bb : blockSortedList) {
+            applyPhis(bb);
+            outputIR(bb);
+        }
     }
 
     MultiMap<Phi, Var> mergedVars = Maps.newMultiMap();
@@ -1115,8 +1114,8 @@ public class AsmIRBuilder {
     private void propagatePhiVar(Phi current, Var var) {
         if (! mergedVars.get(current).contains(var)) {
             mergedVars.put(current, var);
-            for (Exp node : current.getNodes()) {
-                if (node instanceof Phi phi) {
+            for (StackItem node : current.getNodes()) {
+                if (node.e() instanceof Phi phi) {
                     propagatePhiVar(phi, var);
                 }
             }
@@ -1130,20 +1129,23 @@ public class AsmIRBuilder {
         Map<Var, Integer> killed = Maps.newMap();
         List<Stmt> auxiliary = new ArrayList<>();
         for (BytecodeBlock outEdge : block.outEdges()) {
-            Stack<Exp> inStack = outEdge.getInStack();
-            Stack<Exp> outStack = block.getOutStack();
+            Stack<StackItem> inStack = outEdge.getInStack();
+            Stack<StackItem> outStack = block.getOutStack();
             for (int i = 0; i < inStack.size(); ++i) {
-                if (inStack.get(i) == Top.Top) {
-                    assert outStack.get(i) == Top.Top;
+                StackItem stackItem = inStack.get(i);
+                Exp e1 = stackItem.e();
+                if (e1 == Top.Top) {
+                    assert outStack.get(i) == TOP;
                     continue;
                 }
                 Var var;
-                if (inStack.get(i) instanceof Phi phi){
+                if (e1 instanceof Phi phi){
                     var = phi.getVar();
                 } else {
                     continue;
                 }
-                Exp e = outStack.get(i);
+                StackItem outItem = outStack.get(i);
+                Exp e = outStack.get(i).e();
                 if (var != null) {
                     if (e instanceof Var v) {
                         if (var != v) {
@@ -1172,8 +1174,8 @@ public class AsmIRBuilder {
                     }
                 } else {
                     if (maySideEffect(e)) {
-                        Var v = toVar(e);
-                        outStack.set(i, v);
+                        Var v = toVar(outItem.e(), outItem.origin());
+                        outStack.set(i, new StackItem(v, null));
                     }
                 }
             }
@@ -1202,7 +1204,7 @@ public class AsmIRBuilder {
         block.setStmt2Asm(stmt2Asm);
     }
 
-    private void processInstr(Stack<Exp> nowStack, AbstractInsnNode node) {
+    private void processInstr(Stack<StackItem> nowStack, AbstractInsnNode node) {
         if (node instanceof VarInsnNode varNode) {
             switch (varNode.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
@@ -1354,7 +1356,7 @@ public class AsmIRBuilder {
             pushConst(node, nowStack, IntLiteral.get(inc.incr));
             Var cst = popVar(nowStack);
             Var v = manager.getLocal(inc.var);
-            nowStack.push(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
             storeExp(inc, v, nowStack);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
@@ -1387,29 +1389,29 @@ public class AsmIRBuilder {
         }
     }
 
-    private Stack<Exp> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
-        /*
-            1. conversion from non-Var Exp to Var,
-            2. no the same Vars in a stack.
-
-            The conversion should have effect on the InsnNode that generated the exp.
-         */
-        Stack<Exp> target = new Stack<>();
-        Set<Var> used = Sets.newHybridSet();
-        for (Exp e : origin) {
-            if (e instanceof Top) {
-                target.push(e);
-            }
-            else if (e instanceof Var v && manager.isTempVar(v) && !used.contains(v)) {
-                used.add(v);
-                target.push(v);
-            } else {
-                target.add(manager.getTempVar());
-            }
-        }
-        mergeStack(bb, origin, target);
-        return target;
-    }
+//    private Stack<Exp> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
+//        /*
+//            1. conversion from non-Var Exp to Var,
+//            2. no the same Vars in a stack.
+//
+//            The conversion should have effect on the InsnNode that generated the exp.
+//         */
+//        Stack<Exp> target = new Stack<>();
+//        Set<Var> used = Sets.newHybridSet();
+//        for (Exp e : origin) {
+//            if (e instanceof Top) {
+//                target.push(e);
+//            }
+//            else if (e instanceof Var v && manager.isTempVar(v) && !used.contains(v)) {
+//                used.add(v);
+//                target.push(v);
+//            } else {
+//                target.add(manager.getTempVar());
+//            }
+//        }
+//        mergeStack(bb, origin, target);
+//        return target;
+//    }
 
     private void buildCFG() {
         label2Block = Maps.newMap();

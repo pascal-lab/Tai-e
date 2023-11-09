@@ -3,15 +3,18 @@ package pascal.taie.frontend.newfrontend;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
+import org.objectweb.asm.tree.ClassNode;
 import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.World;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
+import pascal.taie.project.SearchIndex;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -35,24 +38,28 @@ import java.util.concurrent.Future;
 
 public class DepCWBuilder implements ClosedWorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(DepCWBuilder.class);
-
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
+    // TODO: load FileSystem, ignore others
     private static final List<String> basicClassesList = loadBasicClasses();
 
     private static final int THREAD_POOL_SIZE = 8;
 
-    private final ConcurrentMap<String, ClassSource> sourceMap;
+    private ConcurrentMap<String, ClassSource> sourceMap;
 
     private final CompletionService<Completed> completionService;
 
+    private final boolean preBuildIR;
+
     private Project project;
+
+    private SearchIndex index;
 
     public DepCWBuilder() {
         sourceMap = Maps.newConcurrentMap();
         Executor executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         completionService = new ExecutorCompletionService<>(executor);
+        preBuildIR = World.get().getOptions().isPreBuildIR();
     }
 
     @Override
@@ -62,7 +69,15 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     @Override
     public Collection<ClassSource> getClosedWorld() {
-        return sourceMap.values();
+        var v = sourceMap.values();
+        sourceMap = null;
+        return v;
+    }
+
+    public void addTargets(List<String> target, List<String> binaryNames) {
+        for (String s : binaryNames) {
+            target.add(s.replace('.', '/'));
+        }
     }
 
     @Override
@@ -73,12 +88,12 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         this.project = p;
         List<String> target = new ArrayList<>();
         try {
+            index = SearchIndex.makeIndex(project);
             if (entry != null) {
-                target.add(entry);
+                addTargets(target, List.of(entry));
             }
-            target.addAll(p.getInputClasses());
-            target.addAll(loadNecessaryClasses());
-            target.addAll(basicClassesList);
+            addTargets(target, p.getInputClasses());
+            addTargets(target, loadNecessaryClasses());
             if (World.get().getOptions().getUseNonParallelCWAlgorithm()) {
                 buildClosureNonParallel(target);
             } else {
@@ -92,7 +107,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private void buildClosure(List<String> binaryNames) throws IOException {
+    private void buildClosure(Collection<String> binaryNames) throws IOException {
         Queue<String> workList = new LinkedList<>(binaryNames);
         Set<String> founded = Sets.newHybridSet();
 
@@ -147,7 +162,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             if (! founded.contains(now)) {
                 founded.add(now);
                 try {
-                    List<String> deps = buildDeps(now);
+                    Collection<String> deps = buildDeps(now);
                     workList.addAll(deps);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -156,10 +171,10 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private List<String> buildDeps(String binaryName) throws IOException {
-        AnalysisFile f = project.locate(binaryName);
+    private Collection<String> buildDeps(String binaryName) throws IOException {
+        AnalysisFile f = index.locate(binaryName);
         if (f == null) {
-            if (basicClassesList.contains(binaryName)) {
+            if (basicClassesList.contains(binaryName.replace('/', '.'))) {
                 // if some classes in basicClassesList are not found, then just ignore them
                 // for that we use try-catch style here to load them.
                 // E.g. you usually only load one of the three concrete FileSystem s.
@@ -191,15 +206,33 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private List<String> buildClassDeps(String binaryName, ClassFile cFile) throws IOException {
+    private Collection<String> buildClassDeps(String binaryName, ClassFile cFile) throws IOException {
         boolean isApplication = project.isApp(cFile)
-                || project.getInputClasses().contains(binaryName)
+//                || project.getInputClasses().contains(binaryName)
                 || binaryName.equals(project.getMainClass());
         byte[] content = cFile.resource().getContent();
+        cFile.resource().release();
+        assert content != null;
         ClassReader reader = new ClassReader(content);
-        assert reader.getClassName().replaceAll("/", ".").equals(binaryName);
-        sourceMap.put(binaryName, new AsmSource(reader, isApplication));
-        return new ConstantTableReader().read(content);
+//        assert reader.getClassName().replaceAll("/", ".").equals(binaryName);
+        int version = reader.readShort(6);
+        if (!preBuildIR) {
+            sourceMap.put(binaryName, new AsmSource(reader, isApplication, version, null));
+        } else {
+            ClassNode classNode = new ClassNode(Opcodes.ASM9) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String descriptor,
+                                                 String signature, String[] exceptions) {
+                    JSRInlinerAdapter adapter =
+                            new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);
+                    methods.add(adapter);
+                    return adapter;
+                }
+            };
+            sourceMap.put(binaryName, new AsmSource(null, isApplication, version, classNode));
+            reader.accept(classNode, ClassReader.EXPAND_FRAMES);
+        }
+        return new ConstantTableReader(content).read();
     }
 
     private List<String> loadNecessaryClasses() {
@@ -223,5 +256,5 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private record Completed(String input, List<String> res) {}
+    private record Completed(String input, Collection<String> res) {}
 }

@@ -33,6 +33,14 @@ public class StageTimer {
         });
     }
 
+    public static String message() {
+        return "[TIMER] Total Typeless IR Time: " + getInstance().getTotalTypelessIRTime() + "ms\n" +
+                "[TIMER] Total Splitting Time: " + getInstance().getTotalSplittingTime() + "ms\n" +
+                "[TIMER] Total Typing Time: " + getInstance().getTotalTypingTime() + "ms\n" +
+                "[TIMER] IR Time: " + getInstance().getIrTime() + "ms\n" +
+                "[TIMER] CW Time: " + getInstance().getCwTime() + "ms\n";
+    }
+
     public static StageTimer getInstance() {
 //        assert !World.get().getOptions().isPreBuildIR() : "StageTimer does not work concurrently.";
         return instance;

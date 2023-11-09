@@ -37,4 +37,9 @@ public class FileResource implements Resource {
     public Path getPath() {
         return path;
     }
+
+    @Override
+    public void release() {
+        readCache = null;
+    }
 }

@@ -90,8 +90,9 @@ public class JMethod extends ClassMember {
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
         this.exceptions = List.copyOf(exceptions);
-        this.signature = StringReps.getSignatureOf(this);
-        this.subsignature = Subsignature.get(name, paramTypes, returnType);
+        String subSig = StringReps.toSubsignature(name, paramTypes, returnType);
+        this.signature = StringReps.getSignatureOf1(this, subSig);
+        this.subsignature = Subsignature.get(subSig);
         this.gSignature = gSignature;
         this.paramAnnotations = paramAnnotations;
         this.paramNames = paramNames;
@@ -193,6 +194,7 @@ public class JMethod extends ClassMember {
                 ir = new IRBuildHelper(this).buildEmpty();
             } else {
                 ir = World.get().getIRBuilder().buildIR(this);
+                methodSource = null;
             }
         }
         return ir;

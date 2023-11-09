@@ -113,7 +113,7 @@ public class MethodRef extends MemberRef {
 
     private final Type returnType;
 
-    private final Subsignature subsignature;
+    private Subsignature subsignature;
 
     /**
      * Caches the resolved method for this reference to avoid redundant
@@ -129,11 +129,13 @@ public class MethodRef extends MemberRef {
             JClass declaringClass, String name,
             List<Type> parameterTypes, Type returnType,
             boolean isStatic) {
-        Subsignature subsignature = Subsignature.get(
-                name, parameterTypes, returnType);
-        Key key = new Key(declaringClass, subsignature);
-        return map.computeIfAbsent(key, k ->
-                new MethodRef(k, name, parameterTypes, returnType, isStatic));
+//        Subsignature subsignature = Subsignature.get(
+//                name, parameterTypes, returnType);
+//        Key key = new Key(declaringClass, subsignature);
+//        return map.computeIfAbsent(key, k ->
+//                new MethodRef(k, name, parameterTypes, returnType, isStatic));
+        return new MethodRef(new Key(declaringClass, null),
+                name, parameterTypes, returnType, isStatic);
     }
 
     private MethodRef(
@@ -142,7 +144,7 @@ public class MethodRef extends MemberRef {
         super(key.declaringClass, name, isStatic);
         this.parameterTypes = List.copyOf(parameterTypes);
         this.returnType = returnType;
-        this.subsignature = key.subsignature;
+//        this.subsignature = key.subsignature;
     }
 
     public List<Type> getParameterTypes() {
@@ -157,6 +159,10 @@ public class MethodRef extends MemberRef {
      * @return the subsignature of the method reference.
      */
     public Subsignature getSubsignature() {
+        if (subsignature == null) {
+            subsignature = Subsignature.get(
+                    getName(), parameterTypes, returnType);
+        }
         return subsignature;
     }
 
