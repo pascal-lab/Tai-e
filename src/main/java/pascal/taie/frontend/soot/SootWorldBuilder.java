@@ -39,6 +39,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
+import soot.AndroidPlatformException;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
@@ -72,16 +73,29 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         initSoot(options, analyses, this);
         // set arguments and run soot
         List<String> args = new ArrayList<>();
-        // set class path
-        Collections.addAll(args, "-cp", getClassPath(options));
-        // set main class
-        String mainClass = options.getMainClass();
-        if (mainClass != null) {
-            Collections.addAll(args, "-main-class", mainClass, mainClass);
+        if (options.getApkPath() == null) {
+            // set class path
+            Collections.addAll(args, "-cp", getClassPath(options));
+            // set main class
+            String mainClass = options.getMainClass();
+            if (mainClass != null) {
+                Collections.addAll(args, "-main-class", mainClass, mainClass);
+            }
+            // add input classes
+            args.addAll(getInputClasses(options));
+            // run soot for java
+            runSootForJava(args.toArray(new String[0]));
+        } else {
+            // Soot cannot set DUMMY_CLASSPATH_JDK9_FS as classpath when load apk and java >= 9.
+            // if classpath is null, it may make the FINALIZER_REGISTER not found.
+            Collections.addAll(args, "-cp", Scene.defaultJavaClassPath());
+            // set android platforms path
+            Collections.addAll(args, "-android-jars", options.getAndroidJars());
+            // set apk process path
+            Collections.addAll(args, "-process-dir", options.getApkPath());
+            // run soot for android
+            runSootForAndroid(args.toArray(new String[0]));
         }
-        // add input classes
-        args.addAll(getInputClasses(options));
-        runSoot(args.toArray(new String[0]));
     }
 
     private static void initSoot(Options options, List<AnalysisConfig> analyses,
@@ -103,6 +117,13 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
+        // set android analysis arguments
+        if (options.getApkPath() != null) {
+            // the SootClassLoader use options.isAllowPhantom() arguments
+            options.setAllowPhantom(true);
+            soot.options.Options.v().set_src_prec(soot.options.Options.src_prec_apk);
+            soot.options.Options.v().set_process_multiple_dex(true);
+        }
         if (options.isPrependJVM()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
@@ -251,7 +272,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
     }
 
-    private static void runSoot(String[] args) {
+    private static void runSootForJava(String[] args) {
         try {
             soot.Main.v().run(args);
         } catch (SootResolver.SootClassNotFoundException e) {
@@ -277,5 +298,21 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             }
             throw e;
         }
+    }
+
+    private static void runSootForAndroid(String[] args) {
+        try {
+            // soot.Main.v().run(args) will be retrieveAllBodies in PackManager.v().runPacks();
+            // soot parse args
+            soot.options.Options.v().parse(args);
+            // soot load classes
+            Scene.v().loadNecessaryClasses();
+            // build Tai-e IR
+            PackManager.v().getPack("wjtp").apply();
+        } catch (AndroidPlatformException e) {
+            throw new RuntimeException("Exception thrown by android platform," +
+                    " are your androidJars path given properly?", e);
+        }
+        // TODO: add more catch exception
     }
 }
