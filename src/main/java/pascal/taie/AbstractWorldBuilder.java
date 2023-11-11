@@ -32,6 +32,7 @@ import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Streams;
+import soot.ModulePathSourceLocator;
 import soot.Scene;
 
 import java.io.File;
@@ -121,7 +122,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
         }
 
         if (javaVersion >= 9) {
-            return Scene.defaultJavaClassPath();
+            return ModulePathSourceLocator.DUMMY_CLASSPATH_JDK9_FS;
         } else {
             // check existence of JREs
             File jreDir = new File(JREs);
