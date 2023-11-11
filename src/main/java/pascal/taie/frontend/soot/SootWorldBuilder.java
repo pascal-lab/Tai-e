@@ -86,9 +86,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             // run soot for java
             runSootForJava(args.toArray(new String[0]));
         } else {
-            // Soot cannot set DUMMY_CLASSPATH_JDK9_FS as classpath when load apk and java >= 9.
-            // if classpath is null, it may make the FINALIZER_REGISTER not found.
-            Collections.addAll(args, "-cp", Scene.defaultJavaClassPath());
+            // set android class path
+            Collections.addAll(args, "-cp", getAndroidClassPath(options, Scene.v()));
             // set android platforms path
             Collections.addAll(args, "-android-jars", options.getAndroidJars());
             // set apk process path
