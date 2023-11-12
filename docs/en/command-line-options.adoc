@@ -77,9 +77,9 @@ These options decide the analyses to be executed and their behaviors. We divided
 
 To execute an analysis, you need to specify its _id_ and _options_ (if necessary). All available analyses in Tai-e and their information (e.g., _id_ and available _options_) are listed in the analysis configuration file `src/main/resources/tai-e-analyses.yml`.
 
-There are two mutually-exclusive approaches to specify the analyses, by command-line options or by file, as described below.
+There are two mutually-exclusive approaches to specify the analyses, by command-line **options** or by **file**, as described below.
 
-==== Analyses (-a, --analysis): `-a <id>[=<key>:<value>;...]`
+* Analysis option (-a, --analysis): `-a <id>[=<key>:<value>;...]`
 
 Specify analyses by command-line options. For running analysis with id `A`, just give `-a A`. For specifying some analysis options for `A`, just append them to analysis id (connected by `=`), and separate them by `;`, for example:
 
@@ -99,13 +99,13 @@ The option system is expressive, and it supports various types of option values,
 
 Option `-a` is repeatable, so that if you need to execute multiple analyses in a single run of Tai-e, say `A1` and `A2`, just repeat `-a` like: `-a A1 -a A2`.
 
-==== Plan file (-p, --plan-file): `-p <file-path>`
+* Plan file (-p, --plan-file): `-p <file-path>`
 
 Alternatively, you can specify the analyses to be executed (called an analysis plan) in a plan file, and use `-p` to process the file. Similar to `-a`, you need to specify the _id_ and _options_ (if necessary) for each analysis in the file. The plan file should be written in YAML.
 
 Note that options `-a` and `-p` are mutually-exclusive, thus you _cannot_ specify them simultaneously. See <<analysis-management#analysis-management, Analysis Management>> for more information about these two options.
 
-==== Keep results of specific analyses (-kr, --keep-result): `-kr <id>[,<id>...]`
+* Keep results of specific analyses (-kr, --keep-result): `-kr <id>[,<id>...]`
 
 By default, Tai-e keeps results of all executed analyses in memory. If you run multiple analyses and care about the results of only some of them, you could use this option to specify these analyses, then every time Tai-e executes an analysis, it will automatically detect and clean the analysis results which are not used by subsequent analyses to save memory.
 
@@ -125,7 +125,10 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 
 * World cache mode (-wc, --world-cache-mode)
 ** Enable world cache mode to save build time by caching the completed built world to the disk.
-** When enabled, it will attempt to load the cached world instead of rebuilding it from scratch, provided that the analyzed program (i.e. classPath, mainClass and so on) remain unchanged. This option is particularly useful during development, when the analyzed program remains the same, but the analyzer code is modified and run repeatedly, thus saving developers' valuable time.
+** When enabled, it will attempt to load the cached world instead of rebuilding it from scratch, resulting in a substantial acceleration of world-building process. This applies as long as the analyzed program (i.e. classPath, mainClass and so on) remain unchanged. This option is particularly useful during analysis development, when the analyzed program remains the same, but the analyzer code is modified and run repeatedly, thus saving developers' valuable time.
+
+* Specify output directory (--output-dir): `--output-dir <outputDir>`
+** By default, Tai-e stores all outputs, such as logs, IR, and various analysis results, in the `output` folder within the current working directory. If you prefer to save outputs to a different directory, simply use this option.
 
 == A Usage Example of Command-Line Options
 
