@@ -4,7 +4,7 @@
 # Tai-e
 
 [![test](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml/badge.svg)](https://github.com/pascal-lab/Tai-e/actions/workflows/test.yml)
-[![java](https://img.shields.io/badge/Java-17-informational)](http://openjdk.java.net/)
+[![java](https://img.shields.io/badge/Java-17-informational)](https://openjdk.java.net/)
 [![maven-central](https://img.shields.io/badge/dynamic/xml.svg?label=maven-central&color=f1834d&query=//metadata/versioning/latest&url=https://repo1.maven.org/maven2/net/pascal-lab/tai-e/maven-metadata.xml)](https://search.maven.org/artifact/net.pascal-lab/tai-e)
 [![codecov](https://codecov.io/gh/pascal-lab/Tai-e/branch/master/graph/badge.svg)](https://codecov.io/gh/pascal-lab/Tai-e)
 [![DOI](https://img.shields.io/badge/DOI-10.1145/3597926.3598120-blue)](https://doi.org/10.1145/3597926.3598120)
@@ -132,7 +132,7 @@ You can use these coordinates in your Gradle or Maven scripts to include the des
 
 ### Reference Documentation
 
-We have provided detailed information of Tai-e in the [Reference Documentation](http://tai-e.pascal-lab.net/docs/current/reference/en/index.html), which covers various aspects such as [Setup in IntelliJ IDEA](http://tai-e.pascal-lab.net/docs/current/reference/en/setup-in-intellij-idea.html), [Command-Line Options](http://tai-e.pascal-lab.net/docs/current/reference/en/command-line-options.html), and [Development of New Analysis](http://tai-e.pascal-lab.net/docs/current/reference/en/develop-new-analysis.html).
+We have provided detailed information of Tai-e in the [Reference Documentation](https://tai-e.pascal-lab.net/docs/current/reference/en/index.html), which covers various aspects such as [Setup in IntelliJ IDEA](https://tai-e.pascal-lab.net/docs/current/reference/en/setup-in-intellij-idea.html), [Command-Line Options](https://tai-e.pascal-lab.net/docs/current/reference/en/command-line-options.html), and [Development of New Analysis](https://tai-e.pascal-lab.net/docs/current/reference/en/develop-new-analysis.html).
 
 Please note that the reference documentation mentioned above pertains to *the latest version* of Tai-e.
 If you need documentation for a specific stable version, please refer to the [Documentation Index](https://tai-e.pascal-lab.net/docs).
@@ -149,5 +149,5 @@ Since we are actively developing and updating Tai-e, we record the notable chang
 If you find something wrong after updating Tai-e, maybe you could check [CHANGELOG](CHANGELOG.md) for useful information.
 
 ## Tai-e Assignments
-In addition, we have developed an [educational version of Tai-e](http://tai-e.pascal-lab.net/en/intro/overview.html) where eight programming assignments are carefully designed for systematically training learners to implement various static analysis techniques to analyze real Java programs.
+In addition, we have developed an [educational version of Tai-e](https://tai-e.pascal-lab.net/en/intro/overview.html) where eight programming assignments are carefully designed for systematically training learners to implement various static analysis techniques to analyze real Java programs.
 The educational version shares a large amount of code with Tai-e, thus doing the assignments would be a good way to get familiar with Tai-e.
