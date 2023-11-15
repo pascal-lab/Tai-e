@@ -25,36 +25,11 @@ package pascal.taie.analysis.dataflow.fact;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class FactTest {
-
-    @Test
-    void testToppedSetFact() {
-        ToppedSetFact<Integer> top = new ToppedSetFact<>(true);
-        ToppedSetFact<Integer> fact1 = top.copy();
-        fact1.intersect(top);
-        assertTrue(fact1.isTop());
-
-        ToppedSetFact<Integer> fact2 = new ToppedSetFact<>(List.of(1, 2, 3));
-        fact1.intersect(fact2);
-        assertFalse(fact1.isTop());
-        fact2.union(top);
-        assertTrue(fact2.isTop());
-
-        ToppedSetFact<Integer> fact3 = new ToppedSetFact<>(List.of(8, 9, 10));
-        fact2.union(fact3);
-        assertTrue(fact2.isTop());
-        fact2.intersect(top);
-        assertTrue(fact2.isTop());
-        fact2.intersect(fact3);
-        assertFalse(fact2.isTop());
-    }
 
     @Test
     void testUnionNormal() {

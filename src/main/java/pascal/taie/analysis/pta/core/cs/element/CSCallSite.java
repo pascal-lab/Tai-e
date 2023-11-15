@@ -25,10 +25,8 @@ package pascal.taie.analysis.pta.core.cs.element;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.util.collection.ArraySet;
-import pascal.taie.util.collection.HybridIndexableSet;
+import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
@@ -44,12 +42,10 @@ public class CSCallSite extends AbstractCSElement {
      */
     private final CSMethod container;
 
-    private final Set<CSMethod> callees = new HybridIndexableSet<>(true);
-
     /**
      * Call edges from this call site.
      */
-    private final ArrayList<Edge<CSCallSite, CSMethod>> edges = new ArrayList<>(4);
+    private final Set<Edge<CSCallSite, CSMethod>> edges = Sets.newHybridSet();
 
     CSCallSite(Invoke callSite, Context context, CSMethod container) {
         super(context);
@@ -69,14 +65,11 @@ public class CSCallSite extends AbstractCSElement {
     }
 
     public boolean addEdge(Edge<CSCallSite, CSMethod> edge) {
-        if (callees.add(edge.getCallee())) {
-            return edges.add(edge);
-        }
-        return false;
+        return edges.add(edge);
     }
 
     public Set<Edge<CSCallSite, CSMethod>> getEdges() {
-        return Collections.unmodifiableSet(new ArraySet<>(edges, true));
+        return Collections.unmodifiableSet(edges);
     }
 
     @Override

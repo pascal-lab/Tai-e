@@ -12,4 +12,4 @@
 :attribute-missing: warn
 :source-highlighter: coderay
 :chomp: default headers packages
-:authors: Tian Tan; Yue Li
+:authors: Tian Tan; Yue Li; Teng Zhang
