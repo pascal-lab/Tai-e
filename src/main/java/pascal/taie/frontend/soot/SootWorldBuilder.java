@@ -30,6 +30,8 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.android.parser.ApkParser;
+import pascal.taie.analysis.pta.plugin.android.parser.IParser;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
@@ -39,11 +41,13 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
+import pascal.taie.util.collection.Lists;
 import soot.AndroidPlatformException;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
+
 import soot.SootResolver;
 import soot.Transform;
 
@@ -113,6 +117,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().set_exclude(List.of("jdk.*", "apple.laf.*"));
         soot.options.Options.v().set_whole_program(true);
         soot.options.Options.v().set_no_writeout_body_releasing(true);
+        soot.options.Options.v().set_search_dex_in_archives(true);
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
@@ -141,6 +146,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
         addReflectionLogClasses(analyses, scene);
+
 
         // Configure Soot transformer
         Transform transform = new Transform(
@@ -217,7 +223,11 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         World.reset();
         World world = new World();
         World.set(world);
-
+        // parser entry and some lifecycle
+        IParser parser = new ApkParser(options.getApkPath());
+        parser.parser();
+        //inject parser into world singleton
+        World.get().setParser(parser);
         // options will be used during World building, thus it should be
         // set at first.
         world.setOptions(options);
@@ -250,12 +260,16 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             logger.warn("Warning: main class was not given!");
         }
         // set implicit entries
-        world.setImplicitEntries(implicitEntries.stream()
+        world.setImplicitEntries(Lists.concatDistinct(implicitEntries.stream()
                 .map(hierarchy::getJREMethod)
                 // some implicit entries may not exist in certain JDK version,
                 // thus we filter out null
                 .filter(Objects::nonNull)
-                .toList());
+                .toList(),
+                //add android entries
+                world.getParser().getEntries().stream()
+                .map(converter::convertMethod).toList()));
+
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
         IRBuilder irBuilder = new IRBuilder(converter);

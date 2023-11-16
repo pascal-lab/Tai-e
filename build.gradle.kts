@@ -24,6 +24,9 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
+    implementation(files("lib/soot-infoflow-android.jar"))
+    implementation("xmlpull:xmlpull:1.1.3.4d_b4_min")
+
     // Use ASM to read Java class files
     implementation("org.ow2.asm:asm:9.4")
     // Eliminate SLF4J warning

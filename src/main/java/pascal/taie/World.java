@@ -22,6 +22,7 @@
 
 package pascal.taie;
 
+import pascal.taie.analysis.pta.plugin.android.parser.IParser;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.ir.IRBuilder;
@@ -81,6 +82,8 @@ public final class World extends AbstractResultHolder
     private NativeModel nativeModel;
 
     private JMethod mainMethod;
+
+    private IParser parser;
 
     private Collection<JMethod> implicitEntries;
 
@@ -173,6 +176,14 @@ public final class World extends AbstractResultHolder
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
         this.implicitEntries = implicitEntries;
+    }
+
+    public IParser getParser() {
+        return parser;
+    }
+
+    public void setParser(IParser parser) {
+        this.parser =  parser;
     }
 
     @Serial
