@@ -114,6 +114,15 @@ public class EntryEngine {
                     methodsToCall.add(m);
                 }
                 break;
+            case "android.app.Application":
+                for (LIFECYCLE.APPLICATION lifecycle : LIFECYCLE.APPLICATION.values()) {
+                    SootMethod m = superClass.getMethodUnsafe(lifecycle.getValue());
+                    if (m == null) {
+                        continue;
+                    }
+                    methodsToCall.add(m);
+                }
+                break;
             default:
                 break;
         }

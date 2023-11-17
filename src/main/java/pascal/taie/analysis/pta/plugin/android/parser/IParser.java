@@ -34,13 +34,35 @@ import java.util.Set;
  */
 public interface IParser {
 
+    /**
+     * access analyze target application name
+     * @return
+     */
     String getName();
 
+    /**
+     * access analyze target application version
+     * @return
+     */
     String getVersion();
 
-    void parser();
+    /**
+     * start parse target application with owner implementation
+     * @return
+     */
+    void parse();
 
+    /**
+     * access analyze target application size
+     * @return
+     */
     long getSize();
 
+
+    /**
+     * access analyze target application entries
+     * include direct entries and implicit entries
+     * @return
+     */
     Set<SootMethod> getEntries();
 }

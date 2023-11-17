@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin.android.parser;
 import org.xmlpull.v1.XmlPullParserException;
 import pascal.taie.analysis.pta.plugin.android.entry.EntryEngine;
 import pascal.taie.analysis.pta.plugin.android.fact.ApkInfo;
+import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Streams;
 import soot.Scene;
 import soot.SootMethod;
@@ -33,7 +34,11 @@ import soot.jimple.infoflow.android.manifest.ProcessManifest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +67,7 @@ public class ApkParser implements IParser {
 
 
     @Override
-    public void parser() {
+    public void parse() {
         basicWork();
         compoScan();
         doPrivilege();
@@ -128,8 +133,11 @@ public class ApkParser implements IParser {
      *
      */
     private void entryGenerate() {
-       entryEngine.generateAllComponentLifecycle(apkInfo.getAllComponents()
-               .stream().map(i -> Scene.v().getSootClassUnsafe(i)).collect(Collectors.toSet()));
+        //add application class as the other entry
+       entryEngine.generateAllComponentLifecycle(Streams.concat(apkInfo.getAllComponents().stream(),
+                       Arrays.stream(new String[]{apkInfo.getApplicationName()}))
+                       .filter(Predicate.not(Objects::isNull)).map(i -> Scene.v().getSootClassUnsafe(i))
+                       .collect(Collectors.toSet()));
        apkInfo.addCompEntries(entryEngine.getAllEntries());
     }
 

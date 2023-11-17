@@ -35,6 +35,10 @@ public class ApkInfo {
 
     private String apkName;
 
+    /**
+     * android app application class name
+     * which extends class: android.app.Application
+     */
     private String applicationName;
 
     private String pkgName;
@@ -43,8 +47,8 @@ public class ApkInfo {
 
     /**
      * ensure protected by packer company
-     * false: 未加固
-     * true: 已加固
+     * false: not packer
+     * true: has packer
      */
     private boolean packer;
 

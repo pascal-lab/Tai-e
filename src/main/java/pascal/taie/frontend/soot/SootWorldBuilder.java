@@ -225,7 +225,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         World.set(world);
         // parser entry and some lifecycle
         IParser parser = new ApkParser(options.getApkPath());
-        parser.parser();
+        parser.parse();
         //inject parser into world singleton
         World.get().setParser(parser);
         // options will be used during World building, thus it should be

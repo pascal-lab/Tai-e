@@ -22,14 +22,33 @@
 
 package pascal.taie.analysis.pta.plugin.android.configs;
 
+/**
+ * well-known Android lifecycle methods with subsignature constant
+ */
 public interface LIFECYCLE {
     String[] TYPES = new String[]{
+            "android.app.Application",
             "android.app.Activity",
             "android.app.Service",
             "android.content.BroadcastReceiver",
             "android.content.ContentProvider",
             "android.app.Fragment"
             };
+
+    enum  APPLICATION implements LIFECYCLE {
+        APPLICATION_ONCREATE("void onCreate()"),
+        APPLICATION_ONTERMINATE("void onTerminate()");
+
+        private final String value;
+
+        APPLICATION(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 
     enum ACTIVITY implements LIFECYCLE {
         ACTIVITY_ONCREATE("void onCreate(android.os.Bundle)"),
@@ -47,16 +66,12 @@ public interface LIFECYCLE {
         ACTIVITY_ONRESTOREINSTANCESTATE("void onRestoreInstanceState(android.os.Bundle)"),
         ACTIVITY_ONPOSTCREATE("void onPostCreate(android.os.Bundle)");
         private final String value;
-
         ACTIVITY(String value) {
             this.value = value;
         }
-
         public String getValue() {
             return value;
         }
-
-
     }
 
     enum SERVICE implements LIFECYCLE {
@@ -75,7 +90,6 @@ public interface LIFECYCLE {
         public String getValue() {
             return value;
         }
-
     }
 
     enum RECEIVE implements LIFECYCLE {
@@ -87,7 +101,6 @@ public interface LIFECYCLE {
         public String getValue() {
             return value;
         }
-
     }
 
     enum PROVIDER implements LIFECYCLE {
@@ -99,7 +112,6 @@ public interface LIFECYCLE {
         public String getValue() {
             return value;
         }
-
     }
 
     enum Fragment implements LIFECYCLE {
@@ -118,7 +130,6 @@ public interface LIFECYCLE {
         Fragment_ONACTIVITYCREATED("void onActivityCreated(android.os.Bundle)"),
         Fragment_ONACTIVITYRESULT("void onActivityResult(int,int,android.content.Intent)"),
         Fragment_ONATTACHFRAFMENT("void onAttachFragment(androidx.fragment.app.Fragment)");
-
         private final String value;
         Fragment(String value) {
             this.value = value;
