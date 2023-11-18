@@ -41,6 +41,7 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
 import soot.AndroidPlatformException;
 import soot.G;
+import soot.ModulePathSourceLocator;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
@@ -55,6 +56,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -68,17 +71,35 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      */
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
+    private static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
+
+    protected static final Map<String, Integer> sdkToJdk = Map.ofEntries(
+            Map.entry("33", 11),
+            Map.entry("32", 11),
+            Map.entry("31", 11),
+            Map.entry("30", 8),
+            Map.entry("29", 8),
+            Map.entry("28", 8),
+            Map.entry("27", 8),
+            Map.entry("26", 8),
+            Map.entry("25", 8),
+            Map.entry("24", 8),
+            Map.entry("23", 7),
+            Map.entry("22", 7),
+            Map.entry("21", 7)
+    );
+
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
-        initSoot(options, analyses, this);
+        Scene scene = initSoot(options, analyses, this);
         if (options.isAndroidMode()) {
-            buildForAndroid(options);
+            buildForAndroid(options, scene);
         } else {
             buildForJava(options);
         }
     }
 
-    private static void initSoot(Options options, List<AnalysisConfig> analyses,
+    private static Scene initSoot(Options options, List<AnalysisConfig> analyses,
                                  SootWorldBuilder builder) {
         // reset Soot
         G.reset();
@@ -129,6 +150,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         PackManager.v()
                 .getPack("wjtp")
                 .add(transform);
+        return scene;
     }
 
     /**
@@ -295,16 +317,24 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    private static void buildForAndroid(Options options) {
+    private static void buildForAndroid(Options options, Scene scene) {
         soot.options.Options.v().set_src_prec(soot.options.Options.src_prec_apk);
         soot.options.Options.v().set_process_multiple_dex(true);
         List<String> args = new ArrayList<>();
+        // set Java version for Android
+        String apkPath = options.getClassPath().get(0);
+        String sdkVersion = getSDKVersion(scene, apkPath);
+        int javaVersion = sdkToJdk.getOrDefault(sdkVersion, 6);
+        options.setJavaVersion(javaVersion);
         // set android JDK path
-        Collections.addAll(args, "-cp", getAndroidJDKPath(options, Scene.v()));
+        String androidJDKPath = (javaVersion >= 9)
+                ? ModulePathSourceLocator.DUMMY_CLASSPATH_JDK9_FS
+                : getAndroidJDKPath(options);
+        Collections.addAll(args, "-cp", androidJDKPath);
         // set android platforms path
         Collections.addAll(args, "-android-jars", ANDROID_PLATFORMS);
         // set apk path
-        Collections.addAll(args, "-process-dir", options.getClassPath().get(0));
+        Collections.addAll(args, "-process-dir", apkPath);
         try {
             // soot.Main.v().run(args) will call retrieveAllBodies()
             // in PackManager.v().runPacks(); and make world building
@@ -320,5 +350,17 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             throw new RuntimeException("Soot frontend failed to build Scene" +
                     " in Android mode", e);
         }
+    }
+
+    private static final int DEFAULT_JAVA_VERSION = 6;
+
+    private static String getSDKVersion(Scene scene, String apkPath) {
+        String androidJar = scene.getAndroidJarPath(ANDROID_PLATFORMS, apkPath);
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(androidJar);
+        if (matcher.find()) { // TODO: find the last match
+            return matcher.group(); //Integer.parseInt(sdkVersion);
+        }
+        throw new RuntimeException("Erroneous apk path: " + apkPath);
     }
 }

@@ -153,6 +153,15 @@ public class Options implements Serializable {
         return javaVersion;
     }
 
+    /**
+     * Sets Java version.
+     * This method is temporary and used to set Java version in Android mode.
+     * We can deprecate this API when we finish apk parser.
+     */
+    public void setJavaVersion(int javaVersion) {
+        this.javaVersion = javaVersion;
+    }
+
     @JsonProperty
     @Option(names = {"-pp", "--prepend-JVM"},
             description = "Prepend class path of current JVM to Tai-e's class path" +
@@ -334,6 +343,9 @@ public class Options implements Serializable {
             }
             // always allow phantom in Android mode
             options.allowPhantom = true;
+            // TODO: parse apk resources here, use the information to set javaVersion
+            //  this can be done after we finish the apk parser. After that, we can
+            //  include apk info in this class.
         } else { // analyze Java program
             if (options.getClassPath().isEmpty()
                     && options.mainClass == null

@@ -32,8 +32,6 @@ import pascal.taie.language.natives.NativeModel;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Streams;
-import soot.ModulePathSourceLocator;
-import soot.Scene;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,8 +50,6 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
     private static final Logger logger = LogManager.getLogger(AbstractWorldBuilder.class);
 
     protected static final String JREs = "java-benchmarks/JREs";
-
-    protected static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
 
     protected static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
@@ -72,23 +65,6 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             "<java.lang.ClassLoader: void addClass(java.lang.Class)>",
             "<java.lang.ClassLoader: long findNative(java.lang.ClassLoader,java.lang.String)>",
             "<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>"
-    );
-
-    protected static final Map<String, Integer> sdkToJdk = Map.ofEntries(
-            Map.entry("33", 11),
-            Map.entry("32", 11),
-            Map.entry("31", 11),
-            Map.entry("30", 8),
-            Map.entry("29", 8),
-            Map.entry("28", 8),
-            Map.entry("27", 8),
-            Map.entry("26", 8),
-            Map.entry("25", 8),
-            Map.entry("24", 8),
-            Map.entry("23", 7),
-            Map.entry("22", 7),
-            Map.entry("21", 7),
-            Map.entry("default", 6)
     );
 
     protected static String getClassPath(Options options) {
@@ -124,42 +100,26 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
      * Obtains Android JDK path.
      * TODO: temporarily use Soot to extract SDK version from given apk.
      */
-    protected static String getAndroidJDKPath(Options options, Scene scene) {
-        String androidJar = scene.getAndroidJarPath(
-                ANDROID_PLATFORMS, options.getClassPath().get(0));
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(androidJar);
-
-        int javaVersion = 6;
-        // find the jdk version corresponding to the sdk version
-        if (matcher.find()) {
-            String sdkVersion = matcher.group();
-            javaVersion = sdkToJdk.getOrDefault(sdkVersion, sdkToJdk.get("default"));
-        }
-
-        if (javaVersion >= 9) {
-            return ModulePathSourceLocator.DUMMY_CLASSPATH_JDK9_FS;
-        } else {
-            // check existence of JREs
-            File jreDir = new File(JREs);
-            if (!jreDir.exists()) {
-                throw new RuntimeException("""
+    protected static String getAndroidJDKPath(Options options) {
+        // check existence of JREs
+        File jreDir = new File(JREs);
+        if (!jreDir.exists()) {
+            throw new RuntimeException("""
                     Failed to locate Java library.
                     Please clone submodule 'java-benchmarks' by command:
                     'git submodule update --init --recursive' (if you are running Tai-e)
                     or 'git clone https://github.com/pascal-lab/java-benchmarks' (if you are using Tai-e as a dependency),
                     then put it in Tai-e's working directory.""");
-            }
-            String jrePath = String.format("%s/jre1.%d",
-                    JREs, javaVersion);
-            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
-                return paths.map(Path::toString)
-                        .filter(p -> p.endsWith(".jar"))
-                        .collect(Collectors.joining(File.pathSeparator));
-            } catch (IOException e) {
-                throw new RuntimeException("Analysis on Java " +
-                        options.getJavaVersion() + " library is not supported yet", e);
-            }
+        }
+        String jrePath = String.format("%s/jre1.%d",
+                JREs, options.getJavaVersion());
+        try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+            return paths.map(Path::toString)
+                    .filter(p -> p.endsWith(".jar"))
+                    .collect(Collectors.joining(File.pathSeparator));
+        } catch (IOException e) {
+            throw new RuntimeException("Analysis on Java " +
+                    options.getJavaVersion() + " library is not supported yet", e);
         }
     }
 
