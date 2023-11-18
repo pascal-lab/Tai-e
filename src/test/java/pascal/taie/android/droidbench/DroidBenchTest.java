@@ -28,7 +28,6 @@ import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysisResultImpl;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
-import picocli.CommandLine;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,12 +38,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@CommandLine.Command
-public class AndroidBenchmarkTest {
+public class DroidBenchTest {
 
     private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/DroidBench/apk/";
-
-    private static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
 
     private static final String BENCHMARK_INFO = "benchmark-info.yml";
 
@@ -64,19 +60,12 @@ public class AndroidBenchmarkTest {
         List<String> args = new ArrayList<>();
         Collections.addAll(args,
                 "-pp",
-                "-apk", BENCHMARK_HOME_PREFIX + info.apk(),
-                "-android", ANDROID_PLATFORMS,
-                "--allow-phantom");
-        String reflectionLog = "null";
-        if (info.reflectionLog() != null) {
-            reflectionLog = BENCHMARK_HOME_PREFIX + info.reflectionLog();
-        }
+                "-cp", BENCHMARK_HOME_PREFIX + info.apk(),
+                "-am");
         Map<String, String> ptaArgs = Map.of(
                 "distinguish-string-constants", "null",
-                "merge-string-objects", "false",
-                "reflection-inference", "null",
+                "merge-string-objects", "true",
                 "only-app", "true",
-                "reflection-log", reflectionLog,
                 "taint-config", TAINT_CONFIG);
         Collections.addAll(args,
                 "-a", "pta=" + ptaArgs.entrySet()

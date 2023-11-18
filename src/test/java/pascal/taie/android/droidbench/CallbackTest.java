@@ -25,7 +25,7 @@ package pascal.taie.android.droidbench;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class CallbackTest extends AndroidBenchmarkTest {
+public class CallbackTest extends DroidBenchTest {
 
     static final String TYPE = "Callbacks";
 

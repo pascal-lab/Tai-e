@@ -25,7 +25,7 @@ package pascal.taie.android.droidbench;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class GeneralJavaTest extends AndroidBenchmarkTest {
+public class GeneralJavaTest extends DroidBenchTest {
 
     static final String TYPE = "GeneralJava";
 

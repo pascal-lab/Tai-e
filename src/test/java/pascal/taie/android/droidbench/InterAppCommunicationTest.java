@@ -25,7 +25,7 @@ package pascal.taie.android.droidbench;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class InterAppCommunicationTest extends AndroidBenchmarkTest {
+public class InterAppCommunicationTest extends DroidBenchTest {
 
     static final String TYPE = "InterAppCommunication";
 
