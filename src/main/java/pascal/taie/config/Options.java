@@ -176,6 +176,16 @@ public class Options implements Serializable {
         return allowPhantom;
     }
 
+    @JsonProperty
+    @Option(names = {"-am", "--android-mode"},
+            description = "Enable Android mode (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean androidMode;
+
+    public boolean isAndroidMode() {
+        return androidMode;
+    }
+
     // ---------- general analysis options ----------
     @JsonProperty
     @Option(names = "--world-builder",
@@ -317,13 +327,22 @@ public class Options implements Serializable {
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
-        if (options.getClassPath() != null
-                && options.mainClass == null
-                && options.inputClasses.isEmpty()
-                && options.getAppClassPath() == null) {
-            throw new ConfigException("Missing options: " +
-                    "at least one of --main-class, --input-classes " +
-                    "or --app-class-path should be specified");
+        if (options.androidMode) { // analyze Android program
+            if (options.getClassPath().isEmpty()) {
+                throw new ConfigException("Missing options: apk is missing" +
+                        " (should be specified by -cp)");
+            }
+            // always allow phantom in Android mode
+            options.allowPhantom = true;
+        } else { // analyze Java program
+            if (options.getClassPath().isEmpty()
+                    && options.mainClass == null
+                    && options.inputClasses.isEmpty()
+                    && options.getAppClassPath() == null) {
+                throw new ConfigException("Missing options: " +
+                        "at least one of --main-class, --input-classes " +
+                        "or --app-class-path should be specified");
+            }
         }
         // mkdir for output dir
         if (!options.outputDir.exists()) {
@@ -503,15 +522,16 @@ public class Options implements Serializable {
         return "Options{" +
                 "optionsFile=" + optionsFile +
                 ", printHelp=" + printHelp +
-                ", classPath='" + classPath + '\'' +
-                ", appClassPath='" + appClassPath + '\'' +
+                ", classPath=" + classPath +
+                ", appClassPath=" + appClassPath +
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
                 ", javaVersion=" + javaVersion +
                 ", prependJVM=" + prependJVM +
                 ", allowPhantom=" + allowPhantom +
+                ", androidMode=" + androidMode +
                 ", worldBuilderClass=" + worldBuilderClass +
-                ", outputDir='" + outputDir + '\'' +
+                ", outputDir=" + outputDir +
                 ", preBuildIR=" + preBuildIR +
                 ", worldCacheMode=" + worldCacheMode +
                 ", scope=" + scope +

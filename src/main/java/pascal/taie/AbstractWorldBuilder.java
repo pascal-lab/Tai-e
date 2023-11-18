@@ -56,6 +56,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static final String JREs = "java-benchmarks/JREs";
 
+    protected static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
+
     protected static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
@@ -105,12 +107,26 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, options.getJavaVersion());
-            return formatJrePath(options, jrePath);
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+                return Streams.concat(
+                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                                options.getAppClassPath().stream(),
+                                options.getClassPath().stream())
+                        .collect(Collectors.joining(File.pathSeparator));
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
+            }
         }
     }
 
-    protected static String getAndroidClassPath(Options options, Scene scene) {
-        String androidJar = scene.getAndroidJarPath(options.getAndroidJars(), options.getApkPath());
+    /**
+     * Obtains Android JDK path.
+     * TODO: temporarily use Soot to extract SDK version from given apk.
+     */
+    protected static String getAndroidJDKPath(Options options, Scene scene) {
+        String androidJar = scene.getAndroidJarPath(
+                ANDROID_PLATFORMS, options.getClassPath().get(0));
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(androidJar);
 
@@ -136,20 +152,14 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             }
             String jrePath = String.format("%s/jre1.%d",
                     JREs, javaVersion);
-            return formatJrePath(options, jrePath);
-        }
-    }
-
-    private static String formatJrePath(Options options, String jrePath) {
-        try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
-            return Streams.concat(
-                            paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                            options.getAppClassPath().stream(),
-                            options.getClassPath().stream())
-                    .collect(Collectors.joining(File.pathSeparator));
-        } catch (IOException e) {
-            throw new RuntimeException("Analysis on Java " +
-                    options.getJavaVersion() + " library is not supported yet", e);
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+                return paths.map(Path::toString)
+                        .filter(p -> p.endsWith(".jar"))
+                        .collect(Collectors.joining(File.pathSeparator));
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
+            }
         }
     }
 

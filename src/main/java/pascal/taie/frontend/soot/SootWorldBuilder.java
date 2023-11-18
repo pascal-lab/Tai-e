@@ -30,8 +30,6 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
-import pascal.taie.analysis.pta.plugin.android.parser.ApkParser;
-import pascal.taie.analysis.pta.plugin.android.parser.IParser;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
@@ -41,13 +39,11 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
-import pascal.taie.util.collection.Lists;
 import soot.AndroidPlatformException;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
 import soot.SceneTransformer;
-
 import soot.SootResolver;
 import soot.Transform;
 
@@ -75,29 +71,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
         initSoot(options, analyses, this);
-        // set arguments and run soot
-        List<String> args = new ArrayList<>();
-        if (options.getApkPath() == null) {
-            // set class path
-            Collections.addAll(args, "-cp", getClassPath(options));
-            // set main class
-            String mainClass = options.getMainClass();
-            if (mainClass != null) {
-                Collections.addAll(args, "-main-class", mainClass, mainClass);
-            }
-            // add input classes
-            args.addAll(getInputClasses(options));
-            // run soot for java
-            runSootForJava(args.toArray(new String[0]));
+        if (options.isAndroidMode()) {
+            buildForAndroid(options);
         } else {
-            // set android class path
-            Collections.addAll(args, "-cp", getAndroidClassPath(options, Scene.v()));
-            // set android platforms path
-            Collections.addAll(args, "-android-jars", options.getAndroidJars());
-            // set apk process path
-            Collections.addAll(args, "-process-dir", options.getApkPath());
-            // run soot for android
-            runSootForAndroid(args.toArray(new String[0]));
+            buildForJava(options);
         }
     }
 
@@ -121,13 +98,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        // set android analysis arguments
-        if (options.getApkPath() != null) {
-            // the SootClassLoader use options.isAllowPhantom() arguments
-            options.setAllowPhantom(true);
-            soot.options.Options.v().set_src_prec(soot.options.Options.src_prec_apk);
-            soot.options.Options.v().set_process_multiple_dex(true);
-        }
         if (options.isPrependJVM()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
@@ -223,6 +193,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         World.reset();
         World world = new World();
         World.set(world);
+
+        /**
         // parser entry and some lifecycle
         IParser parser = new ApkParser(options.getApkPath());
         parser.parse();
@@ -230,6 +202,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         World.get().setParser(parser);
         // options will be used during World building, thus it should be
         // set at first.
+        */
+
         world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
@@ -260,15 +234,12 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             logger.warn("Warning: main class was not given!");
         }
         // set implicit entries
-        world.setImplicitEntries(Lists.concatDistinct(implicitEntries.stream()
+        world.setImplicitEntries(implicitEntries.stream()
                 .map(hierarchy::getJREMethod)
                 // some implicit entries may not exist in certain JDK version,
                 // thus we filter out null
                 .filter(Objects::nonNull)
-                .toList(),
-                //add android entries
-                world.getParser().getEntries().stream()
-                .map(converter::convertMethod).toList()));
+                .toList());
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
@@ -285,9 +256,20 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
     }
 
-    private static void runSootForJava(String[] args) {
+    private static void buildForJava(Options options) {
+        // set arguments and run soot
+        List<String> args = new ArrayList<>();
+        // set class path
+        Collections.addAll(args, "-cp", getClassPath(options));
+        // set main class
+        String mainClass = options.getMainClass();
+        if (mainClass != null) {
+            Collections.addAll(args, "-main-class", mainClass, mainClass);
+        }
+        // add input classes
+        args.addAll(getInputClasses(options));
         try {
-            soot.Main.v().run(args);
+            soot.Main.v().run(args.toArray(new String[0]));
         } catch (SootResolver.SootClassNotFoundException e) {
             throw new RuntimeException(e.getMessage()
                     .replace("is your soot-class-path set",
@@ -313,19 +295,30 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    private static void runSootForAndroid(String[] args) {
+    private static void buildForAndroid(Options options) {
+        soot.options.Options.v().set_src_prec(soot.options.Options.src_prec_apk);
+        soot.options.Options.v().set_process_multiple_dex(true);
+        List<String> args = new ArrayList<>();
+        // set android JDK path
+        Collections.addAll(args, "-cp", getAndroidJDKPath(options, Scene.v()));
+        // set android platforms path
+        Collections.addAll(args, "-android-jars", ANDROID_PLATFORMS);
+        // set apk path
+        Collections.addAll(args, "-process-dir", options.getClassPath().get(0));
         try {
-            // soot.Main.v().run(args) will be retrieveAllBodies in PackManager.v().runPacks();
-            // soot parse args
-            soot.options.Options.v().parse(args);
-            // soot load classes
+            // soot.Main.v().run(args) will call retrieveAllBodies()
+            // in PackManager.v().runPacks(); and make world building
+            // phase very slow, thus, we build Soot Scene manually
+            soot.options.Options.v().parse(args.toArray(new String[0]));
             Scene.v().loadNecessaryClasses();
-            // build Tai-e IR
+            // run SootWorldBuilder
             PackManager.v().getPack("wjtp").apply();
         } catch (AndroidPlatformException e) {
             throw new RuntimeException("Exception thrown by android platform," +
                     " are your androidJars path given properly?", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Soot frontend failed to build Scene" +
+                    " in Android mode", e);
         }
-        // TODO: add more catch exception
     }
 }

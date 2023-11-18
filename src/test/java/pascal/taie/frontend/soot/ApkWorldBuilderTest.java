@@ -31,11 +31,11 @@ import soot.SootClass;
 
 import java.util.Comparator;
 
-public class SootFrontendTest {
+public class ApkWorldBuilderTest {
 
     @Test
     void testWorldBuilder() {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", "AllInOne");
+        Main.buildWorld("-am", "-pp", "-cp", "android-benchmarks/DroidBench/apk/Aliasing/FlowSensitivity1.apk");
         World.get()
                 .getClassHierarchy()
                 .allClasses()
