@@ -1,0 +1,8 @@
+sources:
+    - { kind: call, method: "<Main: java.lang.String getSourceString()>", index: result }
+
+sinks:
+    - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }
+
+transfers:
+    - { method: "<java.lang.String: java.lang.String[] split(java.lang.String)>", from: base, to: "result[*]" }
