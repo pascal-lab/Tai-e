@@ -1,32 +1,83 @@
 name: 🐞 Bug Report
-description: Report an issue
+description: Help us improve by reporting a bug
 labels: []
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thank you for contributing to the improvement of Tai-e.
+        Every bug report is a significant contribution towards bettering our project.
+
+        **Please note:** To expedite our response to your report and ensure it receives appropriate priority, please **include a reproducible test case** or script if possible ([see an example of how to write a reproducible case](https://github.com/pascal-lab/Tai-e/compare/how-to-write-a-reproducible-case)).
+
   - type: textarea
-    id: bug-description
+    id: overall-description
     attributes:
-      label: Describe the bug
-      description: A clear and concise description of what the bug is
-      placeholder: Bug description
+      label: Overall Description
+      description: Give a concise overview of the issue.
+      placeholder: "Brief overview of the issue"
     validations:
       required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: Describe what is actually happening.
+      placeholder: "What is actually happening"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "What you expected to happen"
+    validations:
+      required: true
+
+  - type: input
+    id: tai-e-version
+    attributes:
+      label: Tai-e Version
+      description: Specify the version or commit-hash of Tai-e you're using.
+      placeholder: "Tai-e version or commit-hash"
+    validations:
+      required: true
+
   - type: textarea
     id: tai-e-arguments
     attributes:
-      label: Tai-e arguments
-      description: Provide the arguments you set up that caused this bug
-      placeholder: Tai-e arguments
+      label: Tai-e Arguments
+      description: List the arguments or settings used.
+      placeholder: "Example: -a pta=cs:ci;"
     validations:
       required: true
-  - type: textarea
-    id: runtime-info
+
+  - type: input
+    id: jdk-version
     attributes:
-      label: Runtime environment infomation
-      description: Provide your OS, IDE, and version of Tai-e
-      placeholder: OS, IDE, Tai-e version
+      label: JDK Version
+      description: Specify the version of Java Development Kit (JDK) you are using. You can find this by running `java -version` in your terminal.
+      placeholder: "JDK version (e.g., Temurin 17.0.6+10)"
+    validations:
+      required: false
+
+  - type: input
+    id: os-info
+    attributes:
+      label: System Environment
+      description: Specify the operating system you are using.
+      placeholder: "e.g., Windows 10, macOS Monterey, Ubuntu 22.04"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Provide any additional information or context about the bug. Such as the analyzed program (or its `.tir`), the taint configuration (`taint-config.yml`), the log, etc.
+      placeholder: "Any other relevant information"
     validations:
       required: false

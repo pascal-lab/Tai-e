@@ -1,0 +1,20 @@
+name: 📖 Other
+description: Open a blank issue.
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue report!
+        Every issue is a significant contribution towards bettering our project.
+
+        **Please note:** To expedite our response to your report and ensure it receives appropriate priority, please **include a reproducible test case** or script if possible ([see an example of how to write a reproducible case](https://github.com/pascal-lab/Tai-e/compare/how-to-write-a-reproducible-case)).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Add a description
+      placeholder: "Add your description here..."
+    validations:
+      required: true

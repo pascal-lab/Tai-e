@@ -1,32 +1,65 @@
 name: 🚀 Feature Request
-description: Request a new feature
+description: Suggest a new feature for Tai-e
 labels: ["type: enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for your interest in the project and taking the time to fill out this feature report!
+        We appreciate your interest in enhancing Tai-e. Your suggestions play a crucial role in our project's evolution. Please provide detailed information about the feature you envision.
+
   - type: textarea
     id: feature-description
     attributes:
       label: Clear and concise description of the problem
-      description: 'As a developer using Tai-e I want [goal / wish] so that [benefit]. If you intend to submit a PR for this issue, tell us in the description. Thanks!'
+      description: 'As a developer using Tai-e I want [goal/wish] so that [benefit].'
+      placeholder: "Example: As a developer using Tai-e, I want a new logging feature so that I can easily debug my application."
     validations:
       required: true
+
+  - type: textarea
+    id: impact-analysis
+    attributes:
+      label: Impact Analysis
+      description: Explain how this feature would benefit the project.
+      placeholder: "Potential impact of the feature"
+    validations:
+      required: false
+
   - type: textarea
     id: suggested-solution
     attributes:
-      label: Suggested solution
-      description: 'In module [xy] we could provide following implementation...'
+      label: Suggested Solution
+      description: 'In module [xy] we could provide the following implementation...'
+      placeholder: "Your suggested solution"
     validations:
-      required: true
+      required: false
+
   - type: textarea
     id: alternative
     attributes:
       label: Alternative
       description: Clear and concise description of any alternative solutions or features you've considered.
+      placeholder: "Any alternative solutions or features"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: intend-to-submit-a-pr
+    attributes:
+      label: Intention to submit PR
+      description: If you intend to submit a PR for this issue, tell us.
+      options:
+        - "Yes"
+        - "No"
+      default: 1
+    validations:
+      required: true
+
   - type: textarea
     id: additional-context
     attributes:
-      label: Additional context
+      label: Additional Context
       description: Any other context or screenshots about the feature request here.
+      placeholder: "Any additional context or screenshots"
+    validations:
+      required: false
