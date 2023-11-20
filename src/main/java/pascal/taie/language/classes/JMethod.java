@@ -70,7 +70,7 @@ public class JMethod extends ClassMember {
      * <br>
      * Notes: This field is {@code transient} because it is not serializable.
      */
-    private final transient Object methodSource;
+    private transient Object methodSource;
 
     /**
      * Notes: This field is {@code transient} because it is serialized separately.
