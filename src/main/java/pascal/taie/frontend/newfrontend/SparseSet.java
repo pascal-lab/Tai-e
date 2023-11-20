@@ -1,10 +1,8 @@
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.util.collection.Lists;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,6 +58,27 @@ public class SparseSet implements Iterable<Integer> {
         sparse[x] = numberOfElements;
 
         numberOfElements++; // increment the size of the set
+    }
+
+    public void union(SparseSet another) {
+        for (int i = 0; i < another.numberOfElements; ++i) {
+            add(another.dense[i]);
+        }
+    }
+
+    public boolean isEmpty() {
+        return numberOfElements == 0;
+    }
+
+    public void clear() {
+        numberOfElements = 0;
+    }
+
+    public int removeLast() {
+        assert numberOfElements > 0;
+        int res = dense[numberOfElements - 1];
+        numberOfElements--;
+        return res;
     }
 
     public void delete(int x) {

@@ -1,6 +1,5 @@
-package pascal.taie.frontend.newfrontend.info;
+package pascal.taie.frontend.newfrontend.report;
 
-import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;

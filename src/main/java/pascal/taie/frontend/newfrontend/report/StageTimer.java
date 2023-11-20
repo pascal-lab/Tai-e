@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.report;
 
 import pascal.taie.World;
 
@@ -30,15 +30,17 @@ public class StageTimer {
             getInstance().totalSplittingTime = 0;
             getInstance().totalTypingTime = 0;
             getInstance().totalTypelessIRTime = 0;
+            getInstance().irTime = 0;
+            getInstance().cwTime = 0;
         });
     }
 
     public static String message() {
         return "[TIMER] Total Typeless IR Time: " + getInstance().getTotalTypelessIRTime() + "ms\n" +
-                "[TIMER] Total Splitting Time: " + getInstance().getTotalSplittingTime() + "ms\n" +
-                "[TIMER] Total Typing Time: " + getInstance().getTotalTypingTime() + "ms\n" +
-                "[TIMER] IR Time: " + getInstance().getIrTime() + "ms\n" +
-                "[TIMER] CW Time: " + getInstance().getCwTime() + "ms\n";
+                "[TIMER] Total Splitting Time:   " + getInstance().getTotalSplittingTime() + "ms\n" +
+                "[TIMER] Total Typing Time:      " + getInstance().getTotalTypingTime() + "ms\n" +
+                "[TIMER] IR Time:                " + getInstance().getIRTime() + "ms\n" +
+                "[TIMER] CW Time:                " + getInstance().getCWTime() + "ms\n";
     }
 
     public static StageTimer getInstance() {
@@ -93,11 +95,15 @@ public class StageTimer {
         this.cwTime = cwTime;
     }
 
-    public long getIrTime() {
-        return irTime;
+    public long getIRTime() {
+        if (World.get().getOptions().isPreBuildIR()) {
+            return irTime;
+        } else {
+            return totalTypelessIRTime + totalSplittingTime + totalTypingTime;
+        }
     }
 
-    public long getCwTime() {
+    public long getCWTime() {
         return cwTime;
     }
 }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;

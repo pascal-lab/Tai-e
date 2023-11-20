@@ -11,9 +11,9 @@ import java.util.List;
  * </p>
  */
 public interface IndexedGraph <N> {
-    List<Integer> inEdges(int index);
+    List<N> inEdges(N node);
 
-    List<Integer> outEdges(int index);
+    List<N> outEdges(N node);
 
     N getNode(int index);
 
@@ -21,5 +21,5 @@ public interface IndexedGraph <N> {
 
     int size();
 
-    Integer getEntry();
+    N getEntry();
 }

@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-class VarManager {
+public class VarManager {
 
     public static final String LOCAL_PREFIX = "%";
 

@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -134,6 +135,8 @@ public class AsmIRBuilder {
 
     private final List<Phi> phiList;
 
+    private List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
+
     private static final Logger logger = LogManager.getLogger();
 
     private static final StackItem TOP = new StackItem(Top.Top, null);
@@ -174,7 +177,6 @@ public class AsmIRBuilder {
             verify();
             this.ir = getIR();
         }
-        // TODO: check how to handle empty method
     }
 
     void inferTypeWithFrame() {
@@ -193,25 +195,6 @@ public class AsmIRBuilder {
         StageTimer stageTimer = StageTimer.getInstance();
         stageTimer.startSplitting();
         makeStmts();
-//        makeExceptionTable();
-//        IR untyped = getIR();
-//        AnalysisConfig config = AnalysisConfig.of(CFGBuilder.ID,
-//                "exception", null,
-//                "dump", false);
-//        CFGBuilder builder = new CFGBuilder(config);
-//        CFG<Stmt> cfg = builder.analyze(untyped);
-//        MultiMap<Stmt, Stmt> exceptionMap = Maps.newMultiMap();
-//        for (ExceptionEntry entry : exceptionEntries) {
-//            for (int i = entry.start().getIndex(); i < entry.end().getIndex(); ++i) {
-//                exceptionMap.put(stmts.get(i), entry.handler());
-//            }
-//        }
-//        untyped.storeResult(CFGBuilder.ID, cfg);
-//        AnalysisConfig config1 = AnalysisConfig.of(LiveVariable.ID,
-//                "strongly", false);
-//        ExtraEdgeAppender.append(cfg, exceptionMap);
-//        LiveVariable liveVar = new LiveVariable(config1);
-//        var result = liveVar.analyze(untyped);
         VarWebSplitter splitter = new VarWebSplitter(this);
         splitter.build();
         stageTimer.endSplitting();
@@ -1757,41 +1740,44 @@ public class AsmIRBuilder {
     }
 
     public List<Pair<List<BytecodeBlock>, BytecodeBlock>> getTryAndHandlerBlocks() {
-        List<Pair<List<BytecodeBlock>, BytecodeBlock>> result = new ArrayList<>();
-        for (var node : source.tryCatchBlocks) {
-            var start = label2Block.get(node.start);
-            var end = label2Block.get(node.end);
-            var handler = label2Block.get(node.handler);
-            assert start != null;
-            assert handler != null;
-            List<BytecodeBlock> tryBlocks;
-            if (end != null) {
-                tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
-            } else {
-                if (node.end.getNext() == null) {
-                    // node.end is the end asm InsnNode.
-                    tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.size());
-                } else {
-                    AbstractInsnNode insnNode = node.end;
-                    while (insnNode != null && (
-                            !(insnNode instanceof LabelNode) || !label2Block.containsKey(insnNode))) {
-                        insnNode = insnNode.getNext();
-                    }
-//                    assert insnNode instanceof LabelNode; // make sure that the while loop above stops due to !label2Block.containsKey(insnNode).
-                    if (insnNode == null) {
-                        end = blockSortedList.get(blockSortedList.size() - 1);
-                    } else {
-                        end = label2Block.get((LabelNode) insnNode);
-                    }
-
+        if (this.tryAndHandlerBlocks == null) {
+            List<Pair<List<BytecodeBlock>, BytecodeBlock>> result = new ArrayList<>();
+            for (var node : source.tryCatchBlocks) {
+                var start = label2Block.get(node.start);
+                var end = label2Block.get(node.end);
+                var handler = label2Block.get(node.handler);
+                assert start != null;
+                assert handler != null;
+                List<BytecodeBlock> tryBlocks;
+                if (end != null) {
                     tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
+                } else {
+                    if (node.end.getNext() == null) {
+                        // node.end is the end asm InsnNode.
+                        tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.size());
+                    } else {
+                        AbstractInsnNode insnNode = node.end;
+                        while (insnNode != null && (
+                                !(insnNode instanceof LabelNode) || !label2Block.containsKey(insnNode))) {
+                            insnNode = insnNode.getNext();
+                        }
+//                    assert insnNode instanceof LabelNode; // make sure that the while loop above stops due to !label2Block.containsKey(insnNode).
+                        if (insnNode == null) {
+                            end = blockSortedList.get(blockSortedList.size() - 1);
+                        } else {
+                            end = label2Block.get((LabelNode) insnNode);
+                        }
+
+                        tryBlocks = blockSortedList.subList(blockSortedList.indexOf(start), blockSortedList.indexOf(end));
+                    }
                 }
+                tryBlocks.forEach(BytecodeBlock::setIsInTry);
+                result.add(new Pair<>(tryBlocks, handler));
             }
-            tryBlocks.forEach(BytecodeBlock::setIsInTry);
-            result.add(new Pair<>(tryBlocks, handler));
+            this.tryAndHandlerBlocks = result;
         }
 
-        return result;
+        return this.tryAndHandlerBlocks;
     }
 
     /**

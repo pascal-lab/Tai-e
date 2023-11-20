@@ -352,7 +352,7 @@ public class Utils {
         throw new UnsupportedOperationException();
     }
 
-    static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
+    public  static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
         if (o instanceof Integer i) {
             return switch (i) {
                 case 0 -> Top.Top; // Opcodes.Top

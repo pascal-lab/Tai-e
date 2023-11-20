@@ -15,7 +15,7 @@ public class TestDom {
         List<List<Integer>> g = List.of(List.of());
         int[] idom = runDomTest(g);
         Assert.assertArrayEquals(new int[]{0}, idom);
-        Dominator.DominatorFrontiers df = new Dominator(loadTest(g)).getDF();
+        Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         Assert.assertEquals(0, df.get(0).size());
     }
 
@@ -32,7 +32,7 @@ public class TestDom {
         );
         int[] idom = runDomTest(g);
         Assert.assertArrayEquals(new int[]{0, 0, 0, 0}, idom);
-        Dominator.DominatorFrontiers df = new Dominator(loadTest(g)).getDF();
+        Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         Assert.assertEquals(0, df.get(0).size());
         Assert.assertEquals(List.of(3), df.get(1).toList());
         Assert.assertEquals(List.of(3), df.get(2).toList());
@@ -52,7 +52,7 @@ public class TestDom {
         );
         int[] idom = runDomTest(g);
         Assert.assertArrayEquals(new int[]{0, 0, 1, 1, 1, 1}, idom);
-        Dominator.DominatorFrontiers df = new Dominator(loadTest(g)).getDF();
+        Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         Assert.assertEquals(0, df.get(0).size());
         Assert.assertEquals(List.of(1), df.get(1).toList());
         Assert.assertEquals(List.of(4), df.get(2).toList());
@@ -79,7 +79,7 @@ public class TestDom {
         );
         int[] idom = runDomTest(g);
         Assert.assertArrayEquals(new int[]{0, 0, 1, 2, 2, 2, 5, 2, 7, 8, 1}, idom);
-        Dominator.DominatorFrontiers df = new Dominator(loadTest(g)).getDF();
+        Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         Assert.assertEquals(0, df.get(0).size());
         Assert.assertEquals(List.of(1), df.get(1).toList());
         Assert.assertEquals(List.of(1), df.get(2).toList());
@@ -106,7 +106,7 @@ public class TestDom {
         );
         int[] idom = runDomTest(g);
         Assert.assertArrayEquals(new int[]{0, 0, 0, 0, 0, 0}, idom);
-        Dominator.DominatorFrontiers df = new Dominator(loadTest(g)).getDF();
+        Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         Assert.assertEquals(0, df.get(0).size());
         Assert.assertEquals(List.of(3), df.get(1).toList());
         Assert.assertEquals(List.of(4, 5), df.get(2).toList());
@@ -189,7 +189,7 @@ public class TestDom {
     }
 
     static int[] runDomTest(List<List<Integer>> g) {
-        return new Dominator(loadTest(g)).getDomTree();
+        return new Dominator<>(loadTest(g)).getDomTree();
     }
 
     static IndexedGraph<Integer> loadTest(List<List<Integer>> directedGraph) {
@@ -209,14 +209,15 @@ public class TestDom {
             }
         }
         return new IndexedGraph<>() {
+
             @Override
-            public List<Integer> inEdges(int index) {
-                return inEdges.get(index);
+            public List<Integer> inEdges(Integer node) {
+                return inEdges.get(node);
             }
 
             @Override
-            public List<Integer> outEdges(int index) {
-                return directedGraph.get(index);
+            public List<Integer> outEdges(Integer node) {
+                return directedGraph.get(node);
             }
 
             @Override

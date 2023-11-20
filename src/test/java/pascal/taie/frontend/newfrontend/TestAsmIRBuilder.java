@@ -13,6 +13,7 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.LoggerConfigs;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
@@ -87,18 +88,11 @@ public class TestAsmIRBuilder {
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
                 "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
                 "returnInt", "exception", "monitor", "iinc");
-        var ch = getCh("AllInOne", 6);
-        ch.allClasses()
-                .filter(i -> i.getSimpleName().equals("AllInOne"))
-                .forEach(i -> {
-                    i.getDeclaredMethods()
-                            .stream().filter(j -> methods.contains(j.getName()))
-                            .forEach(m -> {
-                                for (var stmt : m.getIR().getStmts()) {
-                                    System.out.println(stmt);
-                                }
-                            });
-                });
+        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "-java", "8",
+                "-cp", "src/test/resources/world",
+                "--main-class", "AllInOne",
+                "-a", "cfg=dump:true"});
     }
 
     @Test

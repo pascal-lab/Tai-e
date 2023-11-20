@@ -1,4 +1,4 @@
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.report;
 
 import pascal.taie.World;
 import pascal.taie.ir.exp.Var;
