@@ -30,6 +30,12 @@ public class DumperStruct {
     /** represent the taint flow path */
     public final Map<Long, List<Long>> graph;
 
+    public final List<Long> sourceNodes;
+
+    public final List<Long> sinkNodes;
+
+    public final List<List<Long>> recommandedPaths;
+
     public DumperStruct(TaintFlowGraph tfg){
         Set<Node> nodes = tfg.getNodes();
 //        Collection<FlowEdge> edges = tfg.getEdges();
@@ -55,6 +61,13 @@ public class DumperStruct {
             this.graph.get(key).add(value);
         });
         this.graph.replaceAll((k, v) -> this.graph.get(k).stream().distinct().sorted().toList());
+
+        this.sourceNodes = tfg.getSourceNodes().stream().map(n -> this.metadata.indexOfVarAndField(n.toString())).toList();
+
+        this.sinkNodes = tfg.getSinkNodes().stream().map(n -> this.metadata.indexOfVarAndField(n.toString())).toList();
+
+        this.recommandedPaths = new ArrayList<>();
+        this.recommandedPaths.add(List.of(6L, 5L, 7L, 0L, 16L, 14L, 10L, 12L, 15L, 23L, 22L, 21L, 28L, 24L, 25L));
     }
 
     /** get all methods that contain at least one variable in nodes */
