@@ -73,20 +73,20 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
     private static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
 
-    protected static final Map<String, Integer> sdkToJdk = Map.ofEntries(
-            Map.entry("33", 11),
-            Map.entry("32", 11),
-            Map.entry("31", 11),
-            Map.entry("30", 8),
-            Map.entry("29", 8),
-            Map.entry("28", 8),
-            Map.entry("27", 8),
-            Map.entry("26", 8),
-            Map.entry("25", 8),
-            Map.entry("24", 8),
-            Map.entry("23", 7),
-            Map.entry("22", 7),
-            Map.entry("21", 7)
+    protected static final Map<Integer, Integer> sdkToJdk = Map.ofEntries(
+            Map.entry(33, 11),
+            Map.entry(32, 11),
+            Map.entry(31, 11),
+            Map.entry(30, 8),
+            Map.entry(29, 8),
+            Map.entry(28, 8),
+            Map.entry(27, 8),
+            Map.entry(26, 8),
+            Map.entry(25, 8),
+            Map.entry(24, 8),
+            Map.entry(23, 7),
+            Map.entry(22, 7),
+            Map.entry(21, 7)
     );
 
     @Override
@@ -323,7 +323,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         List<String> args = new ArrayList<>();
         // set Java version for Android
         String apkPath = options.getClassPath().get(0);
-        String sdkVersion = getSDKVersion(scene, apkPath);
+        int sdkVersion = getSDKVersion(scene, apkPath);
         int javaVersion = sdkToJdk.getOrDefault(sdkVersion, 6);
         options.setJavaVersion(javaVersion);
         // set android JDK path
@@ -352,14 +352,21 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    private static final int DEFAULT_JAVA_VERSION = 6;
-
-    private static String getSDKVersion(Scene scene, String apkPath) {
+    private static int getSDKVersion(Scene scene, String apkPath) {
         String androidJar = scene.getAndroidJarPath(ANDROID_PLATFORMS, apkPath);
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(androidJar);
-        if (matcher.find()) { // TODO: find the last match
-            return matcher.group(); //Integer.parseInt(sdkVersion);
+
+        int lastMatchStart = -1;
+        int lastMatchEnd = -1;
+
+        while (matcher.find()) {
+            lastMatchStart = matcher.start();
+            lastMatchEnd = matcher.end();
+        }
+        if (lastMatchStart != -1) {
+            return Integer.parseInt(androidJar
+                    .substring(lastMatchStart, lastMatchEnd));
         }
         throw new RuntimeException("Erroneous apk path: " + apkPath);
     }
