@@ -6,10 +6,6 @@ import java.util.List;
 
 public interface IBasicBlock {
 
-    List<IBasicBlock> inEdges();
-
-    List<IBasicBlock> outEdges();
-
     int getIndex();
 
     List<Stmt> getStmts();

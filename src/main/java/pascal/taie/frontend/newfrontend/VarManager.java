@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class VarManager {
+public class VarManager implements IVarManager {
 
     public static final String LOCAL_PREFIX = "%";
 
@@ -177,6 +177,11 @@ public class VarManager {
         return newVar(TEMP_PREFIX + "v" + counter);
     }
 
+    @Override
+    public Var splitVar(Var var, int index) {
+        return null;
+    }
+
     public @Nullable Var getThisVar() {
         return thisVar;
     }
@@ -219,6 +224,12 @@ public class VarManager {
 
     public Var[] getLocals() {
         return local2Var;
+    }
+
+    @Override
+    public Var[] getNonSSAVar() {
+        // TODO: include stack vars
+        return getLocals();
     }
 
     private void makeLocal(int slot, String name) {

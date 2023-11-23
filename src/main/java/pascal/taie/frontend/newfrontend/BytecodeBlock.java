@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 
-public final class BytecodeBlock {
+public final class BytecodeBlock implements IBasicBlock {
     private final LabelNode label;
 
     private int index = -1;
@@ -165,6 +165,19 @@ public final class BytecodeBlock {
 
     public List<Stmt> getStmts() {
         return stmts;
+    }
+
+    @Override
+    public void setStmt(Stmt stmt, int pos) {
+        stmts.set(pos, stmt);
+    }
+
+    @Override
+    public void insertStmts(List<Stmt> stmts) {
+        List<Stmt> temp = new ArrayList<>(stmts.size() + this.stmts.size());
+        temp.addAll(stmts);
+        temp.addAll(this.stmts);
+        this.stmts = temp;
     }
 
     public void setStmts(List<Stmt> stmts) {

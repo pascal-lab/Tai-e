@@ -23,6 +23,8 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
+import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
+import pascal.taie.frontend.newfrontend.ssa.SSATransform;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -174,6 +176,8 @@ public class AsmIRBuilder {
             makeStmts();
             makeExceptionTable();
             stageTimer.endTypelessIR();
+            // TODO: add options for ssa toggle
+            ssa();
             verify();
             this.ir = getIR();
         }
@@ -207,6 +211,64 @@ public class AsmIRBuilder {
         inference.build();
         makeStmts();
         stageTimer.endTyping();
+    }
+
+    IndexedGraph<BytecodeBlock> toGraph() {
+        // TODO: avoid reindex, indexing should be done in buildCFG / traverseBlocks
+        // add a new entry, which points to all entry blocks
+        // we need this because:
+        // 1. original cfg many has multiple entry blocks
+        // 2. there may be some edges points to entry block
+        BytecodeBlock entry = new BytecodeBlock(null, null, null);
+        entry.setIndex(0);
+        List<BytecodeBlock> blocks = new ArrayList<>();
+        blocks.add(entry);
+        int index = 1;
+        for (BytecodeBlock block : blockSortedList) {
+            if (block.inEdges().isEmpty()) {
+                block.inEdges().add(entry);
+                entry.outEdges().add(block);
+            }
+            block.setIndex(index++);
+            blocks.add(block);
+        }
+        return new IndexedGraph<>() {
+            @Override
+            public List<BytecodeBlock> inEdges(BytecodeBlock node) {
+                return node.inEdges();
+            }
+
+            @Override
+            public List<BytecodeBlock> outEdges(BytecodeBlock node) {
+                return node.outEdges();
+            }
+
+            @Override
+            public BytecodeBlock getNode(int index) {
+                return blocks.get(index);
+            }
+
+            @Override
+            public int getIndex(BytecodeBlock node) {
+                return node.getIndex();
+            }
+
+            @Override
+            public int size() {
+                return blocks.size();
+            }
+
+            @Override
+            public BytecodeBlock getEntry() {
+                return entry;
+            }
+        };
+    }
+
+    void ssa() {
+        SSATransform<BytecodeBlock> ssa =
+                new SSATransform<>(toGraph(), manager, null);
+        ssa.build();
     }
 
     public BytecodeBlock getEntryBlock() {
