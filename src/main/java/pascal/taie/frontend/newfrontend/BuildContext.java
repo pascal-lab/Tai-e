@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.World;
+import pascal.taie.frontend.newfrontend.asyncir.IRService;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -23,6 +24,7 @@ import pascal.taie.util.collection.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
 public class BuildContext {
@@ -35,12 +37,11 @@ public class BuildContext {
 
     final ConcurrentMap<JMethod, JSRInlinerAdapter> method2Source;
 
-    final ConcurrentMap<JClass, AsmSource> jclass2Node;
+    final IRService irService = new IRService();
 
     private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
         this.defaultClassLoader = defaultClassLoader;
         this.typeSystem = typeSystem;
-        jclass2Node = Maps.newConcurrentMap();
         method2Source = Maps.newConcurrentMap();
     }
 
@@ -137,52 +138,22 @@ public class BuildContext {
 
     public JClass toJClass(String internalName) {
         if (internalName.startsWith("[")) {
-            return Utils.getReflectArray().getJClass();
+            return Utils.getObject().getJClass();
         } else {
             return getClassByName(org.objectweb.asm.Type.getObjectType(internalName).getClassName());
         }
+    }
+
+    public void noticeClassSource(JClass clazz, AsmSource source) {
+        irService.putClassSource(clazz, source);
+    }
+
+    public IRService getIRService() {
+        return irService;
     }
 
     public ClassHierarchy getClassHierarchy() {
         return hierarchy;
     }
 
-    public AsmMethodSource getSource(JMethod method) {
-        assert !World.get().getOptions().isPreBuildIR();
-        if (method2Source.get(method) != null) {
-            return new AsmMethodSource(method2Source.get(method),
-                    jclass2Node.get(method.getDeclaringClass()).getClassFileVersion());
-        }
-
-        AsmSource source = jclass2Node.get(method.getDeclaringClass());
-        assert source != null;
-        BuildContext ctx = this;
-
-        JClass c = method.getDeclaringClass();
-        assert source.getClassName().equals(c.getName());
-        synchronized (source) {
-            if (method2Source.get(method) == null) {
-                source.r().accept(new ClassVisitor(Opcodes.ASM9) {
-                    @Override
-                    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-                        JSRInlinerAdapter adapter = new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);
-                        org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-                        var paramTypes = Arrays.stream(t.getArgumentTypes())
-                                .map(ctx::fromAsmType)
-                                .toList();
-                        var retType = BuildContext.get().fromAsmType(t.getReturnType());
-                        JMethod method1 = method.getDeclaringClass().getDeclaredMethod(Subsignature.get(name, paramTypes, retType));
-                        method2Source.put(method1, adapter);
-                        return adapter;
-                    }
-                }, ClassReader.EXPAND_FRAMES);
-            }
-
-            assert method2Source.get(method) != null;
-            JSRInlinerAdapter source1 = method2Source.get(method);
-            method2Source.remove(method);
-            return new AsmMethodSource(source1,
-                    jclass2Node.get(method.getDeclaringClass()).getClassFileVersion());
-        }
-    }
 }

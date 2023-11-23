@@ -182,7 +182,7 @@ public class JMethod extends ClassMember {
         return methodSource;
     }
 
-    public IR getIR() {
+    public synchronized IR getIR() {
         if (ir == null) {
             if (isAbstract()) {
                 throw new AnalysisException("Abstract method " + this +

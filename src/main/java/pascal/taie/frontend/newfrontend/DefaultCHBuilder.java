@@ -37,7 +37,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             JClassBuilder asb = getClassBuilder(i, klass);
             asb.build(klass);
             if (!preBuild && i instanceof AsmSource as) {
-                BuildContext.get().jclass2Node.put(klass, as);
+                BuildContext.get().noticeClassSource(klass, as);
             }
         });
 

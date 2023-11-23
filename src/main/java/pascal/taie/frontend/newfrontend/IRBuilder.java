@@ -29,9 +29,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
                 builder.build();
                 return builder.getIr();
             } else if (source == null) {
-                AsmIRBuilder builder = new AsmIRBuilder(method, BuildContext.get().getSource(method));
-                builder.build();
-                return builder.getIr();
+                return BuildContext.get().irService.loadingAndGetIR(method);
             } else if (source instanceof JavaMethodSource javaMethodSource) {
                 JavaMethodIRBuilder builder = new JavaMethodIRBuilder(javaMethodSource, method);
                 return builder.build();
