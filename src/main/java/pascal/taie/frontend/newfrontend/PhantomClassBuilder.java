@@ -52,7 +52,13 @@ class PhantomClassBuilder implements JClassBuilder {
 
     @Override
     public JClass getSuperClass() {
-        return Utils.getObject().getJClass(); // Object for phantom class. However, is it better to fake a "ILL" supertype?
+        if (name.equals("java.lang.Object")) {
+            return null;
+        }
+        else {
+            // Object for phantom class. However, is it better to fake a "ILL" supertype?
+            return Utils.getObject().getJClass();
+        }
     }
 
     @Override
