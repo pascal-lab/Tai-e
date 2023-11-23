@@ -66,7 +66,8 @@ public class DroidBenchTest {
                 "distinguish-string-constants", "null",
                 "merge-string-objects", "true",
                 "only-app", "true",
-                "taint-config", TAINT_CONFIG);
+                "taint-config", TAINT_CONFIG,
+                "propagate-types", "[reference,int,double,char]");
         Collections.addAll(args,
                 "-a", "pta=" + ptaArgs.entrySet()
                         .stream()

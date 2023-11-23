@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class InterAppCommunicationTest extends DroidBenchTest {
 
-    static final String TYPE = "InterAppCommunication";
+    static final String CATEGORY = "InterAppCommunication";
 
     /**
-     * Tests for InterAppCommunication Type apk
+     * Tests for InterAppCommunication CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -47,7 +47,7 @@ public class InterAppCommunicationTest extends DroidBenchTest {
             "Location_Service1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

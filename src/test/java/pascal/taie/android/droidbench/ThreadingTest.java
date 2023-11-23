@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ThreadingTest extends DroidBenchTest {
 
-    static final String TYPE = "Threading";
+    static final String CATEGORY = "Threading";
 
     /**
-     * Tests for Threading Type apk
+     * Tests for Threading CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -42,7 +42,7 @@ public class ThreadingTest extends DroidBenchTest {
             "TimerTask1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

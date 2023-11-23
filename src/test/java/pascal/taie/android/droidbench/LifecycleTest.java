@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class LifecycleTest extends DroidBenchTest {
 
-    static final String TYPE = "Lifecycle";
+    static final String CATEGORY = "Lifecycle";
 
     /**
-     * Tests for Lifecycle Type apk
+     * Tests for Lifecycle CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -60,7 +60,7 @@ public class LifecycleTest extends DroidBenchTest {
             "SharedPreferenceChanged1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class DynamicLoadingTest extends DroidBenchTest {
 
-    static final String TYPE = "DynamicLoading";
+    static final String CATEGORY = "DynamicLoading";
 
     /**
-     * Tests for DynamicLoading Type apk
+     * Tests for DynamicLoading CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -39,7 +39,7 @@ public class DynamicLoadingTest extends DroidBenchTest {
             "DynamicSource1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

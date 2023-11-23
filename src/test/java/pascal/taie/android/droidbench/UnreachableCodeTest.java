@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class UnreachableCodeTest extends DroidBenchTest {
 
-    static final String TYPE = "UnreachableCode";
+    static final String CATEGORY = "UnreachableCode";
 
     /**
-     * Tests for UnreachableCode Type apk
+     * Tests for UnreachableCode CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -40,7 +40,7 @@ public class UnreachableCodeTest extends DroidBenchTest {
             "UnreachableSource1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

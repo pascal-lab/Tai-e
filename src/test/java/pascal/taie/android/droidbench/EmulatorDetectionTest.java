@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class EmulatorDetectionTest extends DroidBenchTest {
 
-    static final String TYPE = "EmulatorDetection";
+    static final String CATEGORY = "EmulatorDetection";
 
     /**
-     * Tests for EmulatorDetection Type apk
+     * Tests for EmulatorDetection CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -51,7 +51,7 @@ public class EmulatorDetectionTest extends DroidBenchTest {
             "VoiceMail1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

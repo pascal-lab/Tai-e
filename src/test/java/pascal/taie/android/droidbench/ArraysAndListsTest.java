@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ArraysAndListsTest extends DroidBenchTest {
 
-    static final String TYPE = "ArraysAndLists";
+    static final String CATEGORY = "ArraysAndLists";
 
     /**
-     * Tests for ArraysAndLists Type apk
+     * Tests for ArraysAndLists CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -46,7 +46,7 @@ public class ArraysAndListsTest extends DroidBenchTest {
             "MultidimensionalArray1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

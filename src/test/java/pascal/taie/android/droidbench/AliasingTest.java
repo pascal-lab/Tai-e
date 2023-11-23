@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class AliasingTest extends DroidBenchTest {
 
-    static final String TYPE = "Aliasing";
+    static final String CATEGORY = "Aliasing";
 
     /**
-     * Tests for Aliasing Type apk
+     * Tests for Aliasing CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -40,6 +40,6 @@ public class AliasingTest extends DroidBenchTest {
             "StrongUpdate1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 }

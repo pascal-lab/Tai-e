@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ReflectionICCTest extends DroidBenchTest {
 
-    static final String TYPE = "Reflection_ICC";
+    static final String CATEGORY = "Reflection_ICC";
 
     /**
-     * Tests for Reflection_ICC Type apk
+     * Tests for Reflection_ICC CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -46,7 +46,7 @@ public class ReflectionICCTest extends DroidBenchTest {
             "SharedPreferences1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

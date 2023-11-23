@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class AndroidSpecificTest extends DroidBenchTest {
 
-    static final String TYPE = "AndroidSpecific";
+    static final String CATEGORY = "AndroidSpecific";
 
     /**
-     * Tests for AndroidSpecific Type apk
+     * Tests for AndroidSpecific CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -49,7 +49,7 @@ public class AndroidSpecificTest extends DroidBenchTest {
             "View1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

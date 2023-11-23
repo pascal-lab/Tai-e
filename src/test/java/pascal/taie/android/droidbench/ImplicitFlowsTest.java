@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ImplicitFlowsTest extends DroidBenchTest {
 
-    static final String TYPE = "ImplicitFlows";
+    static final String CATEGORY = "ImplicitFlows";
 
     /**
-     * Tests for ImplicitFlows Type apk
+     * Tests for ImplicitFlows CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -42,7 +42,7 @@ public class ImplicitFlowsTest extends DroidBenchTest {
             "ImplicitFlow6"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

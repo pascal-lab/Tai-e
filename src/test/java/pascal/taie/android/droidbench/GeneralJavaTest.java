@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class GeneralJavaTest extends DroidBenchTest {
 
-    static final String TYPE = "GeneralJava";
+    static final String CATEGORY = "GeneralJava";
 
     /**
-     * Tests for GeneralJava Type apk
+     * Tests for GeneralJava CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -62,7 +62,7 @@ public class GeneralJavaTest extends DroidBenchTest {
             "VirtualDispatch4"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

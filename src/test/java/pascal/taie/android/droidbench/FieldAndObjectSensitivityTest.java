@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class FieldAndObjectSensitivityTest extends DroidBenchTest {
 
-    static final String TYPE = "FieldAndObjectSensitivity";
+    static final String CATEGORY = "FieldAndObjectSensitivity";
 
     /**
-     * Tests for FieldAndObjectSensitivity Type apk
+     * Tests for FieldAndObjectSensitivity CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -43,7 +43,7 @@ public class FieldAndObjectSensitivityTest extends DroidBenchTest {
             "ObjectSensitivity2"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

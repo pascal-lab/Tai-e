@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ReflectionTest extends DroidBenchTest {
 
-    static final String TYPE = "Reflection";
+    static final String CATEGORY = "Reflection";
 
     /**
-     * Tests for Reflection Type apk
+     * Tests for Reflection CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -45,7 +45,7 @@ public class ReflectionTest extends DroidBenchTest {
             "Reflection9"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

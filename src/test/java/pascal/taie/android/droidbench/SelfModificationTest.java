@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class SelfModificationTest extends DroidBenchTest {
 
-    static final String TYPE = "SelfModification";
+    static final String CATEGORY = "SelfModification";
 
     /**
-     * Tests for SelfModification Type apk
+     * Tests for SelfModification CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -40,7 +40,7 @@ public class SelfModificationTest extends DroidBenchTest {
             "BytecodeTamper4"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class CallbackTest extends DroidBenchTest {
 
-    static final String TYPE = "Callbacks";
+    static final String CATEGORY = "Callbacks";
 
     /**
-     * Tests for Callbacks Type apk
+     * Tests for Callbacks CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -51,7 +51,7 @@ public class CallbackTest extends DroidBenchTest {
             "Unregister1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

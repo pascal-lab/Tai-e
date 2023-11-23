@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class InterComponentCommunicationTest extends DroidBenchTest {
 
-    static final String TYPE = "InterComponentCommunication";
+    static final String CATEGORY = "InterComponentCommunication";
 
     /**
-     * Tests for InterComponentCommunication Type apk
+     * Tests for InterComponentCommunication CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -54,7 +54,7 @@ public class InterComponentCommunicationTest extends DroidBenchTest {
             "UnresolvableIntent1"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }

@@ -27,10 +27,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class NativeTest extends DroidBenchTest {
 
-    static final String TYPE = "Native";
+    static final String CATEGORY = "Native";
 
     /**
-     * Tests for Native Type apk
+     * Tests for Native CATEGORY apk
      */
     @ParameterizedTest
     @ValueSource(strings = {
@@ -41,7 +41,7 @@ public class NativeTest extends DroidBenchTest {
             "SourceInNativeCode"
     })
     void test(String benchmark) {
-        run(TYPE, benchmark);
+        run(CATEGORY, benchmark);
     }
 
 }
