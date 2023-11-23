@@ -280,7 +280,6 @@ public class TransferHandler extends OnFlyHandler {
     }
 
     public void addNewTransfer(TaintTransfer transfer) {
-        logger.info("Add new taint transfer: {}", transfer);
         this.transfers.put(transfer.getMethod(), transfer);
         Set<CSCallSite> csCallSites = method2CSCallSite.get(transfer.getMethod());
         for(CSCallSite csCallSite : csCallSites) {

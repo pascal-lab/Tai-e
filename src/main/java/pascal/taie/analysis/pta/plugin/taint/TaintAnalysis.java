@@ -39,10 +39,8 @@ import pascal.taie.analysis.pta.plugin.taint.inferer.TransferInferer;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.Timer;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 
 public class TaintAnalysis implements Plugin {
@@ -59,6 +57,8 @@ public class TaintAnalysis implements Plugin {
 
     private TaintConfig config;
 
+    private TransferHandler transferHandler;
+
     private SinkHandler sinkHandler;
 
     private TransferInferer transferInferer;
@@ -74,7 +74,7 @@ public class TaintAnalysis implements Plugin {
         logger.info(config);
         HandlerContext context = new HandlerContext(solver, manager, config);
         CompositePlugin onFlyHandler = new CompositePlugin();
-        TransferHandler transferHandler = new TransferHandler(context);
+        transferHandler = new TransferHandler(context);
         onFlyHandler.addPlugin(
                 new SourceHandler(context),
                 transferHandler,
@@ -85,7 +85,7 @@ public class TaintAnalysis implements Plugin {
             case HIGH -> new HighTransferInferer(context, transferHandler);
             default -> null;
         };
-        if(transferInferer != null) {
+        if (transferInferer != null) {
             onFlyHandler.addPlugin(transferInferer);
         }
         this.onFlyHandler = onFlyHandler;
@@ -123,26 +123,23 @@ public class TaintAnalysis implements Plugin {
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
-        Timer.runAndCount(() -> {
-                    TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager).build();
-                    logger.info("Source nodes:");
-                    tfg.getSourceNodes().forEach(logger::info);
-                    logger.info("Sink nodes:");
-                    tfg.getSinkNodes().forEach(logger::info);
-                    new TFGDumper().dump(tfg,
-                            new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE));
-                },
-                "TFGDumper");
-
-        try {
+        if (!taintFlows.isEmpty()) {
             TaintFlowGraph tfg = new TFGBuilder(solver.getResult(), taintFlows, manager).build();
-            new DumperStruct(tfg).dump(new File(World.get().getOptions().getOutputDir(), "tfg.yml"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            logger.info("Source nodes:");
+            tfg.getSourceNodes().forEach(logger::info);
+            logger.info("Sink nodes:");
+            tfg.getSinkNodes().forEach(logger::info);
 
-        if (config.inferenceConfig().inferenceEnable()) {
-            Timer.runAndCount(() -> transferInferer.collectInferredTrans(taintFlows), "TransferInfererDumper");
+            File outputDir = World.get().getOptions().getOutputDir();
+            new TFGDumper().dump(tfg, new File(outputDir, TAINT_FLOW_GRAPH_FILE));
+            new DumperStruct(tfg).dump(new File(outputDir, "tfg-visualizer-config.yml"));
+            TFGInfoCollector infoCollector = new TFGInfoCollector(solver, manager, config, transferHandler, taintFlows);
+            infoCollector.collectShortestTaintPaths();
+            // TODO
+            if (config.inferenceConfig().inferenceEnable()) {
+                infoCollector.collectMinimumCuteEdges();
+                transferInferer.dump(infoCollector);
+            }
         }
     }
 }

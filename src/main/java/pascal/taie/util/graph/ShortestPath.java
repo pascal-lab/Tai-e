@@ -3,7 +3,12 @@ package pascal.taie.util.graph;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.function.ToIntFunction;
 
 /**
@@ -84,9 +89,7 @@ public class ShortestPath<N, E extends Edge<N>> {
                             node2PathPredecessor.put(successor, outEdge);
                             node2PathCost.put(successor, newCost);
                             queue.add(new DistPair(successor, newDist, newCost));
-                        }
-                        else if(newDist == node2PathDistance.get(successor) && newCost < node2PathCost.get(successor))
-                        {
+                        } else if (newDist == node2PathDistance.get(successor) && newCost < node2PathCost.get(successor)) {
                             node2PathPredecessor.put(successor, outEdge);
                             node2PathCost.put(successor, newCost);
                             queue.add(new DistPair(successor, newDist, newCost));
@@ -140,6 +143,10 @@ public class ShortestPath<N, E extends Edge<N>> {
         return node2PathDistance.get(node);
     }
 
+    public boolean canReach(N node) {
+        return getDistance(node) != INVALID_WEIGHT;
+    }
+
     private class DistPair implements Comparable<DistPair> {
         private final N node;
 
@@ -155,7 +162,7 @@ public class ShortestPath<N, E extends Edge<N>> {
 
         @Override
         public int compareTo(DistPair other) {
-            if(this.dist == other.dist){
+            if (this.dist == other.dist) {
                 return Integer.compare(this.cost, other.cost);
             }
             return Integer.compare(this.dist, other.dist);

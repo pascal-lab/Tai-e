@@ -3,7 +3,7 @@
   severity: CRITICAL # 021->HIGH
   description: The algorithms MD2, MD4, MD5 are not recommended MessageDigests.
   methodList:
-    - reference: "<c: java.security.MessageDigest getInstance(java.lang.String)>"
+    - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String)>"
       parameter: 'p1 = /(?i)"MD[45]"/'
     - reference: "<java.security.MessageDigest: java.security.MessageDigest getInstance(java.lang.String,java.lang.String)>"
       parameter: 'p1 = /(?i)"MD[45]"/'
