@@ -11,6 +11,7 @@ import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.StaticFieldNode;
 import pascal.taie.analysis.graph.flowgraph.VarNode;
+import pascal.taie.analysis.pta.core.cs.element.*;
 import pascal.taie.analysis.pta.plugin.taint.TFGDumperStruct.MetaData;
 import pascal.taie.analysis.pta.plugin.taint.TFGDumperStruct.Relation;
 import pascal.taie.language.classes.ClassMember;
@@ -47,9 +48,9 @@ public class DumperStruct {
 
     public final List<Long> sinkNodes;
 
-    public final List<List<Long>> recommandedPaths;
+    public final List<List<Long>> recommendedPaths;
 
-    public DumperStruct(TaintFlowGraph tfg) {
+    public DumperStruct(TaintFlowGraph tfg, Collection<TFGInfoCollector.TaintPath> recommendPaths) {
         Set<Node> nodes = tfg.getNodes();
 //        Collection<FlowEdge> edges = tfg.getEdges();
         Collection<FlowEdge> edges = tfg.getNodes().stream()
@@ -73,14 +74,36 @@ public class DumperStruct {
             }
             this.graph.get(key).add(value);
         });
-        this.graph.replaceAll((k, v) -> this.graph.get(k).stream().distinct().sorted().toList());
+        this.graph.replaceAll((k, v) -> this.graph.get(k).stream().sorted().toList()); // delete distinct()
 
         this.sourceNodes = tfg.getSourceNodes().stream().map(n -> this.metadata.indexOfVarAndField(n.toString())).toList();
 
         this.sinkNodes = tfg.getSinkNodes().stream().map(n -> this.metadata.indexOfVarAndField(n.toString())).toList();
 
-        this.recommandedPaths = new ArrayList<>();
-        this.recommandedPaths.add(List.of(6L, 5L, 7L, 0L, 16L, 14L, 10L, 12L, 15L, 23L, 22L, 21L, 28L, 24L, 25L));
+        this.recommendedPaths = new ArrayList<>();
+
+        // todo: modify the approach of changing Pointer to Node
+        recommendPaths.stream()
+                .map(TFGInfoCollector.TaintPath::path)
+                .forEach(tofEdges -> {
+                    List<Pointer> pointers = new ArrayList<>(tofEdges.stream().map(e -> e.source().pointer()).toList());
+                    pointers.add(tofEdges.get(tofEdges.size() - 1).target().pointer());
+                    List<Long> ns = pointers.stream().map(p -> {
+                        if(p instanceof CSVar csVar){
+                            return "VarNode{" + csVar.getVar().getMethod() + "/" + csVar.getVar().getName() + "}";
+                        } else if (p instanceof InstanceField iField) {
+                            return "InstanceFieldNode{" + iField.getBase().getObject() + "." + iField.getField() + "}";
+                        } else if (p instanceof ArrayIndex arrayIndex) {
+                            return "ArrayIndexNode{" + arrayIndex.getArray().getObject() + "}";
+                        } else {
+                            return "StaticFieldNode{" + ((StaticField) p).getField() + '}';
+                        }
+                    }).map(this.metadata::indexOfVarAndField).toList();
+                    this.recommendedPaths.add(ns);
+                });
+
+
+//        this.recommendedPaths.add(List.of(6L, 5L, 7L, 0L, 16L, 14L, 10L, 12L, 15L, 23L, 22L, 21L, 28L, 24L, 25L));
     }
 
     /**

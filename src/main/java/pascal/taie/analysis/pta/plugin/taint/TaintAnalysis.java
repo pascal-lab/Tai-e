@@ -132,10 +132,10 @@ public class TaintAnalysis implements Plugin {
 
             File outputDir = World.get().getOptions().getOutputDir();
             new TFGDumper().dump(tfg, new File(outputDir, TAINT_FLOW_GRAPH_FILE));
-            new DumperStruct(tfg).dump(new File(outputDir, "tfg-visualizer-config.yml"));
+
             TFGInfoCollector infoCollector = new TFGInfoCollector(solver, manager, config, transferHandler, taintFlows);
             infoCollector.collectShortestTaintPaths();
-            // TODO
+            new DumperStruct(tfg, infoCollector.getAllShortestTaintPath()).dump(new File(outputDir, "tfg-visualizer-config.yml"));
             if (config.inferenceConfig().inferenceEnable()) {
                 infoCollector.collectMinimumCuteEdges();
                 transferInferer.dump(infoCollector);
