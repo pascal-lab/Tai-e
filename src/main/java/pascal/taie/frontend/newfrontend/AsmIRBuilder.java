@@ -267,7 +267,7 @@ public class AsmIRBuilder {
 
     void ssa() {
         SSATransform<BytecodeBlock> ssa =
-                new SSATransform<>(toGraph(), manager, null);
+                new SSATransform<>(method, toGraph(), manager, null);
         ssa.build();
     }
 

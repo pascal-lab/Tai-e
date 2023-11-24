@@ -21,6 +21,8 @@ public class Dominator<N> {
 
     private final int[] postOrder;
 
+    private int[] dom;
+
     public final static int UNDEFINED = -1;
 
     public Dominator(IndexedGraph<N> graph) {
@@ -43,21 +45,26 @@ public class Dominator<N> {
      * @return the idom[] array
      */
     public int[] getDomTree() {
-        boolean changed = true;
-        int[] dom = new int[graph.size()];
-        Arrays.fill(dom, UNDEFINED);
+        if (dom == null) {
+            boolean changed = true;
+            dom = new int[graph.size()];
+            Arrays.fill(dom, UNDEFINED);
 
-        // TODO: can/need we calculates idom in dfs?
-        dfsTrav();
-        int entry = graph.getIndex(graph.getEntry());
-        dom[entry] = entry;
-        while (changed) {
-            changed = loopTrav(dom);
+            // TODO: can/need we calculates idom in dfs?
+            dfsTrav();
+            int entry = graph.getIndex(graph.getEntry());
+            dom[entry] = entry;
+            while (changed) {
+                changed = loopTrav(dom);
+            }
         }
 
         return dom;
     }
 
+    public int[] getPostOrder() {
+        return postOrder;
+    }
 
     /**
      * Get the dominator frontiers.

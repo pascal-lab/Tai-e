@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -234,6 +235,12 @@ public class Lenses {
             @Override
             public Stmt visit(Monitor stmt) {
                 return new Monitor(stmt.isEnter() ? Monitor.Op.ENTER : Monitor.Op.EXIT, subSt(stmt.getObjectRef()));
+            }
+
+            @Override
+            public Stmt visit(PhiStmt stmt) {
+                assert useSigma.isEmpty();
+                return new PhiStmt(stmt.getBase(), defSubSt(stmt.getLValue()), stmt.getRValue());
             }
 
             @Override

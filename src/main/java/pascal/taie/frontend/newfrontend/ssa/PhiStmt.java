@@ -1,35 +1,42 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.ir.exp.LValue;
-import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.DefinitionStmt;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.Set;
 
 public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
 
-    public PhiStmt(Var v) {
+    private final Var base;
 
+    private final Var def; // renamed var, different from base
+
+    private final PhiExp phiExp;
+
+    public PhiStmt(Var base, Var def, PhiExp phiExp) {
+        this.base = base;
+        this.def = def;
+        this.phiExp = phiExp;
+    }
+
+    public Var getBase() {
+        return base;
     }
 
     @Nullable
     @Override
     public Var getLValue() {
-        return null;
+        return def;
     }
 
     @Override
     public PhiExp getRValue() {
-        return null;
+        return phiExp;
     }
 
     @Override
     public <T> T accept(StmtVisitor<T> visitor) {
-        return null;
+        return visitor.visit(this);
     }
 }

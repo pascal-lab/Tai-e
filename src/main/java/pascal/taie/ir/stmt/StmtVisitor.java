@@ -22,6 +22,8 @@
 
 package pascal.taie.ir.stmt;
 
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
+
 /**
  * Stmt visitor which may return a result after the visit.
  *
@@ -110,6 +112,10 @@ public interface StmtVisitor<T> {
     }
 
     default T visit(Nop stmt) {
+        return visitDefault(stmt);
+    }
+
+    default T visit(PhiStmt stmt) {
         return visitDefault(stmt);
     }
 

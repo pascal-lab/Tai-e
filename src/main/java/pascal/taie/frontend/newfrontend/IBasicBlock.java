@@ -18,4 +18,5 @@ public interface IBasicBlock {
      */
     void insertStmts(List<Stmt> stmts);
 
+    void setStmts(List<Stmt> stmts);
 }

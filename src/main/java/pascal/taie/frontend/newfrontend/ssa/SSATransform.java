@@ -3,14 +3,20 @@ package pascal.taie.frontend.newfrontend.ssa;
 import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.IVarManager;
+import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.IndexerBitSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Cytron style SSA transformation.</p>
@@ -23,17 +29,27 @@ import java.util.List;
  * Thus, generic basic block / varManger is used</p>
  */
 public class SSATransform<Block extends IBasicBlock> {
+    private final JMethod method;
+
     private final IndexedGraph<Block> graph;
 
     private final Dominator.DominatorFrontiers df;
+
+    private final int[] dom;
+
+    private final int[] postOrder;
 
     private final IVarManager manager;
 
     private final DUInfo info;
 
-    public SSATransform(IndexedGraph<Block> graph, IVarManager manager, DUInfo info) {
+    public SSATransform(JMethod method, IndexedGraph<Block> graph, IVarManager manager, DUInfo info) {
+        this.method = method;
         this.graph = graph;
-        this.df = new Dominator<>(graph).getDF();
+        Dominator<Block> dominator = new Dominator<>(graph);
+        this.df = dominator.getDF();
+        this.dom = dominator.getDomTree();
+        this.postOrder = dominator.getPostOrder();
         this.manager = manager;
         this.info = info;
     }
@@ -51,12 +67,12 @@ public class SSATransform<Block extends IBasicBlock> {
         return graph.inEdges(graph.getNode(i));
     }
 
+    private final List<IndexerBitSet<Var>> isInserted = new ArrayList<>();
+    private final List<List<Stmt>> phis = new ArrayList<>();
+    private Var[] nonSSAVars;
     private void phiInsertion() {
         // index with block.getIndex()
-        List<IndexerBitSet<Var>> isInserted = new ArrayList<>();
-        List<List<Stmt>> phis = new ArrayList<>();
-
-        Var[] vars = manager.getNonSSAVar();
+        nonSSAVars = manager.getNonSSAVar();
         Indexer<Var> indexer = new Indexer<>() {
             @Override
             public int getIndex(Var o) {
@@ -82,7 +98,7 @@ public class SSATransform<Block extends IBasicBlock> {
         }
 
         SparseSet current = new SparseSet(graph.size(), graph.size());
-        for (Var v : vars) {
+        for (Var v : nonSSAVars) {
             List<IBasicBlock> defBlocks = info.getDefBlock(v);
             for (IBasicBlock block : defBlocks) {
                 current.add(block.getIndex());
@@ -92,7 +108,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 for (int node : df.get(block.getIndex())) {
                     if (!isInserted.get(node).contains(v)) {
                         isInserted.get(node).add(v);
-                        phis.get(node).add(new PhiStmt(v));
+                        phis.get(node).add(new PhiStmt(v, v, new PhiExp()));
                         current.add(node);
                     }
                 }
@@ -106,7 +122,64 @@ public class SSATransform<Block extends IBasicBlock> {
         }
     }
 
+    /**
+     * source: <a href="https://pfalcon.github.io/ssabook/latest/book-full.pdf">SSA Book</a>
+     * Algorithm 3.3
+     */
     private void renaming() {
+        HashMap<Var, Integer> incId = new HashMap<>(nonSSAVars.length);
+        for (Var v : nonSSAVars) {
+            incId.put(v, 0);
+        }
+        HashMap<Var, Var>[] reachingDefsForBlocks = new HashMap[graph.size()];
+        // Empty initialization for the pseudo entry because JVM based languages are strict.
+        reachingDefsForBlocks[postOrder[graph.size() - 1]] = new HashMap<>();
+
+        // Reverse post order is a depth-right first traversal which satisfies the data dependency.
+        // Use it for efficiency, the cost is the number of variables are not in order.
+        for (int i = graph.size() - 2; i >= 0; --i) { // i = graph.size()-2 or -1?
+            int node = postOrder[i];
+            HashMap<Var, Var> reachingDefs = new HashMap<>(reachingDefsForBlocks[dom[node]]);
+            Block block = graph.getNode(node);
+            List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
+            for (Stmt stmt : block.getStmts()) {
+                // only update uses for non-phi stmts.
+                Map<Var, Var> uses = stmt instanceof PhiStmt ? Map.of() : reachingDefs;
+                Map<Var, Var> def;
+                if (stmt instanceof DefinitionStmt<?,?> defStmt
+                        && defStmt.getLValue() instanceof Var base
+                        && Arrays.asList(nonSSAVars).contains(base) // optimize `asList`
+                ) {
+                    // In the first (and only) time that a phi stmt is visited, its def is its
+                    // base according to the callsite of the init method in `phiInsertion`.
+                    assert !(stmt instanceof PhiStmt p) || p.getBase() == p.getLValue();
+                    int id = incId.get(base);
+                    incId.put(base, 1 + id);
+                    Var freshVar = manager.splitVar(base, id);
+                    def = Map.of(base, freshVar);
+                } else {
+                    def = Map.of();
+                }
+                Lenses lenses = new Lenses(method, uses, def);
+                Stmt newStmt = lenses.subSt(stmt);
+                newStmts.add(newStmt);
+                reachingDefs.putAll(def);
+            }
+            block.setStmts(newStmts);
+
+            for (Block succ : graph.outEdges(block)) {
+                int succNode = graph.getIndex(succ);
+                for (Stmt p : phis.get(succNode)) {
+                    PhiStmt phi = (PhiStmt) p;
+                    Var base = phi.getBase();
+                    Var reachingDef = reachingDefs.get(base);
+                    assert reachingDef != null;
+                    phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, block);
+                }
+            }
+
+            reachingDefsForBlocks[node] = reachingDefs;
+        }
     }
 
     public void pruning() {
