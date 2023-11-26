@@ -341,8 +341,21 @@ class Converter {
     @Nullable
     private static List<String> convertParamNames(
             SootMethod sootMethod) {
-        // in Soot, each ParamNamesTag contains the names of all parameters in the SootMethod
+        // in Soot, each ParamNamesTag contains the names of all parameters
+        // in the SootMethod, except the case explained below.
         var tag = (ParamNamesTag) sootMethod.getTag(ParamNamesTag.NAME);
-        return tag == null || tag.getNames().isEmpty() ? null : tag.getNames();
+        if (tag != null) {
+            List<String> names = tag.getNames();
+            if (names.size() == sootMethod.getParameterCount()) {
+                // when using Soot's source (.java) front end to process
+                // non-static inner class, the number of names in ParamNamesTag
+                // may be **less than** the number of actually parameters
+                // (lack of the implicit "this" variable for the outer instance).
+                // For such case, we ignore ParamNamesTag to avoid mismatch
+                // between numbers of parameter names and actual parameters.
+                return names;
+            }
+        }
+        return null;
     }
 }
