@@ -173,6 +173,8 @@ public abstract class TransferInferer extends OnFlyHandler {
         File output = new File(World.get().getOptions().getOutputDir(), "transfer-inferer-output.log");
         logger.info("Dumping {}", output.getAbsolutePath());
         try (PrintStream out = new PrintStream(new FileOutputStream(output))) {
+            countTaintRelatedTrans(out, infoCollector.getAllShortestTaintPath());
+            out.println("Recommended taint transfers and taint flow graph helper output:");
             for (var entry : infoCollector.getInfoKeySet()) {
                 Var sourceVar = entry.first();
                 Var sinkVar = entry.second();
@@ -187,6 +189,13 @@ public abstract class TransferInferer extends OnFlyHandler {
         }
     }
 
+    private void countTaintRelatedTrans(PrintStream out, Collection<TaintPath> taintPaths) {
+        Set<InferredTransfer> taintTransfers = taintPaths.stream()
+                                                         .flatMap(taintPath -> taintPath.graphHelper().getAllInferredTransfers().stream())
+                                                         .collect(Collectors.toUnmodifiableSet());
+        out.printf("There are %d taint related transfers.%n", taintTransfers.size());
+    }
+
     private void dumpInferredTrans(PrintStream out, TaintPath taintPath) {
         out.printf("%nInferred transfers:%n");
         TaintGraphHelper graphHelper = taintPath.graphHelper();
@@ -196,7 +205,7 @@ public abstract class TransferInferer extends OnFlyHandler {
     }
 
     private void dumpShortestTaintPath(PrintStream out, TaintPath taintPath) {
-        out.printf("%nShortest taint path:%n");
+        out.printf("%nRecommended taint path:%n");
         taintPath.path().forEach(edge -> out.println(edge.pointerFlowEdge()));
     }
 
