@@ -15,7 +15,6 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Triple;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -51,7 +50,8 @@ public class VarManager implements IVarManager {
 
     private final Var[] local2Var; // slot -> Var
 
-    private final Map<Triple<Integer, Integer, Integer>, LocalVariableNode> parsedLocalVarTable; // (slot, start(inclusive), end(exclusive)) -> Var
+    // parsedLocalVarTable :: slot -> (start(inclusive), end(exclusive)) -> VarNode
+    private final Map<Pair<Integer, Integer>, LocalVariableNode>[] parsedLocalVarTable;
 
     private final List<Var> params;
 
@@ -78,7 +78,7 @@ public class VarManager implements IVarManager {
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
         this.local2Var = new Var[maxLocal];
-        this.parsedLocalVarTable = existsLocalVariableTable ? Maps.newMap() : null;
+        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocal] : null;
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>(maxLocal * 6);
@@ -100,14 +100,16 @@ public class VarManager implements IVarManager {
             Var v = getLocal(slotOfCurrentParam);
             if (existsLocalVariableTable) {
                 // in our assumption, the parameters would occupy a certain slot during the whole method.
-                int finalSlotOfCurrentParam = slotOfCurrentParam;
-                parsedLocalVarTable
-                        .keySet()
-                        .stream()
-                        .filter(t -> finalSlotOfCurrentParam == t.first())
-                        .findAny()
-                        .map(k -> parsedLocalVarTable.get(k).name)
-                        .ifPresent(v::setName);
+                Map<Pair<Integer, Integer>, LocalVariableNode> localVarTableForSlot =
+                        parsedLocalVarTable[slotOfCurrentParam];
+                if (localVarTableForSlot != null) {
+                    localVarTableForSlot
+                            .keySet()
+                            .stream()
+                            .findAny()
+                            .map(k -> localVarTableForSlot.get(k).name)
+                            .ifPresent(v::setName);
+                }
             }
             params.add(v);
             if (Utils.isTwoWord(method.getParamType(NoOfParam - firstParamIndex))) {
@@ -130,7 +132,10 @@ public class VarManager implements IVarManager {
             int start = insnList.indexOf(node.start);
             int end = insnList.indexOf(getNextTrueInsnNode(node.end));
             int slot = node.index;
-            parsedLocalVarTable.put(new Triple<>(slot, start, end), node);
+            if (parsedLocalVarTable[slot] == null) {
+                parsedLocalVarTable[slot] = Maps.newMap();
+            }
+            parsedLocalVarTable[slot].put(new Pair<>(start, end), node);
         }
     }
 
@@ -144,16 +149,15 @@ public class VarManager implements IVarManager {
             insnNode = getNextTrueInsnNode(insnNode);
         }
         int asmIndex = insnList.indexOf(insnNode);
-        return parsedLocalVarTable.keySet().stream()
-                .filter(k -> match(new Pair<>(slot, asmIndex), k))
+        Map<Pair<Integer, Integer>, LocalVariableNode> localVarTableForSlot =
+                parsedLocalVarTable[slot];
+        if (localVarTableForSlot == null) {
+            return Optional.empty();
+        }
+        return localVarTableForSlot.keySet().stream()
+                .filter(k -> k.first() <= asmIndex && asmIndex < k.second())
                 .findAny()
-                .map(k -> parsedLocalVarTable.get(k).name);
-    }
-
-    private static boolean match(Pair<Integer, Integer> query, Triple<Integer, Integer, Integer> var) {
-        return query.first().equals(var.first())
-                && var.second() <= query.second()
-                && query.second() < var.third();
+                .map(k -> localVarTableForSlot.get(k).name);
     }
 
     /**
