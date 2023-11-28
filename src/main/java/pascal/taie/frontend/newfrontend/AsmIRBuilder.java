@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
@@ -137,6 +138,8 @@ public class AsmIRBuilder {
 
     private final List<Phi> phiList;
 
+    private final DUInfo duInfo;
+
     private List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
     private static final Logger logger = LogManager.getLogger();
@@ -155,6 +158,7 @@ public class AsmIRBuilder {
         this.auxiliaryStmts = Maps.newMap();
         this.stmts = new ArrayList<>();
         this.phiList = new ArrayList<>();
+        this.duInfo = new DUInfo(source.maxLocals);
     }
 
     public void build() {
@@ -224,8 +228,9 @@ public class AsmIRBuilder {
         List<BytecodeBlock> blocks = new ArrayList<>();
         blocks.add(entry);
         int index = 1;
+        BytecodeBlock irEntry = label2Block.get(this.entry);
         for (BytecodeBlock block : blockSortedList) {
-            if (block.inEdges().isEmpty()) {
+            if (block.inEdges().isEmpty() || block == irEntry) {
                 block.inEdges().add(entry);
                 entry.outEdges().add(block);
             }
@@ -267,7 +272,7 @@ public class AsmIRBuilder {
 
     void ssa() {
         SSATransform<BytecodeBlock> ssa =
-                new SSATransform<>(method, toGraph(), manager, null);
+                new SSATransform<>(method, toGraph(), manager, duInfo);
         ssa.build();
     }
 
@@ -296,6 +301,14 @@ public class AsmIRBuilder {
             }
         }
         return true;
+    }
+
+    public void dump() {
+        BytecodeVisualizer.printDotFile(
+                new BytecodeVisualizer.BytecodeGraph(blockSortedList,
+                        label2Block.get(entry),
+                        getTryAndHandlerBlocks()),
+                method.toString());
     }
 
     public List<Stmt> getAllStmts() {
@@ -476,8 +489,11 @@ public class AsmIRBuilder {
         }
     }
 
-    private Stmt popToVar(Stack<StackItem> stack, Var v) {
+    private Stmt popToVar(Stack<StackItem> stack, Var v, BytecodeBlock block) {
         StackItem top = popExp(stack);
+        if (manager.isLocalFast(v)) {
+            duInfo.addDefBlock(v, block);
+        }
         // Note: Var . getUses() will return empty set
         if (top.e() instanceof Phi phi) {
             top = new StackItem(toVar(phi, null), null);
@@ -892,14 +908,14 @@ public class AsmIRBuilder {
         return new ArrayAccess(ref, idx);
     }
 
-    private void storeExp(VarInsnNode varNode, Stack<StackItem> stack) {
+    private void storeExp(VarInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block) {
         int idx = varNode.var;
         Var v = manager.getLocal(idx);
-        storeExp(varNode, v, stack);
+        storeExp(varNode, v, stack, block);
     }
 
-    private void storeExp(AbstractInsnNode node, Var v, Stack<StackItem> stack) {
-        Stmt stmt = popToVar(stack, v);
+    private void storeExp(AbstractInsnNode node, Var v, Stack<StackItem> stack, BytecodeBlock block) {
+        Stmt stmt = popToVar(stack, v, block);
         assocStmt(node, stmt);
     }
 
@@ -1033,7 +1049,7 @@ public class AsmIRBuilder {
                     Var v = manager.getTempVar();
                     assocStmt(insnNode, new Catch(v));
                     pushExp(insnNode, nowStack, v);
-                    processInstr(nowStack, insnNode);
+                    processInstr(nowStack, insnNode, block);
                 }
             }
         } else {
@@ -1043,7 +1059,7 @@ public class AsmIRBuilder {
 
         while (instr.hasNext()) {
             AbstractInsnNode node = instr.next();
-            processInstr(nowStack, node);
+            processInstr(nowStack, node, block);
         }
 
         // if there is no out edges, it must be a return / throw block
@@ -1249,13 +1265,13 @@ public class AsmIRBuilder {
         block.setStmt2Asm(stmt2Asm);
     }
 
-    private void processInstr(Stack<StackItem> nowStack, AbstractInsnNode node) {
+    private void processInstr(Stack<StackItem> nowStack, AbstractInsnNode node, BytecodeBlock block) {
         if (node instanceof VarInsnNode varNode) {
             switch (varNode.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
-                    pushExp(node, nowStack, manager.getLocal(varNode.var));
+                        pushExp(node, nowStack, manager.getLocal(varNode.var));
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
-                        storeExp(varNode, nowStack);
+                        storeExp(varNode, nowStack, block);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -1402,7 +1418,7 @@ public class AsmIRBuilder {
             Var cst = popVar(nowStack);
             Var v = manager.getLocal(inc.var);
             nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
-            storeExp(inc, v, nowStack);
+            storeExp(inc, v, nowStack, block);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)

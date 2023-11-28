@@ -14,6 +14,8 @@ public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
 
     private final PhiExp phiExp;
 
+    private boolean dead;
+
     public PhiStmt(Var base, Var def, PhiExp phiExp) {
         this.base = base;
         this.def = def;
@@ -22,6 +24,10 @@ public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
 
     public Var getBase() {
         return base;
+    }
+
+    public void markDead() {
+        this.dead = true;
     }
 
     @Nullable
@@ -38,5 +44,10 @@ public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
     @Override
     public <T> T accept(StmtVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return def + " = " + phiExp + (dead ? " (dead)" : "");
     }
 }

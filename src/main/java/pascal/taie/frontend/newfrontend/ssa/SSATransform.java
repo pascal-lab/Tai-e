@@ -13,7 +13,6 @@ import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.IndexerBitSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +69,7 @@ public class SSATransform<Block extends IBasicBlock> {
     private final List<IndexerBitSet<Var>> isInserted = new ArrayList<>();
     private final List<List<Stmt>> phis = new ArrayList<>();
     private Var[] nonSSAVars;
+
     private void phiInsertion() {
         // index with block.getIndex()
         nonSSAVars = manager.getNonSSAVar();
@@ -81,7 +81,7 @@ public class SSATransform<Block extends IBasicBlock> {
 
             @Override
             public Var getObject(int index) {
-                throw new UnsupportedOperationException();
+                return nonSSAVars[index];
             }
         };
         for (int i = 0; i < graph.size(); i++) {
@@ -148,7 +148,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 Map<Var, Var> def;
                 if (stmt instanceof DefinitionStmt<?,?> defStmt
                         && defStmt.getLValue() instanceof Var base
-                        && Arrays.asList(nonSSAVars).contains(base) // optimize `asList`
+                        && isNonSSAVar(base)
                 ) {
                     // In the first (and only) time that a phi stmt is visited, its def is its
                     // base according to the callsite of the init method in `phiInsertion`.
@@ -169,17 +169,36 @@ public class SSATransform<Block extends IBasicBlock> {
 
             for (Block succ : graph.outEdges(block)) {
                 int succNode = graph.getIndex(succ);
+                if (phis.get(succNode) == null) {
+                    continue;
+                }
                 for (Stmt p : phis.get(succNode)) {
                     PhiStmt phi = (PhiStmt) p;
                     Var base = phi.getBase();
                     Var reachingDef = reachingDefs.get(base);
-                    assert reachingDef != null;
-                    phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, block);
+                    if (reachingDef == null) {
+                        // if such reaching def doesn't exist, the phi stmt is dead
+                        // for example,
+                        //                 // no reaching def for c here
+                        // -> c1 = \phi(c) // c is defined in the loop, not in this scope,
+                        //                    but the phi stmt is still inserted by the algorithm
+                        //    while (...) {
+                        //       c = 1
+                        //       ...
+                        //    }
+                        phi.markDead();
+                    } else {
+                        phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, block);
+                    }
                 }
             }
 
             reachingDefsForBlocks[node] = reachingDefs;
         }
+    }
+
+    private boolean isNonSSAVar(Var v) {
+        return v.getIndex() < nonSSAVars.length;
     }
 
     public void pruning() {

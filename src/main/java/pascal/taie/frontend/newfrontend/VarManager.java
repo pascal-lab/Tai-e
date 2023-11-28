@@ -179,7 +179,7 @@ public class VarManager implements IVarManager {
 
     @Override
     public Var splitVar(Var var, int index) {
-        return null;
+        return splitLocal(var, index, var2Local.get(var), Stream.of());
     }
 
     public @Nullable Var getThisVar() {

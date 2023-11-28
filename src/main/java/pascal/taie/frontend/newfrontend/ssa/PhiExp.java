@@ -6,17 +6,19 @@ import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PhiExp implements Exp, RValue {
 
-    private final MultiMap<Var, IBasicBlock> usesAndInBlocks = Maps.emptyMultiMap();
+    private final List<Pair<Var, IBasicBlock>> usesAndInBlocks = new ArrayList<>();
 
     public void addUseAndCorrespondingBlocks(Var v, IBasicBlock block) {
-        usesAndInBlocks.put(v, block);
+        usesAndInBlocks.add(new Pair<>(v, block));
     }
 
     @Override
@@ -26,11 +28,23 @@ public class PhiExp implements Exp, RValue {
 
     @Override
     public Set<RValue> getUses() {
-        throw new UnsupportedOperationException();
+        return usesAndInBlocks
+                .stream()
+                .map(Pair::first)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+        return "Φ(" +
+                usesAndInBlocks.stream()
+                        .map(p -> p.first().toString())
+                        .collect(Collectors.joining(","))
+                + ")";
     }
 }
