@@ -691,12 +691,24 @@ public class AsmIRBuilder {
                 inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1);
     }
 
-    private boolean isAddInsn(int opcode) { return inRange(opcode, Opcodes.IADD, Opcodes.DADD); }
-    private boolean isSubInsn(int opcode) { return inRange(opcode, Opcodes.ISUB, Opcodes.DSUB); }
-    private boolean isMulInsn(int opcode) { return inRange(opcode, Opcodes.IMUL, Opcodes.DMUL); }
-    private boolean isDivInsn(int opcode) { return inRange(opcode, Opcodes.IDIV, Opcodes.DDIV); }
-    private boolean isRemInsn(int opcode) { return inRange(opcode, Opcodes.IREM, Opcodes.DREM); }
-    private boolean isNegInsn(int opcode) { return inRange(opcode, Opcodes.INEG, Opcodes.DNEG); }
+    private boolean isAddInsn(int opcode) {
+        return inRange(opcode, Opcodes.IADD, Opcodes.DADD);
+    }
+    private boolean isSubInsn(int opcode) {
+        return inRange(opcode, Opcodes.ISUB, Opcodes.DSUB);
+    }
+    private boolean isMulInsn(int opcode) {
+        return inRange(opcode, Opcodes.IMUL, Opcodes.DMUL);
+    }
+    private boolean isDivInsn(int opcode) {
+        return inRange(opcode, Opcodes.IDIV, Opcodes.DDIV);
+    }
+    private boolean isRemInsn(int opcode) {
+        return inRange(opcode, Opcodes.IREM, Opcodes.DREM);
+    }
+    private boolean isNegInsn(int opcode) {
+        return inRange(opcode, Opcodes.INEG, Opcodes.DNEG);
+    }
 
     private boolean isPrimCastInsn(int opcode) {
         return inRange(opcode, Opcodes.I2L, Opcodes.I2S);
@@ -1200,7 +1212,7 @@ public class AsmIRBuilder {
                     continue;
                 }
                 Var var;
-                if (e1 instanceof Phi phi){
+                if (e1 instanceof Phi phi) {
                     var = phi.getVar();
                 } else {
                     continue;

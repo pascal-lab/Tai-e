@@ -47,7 +47,7 @@ public class JavaClassManager {
 
     private static JavaClassManager manager;
 
-    private final static Logger logger = LogManager.getLogger(JavaClassManager.class);
+    private static final Logger logger = LogManager.getLogger(JavaClassManager.class);
 
     public static JavaClassManager get() {
         if (manager == null) {

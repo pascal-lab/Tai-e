@@ -377,9 +377,9 @@ public final class TypeUtils {
 
     public static ShiftExp.Op getShiftOp(InfixExpression.Operator op) {
         return switch (op.toString()) {
-            case ">>" -> ShiftExp.Op.SHR;
-            case "<<" -> ShiftExp.Op.SHL;
-            case ">>>"-> ShiftExp.Op.USHR;
+            case ">>"  -> ShiftExp.Op.SHR;
+            case "<<"  -> ShiftExp.Op.SHL;
+            case ">>>" -> ShiftExp.Op.USHR;
             default -> throw new NewFrontendException(op + " is not shift Op, why use this function?");
         };
     }

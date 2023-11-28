@@ -197,7 +197,7 @@ public class ClassExtractor extends ASTVisitor {
     public static ITypeBinding getBinding(ASTNode node) {
         if (node instanceof AbstractTypeDeclaration abstractTypeDeclaration) {
             return abstractTypeDeclaration.resolveBinding();
-        } else if (node instanceof AnonymousClassDeclaration anonymousClassDeclaration){
+        } else if (node instanceof AnonymousClassDeclaration anonymousClassDeclaration) {
             return anonymousClassDeclaration.resolveBinding();
         } else {
             throw new UnsupportedOperationException();

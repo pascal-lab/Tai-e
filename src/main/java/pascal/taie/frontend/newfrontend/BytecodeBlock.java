@@ -332,7 +332,7 @@ public final class BytecodeBlock implements IBasicBlock {
         boolean[] redefines = new boolean[size];
         Arrays.fill(redefines, false);
 
-        for (AbstractInsnNode insnNode: instr) {
+        for (AbstractInsnNode insnNode : instr) {
             if (insnNode instanceof VarInsnNode varInsnNode) {
                 int var = varInsnNode.var;
                 if (var >= size) {

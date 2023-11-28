@@ -45,9 +45,9 @@ record InnerClassDescriptor(
  */
 public class InnerClassManager {
 
-    public final static String VAL = "val$";
+    public static final String VAL = "val$";
 
-    public final static String OUTER_THIS = "this$1";
+    public static final String OUTER_THIS = "this$1";
 
     private static InnerClassManager instance = new InnerClassManager();
 

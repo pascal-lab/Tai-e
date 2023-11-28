@@ -35,8 +35,7 @@ class ClassLocation {
         if (nextDot != -1) {
             result = fullClassLocation.substring(index, nextDot);
             index = nextDot + 1;
-        }
-        else {
+        } else {
             result = fullClassLocation.substring(index);
             index = fullClassLocation.length();
         }

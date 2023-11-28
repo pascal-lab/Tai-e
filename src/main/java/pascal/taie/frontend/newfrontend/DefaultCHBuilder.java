@@ -57,7 +57,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             return new AsmClassBuilder(i, jClass);
         } else if (source instanceof JavaSource j) {
             return new JavaClassBuilder(j, jClass);
-        } else{
+        } else {
             throw new UnsupportedOperationException();
         }
     }

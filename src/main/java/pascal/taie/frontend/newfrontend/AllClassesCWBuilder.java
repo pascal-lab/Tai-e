@@ -12,7 +12,7 @@ import java.util.List;
 
 public class AllClassesCWBuilder {
 
-    private final static List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
+    private static final List<String> excluded = List.of("android$widget$RemoteViews$BaseReflectionAction.class");
 
     public static List<String> outPutAll(FileContainer root) {
         return outPutAll("", root, true);

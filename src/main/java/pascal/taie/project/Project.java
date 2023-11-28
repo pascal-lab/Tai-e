@@ -9,15 +9,15 @@ import java.util.function.Consumer;
  */
 public class Project {
 
-    final private String mainClass;
+    private final String mainClass;
 
-    final private int javaVersion;
+    private final int javaVersion;
 
-    final private List<String> inputClasses;
+    private final List<String> inputClasses;
 
-    final private List<FileContainer> appRootContainers;
+    private final List<FileContainer> appRootContainers;
 
-    final private List<FileContainer> libRootContainers;
+    private final List<FileContainer> libRootContainers;
 
     Project(String mainClass,
             int javaVersion,

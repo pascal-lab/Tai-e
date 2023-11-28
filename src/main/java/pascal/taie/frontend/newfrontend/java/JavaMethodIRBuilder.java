@@ -1,8 +1,5 @@
 package pascal.taie.frontend.newfrontend.java;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -168,7 +165,6 @@ import static pascal.taie.frontend.newfrontend.java.TypeUtils.*;
 
 // TODO: check all the .clone() calls
 public class JavaMethodIRBuilder {
-    private static final Logger logger = LogManager.getLogger(JavaMethodIRBuilder.class);
 
     private final JMethod jMethod;
 
@@ -271,13 +267,13 @@ public class JavaMethodIRBuilder {
 
     class IRGenerator {
 
-        private final static String THIS = "%this";
+        private static final String THIS = "%this";
 
-        private final static String STRING_CONSTANT = "%stringconst";
+        private static final String STRING_CONSTANT = "%stringconst";
 
-        private final static String CLASS_CONSTANT = "%classconst";
+        private static final String CLASS_CONSTANT = "%classconst";
 
-        private final static String NULL_CONSTANT = "%nullconst";
+        private static final String NULL_CONSTANT = "%nullconst";
 
         /**
          * params of this method
@@ -421,6 +417,7 @@ public class JavaMethodIRBuilder {
             }
         }
 
+        @SuppressWarnings("unchecked")
         private void buildPara() {
             for (int i = 0; i < jMethod.getParamCount(); ++i) {
                 String name = jMethod.getParamName(i);
@@ -545,6 +542,7 @@ public class JavaMethodIRBuilder {
          *     <li>collect all created constants to an array, assign it to VALUES field</li>
          * </ol>
          */
+        @SuppressWarnings("unchecked")
         private void buildEnumInit(EnumInit enumInit) {
             List<Var> consts = new ArrayList<>();
             for (int i = 0; i < enumInit.enumConsts().size(); ++i) {
@@ -676,6 +674,7 @@ public class JavaMethodIRBuilder {
          * or implicit invocation of a superclass constructor (using super)
          * </p>
          */
+        @SuppressWarnings("unchecked")
         private void genSuperInitCall() {
             // Object can never be built by this class
             JClass superClass = Objects.requireNonNull(jMethod.getDeclaringClass().getSuperClass());

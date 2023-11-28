@@ -23,7 +23,7 @@ public class Dominator<N> {
 
     private int[] dom;
 
-    public final static int UNDEFINED = -1;
+    public static final int UNDEFINED = -1;
 
     public Dominator(IndexedGraph<N> graph) {
         this.graph = graph;

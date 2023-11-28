@@ -146,7 +146,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 // only update uses for non-phi stmts.
                 Map<Var, Var> uses = stmt instanceof PhiStmt ? Map.of() : reachingDefs;
                 Map<Var, Var> def;
-                if (stmt instanceof DefinitionStmt<?,?> defStmt
+                if (stmt instanceof DefinitionStmt<?, ?> defStmt
                         && defStmt.getLValue() instanceof Var base
                         && isNonSSAVar(base)
                 ) {

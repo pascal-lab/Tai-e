@@ -78,9 +78,7 @@ public class FileLoader {
         // fs is default means it's a file on the disk
         if (p.fs() == FileSystems.getDefault()) {
             return new FileResource(path);
-        }
-        // otherwise it's an entry of a zip file
-        else {
+        } else { // otherwise it's an entry of a zip file
             // path of [p] is on the disk, use lazy load
             if (p.p().getFileSystem() == FileSystems.getDefault()) {
                 return new ZipEntryResource(p.p(), null, path.toString(), p.fs());
@@ -204,7 +202,9 @@ public class FileLoader {
         for (var p : paths) {
             loadFile(p,
                     null,
-                    i -> {throw new IllegalArgumentException("no file in classPaths");},
+                    i -> {
+                throw new IllegalArgumentException("no file in classPaths");
+                },
                     containers::add);
         }
         containers.addAll(auxContainers);

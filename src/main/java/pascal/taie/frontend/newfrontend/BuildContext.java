@@ -105,7 +105,7 @@ public class BuildContext {
             };
         } else if (sort == org.objectweb.asm.Type.ARRAY) {
             return typeSystem.getArrayType(fromAsmType(t.getElementType()), t.getDimensions());
-        } else if(sort == org.objectweb.asm.Type.OBJECT) {
+        } else if (sort == org.objectweb.asm.Type.OBJECT) {
             return typeSystem.getClassType(t.getClassName());
         } else {
             // t maybe a function ? error

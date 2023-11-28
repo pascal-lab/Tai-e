@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class IRService {
 
-    private final static int NOT_LOADED = 0;
-    private final static int LOADING_START = 1;
-    private final static int LOADING_DONE = 2;
+    private static final int NOT_LOADED = 0;
+    private static final int LOADING_START = 1;
+    private static final int LOADING_DONE = 2;
 
     ExecutorService executorService = Executors.newFixedThreadPool(8);
 

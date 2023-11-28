@@ -74,7 +74,7 @@ class LocateVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration node) {
-        if(TypeUtils.isSubSignature(signature, node.resolveBinding())) {
+        if (TypeUtils.isSubSignature(signature, node.resolveBinding())) {
             res = node;
         }
         return false;

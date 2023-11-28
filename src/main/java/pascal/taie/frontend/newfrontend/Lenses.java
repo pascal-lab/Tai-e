@@ -245,7 +245,7 @@ public class Lenses {
 
             @Override
             public Stmt visitDefault(Stmt stmt) {
-                if (stmt instanceof AssignStmt<?,?> stmt1) {
+                if (stmt instanceof AssignStmt<?, ?> stmt1) {
                     fixRelStmts(stmt);
                     return Utils.getAssignStmt(method, leftSubSt(stmt1.getLValue()), rightSubst(stmt1.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {

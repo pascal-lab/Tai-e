@@ -49,7 +49,7 @@ public class FSManager {
     }
 
     static FSManager manager;
-    static public FSManager get() {
+    public static FSManager get() {
         if (manager == null) {
             manager = new FSManager();
         }

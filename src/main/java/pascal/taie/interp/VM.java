@@ -179,8 +179,7 @@ public class VM {
     public void execStmt(Stmt stmt, IR ir, Frame f) {
         if (stmt instanceof Nop || stmt instanceof Catch || stmt instanceof Monitor) {
             // do nothing
-        }
-        else if (stmt instanceof Return r) {
+        } else if (stmt instanceof Return r) {
             f.markEnd();
             if (r.getValue() != null) {
                 f.setRets(evalExp(r.getValue(), ir, f));

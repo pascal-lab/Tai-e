@@ -54,11 +54,11 @@ public class TypeInference {
         graph = new TypingFlowGraph();
     }
 
-    static public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
+    public static Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
         return Utils.lca(r1, r2);
     }
 
-    static public Optional<Type> plusOneArray(Type t) {
+    public static Optional<Type> plusOneArray(Type t) {
         if (t instanceof NullType) {
             return Optional.empty();
         }
@@ -74,7 +74,7 @@ public class TypeInference {
         return Optional.of(BuildContext.get().getTypeSystem().getArrayType(baseType, dim));
     }
 
-    static public Optional<Type> subOneArray(Type t) {
+    public static Optional<Type> subOneArray(Type t) {
         if (t instanceof ArrayType at) {
             return Optional.of(at.elementType());
         } else {

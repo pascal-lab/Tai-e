@@ -390,7 +390,7 @@ public class VarManager implements IVarManager {
     int[] getSlotTable() {
         int[] res = new int[vars.size()];
         Arrays.fill(res, -1);
-        var2Local.forEach((k ,v) -> {
+        var2Local.forEach((k, v) -> {
             res[k.getIndex()] = v;
         });
         return res;

@@ -105,7 +105,7 @@ public class StmtVarVisitor {
     }
 
     public static void visitDef(Stmt stmt, Consumer<Var> consumer) {
-        if (stmt instanceof AssignStmt<?,?> assignStmt) {
+        if (stmt instanceof AssignStmt<?, ?> assignStmt) {
             LValue l = assignStmt.getLValue();
             if (l instanceof Var v) {
                 consumer.accept(v);
