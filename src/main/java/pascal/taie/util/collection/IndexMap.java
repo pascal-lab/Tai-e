@@ -81,6 +81,12 @@ public class IndexMap<K, V> extends AbstractMap<K, V>
         this.values = (V[]) new Object[initialCapacity];
     }
 
+    public IndexMap(IndexMap<K, V> map) {
+        this.indexer = map.indexer;
+        this.values = Arrays.copyOf(map.values, map.values.length);
+        this.size = map.size;
+    }
+
     public int capacity() {
         return values.length;
     }

@@ -10,10 +10,10 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
+import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,20 +70,22 @@ public class SSATransform<Block extends IBasicBlock> {
     private final List<List<Stmt>> phis = new ArrayList<>();
     private Var[] nonSSAVars;
 
+    Indexer<Var> indexer = new Indexer<>() {
+        @Override
+        public int getIndex(Var o) {
+            if (o == null) return -1;
+            return o.getIndex();
+        }
+
+        @Override
+        public Var getObject(int index) {
+            return nonSSAVars[index];
+        }
+    };
+
     private void phiInsertion() {
         // index with block.getIndex()
         nonSSAVars = manager.getNonSSAVar();
-        Indexer<Var> indexer = new Indexer<>() {
-            @Override
-            public int getIndex(Var o) {
-                return o.getIndex();
-            }
-
-            @Override
-            public Var getObject(int index) {
-                return nonSSAVars[index];
-            }
-        };
         for (int i = 0; i < graph.size(); i++) {
             // TODO: current implement cannot set the init size
             //       change it if it's a performance issue
@@ -127,25 +129,28 @@ public class SSATransform<Block extends IBasicBlock> {
      * Algorithm 3.3
      */
     private void renaming() {
-        HashMap<Var, Integer> incId = new HashMap<>(nonSSAVars.length);
+        IndexMap<Var, Integer> incId = new IndexMap<>(indexer, nonSSAVars.length);
         for (Var v : nonSSAVars) {
             incId.put(v, 0);
         }
-        HashMap<Var, Var>[] reachingDefsForBlocks = new HashMap[graph.size()];
+        IndexMap<Var, Var>[] reachingDefsForBlocks = new IndexMap[graph.size()];
         // Empty initialization for the pseudo entry because JVM based languages are strict.
-        reachingDefsForBlocks[postOrder[graph.size() - 1]] = new HashMap<>();
+        reachingDefsForBlocks[postOrder[graph.size() - 1]] =
+                new IndexMap<>(indexer, nonSSAVars.length);
 
         // Reverse post order is a depth-right first traversal which satisfies the data dependency.
         // Use it for efficiency, the cost is the number of variables are not in order.
         for (int i = graph.size() - 2; i >= 0; --i) { // i = graph.size()-2 or -1?
             int node = postOrder[i];
-            HashMap<Var, Var> reachingDefs = new HashMap<>(reachingDefsForBlocks[dom[node]]);
+            IndexMap<Var, Var> reachingDefs = new IndexMap<>(reachingDefsForBlocks[dom[node]]);
             Block block = graph.getNode(node);
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
             for (Stmt stmt : block.getStmts()) {
                 // only update uses for non-phi stmts.
                 Map<Var, Var> uses = stmt instanceof PhiStmt ? Map.of() : reachingDefs;
                 Map<Var, Var> def;
+                Var potentialBase = null;
+                Var newVar = null;
                 if (stmt instanceof DefinitionStmt<?, ?> defStmt
                         && defStmt.getLValue() instanceof Var base
                         && isNonSSAVar(base)
@@ -153,17 +158,24 @@ public class SSATransform<Block extends IBasicBlock> {
                     // In the first (and only) time that a phi stmt is visited, its def is its
                     // base according to the callsite of the init method in `phiInsertion`.
                     assert !(stmt instanceof PhiStmt p) || p.getBase() == p.getLValue();
+                    potentialBase = base;
                     int id = incId.get(base);
                     incId.put(base, 1 + id);
-                    Var freshVar = manager.splitVar(base, id);
-                    def = Map.of(base, freshVar);
+                    if (id == 0) {
+                        newVar = base;
+                    } else {
+                        newVar = manager.splitVar(base, id);
+                    }
+                    def = Map.of(base, newVar);
                 } else {
                     def = Map.of();
                 }
                 Lenses lenses = new Lenses(method, uses, def);
                 Stmt newStmt = lenses.subSt(stmt);
                 newStmts.add(newStmt);
-                reachingDefs.putAll(def);
+                if (potentialBase != null) {
+                    reachingDefs.put(potentialBase, newVar);
+                }
             }
             block.setStmts(newStmts);
 
