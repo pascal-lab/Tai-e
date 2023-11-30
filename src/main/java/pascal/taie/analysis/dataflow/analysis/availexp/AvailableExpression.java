@@ -125,7 +125,7 @@ public class AvailableExpression extends AnalysisDriver<Stmt, SetFact<ExpWrapper
             SetFact<ExpWrapper> set = new SetFact<>(
                     new IndexerBitSet<>(expIndexer, false));
             cfg.forEach(stmt -> {
-                if (stmt instanceof DefinitionStmt<?,?> defStmt
+                if (stmt instanceof DefinitionStmt<?, ?> defStmt
                         && isRelevant(defStmt.getRValue())) {
                     set.add(new ExpWrapper(defStmt.getRValue()));
                 }
