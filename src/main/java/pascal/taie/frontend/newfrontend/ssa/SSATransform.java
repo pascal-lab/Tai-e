@@ -129,14 +129,23 @@ public class SSATransform<Block extends IBasicBlock> {
      * Algorithm 3.3
      */
     private void renaming() {
+        List<Var> params = manager.getParams(); // `params` does not contain `this`.
         IndexMap<Var, Integer> incId = new IndexMap<>(indexer, nonSSAVars.length);
         for (Var v : nonSSAVars) {
-            incId.put(v, 0);
+            if (params.contains(v)) {
+                incId.put(v, 1); // params are born with def.
+            } else {
+                incId.put(v, 0);
+            }
+        }
+        // Initial definitions of parameters for the pseudo entry.
+        // And the rest vars could be left to null safely because JVM based languages are strict.
+        IndexMap<Var, Var> entryDefs = new IndexMap<>(indexer, nonSSAVars.length);
+        for (Var p : params) {
+            entryDefs.put(p, p);
         }
         IndexMap<Var, Var>[] reachingDefsForBlocks = new IndexMap[graph.size()];
-        // Empty initialization for the pseudo entry because JVM based languages are strict.
-        reachingDefsForBlocks[postOrder[graph.size() - 1]] =
-                new IndexMap<>(indexer, nonSSAVars.length);
+        reachingDefsForBlocks[postOrder[graph.size() - 1]] = entryDefs;
 
         // Reverse post order is a depth-right first traversal which satisfies the data dependency.
         // Use it for efficiency, the cost is the number of variables are not in order.
@@ -150,7 +159,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 Map<Var, Var> uses = stmt instanceof PhiStmt ? Map.of() : reachingDefs;
                 Map<Var, Var> def;
                 Var potentialBase = null;
-                Var newVar = null;
+                Var freshVar = null;
                 if (stmt instanceof DefinitionStmt<?, ?> defStmt
                         && defStmt.getLValue() instanceof Var base
                         && isNonSSAVar(base)
@@ -162,19 +171,20 @@ public class SSATransform<Block extends IBasicBlock> {
                     int id = incId.get(base);
                     incId.put(base, 1 + id);
                     if (id == 0) {
-                        newVar = base;
+                        freshVar = base;
                     } else {
-                        newVar = manager.splitVar(base, id);
+                        freshVar = manager.splitVar(base, id);
+                        freshVar.setType(base.getType());
                     }
-                    def = Map.of(base, newVar);
+                    def = Map.of(base, freshVar);
                 } else {
                     def = Map.of();
                 }
                 Lenses lenses = new Lenses(method, uses, def);
                 Stmt newStmt = lenses.subSt(stmt);
                 newStmts.add(newStmt);
-                if (potentialBase != null) {
-                    reachingDefs.put(potentialBase, newVar);
+                if (freshVar != null) {
+                    reachingDefs.put(potentialBase, freshVar);
                 }
             }
             block.setStmts(newStmts);

@@ -190,6 +190,10 @@ public class VarManager implements IVarManager {
         return thisVar;
     }
 
+    /**
+     * @return parameters except `this`.
+     */
+    @Override
     public List<Var> getParams() {
         return params;
     }
