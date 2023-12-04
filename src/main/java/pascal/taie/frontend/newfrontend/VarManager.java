@@ -210,6 +210,7 @@ public class VarManager implements IVarManager {
         return temp;
     }
 
+    @Override
     public List<Var> getVars() {
         return vars;
     }

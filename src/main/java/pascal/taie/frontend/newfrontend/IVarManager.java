@@ -24,4 +24,6 @@ public interface IVarManager {
     default Var[] getNonSSAVar() {
         return getLocals();
     }
+
+    List<Var> getVars();
 }

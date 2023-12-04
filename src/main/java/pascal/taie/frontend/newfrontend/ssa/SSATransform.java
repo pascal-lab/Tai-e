@@ -5,6 +5,7 @@ import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.IVarManager;
 import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.SparseSet;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
@@ -40,6 +41,8 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private final IVarManager manager;
 
+    private final List<Var> vars;
+
     private final DUInfo info;
 
     public SSATransform(JMethod method, IndexedGraph<Block> graph, IVarManager manager, DUInfo info) {
@@ -50,16 +53,21 @@ public class SSATransform<Block extends IBasicBlock> {
         this.dom = dominator.getDomTree();
         this.postOrder = dominator.getPostOrder();
         this.manager = manager;
+        this.vars = manager.getVars();
         this.info = info;
     }
 
     public void build() {
         // step 1. insert phi functions
         phiInsertion();
+        // step 1.5. initiate some data structures for efficient pruning
+        prepareForPruning();
         // step 2. rename variables
         renaming();
         // step 3. remove dead phi functions
         pruning();
+        // testify whether step 1.5 creates those data structures that is big enough
+        assert safeEstimationForPhiVars >= vars.size();
     }
 
     private List<Block> inEdges(int i) {
@@ -70,7 +78,7 @@ public class SSATransform<Block extends IBasicBlock> {
     private final List<List<Stmt>> phis = new ArrayList<>();
     private Var[] nonSSAVars;
 
-    Indexer<Var> indexer = new Indexer<>() {
+    private final Indexer<Var> indexer = new Indexer<>() {
         @Override
         public int getIndex(Var o) {
             if (o == null) return -1;
@@ -79,7 +87,7 @@ public class SSATransform<Block extends IBasicBlock> {
 
         @Override
         public Var getObject(int index) {
-            return nonSSAVars[index];
+            return vars.get(index);
         }
     };
 
@@ -97,6 +105,8 @@ public class SSATransform<Block extends IBasicBlock> {
                 isInserted.add(null);
                 phis.add(null);
             }
+            // collect total stmtCount for step 1.5
+            stmtCount += graph.getNode(i).getStmts().size();
         }
 
         SparseSet current = new SparseSet(graph.size(), graph.size());
@@ -122,6 +132,39 @@ public class SSATransform<Block extends IBasicBlock> {
                 graph.getNode(i).insertStmts(phis.get(i));
             }
         }
+    }
+
+    private int stmtCount = 0;
+
+    private int safeEstimationForPhiVars;
+
+    private IndexMap<Var, PhiStmt> correspondingPhiStmts;
+
+    private SparseSet isPhiDefiningVar; // only for debugging
+
+    private SparseSet isUseless;
+
+    private SparseSet stack;
+
+    private void prepareForPruning() {
+        /*
+         * To leverage Var.index in searching, we have to estimate the maximum count of
+         * all the variables, including the potential added variables for SSA process.
+         * the formula is as follows:
+         * currentVarCount: the count of variables before renaming
+         * blockCount: later to be multiplied by oldCount to represent the safe estimation of the
+         *             possible phi insertions for every old variable in every block.
+         * stmtCount: the safe estimation of the renaming.
+         * the maximum count of all the variables = oldCount + oldCount * blockCount + stmtCount
+         */
+        int currentVarCount = vars.size();
+        safeEstimationForPhiVars =
+                currentVarCount + currentVarCount * graph.size() + stmtCount;
+
+        correspondingPhiStmts = new IndexMap<>(indexer, safeEstimationForPhiVars);
+        isPhiDefiningVar = new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars);
+        isUseless = new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars);
+        stack = new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars);
     }
 
     /**
@@ -162,7 +205,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 Var freshVar = null;
                 if (stmt instanceof DefinitionStmt<?, ?> defStmt
                         && defStmt.getLValue() instanceof Var base
-                        && isNonSSAVar(base)
+                        && isVarToBeSSA(base)
                 ) {
                     // In the first (and only) time that a phi stmt is visited, its def is its
                     // base according to the callsite of the init method in `phiInsertion`.
@@ -186,6 +229,27 @@ public class SSATransform<Block extends IBasicBlock> {
                 if (freshVar != null) {
                     reachingDefs.put(potentialBase, freshVar);
                 }
+                if (newStmt instanceof PhiStmt phiStmt) {
+                    isPhiDefiningVar.add(freshVar.getIndex());
+                    isUseless.add(freshVar.getIndex()); // Collect for pruning.
+                    correspondingPhiStmts.put(freshVar, phiStmt);
+                }
+                else {
+                    /* Collect use for pruning step.
+                     * In this situation, "An use x is defined by some phi function" equals to
+                     * "isUseless.has(x) || stack.has(x)" because of the dominance order here.
+                     * (Before pruning, stack.has(x) implies that x is phi defining var and useful.)
+                     */
+                    assert newStmt.getUses()
+                            .stream()
+                            .allMatch(r -> {
+                                if (!(r instanceof Var x)) return true;
+                                boolean cond =
+                                        isUseless.has(x.getIndex()) || stack.has(x.getIndex());
+                                return isPhiDefiningVar.has(x.getIndex()) == cond;
+                            });
+                    newStmt.getUses().forEach(this::markUseful);
+                }
             }
             block.setStmts(newStmts);
 
@@ -198,8 +262,10 @@ public class SSATransform<Block extends IBasicBlock> {
                     PhiStmt phi = (PhiStmt) p;
                     Var base = phi.getBase();
                     Var reachingDef = reachingDefs.get(base);
-                    if (reachingDef == null) {
-                        // if such reaching def doesn't exist, the phi stmt is dead
+                    if (reachingDef != null) {
+                        // if such reaching def doesn't exist (is null), due to the strictness
+                        // of Java (maybe all the JVM based languages), the phi stmt is dead,
+                        // and it would be pruned in the pruning step.
                         // for example,
                         //                 // no reaching def for c here
                         // -> c1 = \phi(c) // c is defined in the loop, not in this scope,
@@ -208,8 +274,6 @@ public class SSATransform<Block extends IBasicBlock> {
                         //       c = 1
                         //       ...
                         //    }
-                        phi.markDead();
-                    } else {
                         phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, block);
                     }
                 }
@@ -219,10 +283,45 @@ public class SSATransform<Block extends IBasicBlock> {
         }
     }
 
-    private boolean isNonSSAVar(Var v) {
+    private boolean isVarToBeSSA(Var v) {
         return v.getIndex() < nonSSAVars.length;
     }
 
+    private void markUseful(RValue rValue) {
+        /* Those rValues who are not Var are ignored without recursive traversal through
+         * its inner uses. It is because the call to Stmt.getUses() have already returned
+         * the inner uses of the rValues, so there is no need to process again.
+         */
+        if (rValue instanceof Var var) {
+            if (isUseless.has(var.getIndex())) {
+                isUseless.delete(var.getIndex());
+                stack.add(var.getIndex());
+            }
+        }
+    }
+
+    /**
+     * source: <a href="https://pfalcon.github.io/ssabook/latest/book-full.pdf">SSA Book</a>
+     * Algorithm 3.7
+     */
     public void pruning() {
+        // initial marking phase has been done in renaming step
+        for (int i : isPhiDefiningVar) {
+            assert isUseless.has(i) || stack.has(i);
+        }
+
+        // usefulness propagation phase
+        while (!stack.isEmpty()) {
+            Var a = vars.get(stack.removeLast());
+            PhiStmt phiStmt = correspondingPhiStmts.get(a);
+            phiStmt.getUses().forEach(this::markUseful);
+        }
+
+        // final pruning phase
+        for (int i = 0; i < graph.size(); i++) {
+            IBasicBlock node = graph.getNode(i);
+            node.getStmts().removeIf(
+                    s -> s instanceof PhiStmt p && isUseless.has(p.getLValue().getIndex()));
+        }
     }
 }
