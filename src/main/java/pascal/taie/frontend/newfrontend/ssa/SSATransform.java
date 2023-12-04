@@ -133,9 +133,9 @@ public class SSATransform<Block extends IBasicBlock> {
         IndexMap<Var, Integer> incId = new IndexMap<>(indexer, nonSSAVars.length);
         for (Var v : nonSSAVars) {
             if (params.contains(v)) {
-                incId.put(v, 1); // params are born with def.
+                incId.put(v, 2); // params are born with def.
             } else {
-                incId.put(v, 0);
+                incId.put(v, 1);
             }
         }
         // Initial definitions of parameters for the pseudo entry.
@@ -170,7 +170,7 @@ public class SSATransform<Block extends IBasicBlock> {
                     potentialBase = base;
                     int id = incId.get(base);
                     incId.put(base, 1 + id);
-                    if (id == 0) {
+                    if (id == 1) {
                         freshVar = base;
                     } else {
                         freshVar = manager.splitVar(base, id);
