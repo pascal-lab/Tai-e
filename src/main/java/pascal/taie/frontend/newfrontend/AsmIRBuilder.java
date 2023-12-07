@@ -182,6 +182,8 @@ public class AsmIRBuilder {
             stageTimer.endTypelessIR();
             // TODO: add options for ssa toggle
             ssa();
+            makeStmts();
+            makeExceptionTable();
             verify();
             this.ir = getIR();
         }
@@ -272,7 +274,7 @@ public class AsmIRBuilder {
 
     void ssa() {
         SSATransform<BytecodeBlock> ssa =
-                new SSATransform<>(method, toGraph(), manager, duInfo);
+                new SSATransform<>(method, toGraph(), manager, duInfo, !exceptionEntries.isEmpty());
         ssa.build();
     }
 
