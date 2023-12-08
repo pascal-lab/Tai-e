@@ -8,17 +8,19 @@ import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.frontend.newfrontend.StmtVarVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
+import pascal.taie.util.TriFunction;
 import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
+import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -80,10 +82,11 @@ public class SSATransform<Block extends IBasicBlock> {
         renaming();
         // step 3. remove dead phi functions
         pruning();
-        // testify whether step 1.5 creates those data structures that is big enough
         if (DEBUG) {
+            // testify whether step 1.5 creates those data structures that is big enough
             assert safeEstimationForPhiVars >= vars.size();
             if (hasExceptionHandler) return; // currently exception is not handled correctly
+            // testify pruning.
             for (int i = 0; i < graph.size(); i++) {
                 for (Stmt stmt : graph.getNode(i).getStmts()) {
                     if (stmt instanceof PhiStmt p) {
@@ -220,71 +223,70 @@ public class SSATransform<Block extends IBasicBlock> {
         reachingDefsForBlocks[postOrder[graph.size() - 1]] = entryDefs;
         propagateDefsToSuccBlocks(graph.getEntry(), entryDefs);
 
-        // Reverse post order is a depth-right first traversal which satisfies the data dependency.
-        // Use it for efficiency, the cost is the number of variables are not in order.
+        /* The traversal order in the original algorithm is stricter than needed. Indeed, Here it
+         * just has to satisfy that when traversed, the current reachingDef is the def that
+         * dominates the current program point.
+         * Reverse post order is a depth-right first traversal which satisfies the data dependency.
+         * Use it for efficiency, the cost is the number of variables are not in order.
+         */
         for (int i = graph.size() - 2; i >= 0; --i) { // i = graph.size()-2 or -1?
             int node = postOrder[i];
             IndexMap<Var, Var> reachingDefs = new IndexMap<>(reachingDefsForBlocks[dom[node]]);
             Block block = graph.getNode(node);
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
-            for (Stmt stmt : block.getStmts()) {
-                // only update uses for non-phi stmts.
-                Map<Var, Var> uses = stmt instanceof PhiStmt ? Map.of() : reachingDefs;
-                Map<Var, Var> def;
-                Var potentialBase = null;
-                Var freshVar = null;
-                if (stmt instanceof DefinitionStmt<?, ?> defStmt
-                        && defStmt.getLValue() instanceof Var base
-                        && isVarToBeSSA(base)
-                ) {
-                    // In the first (and only) time that a phi stmt is visited, its def is its
-                    // base according to the callsite of the init method in `phiInsertion`.
-                    assert !(stmt instanceof PhiStmt p) || p.getBase() == p.getLValue();
-                    potentialBase = base;
-                    int id = incId.get(base);
-                    incId.put(base, 1 + id);
-                    if (id == 1) {
-                        freshVar = base;
-                    } else {
-                        freshVar = manager.splitVar(base, id);
-                        freshVar.setType(base.getType());
-                    }
-                    def = Map.of(base, freshVar);
-                } else {
-                    def = Map.of();
-                }
-                Lenses lenses = new Lenses(method, uses, def);
+            TriFunction<Stmt, Var, Map<Var, Var>, Pair<Stmt, Var>> replaceStmtAndUpdateDefs =
+                    (stmt, base, uses) -> {
+                Var freshVar = getFreshDefs(incId, base);
+                Lenses lenses = new Lenses(method, uses, Map.of(base, freshVar));
                 Stmt newStmt = lenses.subSt(stmt);
                 newStmts.add(newStmt);
-                if (freshVar != null) {
-                    reachingDefs.put(potentialBase, freshVar);
-                }
-                if (newStmt instanceof PhiStmt phiStmt) {
-                    assert freshVar != null;
+                reachingDefs.put(base, freshVar);
+                return new Pair<>(newStmt, freshVar);
+            };
+            for (Stmt stmt : block.getStmts()) {
+                /*
+                 * The possible enumerations of the conditions are as follows:
+                 *   | PhiStmt | hasDefToBeSSA | Catch(which defines the catch var) | Other |
+                 *   |    T    |       T       |                 F                  |   F   |
+                 *   |    F    |       T       |                 F                  |   F   |
+                 *   |    F    |       F       |                 T                  |   F   |
+                 *   |    F    |       F       |                 F                  |   T   |
+                 */
+                if (stmt instanceof PhiStmt phiStmt) {
+                    // only update uses for non-phi stmts.
+                    Pair<Stmt, Var> p =
+                            replaceStmtAndUpdateDefs.apply(phiStmt, phiStmt.getBase(), Map.of());
+                    Stmt newStmt = p.first();
+                    Var freshVar = p.second();
+                    // place initial marking phase for pruning step for performance
                     if (DEBUG) {
                         isPhiDefiningVar.add(freshVar.getIndex());
                     }
                     isUseless.add(freshVar.getIndex()); // Collect for pruning.
-                    correspondingPhiStmts.put(freshVar, phiStmt);
-                }
-                else {
-                    /* Collect use for pruning step.
-                     * In this situation, "An use x is defined by some phi function" equals to
-                     * "isUseless.has(x) || stack.has(x)" because of the dominance order here.
-                     * (Before pruning, stack.has(x) implies that x is phi defining var and useful.)
-                     */
-                    if (DEBUG) {
-                        Predicate<RValue> p = r -> {
-                            if (!(r instanceof Var x)) return true;
-                            boolean visited =
-                                    isUseless.has(x.getIndex()) || stack.has(x.getIndex());
-                            return isPhiDefiningVar.has(x.getIndex()) == visited;
-                        };
-                        assert newStmt.getUses()
-                                .stream()
-                                .allMatch(p);
-                    }
-                    StmtVarVisitor.visitUse(newStmt, this::markUseful);
+                    correspondingPhiStmts.put(freshVar, (PhiStmt) newStmt);
+                } else if (
+                        stmt instanceof DefinitionStmt<?, ?> defStmt
+                                && defStmt.getLValue() instanceof Var base
+                                && isVarToBeSSA(base)
+                ) {
+                    Pair<Stmt, Var> p =
+                            replaceStmtAndUpdateDefs.apply(defStmt, base, reachingDefs);
+                    Stmt newStmt = p.first();
+                    markUsefulForStmt(newStmt);
+                } else if (stmt instanceof Catch catchStmt) {
+                    Pair<Stmt, Var> p = replaceStmtAndUpdateDefs.apply(
+                            catchStmt,
+                            catchStmt.getExceptionRef(),
+                            reachingDefs
+                    );
+                    Stmt newStmt = p.first();
+                    markUsefulForStmt(newStmt);
+                } else {
+                    // just replace the stmt by updating the uses
+                    Lenses lenses = new Lenses(method, reachingDefs, Map.of());
+                    Stmt newStmt = lenses.subSt(stmt);
+                    newStmts.add(newStmt);
+                    markUsefulForStmt(newStmt);
                 }
             }
             block.setStmts(newStmts);
@@ -293,6 +295,39 @@ public class SSATransform<Block extends IBasicBlock> {
 
             reachingDefsForBlocks[node] = reachingDefs;
         }
+    }
+
+    private Var getFreshDefs(IndexMap<Var, Integer> incId, Var base) {
+        int id = incId.get(base);
+        incId.put(base, 1 + id);
+        Var freshVar;
+        if (id == 1) {
+            freshVar = base;
+        } else {
+            freshVar = manager.splitVar(base, id);
+            freshVar.setType(base.getType());
+        }
+        return freshVar;
+    }
+
+    private void markUsefulForStmt(Stmt stmt) {
+        /* Collect use for pruning step.
+         * In this situation, "An use x is defined by some phi function" equals to
+         * "isUseless.has(x) || stack.has(x)" because of the dominance order here.
+         * (Before pruning, stack.has(x) implies that x is phi defining var and useful.)
+         */
+        if (DEBUG) {
+            Predicate<RValue> p = r -> {
+                if (!(r instanceof Var x)) return true;
+                boolean visited =
+                        isUseless.has(x.getIndex()) || stack.has(x.getIndex());
+                return isPhiDefiningVar.has(x.getIndex()) == visited;
+            };
+            assert stmt.getUses()
+                    .stream()
+                    .allMatch(p);
+        }
+        StmtVarVisitor.visitUse(stmt, this::markUseful);
     }
 
     private void propagateDefsToSuccBlocks(Block block, IndexMap<Var, Var> reachingDefs) {
@@ -356,7 +391,7 @@ public class SSATransform<Block extends IBasicBlock> {
         while (!stack.isEmpty()) {
             Var a = vars.get(stack.removeLast());
             PhiStmt phiStmt = correspondingPhiStmts.get(a);
-            phiStmt.getUses().forEach(this::markUseful);
+            phiStmt.getRValue().getUses().forEach(this::markUseful);
         }
 
         // final pruning phase

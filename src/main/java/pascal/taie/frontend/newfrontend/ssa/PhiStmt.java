@@ -6,6 +6,7 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.util.collection.ArraySet;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
@@ -26,6 +27,7 @@ public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
         return base;
     }
 
+    @Nonnull
     @Override
     public Var getLValue() {
         return def;
