@@ -85,6 +85,10 @@ public class VarWebSplitter {
         for (Var v : locals) {
             ret.remove(v);
         }
+
+        for (BytecodeBlock block : builder.blockSortedList) {
+            block.setIndex(-1);
+        }
     }
 
     public void build() {
@@ -191,6 +195,7 @@ public class VarWebSplitter {
     }
 
     private int[] getOutDefs(BytecodeBlock bb) {
+        assert bb.getIndex() < block2outDefs.length;
         if (bb.getIndex() == -1) {
             return null;
         } else {

@@ -13,11 +13,13 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Function;
 
 public class BytecodeVisualizer {
     public record BytecodeGraph(List<BytecodeBlock> list,
-                         BytecodeBlock entry,
-                         List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryCatch) {
+                                BytecodeBlock entry,
+                                List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryCatch,
+                                Function<AbstractInsnNode, Integer> getInsnIndex) {
     }
 
     public static String printDot(BytecodeGraph graph) {
@@ -26,7 +28,9 @@ public class BytecodeVisualizer {
         for (BytecodeBlock block : graph.list) {
             sb.append(getBlockName(block))
                     .append(" [label=\"")
-                    .append(getContents(block))
+                    .append(getBlockDisplayName(block))
+                    .append("\n")
+                    .append(getContents(graph, block))
                     .append("\"];\n");
         }
         for (BytecodeBlock block : graph.list) {
@@ -55,22 +59,37 @@ public class BytecodeVisualizer {
         return "block" + block.hashCode();
     }
 
-    private static String getContents(BytecodeBlock block) {
+    private static String getBlockDisplayName(BytecodeBlock block) {
+        return "block" + " (" + block.getIndex() + ")";
+    }
+
+    private static String getContents(BytecodeGraph g, BytecodeBlock block) {
         StringBuilder sb = new StringBuilder();
-        Textifier textifier = new Textifier();
         if (block.getFrame() != null) {
             sb.append(getFrameInfo(block));
         }
         sb.append("instr:\n");
+        int count = 0;
         for (AbstractInsnNode insn : block.instr()) {
-            TraceMethodVisitor mp = new TraceMethodVisitor(textifier);
-            insn.accept(mp);
-            StringWriter sw = new StringWriter();
-            textifier.print(new PrintWriter(sw));
-            sb.append(sw);
+            sb.append("[").append(count++)
+                    .append(" @ ")
+                    .append(g.getInsnIndex().apply(insn))
+                    .append("]").append("   ");
+            sb.append(printInsn(insn));
             sb.append("\n");
-            textifier.getText().clear();
         }
+        return sb.toString();
+    }
+
+    public static String printInsn(AbstractInsnNode insn) {
+        Textifier textifier = new Textifier();
+        StringBuilder sb = new StringBuilder();
+        TraceMethodVisitor mp = new TraceMethodVisitor(textifier);
+        insn.accept(mp);
+        StringWriter sw = new StringWriter();
+        textifier.print(new PrintWriter(sw));
+        sb.append(sw);
+        textifier.getText().clear();
         return sb.toString();
     }
 

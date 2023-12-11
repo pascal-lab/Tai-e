@@ -24,7 +24,7 @@ public final class BytecodeBlock implements IBasicBlock {
 
     private int index = -1;
 
-    private final List<AbstractInsnNode> instr;
+    private AsmListSlice instr;
     private final List<BytecodeBlock> inEdges;
     private final List<BytecodeBlock> outEdges;
 
@@ -46,7 +46,7 @@ public final class BytecodeBlock implements IBasicBlock {
 
     private List<Object> frameLocalType;
 
-    private List<Integer> stmt2Asm;
+    private int[] stmt2Asm;
 
     private boolean isInTry = false;
 
@@ -56,7 +56,6 @@ public final class BytecodeBlock implements IBasicBlock {
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, @Nullable Type exceptionHandlerType) {
         this.label = label;
-        this.instr = new ArrayList<>();
         this.inEdges = new ArrayList<>();
         this.outEdges = new ArrayList<>();
         this.stmts = new ArrayList<>();
@@ -69,8 +68,12 @@ public final class BytecodeBlock implements IBasicBlock {
         return label;
     }
 
-    public List<AbstractInsnNode> instr() {
+    public AsmListSlice instr() {
         return instr;
+    }
+
+    public void setInstr(AsmListSlice instr) {
+        this.instr = instr;
     }
 
     public List<BytecodeBlock> inEdges() {
@@ -283,12 +286,12 @@ public final class BytecodeBlock implements IBasicBlock {
         this.frame = frame;
     }
 
-    void setStmt2Asm(List<Integer> stmt2Asm) {
+    void setStmt2Asm(int[] stmt2Asm) {
         this.stmt2Asm = stmt2Asm;
     }
 
     AbstractInsnNode getOrig(int index) {
-        return instr.get(stmt2Asm.get(index));
+        return instr.get(stmt2Asm[index]);
     }
 
     @Override

@@ -286,22 +286,25 @@ public class TypeInference0 {
     private void inferTypes() {
         visited = new boolean[builder.blockSortedList.size()];
         for (BytecodeBlock block : builder.blockSortedList) {
-            Type[] initTyping;
-            initTyping = new Type[varSize];
-            List<Object> frameLocalType;
             if (! visited[block.getIndex()]) {
-                if (block.inEdges().isEmpty() && ! block.isCatch()) {
-                    frameLocalType = List.of();
-                } else {
-                    var tempInitTyping = block.getInitTyping();
-                    tempInitTyping.forEach((k, v) -> {
-                        initTyping[k.getIndex()] = v;
-                    });
-                    frameLocalType = block.getFrameLocalType();
-                }
-                inferTypesForBlock(block, new Typing(initTyping, frameLocalType));
+                inferTypesForBlock(block, getBlockInitTyping(block, varSize));
             }
         }
+    }
+
+    static Typing getBlockInitTyping(BytecodeBlock block, int varSize) {
+        List<Object> frameLocalType;
+        Type[] initTyping = new Type[varSize];
+        if (block.inEdges().isEmpty() && ! block.isCatch()) {
+            frameLocalType = List.of();
+        } else {
+            var tempInitTyping = block.getInitTyping();
+            tempInitTyping.forEach((k, v) -> {
+                initTyping[k.getIndex()] = v;
+            });
+            frameLocalType = block.getFrameLocalType();
+        }
+        return new Typing(initTyping, frameLocalType);
     }
 
     private void inferTypesForBlock(BytecodeBlock block, Typing typing) {
@@ -450,8 +453,11 @@ public class TypeInference0 {
             });
         }
 
-        if (block.fallThrough() != null && block.fallThrough().getFrame() == null) {
-            inferTypesForBlock(block.fallThrough(), typing);
+        for (BytecodeBlock succ : block.outEdges()) {
+            if (!visited[succ.getIndex()] && succ.getFrame() == null) {
+                assert succ.inEdges().size() == 1;
+                inferTypesForBlock(succ, typing);
+            }
         }
     }
 
@@ -459,7 +465,7 @@ public class TypeInference0 {
         return block.getStmts();
     }
 
-    private record Typing(Type[] typing, List<Object> frameLocalType) {
+    record Typing(Type[] typing, List<Object> frameLocalType) {
         Type getType(Var v) {
             return typing[v.getIndex()];
         }
