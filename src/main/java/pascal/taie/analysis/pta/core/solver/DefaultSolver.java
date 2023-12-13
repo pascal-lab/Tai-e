@@ -304,22 +304,26 @@ public class DefaultSolver implements Solver {
      */
     private void analyze() {
         while (!workList.isEmpty() && !isTimeout) {
-            WorkList.Entry entry = workList.pollEntry();
-            if (entry instanceof WorkList.PointerEntry pEntry) {
-                Pointer p = pEntry.pointer();
-                PointsToSet pts = pEntry.pointsToSet();
-                PointsToSet diff = propagate(p, pts);
-                if (!diff.isEmpty() && p instanceof CSVar v) {
-                    processInstanceStore(v, diff);
-                    processInstanceLoad(v, diff);
-                    processArrayStore(v, diff);
-                    processArrayLoad(v, diff);
-                    processCall(v, diff);
-                    plugin.onNewPointsToSet(v, diff);
+            // phase starts
+            while (!workList.isEmpty() && !isTimeout) {
+                WorkList.Entry entry = workList.pollEntry();
+                if (entry instanceof WorkList.PointerEntry pEntry) {
+                    Pointer p = pEntry.pointer();
+                    PointsToSet pts = pEntry.pointsToSet();
+                    PointsToSet diff = propagate(p, pts);
+                    if (!diff.isEmpty() && p instanceof CSVar v) {
+                        processInstanceStore(v, diff);
+                        processInstanceLoad(v, diff);
+                        processArrayStore(v, diff);
+                        processArrayLoad(v, diff);
+                        processCall(v, diff);
+                        plugin.onNewPointsToSet(v, diff);
+                    }
+                } else if (entry instanceof WorkList.CallEdgeEntry eEntry) {
+                    processCallEdge(eEntry.edge());
                 }
-            } else if (entry instanceof WorkList.CallEdgeEntry eEntry) {
-                processCallEdge(eEntry.edge());
             }
+            plugin.onPhaseFinish();
         }
         if (!workList.isEmpty() && isTimeout) {
             logger.warn("Pointer analysis stops early as it reaches time limit ({} seconds)," +

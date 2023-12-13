@@ -57,6 +57,16 @@ public interface Plugin {
     }
 
     /**
+     * Invoked when pointer analysis has processed all entries in the work list.
+     * Some plugins need to perform certain computation at this stage
+     * (so that it can collect enough points-to information in the program),
+     * and may further add entries to the work list to "restart" the
+     * pointer analysis.
+     */
+    default void onPhaseFinish() {
+    }
+
+    /**
      * Invoked when pointer analysis finishes.
      * Pointer analysis is supposed to have been finished at this stage,
      * thus this call back should NOT modify pointer analysis results.
