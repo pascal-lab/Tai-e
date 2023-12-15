@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
-import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.callgraph.OtherEdge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -97,10 +97,10 @@ public class DoPriviledgedModel extends AbstractIRModel {
      * Represents call edge from AccessController.doPrivileged(...)
      * to the privileged action.
      */
-    private static class DoPrivilegedCallEdge extends Edge<CSCallSite, CSMethod> {
+    private static class DoPrivilegedCallEdge extends OtherEdge<CSCallSite, CSMethod> {
 
         DoPrivilegedCallEdge(CSCallSite csCallSite, CSMethod callee) {
-            super(CallKind.OTHER, csCallSite, callee);
+            super(csCallSite, callee);
         }
     }
 }
