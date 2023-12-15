@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
@@ -56,6 +57,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -351,13 +353,36 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         csCallGraph.reachableMethods()
                 .map(CSMethod::getMethod)
                 .forEach(callGraph::addReachableMethod);
-        csCallGraph.edges().forEach(edge -> {
-            Invoke callSite = edge.getCallSite().getCallSite();
-            JMethod callee = edge.getCallee().getMethod();
-            callGraph.addEdge(new Edge<>(edge.getKind(),
-                    callSite, callee));
-        });
+        csCallGraph.edges()
+                .map(CIEdge::new)
+                .forEach(callGraph::addEdge);
         return callGraph;
+    }
+
+    /**
+     * Represents context-insensitive call edges.
+     */
+    private static class CIEdge extends Edge<Invoke, JMethod> {
+
+        @Nullable
+        private final String info;
+
+        /**
+         * Removes contexts and keeps info of given context-sensitive edge.
+         */
+        private CIEdge(Edge<CSCallSite, CSMethod> edge) {
+            super(edge.getKind(),
+                    edge.getCallSite().getCallSite(),
+                    edge.getCallee().getMethod());
+            // only need to keep info for OTHER edges
+            this.info = (edge.getKind() == CallKind.OTHER)
+                    ? edge.getInfo() : null;
+        }
+
+        @Override
+        public String getInfo() {
+            return info != null ? info : super.getInfo();
+        }
     }
 
     public ObjectFlowGraph getObjectFlowGraph() {
