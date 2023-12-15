@@ -55,6 +55,15 @@ public class Edge<CallSite, Method> {
     }
 
     /**
+     * @return String representation of information for this edge.
+     * By default, the information represents the {@link CallKind},
+     * and other subclasses of {@link Edge} may contain additional content.
+     */
+    public String getInfo() {
+        return kind.name();
+    }
+
+    /**
      * @return the call site (i.e., the source) of the call edge.
      */
     public CallSite getCallSite() {
@@ -89,7 +98,6 @@ public class Edge<CallSite, Method> {
 
     @Override
     public String toString() {
-        return "[" + kind + "]" +
-                callSite + " -> " + callee;
+        return "[" + getInfo() + "]" + callSite + " -> " + callee;
     }
 }
