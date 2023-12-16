@@ -1,0 +1,8 @@
+sources:
+  - { kind: call, method: "<TaintCall: void varArg(java.lang.String)>", index: "0" }
+  - { kind: call, method: "<TaintCall: void arrayArg(java.lang.String[])>", index: "0[*]" }
+  - { kind: call, method: "<TaintCall: void fieldArg(A)>", index: 0.f }
+  - { kind: call, method: "<TaintCall: java.lang.String[] source()>", index: "result[*]" }
+
+sinks:
+  - { method: "<TaintCall: void sink(java.lang.String)>", index: 0 }

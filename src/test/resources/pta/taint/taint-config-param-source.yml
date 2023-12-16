@@ -1,5 +1,10 @@
 sources:
-  - { kind: param, method: "<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>", index: 0 }
+  - { kind: param, method: "<TaintParam: void varParam(java.lang.String[],java.lang.String[])>", index: 0 }
+  - { kind: param, method: "<TaintParam: void arrayParam(java.lang.String[])>", index: "0[*]" }
+  - { kind: param, method: "<TaintParam: void fieldParam(A)>", index: 0.f }
 
 sinks:
+  - { method: "<TaintParam: void sink(java.lang.String)>", index: 0 }
   - { method: "<TaintParam: void sink(java.lang.String[])>", index: 0 }
+  - { method: "<TaintParam: void sink(java.lang.String[])>", index: "0[*]" }
+  - { method: "<TaintParam: void sink(A)>", index: 0.f }

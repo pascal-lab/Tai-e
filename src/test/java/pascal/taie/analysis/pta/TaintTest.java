@@ -61,6 +61,8 @@ public class TaintTest {
             + "taint-config-array-field-transfer.yml"})
     @MultiStringsSource({"TaintParam", TAINT_CONFIG_PREFIX
             + "taint-config-param-source.yml"})
+    @MultiStringsSource({"TaintCall", TAINT_CONFIG_PREFIX
+            + "taint-config-call-source.yml"})
     @MultiStringsSource({"CallSiteMode", TAINT_CONFIG_PREFIX
             + "taint-config-call-site-model.yml"})
     @MultiStringsSource({"Java9StringConcat", TAINT_CONFIG})
