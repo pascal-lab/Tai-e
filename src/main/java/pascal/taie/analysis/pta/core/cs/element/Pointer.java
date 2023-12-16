@@ -85,12 +85,18 @@ public interface Pointer extends Indexable {
      */
     Stream<CSObj> objects();
 
+
     /**
-     * Adds a pointer flow edge {@code this} -> {@code target}, and
-     * returns the edge. If the edge already exists and {@code kind}
-     * is not {@link FlowKind#OTHER}, {@code null} is returned.
+     * Gets or adds a pointer flow edge and returns the edge in the PFG.
+     * If the edge to add already exists, then
+     * <ul>
+     *     <li>if the edge is of {@link FlowKind#OTHER},
+     *     returns the existing edge;
+     *     <li>otherwise, returns {@code null}, meaning that the edge
+     *     does not need to be processed again.
+     * </ul>
      */
-    PointerFlowEdge getOrAddEdge(FlowKind kind, Pointer target);
+    PointerFlowEdge getOrAddEdge(PointerFlowEdge edge);
 
     /**
      * @return out edges of this pointer in pointer flow graph.

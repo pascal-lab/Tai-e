@@ -771,13 +771,13 @@ public class DefaultSolver implements Solver {
     }
 
     @Override
-    public void addPFGEdge(Pointer source, Pointer target, FlowKind kind,
-                           Transfer transfer) {
-        PointerFlowEdge edge = pointerFlowGraph.getOrAddEdge(kind, source, target);
+    public void addPFGEdge(PointerFlowEdge edge, Transfer transfer) {
+        edge = pointerFlowGraph.getOrAddEdge(edge);
         if (edge != null && edge.addTransfer(transfer)) {
-            PointsToSet targetSet = transfer.apply(edge, getPointsToSetOf(source));
+            PointsToSet targetSet = transfer.apply(
+                    edge, getPointsToSetOf(edge.source()));
             if (!targetSet.isEmpty()) {
-                addPointsTo(target, targetSet);
+                addPointsTo(edge.target(), targetSet);
             }
         }
     }

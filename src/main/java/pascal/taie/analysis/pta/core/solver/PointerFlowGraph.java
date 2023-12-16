@@ -45,12 +45,17 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     /**
-     * Adds a pointer flow edge {@code source} -> {@code target}, and
-     * returns the edge. If the edge already exists and {@code kind}
-     * is not {@link FlowKind#OTHER}, {@code null} is returned.
+     * Gets or adds a pointer flow edge and returns the edge in the PFG.
+     * If the edge to add already exists, then
+     * <ul>
+     *     <li>if the edge is of {@link FlowKind#OTHER},
+     *     returns the existing edge;
+     *     <li>otherwise, returns {@code null}, meaning that the edge
+     *     does not need to be processed again.
+     * </ul>
      */
-    public PointerFlowEdge getOrAddEdge(FlowKind kind, Pointer source, Pointer target) {
-        return source.getOrAddEdge(kind, target);
+    public PointerFlowEdge getOrAddEdge(PointerFlowEdge edge) {
+        return edge.source().getOrAddEdge(edge);
     }
 
     @Override

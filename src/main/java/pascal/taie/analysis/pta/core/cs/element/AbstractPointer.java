@@ -91,17 +91,19 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public PointerFlowEdge getOrAddEdge(FlowKind kind, Pointer target) {
-        if (successors.add(target)) {
-            PointerFlowEdge edge = new PointerFlowEdge(kind, this, target);
+    public PointerFlowEdge getOrAddEdge(PointerFlowEdge edge) {
+        assert edge.source() == this;
+        if (successors.add(edge.target())) {
             outEdges.add(edge);
             return edge;
-        } else if (kind == FlowKind.OTHER) {
-            for (PointerFlowEdge edge : outEdges) {
-                if (edge.target().equals(target)) {
-                    return edge;
+        } else if (edge.kind() == FlowKind.OTHER) {
+            for (PointerFlowEdge outEdge : outEdges) {
+                if (outEdge.equals(edge)) {
+                    return outEdge;
                 }
             }
+            outEdges.add(edge);
+            return edge;
         }
         return null;
     }

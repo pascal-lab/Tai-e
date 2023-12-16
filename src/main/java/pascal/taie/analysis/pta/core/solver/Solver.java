@@ -133,7 +133,7 @@ public interface Solver {
      * Adds an edge "source -> target" to the PFG.
      */
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind) {
-        addPFGEdge(source, target, kind, Identity.get());
+        addPFGEdge(new PointerFlowEdge(kind, source, target), Identity.get());
     }
 
     /**
@@ -142,13 +142,28 @@ public interface Solver {
      * are subtypes of given type are propagated to "target".
      */
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Type type) {
-        addPFGEdge(source, target, kind, new TypeFilter(type, this));
+        addPFGEdge(new PointerFlowEdge(kind, source, target), new TypeFilter(type, this));
     }
 
     /**
      * Adds an edge "source -> target" (with edge transfer) to the PFG.
      */
-    void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Transfer transfer);
+    default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Transfer transfer) {
+        addPFGEdge(new PointerFlowEdge(kind, source, target), transfer);
+    }
+
+    default void addPFGEdge(PointerFlowEdge edge) {
+        addPFGEdge(edge, Identity.get());
+    }
+
+    default void addPFGEdge(PointerFlowEdge edge, Type type) {
+        addPFGEdge(edge, new TypeFilter(type, this));
+    }
+
+    /**
+     * Adds an edge "source -> target" (with edge transfer) to the PFG.
+     */
+    void addPFGEdge(PointerFlowEdge edge, Transfer transfer);
 
     /**
      * Adds an entry point.
