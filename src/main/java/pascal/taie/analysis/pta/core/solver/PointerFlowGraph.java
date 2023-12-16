@@ -50,7 +50,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
      * is not {@link FlowKind#OTHER}, {@code null} is returned.
      */
     public PointerFlowEdge getOrAddEdge(FlowKind kind, Pointer source, Pointer target) {
-        return source.getOrAddEdge(kind, source, target);
+        return source.getOrAddEdge(kind, target);
     }
 
     @Override
