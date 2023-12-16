@@ -61,7 +61,8 @@ public final class CallGraphs {
     private CallGraphs() {
     }
 
-    public static CallKind getCallKind(InvokeExp invokeExp) {
+    public static CallKind getCallKind(Invoke invoke) {
+        InvokeExp invokeExp = invoke.getInvokeExp();
         if (invokeExp instanceof InvokeVirtual) {
             return CallKind.VIRTUAL;
         } else if (invokeExp instanceof InvokeInterface) {
@@ -72,13 +73,8 @@ public final class CallGraphs {
             return CallKind.STATIC;
         } else if (invokeExp instanceof InvokeDynamic) {
             return CallKind.DYNAMIC;
-        } else {
-            throw new AnalysisException("Cannot handle InvokeExp: " + invokeExp);
         }
-    }
-
-    public static CallKind getCallKind(Invoke invoke) {
-        return getCallKind(invoke.getInvokeExp());
+        throw new AnalysisException("Cannot handle Invoke: " + invoke);
     }
 
     @Nullable
