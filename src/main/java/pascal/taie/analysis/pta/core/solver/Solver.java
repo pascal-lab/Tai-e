@@ -131,7 +131,9 @@ public interface Solver {
 
     /**
      * Adds an edge "source -> target" to the PFG.
+     * @deprecated Use {@link #addPFGEdge(PointerFlowEdge)} instead.
      */
+    @Deprecated
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind) {
         addPFGEdge(new PointerFlowEdge(kind, source, target), Identity.get());
     }
@@ -140,28 +142,41 @@ public interface Solver {
      * Adds an edge "source -> target" to the PFG.
      * For the objects pointed to by "source", only the ones whose types
      * are subtypes of given type are propagated to "target".
+     * @deprecated Use {@link #addPFGEdge(PointerFlowEdge, Type)} instead.
      */
+    @Deprecated
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Type type) {
         addPFGEdge(new PointerFlowEdge(kind, source, target), new TypeFilter(type, this));
     }
 
     /**
      * Adds an edge "source -> target" (with edge transfer) to the PFG.
+     * @deprecated Use {@link #addPFGEdge(PointerFlowEdge, Transfer)} instead.
      */
+    @Deprecated
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Transfer transfer) {
         addPFGEdge(new PointerFlowEdge(kind, source, target), transfer);
     }
 
+    /**
+     * Adds a pointer flow edge to the PFG.
+     */
     default void addPFGEdge(PointerFlowEdge edge) {
         addPFGEdge(edge, Identity.get());
     }
 
+    /**
+     * Adds a pointer flow edge (with type filer) to the PFG.
+     * For the objects pointed to by {@code edge.source()},
+     * only the ones whose types are subtypes of {@code type}
+     * can be propagated to {@code edge.target()}.
+     */
     default void addPFGEdge(PointerFlowEdge edge, Type type) {
         addPFGEdge(edge, new TypeFilter(type, this));
     }
 
     /**
-     * Adds an edge "source -> target" (with edge transfer) to the PFG.
+     * Adds a pointer flow edge (with edge transfer) to the PFG.
      */
     void addPFGEdge(PointerFlowEdge edge, Transfer transfer);
 
