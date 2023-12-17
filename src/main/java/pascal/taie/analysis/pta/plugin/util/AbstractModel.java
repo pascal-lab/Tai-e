@@ -70,11 +70,12 @@ public abstract class AbstractModel extends SolverHolder implements Model {
             InvokeHandler[] invokeHandlers = method.getAnnotationsByType(InvokeHandler.class);
             if (invokeHandlers != null) {
                 for (InvokeHandler invokeHandler : invokeHandlers) {
-                    String signature = invokeHandler.signature();
-                    JMethod api = hierarchy.getMethod(signature);
-                    if (api != null) {
-                        registerRelevantVarIndexes(api, invokeHandler.argIndexes());
-                        registerAPIHandler(api, createHandler(method));
+                    for (String signature : invokeHandler.signature()) {
+                        JMethod api = hierarchy.getMethod(signature);
+                        if (api != null) {
+                            registerRelevantVarIndexes(api, invokeHandler.argIndexes());
+                            registerAPIHandler(api, createHandler(method));
+                        }
                     }
                 }
             }

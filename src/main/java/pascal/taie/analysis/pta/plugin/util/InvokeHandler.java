@@ -39,12 +39,14 @@ import java.lang.annotation.Target;
 public @interface InvokeHandler {
 
     /**
-     * @return method signature of the Invoke to he handled.
+     * Method signature of the {@link pascal.taie.ir.stmt.Invoke}
+     * to be handled. Multiple method signatures can be specified
+     * in a single {@link InvokeHandler} annotation.
      */
-    String signature();
+    String[] signature();
 
     /**
-     * @return an array of indexes for arguments used by the handler.
+     * Indexes for the arguments used by the handler.
      */
     int[] argIndexes() default {};
 }

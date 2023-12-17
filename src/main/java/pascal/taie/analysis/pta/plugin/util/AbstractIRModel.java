@@ -68,10 +68,11 @@ public abstract class AbstractIRModel extends SolverHolder implements IRModel {
             InvokeHandler[] invokeHandlers = method.getAnnotationsByType(InvokeHandler.class);
             if (invokeHandlers != null) {
                 for (InvokeHandler invokeHandler : invokeHandlers) {
-                    String signature = invokeHandler.signature();
-                    JMethod api = hierarchy.getMethod(signature);
-                    if (api != null) {
-                        registerHandler(api, createHandler(method));
+                    for (String signature : invokeHandler.signature()) {
+                        JMethod api = hierarchy.getMethod(signature);
+                        if (api != null) {
+                            registerHandler(api, createHandler(method));
+                        }
                     }
                 }
             }
