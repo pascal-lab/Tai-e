@@ -91,7 +91,7 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public PointerFlowEdge getOrAddEdge(PointerFlowEdge edge) {
+    public PointerFlowEdge addEdge(PointerFlowEdge edge) {
         assert edge.source() == this;
         if (successors.add(edge.target())) {
             outEdges.add(edge);

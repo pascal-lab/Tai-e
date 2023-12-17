@@ -772,7 +772,7 @@ public class DefaultSolver implements Solver {
 
     @Override
     public void addPFGEdge(PointerFlowEdge edge, Transfer transfer) {
-        edge = pointerFlowGraph.getOrAddEdge(edge);
+        edge = pointerFlowGraph.addEdge(edge);
         if (edge != null && edge.addTransfer(transfer)) {
             PointsToSet targetSet = transfer.apply(
                     edge, getPointsToSetOf(edge.source()));
