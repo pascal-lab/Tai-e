@@ -131,11 +131,9 @@ public interface Solver {
 
     /**
      * Adds an edge "source -> target" to the PFG.
-     * @deprecated Use {@link #addPFGEdge(PointerFlowEdge)} instead.
      */
-    @Deprecated
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind) {
-        addPFGEdge(new PointerFlowEdge(kind, source, target), Identity.get());
+        addPFGEdge(new PointerFlowEdge(kind, source, target));
     }
 
     /**
@@ -146,7 +144,7 @@ public interface Solver {
      */
     @Deprecated
     default void addPFGEdge(Pointer source, Pointer target, FlowKind kind, Type type) {
-        addPFGEdge(new PointerFlowEdge(kind, source, target), new TypeFilter(type, this));
+        addPFGEdge(new PointerFlowEdge(kind, source, target), type);
     }
 
     /**

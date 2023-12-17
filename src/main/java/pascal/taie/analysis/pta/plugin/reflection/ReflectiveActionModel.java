@@ -31,6 +31,7 @@ import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
@@ -250,14 +251,18 @@ public class ReflectiveActionModel extends AbstractModel {
             if (field != null) {
                 if (field.isStatic()) {
                     StaticField sfield = csManager.getStaticField(field);
-                    solver.addPFGEdge(from, sfield, STATIC_STORE, sfield.getType());
+                    solver.addPFGEdge(new PointerFlowEdge(
+                            STATIC_STORE, from, sfield),
+                            sfield.getType());
                 } else {
                     Type declType = field.getDeclaringClass().getType();
                     baseObjs.forEach(baseObj -> {
                         Type objType = baseObj.getObject().getType();
                         if (typeSystem.isSubtype(declType, objType)) {
                             InstanceField ifield = csManager.getInstanceField(baseObj, field);
-                            solver.addPFGEdge(from, ifield, INSTANCE_STORE, ifield.getType());
+                            solver.addPFGEdge(new PointerFlowEdge(
+                                    INSTANCE_STORE, from, ifield),
+                                    ifield.getType());
                             allTargets.put(invoke, field); // record target
                         }
                     });

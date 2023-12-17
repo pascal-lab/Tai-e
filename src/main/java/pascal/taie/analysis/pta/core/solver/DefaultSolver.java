@@ -424,8 +424,9 @@ public class DefaultSolver implements Solver {
                         ArrayIndex arrayIndex = csManager.getArrayIndex(array);
                         // we need type guard for array stores as Java arrays
                         // are covariant
-                        addPFGEdge(from, arrayIndex,
-                                FlowKind.ARRAY_STORE, arrayIndex.getType());
+                        addPFGEdge(new PointerFlowEdge(
+                                FlowKind.ARRAY_STORE, from, arrayIndex),
+                                arrayIndex.getType());
                     }
                 });
             }
@@ -685,7 +686,9 @@ public class DefaultSolver implements Solver {
                 if (propTypes.isAllowed(cast.getValue())) {
                     CSVar from = csManager.getCSVar(context, cast.getValue());
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                    addPFGEdge(from, to, FlowKind.CAST, cast.getType());
+                    addPFGEdge(new PointerFlowEdge(
+                            FlowKind.CAST, from, to),
+                            cast.getType());
                 }
                 return null;
             }

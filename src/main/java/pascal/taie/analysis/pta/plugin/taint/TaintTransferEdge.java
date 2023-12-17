@@ -20,28 +20,14 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.core.solver;
+package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.solver.OtherEdge;
 
-/**
- * Base class for flow edges of {@link FlowKind#OTHER}.
- * Implementation of {@link FlowKind#OTHER} flow edges should inherit this class.
- */
-public abstract class OtherEdge extends PointerFlowEdge {
+class TaintTransferEdge extends OtherEdge {
 
-    protected OtherEdge(Pointer source, Pointer target) {
-        super(FlowKind.OTHER, source, target);
-    }
-
-    /**
-     * @return String representation of information for this edge.
-     * It contains simple name of the edge class to distinguish
-     * from other classes of {@link FlowKind#OTHER} flow edges.
-     */
-    @Override
-    public String getInfo() {
-        return kind().name() + "." + getClass().getSimpleName();
+    TaintTransferEdge(Pointer source, Pointer target) {
+        super(source, target);
     }
 }

@@ -32,6 +32,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.Model;
@@ -183,7 +184,9 @@ public class ReflectionAnalysis implements Plugin {
                 Type paramType = param.getType();
                 if (isConcerned(paramType)) {
                     CSVar csParam = csManager.getCSVar(calleeCtx, param);
-                    solver.addPFGEdge(elems, csParam, PARAMETER_PASSING, paramType);
+                    solver.addPFGEdge(new PointerFlowEdge(
+                            PARAMETER_PASSING, elems, csParam),
+                            paramType);
                 }
             });
         });

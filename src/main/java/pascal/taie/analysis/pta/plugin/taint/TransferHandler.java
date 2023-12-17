@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -131,7 +130,9 @@ class TransferHandler extends OnFlyHandler {
             Kind kind = switch (to.kind()) {
                 case VAR -> {
                     Transfer tf = getTransferFunction(transfer.type());
-                    solver.addPFGEdge(csFrom, csTo, FlowKind.OTHER, tf);
+                    solver.addPFGEdge(
+                            new TaintTransferEdge(csFrom, csTo),
+                            tf);
                     yield null;
                 }
                 case ARRAY -> Kind.VAR_TO_ARRAY;
@@ -180,27 +181,35 @@ class TransferHandler extends OnFlyHandler {
                 baseObjs.objects()
                         .map(csManager::getArrayIndex)
                         .forEach(arrayIndex ->
-                                solver.addPFGEdge(csVar, arrayIndex, FlowKind.OTHER, tf));
+                                solver.addPFGEdge(
+                                        new TaintTransferEdge(csVar, arrayIndex),
+                                        tf));
             }
             case VAR_TO_FIELD -> {
                 JField f = info.transfer().to().field();
                 baseObjs.objects()
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
-                                solver.addPFGEdge(csVar, oDotF, FlowKind.OTHER, tf));
+                                solver.addPFGEdge(
+                                        new TaintTransferEdge(csVar, oDotF),
+                                        tf));
             }
             case ARRAY_TO_VAR -> {
                 baseObjs.objects()
                         .map(csManager::getArrayIndex)
                         .forEach(arrayIndex ->
-                                solver.addPFGEdge(arrayIndex, csVar, FlowKind.OTHER, tf));
+                                solver.addPFGEdge(
+                                        new TaintTransferEdge(arrayIndex, csVar),
+                                        tf));
             }
             case FIELD_TO_VAR -> {
                 JField f = info.transfer().from().field();
                 baseObjs.objects()
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
-                                solver.addPFGEdge(oDotF, csVar, FlowKind.OTHER, tf));
+                                solver.addPFGEdge(
+                                        new TaintTransferEdge(oDotF, csVar),
+                                        tf));
             }
         }
     }
