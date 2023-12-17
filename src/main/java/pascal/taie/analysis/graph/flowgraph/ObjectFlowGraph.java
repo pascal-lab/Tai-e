@@ -29,6 +29,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.PointerFlowGraph;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
@@ -56,8 +57,7 @@ public class ObjectFlowGraph extends NodeManager
                            CallGraph<Invoke, JMethod> callGraph) {
         pfg.pointers().forEach(pointer -> {
             toNode(pointer); // ensure every pointer has a corresponding node
-            pfg.getOutEdgesOf(pointer).forEach(e ->
-                    addEdge(e.kind(), toNode(e.source()), toNode(e.target())));
+            pfg.getOutEdgesOf(pointer).forEach(this::addPointerFlowEdge);
         });
         // This-passing edges are absent on PFG, so we iterate call graph edges
         // to complement this kind of edges.
@@ -69,17 +69,30 @@ public class ObjectFlowGraph extends NodeManager
                                     InvokeInstanceExp invokeExp) {
                         Var base = invokeExp.getBase();
                         Var thisVar = e.getCallee().getIR().getThis();
-                        addEdge(FlowKind.THIS_PASSING,
+                        addFlowEdge(new BasicFlowEdge(
+                                FlowKind.THIS_PASSING,
                                 getOrCreateVarNode(base),
-                                getOrCreateVarNode(thisVar));
+                                getOrCreateVarNode(thisVar)));
                     }
                 });
     }
 
-    private void addEdge(FlowKind kind, Node source, Node target) {
-        BasicFlowEdge edge = new BasicFlowEdge(kind, source, target);
-        outEdges.put(source, edge);
-        inEdges.put(target, edge);
+    private void addPointerFlowEdge(PointerFlowEdge edge) {
+        FlowKind kind = edge.kind();
+        Node source = toNode(edge.source());
+        Node target = toNode(edge.target());
+        FlowEdge flowEdge;
+        if (edge.kind() != FlowKind.OTHER) {
+            flowEdge = new BasicFlowEdge(kind, source, target);
+        } else {
+            flowEdge = new OtherFlowEdge(edge.getInfo(), source, target);
+        }
+        addFlowEdge(flowEdge);
+    }
+
+    private void addFlowEdge(FlowEdge flowEdge) {
+        outEdges.put(flowEdge.source(), flowEdge);
+        inEdges.put(flowEdge.target(), flowEdge);
     }
 
     /**

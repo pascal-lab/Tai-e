@@ -22,16 +22,21 @@
 
 package pascal.taie.analysis.graph.flowgraph;
 
-import pascal.taie.util.graph.Edge;
+import pascal.taie.util.Canonicalizer;
 
-/**
- * Represents edges in flow graph.
- */
-public interface FlowEdge extends Edge<Node> {
+record OtherFlowEdge(String info, Node source, Node target)
+        implements FlowEdge {
 
-    FlowKind kind();
+    private static final Canonicalizer<String> canonicalizer = new Canonicalizer<>();
 
-    default String info() {
-        return kind().name();
+    OtherFlowEdge(String info, Node source, Node target) {
+        this.info = canonicalizer.get(info);
+        this.source = source;
+        this.target = target;
+    }
+
+    @Override
+    public FlowKind kind() {
+        return FlowKind.OTHER;
     }
 }
