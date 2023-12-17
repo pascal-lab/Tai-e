@@ -58,6 +58,16 @@ public class PointerFlowEdge implements Edge<Pointer> {
         return target;
     }
 
+    /**
+     * @return String representation of information for this edge.
+     * By default, the information represents the {@link FlowKind},
+     * and other subclasses of {@link PointerFlowEdge} may contain
+     * additional content.
+     */
+    public String getInfo() {
+        return kind.name();
+    }
+
     public boolean addTransfer(Transfer transfer) {
         return transfers.add(transfer);
     }
@@ -85,6 +95,6 @@ public class PointerFlowEdge implements Edge<Pointer> {
 
     @Override
     public String toString() {
-        return "[" + kind + "]" + source + " -> " + target;
+        return "[" + getInfo() + "]" + source + " -> " + target;
     }
 }
