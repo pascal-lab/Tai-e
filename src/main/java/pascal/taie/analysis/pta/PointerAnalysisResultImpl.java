@@ -25,7 +25,6 @@ package pascal.taie.analysis.pta;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
-import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.DefaultCallGraph;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
@@ -57,7 +56,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -364,7 +362,8 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
      */
     private static class CIEdge extends Edge<Invoke, JMethod> {
 
-        @Nullable
+        private final static Canonicalizer<String> canonicalizer = new Canonicalizer<>();
+
         private final String info;
 
         /**
@@ -374,14 +373,12 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             super(edge.getKind(),
                     edge.getCallSite().getCallSite(),
                     edge.getCallee().getMethod());
-            // only need to keep info for OTHER edges
-            this.info = (edge.getKind() == CallKind.OTHER)
-                    ? edge.getInfo() : null;
+            this.info = canonicalizer.get(edge.getInfo());
         }
 
         @Override
         public String getInfo() {
-            return info != null ? info : super.getInfo();
+            return info;
         }
     }
 

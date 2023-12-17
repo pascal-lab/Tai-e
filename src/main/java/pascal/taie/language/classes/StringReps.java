@@ -139,13 +139,16 @@ public final class StringReps {
     }
 
     private static void validateSignature(String signature) {
-        if (signature.charAt(0) != '<' &&
+        if (signature.isBlank() ||
+                signature.charAt(0) != '<' &&
                 signature.charAt(signature.length() - 1) != '>') {
-            throw new AnalysisException(signature + " is not valid signature");
+            throw new AnalysisException(
+                    "\"" + signature + "\" is not a valid signature");
         }
         int index = signature.indexOf(":");
         if (index < 0) {
-            throw new AnalysisException(signature + " is not valid signature");
+            throw new AnalysisException(
+                    "\"" + signature + "\" is not a valid signature");
         }
     }
 
