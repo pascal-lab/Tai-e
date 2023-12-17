@@ -59,14 +59,16 @@ public class DoPriviledgedModel extends AbstractIRModel {
                         hierarchy.getJREMethod("<java.security.PrivilegedExceptionAction: java.lang.Object run()>")).getRef();
     }
 
-    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>")
-    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>")
+    @InvokeHandler(signature = {
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction)>",
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedAction,java.security.AccessControlContext)>"})
     public List<Stmt> doPrivilegedPA(Invoke invoke) {
         return doPrivileged(invoke, privilegedActionRun);
     }
 
-    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>")
-    @InvokeHandler(signature = "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>")
+    @InvokeHandler(signature = {
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>",
+            "<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction,java.security.AccessControlContext)>"})
     public List<Stmt> doPrivilegedPEA(Invoke invoke) {
         return doPrivileged(invoke, privilegedExceptionActionRun);
     }

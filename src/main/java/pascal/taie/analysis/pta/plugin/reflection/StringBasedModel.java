@@ -48,8 +48,10 @@ public class StringBasedModel extends InferenceModel {
         // nothing to do
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String)>", argIndexes = {0})
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>", argIndexes = {0})
+    @InvokeHandler(signature = {
+            "<java.lang.Class: java.lang.Class forName(java.lang.String)>",
+            "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>"},
+            argIndexes = {0})
     public void classForName(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
@@ -58,8 +60,10 @@ public class StringBasedModel extends InferenceModel {
         pts.forEach(obj -> classForNameKnown(context, invoke, CSObjs.toString(obj)));
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>", argIndexes = {BASE})
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>", argIndexes = {BASE})
+    @InvokeHandler(signature = {
+            "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>",
+            "<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>"},
+            argIndexes = {BASE})
     public void classGetConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
@@ -68,8 +72,10 @@ public class StringBasedModel extends InferenceModel {
         pts.forEach(obj -> classGetConstructorKnown(context, invoke, CSObjs.toClass(obj)));
     }
 
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>", argIndexes = {BASE, 0})
-    @InvokeHandler(signature = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>", argIndexes = {BASE, 0})
+    @InvokeHandler(signature = {
+            "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>",
+            "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>"},
+            argIndexes = {BASE, 0})
     public void classGetMethod(CSVar csVar, PointsToSet pts, Invoke invoke) {
         if (invokesWithLog.contains(invoke)) {
             return;
