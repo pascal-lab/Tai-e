@@ -20,14 +20,8 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.util;
+package pascal.taie.language.classes;
 
-import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassMember;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
@@ -36,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Static utility methods for reflection analysis.
+ * Static utility methods for modeling the behaviors of reflection APIs.
  */
 public final class Reflections {
 
@@ -98,12 +92,5 @@ public final class Reflections {
             jclass = jclass.getSuperClass();
         }
         return methods.stream();
-    }
-
-    public static String getShortName(Invoke invoke) {
-        MethodRef ref = invoke.getMethodRef();
-        String className = ref.getDeclaringClass().getSimpleName();
-        String methodName = ref.getName();
-        return className + "." + methodName;
     }
 }

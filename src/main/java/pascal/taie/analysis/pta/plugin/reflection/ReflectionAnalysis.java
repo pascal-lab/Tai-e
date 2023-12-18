@@ -36,9 +36,9 @@ import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.Model;
-import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
@@ -78,6 +78,16 @@ public class ReflectionAnalysis implements Plugin {
     private Model othersModel;
 
     private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
+
+    /**
+     * @return short name of reflection API in given {@link Invoke}.
+     */
+    public static String getShortName(Invoke invoke) {
+        MethodRef ref = invoke.getMethodRef();
+        String className = ref.getDeclaringClass().getSimpleName();
+        String methodName = ref.getName();
+        return className + "." + methodName;
+    }
 
     @Override
     public void setSolver(Solver solver) {
@@ -225,7 +235,7 @@ public class ReflectionAnalysis implements Plugin {
                             .thenComparing(MapEntry::getKey))
                     .forEach(e -> {
                         Invoke invoke = e.getKey();
-                        String shortName = Reflections.getShortName(invoke);
+                        String shortName = getShortName(invoke);
                         logger.info("[{}]{}, #targets: {}",
                                 shortName, invoke, e.getValue().size());
                     });

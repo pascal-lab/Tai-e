@@ -36,7 +36,6 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.NullLiteral;
@@ -47,6 +46,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Reflections;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -342,7 +342,7 @@ public class SolarModel extends InferenceModel {
         if (!unsoundInvokes.isEmpty()) {
             logger.info("Unsound reflective calls:");
             unsoundInvokes.forEach(invoke ->
-                    logger.info("[{}]{}", Reflections.getShortName(invoke), invoke));
+                    logger.info("[{}]{}", ReflectionAnalysis.getShortName(invoke), invoke));
         }
     }
     // ---------- Implementation of annotation guidance (ends) ----------

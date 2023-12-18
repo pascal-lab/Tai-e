@@ -28,13 +28,13 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
-import pascal.taie.analysis.pta.plugin.util.Reflections;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.MethodHandle;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Reflections;
 
 import java.util.List;
 import java.util.function.BiFunction;
