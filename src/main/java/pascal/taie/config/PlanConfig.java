@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Configuration for an analysis to be executed.
@@ -114,15 +115,12 @@ public class PlanConfig {
                 .stream()
                 .map(entry -> {
                     String id = entry.getKey();
-                    // Convert option string to a valid YAML string
-                    String opts = entry.getValue()
-                            .replace(';', '\n')
-                            .replace(":", ": ");
+                    String optStr = toYAMLString(entry.getValue());
                     try {
-                        Map<String, Object> optsMap = opts.isEmpty() ?
-                                Map.of() :
+                        Map<String, Object> optsMap = optStr.isBlank()
+                                ? Map.of()
                                 // Leverage Jackson to parse YAML string to Map
-                                mapper.readValue(opts, mapType);
+                                : mapper.readValue(optStr, mapType);
                         return new PlanConfig(id, new AnalysisOptions(optsMap));
                     } catch (JsonProcessingException e) {
                         throw new ConfigException("Invalid analysis options: " +
@@ -130,6 +128,25 @@ public class PlanConfig {
                     }
                 })
                 .toList();
+    }
+
+    /**
+     * Converts option string to a valid YAML string.
+     * The option string is of format "key1:value1;key2:value2;...".
+     */
+    private static String toYAMLString(String optValue) {
+        if (optValue.isBlank()) {
+            return optValue;
+        }
+        StringJoiner joiner = new StringJoiner("\n");
+        for (String keyValue : optValue.split(";")) {
+            if (!keyValue.isBlank()) {
+                int i = keyValue.indexOf(':'); // split keyValue
+                joiner.add(keyValue.substring(0, i) + ": "
+                        + keyValue.substring(i + 1));
+            }
+        }
+        return joiner.toString();
     }
 
     /**
