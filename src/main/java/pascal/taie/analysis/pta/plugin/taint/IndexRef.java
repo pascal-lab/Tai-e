@@ -25,7 +25,8 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JField;
 
-record TransferPoint(Kind kind, int index, JField field) {
+record IndexRef(Kind kind, int index, JField field)
+        implements Comparable<IndexRef> {
 
     static final String ARRAY_SUFFIX = "[*]";
 
@@ -35,8 +36,13 @@ record TransferPoint(Kind kind, int index, JField field) {
 
     @Override
     public JField field() {
-        assert kind == Kind.FIELD : "Not a FIELD TransferPoint";
         return field;
+    }
+
+    @Override
+    public int compareTo(IndexRef other) {
+        int cmp = index - other.index;
+        return cmp != 0 ? cmp : kind.compareTo(other.kind);
     }
 
     @Override

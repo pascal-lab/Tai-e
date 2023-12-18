@@ -117,8 +117,8 @@ class TransferHandler extends OnFlyHandler {
     }
 
     private void processTransfer(Context context, Invoke callSite, TaintTransfer transfer) {
-        TransferPoint from = transfer.from();
-        TransferPoint to = transfer.to();
+        IndexRef from = transfer.from();
+        IndexRef to = transfer.to();
         Var toVar = InvokeUtils.getVar(callSite, to.index());
         if (toVar == null) {
             return;
@@ -126,7 +126,7 @@ class TransferHandler extends OnFlyHandler {
         Var fromVar = InvokeUtils.getVar(callSite, from.index());
         CSVar csFrom = csManager.getCSVar(context, fromVar);
         CSVar csTo = csManager.getCSVar(context, toVar);
-        if (from.kind() == TransferPoint.Kind.VAR) { // Var -> Var/Array/Field
+        if (from.kind() == IndexRef.Kind.VAR) { // Var -> Var/Array/Field
             Kind kind = switch (to.kind()) {
                 case VAR -> {
                     Transfer tf = getTransferFunction(transfer.type());
@@ -143,7 +143,7 @@ class TransferHandler extends OnFlyHandler {
                 transferInfos.put(toVar, info);
                 transferTaint(solver.getPointsToSetOf(csTo), context, info);
             }
-        } else if (to.kind() == TransferPoint.Kind.VAR) { // Array/Field -> Var
+        } else if (to.kind() == IndexRef.Kind.VAR) { // Array/Field -> Var
             Kind kind = switch (from.kind()) {
                 case ARRAY -> Kind.ARRAY_TO_VAR;
                 case FIELD -> Kind.FIELD_TO_VAR;
@@ -166,7 +166,7 @@ class TransferHandler extends OnFlyHandler {
         // pointers whose objects flow to "to", i.e., back propagation.
         if (enableBackPropagate
                 && to.index() != InvokeUtils.RESULT
-                && to.kind() == TransferPoint.Kind.VAR
+                && to.kind() == IndexRef.Kind.VAR
                 && !(to.index() == InvokeUtils.BASE
                 && transfer.method().isConstructor())) {
             backPropagateTaint(toVar, context);

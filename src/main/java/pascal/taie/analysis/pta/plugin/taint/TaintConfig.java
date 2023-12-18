@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static pascal.taie.analysis.pta.plugin.taint.TransferPoint.ARRAY_SUFFIX;
+import static pascal.taie.analysis.pta.plugin.taint.IndexRef.ARRAY_SUFFIX;
 
 /**
  * Configuration for taint analysis.
@@ -352,8 +352,8 @@ record TaintConfig(List<Source> sources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        TransferPoint from = toTransferPoint(method, elem.get("from").asText());
-                        TransferPoint to = toTransferPoint(method, elem.get("to").asText());
+                        IndexRef from = toIndexRef(method, elem.get("from").asText());
+                        IndexRef to = toIndexRef(method, elem.get("to").asText());
                         JsonNode typeNode = elem.get("type");
                         Type type;
                         if (typeNode != null) {
@@ -379,22 +379,22 @@ record TaintConfig(List<Source> sources,
             }
         }
 
-        private TransferPoint toTransferPoint(JMethod method, String text) {
-            TransferPoint.Kind kind;
+        private IndexRef toIndexRef(JMethod method, String text) {
+            IndexRef.Kind kind;
             String indexStr;
             if (text.endsWith(ARRAY_SUFFIX)) {
-                kind = TransferPoint.Kind.ARRAY;
+                kind = IndexRef.Kind.ARRAY;
                 indexStr = text.substring(0, text.length() - ARRAY_SUFFIX.length());
             } else if (text.contains(".")) {
-                kind = TransferPoint.Kind.FIELD;
+                kind = IndexRef.Kind.FIELD;
                 indexStr = text.substring(0, text.indexOf('.'));
             } else {
-                kind = TransferPoint.Kind.VAR;
+                kind = IndexRef.Kind.VAR;
                 indexStr = text;
             }
             int index = InvokeUtils.toInt(indexStr);
             JField field = null;
-            if (kind == TransferPoint.Kind.FIELD) {
+            if (kind == IndexRef.Kind.FIELD) {
                 Type varType = getMethodType(method, index);
                 String fieldName = text.substring(text.indexOf('.') + 1);
                 if (varType instanceof ClassType classType) {
@@ -407,10 +407,12 @@ record TaintConfig(List<Source> sources,
                         clazz = clazz.getSuperClass();
                     }
                 }
-                assert field != null
-                        : "Cannot find field '" + fieldName + "' in type " + varType;
+                if (field == null) {
+                    throw new ConfigException(
+                            "Cannot find field '" + fieldName + "' in type " + varType);
+                }
             }
-            return new TransferPoint(kind, index, field);
+            return new IndexRef(kind, index, field);
         }
 
         /**
