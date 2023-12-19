@@ -209,9 +209,12 @@ class SourceHandler extends OnFlyHandler {
                 IndexRef indexRef = source.indexRef();
                 Var param = ir.getParam(indexRef.index());
                 SourcePoint sourcePoint = new ParamSourcePoint(method, indexRef);
-                Type type = source.type();
-                Obj taint = manager.makeTaint(sourcePoint, type);
-                solver.addVarPointsTo(context, param, taint);
+                Obj taint = manager.makeTaint(sourcePoint, source.type());
+                switch (indexRef.kind()) {
+                    case VAR -> solver.addVarPointsTo(context, param, taint);
+                    case ARRAY, FIELD -> sourceInfos.put(
+                            param, new SourceInfo(indexRef, taint));
+                }
             });
         }
     }
