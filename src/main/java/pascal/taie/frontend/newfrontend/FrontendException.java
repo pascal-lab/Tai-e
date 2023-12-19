@@ -5,7 +5,7 @@ package pascal.taie.frontend.newfrontend;
  */
 public class FrontendException extends RuntimeException {
 
-    FrontendException(String msg) {
+    public FrontendException(String msg) {
         super(msg);
     }
 
