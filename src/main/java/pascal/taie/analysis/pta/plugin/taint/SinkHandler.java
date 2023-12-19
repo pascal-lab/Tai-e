@@ -51,15 +51,15 @@ class SinkHandler extends Handler {
         PointerAnalysisResult result = solver.getResult();
         Set<TaintFlow> taintFlows = Sets.newOrderedSet();
         sinks.forEach(sink -> {
-            int i = sink.indexRef().index();
+            IndexRef indexRef = sink.indexRef();
             result.getCallGraph()
                     .edgesInTo(sink.method())
                     // TODO: handle other call edges
                     .filter(e -> e.getKind() != CallKind.OTHER)
                     .map(Edge::getCallSite)
                     .forEach(sinkCall -> {
-                        Var arg = InvokeUtils.getVar(sinkCall, i);
-                        SinkPoint sinkPoint = new SinkPoint(sinkCall, i);
+                        Var arg = InvokeUtils.getVar(sinkCall, indexRef.index());
+                        SinkPoint sinkPoint = new SinkPoint(sinkCall, indexRef);
                         result.getPointsToSet(arg)
                                 .stream()
                                 .filter(manager::isTaint)
@@ -82,9 +82,9 @@ class SinkHandler extends Handler {
                             return;
                         }
                         for (Sink sink : sinkMap.get(callee)) {
-                            int i = sink.indexRef().index();
-                            Var arg = InvokeUtils.getVar(callSite, i);
-                            SinkPoint sinkPoint = new SinkPoint(callSite, i);
+                            IndexRef indexRef = sink.indexRef();
+                            Var arg = InvokeUtils.getVar(callSite, indexRef.index());
+                            SinkPoint sinkPoint = new SinkPoint(callSite, indexRef);
                             result.getPointsToSet(arg)
                                     .stream()
                                     .filter(manager::isTaint)

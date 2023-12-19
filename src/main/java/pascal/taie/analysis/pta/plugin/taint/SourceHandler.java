@@ -96,21 +96,6 @@ class SourceHandler extends OnFlyHandler {
     }
 
     /**
-     * Generates taint objects from call sources.
-     */
-    private void processCallSource(Context context, Invoke callSite, CallSource source) {
-        IndexRef indexRef = source.indexRef();
-        int index = indexRef.index();
-        if (InvokeUtils.RESULT == index && callSite.getLValue() == null) {
-            return;
-        }
-        Var var = InvokeUtils.getVar(callSite, index);
-        SourcePoint sourcePoint = new CallSourcePoint(callSite, index);
-        Obj taint = manager.makeTaint(sourcePoint, source.type());
-        solver.addVarPointsTo(context, var, taint);
-    }
-
-    /**
      * Handles call sources.
      */
     @Override
@@ -125,6 +110,21 @@ class SourceHandler extends OnFlyHandler {
             sources.forEach(source -> processCallSource(context, callSite, source));
         }
 
+    }
+
+    /**
+     * Generates taint objects from call sources.
+     */
+    private void processCallSource(Context context, Invoke callSite, CallSource source) {
+        IndexRef indexRef = source.indexRef();
+        int index = indexRef.index();
+        if (InvokeUtils.RESULT == index && callSite.getLValue() == null) {
+            return;
+        }
+        Var var = InvokeUtils.getVar(callSite, index);
+        SourcePoint sourcePoint = new CallSourcePoint(callSite, indexRef);
+        Obj taint = manager.makeTaint(sourcePoint, source.type());
+        solver.addVarPointsTo(context, var, taint);
     }
 
     @Override
@@ -168,9 +168,9 @@ class SourceHandler extends OnFlyHandler {
             Context context = csMethod.getContext();
             IR ir = method.getIR();
             paramSources.get(method).forEach(source -> {
-                int index = source.indexRef().index();
-                Var param = ir.getParam(index);
-                SourcePoint sourcePoint = new ParamSourcePoint(method, index);
+                IndexRef indexRef = source.indexRef();
+                Var param = ir.getParam(indexRef.index());
+                SourcePoint sourcePoint = new ParamSourcePoint(method, indexRef);
                 Type type = source.type();
                 Obj taint = manager.makeTaint(sourcePoint, type);
                 solver.addVarPointsTo(context, param, taint);

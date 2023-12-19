@@ -30,11 +30,12 @@ import java.util.Comparator;
 /**
  * A {@code ParamSourcePoint} is a parameter of a method.
  */
-public record ParamSourcePoint(JMethod sourceMethod, int index) implements SourcePoint {
+public record ParamSourcePoint(JMethod sourceMethod, IndexRef indexRef)
+        implements SourcePoint {
 
     private static final Comparator<ParamSourcePoint> COMPARATOR =
             Comparator.comparing((ParamSourcePoint psp) -> psp.sourceMethod.toString())
-                    .thenComparingInt(ParamSourcePoint::index);
+                    .thenComparing(ParamSourcePoint::indexRef);
 
     @Override
     public int compareTo(@Nonnull SourcePoint sp) {
@@ -56,6 +57,6 @@ public record ParamSourcePoint(JMethod sourceMethod, int index) implements Sourc
 
     @Override
     public String toString() {
-        return sourceMethod + "/" + index;
+        return sourceMethod + "/" + indexRef;
     }
 }

@@ -98,11 +98,13 @@ class TFGBuilder {
                 .forEach(p -> {
                     Var sourceVar = null;
                     if (p instanceof CallSourcePoint csp) {
+                        // TODO - handler FIELD and ARRAY IndexRef
                         sourceVar = InvokeUtils.getVar(
-                                csp.sourceCall(), csp.index());
+                                csp.sourceCall(), csp.indexRef().index());
                     } else if (p instanceof ParamSourcePoint psp) {
+                        // TODO - handler FIELD and ARRAY IndexRef
                         sourceVar = psp.sourceMethod().getIR()
-                                .getParam(psp.index());
+                                .getParam(psp.indexRef().index());
                     } else if (p instanceof FieldSourcePoint fsp) {
                         sourceVar = fsp.loadField().getLValue();
                     }
@@ -116,7 +118,9 @@ class TFGBuilder {
         Set<Node> sinkNodes = Sets.newHybridSet();
         taintFlows.forEach(taintFlow -> {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
-            Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(), sinkPoint.index());
+            // TODO - handler FIELD and ARRAY IndexRef
+            Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(),
+                    sinkPoint.indexRef().index());
             sinkNodes.add(ofg.getVarNode(sinkVar));
         });
         logger.info("Sink nodes:");
