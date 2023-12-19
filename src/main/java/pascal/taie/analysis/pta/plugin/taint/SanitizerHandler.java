@@ -42,8 +42,6 @@ class SanitizerHandler extends OnFlyHandler {
 
     private final MultiMap<JMethod, ParamSanitizer> paramSanitizers = Maps.newMultiMap();
 
-    private final CSManager csManager;
-
     /**
      * Used to filter out taint objects from points-to set.
      */
@@ -51,7 +49,6 @@ class SanitizerHandler extends OnFlyHandler {
 
     SanitizerHandler(HandlerContext context) {
         super(context);
-        csManager = solver.getCSManager();
         taintFilter = o -> !context.manager().isTaint(o.getObject());
         context.config().paramSanitizers()
                 .forEach(s -> this.paramSanitizers.put(s.method(), s));

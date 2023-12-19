@@ -64,8 +64,6 @@ class TransferHandler extends OnFlyHandler {
 
     private static final Logger logger = LogManager.getLogger(TransferHandler.class);
 
-    private final CSManager csManager;
-
     private final Context emptyContext;
 
     /**
@@ -110,7 +108,6 @@ class TransferHandler extends OnFlyHandler {
 
     TransferHandler(HandlerContext context) {
         super(context);
-        csManager = solver.getCSManager();
         emptyContext = solver.getContextSelector().getEmptyContext();
         context.config().transfers()
                 .forEach(t -> this.transfers.put(t.method(), t));
