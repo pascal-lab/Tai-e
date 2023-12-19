@@ -243,13 +243,13 @@ record TaintConfig(List<Source> sources,
             String methodSig = node.get("method").asText();
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
-                int index = InvokeUtils.toInt(node.get("index").asText());
+                IndexRef indexRef = toIndexRef(method, node.get("index").asText());
                 JsonNode typeNode = node.get("type");
                 Type type = (typeNode != null)
                         ? typeSystem.getType(typeNode.asText())
                         // type not given, retrieve it from method signature
-                        : getMethodType(method, index);
-                return new CallSource(method, index, type);
+                        : getMethodType(method, indexRef.index());
+                return new CallSource(method, indexRef, type);
             } else {
                 // if the method (given in config file) is absent in
                 // the class hierarchy, just ignore it.
@@ -263,13 +263,13 @@ record TaintConfig(List<Source> sources,
             String methodSig = node.get("method").asText();
             JMethod method = hierarchy.getMethod(methodSig);
             if (method != null) {
-                int index = InvokeUtils.toInt(node.get("index").asText());
+                IndexRef indexRef = toIndexRef(method, node.get("index").asText());
                 JsonNode typeNode = node.get("type");
                 Type type = (typeNode != null)
                         ? typeSystem.getType(typeNode.asText())
                         // type not given, retrieve it from method signature
-                        : getMethodType(method, index);
-                return new ParamSource(method, index, type);
+                        : getMethodType(method, indexRef.index());
+                return new ParamSource(method, indexRef, type);
             } else {
                 // if the method (given in config file) is absent in
                 // the class hierarchy, just ignore it.
@@ -323,8 +323,8 @@ record TaintConfig(List<Source> sources,
                     if (method != null) {
                         // if the method (given in config file) is absent in
                         // the class hierarchy, just ignore it.
-                        int index = InvokeUtils.toInt(elem.get("index").asText());
-                        sinks.add(new Sink(method, index));
+                        IndexRef indexRef = toIndexRef(method, elem.get("index").asText());
+                        sinks.add(new Sink(method, indexRef));
                     } else {
                         logger.warn("Cannot find sink method '{}'", methodSig);
                     }

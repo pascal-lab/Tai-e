@@ -33,9 +33,7 @@ import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Handles sinks in taint analysis.
@@ -53,7 +51,7 @@ class SinkHandler extends Handler {
         PointerAnalysisResult result = solver.getResult();
         Set<TaintFlow> taintFlows = Sets.newOrderedSet();
         sinks.forEach(sink -> {
-            int i = sink.index();
+            int i = sink.indexRef().index();
             result.getCallGraph()
                     .edgesInTo(sink.method())
                     // TODO: handle other call edges
@@ -84,7 +82,7 @@ class SinkHandler extends Handler {
                             return;
                         }
                         for (Sink sink : sinkMap.get(callee)) {
-                            int i = sink.index();
+                            int i = sink.indexRef().index();
                             Var arg = InvokeUtils.getVar(callSite, i);
                             SinkPoint sinkPoint = new SinkPoint(callSite, i);
                             result.getPointsToSet(arg)
