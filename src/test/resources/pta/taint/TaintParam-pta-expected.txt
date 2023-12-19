@@ -1,18 +1,38 @@
 Points-to sets of all variables
+[]:<A: void <init>()>/%this -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
+[]:<TaintParam: void arrayParam(java.lang.String[])>/taints -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}]
+[]:<TaintParam: void arrayParam(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged string constants>}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
+[]:<TaintParam: void fieldParam(A)>/a1 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
+[]:<TaintParam: void fieldParam(A)>/taint -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
+[]:<TaintParam: void main(java.lang.String[])>/%stringconst2 -> [[]:MergedObj{<Merged string constants>}]
+[]:<TaintParam: void main(java.lang.String[])>/%stringconst3 -> [[]:MergedObj{<Merged string constants>}]
 []:<TaintParam: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}]
-[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/noTaint -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}]
-[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/sa1 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
-[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/sa2 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
-[]:<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/taint -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
-[]:<TaintParam: void sink(java.lang.String[])>/sa -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
+[]:<TaintParam: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}]
+[]:<TaintParam: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
+[]:<TaintParam: void sink(A)>/a -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
+[]:<TaintParam: void sink(java.lang.String)>/sa -> [[]:MergedObj{<Merged string constants>}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}, []:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
+[]:<TaintParam: void sink(java.lang.String[])>/sa -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}, []:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/noTaint -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
+[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/sa1 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/sa2 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/taint -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}.f -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintParam: void main(java.lang.String[])>}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged string constants>}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}[*] -> [[]:MergedObj{<Merged string constants>}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
+[]:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}[*] -> []
 
-Detected 1 taint flow(s):
-TaintFlow{<TaintParam: void paramSource(java.lang.String[],java.lang.String[])>/0 -> <TaintParam: void paramSource(java.lang.String[],java.lang.String[])>[2@L10] invokestatic TaintParam.sink(sa2)/0}
+Detected 5 taint flow(s):
+TaintFlow{<TaintParam: void arrayParam(java.lang.String[])>/0[*] -> <TaintParam: void arrayParam(java.lang.String[])>[2@L16] invokestatic TaintParam.sink(temp$2)/0}
+TaintFlow{<TaintParam: void arrayParam(java.lang.String[])>/0[*] -> <TaintParam: void arrayParam(java.lang.String[])>[3@L17] invokestatic TaintParam.sink(taints)/0[*]}
+TaintFlow{<TaintParam: void fieldParam(A)>/0.f -> <TaintParam: void fieldParam(A)>[1@L22] invokestatic TaintParam.sink(taint)/0}
+TaintFlow{<TaintParam: void fieldParam(A)>/0.f -> <TaintParam: void fieldParam(A)>[2@L23] invokestatic TaintParam.sink(a1)/0.f}
+TaintFlow{<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0 -> <TaintParam: void varParam(java.lang.String[],java.lang.String[])>[2@L11] invokestatic TaintParam.sink(sa2)/0}
 
