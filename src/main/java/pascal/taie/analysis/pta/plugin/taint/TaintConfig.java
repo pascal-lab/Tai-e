@@ -393,23 +393,31 @@ record TaintConfig(List<Source> sources,
                 indexStr = text;
             }
             int index = InvokeUtils.toInt(indexStr);
+            Type varType = getMethodType(method, index);
             JField field = null;
-            if (kind == IndexRef.Kind.FIELD) {
-                Type varType = getMethodType(method, index);
-                String fieldName = text.substring(text.indexOf('.') + 1);
-                if (varType instanceof ClassType classType) {
-                    JClass clazz = classType.getJClass();
-                    while (clazz != null) {
-                        field = clazz.getDeclaredField(fieldName);
-                        if (field != null) {
-                            break;
-                        }
-                        clazz = clazz.getSuperClass();
+            switch (kind) {
+                case ARRAY -> {
+                    if (!(varType instanceof ArrayType)) {
+                        throw new ConfigException(
+                                "Expected: array type, given: " + varType);
                     }
                 }
-                if (field == null) {
-                    throw new ConfigException(
-                            "Cannot find field '" + fieldName + "' in type " + varType);
+                case FIELD -> {
+                    String fieldName = text.substring(text.indexOf('.') + 1);
+                    if (varType instanceof ClassType classType) {
+                        JClass clazz = classType.getJClass();
+                        while (clazz != null) {
+                            field = clazz.getDeclaredField(fieldName);
+                            if (field != null) {
+                                break;
+                            }
+                            clazz = clazz.getSuperClass();
+                        }
+                    }
+                    if (field == null) {
+                        throw new ConfigException("Cannot find field '"
+                                + fieldName + "' in type " + varType);
+                    }
                 }
             }
             return new IndexRef(kind, index, field);

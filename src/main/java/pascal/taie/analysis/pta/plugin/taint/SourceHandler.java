@@ -27,8 +27,10 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -64,6 +66,11 @@ class SourceHandler extends OnFlyHandler {
      * Map from a source method to its parameter sources.
      */
     private final MultiMap<JMethod, ParamSource> paramSources = Maps.newMultiMap();
+
+    private record SourceInfo(IndexRef indexRef, Obj taint) {
+    }
+
+    private final MultiMap<Var, SourceInfo> sourceInfos = Maps.newMultiMap();
 
     /**
      * Whether this handler needs to handle field sources.
@@ -124,7 +131,38 @@ class SourceHandler extends OnFlyHandler {
         Var var = InvokeUtils.getVar(callSite, index);
         SourcePoint sourcePoint = new CallSourcePoint(callSite, indexRef);
         Obj taint = manager.makeTaint(sourcePoint, source.type());
-        solver.addVarPointsTo(context, var, taint);
+        switch (indexRef.kind()) {
+            case VAR -> solver.addVarPointsTo(context, var, taint);
+            case ARRAY, FIELD -> {
+                SourceInfo info = new SourceInfo(indexRef, taint);
+                sourceInfos.put(var, info);
+                CSVar csVar = csManager.getCSVar(context, var);
+                addArrayFieldTaint(solver.getPointsToSetOf(csVar), info);
+            }
+        }
+    }
+
+    private void addArrayFieldTaint(PointsToSet baseObjs, SourceInfo info) {
+        IndexRef indexRef = info.indexRef();
+        Obj taint = info.taint();
+        switch (indexRef.kind()) {
+            case ARRAY -> baseObjs.objects()
+                    .map(csManager::getArrayIndex)
+                    .forEach(arrayIndex -> solver.addPointsTo(arrayIndex, taint));
+            case FIELD -> {
+                JField f = indexRef.field();
+                baseObjs.objects()
+                        .map(o -> csManager.getInstanceField(o, f))
+                        .forEach(oDotF ->
+                                solver.addPointsTo(oDotF, taint));
+            }
+        }
+    }
+
+    @Override
+    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        sourceInfos.get(csVar.getVar())
+                .forEach(info -> addArrayFieldTaint(pts, info));
     }
 
     @Override
