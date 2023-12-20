@@ -35,6 +35,7 @@ import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -45,7 +46,9 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Taint flow graph builder.
@@ -90,41 +93,8 @@ class TFGBuilder {
      * Builds a complete taint flow graph.
      */
     private TaintFlowGraph buildComplete() {
-        // collect source nodes
-        Set<Node> sourceNodes = Sets.newHybridSet();
-        taintManager.getTaintObjs()
-                .stream()
-                .map(taintManager::getSourcePoint)
-                .forEach(p -> {
-                    Var sourceVar = null;
-                    if (p instanceof CallSourcePoint csp) {
-                        // TODO - handler FIELD and ARRAY IndexRef
-                        sourceVar = InvokeUtils.getVar(
-                                csp.sourceCall(), csp.indexRef().index());
-                    } else if (p instanceof ParamSourcePoint psp) {
-                        // TODO - handler FIELD and ARRAY IndexRef
-                        sourceVar = psp.sourceMethod().getIR()
-                                .getParam(psp.indexRef().index());
-                    } else if (p instanceof FieldSourcePoint fsp) {
-                        sourceVar = fsp.loadField().getLValue();
-                    }
-                    if (sourceVar != null) {
-                        sourceNodes.add(ofg.getVarNode(sourceVar));
-                    }
-                });
-        logger.info("Source nodes:");
-        sourceNodes.forEach(logger::info);
-        // collect sink nodes
-        Set<Node> sinkNodes = Sets.newHybridSet();
-        taintFlows.forEach(taintFlow -> {
-            SinkPoint sinkPoint = taintFlow.sinkPoint();
-            // TODO - handler FIELD and ARRAY IndexRef
-            Var sinkVar = InvokeUtils.getVar(sinkPoint.sinkCall(),
-                    sinkPoint.indexRef().index());
-            sinkNodes.add(ofg.getVarNode(sinkVar));
-        });
-        logger.info("Sink nodes:");
-        sinkNodes.forEach(logger::info);
+        Set<Node> sourceNodes = collectSourceNodes();
+        Set<Node> sinkNodes = collectSinkNode();
         // builds taint flow graph
         node2TaintSet = Maps.newMap();
         TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
@@ -146,6 +116,66 @@ class TFGBuilder {
         }
         node2TaintSet = null;
         return tfg;
+    }
+
+    private Set<Node> collectSourceNodes() {
+        Set<Node> sourceNodes = Sets.newLinkedSet();
+        for (Obj taintObj : taintManager.getTaintObjs()) {
+            SourcePoint p = taintManager.getSourcePoint(taintObj);
+            if (p instanceof CallSourcePoint csp) {
+                IndexRef indexRef = csp.indexRef();
+                Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
+                sourceNodes.addAll(getNodes(var, indexRef));
+            } else if (p instanceof ParamSourcePoint psp) {
+                IndexRef indexRef = psp.indexRef();
+                Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
+                sourceNodes.addAll(getNodes(var, indexRef));
+            } else if (p instanceof FieldSourcePoint fsp) {
+                Var lhs = fsp.loadField().getLValue();
+                Node sourceNode = ofg.getVarNode(lhs);
+                if (sourceNode != null) {
+                    sourceNodes.add(sourceNode);
+                }
+            }
+        }
+        logger.info("Source nodes:");
+        sourceNodes.forEach(logger::info);
+        return sourceNodes;
+    }
+
+    private Set<Node> collectSinkNode() {
+        Set<Node> sinkNodes = Sets.newLinkedSet();
+        taintFlows.forEach(taintFlow -> {
+            SinkPoint sinkPoint = taintFlow.sinkPoint();
+            IndexRef indexRef = sinkPoint.indexRef();
+            Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
+            sinkNodes.addAll(getNodes(var, indexRef));
+        });
+        logger.info("Sink nodes:");
+        sinkNodes.forEach(logger::info);
+        return sinkNodes;
+    }
+
+    private Set<Node> getNodes(Var baseVar, IndexRef indexRef) {
+        return switch (indexRef.kind()) {
+            case VAR -> {
+                Node node = ofg.getVarNode(baseVar);
+                yield node != null ? Set.of(node) : Set.of();
+            }
+            case ARRAY -> pta.getPointsToSet(baseVar)
+                    .stream()
+                    .map(ofg::getArrayIndexNode)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            case FIELD -> {
+                JField field = indexRef.field();
+                yield pta.getPointsToSet(baseVar)
+                        .stream()
+                        .map(o -> ofg.getInstanceFieldNode(o, field))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+            }
+        };
     }
 
     private List<FlowEdge> getOutEdges(Node source) {

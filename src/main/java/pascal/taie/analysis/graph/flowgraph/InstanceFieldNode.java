@@ -40,6 +40,6 @@ public class InstanceFieldNode extends InstanceNode {
 
     @Override
     public String toString() {
-        return "InstanceFieldNode{" + base + "." + field + "}";
+        return "InstanceFieldNode{" + base + "." + field.getName() + "}";
     }
 }

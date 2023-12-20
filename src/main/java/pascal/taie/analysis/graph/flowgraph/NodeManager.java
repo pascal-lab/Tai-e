@@ -63,12 +63,22 @@ public abstract class NodeManager implements Indexer<Node> {
         });
     }
 
+    @Nullable
+    public InstanceFieldNode getInstanceFieldNode(Obj base, JField field) {
+        return iField2Node.get(base, field);
+    }
+
     protected InstanceFieldNode getOrCreateInstanceFieldNode(Obj base, JField field) {
         return iField2Node.computeIfAbsent(base, field, (o, f) -> {
             InstanceFieldNode node = new InstanceFieldNode(o, f, nodeCounter++);
             nodes.add(node);
             return node;
         });
+    }
+
+    @Nullable
+    public ArrayIndexNode getArrayIndexNode(Obj array) {
+        return array2Node.get(array);
     }
 
     protected ArrayIndexNode getOrCreateArrayIndexNode(Obj array) {
