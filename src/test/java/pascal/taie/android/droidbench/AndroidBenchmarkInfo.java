@@ -33,20 +33,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 record AndroidBenchmarkInfo(String id,
                             String apk,
-                            String reflectionLog,
+                            String distinguishString,
+                            String onlyApp,
+                            String cs,
                             int expected) {
     @JsonCreator
     public AndroidBenchmarkInfo(
             @JsonProperty("id") String id,
             @JsonProperty("apk") String apk,
-            @JsonProperty("refl-log") String reflectionLog,
+            @JsonProperty("distinguishString") String distinguishString,
+            @JsonProperty("onlyApp") String onlyApp,
+            @JsonProperty("cs") String cs,
             @JsonProperty("expected") int expected) {
         this.id = id;
         this.apk = apk;
-        this.reflectionLog = reflectionLog;
+        this.distinguishString = Objects.requireNonNullElse(distinguishString, "app");
+        this.onlyApp = Objects.requireNonNullElse(onlyApp, "true");
+        this.cs = Objects.requireNonNullElse(cs, "ci");
         this.expected = expected;
     }
 

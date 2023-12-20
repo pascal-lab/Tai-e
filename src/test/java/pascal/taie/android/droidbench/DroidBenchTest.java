@@ -63,11 +63,12 @@ public class DroidBenchTest {
                 "-cp", BENCHMARK_HOME_PREFIX + info.apk(),
                 "-am");
         Map<String, String> ptaArgs = Map.of(
-                "distinguish-string-constants", "app",
+                "distinguish-string-constants", info.distinguishString(),
                 "merge-string-objects", "true",
-                "only-app", "true",
+                "only-app", info.onlyApp(),
                 "taint-config", TAINT_CONFIG,
-                "propagate-types", "[reference,int,long,double,char]"
+                "propagate-types", "[reference,int,long,double,char]",
+                "cs" , info.cs()
         );
         Collections.addAll(args,
                 "-a", "pta=" + ptaArgs.entrySet()
