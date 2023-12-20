@@ -27,3 +27,17 @@
 # The following class caused SootClassNotFoundException
 # for sun.security.ssl.SSLSocketImpl. TODO: fix this
 # - sun.net.www.protocol.https.Handler
+
+# Android system class
+- android.view.ContextThemeWrapper
+- android.app.Activity
+- android.content.BroadcastReceiver
+- android.app.Service
+- android.content.ContentProvider
+- android.app.Fragment
+- androidx.fragment.app.Fragment
+- android.app.ListFragment
+- android.view.View
+- android.app.Application
+- android.content.ServiceConnection
+- android.os.Handler
