@@ -1,12 +1,18 @@
 # Changelog
 
-## [Unreleased] - 2023-10-15
+## [Unreleased] - 2023-12-20
 
 ### New Features
 - Add side-effect analysis.
-
-### Changes
 - The options `--class-path` and `--app-class-path` can be repeated multiple times to specify multiple paths.
+- Pointer analysis
+  - Add `Plugin.onPhaseFinish()`.
+  - Support specifying multiple method signatures in one `@InvokeHandler` annotation.
+  - Add `getInfo()` to call graph edges and pointer flow edges.
+
+### Breaking Changes
+- API changes
+  - Change `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Type)` and `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Transfer)` to `Solver.addPFGEdge(PointerFlowEdge)` and related APIs.
 
 ## [0.2.2] - 2023-09-23
 
