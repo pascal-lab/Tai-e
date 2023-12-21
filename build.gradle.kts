@@ -24,7 +24,6 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
-    implementation(files("lib/soot-infoflow-android.jar"))
     implementation("xmlpull:xmlpull:1.1.3.4d_b4_min")
 
     // Use ASM to read Java class files
@@ -33,6 +32,8 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:2.0.7")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
+    // Use FlowDroid to parse apk
+    implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.10.0")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
