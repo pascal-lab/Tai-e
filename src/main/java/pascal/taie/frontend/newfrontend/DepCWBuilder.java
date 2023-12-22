@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -48,6 +49,8 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private ConcurrentMap<String, ClassSource> sourceMap;
 
+    private final ExecutorService executorService;
+
     private final CompletionService<Completed> completionService;
 
     private final boolean preBuildIR;
@@ -58,8 +61,8 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     public DepCWBuilder() {
         sourceMap = Maps.newConcurrentMap();
-        Executor executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-        completionService = new ExecutorCompletionService<>(executor);
+        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        completionService = new ExecutorCompletionService<>(executorService);
         preBuildIR = World.get().getOptions().isPreBuildIR();
     }
 
@@ -105,6 +108,9 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         } catch (IOException e) {
             // TODO: fail info
             throw new FrontendException(e.getMessage());
+        } finally {
+            // call it explicitly, or the program will not exit after main() returns
+            executorService.shutdown();
         }
     }
 
