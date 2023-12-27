@@ -102,11 +102,7 @@ public class TestAsmIRBuilder {
                 .forEach(i -> {
                     i.getDeclaredMethods()
                             .stream().filter(j -> j.getName().equals("p"))
-                            .forEach(m -> {
-                                for (var stmt : m.getIR().getStmts()) {
-                                    System.out.println(stmt);
-                                }
-                            });
+                            .forEach(m -> IRPrinter.print(m.getIR(), System.out));
                 });
     }
 

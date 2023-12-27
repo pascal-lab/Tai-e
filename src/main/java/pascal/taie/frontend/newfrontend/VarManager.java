@@ -48,6 +48,12 @@ public class VarManager implements IVarManager {
 
     private int counter;
 
+    private final int INT_CACHE_LOW = -128;
+
+    private final int INT_CACHE_HIGH = 127;
+
+    private final Var[] intConstVarCache;
+
     private final Var[] local2Var; // slot -> Var
 
     // parsedLocalVarTable :: slot -> (start(inclusive), end(exclusive)) -> VarNode
@@ -77,6 +83,7 @@ public class VarManager implements IVarManager {
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
+        this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
         this.local2Var = new Var[maxLocal];
         this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocal] : null;
         this.params = new ArrayList<>();
@@ -327,12 +334,29 @@ public class VarManager implements IVarManager {
     }
 
     public boolean peekConstVar(Literal literal) {
+        if (literal instanceof IntLiteral intLiteral
+                && INT_CACHE_LOW <= intLiteral.getValue()
+                && intLiteral.getValue() <= INT_CACHE_HIGH) {
+            return true;
+        }
         return blockConstCache.containsKey(literal);
     }
 
     public Var getConstVar(Literal literal) {
         if (literal instanceof NullLiteral) {
             return getNullLiteral();
+        } else if (literal instanceof IntLiteral intLiteral
+                && INT_CACHE_LOW <= intLiteral.getValue()
+                && intLiteral.getValue() <= INT_CACHE_HIGH) {
+            int value = intLiteral.getValue();
+            int index = value - INT_CACHE_LOW;
+            if (intConstVarCache[index] == null) {
+                String name = TEMP_PREFIX + "c" + "i" + value;
+                Var v = new Var(method, name, PrimitiveType.INT, counter++, IntLiteral.get(value));
+                intConstVarCache[index] = v;
+                vars.add(intConstVarCache[index]);
+            }
+            return intConstVarCache[index];
         } else {
             if (blockConstCache.containsKey(literal)) {
                 return blockConstCache.get(literal);

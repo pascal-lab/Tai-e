@@ -373,6 +373,9 @@ public class AsmIRBuilder {
         } else if (e instanceof FieldAccess access) {
             Type fieldType = access.getType();
             return fieldType == PrimitiveType.DOUBLE || fieldType == PrimitiveType.LONG;
+        } else if (e instanceof Var v && v.isConst()) {
+            Literal literal = v.getConstValue();
+            return literal instanceof DoubleLiteral || literal instanceof LongLiteral;
         }
 
         int opcode = node.getOpcode();
@@ -581,10 +584,6 @@ public class AsmIRBuilder {
             // note: if this code is reached, and `node` is `Ldc`,
             // pushExp cannot automatically push a `Top`
             pushExp(node, stack, manager.getConstVar(literal));
-            // TODO: ugly hack here, try to fix that
-            if (node instanceof LdcInsnNode && isDword(node, literal)) {
-                stack.push(TOP);
-            }
         } else {
             pushExp(node, stack, literal);
         }
