@@ -36,6 +36,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -112,10 +113,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setOptions(Options options) {
-        if (this.options != null) {
-            throw new IllegalStateException("Options already set");
-        }
-        this.options = options;
+        checkAndSet("options", options);
     }
 
     public TypeSystem getTypeSystem() {
@@ -123,10 +121,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setTypeSystem(TypeSystem typeSystem) {
-        if (this.typeSystem != null) {
-            throw new IllegalStateException("TypeSystem already set");
-        }
-        this.typeSystem = typeSystem;
+        checkAndSet("typeSystem", typeSystem);
     }
 
     public ClassHierarchy getClassHierarchy() {
@@ -134,10 +129,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setClassHierarchy(ClassHierarchy classHierarchy) {
-        if (this.classHierarchy != null) {
-            throw new IllegalStateException("ClassHierarchy already set");
-        }
-        this.classHierarchy = classHierarchy;
+        checkAndSet("classHierarchy", classHierarchy);
     }
 
     public IRBuilder getIRBuilder() {
@@ -145,7 +137,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setIRBuilder(IRBuilder irBuilder) {
-        this.irBuilder = irBuilder;
+        checkAndSet("irBuilder", irBuilder);
     }
 
     public NativeModel getNativeModel() {
@@ -153,7 +145,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setNativeModel(NativeModel nativeModel) {
-        this.nativeModel = nativeModel;
+        checkAndSet("nativeModel", nativeModel);
     }
 
     public JMethod getMainMethod() {
@@ -161,10 +153,7 @@ public final class World extends AbstractResultHolder
     }
 
     public void setMainMethod(JMethod mainMethod) {
-        if (this.mainMethod != null) {
-            throw new IllegalStateException("Main method already set");
-        }
-        this.mainMethod = mainMethod;
+        checkAndSet("mainMethod", mainMethod);
     }
 
     public Collection<JMethod> getImplicitEntries() {
@@ -172,7 +161,24 @@ public final class World extends AbstractResultHolder
     }
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
-        this.implicitEntries = implicitEntries;
+        checkAndSet("implicitEntries", implicitEntries);
+    }
+
+    /**
+     * Sets value for specified field (by {@code fieldName}).
+     * Ensures that the specified field is set at most once.
+     */
+    private void checkAndSet(String fieldName, Object value) {
+        try {
+            Field field = World.class.getDeclaredField(fieldName);
+            if (field.get(this) != null) {
+                throw new IllegalStateException(
+                        "World." + fieldName + " already set");
+            }
+            field.set(this, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Failed to set World." + fieldName);
+        }
     }
 
     @Serial
@@ -185,6 +191,6 @@ public final class World extends AbstractResultHolder
     private void readObject(ObjectInputStream s) throws IOException,
             ClassNotFoundException {
         s.defaultReadObject();
-        irBuilder = (IRBuilder) s.readObject();
+        setIRBuilder((IRBuilder) s.readObject());
     }
 }
