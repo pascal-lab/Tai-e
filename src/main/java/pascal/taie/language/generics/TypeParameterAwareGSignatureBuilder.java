@@ -47,7 +47,7 @@ abstract class TypeParameterAwareGSignatureBuilder extends SignatureVisitor {
 
     protected final Deque<State> stack = new ArrayDeque<>();
 
-    protected List<TypeParameter> typeParams = new ArrayList<>();
+    protected final List<TypeParameter> typeParams = new ArrayList<>();
 
     private TypeGSignatureBuilder typeGSigBuilder;
 
@@ -57,7 +57,7 @@ abstract class TypeParameterAwareGSignatureBuilder extends SignatureVisitor {
 
     private ReferenceTypeGSignature classBound;
 
-    private List<ReferenceTypeGSignature> interfaceBounds = new ArrayList<>();
+    private final List<ReferenceTypeGSignature> interfaceBounds = new ArrayList<>();
 
     TypeParameterAwareGSignatureBuilder() {
         super(GSignatures.API);
@@ -197,7 +197,7 @@ abstract class TypeParameterAwareGSignatureBuilder extends SignatureVisitor {
 
         VISIT_RETURN_TYPE,
 
-        VISIT_EXCEPTION_TYPE;
+        VISIT_EXCEPTION_TYPE,
     }
 
 }

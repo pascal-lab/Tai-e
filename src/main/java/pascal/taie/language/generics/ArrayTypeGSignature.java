@@ -26,8 +26,7 @@ package pascal.taie.language.generics;
 import pascal.taie.util.Experimental;
 
 /**
- * In <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-ArrayTypeSignature">
- * JVM Spec. 4.7.9.1 ArrayTypeSignature</a>,
+ * In <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-ArrayTypeSignature">JVM Spec. 4.7.9.1 ArrayTypeSignature</a>,
  * an <i>array type signature</i> represents one dimension of an array type.
  * For example, the bytecode signature and the corresponding Java generic are:
  * <ul>
@@ -60,11 +59,6 @@ public final class ArrayTypeGSignature implements ReferenceTypeGSignature {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(baseTypeGSig.toString());
-        for (int i = 0; i < dimensions; i++) {
-            sb.append("[]");
-        }
-        return sb.toString();
+        return baseTypeGSig + "[]".repeat(dimensions);
     }
 }

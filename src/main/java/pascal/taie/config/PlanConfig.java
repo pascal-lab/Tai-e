@@ -135,9 +135,6 @@ public class PlanConfig {
      * The option string is of format "key1:value1;key2:value2;...".
      */
     private static String toYAMLString(String optValue) {
-        if (optValue.isBlank()) {
-            return optValue;
-        }
         StringJoiner joiner = new StringJoiner("\n");
         for (String keyValue : optValue.split(";")) {
             if (!keyValue.isBlank()) {

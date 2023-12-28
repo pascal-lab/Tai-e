@@ -148,14 +148,12 @@ class TopologicalSolver {
             JMethod rep = CollectionUtils.getOne(sccNodes);
             mods.addAll(sccDirectMods.get(rep));
             // add callees' mods
-            sccNodes.forEach(m -> {
-                callGraph.getCalleesOfM(m)
-                        .stream()
-                        // avoid redundantly adding SCC direct mods
-                        .filter(callee -> !sccNodes.contains(callee))
-                        .forEach(callee -> mods.addAll(
-                                methodMods.getOrDefault(callee, Set.of())));
-            });
+            sccNodes.forEach(m -> callGraph.getCalleesOfM(m)
+                    .stream()
+                    // avoid redundantly adding SCC direct mods
+                    .filter(callee -> !sccNodes.contains(callee))
+                    .forEach(callee -> mods.addAll(
+                            methodMods.getOrDefault(callee, Set.of()))));
             if (!mods.isEmpty()) {
                 sccNodes.forEach(m -> methodMods.put(m, mods));
             }

@@ -39,7 +39,7 @@ import java.util.Set;
 
 public class CloneIdiom extends ClassAnalysis<Set<BugInstance>> {
 
-    public static String ID = "clone-idiom";
+    public static final String ID = "clone-idiom";
 
     public CloneIdiom(AnalysisConfig config) {
         super(config);

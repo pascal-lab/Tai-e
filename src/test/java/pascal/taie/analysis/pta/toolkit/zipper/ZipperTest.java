@@ -36,7 +36,6 @@ import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultExImpl;
 import pascal.taie.util.graph.DotDumper;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 public class ZipperTest {
 

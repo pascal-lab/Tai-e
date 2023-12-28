@@ -90,7 +90,7 @@ public final class TypeArgument implements Serializable {
 
         private final char symbol;
 
-        private Kind(char symbol) {
+        Kind(char symbol) {
             this.symbol = symbol;
         }
 

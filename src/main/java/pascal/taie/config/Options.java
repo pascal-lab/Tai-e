@@ -23,7 +23,6 @@
 package pascal.taie.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -452,7 +451,7 @@ public class Options implements Serializable {
 
         @Override
         public File deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JacksonException {
+                throws IOException {
             return new PlaceholderAwareFile(p.getValueAsString());
         }
     }
@@ -462,7 +461,7 @@ public class Options implements Serializable {
      */
     private static class ClassPathConverter implements CommandLine.ITypeConverter<List<String>> {
         @Override
-        public List<String> convert(String value) throws Exception {
+        public List<String> convert(String value) {
             return Arrays.stream(value.split(File.pathSeparator))
                     .map(String::trim)
                     .filter(Predicate.not(String::isEmpty))
