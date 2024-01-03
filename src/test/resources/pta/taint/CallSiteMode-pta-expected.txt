@@ -1,7 +1,7 @@
 Points-to sets of all variables
 []:<CallSiteMode: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<CallSiteMode: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallSiteMode: void main(java.lang.String[])>}]
-[]:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst0 -> [[]:MergedObj{<Merged string constants>}]
-[]:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst1 -> [[]:MergedObj{<Merged string constants>}]
+[]:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst0 -> [[]:ConstantObj{java.lang.String: "select * from users where id = '"}]
+[]:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/%stringconst1 -> [[]:ConstantObj{java.lang.String: "'"}]
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/input -> [[]:TaintObj{alloc=<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>[0@L8] temp$0 = invokeinterface source.getSource()/result,type=java.lang.String}]
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/rs -> []
 []:<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>/sb -> [[]:TaintObj{alloc=<CallSiteMode: void testConnection(Source,StringBuilder,Connection)>[0@L8] temp$0 = invokeinterface source.getSource()/result,type=StringBuilder}]

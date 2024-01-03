@@ -168,16 +168,24 @@ public final class Tests {
             ptaArgs.add(GENERATE_EXPECTED_RESULTS ? "dump:true"
                     : "expected-file:" + expectedFile);
         }
-        boolean specifyOnlyApp = false;
+        boolean specifyOnlyApp = false, specifyStringConstant = false;
         for (String opt : opts) {
             ptaArgs.add(opt);
             if (opt.contains("only-app")) {
                 specifyOnlyApp = true;
             }
+            if (opt.contains("distinguish-string-constants")) {
+                specifyStringConstant = true;
+            }
         }
         if (!specifyOnlyApp) {
-            // if given options do not specify only-app, then set it true
+            // if given options do not specify only-app, then set it to "true"
             ptaArgs.add("only-app:true");
+        }
+        if (!specifyStringConstant) {
+            // if given options do not specify distinguish-string-constants,
+            // then set it to "all"
+            ptaArgs.add("distinguish-string-constants:all");
         }
         Collections.addAll(args, "-a", id + "=" + String.join(";", ptaArgs));
         Main.main(args.toArray(new String[0]));
