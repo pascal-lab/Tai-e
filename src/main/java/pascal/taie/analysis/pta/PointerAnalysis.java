@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.solver.DefaultSolver;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
+import pascal.taie.analysis.pta.plugin.AssertionChecker;
 import pascal.taie.analysis.pta.plugin.ClassInitializer;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.EntryPointHandler;
@@ -153,6 +154,9 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         }
         if (options.getString("taint-config") != null) {
             plugin.addPlugin(new TaintAnalysis());
+        }
+        if (AssertionChecker.isEnablePTAAssertion()) {
+            plugin.addPlugin(new AssertionChecker());
         }
         plugin.addPlugin(new ResultProcessor());
         // add plugins specified in options

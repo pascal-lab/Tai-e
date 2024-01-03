@@ -154,7 +154,11 @@ public final class Tests {
         String id = PointerAnalysis.ID;
         List<String> args = new ArrayList<>();
         args.add("-pp");
-        String classPath = "src/test/resources/pta/" + dir;
+        // for loading class PTAAssert
+        String ptaTestRoot = "src/test/resources/pta";
+        Collections.addAll(args, "-cp", ptaTestRoot);
+        // for loading main class
+        String classPath = ptaTestRoot + "/" + dir;
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         if (DUMP_IR) {
