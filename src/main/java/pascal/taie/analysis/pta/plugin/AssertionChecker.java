@@ -23,13 +23,39 @@
 package pascal.taie.analysis.pta.plugin;
 
 import pascal.taie.World;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AssertionChecker implements Plugin {
 
     private static final String PTA_ASSERT = "PTAAssert";
 
     private Solver solver;
+
+    private ClassHierarchy hierarchy;
+
+    private Map<JMethod, Consumer<Invoke>> checkers;
+
+    private PointerAnalysisResult pta;
+
+    private CallGraph<Invoke, JMethod> callGraph;
+
+    private List<Invoke> failures;
+
+    public static boolean isEnablePTAAssertion() {
+        return World.get().getClassHierarchy().getClass(PTA_ASSERT) != null;
+    }
 
     @Override
     public void setSolver(Solver solver) {
@@ -38,10 +64,38 @@ public class AssertionChecker implements Plugin {
 
     @Override
     public void onFinish() {
-        // TODO: implements the checker
+        hierarchy = solver.getHierarchy();
+        registerCheckers();
+        pta = solver.getResult();
+        callGraph = pta.getCallGraph();
+        failures = new ArrayList<>();
+        for (JMethod assertApi : checkers.keySet()) {
+            for (Invoke invoke : callGraph.getCallersOf(assertApi)) {
+                checkAssertion(invoke, assertApi);
+            }
+        }
+        if (!failures.isEmpty()) {
+            String message = "Pointer analysis assertion failures:\n" +
+                    failures.stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.joining("\n"));
+            throw new AssertionError(message);
+        }
     }
 
-    public static boolean isEnablePTAAssertion() {
-        return World.get().getClassHierarchy().getClass(PTA_ASSERT) != null;
+    private void registerCheckers() {
+        checkers = Maps.newLinkedHashMap();
+    }
+
+    /**
+     * Registers a checker.
+     */
+    private void register(String assertApiSig, Consumer<Invoke> checker) {
+        JMethod assertApi = hierarchy.getMethod(assertApiSig);
+        checkers.put(assertApi, checker);
+    }
+
+    private void checkAssertion(Invoke invoke, JMethod assertApi) {
+        checkers.get(assertApi).accept(invoke);
     }
 }
