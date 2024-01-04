@@ -30,12 +30,14 @@ public final class PTAAssert {
 
     /**
      * Asserts that |pt(x)| = size.
+     * NOTE: {@code size} must be an integer constant.
      */
     public static void sizeEquals(Object x, int size) {
     }
 
     /**
      * Asserts that pt(x) contains object of specified class.
+     * NOTE: {@code className} must be a String constant.
      */
     public static void hasInstanceOf(Object x, String className) {
     }
@@ -67,13 +69,15 @@ public final class PTAAssert {
     /**
      * Asserts that the call site right before this invocation
      * calls the specified method.
+     * NOTE: {@code methodSig} must be a String constant.
      */
-    public static void calls(String methodSignature) {
+    public static void calls(String methodSig) {
     }
 
     /**
      * Asserts that the specified method is reachable in the call graph.
+     * NOTE: {@code methodSig} must be a String constant.
      */
-    public static void isReachable(String methodSignature) {
+    public static void isReachable(String methodSig) {
     }
 }
