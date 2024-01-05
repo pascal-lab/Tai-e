@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import pascal.taie.World;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -47,6 +48,8 @@ import java.util.stream.Collectors;
 
 public class AssertionChecker implements Plugin {
 
+    private static final Logger logger = LogManager.getLogger(AssertionChecker.class);
+
     private static final String PTA_ASSERT = "PTAAssert";
 
     private Solver solver;
@@ -61,10 +64,6 @@ public class AssertionChecker implements Plugin {
 
     private List<Invoke> failures;
 
-    public static boolean isEnablePTAAssertion() {
-        return World.get().getClassHierarchy().getClass(PTA_ASSERT) != null;
-    }
-
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
@@ -73,6 +72,11 @@ public class AssertionChecker implements Plugin {
     @Override
     public void onFinish() {
         hierarchy = solver.getHierarchy();
+        if (hierarchy.getClass(PTA_ASSERT) == null) {
+            logger.warn("class '{}' is not loaded, failed to enable {}",
+                    PTA_ASSERT, AssertionChecker.class.getSimpleName());
+            return;
+        }
         registerCheckers();
         pta = solver.getResult();
         callGraph = pta.getCallGraph();
