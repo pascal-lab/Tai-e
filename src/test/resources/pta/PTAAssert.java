@@ -23,61 +23,68 @@
 public final class PTAAssert {
 
     /**
-     * Asserts that pt(x) ≠ Ø.
+     * Asserts that for all vi in vars: pt(v0) != {}, pt(v1) != {} ...
      */
-    public static void notEmpty(Object x) {
+    public static void notEmpty(Object... vars) {
     }
 
     /**
-     * Asserts that |pt(x)| = size.
-     * NOTE: {@code size} must be an integer constant.
+     * Asserts that for all vi in vars: |pt(v0)| = |pt(v1)| = ... = expected.
+     * NOTE: {@code expected} must be an integer constant.
      */
-    public static void sizeEquals(Object x, int size) {
+    public static void sizeEquals(int expected, Object... vars) {
     }
 
     /**
-     * Asserts that pt(x) contains object of specified class.
+     * Asserts that for all vi in vars: pt(v0) = pt(v1) = ...
+     */
+    public static void equals(Object... vars) {
+    }
+
+    /**
+     * Asserts that for all vi in vars: pt(x) contains pt(v0), pt(x) contains pt(v1) ...
+     */
+    public static void contains(Object x, Object... vars) {
+    }
+
+    /**
+     * Asserts that for all vi in vars: pt(vi) contains objects of specified class.
      * NOTE: {@code className} must be a String constant.
      */
-    public static void hasInstanceOf(Object x, String className) {
+    public static void hasInstanceOf(String className, Object... vars) {
     }
 
     /**
-     * Asserts that pt(x) = pt(y).
+     * Asserts that pt(x) contains objects of specified classes.
+     * NOTE: {@code classNames} must be String constants.
      */
-    public static void equals(Object x, Object y) {
+    public static void hasInstanceOf(Object x, String... classNames) {
     }
 
     /**
-     * Asserts that pt(x) ≠ pt(y).
+     * Asserts that pt(x) != pt(y).
      */
     public static void notEquals(Object x, Object y) {
     }
 
     /**
-     * Asserts that pt(x) ⊇ pt(y).
-     */
-    public static void contains(Object x, Object y) {
-    }
-
-    /**
-     * Asserts that pt(x) ∩ pt(y) = Ø
+     * Asserts that pt(x) ^ pt(y) = {}
      */
     public static void disjoint(Object x, Object y) {
     }
 
     /**
      * Asserts that the call site right before this invocation
-     * calls the specified method.
-     * NOTE: {@code methodSig} must be a String constant.
+     * calls the specified methods.
+     * NOTE: {@code methodSigs} must be String constants.
      */
-    public static void calls(String methodSig) {
+    public static void calls(String... methodSigs) {
     }
 
     /**
-     * Asserts that the specified method is reachable in the call graph.
-     * NOTE: {@code methodSig} must be a String constant.
+     * Asserts that the specified methods are reachable in the call graph.
+     * NOTE: {@code methodSigs} must be String constants.
      */
-    public static void isReachable(String methodSig) {
+    public static void reachable(String... methodSigs) {
     }
 }
