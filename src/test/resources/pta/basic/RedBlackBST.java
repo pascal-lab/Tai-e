@@ -410,11 +410,13 @@ public class RedBlackBST {
 
     public static void main(String[] args) {
         RedBlackBST st = new RedBlackBST();
-        st.put(1, new Object());
-        st.put(114, new Object());
+        Object o1 = new Object();
+        st.put(1, o1);
+        Object o114 = new Object();
+        st.put(114, o114);
         st.delete(1);
-        Object val = st.get(3);
+        Object val = st.get(114);
+        PTAAssert.contains(val, o114);
         st.check();
     }
 }
-

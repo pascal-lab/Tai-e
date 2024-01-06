@@ -87,9 +87,12 @@ public class LinkedQueue {
 
     public static void main(String[] args) {
         LinkedQueue queue = new LinkedQueue();
-        queue.enqueue(new Object());
-        queue.enqueue(new Object());
+        Object e1 = new Object();
+        Object e2 = new Object();
+        queue.enqueue(e1);
+        queue.enqueue(e2);
         queue.check();
         Object item = queue.dequeue();
+        PTAAssert.contains(item, e1, e2);
     }
 }

@@ -10,6 +10,7 @@ class Cycle {
         A a2 = new A(b2);
         b2 = a1.b;
         b1 = a2.b;
+        PTAAssert.equals(b1, b2);
     }
 }
 

@@ -6,15 +6,13 @@ class MergeParam {
 
         A result = foo(a1);
         result = foo(a2);
+        PTAAssert.contains(result, a1, a2);
     }
-
     public static A foo(A a) {
         return a;
     }
 
 }
-
 class A {
 
 }
-

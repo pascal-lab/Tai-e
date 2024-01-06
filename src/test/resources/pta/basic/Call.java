@@ -5,6 +5,8 @@ public class Call {
         B b = new B();
         C c = new C();
         C x = a.foo(b, c);
+        PTAAssert.calls("<A: C foo(B,C)>")
+        PTAAssert.equals(x, c);
     }
 }
 

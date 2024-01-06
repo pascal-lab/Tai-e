@@ -1,9 +1,14 @@
 Points-to sets of all variables
-[]:<A: void <clinit>()>/temp$0 -> [[]:NewObj{<A: void <clinit>()>[0@L28] new java.lang.Object}]
 []:<A: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[0@L11] new A}]
-[]:<C: void <clinit>()>/temp$0 -> [[]:NewObj{<C: void <clinit>()>[0@L40] new java.lang.Object}]
 []:<C: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[4@L13] new D}]
 []:<Clinit: void <clinit>()>/temp$0 -> [[]:NewObj{<Clinit: void <clinit>()>[0@L7] new java.lang.Object}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst10 -> [[]:ConstantObj{java.lang.String: "<H: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst12 -> [[]:ConstantObj{java.lang.String: "<I: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst14 -> [[]:ConstantObj{java.lang.String: "<J: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst3 -> [[]:ConstantObj{java.lang.String: "<A: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst4 -> [[]:ConstantObj{java.lang.String: "<C: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst6 -> [[]:ConstantObj{java.lang.String: "<E: void <clinit>()>"}]
+[]:<Clinit: void main(java.lang.String[])>/%stringconst8 -> [[]:ConstantObj{java.lang.String: "<F: void <clinit>()>"}]
 []:<Clinit: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Clinit: void main(java.lang.String[])>/0},type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}]
 []:<Clinit: void main(java.lang.String[])>/barr -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[3@L12] newmultiarray B[%intconst0][%intconst0][%intconst0]}]
 []:<Clinit: void main(java.lang.String[])>/o -> []
@@ -12,26 +17,25 @@ Points-to sets of all variables
 []:<Clinit: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[6@L14] new java.lang.Object}]
 []:<Clinit: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[11@L18] new I}]
 []:<Clinit: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[13@L22] new L}]
+[]:<Clinit: void main(java.lang.String[])>/temp$5 -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[16@L24] newarray java.lang.String[%intconst1]}]
 []:<D: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[4@L13] new D}]
-[]:<E: void <clinit>()>/temp$0 -> [[]:NewObj{<E: void <clinit>()>[0@L51] new java.lang.Object}]
-[]:<F: void <clinit>()>/temp$0 -> [[]:NewObj{<F: void <clinit>()>[0@L59] new java.lang.Object}]
-[]:<H: void <clinit>()>/temp$0 -> [[]:NewObj{<H: void <clinit>()>[0@L71] new java.lang.Object}]
-[]:<I: void <clinit>()>/temp$0 -> [[]:NewObj{<I: void <clinit>()>[0@L78] new J}]
-[]:<I: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[11@L18] new I}, []:NewObj{<J: void <clinit>()>[0@L82] new I}]
-[]:<J: void <clinit>()>/temp$0 -> [[]:NewObj{<J: void <clinit>()>[0@L82] new I}]
-[]:<J: void <init>()>/%this -> [[]:NewObj{<I: void <clinit>()>[0@L78] new J}]
+[]:<I: void <clinit>()>/temp$0 -> [[]:NewObj{<I: void <clinit>()>[0@L79] new J}]
+[]:<I: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[11@L18] new I}, []:NewObj{<J: void <clinit>()>[0@L83] new I}]
+[]:<J: void <clinit>()>/temp$0 -> [[]:NewObj{<J: void <clinit>()>[0@L83] new I}]
+[]:<J: void <init>()>/%this -> [[]:NewObj{<I: void <clinit>()>[0@L79] new J}]
 []:<L: void <init>()>/%this -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[13@L22] new L}]
 
 Points-to sets of all static fields
 <E: java.lang.Object f> -> [[]:NewObj{<Clinit: void main(java.lang.String[])>[6@L14] new java.lang.Object}]
 <F: java.lang.Object f> -> []
-<I: J f> -> [[]:NewObj{<I: void <clinit>()>[0@L78] new J}]
-<J: I f> -> [[]:NewObj{<J: void <clinit>()>[0@L82] new I}]
+<I: J f> -> [[]:NewObj{<I: void <clinit>()>[0@L79] new J}]
+<J: I f> -> [[]:NewObj{<J: void <clinit>()>[0@L83] new I}]
 
 Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<Clinit: void main(java.lang.String[])>/0},type=java.lang.String[] in <Clinit: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Clinit: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Clinit: void main(java.lang.String[])>}]
 []:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[][] in <Clinit: void main(java.lang.String[])>}[*] -> [[]:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[] in <Clinit: void main(java.lang.String[])>}]
+[]:NewObj{<Clinit: void main(java.lang.String[])>[16@L24] newarray java.lang.String[%intconst1]}[*] -> [[]:ConstantObj{java.lang.String: "<A: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<C: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<E: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<F: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<H: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<I: void <clinit>()>"}, []:ConstantObj{java.lang.String: "<J: void <clinit>()>"}]
 []:NewObj{<Clinit: void main(java.lang.String[])>[3@L12] newmultiarray B[%intconst0][%intconst0][%intconst0]}[*] -> [[]:MultiArrayObj{alloc=barr = newmultiarray B[%intconst0][%intconst0][%intconst0],type=B[][] in <Clinit: void main(java.lang.String[])>}]
 

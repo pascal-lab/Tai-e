@@ -47,11 +47,11 @@ public class ZipperTest {
 
     @Test
     void testOAG() {
-        dumpOAG(CS, "TwoObject", "cs:2-obj");
+        dumpOAG("TwoObject", "cs:2-obj");
     }
 
-    private static void dumpOAG(String dir, String main, String opts) {
-        Tests.testPTA(false, dir, main, opts);
+    private static void dumpOAG(String main, String... opts) {
+        Tests.testPTA(false, CS, main, opts);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectAllocationGraph oag = new ObjectAllocationGraph(
                 new PointerAnalysisResultExImpl(pta, true));
@@ -68,11 +68,11 @@ public class ZipperTest {
             "Cycle",
     })
     void testOFG(String mainClass) {
-        dumpOFG(BASIC, mainClass);
+        dumpOFG(mainClass);
     }
 
-    private static void dumpOFG(String dir, String main) {
-        Tests.testPTA(false, dir, main);
+    private static void dumpOFG(String main) {
+        Tests.testPTA(false, BASIC, main);
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         ObjectFlowGraph ofg = pta.getObjectFlowGraph();
         File output = new File(World.get().getOptions().getOutputDir(), main + "-ofg.dot");

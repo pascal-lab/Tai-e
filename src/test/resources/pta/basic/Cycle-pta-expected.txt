@@ -12,6 +12,7 @@ Points-to sets of all variables
 []:<Cycle: void cycle()>/temp$3 -> [[]:NewObj{<Cycle: void cycle()>[9@L10] new A}]
 []:<Cycle: void cycle()>/temp$4 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 []:<Cycle: void cycle()>/temp$5 -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
+[]:<Cycle: void cycle()>/temp$6 -> [[]:NewObj{<Cycle: void cycle()>[17@L13] newarray java.lang.Object[%intconst0]}]
 []:<Cycle: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Cycle: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
@@ -22,4 +23,5 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<Cycle: void main(java.lang.String[])>/0},type=java.lang.String[] in <Cycle: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Cycle: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Cycle: void main(java.lang.String[])>}]
+[]:NewObj{<Cycle: void cycle()>[17@L13] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<Cycle: void cycle()>[0@L7] new B}, []:NewObj{<Cycle: void cycle()>[3@L8] new B}]
 

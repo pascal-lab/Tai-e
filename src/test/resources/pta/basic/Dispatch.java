@@ -1,9 +1,11 @@
 class Dispatch {
+
     public static void main(String[] args) {
         A a = new A();
         a = new B();
         a = new C();
         T t = a.foo();
+        PTAAssert.calls("<A: T foo()>", "<B: T foo()>", "<C: T foo()>")
     }
 }
 

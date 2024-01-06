@@ -20,24 +20,29 @@ class Clinit {
         // By JLS, this does not trigger initialization of interface K,
         // as K does not declare default methods.
         new L();
+
+        PTAAssert.reachable("<A: void <clinit>()>",
+                "<C: void <clinit>()>",
+                "<E: void <clinit>()>",
+                "<F: void <clinit>()>",
+                "<H: void <clinit>()>",
+                "<I: void <clinit>()>",
+                "<J: void <clinit>()>");
     }
 }
 
 class A {
     static {
-        new Object();
     }
 }
 
 class B {
     static {
-        new Object();
     }
 }
 
 abstract class C {
     static {
-        new Object();
     }
 }
 
@@ -48,7 +53,6 @@ class E {
     static Object f;
 
     static {
-        new Object();
     }
 }
 
@@ -56,19 +60,16 @@ class F {
     static Object f;
 
     static {
-        new Object();
     }
 }
 
 class G {
     static {
-        new Object();
     }
 }
 
 class H {
     static {
-        new Object();
     }
 
     static void foo() {

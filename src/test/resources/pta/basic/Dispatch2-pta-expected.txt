@@ -3,7 +3,11 @@ Points-to sets of all variables
 []:<Dispatch2$C1: void bar()>/%this -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
 []:<Dispatch2$I3: void foo()>/%this -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
 []:<Dispatch2: void main(java.lang.String[])>/$r0 -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[0@L3] new Dispatch2$C1}]
-[]:<Dispatch2: void main(java.lang.String[])>/r1 -> [[]:EntryPointObj{alloc=MethodParam{<Dispatch2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Dispatch2: void main(java.lang.String[])>}]
+[]:<Dispatch2: void main(java.lang.String[])>/$r1 -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[4@L5] newarray java.lang.String[%intconst0]}]
+[]:<Dispatch2: void main(java.lang.String[])>/$r2 -> [[]:NewObj{<Dispatch2: void main(java.lang.String[])>[10@L7] newarray java.lang.String[%intconst0]}]
+[]:<Dispatch2: void main(java.lang.String[])>/%stringconst2 -> [[]:ConstantObj{java.lang.String: "<Dispatch2$I3: void foo()>"}]
+[]:<Dispatch2: void main(java.lang.String[])>/%stringconst3 -> [[]:ConstantObj{java.lang.String: "<Dispatch2$C1: void bar()>"}]
+[]:<Dispatch2: void main(java.lang.String[])>/r3 -> [[]:EntryPointObj{alloc=MethodParam{<Dispatch2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Dispatch2: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields
 
@@ -11,4 +15,6 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<Dispatch2: void main(java.lang.String[])>/0},type=java.lang.String[] in <Dispatch2: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Dispatch2: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Dispatch2: void main(java.lang.String[])>}]
+[]:NewObj{<Dispatch2: void main(java.lang.String[])>[10@L7] newarray java.lang.String[%intconst0]}[*] -> [[]:ConstantObj{java.lang.String: "<Dispatch2$C1: void bar()>"}]
+[]:NewObj{<Dispatch2: void main(java.lang.String[])>[4@L5] newarray java.lang.String[%intconst0]}[*] -> [[]:ConstantObj{java.lang.String: "<Dispatch2$I3: void foo()>"}]
 

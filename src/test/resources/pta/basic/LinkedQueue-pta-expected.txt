@@ -44,12 +44,15 @@ Points-to sets of all variables
 []:<LinkedQueue: void enqueue(java.lang.Object)>/temp$5 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.Object)>[1@L33] new Node}]
 []:<LinkedQueue: void enqueue(java.lang.Object)>/temp$6 -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.Object)>[1@L33] new Node}]
 []:<LinkedQueue: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0},type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}]
+[]:<LinkedQueue: void main(java.lang.String[])>/e1 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}]
+[]:<LinkedQueue: void main(java.lang.String[])>/e2 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 []:<LinkedQueue: void main(java.lang.String[])>/item -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 []:<LinkedQueue: void main(java.lang.String[])>/queue -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L89] new LinkedQueue}]
 []:<LinkedQueue: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[0@L89] new LinkedQueue}]
 []:<LinkedQueue: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}]
 []:<LinkedQueue: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 []:<LinkedQueue: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
+[]:<LinkedQueue: void main(java.lang.String[])>/temp$5 -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[15@L96] newarray java.lang.Object[%intconst0]}]
 []:<Node: void <init>()>/%this -> [[]:NewObj{<LinkedQueue: void enqueue(java.lang.Object)>[1@L33] new Node}]
 
 Points-to sets of all static fields
@@ -62,4 +65,5 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0},type=java.lang.String[] in <LinkedQueue: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LinkedQueue: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LinkedQueue: void main(java.lang.String[])>}]
+[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[15@L96] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<LinkedQueue: void main(java.lang.String[])>[3@L90] new java.lang.Object}, []:NewObj{<LinkedQueue: void main(java.lang.String[])>[6@L91] new java.lang.Object}]
 
