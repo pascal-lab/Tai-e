@@ -43,7 +43,7 @@ public class ContextSensitivityTestFull extends ContextSensitivityTest {
     // Tests for handling of non-normal objects
     @MultiStringsSource({"TypeSens", "cs:2-type"})
     @MultiStringsSource({"SpecialHeapContext", "cs:2-obj"})
-    void testFull(String mainClass, String opts) {
+    void testFull(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
     }
 
