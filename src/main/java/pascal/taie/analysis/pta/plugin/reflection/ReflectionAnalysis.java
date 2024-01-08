@@ -24,7 +24,6 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
@@ -37,7 +36,6 @@ import pascal.taie.util.collection.MapEntry;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Set;
 
@@ -47,10 +45,9 @@ public class ReflectionAnalysis extends CompositePlugin {
 
     private static final int IMPRECISE_THRESHOLD = 50;
 
-    private InferenceModel inferenceModel;
-
-    @Nullable
     private LogBasedModel logBasedModel;
+
+    private InferenceModel inferenceModel;
 
     private ReflectiveActionModel reflectiveActionModel;
 
@@ -69,11 +66,8 @@ public class ReflectionAnalysis extends CompositePlugin {
         MetaObjHelper helper = new MetaObjHelper(solver);
         TypeMatcher typeMatcher = new TypeMatcher(solver.getTypeSystem());
         String logPath = solver.getOptions().getString("reflection-log");
-        if (logPath != null) {
-            logBasedModel = new LogBasedModel(solver, helper, logPath);
-        }
-        Set<Invoke> invokesWithLog = logBasedModel != null
-                ? logBasedModel.getInvokesWithLog() : Set.of();
+        logBasedModel = new LogBasedModel(solver, helper, logPath);
+        Set<Invoke> invokesWithLog = logBasedModel.getInvokesWithLog();
         String reflection = solver.getOptions().getString("reflection-inference");
         if ("string-constant".equals(reflection)) {
             inferenceModel = new StringBasedModel(solver, helper, invokesWithLog);
@@ -87,7 +81,8 @@ public class ReflectionAnalysis extends CompositePlugin {
         reflectiveActionModel = new ReflectiveActionModel(solver, helper,
                 typeMatcher, invokesWithLog);
 
-        addPlugin(reflectiveActionModel,
+        addPlugin(logBasedModel,
+                reflectiveActionModel,
                 new AnnotationModel(solver, helper),
                 new OthersModel(solver, helper));
     }
@@ -113,14 +108,6 @@ public class ReflectionAnalysis extends CompositePlugin {
     }
 
     @Override
-    public void onNewCSMethod(CSMethod csMethod) {
-        super.onNewCSMethod(csMethod);
-        if (logBasedModel != null) {
-            logBasedModel.handleNewCSMethod(csMethod);
-        }
-    }
-
-    @Override
     public void onFinish() {
         if (inferenceModel instanceof SolarModel solar) {
             solar.reportUnsoundCalls();
@@ -133,8 +120,7 @@ public class ReflectionAnalysis extends CompositePlugin {
      */
     private void reportImpreciseCalls() {
         MultiMap<Invoke, Object> allTargets = collectAllTargets();
-        Set<Invoke> invokesWithLog = logBasedModel != null
-                ? logBasedModel.getInvokesWithLog() : Set.of();
+        Set<Invoke> invokesWithLog = logBasedModel.getInvokesWithLog();
         var impreciseCalls = allTargets.keySet()
                 .stream()
                 .map(invoke -> new MapEntry<>(invoke, allTargets.get(invoke)))
@@ -161,9 +147,7 @@ public class ReflectionAnalysis extends CompositePlugin {
      */
     private MultiMap<Invoke, Object> collectAllTargets() {
         MultiMap<Invoke, Object> allTargets = Maps.newMultiMap();
-        if (logBasedModel != null) {
-            allTargets.putAll(logBasedModel.getForNameTargets());
-        }
+        allTargets.putAll(logBasedModel.getForNameTargets());
         allTargets.putAll(inferenceModel.getForNameTargets());
         allTargets.putAll(reflectiveActionModel.getAllTargets());
         return allTargets;
