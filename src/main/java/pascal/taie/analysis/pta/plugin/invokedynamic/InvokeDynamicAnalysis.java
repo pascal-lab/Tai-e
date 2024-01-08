@@ -38,8 +38,6 @@ import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
-import pascal.taie.analysis.pta.plugin.util.DummyModel;
-import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -103,9 +101,9 @@ public class InvokeDynamicAnalysis implements Plugin {
      */
     private ClassType callSite;
 
-    private Model methodTypeModel;
+    private Plugin methodTypeModel;
 
-    private Model lookupModel;
+    private Plugin lookupModel;
 
     /**
      * Map from method to the invokedynamic invocations included in the method.
@@ -174,16 +172,17 @@ public class InvokeDynamicAnalysis implements Plugin {
         methodHandle = requireNonNull(hierarchy.getJREClass(METHOD_HANDLE)).getType();
         callSite = requireNonNull(hierarchy.getJREClass(CALL_SITE)).getType();
         // TODO: add option to enable MethodTypeModel
-        methodTypeModel = DummyModel.get();
+        methodTypeModel = Plugin.DUMMY;
         lookupModel = new LookupModel(solver);
     }
 
     @Override
     public void onNewStmt(Stmt stmt, JMethod container) {
+
         if (stmt instanceof Invoke invoke) {
             if (!invoke.isDynamic()) {
-                methodTypeModel.handleNewInvoke(invoke);
-                lookupModel.handleNewInvoke(invoke);
+                methodTypeModel.onNewStmt(stmt, container);
+                lookupModel.onNewStmt(stmt, container);
             }
             InvokeDynamic indy = getInvokeDynamic(invoke);
             if (indy != null) {
@@ -341,13 +340,9 @@ public class InvokeDynamicAnalysis implements Plugin {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
+        methodTypeModel.onNewPointsToSet(csVar, pts);
+        lookupModel.onNewPointsToSet(csVar, pts);
         Var var = csVar.getVar();
-        if (lookupModel.isRelevantVar(var)) {
-            lookupModel.handleNewPointsToSet(csVar, pts);
-        }
-        if (methodTypeModel.isRelevantVar(var)) {
-            methodTypeModel.handleNewPointsToSet(csVar, pts);
-        }
         Set<Invoke> indys = mhVar2indys.get(var);
         if (!indys.isEmpty()) {
             // if var is MethodHandle variable which was associated to

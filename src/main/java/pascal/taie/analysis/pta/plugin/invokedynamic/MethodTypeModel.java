@@ -23,10 +23,9 @@
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -40,18 +39,17 @@ import java.util.List;
 /**
  * Models invocations to MethodType.methodType(*);
  */
-public class MethodTypeModel extends AbstractModel {
+public class MethodTypeModel extends AnalysisModelPlugin {
 
     MethodTypeModel(Solver solver) {
         super(solver);
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class)>", argIndexes = {0})
-    public void methodType1Class(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void methodType1Class(Context context, Invoke invoke, PointsToSet clsObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            Context context = csVar.getContext();
-            pts.forEach(obj -> {
+            clsObjs.forEach(obj -> {
                 Type retType = CSObjs.toType(obj);
                 if (retType != null) {
                     MethodType mt = MethodType.get(List.of(), retType);
@@ -63,13 +61,10 @@ public class MethodTypeModel extends AbstractModel {
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.Class)>", argIndexes = {0, 1})
-    public void methodType2Classes(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void methodType2Classes(Context context, Invoke invoke,
+                                   PointsToSet retObjs, PointsToSet paramObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
-            PointsToSet retObjs = args.get(0);
-            PointsToSet paramObjs = args.get(1);
-            Context context = csVar.getContext();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {
@@ -87,13 +82,10 @@ public class MethodTypeModel extends AbstractModel {
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodType: java.lang.invoke.MethodType methodType(java.lang.Class,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
-    public void methodTypeClassMT(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void methodTypeClassMT(Context context, Invoke invoke,
+                                  PointsToSet retObjs, PointsToSet mtObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
-            PointsToSet retObjs = args.get(0);
-            PointsToSet mtObjs = args.get(1);
-            Context context = csVar.getContext();
             retObjs.forEach(retObj -> {
                 Type retType = CSObjs.toType(retObj);
                 if (retType != null) {

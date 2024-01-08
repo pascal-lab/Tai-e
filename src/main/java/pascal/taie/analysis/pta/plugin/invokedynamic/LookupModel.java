@@ -26,6 +26,7 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -48,18 +49,17 @@ import java.util.stream.Stream;
  * TODO: take Lookup.lookupClass's visibility into account
  * TODO: take MethodType into account
  */
-public class LookupModel extends AbstractModel {
+public class LookupModel extends AnalysisModelPlugin {
 
     LookupModel(Solver solver) {
         super(solver);
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findConstructor(java.lang.Class,java.lang.invoke.MethodType)>", argIndexes = {0})
-    public void findConstructor(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void findConstructor(Context context, Invoke invoke, PointsToSet clsObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            Context context = csVar.getContext();
-            pts.forEach(clsObj -> {
+            clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {
                     Reflections.getDeclaredConstructors(cls)
@@ -74,33 +74,31 @@ public class LookupModel extends AbstractModel {
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findVirtual(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
-    public void findVirtual(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void findVirtual(Context context, Invoke invoke,
+                            PointsToSet clsObjs, PointsToSet nameObjs) {
         // TODO: find private methods in (direct/indirect) super class.
-        findMethod(csVar, pts, invoke, (cls, name) ->
+        findMethod(context, invoke, clsObjs, nameObjs, (cls, name) ->
                         Reflections.getDeclaredMethods(cls, name)
                                 .filter(Predicate.not(JMethod::isStatic)),
                 MethodHandle.Kind.REF_invokeVirtual);
     }
 
     @InvokeHandler(signature = "<java.lang.invoke.MethodHandles$Lookup: java.lang.invoke.MethodHandle findStatic(java.lang.Class,java.lang.String,java.lang.invoke.MethodType)>", argIndexes = {0, 1})
-    public void findStatic(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void findStatic(Context context, Invoke invoke,
+                           PointsToSet clsObjs, PointsToSet nameObjs) {
         // TODO: find static methods in (direct/indirect) super class.
-        findMethod(csVar, pts, invoke, (cls, name) ->
+        findMethod(context, invoke, clsObjs, nameObjs, (cls, name) ->
                         Reflections.getDeclaredMethods(cls, name)
                                 .filter(JMethod::isStatic),
                 MethodHandle.Kind.REF_invokeStatic);
     }
 
-    private void findMethod(
-            CSVar csVar, PointsToSet pts, Invoke invoke,
+    private void findMethod(Context context, Invoke invoke,
+            PointsToSet clsObjs, PointsToSet nameObjs,
             BiFunction<JClass, String, Stream<JMethod>> getter,
             MethodHandle.Kind kind) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke, 0, 1);
-            PointsToSet clsObjs = args.get(0);
-            PointsToSet nameObjs = args.get(1);
-            Context context = csVar.getContext();
             clsObjs.forEach(clsObj -> {
                 JClass cls = CSObjs.toClass(clsObj);
                 if (cls != null) {

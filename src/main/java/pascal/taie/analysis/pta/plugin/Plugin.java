@@ -44,6 +44,8 @@ import pascal.taie.language.classes.JMethod;
  */
 public interface Plugin {
 
+    Plugin DUMMY = new Plugin() {};
+
     /**
      * Sets pointer analysis solver which will be used later by the plugin.
      */
