@@ -37,6 +37,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * Provides common functionalities for implementing the plugins which
+ * model the APIs by analyzing their semantics.
+ *
+ * @see InvokeHandler
+ */
 public abstract class AnalysisModelPlugin extends ModelPlugin {
 
     protected final Map<JMethod, Method> handlers = Maps.newMap();

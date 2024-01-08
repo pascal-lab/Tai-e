@@ -29,7 +29,10 @@ import pascal.taie.ir.stmt.Invoke;
 
 /**
  * Model for special APIs.
+ *
+ * @deprecated Use {@link AnalysisModelPlugin} instead.
  */
+@Deprecated
 public interface Model {
 
     void handleNewInvoke(Invoke invoke);
