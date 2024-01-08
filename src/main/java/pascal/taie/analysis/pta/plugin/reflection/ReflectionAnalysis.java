@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -58,8 +59,6 @@ public class ReflectionAnalysis extends CompositePlugin {
     private ReflectiveActionModel reflectiveActionModel;
 
     private AnnotationModel annotationModel;
-
-    private Model othersModel;
 
     /**
      * @return short name of reflection API in given {@link Invoke}.
@@ -94,9 +93,8 @@ public class ReflectionAnalysis extends CompositePlugin {
         reflectiveActionModel = new ReflectiveActionModel(solver, helper,
                 typeMatcher, invokesWithLog);
         annotationModel = new AnnotationModel(solver, helper);
-        othersModel = new OthersModel(solver, helper);
 
-        addPlugin(reflectiveActionModel);
+        addPlugin(reflectiveActionModel, new OthersModel(solver, helper));
     }
 
     @Override
@@ -105,7 +103,6 @@ public class ReflectionAnalysis extends CompositePlugin {
         if (stmt instanceof Invoke invoke) {
             if (!invoke.isDynamic()) {
                 inferenceModel.handleNewInvoke(invoke);
-                othersModel.handleNewInvoke(invoke);
             }
         } else {
             inferenceModel.handleNewNonInvokeStmt(stmt);
@@ -117,9 +114,6 @@ public class ReflectionAnalysis extends CompositePlugin {
         super.onNewPointsToSet(csVar, pts);
         if (inferenceModel.isRelevantVar(csVar.getVar())) {
             inferenceModel.handleNewPointsToSet(csVar, pts);
-        }
-        if (othersModel.isRelevantVar(csVar.getVar())) {
-            othersModel.handleNewPointsToSet(csVar, pts);
         }
     }
 

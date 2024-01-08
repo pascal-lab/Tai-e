@@ -24,11 +24,10 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -53,7 +52,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 /**
  * Models other non-core reflection APIs.
  */
-public class OthersModel extends AbstractModel {
+public class OthersModel extends AnalysisModelPlugin {
 
     private static final Descriptor PARAM_ANNOTATIONS = () -> "ParamAnnotations";
 
@@ -79,7 +78,7 @@ public class OthersModel extends AbstractModel {
 
     // ---------- Model for java.lang.Object starts ----------
     @InvokeHandler(signature = "<java.lang.Object: java.lang.Class getClass()>", argIndexes = {BASE})
-    public void getClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void getClass(Context context, Invoke invoke, PointsToSet recvObjs) {
         if (!invoke.getContainer().isApplication()) {
             // ignore Object.getClass() in library code, until
             // we have better treatment with relevant reflective calls
@@ -87,8 +86,7 @@ public class OthersModel extends AbstractModel {
         }
         Var result = invoke.getResult();
         if (result != null) {
-            Context context = csVar.getContext();
-            pts.forEach(recv -> {
+            recvObjs.forEach(recv -> {
                 Type type = recv.getObject().getType();
                 if (type instanceof ClassType classType) {
                     Obj classObj = helper.getMetaObj(classType.getJClass());
@@ -101,15 +99,15 @@ public class OthersModel extends AbstractModel {
 
     // ---------- Model for java.lang.Class starts ----------
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Class getPrimitiveClass(java.lang.String)>", argIndexes = {0})
-    public void getPrimitiveClass(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void getPrimitiveClass(Context context, Invoke invoke, PointsToSet nameObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            pts.forEach(nameObj -> {
+            nameObjs.forEach(nameObj -> {
                 String name = CSObjs.toString(nameObj);
                 if (name != null) {
                     Type type = name.equals("void") ?
                             VoidType.VOID : PrimitiveType.get(name);
-                    solver.addVarPointsTo(csVar.getContext(), result,
+                    solver.addVarPointsTo(context, result,
                             heapModel.getConstantObj(ClassLiteral.get(type)));
                 }
             });
@@ -117,13 +115,10 @@ public class OthersModel extends AbstractModel {
     }
 
     @InvokeHandler(signature = "<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>", argIndexes = {BASE, 0})
-    public void getAnnotation(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void getAnnotation(Context context, Invoke invoke,
+                              PointsToSet baseClasses, PointsToSet annoClasses) {
         Var result = invoke.getResult();
         if (result != null) {
-            List<PointsToSet> args = getArgs(csVar, pts, invoke, BASE, 0);
-            PointsToSet baseClasses = args.get(0);
-            PointsToSet annoClasses = args.get(1);
-            Context context = csVar.getContext();
             baseClasses.forEach(baseClass -> {
                 JClass baseClazz = CSObjs.toClass(baseClass);
                 if (baseClazz != null) {
@@ -145,10 +140,10 @@ public class OthersModel extends AbstractModel {
 
     // ---------- Model for java.lang.reflect.Method starts ----------
     @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.annotation.Annotation[][] getParameterAnnotations()>", argIndexes = {BASE})
-    public void getParameterAnnotations(CSVar csVar, PointsToSet pts, Invoke invoke) {
+    public void getParameterAnnotations(Context context, Invoke invoke, PointsToSet mtdObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            pts.forEach(mtdObj -> {
+            mtdObjs.forEach(mtdObj -> {
                 JMethod method = CSObjs.toMethod(mtdObj);
                 if (method != null) {
                     List<Annotation> paramAnnos = new ArrayList<>();
@@ -156,7 +151,6 @@ public class OthersModel extends AbstractModel {
                         paramAnnos.addAll(method.getParamAnnotations(i));
                     }
                     if (!paramAnnos.isEmpty()) {
-                        Context context = csVar.getContext();
                         PointsToSet annoSet = solver.makePointsToSet();
                         paramAnnos.forEach(anno -> {
                             Obj annoObj = helper.getAnnotationObj(anno);
