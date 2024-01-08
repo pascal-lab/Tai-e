@@ -24,14 +24,10 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapEntry;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -74,7 +70,7 @@ public class ReflectionAnalysis extends CompositePlugin {
         } else if ("solar".equals(reflection)) {
             inferenceModel = new SolarModel(solver, helper, typeMatcher, invokesWithLog);
         } else if (reflection == null) {
-            inferenceModel = new DummyModel(solver);
+            inferenceModel = InferenceModel.getDummy(solver);
         } else {
             throw new IllegalArgumentException("Illegal reflection option: " + reflection);
         }
@@ -82,36 +78,15 @@ public class ReflectionAnalysis extends CompositePlugin {
                 typeMatcher, invokesWithLog);
 
         addPlugin(logBasedModel,
+                inferenceModel,
                 reflectiveActionModel,
                 new AnnotationModel(solver, helper),
                 new OthersModel(solver, helper));
     }
 
     @Override
-    public void onNewStmt(Stmt stmt, JMethod container) {
-        super.onNewStmt(stmt, container);
-        if (stmt instanceof Invoke invoke) {
-            if (!invoke.isDynamic()) {
-                inferenceModel.handleNewInvoke(invoke);
-            }
-        } else {
-            inferenceModel.handleNewNonInvokeStmt(stmt);
-        }
-    }
-
-    @Override
-    public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        super.onNewPointsToSet(csVar, pts);
-        if (inferenceModel.isRelevantVar(csVar.getVar())) {
-            inferenceModel.handleNewPointsToSet(csVar, pts);
-        }
-    }
-
-    @Override
     public void onFinish() {
-        if (inferenceModel instanceof SolarModel solar) {
-            solar.reportUnsoundCalls();
-        }
+        super.onFinish();
         reportImpreciseCalls();
     }
 
