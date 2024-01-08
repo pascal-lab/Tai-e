@@ -23,7 +23,7 @@
 package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.analysis.pta.plugin.util.IRModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
@@ -43,7 +43,7 @@ import pascal.taie.language.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArrayModel extends AbstractIRModel {
+public class ArrayModel extends IRModelPlugin {
 
     private final ClassType objType;
 

@@ -27,7 +27,7 @@ import pascal.taie.analysis.graph.callgraph.OtherEdge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractIRModel;
+import pascal.taie.analysis.pta.plugin.util.IRModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.ir.exp.InvokeInterface;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class DoPriviledgedModel extends AbstractIRModel {
+public class DoPriviledgedModel extends IRModelPlugin {
 
     private final MethodRef privilegedActionRun;
 
@@ -85,7 +85,8 @@ public class DoPriviledgedModel extends AbstractIRModel {
      * Connects doPrivileged(...) invocation to the corresponding run() method
      * which is the callee of the corresponding run().
      */
-    void handleNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
+    @Override
+    public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         Invoke invoke = edge.getCallSite().getCallSite();
         Invoke doPrivilegedInvoke = run2DoPriv.get(invoke);
         if (doPrivilegedInvoke != null) {
