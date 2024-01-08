@@ -24,14 +24,10 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.Plugin;
-import pascal.taie.analysis.pta.plugin.util.Model;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
@@ -57,8 +53,6 @@ public class ReflectionAnalysis extends CompositePlugin {
     private LogBasedModel logBasedModel;
 
     private ReflectiveActionModel reflectiveActionModel;
-
-    private AnnotationModel annotationModel;
 
     /**
      * @return short name of reflection API in given {@link Invoke}.
@@ -92,9 +86,10 @@ public class ReflectionAnalysis extends CompositePlugin {
         }
         reflectiveActionModel = new ReflectiveActionModel(solver, helper,
                 typeMatcher, invokesWithLog);
-        annotationModel = new AnnotationModel(solver, helper);
 
-        addPlugin(reflectiveActionModel, new OthersModel(solver, helper));
+        addPlugin(reflectiveActionModel,
+                new AnnotationModel(solver, helper),
+                new OthersModel(solver, helper));
     }
 
     @Override
@@ -123,11 +118,6 @@ public class ReflectionAnalysis extends CompositePlugin {
         if (logBasedModel != null) {
             logBasedModel.handleNewCSMethod(csMethod);
         }
-    }
-
-    @Override
-    public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
-        annotationModel.onUnresolvedCall(recv, context, invoke);
     }
 
     @Override

@@ -26,14 +26,15 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
-import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.ClassElement;
 import pascal.taie.language.annotation.Element;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.Subsignature;
@@ -43,7 +44,11 @@ import pascal.taie.language.classes.Subsignature;
  * Since usually these APIs are tightly coupled with reflection and use
  * reflection objects, we put this class in this package.
  */
-class AnnotationModel extends SolverHolder {
+class AnnotationModel implements Plugin {
+
+    private final Solver solver;
+
+    private final ClassHierarchy hierarchy;
 
     private final MetaObjHelper helper;
 
@@ -52,7 +57,8 @@ class AnnotationModel extends SolverHolder {
     private final Subsignature annotationType;
 
     AnnotationModel(Solver solver, MetaObjHelper helper) {
-        super(solver);
+        this.solver = solver;
+        this.hierarchy = solver.getHierarchy();
         this.helper = helper;
         this.annotation = hierarchy.getClass(ClassNames.ANNOTATION);
         this.annotationType = Subsignature.get("java.lang.Class annotationType()");
@@ -62,7 +68,8 @@ class AnnotationModel extends SolverHolder {
      * Annotation objects are of interface types, thus the calls on them
      * can not be resolved, and we handle such calls here.
      */
-    void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+    @Override
+    public void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
         MethodRef ref = invoke.getMethodRef();
         JClass declaringClass = ref.getDeclaringClass();
         if (declaringClass.equals(annotation) &&
