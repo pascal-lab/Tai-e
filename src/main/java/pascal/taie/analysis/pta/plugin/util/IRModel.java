@@ -29,7 +29,10 @@ import java.util.Set;
 
 /**
  * Models specific APIs by generating corresponding IR.
+ *
+ * @deprecated Use {@link IRModelPlugin} instead.
  */
+@Deprecated
 public interface IRModel {
 
     Set<JMethod> getModeledAPIs();
