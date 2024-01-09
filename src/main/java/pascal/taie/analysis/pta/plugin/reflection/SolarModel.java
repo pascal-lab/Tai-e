@@ -53,7 +53,6 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -133,7 +132,7 @@ public class SolarModel extends InferenceModel {
             "<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>"},
             argIndexes = {BASE})
     public void classGetConstructor(Context context, Invoke invoke, PointsToSet classObjs) {
-        if (invokesWithLog.contains(invoke)) {
+        if (isIgnored(invoke)) {
             return;
         }
         classObjs.forEach(obj ->
@@ -146,27 +145,25 @@ public class SolarModel extends InferenceModel {
             argIndexes = {BASE, 0})
     public void classGetMethod(Context context, Invoke invoke,
                                PointsToSet classObjs, PointsToSet nameObjs) {
-        if (isIgnored(invoke)) {
+        Var result = invoke.getResult();
+        if (result == null || isIgnored(invoke)) {
             return;
         }
-        Var result = invoke.getResult();
-        if (result != null) {
-            classObjs.forEach(classObj -> {
-                boolean isClassUnknown = helper.isUnknownMetaObj(classObj);
-                JClass clazz = CSObjs.toClass(classObj);
-                nameObjs.forEach(nameObj -> {
-                    boolean isNameUnknown = !heapModel.isStringConstant(
-                            nameObj.getObject());
-                    String name = CSObjs.toString(nameObj);
-                    if (isClassUnknown || isNameUnknown) { // generate m^t_u, m^u_s, and m^u_u
-                        Obj unknownMethod = helper.getUnknownMethod(invoke, clazz, name);
-                        solver.addVarPointsTo(context, result, unknownMethod);
-                    } else { // generate m^t_s
-                        classGetMethodKnown(context, invoke, clazz, name);
-                    }
-                });
+        classObjs.forEach(classObj -> {
+            boolean isClassUnknown = helper.isUnknownMetaObj(classObj);
+            JClass clazz = CSObjs.toClass(classObj);
+            nameObjs.forEach(nameObj -> {
+                boolean isNameUnknown = !heapModel.isStringConstant(
+                        nameObj.getObject());
+                String name = CSObjs.toString(nameObj);
+                if (isClassUnknown || isNameUnknown) { // generate m^t_u, m^u_s, and m^u_u
+                    Obj unknownMethod = helper.getUnknownMethod(invoke, clazz, name);
+                    solver.addVarPointsTo(context, result, unknownMethod);
+                } else { // generate m^t_s
+                    classGetMethodKnown(context, invoke, clazz, name);
+                }
             });
-        }
+        });
     }
 
     @InvokeHandler(signature = {
@@ -174,25 +171,23 @@ public class SolarModel extends InferenceModel {
             "<java.lang.Class: java.lang.reflect.Method[] getDeclaredMethods()>"},
             argIndexes = {BASE})
     public void classGetMethods(Context context, Invoke invoke, PointsToSet classObjs) {
-        if (isIgnored(invoke)) {
+        Var result = invoke.getResult();
+        if (result == null || isIgnored(invoke)) {
             return;
         }
-        Var result = invoke.getResult();
-        if (result != null) {
-            CSObj methodArray = csManager.getCSObj(context, helper.getMetaObjArray(invoke));
-            ArrayIndex methodArrayIndex = csManager.getArrayIndex(methodArray);
-            classObjs.forEach(classObj -> {
-                Obj method;
-                if (helper.isUnknownMetaObj(classObj)) { // generate m^u_u
-                    method = helper.getUnknownMethod(invoke, null, null);
-                } else { // generate m^t_u
-                    JClass clazz = CSObjs.toClass(classObj);
-                    method = helper.getUnknownMethod(invoke, clazz, null);
-                }
-                solver.addPointsTo(methodArrayIndex, method);
-                solver.addVarPointsTo(context, result, methodArray);
-            });
-        }
+        CSObj methodArray = csManager.getCSObj(context, helper.getMetaObjArray(invoke));
+        ArrayIndex methodArrayIndex = csManager.getArrayIndex(methodArray);
+        classObjs.forEach(classObj -> {
+            Obj method;
+            if (helper.isUnknownMetaObj(classObj)) { // generate m^u_u
+                method = helper.getUnknownMethod(invoke, null, null);
+            } else { // generate m^t_u
+                JClass clazz = CSObjs.toClass(classObj);
+                method = helper.getUnknownMethod(invoke, clazz, null);
+            }
+            solver.addPointsTo(methodArrayIndex, method);
+            solver.addVarPointsTo(context, result, methodArray);
+        });
     }
     // ---------- Implementation of rules for propagation (ends) ----------
 
@@ -250,21 +245,18 @@ public class SolarModel extends InferenceModel {
 
     // ---------- Implementation of rules for lazy heap modeling (starts) ----------
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
-    public void classNewInstance(Context context, Invoke invoke,
-                                 PointsToSet classObjs) {
-        if (isIgnored(invoke)) {
+    public void classNewInstance(Context context, Invoke invoke, PointsToSet classObjs) {
+        Var result = invoke.getResult();
+        if (result == null || isIgnored(invoke)) {
             return;
         }
-        Var result = invoke.getResult();
-        if (result != null) {
-            for (CSObj obj : classObjs) {
-                if (helper.isUnknownMetaObj(obj)) {
-                    CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
-                    Obj unknownObj = heapModel.getMockObj(UNKNOWN_DESC,
-                            csCallSite, object, invoke.getContainer(), false);
-                    solver.addVarPointsTo(context, result, unknownObj);
-                    return;
-                }
+        for (CSObj obj : classObjs) {
+            if (helper.isUnknownMetaObj(obj)) {
+                CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
+                Obj unknownObj = heapModel.getMockObj(UNKNOWN_DESC,
+                        csCallSite, object, invoke.getContainer(), false);
+                solver.addVarPointsTo(context, result, unknownObj);
+                return;
             }
         }
     }
@@ -311,8 +303,8 @@ public class SolarModel extends InferenceModel {
 
     // ---------- Implementation of annotation guidance (starts) ----------
     @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", argIndexes = {0})
-    public void collectUnsoundArrayNewInstance(Context context, Invoke invoke,
-                                               PointsToSet classObjs) {
+    public void collectUnsoundArrayNewInstance(
+            Context __, Invoke invoke, PointsToSet classObjs) {
         if (isIgnored(invoke) || unsoundInvokes.contains(invoke)) {
             return;
         }

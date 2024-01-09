@@ -71,12 +71,13 @@ public abstract class IRModelPlugin extends ModelPlugin {
                         handler + ") return type, " +
                         "should be subclass of Collection<Stmt>");
             }
-            if (handlers.put(api, handler) != null) {
+            if (handlers.containsKey(api)) {
                 throw new RuntimeException(
                         this + " registers multiple handlers for " +
                                 api + " (in an IRModelPlugin, at most one handler " +
                                 "can be registered for a method)");
             }
+            handlers.put(api, handler);
         }
     }
 

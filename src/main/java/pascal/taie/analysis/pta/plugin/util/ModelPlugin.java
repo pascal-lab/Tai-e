@@ -27,6 +27,11 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 
 import java.lang.reflect.Method;
 
+/**
+ * Provides common functionalities for implementing the plugins which model APIs.
+ *
+ * @see InvokeHandler
+ */
 abstract class ModelPlugin extends SolverHolder implements Plugin {
 
     protected ModelPlugin(Solver solver) {

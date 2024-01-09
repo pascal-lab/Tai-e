@@ -361,7 +361,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
      */
     private static class CIEdge extends Edge<Invoke, JMethod> {
 
-        private final static Canonicalizer<String> canonicalizer = new Canonicalizer<>();
+        private static final Canonicalizer<String> canonicalizer = new Canonicalizer<>();
 
         private final String info;
 

@@ -114,7 +114,7 @@ enum Checkers {
             Set<Obj> pts = pta.getPointsToSet(v);
             if (pts.stream()
                     .map(Obj::getType)
-                    .noneMatch(actual-> typeSystem.isSubtype(expected, actual))) {
+                    .noneMatch(actual -> typeSystem.isSubtype(expected, actual))) {
                 failures.put(v, pts);
             }
         });

@@ -132,7 +132,6 @@ public class Java9StringConcatHandler implements Plugin {
      * and ignore string constants and primitive types.
      */
     private List<Stmt> generate(Invoke stringConcatMake, JMethod container) {
-        //
         // generate invocations to model string concatenation
         List<Stmt> stmts = new ArrayList<>();
         // generate sb = new StringBuilder;

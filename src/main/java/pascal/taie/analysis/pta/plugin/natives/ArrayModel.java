@@ -40,7 +40,6 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayModel extends IRModelPlugin {
@@ -74,13 +73,12 @@ public class ArrayModel extends IRModelPlugin {
         Var src = getTempVar(container, "src", objArrayType);
         Var dest = getTempVar(container, "dest", objArrayType);
         Var temp = getTempVar(container, "temp", objType);
-        List<Stmt> stmts = new ArrayList<>();
         List<Var> args = invoke.getInvokeExp().getArgs();
-        stmts.add(new Cast(src, new CastExp(args.get(0), objArrayType)));
-        stmts.add(new Cast(dest, new CastExp(args.get(2), objArrayType)));
-        stmts.add(new LoadArray(temp, new ArrayAccess(src, args.get(1))));
-        stmts.add(new StoreArray(new ArrayAccess(dest, args.get(3)), temp));
-        return stmts;
+        return List.of(
+                new Cast(src, new CastExp(args.get(0), objArrayType)),
+                new Cast(dest, new CastExp(args.get(2), objArrayType)),
+                new LoadArray(temp, new ArrayAccess(src, args.get(1))),
+                new StoreArray(new ArrayAccess(dest, args.get(3)), temp));
     }
 
     private Var getTempVar(JMethod container, String name, Type type) {
