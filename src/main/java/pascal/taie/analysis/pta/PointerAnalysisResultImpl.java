@@ -54,7 +54,6 @@ import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -299,7 +298,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
     public boolean mayAlias(Var v1, Var v2) {
         Set<Obj> s1 = getPointsToSet(v1);
         Set<Obj> s2 = getPointsToSet(v2);
-        return Sets.haveOverlap(s1, s2);
+        return !Collections.disjoint(s1, s2);
     }
 
     @Override

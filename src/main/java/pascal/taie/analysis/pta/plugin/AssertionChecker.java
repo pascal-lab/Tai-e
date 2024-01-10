@@ -41,9 +41,9 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -197,7 +197,7 @@ public class AssertionChecker implements Plugin {
         register("<PTAAssert: void disjoint(java.lang.Object,java.lang.Object)>", invoke -> {
             Var x = InvokeUtils.getVar(invoke, 0);
             Var y = InvokeUtils.getVar(invoke, 1);
-            _assert(!Sets.haveOverlap(pta.getPointsToSet(x), pta.getPointsToSet(y)), invoke);
+            _assert(Collections.disjoint(pta.getPointsToSet(x), pta.getPointsToSet(y)), invoke);
         });
         register("<PTAAssert: void calls(java.lang.String[])>", invoke -> {
             Invoke callSite = findCallSiteBefore(invoke);

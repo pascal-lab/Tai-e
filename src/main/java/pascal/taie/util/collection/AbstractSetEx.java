@@ -24,6 +24,7 @@ package pascal.taie.util.collection;
 
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 public abstract class AbstractSetEx<E> extends AbstractSet<E>
@@ -60,6 +61,6 @@ public abstract class AbstractSetEx<E> extends AbstractSet<E>
 
     @Override
     public boolean hasOverlapWith(Set<E> other) {
-        return Sets.haveOverlap(this, other);
+        return !Collections.disjoint(this, other);
     }
 }

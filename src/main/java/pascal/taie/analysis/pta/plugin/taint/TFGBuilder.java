@@ -43,6 +43,7 @@ import pascal.taie.util.graph.Reachability;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +193,7 @@ class TFGBuilder {
                     // check whether target node also contains the same
                     // taint objects as source node to filter spurious edges
                     Set<Obj> targetTaintSet = getTaintSet(edge.target());
-                    if (Sets.haveOverlap(sourceTaintSet, targetTaintSet)) {
+                    if (!Collections.disjoint(sourceTaintSet, targetTaintSet)) {
                         edges.add(edge);
                     }
                 }

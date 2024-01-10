@@ -53,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Option class for Tai-e.
@@ -465,7 +464,7 @@ public class Options implements Serializable {
             return Arrays.stream(value.split(File.pathSeparator))
                     .map(String::trim)
                     .filter(Predicate.not(String::isEmpty))
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 
