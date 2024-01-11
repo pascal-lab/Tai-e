@@ -39,8 +39,8 @@ public class TaintTest {
     @MultiStringsSource({"CharArray", TAINT_CONFIG})
     @MultiStringsSource({"FieldTaint", TAINT_CONFIG})
     @MultiStringsSource({"LinkedQueue", TAINT_CONFIG})
-    @MultiStringsSource({"CSTaint", "cs:1-obj;", TAINT_CONFIG})
-    @MultiStringsSource({"TwoObjectTaint", "cs:2-obj;", TAINT_CONFIG})
+    @MultiStringsSource({"CSTaint", "cs:1-obj", TAINT_CONFIG})
+    @MultiStringsSource({"TwoObjectTaint", "cs:2-obj", TAINT_CONFIG})
     @MultiStringsSource({"TaintCorner", TAINT_CONFIG})
     @MultiStringsSource({"CycleTaint", TAINT_CONFIG})
     @MultiStringsSource({"ComplexTaint", TAINT_CONFIG})
@@ -49,23 +49,23 @@ public class TaintTest {
     @MultiStringsSource({"BaseToResult", TAINT_CONFIG})
     @MultiStringsSource({"StringAppend", TAINT_CONFIG})
     @MultiStringsSource({"Java9StringConcat", TAINT_CONFIG})
-    @MultiStringsSource({"OneCallTaint", "cs:1-call;", TAINT_CONFIG})
-    @MultiStringsSource({"InterTaintTransfer", "cs:2-call;", TAINT_CONFIG})
-    @MultiStringsSource({"TaintInList", "cs:2-obj;", TAINT_CONFIG})
+    @MultiStringsSource({"OneCallTaint", "cs:1-call", TAINT_CONFIG})
+    @MultiStringsSource({"InterTaintTransfer", "cs:2-call", TAINT_CONFIG})
+    @MultiStringsSource({"TaintInList", "cs:2-obj", TAINT_CONFIG})
     @MultiStringsSource({"BackPropagation", TAINT_CONFIG})
-    @MultiStringsSource({"CSBackPropagation", "cs:1-obj;", TAINT_CONFIG})
-    @MultiStringsSource({"StaticTaintTransfer", TAINT_CONFIG_PREFIX
-            + "taint-config-static-taint-transfer.yml"})
-    @MultiStringsSource({"InstanceSourceSink", TAINT_CONFIG_PREFIX
-            + "taint-config-instance-source-sink.yml"})
-    @MultiStringsSource({"ArrayFieldTransfer", TAINT_CONFIG_PREFIX
-            + "taint-config-array-field-transfer.yml"})
-    @MultiStringsSource({"TaintParam", TAINT_CONFIG_PREFIX
-            + "taint-config-param-source.yml"})
-    @MultiStringsSource({"TaintCall", TAINT_CONFIG_PREFIX
-            + "taint-config-call-source.yml"})
-    @MultiStringsSource({"CallSiteMode", TAINT_CONFIG_PREFIX
-            + "taint-config-call-site-model.yml"})
+    @MultiStringsSource({"CSBackPropagation", "cs:1-obj", TAINT_CONFIG})
+    @MultiStringsSource({"StaticTaintTransfer",
+            TAINT_CONFIG_PREFIX + "taint-config-static-taint-transfer.yml"})
+    @MultiStringsSource({"InstanceSourceSink",
+            TAINT_CONFIG_PREFIX + "taint-config-instance-source-sink.yml"})
+    @MultiStringsSource({"ArrayFieldTransfer",
+            TAINT_CONFIG_PREFIX + "taint-config-array-field-transfer.yml"})
+    @MultiStringsSource({"TaintParam",
+            TAINT_CONFIG_PREFIX + "taint-config-param-source.yml"})
+    @MultiStringsSource({"TaintCall",
+            TAINT_CONFIG_PREFIX + "taint-config-call-source.yml"})
+    @MultiStringsSource({"CallSiteMode",
+            TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
     }

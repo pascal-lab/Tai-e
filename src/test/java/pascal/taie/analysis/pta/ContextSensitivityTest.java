@@ -38,8 +38,8 @@ public class ContextSensitivityTest {
      * Basic tests
      */
     @ParameterizedTest
-    @MultiStringsSource({"OneCall", "cs:1-call;",
-            "propagate-types:[reference,int];",
+    @MultiStringsSource({"OneCall", "cs:1-call",
+            "propagate-types:[reference,int]",
             "plugins:[pascal.taie.analysis.pta.plugin.NumberLiteralHandler]"})
     @MultiStringsSource({"OneObject", "cs:1-obj"})
     @MultiStringsSource({"OneType", "cs:1-type"})
