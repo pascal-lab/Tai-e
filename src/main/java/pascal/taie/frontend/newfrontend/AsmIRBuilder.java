@@ -1524,6 +1524,7 @@ public class AsmIRBuilder {
      *
      * <p>TODO: optimize block construction && edge adding</p>
      */
+    private BytecodeGraph g;
     private void buildCFG() {
         int size = source.instructions.size();
         idx2Block = new BytecodeBlock[size];
