@@ -65,13 +65,17 @@ public class AssertionChecker implements Plugin {
 
     private JClass ptaAssert;
 
-    private Map<JMethod, Consumer<Invoke>> checkers;
+    private Map<JMethod, Checker> checkers;
+
+    private Map<JMethod, Consumer<Invoke>> _checkers;
 
     private PointerAnalysisResult pta;
 
     private CallGraph<Invoke, JMethod> callGraph;
 
-    private List<Invoke> failures;
+    private List<Invoke> _failures;
+
+    private List<Result> failures;
 
     @Override
     public void setSolver(Solver solver) {
@@ -100,12 +104,19 @@ public class AssertionChecker implements Plugin {
         failures = new ArrayList<>();
         for (JMethod assertApi : checkers.keySet()) {
             for (Invoke invoke : callGraph.getCallersOf(assertApi)) {
-                checkers.get(assertApi).accept(invoke);
+                check(checkers.get(assertApi), invoke);
             }
         }
-        if (!failures.isEmpty()) {
+        processFailures(failures);
+        _failures = new ArrayList<>();
+        for (JMethod assertApi : _checkers.keySet()) {
+            for (Invoke invoke : callGraph.getCallersOf(assertApi)) {
+                _checkers.get(assertApi).accept(invoke);
+            }
+        }
+        if (!_failures.isEmpty()) {
             String message = "Pointer analysis assertion failures:\n" +
-                    failures.stream()
+                    _failures.stream()
                             .map(String::valueOf)
                             .collect(Collectors.joining("\n"));
             throw new AssertionError(message);
@@ -117,24 +128,43 @@ public class AssertionChecker implements Plugin {
      */
     private void register(String assertApiSig, Consumer<Invoke> checker) {
         JMethod assertApi = hierarchy.getMethod(assertApiSig);
-        checkers.put(assertApi, checker);
+        _checkers.put(assertApi, checker);
     }
 
     private void _assert(boolean result, Invoke invoke) {
         if (!result) {
-            failures.add(invoke);
+            _failures.add(invoke);
+        }
+    }
+
+    private void check(Checker checker, Invoke invoke) {
+        Result result = checker.check(invoke, pta);
+        if (!result.isPassed()) {
+            failures.add(result);
+        }
+    }
+
+    private static void processFailures(List<Result> failures) {
+        if (!failures.isEmpty()) {
+            StringBuilder msg = new StringBuilder("Pointer analysis assertion failures:\n");
+            failures.forEach(result -> {
+                msg.append(result.invoke()).append('\n');
+                msg.append("  expected: ").append(result.expected()).append('\n');
+                msg.append("  failures:\n");
+                result.failures().forEach((elem, givenResult) ->
+                        msg.append(String.format("    %s -> %s\n", elem, givenResult)));
+            });
+            throw new AssertionError(msg);
         }
     }
 
     private void registerCheckers() {
         checkers = Maps.newLinkedHashMap();
-        register("<PTAAssert: void notEmpty(java.lang.Object[])>", invoke -> {
-            _assert(getStoredVariables(invoke, 0)
-                            .stream()
-                            .map(pta::getPointsToSet)
-                            .noneMatch(Set::isEmpty),
-                    invoke);
-        });
+        for (var value : Checkers.values()) {
+            JMethod assertApi = hierarchy.getMethod(value.getApi());
+            checkers.put(assertApi, value.getChecker());
+        }
+        _checkers = Maps.newLinkedHashMap();
         register("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", invoke -> {
             Var expectedVar = InvokeUtils.getVar(invoke, 0);
             int expected = ((IntLiteral) expectedVar.getConstValue()).getValue();
@@ -237,5 +267,58 @@ public class AssertionChecker implements Plugin {
             }
         }
         throw new RuntimeException("No call site before " + invoke);
+    }
+
+    private record Result(boolean isPassed, Invoke invoke,
+                          String expected, Map<?, ?> failures) {
+    }
+
+    private interface Checker {
+
+        Result check(Invoke invoke, PointerAnalysisResult pta);
+    }
+
+    private enum Checkers {
+
+        NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta) -> {
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+            Set<Var> checkVars = getStoredVariables(invoke, 0);
+            String expected = String.format(
+                    "points-to sets of variables %s are not empty", checkVars);
+            checkVars.forEach(v -> {
+                Set<Obj> pts = pta.getPointsToSet(v);
+                if (pts.isEmpty()) {
+                    failures.put(v, pts);
+                }
+            });
+            return new Result(failures.isEmpty(), invoke, expected, failures);
+        });
+
+        private final String api;
+
+        private final Checker checker;
+
+        Checkers(String api, Checker checker) {
+            this.api = api;
+            this.checker = checker;
+        }
+
+        String getApi() {
+            return api;
+        }
+
+        Checker getChecker() {
+            return checker;
+        }
+
+        private static Set<Var> getStoredVariables(Invoke invoke, int index) {
+            Var array = InvokeUtils.getVar(invoke, index);
+            return invoke.getContainer().getIR()
+                    .stmts()
+                    .filter(s -> s instanceof StoreArray store
+                            && store.getArrayAccess().getBase().equals(array))
+                    .map(s -> ((StoreArray) s).getRValue())
+                    .collect(Collectors.toSet());
+        }
     }
 }
