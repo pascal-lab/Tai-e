@@ -292,10 +292,10 @@ public class TypeInference0 {
         }
     }
 
-    static Typing getBlockInitTyping(BytecodeBlock block, int varSize) {
+    Typing getBlockInitTyping(BytecodeBlock block, int varSize) {
         List<Object> frameLocalType;
         Type[] initTyping = new Type[varSize];
-        if (block.inEdges().isEmpty() && ! block.isCatch()) {
+        if (builder.isInEdgeEmpty(block) && ! block.isCatch()) {
             frameLocalType = List.of();
         } else {
             var tempInitTyping = block.getInitTyping();
@@ -453,9 +453,10 @@ public class TypeInference0 {
             });
         }
 
-        for (BytecodeBlock succ : block.outEdges()) {
+        for (int i = 0; i < builder.getOutEdgeCount(block); ++i) {
+            BytecodeBlock succ = builder.getOutEdge(block, i);
             if (!visited[succ.getIndex()] && succ.getFrame() == null) {
-                assert succ.inEdges().size() == 1;
+                assert builder.getInEdgeCount(succ) == 1;
                 inferTypesForBlock(succ, typing);
             }
         }

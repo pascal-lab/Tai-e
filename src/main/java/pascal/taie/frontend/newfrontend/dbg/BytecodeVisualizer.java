@@ -4,8 +4,10 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 import pascal.taie.frontend.newfrontend.BytecodeBlock;
+import pascal.taie.frontend.newfrontend.BytecodeGraph;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Pair;
 
 import java.io.PrintWriter;
@@ -16,25 +18,22 @@ import java.util.List;
 import java.util.function.Function;
 
 public class BytecodeVisualizer {
-    public record BytecodeGraph(List<BytecodeBlock> list,
-                                BytecodeBlock entry,
-                                List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryCatch,
-                                Function<AbstractInsnNode, Integer> getInsnIndex) {
-    }
 
-    public static String printDot(BytecodeGraph graph) {
+    public static String printDot(BytecodeGraph graph, Indexer<AbstractInsnNode> insnIndex) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
-        for (BytecodeBlock block : graph.list) {
+        for (BytecodeBlock block : graph.getBlockSortedList()) {
             sb.append(getBlockName(block))
                     .append(" [label=\"")
                     .append(getBlockDisplayName(block))
                     .append("\n")
-                    .append(getContents(graph, block))
+                    .append(getContents(graph, block, insnIndex))
                     .append("\"];\n");
         }
-        for (BytecodeBlock block : graph.list) {
-            for (BytecodeBlock succ : block.outEdges()) {
+        for (BytecodeBlock block : graph.getBlockSortedList()) {
+            for (int i = 0; i < graph.getOutEdgesCount(block.getIndex()); i++) {
+                int succIndex = graph.getOutEdge(block.getIndex(), i);
+                BytecodeBlock succ = graph.getNode(succIndex);
                 sb.append(getBlockName(block))
                         .append(" -> ")
                         .append(getBlockName(succ))
@@ -45,11 +44,11 @@ public class BytecodeVisualizer {
         return sb.toString();
     }
 
-    public static void printDotFile(BytecodeGraph graph, String name) {
+    public static void printDotFile(BytecodeGraph graph, Indexer<AbstractInsnNode> indexer, String name) {
         try {
             Path p = Path.of("output", "bytecode", name + ".dot");
             Files.createDirectories(p.getParent());
-            Files.writeString(p, printDot(graph));
+            Files.writeString(p, printDot(graph, indexer));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -63,7 +62,7 @@ public class BytecodeVisualizer {
         return "block" + " (" + block.getIndex() + ")";
     }
 
-    private static String getContents(BytecodeGraph g, BytecodeBlock block) {
+    private static String getContents(BytecodeGraph g, BytecodeBlock block, Indexer<AbstractInsnNode> indexer) {
         StringBuilder sb = new StringBuilder();
         if (block.getFrame() != null) {
             sb.append(getFrameInfo(block));
@@ -73,12 +72,12 @@ public class BytecodeVisualizer {
         for (AbstractInsnNode insn : block.instr()) {
             sb.append("[").append(count++)
                     .append(" @ ")
-                    .append(g.getInsnIndex().apply(insn))
+                    .append(indexer.getIndex(insn))
                     .append("]").append("   ");
             sb.append(printInsn(insn));
             sb.append("\n");
         }
-        return sb.toString();
+        return sb.toString().replace("\"", "\\\"");
     }
 
     public static String printInsn(AbstractInsnNode insn) {

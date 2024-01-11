@@ -85,10 +85,6 @@ public class VarWebSplitter {
         for (Var v : locals) {
             ret.remove(v);
         }
-
-        for (BytecodeBlock block : builder.blockSortedList) {
-            block.setIndex(-1);
-        }
     }
 
     public void build() {
@@ -187,20 +183,12 @@ public class VarWebSplitter {
     }
 
     private int[] getInDefs(BytecodeBlock bb) {
-        if (bb.getIndex() == -1) {
-            return null;
-        } else {
-            return block2inDefs[bb.getIndex()];
-        }
+        return block2inDefs[bb.getIndex()];
     }
 
     private int[] getOutDefs(BytecodeBlock bb) {
         assert bb.getIndex() < block2outDefs.length;
-        if (bb.getIndex() == -1) {
-            return null;
-        } else {
-            return block2outDefs[bb.getIndex()];
-        }
+        return block2outDefs[bb.getIndex()];
     }
 
     private void constructWebInsideBlock(BytecodeBlock block) {
@@ -244,11 +232,11 @@ public class VarWebSplitter {
 //                }
 //            }
 //        }
-        if (block.inEdges().isEmpty() || block == entry) {
+        if (builder.isInEdgeEmpty(block) || block == entry) {
             currentDefs = getPhantomInDefs(block);
-        } else if (block.inEdges().size() == 1 &&
-                block.inEdges().get(0).getIndex() != -1) {
-            int[] in = getOutDefs(block.inEdges().get(0));
+        } else if (builder.getInEdgeCount(block) == 1 &&
+                getOutDefs(builder.getInEdge(block, 0)) != null) {
+            int[] in = getOutDefs(builder.getInEdge(block, 0));
             assert in != null;
             currentDefs = in.clone();
         } else {
@@ -256,8 +244,8 @@ public class VarWebSplitter {
             for (int j = 0; j < locals.length; ++j) {
                 currentDefs[j] = colors.getNewColor(j);
             }
-            for (int i = 0; i < block.inEdges().size(); ++i) {
-                int[] out = getOutDefs(block.inEdges().get(i));
+            for (int i = 0; i < builder.getInEdgeCount(block); ++i) {
+                int[] out = getOutDefs(builder.getInEdge(block, i));
                 if (out != null) {
                     for (int j = 0; j < locals.length; ++j) {
                         if (out[j] == Colors.NOT_EXIST) {
@@ -377,9 +365,9 @@ public class VarWebSplitter {
         }
 
 
-        for (BytecodeBlock bytecodeBlock : block.outEdges()) {
+        for (int i = 0; i < builder.getOutEdgeCount(block); ++i) {
+            BytecodeBlock bytecodeBlock = builder.getOutEdge(block, i);
             int[] inDefs = getInDefs(bytecodeBlock);
-            assert !(bytecodeBlock.getIndex() != -1 && inDefs == null);
             if (inDefs != null) {
                 mergeTwoDefs(currentDefs, inDefs);
             }

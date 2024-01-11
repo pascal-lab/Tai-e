@@ -15,6 +15,22 @@ public interface IndexedGraph <N> {
 
     List<N> outEdges(N node);
 
+    default int getMergedInEdgesCount(int node) {
+        return inEdges(getNode(node)).size();
+    }
+
+    default int getMergedOutEdgesCount(int node) {
+        return outEdges(getNode(node)).size();
+    }
+
+    default int getMergedInEdge(int node, int index) {
+        return getIndex(inEdges(getNode(node)).get(index));
+    }
+
+    default int getMergedOutEdge(int node, int index) {
+        return getIndex(outEdges(getNode(node)).get(index));
+    }
+
     N getNode(int index);
 
     int getIndex(N node);
@@ -22,4 +38,8 @@ public interface IndexedGraph <N> {
     int size();
 
     N getEntry();
+
+    default int getIntEntry() {
+        return getIndex(getEntry());
+    }
 }

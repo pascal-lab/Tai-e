@@ -85,6 +85,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
+import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
@@ -171,7 +172,7 @@ public class AsmIRBuilder {
             buildCFG();
             traverseBlocks();
             stageTimer.endTypelessIR();
-            this.isFrameUsable = classFileVersion >= Opcodes.V1_6 && checkFrameValid();
+            this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
             if (isFrameUsable()) {
                 inferTypeWithFrame();
             } else {
@@ -182,7 +183,7 @@ public class AsmIRBuilder {
             makeExceptionTable();
             stageTimer.endTypelessIR();
             // TODO: add options for ssa toggle
-            ssa();
+//            ssa();
             makeStmts();
             makeExceptionTable();
             verify();
@@ -211,6 +212,7 @@ public class AsmIRBuilder {
         stageTimer.endSplitting();
         stageTimer.startTyping();
         // very important, need to build the exception table
+        // before the type inference.
         // e.g. (catch %1), we store type info in exception table,
         //      TypeInference need to know what type %1 is
         makeExceptionTable();
@@ -220,62 +222,9 @@ public class AsmIRBuilder {
         stageTimer.endTyping();
     }
 
-    IndexedGraph<BytecodeBlock> toGraph() {
-        // TODO: avoid reindex, indexing should be done in buildCFG / traverseBlocks
-        // add a new entry, which points to all entry blocks
-        // we need this because:
-        // 1. original cfg many has multiple entry blocks
-        // 2. there may be some edges points to entry block
-        BytecodeBlock entry = new BytecodeBlock(null, null, null);
-        entry.setIndex(0);
-        List<BytecodeBlock> blocks = new ArrayList<>();
-        blocks.add(entry);
-        int index = 1;
-        BytecodeBlock irEntry = this.entry;
-        for (BytecodeBlock block : blockSortedList) {
-            if (block.inEdges().isEmpty() || block == irEntry) {
-                block.inEdges().add(entry);
-                entry.outEdges().add(block);
-            }
-            block.setIndex(index++);
-            blocks.add(block);
-        }
-        return new IndexedGraph<>() {
-            @Override
-            public List<BytecodeBlock> inEdges(BytecodeBlock node) {
-                return node.inEdges();
-            }
-
-            @Override
-            public List<BytecodeBlock> outEdges(BytecodeBlock node) {
-                return node.outEdges();
-            }
-
-            @Override
-            public BytecodeBlock getNode(int index) {
-                return blocks.get(index);
-            }
-
-            @Override
-            public int getIndex(BytecodeBlock node) {
-                return node.getIndex();
-            }
-
-            @Override
-            public int size() {
-                return blocks.size();
-            }
-
-            @Override
-            public BytecodeBlock getEntry() {
-                return entry;
-            }
-        };
-    }
-
     void ssa() {
         SSATransform<BytecodeBlock> ssa =
-                new SSATransform<>(method, toGraph(), manager, duInfo, !exceptionEntries.isEmpty());
+                new SSATransform<>(method, g, manager, duInfo, !exceptionEntries.isEmpty());
         ssa.build();
     }
 
@@ -284,30 +233,37 @@ public class AsmIRBuilder {
     }
 
     // TODO: optimize
-    public boolean checkFrameValid() {
-        for (BytecodeBlock block : blockSortedList) {
-            if (block.inEdges().size() >= 2 && block.getFrame() == null) {
-                return false;
-            }
-
-            if (block.outEdges().size() >= 2 &&
-                    block.outEdges().stream().allMatch(o -> o.getFrame() == null)) {
-                return false;
-            }
-
-            if (block.isCatch() && block.getFrame() == null) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    public boolean checkFrameValid() {
+//        for (BytecodeBlock block : blockSortedList) {
+//            if (block.inEdges().size() >= 2 && block.getFrame() == null) {
+//                return false;
+//            }
+//
+//            if (block.outEdges().size() >= 2 &&
+//                    block.outEdges().stream().allMatch(o -> o.getFrame() == null)) {
+//                return false;
+//            }
+//
+//            if (block.isCatch() && block.getFrame() == null) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     public void dump() {
-        BytecodeVisualizer.printDotFile(
-                new BytecodeVisualizer.BytecodeGraph(blockSortedList,
-                        this.entry,
-                        getTryAndHandlerBlocks(),
-                        this::getIndex),
+        BytecodeVisualizer.printDotFile(g,
+                new Indexer<>() {
+                    @Override
+                    public int getIndex(AbstractInsnNode o) {
+                        return getIndex(o);
+                    }
+
+                    @Override
+                    public AbstractInsnNode getObject(int index) {
+                        return source.instructions.get(index);
+                    }
+                },
                 method.toString());
     }
 
@@ -599,24 +555,17 @@ public class AsmIRBuilder {
 
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = getBlockFromLabel(label);
-        if (block == null || block.getStmts().isEmpty()) {
-            if (block != null) {
-                logger.atTrace().log(method + ", empty block / labels : " + label);
+        while (block.getStmts().isEmpty()) {
+            BytecodeBlock next1 = getOutEdge(block, 0);
+            BytecodeBlock next2 = blockSortedList.get(block.getIndex() + 1);
+            if (next1 != next2) {
+                // should not happen, which means refer to unreachable code
+                // but may happen in real world code (this is valid bytecode)
+                logger.atInfo().log("[IR] Unreachable code reference detected in method: "
+                        + method.toString());
             }
-            AbstractInsnNode next = label.getNext();
-            if (next instanceof LabelNode labelNode) {
-                return getFirstStmt(labelNode);
-            } else {
-                logger.atTrace().log("[IR] All possible method fail to get a valid stmt for a label" + "\n" +
-                                    "     Please check IR of this method: " + method);
-                while (asm2Stmt[getIndex(next)] == null) {
-                    next = next.getNext();
-                    assert next != null;
-                }
-                return asm2Stmt[getIndex(next)];
-            }
+            block = next2;
         }
-
         return block.getStmts().get(0);
     }
 
@@ -676,6 +625,7 @@ public class AsmIRBuilder {
             } else {
                 end = getFirstStmt(node.end);
             }
+            assert start.getIndex() != -1;
             Stmt handler = getFirstStmt(node.handler);
             Type expType = getExceptionType(node.type);
             res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
@@ -1123,7 +1073,8 @@ public class AsmIRBuilder {
 //            }
 //        }
 
-        for (BytecodeBlock outEdge : block.outEdges()) {
+        for (int j = 0; j < getOutEdgeCount(block); ++j) {
+            BytecodeBlock outEdge = getOutEdge(block, j);
             if (outEdge.getInStack() != null) {
                 assert outEdge.getInStack().size() == nowStack.size();
                 for (int i = 0; i < nowStack.size(); ++i) {
@@ -1147,17 +1098,19 @@ public class AsmIRBuilder {
 
     private Stack<StackItem> getInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
-        if (block.inEdges().isEmpty()) {
+        if (isInEdgeEmpty(block)) {
             inStack = null;
         } else {
             inStack = new Stack<>();
             List<Stack<StackItem>> stacks = new ArrayList<>();
-            for (BytecodeBlock inEdge : block.inEdges()) {
+            for (int i = 0; i < getInEdgeCount(block); ++i) {
+                BytecodeBlock inEdge = getInEdge(block, i);
                 if (inEdge.getOutStack() != null) {
                     stacks.add(inEdge.getOutStack());
                 }
             }
-            boolean canFastMerge = stacks.size() == block.inEdges().size();
+            boolean canFastMerge = stacks.size() == getInEdgeCount(block);
+            assert !stacks.isEmpty();
             for (int i = 0; i < stacks.get(0).size(); ++i) {
                 List<StackItem> exps = new ArrayList<>();
                 for (Stack<StackItem> stack : stacks) {
@@ -1230,7 +1183,8 @@ public class AsmIRBuilder {
         }
         Map<Var, Integer> killed = Maps.newMap();
         List<Stmt> auxiliary = new ArrayList<>();
-        for (BytecodeBlock outEdge : block.outEdges()) {
+        for (int j = 0; j < getOutEdgeCount(block); ++j) {
+            BytecodeBlock outEdge = getOutEdge(block, j);
             Stack<StackItem> inStack = outEdge.getInStack();
             Stack<StackItem> outStack = block.getOutStack();
             for (int i = 0; i < inStack.size(); ++i) {
@@ -1541,8 +1495,7 @@ public class AsmIRBuilder {
         int index = getIndex(target);
         BytecodeBlock b = idx2Block[index];
         assert b != null;
-        now.outEdges().add(b);
-        b.inEdges().add(now);
+        g.addEdge(now.getIndex(), b.getIndex());
     }
 
     private void processEdges(BytecodeBlock now, List<LabelNode> targets) {
@@ -1589,10 +1542,18 @@ public class AsmIRBuilder {
             getBlock(now.start);
             getBlock(now.end);
             idx2Block[getIndex(now.handler)] =
-                    new BytecodeBlock(now.handler, null, getExceptionType(now.type));
+                    createNewBlock(now.handler, getExceptionType(now.type));
         }
 
+        FlattenExceptionTable fet = new FlattenExceptionTable(source);
+        boolean inTry = false;
+        int[] trySwitch = fet.buildExceptionSwitches();
+        int trySwitchIndex = 0;
         for (int i = 0; i < size; ++i) {
+            while (trySwitchIndex < trySwitch.length && trySwitch[trySwitchIndex] == i) {
+                inTry = !inTry;
+                trySwitchIndex++;
+            }
             AbstractInsnNode now = source.instructions.get(i);
             boolean needNoBlock = true;
             if (now instanceof JumpInsnNode jmp) {
@@ -1624,6 +1585,14 @@ public class AsmIRBuilder {
                         needNoBlock = false;
                         fallThroughTable[i] = false;
                     }
+                } else if (now instanceof VarInsnNode varNode) {
+                    if (inTry) {
+                        needNoBlock = false;
+                    }
+                } else if (now instanceof IincInsnNode iincInsnNode) {
+                    if (inTry) {
+                        needNoBlock = false;
+                    }
                 }
             }
 
@@ -1636,6 +1605,8 @@ public class AsmIRBuilder {
         }
 
         this.blockSortedList = new ArrayList<>(size / 4);
+        g = new BytecodeGraph(maxBlockCounter);
+
         AbstractInsnNode[] edgeInsn = new AbstractInsnNode[size];
         BytecodeBlock current = idx2Block[0];
         assert current != null;
@@ -1662,8 +1633,8 @@ public class AsmIRBuilder {
                     current = idx2Block[i];
                     start = i;
                     if (fallThrough) {
-                        prev.outEdges().add(current);
-                        current.inEdges().add(prev);
+                        // prev.getIndex() must be counter
+                        g.addEdge(counter, counter + 1);
                     }
                 }
             }
@@ -1695,13 +1666,23 @@ public class AsmIRBuilder {
             }
         }
 
-        for (int i = 0; i < blockSortedList.size() - 1; i++) {
-            assert !blockSortedList.get(i).equals(blockSortedList.get(i + 1));
+        addExceptionEdges();
+        g.setEntry(entry);
+        g.setBlockSortedList(blockSortedList);
+    }
+
+    private void addExceptionEdges() {
+        for (TryCatchBlockNode now : source.tryCatchBlocks) {
+            BytecodeBlock handler = getBlock(now.handler);
+            BytecodeBlock start = getBlock(now.start);
+            BytecodeBlock end = getBlock(now.end);
+            for (int i = start.getIndex(); i < end.getIndex(); ++i) {
+                g.addExceptionEdge(i, handler.getIndex());
+            }
         }
     }
 
     private BytecodeBlock getBlock(AbstractInsnNode label) {
-//        return label2Block.computeIfAbsent(label, this::createNewBlock);
         int idx = getIndex(label);
         if (idx2Block[idx] == null) {
             LabelNode labelNode = (label instanceof LabelNode)
@@ -1712,8 +1693,15 @@ public class AsmIRBuilder {
         return idx2Block[idx];
     }
 
+    private int maxBlockCounter = 0;
     private BytecodeBlock createNewBlock(LabelNode label) {
+        maxBlockCounter++;
         return new BytecodeBlock(label, null);
+    }
+
+    private BytecodeBlock createNewBlock(LabelNode label, Type exceptionType) {
+        maxBlockCounter++;
+        return new BytecodeBlock(label, null, exceptionType);
     }
 
     private LabelNode createNewLabel(AbstractInsnNode next) {
@@ -1814,8 +1802,9 @@ public class AsmIRBuilder {
             if (!hasInStack[i] && !bytecodeBlock.isCatch()) {
                 return false;
             }
-            for (BytecodeBlock succ : bytecodeBlock.outEdges()) {
-                hasInStack[succ.getIndex()] = true;
+            for (int j = 0; j < getOutEdgeCount(bytecodeBlock); ++j) {
+                int succ = getOutEdgeIndex(bytecodeBlock, j);
+                hasInStack[succ] = true;
             }
         }
 
@@ -1825,7 +1814,8 @@ public class AsmIRBuilder {
     private void traverseBlocks() {
         entry.setInStack(new Stack<>());
 
-        boolean canBeTraversedInBytecodeOrder = canBeTraversedInBytecodeOrder();
+//        boolean canBeTraversedInBytecodeOrder = canBeTraversedInBytecodeOrder();
+        boolean canBeTraversedInBytecodeOrder = false;
         // assert canBeTraversedInBytecodeOrder; // This assertion should be satisfied at most times. Remove when released.
         if (canBeTraversedInBytecodeOrder) {
             for (var bb : blockSortedList) {
@@ -1845,7 +1835,8 @@ public class AsmIRBuilder {
 
                 buildBlockStmt(bb);
 
-                for (BytecodeBlock succ : bb.outEdges()) {
+                for (int i = 0; i < getOutEdgeCount(bb); ++i) {
+                    BytecodeBlock succ = getOutEdge(bb, i);
                     if (!visited.contains(succ)) {
                         workList.offer(succ);
                     }
@@ -1903,36 +1894,68 @@ public class AsmIRBuilder {
         return this.tryAndHandlerBlocks;
     }
 
-    /**
-     * Get the blocks that is in an arbitrary path from start to end.
-     * WARNING: before calling this method, caller should have know that {@param start} and {@param end}
-     * are dominators of the result set.
-     * @param start (not null) the forward dominator of the result set.
-     * @param end (not null) the backward dominator of the result set.
-     * @return a list of blocks, and each of the elements is in an arbitrary path from start(inclusive)
-     * to end(exclusive), in bfs order.
-     */
-    private List<BytecodeBlock> getStartToEndBlocks(BytecodeBlock start, BytecodeBlock end) {
-        assert end != null && start != null;
-        Queue<BytecodeBlock> workList = new LinkedList<>();
-        workList.offer(start);
-        List<BytecodeBlock> closure = new ArrayList<>();
-        while (workList.peek() != null) {
-            var bb = workList.poll();
-            if (!closure.contains(bb) && bb != end) {
-                closure.add(bb);
-                for (var succ : bb.outEdges()) {
-                    workList.offer(succ);
-                }
-            }
-        }
-
-        return closure;
-    }
+//    /**
+//     * Get the blocks that is in an arbitrary path from start to end.
+//     * WARNING: before calling this method, caller should have know that {@param start} and {@param end}
+//     * are dominators of the result set.
+//     * @param start (not null) the forward dominator of the result set.
+//     * @param end (not null) the backward dominator of the result set.
+//     * @return a list of blocks, and each of the elements is in an arbitrary path from start(inclusive)
+//     * to end(exclusive), in bfs order.
+//     */
+//    private List<BytecodeBlock> getStartToEndBlocks(BytecodeBlock start, BytecodeBlock end) {
+//        assert end != null && start != null;
+//        Queue<BytecodeBlock> workList = new LinkedList<>();
+//        workList.offer(start);
+//        List<BytecodeBlock> closure = new ArrayList<>();
+//        while (workList.peek() != null) {
+//            var bb = workList.poll();
+//            if (!closure.contains(bb) && bb != end) {
+//                closure.add(bb);
+//                for (var succ : bb.outEdges()) {
+//                    workList.offer(succ);
+//                }
+//            }
+//        }
+//
+//        return closure;
+//    }
 
     public IR getIr() {
         return ir;
     }
 
+    int getOutEdgeCount(BytecodeBlock block) {
+        return g.getOutEdgesCount(block.getIndex());
+    }
 
+    int getInEdgeCount(BytecodeBlock block) {
+        return g.getInEdgesCount(block.getIndex());
+    }
+
+    int getOutEdgeIndex(BytecodeBlock block, int outIndex) {
+        return g.getOutEdge(block.getIndex(), outIndex);
+    }
+
+    int getInEdgeIndex(BytecodeBlock block, int inIndex) {
+        return g.getInEdge(block.getIndex(), inIndex);
+    }
+
+    BytecodeBlock getOutEdge(BytecodeBlock block, int index) {
+        int idx = getOutEdgeIndex(block, index);
+        return blockSortedList.get(idx);
+    }
+
+    BytecodeBlock getInEdge(BytecodeBlock block, int index) {
+        int idx = getInEdgeIndex(block, index);
+        return blockSortedList.get(idx);
+    }
+
+    boolean isInEdgeEmpty(BytecodeBlock block) {
+        return getInEdgeCount(block) == 0;
+    }
+
+    boolean isOutEdgeEmpty(BytecodeBlock block) {
+        return getOutEdgeCount(block) == 0;
+    }
 }

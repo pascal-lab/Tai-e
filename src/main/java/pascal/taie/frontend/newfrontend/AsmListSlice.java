@@ -23,6 +23,10 @@ public class AsmListSlice implements List<AbstractInsnNode> {
      */
     private final int start;
 
+    public int getEnd() {
+        return end;
+    }
+
     /**
      * exclusive
      */

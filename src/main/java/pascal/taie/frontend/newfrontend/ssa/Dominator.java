@@ -19,9 +19,30 @@ public class Dominator<N> {
 
     private final int[] postIndex;
 
+    /**
+     * <p>The (semi, or partial) post order of the graph.
+     * The value of {@code postOrder[i]} is the node index of the ith node in the post order.
+     * </p>
+     *
+     * <p>It can be proved that, if the {@code postOrder} array is constructed by dfs
+     * (as implemented here), then such array satisfies the following property:
+     * </p>
+     *
+     * <p>for all {@code i}, there're {@code j}, s.t.
+     * <ol>
+     *     <li>{@code j >= i}</li>
+     *     <li>{@code postOrder[j] `idom` postOrder[i]}</li>
+     * </ol>
+     * </p>
+     *
+     * <p>So, if we traverse the graph in reverse post order, for any block,
+     * its immediate dominator must have been visited.</p>
+     */
     private final int[] postOrder;
 
     private int[] dom;
+
+    private int[] height;
 
     public static final int UNDEFINED = -1;
 
@@ -79,10 +100,10 @@ public class Dominator<N> {
             df[i] = new SparseSet(graph.size(), graph.size());
         }
         for (int i = 0; i < graph.size(); ++i) {
-            N node = graph.getNode(i);
-            if (graph.inEdges(node).size() >= 2) {
-                for (N p : graph.inEdges(node)) {
-                    int runner = graph.getIndex(p);
+            int size = graph.getMergedInEdgesCount(i);
+            if (size >= 2) {
+                for (int j = 0; j < size; ++j) {
+                    int runner = graph.getMergedInEdge(i, j);
                     while (runner != dom[i]) {
                         assert runner != -1;
                         df[runner].add(i);
@@ -94,23 +115,50 @@ public class Dominator<N> {
         return new DominatorFrontiers(df);
     }
 
+    public int[] assignDomTreeHeight() {
+        if (height == null) {
+            int[] dom = getDomTree();
+            height = new int[graph.size()];
+            Arrays.fill(height, -1);
+            for (int i = 0; i < graph.size(); ++i) {
+                climbDomTree(i, height);
+            }
+        }
+        return height;
+    }
+
+    private void climbDomTree(int runner, int[] height) {
+        if (height[runner] != -1) {
+            return;
+        } else if (dom[runner] == runner) {
+            height[runner] = 0;
+            return;
+        } else if (height[dom[runner]] != -1) {
+            height[runner] = height[dom[runner]] + 1;
+            return;
+        } else {
+            climbDomTree(dom[runner], height);
+            height[runner] = height[dom[runner]] + 1;
+        }
+    }
+
     private void dfsTrav() {
         boolean[] visited = new boolean[graph.size()];
-        dfs(graph.getEntry(), visited);
+        dfs(graph.getIntEntry(), visited);
     }
 
     int post;
-    private void dfs(N node, boolean[] visited) {
-        int idx = graph.getIndex(node);
-        visited[idx] = true;
-        for (N succ : graph.outEdges(node)) {
-            if (!visited[graph.getIndex(succ)]) {
+    private void dfs(int node, boolean[] visited) {
+        visited[node] = true;
+        for (int i = 0; i < graph.getMergedOutEdgesCount(node); ++i) {
+            int succ = graph.getMergedOutEdge(node, i);
+            if (!visited[succ]) {
                 dfs(succ, visited);
             }
         }
         int currentPost = post++;
-        postOrder[currentPost] = idx;
-        postIndex[idx] = currentPost;
+        postOrder[currentPost] = node;
+        postIndex[node] = currentPost;
     }
 
     private boolean loopTrav(int[] dom) {
@@ -118,19 +166,19 @@ public class Dominator<N> {
         // reverse post order
         for (int i = graph.size() - 1; i >= 0; --i) {
             int node = postOrder[i];
-            changed |= processNode(dom, graph.getNode(node));
+            changed |= processNode(dom, node);
         }
         return changed;
     }
 
-    boolean processNode(int[] dom, N node) {
-        List<N> pred = graph.inEdges(node);
-        if (pred.isEmpty()) {
+    boolean processNode(int[] dom, int node) {
+        int prevCount = graph.getMergedInEdgesCount(node);
+        if (prevCount == 0) {
             return false;
         }
         int newIdom = UNDEFINED;
-        for (N pn : pred) {
-            int p = graph.getIndex(pn);
+        for (int i = 0; i < prevCount; ++i) {
+            int p = graph.getMergedInEdge(node, i);
             if (dom[p] == UNDEFINED) {
                 continue;
             }
@@ -140,8 +188,8 @@ public class Dominator<N> {
             }
             newIdom = intersect(dom, p, newIdom);
         }
-        if (dom[graph.getIndex(node)] != newIdom) {
-            dom[graph.getIndex(node)] = newIdom;
+        if (dom[node] != newIdom) {
+            dom[node] = newIdom;
             return true;
         }
         return false;

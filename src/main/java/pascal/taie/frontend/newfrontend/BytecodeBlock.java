@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 
 public final class BytecodeBlock implements IBasicBlock {
@@ -25,17 +24,12 @@ public final class BytecodeBlock implements IBasicBlock {
     private int index = -1;
 
     private AsmListSlice instr;
-    private final List<BytecodeBlock> inEdges;
-    private final List<BytecodeBlock> outEdges;
 
     private Stack<StackItem> inStack;
 
     private Stack<StackItem> outStack;
 
     private List<Stmt> stmts;
-
-    @Nullable
-    private BytecodeBlock fallThrough;
 
     private FrameNode frame;
 
@@ -56,10 +50,7 @@ public final class BytecodeBlock implements IBasicBlock {
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, @Nullable Type exceptionHandlerType) {
         this.label = label;
-        this.inEdges = new ArrayList<>();
-        this.outEdges = new ArrayList<>();
         this.stmts = new ArrayList<>();
-        this.fallThrough = fallThrough;
         this.complete = false;
         this.exceptionHandlerType = exceptionHandlerType;
     }
@@ -74,27 +65,6 @@ public final class BytecodeBlock implements IBasicBlock {
 
     public void setInstr(AsmListSlice instr) {
         this.instr = instr;
-    }
-
-    public List<BytecodeBlock> inEdges() {
-        return inEdges;
-    }
-
-    public List<BytecodeBlock> outEdges() {
-        return outEdges;
-    }
-
-    @Nullable
-    public BytecodeBlock fallThrough() {
-        return fallThrough;
-    }
-
-    public void setFallThrough(BytecodeBlock fallThrough) {
-        this.fallThrough = fallThrough;
-    }
-
-    public boolean isComplete() {
-        return complete;
     }
 
     public boolean isCatch() {
@@ -220,8 +190,6 @@ public final class BytecodeBlock implements IBasicBlock {
                 }
                 n++;
             }
-        } else {
-            assert inEdges.isEmpty();
         }
         return typing;
     }
@@ -292,18 +260,6 @@ public final class BytecodeBlock implements IBasicBlock {
 
     AbstractInsnNode getOrig(int index) {
         return instr.get(stmt2Asm[index]);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (BytecodeBlock) obj;
-        return Objects.equals(this.label, that.label) &&
-                Objects.equals(this.instr, that.instr) &&
-                Objects.equals(this.inEdges, that.inEdges) &&
-                Objects.equals(this.outEdges, that.outEdges) &&
-                Objects.equals(this.fallThrough, that.fallThrough);
     }
 
     public void setIndex(int i) {
