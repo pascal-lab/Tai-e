@@ -20,17 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin;
+package pascal.taie.analysis.pta.plugin.assertion;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -38,10 +37,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
@@ -170,27 +166,6 @@ public class AssertionChecker implements Plugin {
             checkers.put(assertApi, value.getChecker());
         }
         _checkers = Maps.newLinkedHashMap();
-        register("<PTAAssert: void hasInstanceOf(java.lang.Object,java.lang.String[])>", invoke -> {
-            Var x = InvokeUtils.getVar(invoke, 0);
-            Set<JClass> actualClasses = pta.getPointsToSet(x)
-                    .stream()
-                    .map(obj -> ((ClassType) obj.getType()).getJClass())
-                    .collect(Collectors.toSet());
-            Set<JClass> expectedClasses = getStoredVariables(invoke, 1)
-                    .stream()
-                    .map(v -> ((StringLiteral) v.getConstValue()).getString())
-                    .map(hierarchy::getClass)
-                    .collect(Collectors.toSet());
-            _assert(expectedClasses.stream()
-                            .allMatch(expected -> actualClasses.stream()
-                                    .anyMatch(actual -> hierarchy.isSubclass(expected, actual))),
-                    invoke);
-        });
-        register("<PTAAssert: void notEquals(java.lang.Object,java.lang.Object)>", invoke -> {
-            Var x = InvokeUtils.getVar(invoke, 0);
-            Var y = InvokeUtils.getVar(invoke, 1);
-            _assert(!pta.getPointsToSet(x).equals(pta.getPointsToSet(y)), invoke);
-        });
         register("<PTAAssert: void disjoint(java.lang.Object,java.lang.Object)>", invoke -> {
             Var x = InvokeUtils.getVar(invoke, 0);
             Var y = InvokeUtils.getVar(invoke, 1);
@@ -234,129 +209,5 @@ public class AssertionChecker implements Plugin {
             }
         }
         throw new RuntimeException("No call site before " + invoke);
-    }
-
-    private record Result(Invoke invoke, String assertion, Map<?, ?> failures) {
-    }
-
-    private interface Checker {
-
-        Result check(Invoke invoke, PointerAnalysisResult pta,
-                     ClassHierarchy hierarchy, TypeSystem typeSystem);
-    }
-
-    private enum Checkers {
-
-        NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta, __, ___) -> {
-            List<Var> checkVars = getStoredVariables(invoke, 0);
-            String assertion = String.format(
-                    "points-to sets of variables %s are not empty", checkVars);
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            checkVars.forEach(v -> {
-                Set<Obj> pts = pta.getPointsToSet(v);
-                if (pts.isEmpty()) {
-                    failures.put(v, pts);
-                }
-            });
-            return new Result(invoke, assertion, failures);
-        }),
-        SIZE_EQUALS("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", (invoke, pta, __, ___) -> {
-            int size = getInt(invoke, 0);
-            List<Var> checkVars = getStoredVariables(invoke, 1);
-            String assertion = String.format(
-                    "size of points-to sets of variables %s is %d", checkVars, size);
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            checkVars.forEach(v -> {
-                Set<Obj> pts = pta.getPointsToSet(v);
-                if (pts.size() != size) {
-                    failures.put(v, pts);
-                }
-            });
-            return new Result(invoke, assertion, failures);
-        }),
-        EQUALS("<PTAAssert: void equals(java.lang.Object[])>", (invoke, pta, __, ___) -> {
-            List<Var> checkVars = getStoredVariables(invoke, 0);
-            String assertion = String.format(
-                    "points-to sets of variables %s are equal", checkVars);
-            Set<Obj> pts = pta.getPointsToSet(CollectionUtils.getOne(checkVars));
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            if (!checkVars.stream()
-                    .map(pta::getPointsToSet)
-                    .allMatch(pts::equals)) {
-                checkVars.forEach(v -> failures.put(v, pta.getPointsToSet(v)));
-            }
-            return new Result(invoke, assertion, failures);
-        }),
-        CONTAINS("<PTAAssert: void contains(java.lang.Object,java.lang.Object[])>", (invoke, pta, __, ___) -> {
-            Var x = InvokeUtils.getVar(invoke, 0);
-            List<Var> checkVars = getStoredVariables(invoke, 1);
-            String assertion = String.format(
-                    "pt(%s) contains points-to sets of variables %s", x, checkVars);
-            Set<Obj> xPts = pta.getPointsToSet(x);
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            checkVars.forEach(v -> {
-                Set<Obj> vPts = pta.getPointsToSet(v);
-                if (!xPts.containsAll(vPts)) {
-                    failures.put(x, xPts);
-                    failures.put(v, vPts);
-                }
-            });
-            return new Result(invoke, assertion, failures);
-        }),
-        INSTANCEOF_IN("<PTAAssert: void instanceOfIn(java.lang.String,java.lang.Object[])>", (invoke, pta, __, typeSystem) -> {
-            String typeName = getString(invoke, 0);
-            Type expected = typeSystem.getType(typeName);
-            List<Var> checkVars = getStoredVariables(invoke, 1);
-            String assertion = String.format(
-                    "points-to sets of variables %s has instance of %s", checkVars, expected);
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            checkVars.forEach(v -> {
-                Set<Obj> pts = pta.getPointsToSet(v);
-                if (pts.stream()
-                        .map(Obj::getType)
-                        .noneMatch(actual-> typeSystem.isSubtype(expected, actual))) {
-                    failures.put(v, pts);
-                }
-            });
-            return new Result(invoke, assertion, failures);
-        }),
-        ;
-
-        private final String api;
-
-        private final Checker checker;
-
-        Checkers(String api, Checker checker) {
-            this.api = api;
-            this.checker = checker;
-        }
-
-        String getApi() {
-            return api;
-        }
-
-        Checker getChecker() {
-            return checker;
-        }
-
-        private static int getInt(Invoke invoke, int index) {
-            return ((IntLiteral) InvokeUtils.getVar(invoke, index).getConstValue())
-                    .getValue();
-        }
-
-        private static String getString(Invoke invoke, int index) {
-            return ((StringLiteral) InvokeUtils.getVar(invoke, index).getConstValue())
-                    .getString();
-        }
-
-        private static List<Var> getStoredVariables(Invoke invoke, int index) {
-            Var array = InvokeUtils.getVar(invoke, index);
-            return invoke.getContainer().getIR()
-                    .stmts()
-                    .filter(s -> s instanceof StoreArray store
-                            && store.getArrayAccess().getBase().equals(array))
-                    .map(s -> ((StoreArray) s).getRValue())
-                    .toList();
-        }
     }
 }

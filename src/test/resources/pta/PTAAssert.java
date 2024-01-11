@@ -51,7 +51,7 @@ public final class PTAAssert {
      * Asserts that for all vi in vars: pt(vi) contains objects of specified class.
      * NOTE: {@code className} must be a String constant.
      */
-    public static void hasInstanceOf(String className, Object... vars) {
+    public static void instanceOfIn(String className, Object... vars) {
     }
 
     /**
