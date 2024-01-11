@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -183,6 +184,34 @@ public final class Views {
 
         private MappedSetView(Collection<T> backing, Function<T, R> mapper) {
             super(backing, mapper);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof Set)) {
+                return false;
+            }
+            Collection<?> c = (Collection<?>) o;
+            if (c.size() != size()) {
+                return false;
+            }
+            try {
+                return containsAll(c);
+            } catch (ClassCastException | NullPointerException unused) {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int h = 0;
+            for (R obj : this) {
+                h += Objects.hashCode(obj);
+            }
+            return h;
         }
     }
 

@@ -57,4 +57,15 @@ public class ViewsTest {
         }
         assertEquals(55, total);
     }
+
+    @Test
+    void testMapSet() {
+        Set<Integer> set = Set.of(1, 3, 5);
+        Set<Pair<String, Integer>> pairs = Set.of(
+                new Pair<>("1", 1),
+                new Pair<>("3", 3),
+                new Pair<>("5", 5));
+        Set<Integer> setView = Views.toMappedSet(pairs, Pair::second);
+        assertEquals(setView, set);
+    }
 }
