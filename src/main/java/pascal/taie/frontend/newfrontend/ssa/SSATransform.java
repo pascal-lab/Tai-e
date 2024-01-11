@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -92,7 +93,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 for (Stmt stmt : graph.getNode(i).getStmts()) {
                     if (stmt instanceof PhiStmt p) {
                         boolean useless = isUseless.has(p.getLValue().getIndex());
-                        boolean renamed = p.getLValue() != p.getBase();
+                        boolean renamed = p.renamed;
                         boolean undead = p.getRValue().getUses().size() > 1;
                         assert !useless && (renamed && undead);
                     }
@@ -143,7 +144,7 @@ public class SSATransform<Block extends IBasicBlock> {
         SparseSet current = new SparseSet(graph.size(), graph.size());
         for (Var v : nonSSAVars) {
             if (!isVarToBeSSA(v)) continue;
-            List<IBasicBlock> defBlocks = info.getDefBlock(v);
+            Set<IBasicBlock> defBlocks = info.getDefBlock(v);
             for (IBasicBlock block : defBlocks) {
                 current.add(block.getIndex());
             }
@@ -214,16 +215,17 @@ public class SSATransform<Block extends IBasicBlock> {
                 incId.put(v, 1);
             }
         }
-        // Initial definitions of parameters for the pseudo entry.
+        // Initial definitions of parameters.
         // And the rest vars could be left to null safely because JVM based languages are strict.
         IndexMap<Var, Var> entryDefs = new IndexMap<>(indexer, nonSSAVars.length);
         for (Var p : params) {
             entryDefs.put(p, p);
         }
         IndexMap<Var, Var>[] reachingDefsForBlocks = new IndexMap[graph.size()];
-        // Set and propagate defs for entry node.
+        // Set defs for actual entry node.
         reachingDefsForBlocks[postOrder[graph.size() - 1]] = entryDefs;
-        propagateDefsToSuccBlocks(graph.getEntry(), entryDefs);
+        // Propagate params defs to the phis leading the actual entry node.
+        propagatePhisToSucc(null, entryDefs, graph.getEntry()); // null to represent params.
 
         /* The traversal order in the original algorithm is stricter than needed. Indeed, Here it
          * just has to satisfy that when traversed, the current reachingDef is the def that
@@ -231,7 +233,7 @@ public class SSATransform<Block extends IBasicBlock> {
          * Reverse post order is a depth-right first traversal which satisfies the data dependency.
          * Use it for efficiency, the cost is the number of variables are not in order.
          */
-        for (int i = graph.size() - 2; i >= 0; --i) { // i = graph.size()-2 or -1?
+        for (int i = graph.size() - 1; i >= 0; --i) {
             int node = postOrder[i];
             IndexMap<Var, Var> reachingDefs = new IndexMap<>(reachingDefsForBlocks[dom[node]]);
             Block block = graph.getNode(node);
@@ -258,14 +260,15 @@ public class SSATransform<Block extends IBasicBlock> {
                     // only update uses for non-phi stmts.
                     Pair<Stmt, Var> p =
                             replaceStmtAndUpdateDefs.apply(phiStmt, phiStmt.getBase(), Map.of());
-                    Stmt newStmt = p.first();
+                    PhiStmt newStmt = (PhiStmt) p.first();
                     Var freshVar = p.second();
+                    newStmt.renamed = true;
                     // place initial marking phase for pruning step for performance
                     if (DEBUG) {
                         isPhiDefiningVar.add(freshVar.getIndex());
                     }
                     isUseless.add(freshVar.getIndex()); // Collect for pruning.
-                    correspondingPhiStmts.put(freshVar, (PhiStmt) newStmt);
+                    correspondingPhiStmts.put(freshVar, newStmt);
                 } else if (
                         stmt instanceof DefinitionStmt<?, ?> defStmt
                                 && defStmt.getLValue() instanceof Var base
@@ -293,7 +296,7 @@ public class SSATransform<Block extends IBasicBlock> {
             }
             block.setStmts(newStmts);
 
-            propagateDefsToSuccBlocks(block, reachingDefs);
+            propagateDefsToSuccBlocksPhis(block, reachingDefs);
 
             reachingDefsForBlocks[node] = reachingDefs;
         }
@@ -325,31 +328,35 @@ public class SSATransform<Block extends IBasicBlock> {
         StmtVarVisitor.visitUse(stmt, this::markUseful);
     }
 
-    private void propagateDefsToSuccBlocks(Block block, IndexMap<Var, Var> reachingDefs) {
+    private void propagatePhisToSucc(Block pred, IndexMap<Var, Var> reachingDefs, Block succ) {
+        int succNode = graph.getIndex(succ);
+        if (phis.get(succNode) == null) {
+            return;
+        }
+        for (Stmt p : phis.get(succNode)) {
+            PhiStmt phi = (PhiStmt) p;
+            Var base = phi.getBase();
+            Var reachingDef = reachingDefs.get(base);
+            if (reachingDef != null) {
+                // if such reaching def doesn't exist (is null), due to the strictness
+                // of Java (maybe all the JVM based languages), the phi stmt is dead,
+                // and it would be pruned in the pruning step.
+                // for example,
+                //                 // no reaching def for c here
+                // -> c1 = \phi(c) // c is defined in the loop, not in this scope,
+                //                    but the phi stmt is still inserted by the algorithm
+                //    while (...) {
+                //       c = 1
+                //       ...
+                //    }
+                phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, pred);
+            }
+        }
+    }
+
+    private void propagateDefsToSuccBlocksPhis(Block block, IndexMap<Var, Var> reachingDefs) {
         for (Block succ : graph.outEdges(block)) {
-            int succNode = graph.getIndex(succ);
-            if (phis.get(succNode) == null) {
-                continue;
-            }
-            for (Stmt p : phis.get(succNode)) {
-                PhiStmt phi = (PhiStmt) p;
-                Var base = phi.getBase();
-                Var reachingDef = reachingDefs.get(base);
-                if (reachingDef != null) {
-                    // if such reaching def doesn't exist (is null), due to the strictness
-                    // of Java (maybe all the JVM based languages), the phi stmt is dead,
-                    // and it would be pruned in the pruning step.
-                    // for example,
-                    //                 // no reaching def for c here
-                    // -> c1 = \phi(c) // c is defined in the loop, not in this scope,
-                    //                    but the phi stmt is still inserted by the algorithm
-                    //    while (...) {
-                    //       c = 1
-                    //       ...
-                    //    }
-                    phi.getRValue().addUseAndCorrespondingBlocks(reachingDef, block);
-                }
-            }
+            propagatePhisToSucc(block, reachingDefs, succ);
         }
     }
 

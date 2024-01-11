@@ -17,6 +17,8 @@ public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
 
     private final PhiExp phiExp;
 
+    boolean renamed = false; // only for debug
+
     public PhiStmt(Var base, Var def, PhiExp phiExp) {
         this.base = base;
         this.def = def;
