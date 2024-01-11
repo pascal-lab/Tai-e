@@ -73,8 +73,6 @@ public class VarManager implements IVarManager {
 
     private @Nullable Var nullLiteral;
 
-    private final Map<Literal, Var> blockConstCache;
-
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
@@ -90,7 +88,6 @@ public class VarManager implements IVarManager {
         this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>(maxLocal * 6);
         this.retVars = new HashSet<>();
-        this.blockConstCache = Maps.newHybridMap();
 
         if (existsLocalVariableTable) {
             processLocalVarTable();
@@ -340,20 +337,17 @@ public class VarManager implements IVarManager {
     }
 
     public boolean peekConstVar(Literal literal) {
-        if (literal instanceof IntLiteral intLiteral
+        // should we include $null here?
+        return literal instanceof IntLiteral intLiteral
                 && INT_CACHE_LOW <= intLiteral.getValue()
-                && intLiteral.getValue() <= INT_CACHE_HIGH) {
-            return true;
-        }
-        return blockConstCache.containsKey(literal);
+                && intLiteral.getValue() <= INT_CACHE_HIGH;
     }
 
     public Var getConstVar(Literal literal) {
         if (literal instanceof NullLiteral) {
             return getNullLiteral();
-        } else if (literal instanceof IntLiteral intLiteral
-                && INT_CACHE_LOW <= intLiteral.getValue()
-                && intLiteral.getValue() <= INT_CACHE_HIGH) {
+        } else if (peekConstVar(literal)) {
+            IntLiteral intLiteral = (IntLiteral) literal;
             int value = intLiteral.getValue();
             int index = value - INT_CACHE_LOW;
             if (intConstVarCache[index] == null) {
@@ -364,15 +358,8 @@ public class VarManager implements IVarManager {
             }
             return intConstVarCache[index];
         } else {
-            if (blockConstCache.containsKey(literal)) {
-                return blockConstCache.get(literal);
-            }
             return newConstVar(getConstVarName(literal), literal);
         }
-    }
-
-    public void clearConstCache() {
-        blockConstCache.clear();
     }
 
     public boolean isTempVar(Var v) {
@@ -422,7 +409,6 @@ public class VarManager implements IVarManager {
     private Var newConstVar(String name, Literal literal) {
         Var v = new Var(method, name, null, counter++, literal);
         vars.add(v);
-        blockConstCache.put(literal, v);
         return v;
     }
 

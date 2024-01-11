@@ -996,7 +996,6 @@ public class AsmIRBuilder {
     private BytecodeBlock currentBlock;
     private void buildBlockStmt(BytecodeBlock block) {
         currentBlock = block;
-        manager.clearConstCache();
         Stack<StackItem> inStack;
         if (block.getInStack() == null) {
             inStack = getInStack(block);
