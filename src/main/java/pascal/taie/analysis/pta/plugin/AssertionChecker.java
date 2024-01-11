@@ -139,7 +139,7 @@ public class AssertionChecker implements Plugin {
 
     private void check(Checker checker, Invoke invoke) {
         Result result = checker.check(invoke, pta);
-        if (!result.isPassed()) {
+        if (!result.failures().isEmpty()) {
             failures.add(result);
         }
     }
@@ -149,7 +149,7 @@ public class AssertionChecker implements Plugin {
             StringBuilder msg = new StringBuilder("Pointer analysis assertion failures:\n");
             failures.forEach(result -> {
                 msg.append(result.invoke()).append('\n');
-                msg.append("  expected: ").append(result.expected()).append('\n');
+                msg.append("  assertion: ").append(result.assertion()).append('\n');
                 msg.append("  failures:\n");
                 result.failures().forEach((elem, givenResult) ->
                         msg.append(String.format("    %s -> %s\n", elem, givenResult)));
@@ -165,23 +165,6 @@ public class AssertionChecker implements Plugin {
             checkers.put(assertApi, value.getChecker());
         }
         _checkers = Maps.newLinkedHashMap();
-        register("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", invoke -> {
-            Var expectedVar = InvokeUtils.getVar(invoke, 0);
-            int expected = ((IntLiteral) expectedVar.getConstValue()).getValue();
-            _assert(getStoredVariables(invoke, 1)
-                            .stream()
-                            .map(pta::getPointsToSet)
-                            .allMatch(pts -> pts.size() == expected),
-                    invoke);
-        });
-        register("<PTAAssert: void equals(java.lang.Object[])>", invoke -> {
-            Set<Var> vars = getStoredVariables(invoke, 0);
-            Set<Obj> pts = pta.getPointsToSet(CollectionUtils.getOne(vars));
-            _assert(vars.stream()
-                            .map(pta::getPointsToSet)
-                            .allMatch(pts::equals),
-                    invoke);
-        });
         register("<PTAAssert: void contains(java.lang.Object,java.lang.Object[])>", invoke -> {
             Var x = InvokeUtils.getVar(invoke, 0);
             Set<Obj> xPts = pta.getPointsToSet(x);
@@ -269,8 +252,7 @@ public class AssertionChecker implements Plugin {
         throw new RuntimeException("No call site before " + invoke);
     }
 
-    private record Result(boolean isPassed, Invoke invoke,
-                          String expected, Map<?, ?> failures) {
+    private record Result(Invoke invoke, String assertion, Map<?, ?> failures) {
     }
 
     private interface Checker {
@@ -281,18 +263,46 @@ public class AssertionChecker implements Plugin {
     private enum Checkers {
 
         NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta) -> {
-            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
-            Set<Var> checkVars = getStoredVariables(invoke, 0);
-            String expected = String.format(
+            List<Var> checkVars = getStoredVariables(invoke, 0);
+            String assertion = String.format(
                     "points-to sets of variables %s are not empty", checkVars);
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
             checkVars.forEach(v -> {
                 Set<Obj> pts = pta.getPointsToSet(v);
                 if (pts.isEmpty()) {
                     failures.put(v, pts);
                 }
             });
-            return new Result(failures.isEmpty(), invoke, expected, failures);
-        });
+            return new Result(invoke, assertion, failures);
+        }),
+        SIZE_EQUALS("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", (invoke, pta) -> {
+            int size = getInt(invoke, 0);
+            List<Var> checkVars = getStoredVariables(invoke, 1);
+            String assertion = String.format(
+                    "size of points-to sets of variables %s is %d", checkVars, size);
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+            checkVars.forEach(v -> {
+                Set<Obj> pts = pta.getPointsToSet(v);
+                if (pts.size() != size) {
+                    failures.put(v, pts);
+                }
+            });
+            return new Result(invoke, assertion, failures);
+        }),
+        EQUALS("<PTAAssert: void equals(java.lang.Object[])>", (invoke, pta) -> {
+            List<Var> checkVars = getStoredVariables(invoke, 0);
+            String assertion = String.format(
+                    "points-to sets of variables %s are equal", checkVars);
+            Set<Obj> pts = pta.getPointsToSet(CollectionUtils.getOne(checkVars));
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+            if (!checkVars.stream()
+                    .map(pta::getPointsToSet)
+                    .allMatch(pts::equals)) {
+                checkVars.forEach(v -> failures.put(v, pta.getPointsToSet(v)));
+            }
+            return new Result(invoke, assertion, failures);
+        }),
+        ;
 
         private final String api;
 
@@ -311,14 +321,24 @@ public class AssertionChecker implements Plugin {
             return checker;
         }
 
-        private static Set<Var> getStoredVariables(Invoke invoke, int index) {
+        private static int getInt(Invoke invoke, int index) {
+            return ((IntLiteral) InvokeUtils.getVar(invoke, index).getConstValue())
+                    .getValue();
+        }
+
+        private static String getString(Invoke invoke, int index) {
+            return ((StringLiteral) InvokeUtils.getVar(invoke, index).getConstValue())
+                    .getString();
+        }
+
+        private static List<Var> getStoredVariables(Invoke invoke, int index) {
             Var array = InvokeUtils.getVar(invoke, index);
             return invoke.getContainer().getIR()
                     .stmts()
                     .filter(s -> s instanceof StoreArray store
                             && store.getArrayAccess().getBase().equals(array))
                     .map(s -> ((StoreArray) s).getRValue())
-                    .collect(Collectors.toSet());
+                    .toList();
         }
     }
 }
