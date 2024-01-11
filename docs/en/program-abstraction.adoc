@@ -34,9 +34,9 @@ There are three core classes in Tai-e IR:
 
 * `IR` is the central data structure of intermediate representation in Tai-e, and each IR instance can be seen as a container of the information for the body of a particular method, such as variables, parameters, statements, etc.  You could easily obtain IR instance of a method by `JMethod.getIR()` (providing the method is not abstract).
 
-* `Stmt` represents all statements in the program. This interface has a dozen of subclasses, corresponding to various statements. `Stmt`s are stored in `IR`, and you could obtain them via `IR.getStmts()`.
+* `Stmt` represents all statements in the program. This interface has a dozen of subclasses, corresponding to various statements. ``Stmt``s are stored in ``IR``, and you could obtain them via `IR.getStmts()`.
 
-* `Exp` represents all expressions in the program. This interface has dozens of subclasses, corresponding to various expressions. `Exp`s are associated with `Stmt`s, and you could obtain them via specific APIs of `Stmt`.
+* `Exp` represents all expressions in the program. This interface has dozens of subclasses, corresponding to various expressions. ``Exp``s are associated with ``Stmt``s, and you could obtain them via specific APIs of `Stmt`.
 
 We believe that the API of IR is self-documenting and easy to use. To make IR more intelligible, we present a formal definition (i.e., context-free grammar) below that illustrates all kinds of expressions and statements in the IR, and how `Stmt` are formed by `Exp`. Most non-terminals in the grammar corresponds to classes in `pascal.taie.ir`.
 
