@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
@@ -147,14 +148,29 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
         return entry;
     }
 
+    /**
+     * Only for debug propose
+     * <br/>
+     * Performance will be very bad
+     */
     @Override
     public List<BytecodeBlock> inEdges(BytecodeBlock node) {
-        throw new UnsupportedOperationException();
+        List<BytecodeBlock> r = new ArrayList<>();
+        int b = node.getIndex();
+        for (int i = 0; i < getMergedInEdgesCount(b); ++i) {
+            r.add(getNode(getMergedInEdge(b, i)));
+        }
+        return r;
     }
 
     @Override
     public List<BytecodeBlock> outEdges(BytecodeBlock node) {
-        throw new UnsupportedOperationException();
+        List<BytecodeBlock> r = new ArrayList<>();
+        int b = node.getIndex();
+        for (int i = 0; i < getMergedOutEdgesCount(b); ++i) {
+            r.add(getNode(getMergedOutEdge(b, i)));
+        }
+        return r;
     }
 
     @Override
