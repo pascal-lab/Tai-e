@@ -30,7 +30,7 @@ import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
-import pascal.taie.analysis.pta.plugin.AssertionChecker;
+import pascal.taie.analysis.pta.plugin.assertion.AssertionChecker;
 
 import java.io.File;
 import java.io.IOException;

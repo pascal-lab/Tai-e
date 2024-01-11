@@ -24,15 +24,18 @@ package pascal.taie.analysis.pta.plugin.assertion;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -150,6 +153,45 @@ enum Checkers {
         }
         return new Result(invoke, assertion, failures);
     }),
+    DISJOINT("<PTAAssert: void disjoint(java.lang.Object,java.lang.Object)>", (invoke, pta, __, ___) -> {
+        Var x = InvokeUtils.getVar(invoke, 0);
+        Var y = InvokeUtils.getVar(invoke, 1);
+        String assertion = String.format("pt(%s) ^ pt(%s) = {}", x, y);
+        Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+        Set<Obj> xPts = pta.getPointsToSet(x), yPts = pta.getPointsToSet(y);
+        if (!Collections.disjoint(xPts, yPts)) {
+            failures.put(x, xPts);
+            failures.put(y, yPts);
+        }
+        return new Result(invoke, assertion, failures);
+    }),
+    CALLS("<PTAAssert: void calls(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+        Invoke callSite = findCallSiteBefore(invoke);
+        List<JMethod> expectedCallees = getStoredVariables(invoke, 0)
+                .stream()
+                .map(v -> hierarchy.getMethod(getString(v)))
+                .toList();
+        String assertion = String.format("%s calls %s", callSite, expectedCallees);
+        Set<JMethod> actualCallees = pta.getCallGraph().getCalleesOf(callSite);
+        Map<Invoke, Set<JMethod>> failures = actualCallees.containsAll(expectedCallees)
+                ? Map.of()
+                : Map.of(callSite, actualCallees);
+        return new Result(invoke, assertion, failures);
+    }),
+    REACHABLE("<PTAAssert: void reachable(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+        List<JMethod> reachable = getStoredVariables(invoke, 0)
+                .stream()
+                .map(v -> hierarchy.getMethod(getString(v)))
+                .toList();
+        String assertion = String.format("%s are reachable", reachable);
+        Map<JMethod, String> failures = Maps.newLinkedHashMap();
+        reachable.forEach(method -> {
+            if (!pta.getCallGraph().contains(method)) {
+                failures.put(method, "unreachable");
+            }
+        });
+        return new Result(invoke, assertion, failures);
+    }),
     ;
 
     private final String api;
@@ -185,5 +227,15 @@ enum Checkers {
 
     private static String getString(Var var) {
         return ((StringLiteral) var.getConstValue()).getString();
+    }
+
+    private static Invoke findCallSiteBefore(Invoke invoke) {
+        IR ir = invoke.getContainer().getIR();
+        for (int i = invoke.getIndex() - 1; i >= 0; --i) {
+            if (ir.getStmt(i) instanceof Invoke callSite) {
+                return callSite;
+            }
+        }
+        throw new RuntimeException("No call site before " + invoke);
     }
 }
