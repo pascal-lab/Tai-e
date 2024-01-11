@@ -82,6 +82,14 @@ public final class PTAAssert {
     }
 
     /**
+     * Asserts that the call site right before this invocation
+     * calls exactly the specified methods.
+     * NOTE: {@code methodSigs} must be String constants.
+     */
+    public static void callsExact(String... methodSigs) {
+    }
+
+    /**
      * Asserts that the specified methods are reachable in the call graph.
      * NOTE: {@code methodSigs} must be String constants.
      */

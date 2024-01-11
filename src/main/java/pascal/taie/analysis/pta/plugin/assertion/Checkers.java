@@ -38,6 +38,7 @@ import pascal.taie.util.collection.Maps;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -174,6 +175,20 @@ enum Checkers {
         String assertion = String.format("%s calls %s", callSite, expectedCallees);
         Set<JMethod> actualCallees = pta.getCallGraph().getCalleesOf(callSite);
         Map<Invoke, Set<JMethod>> failures = actualCallees.containsAll(expectedCallees)
+                ? Map.of()
+                : Map.of(callSite, actualCallees);
+        return new Result(invoke, assertion, failures);
+    }),
+    CALLS_EXACT("<PTAAssert: void callsExact(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+        Invoke callSite = findCallSiteBefore(invoke);
+        Set<JMethod> expectedCallees = getStoredVariables(invoke, 0)
+                .stream()
+                .map(v -> hierarchy.getMethod(getString(v)))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
+        String assertion = String.format("%s calls exactly %s", callSite, expectedCallees);
+        Set<JMethod> actualCallees = pta.getCallGraph().getCalleesOf(callSite);
+        Map<Invoke, Set<JMethod>> failures = actualCallees.equals(expectedCallees)
                 ? Map.of()
                 : Map.of(callSite, actualCallees);
         return new Result(invoke, assertion, failures);
