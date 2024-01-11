@@ -20,11 +20,18 @@ public class DUInfo {
 
     public void addDefBlock(Var v, IBasicBlock b) {
         int i = v.getIndex();
-        assert i < defBlocks.size();
+        while (i >= defBlocks.size()) {
+            defBlocks.add(new ArrayList<>());
+        }
         defBlocks.get(i).add(b);
     }
 
     public List<IBasicBlock> getDefBlock(Var v) {
-        return defBlocks.get(v.getIndex());
+        int i = v.getIndex();
+        while (i >= defBlocks.size()) {
+            // Maybe we can directly return an empty list?
+            defBlocks.add(new ArrayList<>());
+        }
+        return defBlocks.get(i);
     }
 }

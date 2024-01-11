@@ -67,7 +67,6 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Catch;
-import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
@@ -361,6 +360,9 @@ public class AsmIRBuilder {
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
+        if (lValue instanceof Var v) {
+            duInfo.addDefBlock(v, currentBlock);
+        }
         return Utils.getAssignStmt(method, lValue, e);
     }
 
@@ -507,9 +509,6 @@ public class AsmIRBuilder {
 
     private Stmt popToVar(Stack<StackItem> stack, Var v, BytecodeBlock block) {
         StackItem top = popExp(stack);
-        if (manager.isLocalFast(v)) {
-            duInfo.addDefBlock(v, block);
-        }
         // Note: Var . getUses() will return empty set
         if (top.e() instanceof Phi phi) {
             top = new StackItem(toVar(phi, null), null);
@@ -1044,7 +1043,9 @@ public class AsmIRBuilder {
         }
     }
 
+    private BytecodeBlock currentBlock;
     private void buildBlockStmt(BytecodeBlock block) {
+        currentBlock = block;
         manager.clearConstCache();
         Stack<StackItem> inStack;
         if (block.getInStack() == null) {
@@ -1074,13 +1075,16 @@ public class AsmIRBuilder {
                     // this insn stores the exception object to a local var
                     if (insnNode.getOpcode() == Opcodes.ASTORE) {
                         VarInsnNode node = (VarInsnNode) insnNode;
-                        assocStmt(node, new Catch(manager.getLocal(node.var)));
+                        Var catchVar = manager.getLocal(node.var);
+                        duInfo.addDefBlock(catchVar, currentBlock);
+                        assocStmt(node, new Catch(catchVar));
                     } else {
                         // else
                         // * for java source, insn should be POP *
                         // 1. make a catch stmt with temp var
                         // 2. push this temp var onto stack
                         Var v = manager.getTempVar();
+                        duInfo.addDefBlock(v, currentBlock);
                         assocStmt(insnNode, new Catch(v));
                         pushExp(insnNode, nowStack, v);
                         processInstr(nowStack, insnNode, block);
@@ -1220,6 +1224,7 @@ public class AsmIRBuilder {
 
     private void applyPhis(BytecodeBlock block) {
         assert block.getOutStack() != null;
+        currentBlock = block;
         if (block.getOutStack().isEmpty()) {
             return;
         }
@@ -1246,7 +1251,7 @@ public class AsmIRBuilder {
                 if (var != null) {
                     if (e instanceof Var v) {
                         if (var != v) {
-                            auxiliary.add(new Copy(var, v));
+                            auxiliary.add(getAssignStmt(var, v));
                         }
                     } else if (e instanceof Phi phi1) {
                         Var right = phi1.getVar();
@@ -1256,13 +1261,13 @@ public class AsmIRBuilder {
                                 Var temp = manager.getTempVar();
                                 int pos = killed.get(right);
                                 Stmt stmt = auxiliary.get(pos);
-                                auxiliary.add(pos, new Copy(temp, right));
+                                auxiliary.add(pos, getAssignStmt(temp, right));
                                 auxiliary.set(pos + 1, new Lenses(this.method,
                                         Map.of(right, temp), Map.of())
                                         .subSt(stmt));
                                 right = temp;
                             }
-                            auxiliary.add(new Copy(var, right));
+                            auxiliary.add(getAssignStmt(var, right));
                             killed.put(var, auxiliary.size() - 1);
                         }
                     } else {

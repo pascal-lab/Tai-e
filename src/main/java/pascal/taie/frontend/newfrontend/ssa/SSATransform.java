@@ -21,6 +21,7 @@ import pascal.taie.util.collection.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -141,6 +142,7 @@ public class SSATransform<Block extends IBasicBlock> {
 
         SparseSet current = new SparseSet(graph.size(), graph.size());
         for (Var v : nonSSAVars) {
+            if (!isVarToBeSSA(v)) continue;
             List<IBasicBlock> defBlocks = info.getDefBlock(v);
             for (IBasicBlock block : defBlocks) {
                 current.add(block.getIndex());
@@ -300,14 +302,7 @@ public class SSATransform<Block extends IBasicBlock> {
     private Var getFreshDefs(IndexMap<Var, Integer> incId, Var base) {
         int id = incId.get(base);
         incId.put(base, 1 + id);
-        Var freshVar;
-        if (id == 1) {
-            freshVar = base;
-        } else {
-            freshVar = manager.splitVar(base, id);
-            freshVar.setType(base.getType());
-        }
-        return freshVar;
+        return manager.splitVar(base, id);
     }
 
     private void markUsefulForStmt(Stmt stmt) {
@@ -359,7 +354,10 @@ public class SSATransform<Block extends IBasicBlock> {
     }
 
     private boolean isVarToBeSSA(Var v) {
-        return v.getIndex() < nonSSAVars.length;
+        return !v.isConst()
+                // copy from VarManager.isNotSpecialVar()
+                && !v.getName().startsWith("*") && !Objects.equals(v.getName(), "$null")
+                ;
     }
 
     private void markUseful(RValue rValue) {

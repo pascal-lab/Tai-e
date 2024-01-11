@@ -190,6 +190,13 @@ public class VarManager implements IVarManager {
 
     @Override
     public Var splitVar(Var var, int index) {
+        if (isTempVar(var)) {
+            if (index == 1) {
+                return var;
+            } else {
+                return newVar(getDefaultSplitName(var.getName(), index));
+            }
+        }
         return splitLocal(var, index, var2Local.get(var), Stream.of());
     }
 
@@ -244,8 +251,7 @@ public class VarManager implements IVarManager {
 
     @Override
     public Var[] getNonSSAVar() {
-        // TODO: include stack vars
-        return getLocals();
+        return vars.toArray(Var[]::new);
     }
 
     private void makeLocal(int slot, String name) {
