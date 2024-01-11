@@ -39,6 +39,8 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Maps;
 
@@ -63,6 +65,8 @@ public class AssertionChecker implements Plugin {
 
     private ClassHierarchy hierarchy;
 
+    private TypeSystem typeSystem;
+
     private JClass ptaAssert;
 
     private Map<JMethod, Checker> checkers;
@@ -81,6 +85,7 @@ public class AssertionChecker implements Plugin {
     public void setSolver(Solver solver) {
         this.solver = solver;
         this.hierarchy = solver.getHierarchy();
+        this.typeSystem = solver.getTypeSystem();
         this.ptaAssert = hierarchy.getClass(PTA_ASSERT);
     }
 
@@ -138,7 +143,7 @@ public class AssertionChecker implements Plugin {
     }
 
     private void check(Checker checker, Invoke invoke) {
-        Result result = checker.check(invoke, pta);
+        Result result = checker.check(invoke, pta, hierarchy, typeSystem);
         if (!result.failures().isEmpty()) {
             failures.add(result);
         }
@@ -165,27 +170,6 @@ public class AssertionChecker implements Plugin {
             checkers.put(assertApi, value.getChecker());
         }
         _checkers = Maps.newLinkedHashMap();
-        register("<PTAAssert: void contains(java.lang.Object,java.lang.Object[])>", invoke -> {
-            Var x = InvokeUtils.getVar(invoke, 0);
-            Set<Obj> xPts = pta.getPointsToSet(x);
-            _assert(getStoredVariables(invoke, 1)
-                            .stream()
-                            .map(pta::getPointsToSet)
-                            .allMatch(xPts::containsAll),
-                    invoke);
-        });
-        register("<PTAAssert: void hasInstanceOf(java.lang.String,java.lang.Object[])>", invoke -> {
-            Var classNameVar = InvokeUtils.getVar(invoke, 0);
-            String className = ((StringLiteral) classNameVar.getConstValue()).getString();
-            JClass expected = hierarchy.getClass(className);
-            _assert(getStoredVariables(invoke, 1)
-                            .stream()
-                            .map(pta::getPointsToSet)
-                            .allMatch(pts -> pts.stream()
-                                    .map(obj -> ((ClassType) obj.getType()).getJClass())
-                                    .anyMatch(actual -> hierarchy.isSubclass(expected, actual))),
-                    invoke);
-        });
         register("<PTAAssert: void hasInstanceOf(java.lang.Object,java.lang.String[])>", invoke -> {
             Var x = InvokeUtils.getVar(invoke, 0);
             Set<JClass> actualClasses = pta.getPointsToSet(x)
@@ -257,12 +241,13 @@ public class AssertionChecker implements Plugin {
 
     private interface Checker {
 
-        Result check(Invoke invoke, PointerAnalysisResult pta);
+        Result check(Invoke invoke, PointerAnalysisResult pta,
+                     ClassHierarchy hierarchy, TypeSystem typeSystem);
     }
 
     private enum Checkers {
 
-        NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta) -> {
+        NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta, __, ___) -> {
             List<Var> checkVars = getStoredVariables(invoke, 0);
             String assertion = String.format(
                     "points-to sets of variables %s are not empty", checkVars);
@@ -275,7 +260,7 @@ public class AssertionChecker implements Plugin {
             });
             return new Result(invoke, assertion, failures);
         }),
-        SIZE_EQUALS("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", (invoke, pta) -> {
+        SIZE_EQUALS("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", (invoke, pta, __, ___) -> {
             int size = getInt(invoke, 0);
             List<Var> checkVars = getStoredVariables(invoke, 1);
             String assertion = String.format(
@@ -289,7 +274,7 @@ public class AssertionChecker implements Plugin {
             });
             return new Result(invoke, assertion, failures);
         }),
-        EQUALS("<PTAAssert: void equals(java.lang.Object[])>", (invoke, pta) -> {
+        EQUALS("<PTAAssert: void equals(java.lang.Object[])>", (invoke, pta, __, ___) -> {
             List<Var> checkVars = getStoredVariables(invoke, 0);
             String assertion = String.format(
                     "points-to sets of variables %s are equal", checkVars);
@@ -300,6 +285,39 @@ public class AssertionChecker implements Plugin {
                     .allMatch(pts::equals)) {
                 checkVars.forEach(v -> failures.put(v, pta.getPointsToSet(v)));
             }
+            return new Result(invoke, assertion, failures);
+        }),
+        CONTAINS("<PTAAssert: void contains(java.lang.Object,java.lang.Object[])>", (invoke, pta, __, ___) -> {
+            Var x = InvokeUtils.getVar(invoke, 0);
+            List<Var> checkVars = getStoredVariables(invoke, 1);
+            String assertion = String.format(
+                    "pt(%s) contains points-to sets of variables %s", x, checkVars);
+            Set<Obj> xPts = pta.getPointsToSet(x);
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+            checkVars.forEach(v -> {
+                Set<Obj> vPts = pta.getPointsToSet(v);
+                if (!xPts.containsAll(vPts)) {
+                    failures.put(x, xPts);
+                    failures.put(v, vPts);
+                }
+            });
+            return new Result(invoke, assertion, failures);
+        }),
+        INSTANCEOF_IN("<PTAAssert: void instanceOfIn(java.lang.String,java.lang.Object[])>", (invoke, pta, __, typeSystem) -> {
+            String typeName = getString(invoke, 0);
+            Type expected = typeSystem.getType(typeName);
+            List<Var> checkVars = getStoredVariables(invoke, 1);
+            String assertion = String.format(
+                    "points-to sets of variables %s has instance of %s", checkVars, expected);
+            Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
+            checkVars.forEach(v -> {
+                Set<Obj> pts = pta.getPointsToSet(v);
+                if (pts.stream()
+                        .map(Obj::getType)
+                        .noneMatch(actual-> typeSystem.isSubtype(expected, actual))) {
+                    failures.put(v, pts);
+                }
+            });
             return new Result(invoke, assertion, failures);
         }),
         ;
