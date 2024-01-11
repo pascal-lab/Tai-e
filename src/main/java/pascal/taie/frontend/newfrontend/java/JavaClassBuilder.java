@@ -369,8 +369,18 @@ public class JavaClassBuilder implements JClassBuilder  {
                 assert paraTypes.isEmpty() && paraNames.isEmpty();
                 assert typeDeclaration.getParent() instanceof ClassInstanceCreation;
                 ClassInstanceCreation creation = (ClassInstanceCreation) typeDeclaration.getParent();
-                var typeNames = getAnonymousParaArgs(creation.resolveConstructorBinding().getParameterTypes(),
-                        synParaTypes.size());
+                ITypeBinding[] resolvedParaTypes =
+                        creation.resolveConstructorBinding().getParameterTypes();
+                ITypeBinding[] fixedParaTypes;
+                if (creation.getExpression() == null) {
+                    fixedParaTypes = resolvedParaTypes;
+                } else {
+                    fixedParaTypes = new ITypeBinding[resolvedParaTypes.length + 1];
+                    fixedParaTypes[0] = creation.getExpression().resolveTypeBinding();
+                    System.arraycopy(resolvedParaTypes, 0,
+                            fixedParaTypes, 1, resolvedParaTypes.length);
+                }
+                var typeNames = getAnonymousParaArgs(fixedParaTypes, synParaTypes.size());
                 paraTypes = typeNames.first();
                 paraNames = typeNames.second();
             }

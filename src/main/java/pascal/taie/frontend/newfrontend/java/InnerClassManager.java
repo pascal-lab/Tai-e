@@ -1,22 +1,23 @@
 package pascal.taie.frontend.newfrontend.java;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.SimpleName;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 enum InnerClassCategory {
     ANONYMOUS,
@@ -25,14 +26,97 @@ enum InnerClassCategory {
 }
 
 
-record InnerClassDescriptor(
-        ITypeBinding type,
-        List<String> synParaNames,
-        List<ITypeBinding> synParaTypes,
-        boolean isStatic,
-        InnerClassCategory category,
-        // key is origin name, not field/captured name
-        Map<String, IVariableBinding> varBindingMap) { }
+final class InnerClassDescriptor {
+    private final ITypeBinding type;
+    private List<String> synParaNames;
+    private List<ITypeBinding> synParaTypes;
+    private final boolean isStatic;
+    private final InnerClassCategory category;
+    private final Map<String, IVariableBinding> varBindingMap;
+    private final Set<IVariableBinding> capturedVars;
+    private final ITypeBinding outerClass;
+
+    /**
+     * Only used for anonymous class
+     */
+    private final ITypeBinding explicitEnclosedInstance;
+
+    InnerClassDescriptor(
+            ITypeBinding type,
+            boolean isStatic,
+            InnerClassCategory category,
+            // key is origin name, not field/captured name
+            Map<String, IVariableBinding> varBindingMap,
+            ITypeBinding outerClass,
+            ITypeBinding explicitEnclosedInstance) {
+        this.type = type;
+        this.isStatic = isStatic;
+        this.category = category;
+        this.varBindingMap = varBindingMap;
+        this.capturedVars = Sets.newSet();
+        this.outerClass = outerClass;
+        this.explicitEnclosedInstance = explicitEnclosedInstance;
+    }
+
+    public ITypeBinding type() {
+        return type;
+    }
+
+    public List<String> synParaNames() {
+        return synParaNames;
+    }
+
+    public List<ITypeBinding> synParaTypes() {
+        return synParaTypes;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public InnerClassCategory category() {
+        return category;
+    }
+
+    public Map<String, IVariableBinding> varBindingMap() {
+        return varBindingMap;
+    }
+
+    public void addNewCapture(IVariableBinding v) {
+        capturedVars.add(v);
+    }
+
+    public Set<IVariableBinding> capturedVars() {
+        return capturedVars;
+    }
+
+    public void resolveSynPara(Set<IVariableBinding> directCaptures) {
+        // should always be null, or it must be a bug
+        // (we should not call this method twice)
+        assert synParaNames == null && synParaTypes == null;
+        synParaNames = new ArrayList<>();
+        synParaTypes = new ArrayList<>();
+        if (!isStatic) {
+            // add `this` as the first parameter
+            synParaNames.add(InnerClassManager.OUTER_THIS);
+            synParaTypes.add(outerClass);
+        }
+        for (IVariableBinding v : directCaptures) {
+            String name = InnerClassManager.getCaptureName(v.getName());
+            synParaNames.add(name);
+            synParaTypes.add(v.getType());
+            varBindingMap().put(v.getName(), v);
+        }
+    }
+
+    boolean isDirectlyCaptured(IVariableBinding v) {
+        return varBindingMap().containsValue(v);
+    }
+
+    public ITypeBinding getExplicitEnclosedInstance() {
+        return explicitEnclosedInstance;
+    }
+}
 
 
 /**
@@ -91,8 +175,8 @@ public class InnerClassManager {
                                  boolean inStaticContext) {
        ITypeBinding binding = ClassExtractor.getBinding(typeDeclaration);
        boolean needSynThis;
-       boolean needSynVal;
        InnerClassCategory category;
+       ITypeBinding explicitEnclosedInstance = null;
 
        if (outer.isInterface() || binding.isInterface() || TypeUtils.isEnumType(binding)) {
            return;
@@ -104,51 +188,33 @@ public class InnerClassManager {
                return;
            }
            needSynThis = true;
-           needSynVal = false;
            category = InnerClassCategory.MEMBER;
        } else {
            if (binding.isAnonymous()) {
                category = InnerClassCategory.ANONYMOUS;
-               boolean hasExplicitEnclosedInstance =
-                       ((ClassInstanceCreation) typeDeclaration.getParent()).getExpression() != null;
-               needSynThis = ! inStaticContext || hasExplicitEnclosedInstance;
+               Expression expression = ((ClassInstanceCreation) typeDeclaration.getParent()).getExpression();
+               boolean hasExplicitEnclosedInstance = expression != null;
+               // it's something like
+               // class A { class AInner { ... } }
+               // static f() {
+               //     a = new A();
+               //     b = new a.AInner() { ... };
+               // }
+               needSynThis = ! inStaticContext;
+               explicitEnclosedInstance = hasExplicitEnclosedInstance ?
+                       expression.resolveTypeBinding() : null;
            } else {
                assert binding.isLocal();
                category = InnerClassCategory.LOCAL;
                needSynThis = ! inStaticContext;
            }
-           needSynVal = true;
-       }
-
-       List<String> synParaNames = new ArrayList<>();
-       List<ITypeBinding> synParaTypes = new ArrayList<>();
-
-       if (needSynThis) {
-           synParaNames.add(OUTER_THIS);
-           synParaTypes.add(outer);
        }
 
        Map<String, IVariableBinding> variableBindingMap = new HashMap<>();
-       if (needSynVal) {
-           typeDeclaration.accept(new ASTVisitor() {
-               @Override
-               public boolean visit(SimpleName sn) {
-                   IBinding b = sn.resolveBinding();
-                   if (b instanceof IVariableBinding v) {
-                       if (! v.isField() && v.getDeclaringMethod().getDeclaringClass() != binding) {
-                           synParaNames.add(getCaptureName(v.getName()));
-                           synParaTypes.add(v.getType());
-                           variableBindingMap.put(v.getName(), v);
-                       }
-                   }
-                   return false;
-               }
-           });
-       }
 
        innerBindingMap.put(JDTStringReps.getBinaryName(binding),
-               new InnerClassDescriptor(binding,
-                       synParaNames, synParaTypes, ! needSynThis, category, variableBindingMap));
+               new InnerClassDescriptor(binding, !needSynThis, category,
+                       variableBindingMap, outer, explicitEnclosedInstance));
     }
 
     public FieldRef getOuterClassRef(JClass jClass) {
@@ -166,9 +232,6 @@ public class InnerClassManager {
     }
 
     InnerClassDescriptor getInnerClassDesc(String binaryName) {
-        if (! resolved) {
-            resolveDescriptors();
-        }
         return innerBindingMap.get(binaryName);
     }
 
@@ -176,73 +239,33 @@ public class InnerClassManager {
         return innerBindingMap.containsKey(binaryName);
     }
 
-    private void resolveDescriptors() {
-        innerBindingMap.forEach((k, v) -> {
-            fixTransitiveCaptures(v);
-        });
-        resolved = true;
-    }
-
-    /**
-     * Consider such situation:
-     * <pre>
-     *  {@code
-     *  void f() {
-     *      int k, h = 0;
-     *      class A {
-     *          void g() {
-     *              System.out.println(k);
-     *          }
-     *      }
-     *
-     *      class B extends A {
-     *          void g() {
-     *              super.g();
-     *              System.out.println(h);
-     *          }
-     *      }
-     *  }
-     *  }
-     * </pre>
-     * <p>
-     * Clearly, both {@code k} and {@code h} should be captured by {@code B},
-     * but our algorithm in prev stage can only detect {@code A capture k}, {@code B capture h}.
-     * </p>
-     * <p>
-     * So, after the extraction stage, we perform closure computing to
-     * collect all captured variables
-     * </p>
-     */
-    private void fixTransitiveCaptures(InnerClassDescriptor descriptor) {
-        ITypeBinding current = descriptor.type();
-        ITypeBinding superClass = current.getSuperclass();
-        assert superClass == null || ! superClass.isAnonymous();
-        while (superClass != null && isLocal(superClass)) {
-            addSynArgs(descriptor, getDesc(superClass));
-            superClass = superClass.getSuperclass();
-        }
-    }
-
-    private boolean isLocal(ITypeBinding binding) {
+    public static boolean isLocal(ITypeBinding binding) {
         return binding.isLocal();
-    }
-
-    private void addSynArgs(InnerClassDescriptor current, InnerClassDescriptor superClass) {
-        boolean isStatic = current.isStatic();
-        assert current.isStatic() == superClass.isStatic();
-        int start = isStatic ? 0 : 1;
-        for (int i = start; i < superClass.synParaNames().size(); ++i) {
-            String nowName = superClass.synParaNames().get(i);
-            ITypeBinding nowType = superClass.synParaTypes().get(i);
-            if (! current.synParaNames().contains(nowName)) {
-                current.synParaNames().add(nowName);
-                current.synParaTypes().add(nowType);
-            }
-        }
-        superClass.varBindingMap().forEach((k, v) -> current.varBindingMap().put(k, v));
     }
 
     private InnerClassDescriptor getDesc(ITypeBinding binding) {
         return innerBindingMap.get(JDTStringReps.getBinaryName(binding));
+    }
+
+    public void noticeCaptureVariableBinding(IVariableBinding v, ITypeBinding currentClass) {
+        InnerClassDescriptor desc = getDesc(currentClass);
+        assert desc != null;
+        desc.addNewCapture(v);
+    }
+
+    public void noticeLocalClassInit(ITypeBinding localClass, ITypeBinding currentClass) {
+        // apply rule:
+        //  if a local class is initialized,
+        //  then its captured vars must be captured by its outer class
+        applySubsetCaptureRule(localClass, currentClass);
+    }
+
+    public void applySubsetCaptureRule(ITypeBinding c1, ITypeBinding c2) {
+        InnerClassDescriptor desc1 = getDesc(c1);
+        InnerClassDescriptor desc2 = getDesc(c2);
+        assert desc1 != null && desc2 != null;
+        for (IVariableBinding v : desc1.capturedVars()) {
+            desc2.addNewCapture(v);
+        }
     }
 }

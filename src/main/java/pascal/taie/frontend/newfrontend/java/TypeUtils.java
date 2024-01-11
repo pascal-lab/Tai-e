@@ -115,7 +115,12 @@ public final class TypeUtils {
         if (descriptor == null) {
             return orig;
         }
-        return addList(fromJDTTypeList(descriptor.synParaTypes().stream()), orig);
+        List<Type> res = new ArrayList<>(fromJDTTypeList(descriptor.synParaTypes().stream()));
+        if (descriptor.getExplicitEnclosedInstance() != null) {
+            res.add(JDTTypeToTaieType(descriptor.getExplicitEnclosedInstance()));
+        }
+        res.addAll(orig);
+        return res;
     }
 
     public static <T> List<T> addList(List<T> l1, List<T> l2) {
