@@ -44,13 +44,11 @@ public class SparseSet implements Iterable<Integer> {
     }
 
     public void add(int x) {
-
-        assert !(x > maxValue || numberOfElements >= capacity);
         // the element already exists in the set
         if (search(x) != NOT_EXIST) {
             return;
         }
-
+        assert !(x > maxValue || numberOfElements >= capacity);
         // add the element to the end of the dense array
         dense[numberOfElements] = x;
 

@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
@@ -147,9 +148,22 @@ public final class BytecodeBlock implements IBasicBlock {
 
     @Override
     public void insertStmts(List<Stmt> stmts) {
+        // if this block is a catch block,
+        // then we should insert the stmts after the first catch stmt
         List<Stmt> temp = new ArrayList<>(stmts.size() + this.stmts.size());
-        temp.addAll(stmts);
-        temp.addAll(this.stmts);
+        int i = 0;
+        if (isCatch()) {
+            // if this block is a catch block, then the first stmt must be a catch stmt
+            assert this.stmts.get(0) instanceof Catch;
+            temp.add(this.stmts.get(0));
+            temp.addAll(stmts);
+            i++;
+        } else {
+            temp.addAll(stmts);
+        }
+        for (; i < this.stmts.size(); ++i) {
+            temp.add(this.stmts.get(i));
+        }
         this.stmts = temp;
     }
 
