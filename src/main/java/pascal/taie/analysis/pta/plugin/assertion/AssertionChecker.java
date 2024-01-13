@@ -45,7 +45,7 @@ public class AssertionChecker implements Plugin {
     /**
      * Name of the stub class that provides assertion APIs.
      */
-    private static final String PTA_ASSERT = "PTAAssert";
+    static final String PTA_ASSERT = "PTAAssert";
 
     private Solver solver;
 

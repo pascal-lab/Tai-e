@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  */
 enum Checkers {
 
-    NOT_EMPTY("<PTAAssert: void notEmpty(java.lang.Object[])>", (invoke, pta, __, ___) -> {
+    NOT_EMPTY("void notEmpty(java.lang.Object[])", (invoke, pta, __, ___) -> {
         List<Var> checkVars = getStoredVariables(invoke, 0);
         String assertion = String.format(
                 "points-to sets of variables %s are not empty", checkVars);
@@ -60,7 +60,7 @@ enum Checkers {
         });
         return new Result(invoke, assertion, failures);
     }),
-    SIZE_EQUALS("<PTAAssert: void sizeEquals(int,java.lang.Object[])>", (invoke, pta, __, ___) -> {
+    SIZE_EQUALS("void sizeEquals(int,java.lang.Object[])", (invoke, pta, __, ___) -> {
         int size = getInt(InvokeUtils.getVar(invoke, 0));
         List<Var> checkVars = getStoredVariables(invoke, 1);
         String assertion = String.format(
@@ -74,7 +74,7 @@ enum Checkers {
         });
         return new Result(invoke, assertion, failures);
     }),
-    EQUALS("<PTAAssert: void equals(java.lang.Object[])>", (invoke, pta, __, ___) -> {
+    EQUALS("void equals(java.lang.Object[])", (invoke, pta, __, ___) -> {
         List<Var> checkVars = getStoredVariables(invoke, 0);
         String assertion = String.format(
                 "points-to sets of variables %s are equal", checkVars);
@@ -87,7 +87,7 @@ enum Checkers {
         }
         return new Result(invoke, assertion, failures);
     }),
-    CONTAINS("<PTAAssert: void contains(java.lang.Object,java.lang.Object[])>", (invoke, pta, __, ___) -> {
+    CONTAINS("void contains(java.lang.Object,java.lang.Object[])", (invoke, pta, __, ___) -> {
         Var x = InvokeUtils.getVar(invoke, 0);
         List<Var> checkVars = getStoredVariables(invoke, 1);
         String assertion = String.format(
@@ -103,7 +103,7 @@ enum Checkers {
         });
         return new Result(invoke, assertion, failures);
     }),
-    INSTANCEOF_IN("<PTAAssert: void instanceOfIn(java.lang.String,java.lang.Object[])>", (invoke, pta, __, typeSystem) -> {
+    INSTANCEOF_IN("void instanceOfIn(java.lang.String,java.lang.Object[])", (invoke, pta, __, typeSystem) -> {
         String typeName = getString(InvokeUtils.getVar(invoke, 0));
         Type expected = typeSystem.getType(typeName);
         List<Var> checkVars = getStoredVariables(invoke, 1);
@@ -120,7 +120,7 @@ enum Checkers {
         });
         return new Result(invoke, assertion, failures);
     }),
-    HAS_INSTANCEOF("<PTAAssert: void hasInstanceOf(java.lang.Object,java.lang.String[])>", (invoke, pta, __, typeSystem) -> {
+    HAS_INSTANCEOF("void hasInstanceOf(java.lang.Object,java.lang.String[])", (invoke, pta, __, typeSystem) -> {
         Var x = InvokeUtils.getVar(invoke, 0);
         List<Type> expectedTypes = getStoredVariables(invoke, 1)
                 .stream()
@@ -142,7 +142,7 @@ enum Checkers {
         }
         return new Result(invoke, assertion, failures);
     }),
-    NOT_EQUALS("<PTAAssert: void notEquals(java.lang.Object,java.lang.Object)>", (invoke, pta, __, ___) -> {
+    NOT_EQUALS("void notEquals(java.lang.Object,java.lang.Object)", (invoke, pta, __, ___) -> {
         Var x = InvokeUtils.getVar(invoke, 0);
         Var y = InvokeUtils.getVar(invoke, 1);
         String assertion = String.format("pt(%s) != pt(%s)", x, y);
@@ -154,7 +154,7 @@ enum Checkers {
         }
         return new Result(invoke, assertion, failures);
     }),
-    DISJOINT("<PTAAssert: void disjoint(java.lang.Object,java.lang.Object)>", (invoke, pta, __, ___) -> {
+    DISJOINT("void disjoint(java.lang.Object,java.lang.Object)", (invoke, pta, __, ___) -> {
         Var x = InvokeUtils.getVar(invoke, 0);
         Var y = InvokeUtils.getVar(invoke, 1);
         String assertion = String.format("pt(%s) ^ pt(%s) = {}", x, y);
@@ -166,7 +166,7 @@ enum Checkers {
         }
         return new Result(invoke, assertion, failures);
     }),
-    CALLS("<PTAAssert: void calls(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+    CALLS("void calls(java.lang.String[])", (invoke, pta, hierarchy, ___)  -> {
         Invoke callSite = findCallSiteBefore(invoke);
         List<JMethod> expectedCallees = getStoredVariables(invoke, 0)
                 .stream()
@@ -179,7 +179,7 @@ enum Checkers {
                 : Map.of(callSite, actualCallees);
         return new Result(invoke, assertion, failures);
     }),
-    CALLS_EXACT("<PTAAssert: void callsExact(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+    CALLS_EXACT("void callsExact(java.lang.String[])", (invoke, pta, hierarchy, ___)  -> {
         Invoke callSite = findCallSiteBefore(invoke);
         Set<JMethod> expectedCallees = getStoredVariables(invoke, 0)
                 .stream()
@@ -193,7 +193,7 @@ enum Checkers {
                 : Map.of(callSite, actualCallees);
         return new Result(invoke, assertion, failures);
     }),
-    REACHABLE("<PTAAssert: void reachable(java.lang.String[])>", (invoke, pta, hierarchy, ___)  -> {
+    REACHABLE("void reachable(java.lang.String[])", (invoke, pta, hierarchy, ___)  -> {
         List<JMethod> reachable = getStoredVariables(invoke, 0)
                 .stream()
                 .map(v -> hierarchy.getMethod(getString(v)))
@@ -213,8 +213,8 @@ enum Checkers {
 
     private final Checker checker;
 
-    Checkers(String api, Checker checker) {
-        this.api = api;
+    Checkers(String subsig, Checker checker) {
+        this.api = String.format("<%s: %s>", AssertionChecker.PTA_ASSERT, subsig);
         this.checker = checker;
     }
 
