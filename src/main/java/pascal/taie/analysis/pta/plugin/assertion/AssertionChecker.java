@@ -38,6 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implements a mechanism for checking pointer analysis assertions.
+ * This mechanism is used for testing pointer analysis.
+ */
 public class AssertionChecker implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(AssertionChecker.class);

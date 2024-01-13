@@ -20,6 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * Stub classes that provides assertion APIs.
+ * Invocations of these APIs are treated as assertions and would be checked by
+ * {@link pascal.taie.analysis.pta.plugin.assertion.AssertionChecker}.
+ */
 public final class PTAAssert {
 
     /**
