@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2023-12-20
+## [Unreleased] - 2024-01-13
 
 ### New Features
 - Add side-effect analysis.
@@ -9,6 +9,7 @@
   - Add `Plugin.onPhaseFinish()`.
   - Support specifying multiple method signatures in one `@InvokeHandler` annotation.
   - Add `getInfo()` to call graph edges and pointer flow edges.
+  - Add pointer analysis assertion mechanism.
 - Taint analysis
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
