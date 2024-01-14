@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.util;
 
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -36,10 +37,14 @@ import pascal.taie.util.collection.MultiMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Provides common functionalities for implementing the plugins which
  * model the APIs by analyzing their semantics.
+ * The invoke handler method (annotated by {@link InvokeHandler})
+ * should follow such declaration:
+ * public void name(Context,Invoke,(PointsToSet,)+)
  *
  * @see InvokeHandler
  */
@@ -60,16 +65,34 @@ public abstract class AnalysisModelPlugin extends ModelPlugin {
     protected void registerHandler(InvokeHandler invokeHandler, Method handler) {
         for (String signature : invokeHandler.signature()) {
             JMethod api = hierarchy.getMethod(signature);
-            if (api == null) {
-                return;
+            if (api != null) {
+                if (handlers.containsKey(api)) {
+                    throw new RuntimeException(this + " registers multiple handlers for " +
+                            api + " (in a Model, at most one handler can be registered for a method)");
+                }
+                handlers.put(api, validate(handler, invokeHandler));
+                relevantVarIndexes.put(api, invokeHandler.argIndexes());
             }
-            if (handlers.containsKey(api)) {
-                throw new RuntimeException(this + " registers multiple handlers for " +
-                        api + " (in a Model, at most one handler can be registered for a method)");
-            }
-            handlers.put(api, handler);
-            relevantVarIndexes.put(api, invokeHandler.argIndexes());
         }
+    }
+
+    /**
+     * Validates the declaration of invoke handler.
+     */
+    private static Method validate(Method handler, InvokeHandler invokeHandler) {
+        // check handler parameter type
+        int nArgs = invokeHandler.argIndexes().length;
+        Class<?>[] paramTypes = handler.getParameterTypes();
+        if (paramTypes.length == 2 + nArgs
+                && paramTypes[0] == Context.class
+                && paramTypes[1] == Invoke.class
+                && IntStream.range(2, paramTypes.length)
+                .allMatch(i -> paramTypes[i] == PointsToSet.class)) {
+            return handler;
+        }
+        throw new RuntimeException("Illegal handler declaration of " + invokeHandler +
+                "\nexpected: (Context,Invoke" + ",PointsToSet".repeat(nArgs) + ")" +
+                "\ngiven: " + handler);
     }
 
     @Override

@@ -39,6 +39,9 @@ import java.util.Map;
 /**
  * Provides common functionalities for implementing the plugins which
  * model the APIs by generating semantically-equivalent IR (Stmt).
+ * The invoke handler method (annotated by {@link InvokeHandler})
+ * should follow such declaration:
+ * public void name(Invoke)
  *
  * @see InvokeHandler
  */
@@ -57,28 +60,34 @@ public abstract class IRModelPlugin extends ModelPlugin {
     protected void registerHandler(InvokeHandler invokeHandler, Method handler) {
         for (String signature : invokeHandler.signature()) {
             JMethod api = hierarchy.getMethod(signature);
-            if (api == null) {
-                continue;
+            if (api != null) {
+                if (handlers.containsKey(api)) {
+                    throw new RuntimeException(
+                            this + " registers multiple handlers for " +
+                                    api + " (in an IRModelPlugin, at most one handler " +
+                                    "can be registered for a method)");
+                }
+                handlers.put(api, validate(handler));
             }
-            // check handler parameter type
-            if (!handler.getParameterTypes()[0].equals(Invoke.class)) {
-                throw new RuntimeException("Illegal handler (" +
-                        handler + ") parameter type, should be Invoke");
-            }
-            // check handler return type
-            if (!Collection.class.isAssignableFrom(handler.getReturnType())) {
-                throw new RuntimeException("Illegal handler (" +
-                        handler + ") return type, " +
-                        "should be subclass of Collection<Stmt>");
-            }
-            if (handlers.containsKey(api)) {
-                throw new RuntimeException(
-                        this + " registers multiple handlers for " +
-                                api + " (in an IRModelPlugin, at most one handler " +
-                                "can be registered for a method)");
-            }
-            handlers.put(api, handler);
         }
+    }
+
+    /**
+     * Validates the declaration of invoke handler.
+     */
+    private static Method validate(Method handler) {
+        // check handler parameter type
+        Class<?>[] paramTypes = handler.getParameterTypes();
+        if (!(paramTypes.length == 1 && paramTypes[0] == Invoke.class)) {
+            throw new RuntimeException("Illegal handler parameter types, " +
+                    "given: " + handler + ", expected: (Invoke)");
+        }
+        // check handler return type
+        if (!Collection.class.isAssignableFrom(handler.getReturnType())) {
+            throw new RuntimeException("Illegal handler return type, " +
+                    "given: " + handler + ", expected: subclass of Collection<Stmt>");
+        }
+        return handler;
     }
 
     @Override
