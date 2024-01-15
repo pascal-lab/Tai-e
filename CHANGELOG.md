@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2024-01-13
+## [Unreleased] - 2024-01-15
 
 ### New Features
 - Add side-effect analysis.
@@ -10,6 +10,7 @@
   - Support specifying multiple method signatures in one `@InvokeHandler` annotation.
   - Add `getInfo()` to call graph edges and pointer flow edges.
   - Add pointer analysis assertion mechanism.
+  - Add `pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin`and `IRModelPlugin` to replace original `Model` and `IRModel`, provide more convenient interfaces to support `@InvokeHandler`.
 - Taint analysis
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
@@ -17,6 +18,7 @@
 ### Breaking Changes
 - API changes
   - Change `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Type)` and `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Transfer)` to `Solver.addPFGEdge(PointerFlowEdge)` and related APIs.
+  - Deprecate `pascal.taie.analysis.pta.plugin.util.Model` and `IRModel` (these two interfaces are currently preserved for compatibility, and will be removed in the future).
 
 ## [0.2.2] - 2023-09-23
 
