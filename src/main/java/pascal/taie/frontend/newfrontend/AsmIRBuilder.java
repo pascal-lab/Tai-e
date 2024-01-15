@@ -206,7 +206,6 @@ public class AsmIRBuilder {
     void inferTypeWithoutFrame() {
         StageTimer stageTimer = StageTimer.getInstance();
         stageTimer.startSplitting();
-        makeStmts();
         VarWebSplitter splitter = new VarWebSplitter(this);
         splitter.build();
         stageTimer.endSplitting();
@@ -215,6 +214,7 @@ public class AsmIRBuilder {
         // before the type inference.
         // e.g. (catch %1), we store type info in exception table,
         //      TypeInference need to know what type %1 is
+        makeStmts();
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
@@ -256,7 +256,7 @@ public class AsmIRBuilder {
                 new Indexer<>() {
                     @Override
                     public int getIndex(AbstractInsnNode o) {
-                        return getIndex(o);
+                        return AsmIRBuilder.this.getIndex(o);
                     }
 
                     @Override

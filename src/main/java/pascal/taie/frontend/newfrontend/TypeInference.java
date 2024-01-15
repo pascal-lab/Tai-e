@@ -116,6 +116,11 @@ public class TypeInference {
 
                     @Override
                     public Void visit(StoreArray stmt) {
+                        Type rType = stmt.getRValue().getType();
+                        // skips primitive type
+                        if (rType instanceof PrimitiveType) {
+                            return null;
+                        }
                         graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
                         return null;
                     }
