@@ -44,10 +44,13 @@ public class Dominator<N> {
 
     private int[] height;
 
+    private int entry;
+
     public static final int UNDEFINED = -1;
 
     public Dominator(IndexedGraph<N> graph) {
         this.graph = graph;
+        this.entry = graph.getIntEntry();
         postIndex = new int[graph.size()];
         postOrder = new int[graph.size()];
     }
@@ -144,7 +147,7 @@ public class Dominator<N> {
 
     private void dfsTrav() {
         boolean[] visited = new boolean[graph.size()];
-        dfs(graph.getIntEntry(), visited);
+        dfs(entry, visited);
     }
 
     int post;
@@ -163,6 +166,8 @@ public class Dominator<N> {
 
     private boolean loopTrav(int[] dom) {
         boolean changed = false;
+        // first set entry node's idom to itself
+        dom[entry] = entry;
         // reverse post order
         for (int i = graph.size() - 1; i >= 0; --i) {
             int node = postOrder[i];
@@ -173,7 +178,7 @@ public class Dominator<N> {
 
     boolean processNode(int[] dom, int node) {
         int prevCount = graph.getMergedInEdgesCount(node);
-        if (prevCount == 0) {
+        if (prevCount == 0 || dom[node] == entry) {
             return false;
         }
         int newIdom = UNDEFINED;
