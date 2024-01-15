@@ -93,7 +93,7 @@ public class SSATransform<Block extends IBasicBlock> {
                 for (Stmt stmt : graph.getNode(i).getStmts()) {
                     if (stmt instanceof PhiStmt p) {
                         boolean useless = isUseless.has(p.getLValue().getIndex());
-                        boolean renamed = p.renamed;
+                        boolean renamed = p.getBase() != p.getLValue();
                         boolean undead = p.getRValue().getUses().size() > 1;
                         assert !useless && (renamed && undead);
                     }
@@ -262,7 +262,6 @@ public class SSATransform<Block extends IBasicBlock> {
                             replaceStmtAndUpdateDefs.apply(phiStmt, phiStmt.getBase(), Map.of());
                     PhiStmt newStmt = (PhiStmt) p.first();
                     Var freshVar = p.second();
-                    newStmt.renamed = true;
                     // place initial marking phase for pruning step for performance
                     if (DEBUG) {
                         isPhiDefiningVar.add(freshVar.getIndex());
