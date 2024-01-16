@@ -151,6 +151,12 @@ public class SSATransform<Block extends IBasicBlock> {
             while (!current.isEmpty()) {
                 IBasicBlock block = graph.getNode(current.removeLast());
                 for (int node : df.get(block.getIndex())) {
+                    IBasicBlock dfb = graph.getNode(node);
+                    Stmt stmt = !dfb.getStmts().isEmpty() ? dfb.getStmts().get(0) : null;
+                    Catch potentialCatch = stmt instanceof Catch c ? c : null;
+                    if (potentialCatch != null && potentialCatch.getExceptionRef() == v) {
+                        continue;
+                    }
                     if (!isInserted.get(node).contains(v)) {
                         isInserted.get(node).add(v);
                         phis.get(node).add(new PhiStmt(v, v, new PhiExp()));
