@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.ir.exp.Var;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface IVarManager {
@@ -11,6 +12,9 @@ public interface IVarManager {
      * @return the new temporary variable
      */
     Var getTempVar();
+
+    @Nullable
+    Var getThisVar();
 
     Var splitVar(Var var, int index);
 

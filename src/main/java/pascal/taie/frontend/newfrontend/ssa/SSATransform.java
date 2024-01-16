@@ -1,11 +1,13 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
+import pascal.taie.frontend.newfrontend.BytecodeBlock;
 import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.IVarManager;
 import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.frontend.newfrontend.StmtVarVisitor;
+import pascal.taie.frontend.newfrontend.VarManager;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -84,6 +87,11 @@ public class SSATransform<Block extends IBasicBlock> {
         renaming();
         // step 3. remove dead phi functions
         pruning();
+        // step 4. resume the name of the variables from the VarTable if source is ASM
+        if (manager instanceof VarManager) {
+            resumeNames();
+        }
+
         if (DEBUG) {
             // testify whether step 1.5 creates those data structures that is big enough
             assert safeEstimationForPhiVars >= vars.size();
@@ -369,6 +377,7 @@ public class SSATransform<Block extends IBasicBlock> {
         return !v.isConst()
                 // copy from VarManager.isNotSpecialVar()
                 && !v.getName().startsWith("*") && !Objects.equals(v.getName(), "$null")
+                && v != manager.getThisVar()
                 ;
     }
 
@@ -389,7 +398,7 @@ public class SSATransform<Block extends IBasicBlock> {
      * source: <a href="https://pfalcon.github.io/ssabook/latest/book-full.pdf">SSA Book</a>
      * Algorithm 3.7
      */
-    public void pruning() {
+    private void pruning() {
         // initial marking phase has been done in renaming step
         if (DEBUG) {
             for (int i : isPhiDefiningVar) {
@@ -409,6 +418,41 @@ public class SSATransform<Block extends IBasicBlock> {
             IBasicBlock node = graph.getNode(i);
             node.getStmts().removeIf(
                     s -> s instanceof PhiStmt p && isUseless.has(p.getLValue().getIndex()));
+        }
+    }
+
+    private void resumeNames() {
+        VarManager manager = (VarManager) this.manager;
+        if (!manager.existsLocalVariableTable) return;
+
+        for (int n = 0; n < graph.size(); n++) {
+            BytecodeBlock block = (BytecodeBlock) graph.getNode(n);
+            int phiBias = 0;
+            for (int i = 0; i < block.getStmts().size(); i++) {
+                Stmt stmt = block.getStmts().get(i);
+                if (stmt instanceof DefinitionStmt<?,?> definitionStmt
+                        && definitionStmt.getLValue() instanceof Var def) {
+                    int queryIndex;
+                    if (definitionStmt instanceof PhiStmt) {
+                        phiBias++;
+                        queryIndex = 0;
+                    } else {
+                        queryIndex = i - phiBias;
+                    }
+                    if (def.getName().startsWith(VarManager.LOCAL_PREFIX)) {
+                        Optional<String> maybeName =
+                                manager.getName(manager.getSlot(def), block.getOrig(queryIndex));
+                        maybeName.ifPresent(s -> manager.fixName(def, s));
+                    }
+                } else if (stmt instanceof Catch c) {
+                    // for Catch stmt, i == 0
+                    assert i == 0;
+                    Var local = c.getExceptionRef();
+                    Optional<String> maybeName =
+                            manager.getName(manager.getSlot(local), block.getOrig(i));
+                    maybeName.ifPresent(s -> manager.fixName(local, s));
+                }
+            }
         }
     }
 }

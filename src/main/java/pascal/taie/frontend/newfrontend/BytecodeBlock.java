@@ -272,7 +272,7 @@ public final class BytecodeBlock implements IBasicBlock {
         this.stmt2Asm = stmt2Asm;
     }
 
-    AbstractInsnNode getOrig(int index) {
+    public AbstractInsnNode getOrig(int index) {
         return instr.get(stmt2Asm[index]);
     }
 

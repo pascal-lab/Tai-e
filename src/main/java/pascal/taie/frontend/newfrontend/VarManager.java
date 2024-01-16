@@ -42,7 +42,7 @@ public class VarManager implements IVarManager {
 
     private final @Nullable List<LocalVariableNode> localVariableTable;
 
-    final boolean existsLocalVariableTable;
+    public final boolean existsLocalVariableTable;
 
     private final InsnList insnList;
 
@@ -242,6 +242,12 @@ public class VarManager implements IVarManager {
         return v;
     }
 
+    public int getSlot(Var local) {
+        Integer i = var2Local.get(local);
+        assert i != null;
+        return i;
+    }
+
     public Var[] getLocals() {
         return local2Var;
     }
@@ -292,7 +298,9 @@ public class VarManager implements IVarManager {
                 old.setName(finalName);
                 return old;
             } else {
-                return getSplitVar(getDefaultSplitName(finalName, count), slot);
+                Var splitLocal = getSplitVar(getDefaultSplitName(finalName, count), slot);
+                var2Local.put(splitLocal, slot);
+                return splitLocal;
             }
         }
     }
