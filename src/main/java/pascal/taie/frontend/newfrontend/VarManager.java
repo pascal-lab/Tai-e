@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class VarManager implements IVarManager {
@@ -431,5 +432,13 @@ public class VarManager implements IVarManager {
 
     static int getSlotFast(Var var) {
         return var.getIndex();
+    }
+
+    @Override
+    public void removeAndReindexVars(Predicate<Var> p) {
+        vars.removeIf(p);
+        for (int i = 0; i < vars.size(); i++) {
+            vars.get(i).setIndex(i);
+        }
     }
 }

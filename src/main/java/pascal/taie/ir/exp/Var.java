@@ -67,7 +67,7 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * The index of this variable in {@link #method}.
      */
-    private final int index;
+    private int index;
 
     /**
      * If this variable is a (temporary) variable generated for holding
@@ -113,6 +113,13 @@ public class Var implements LValue, RValue, Indexable {
     @Override
     public int getIndex() {
         return index;
+    }
+
+    /**
+     * WARNING: dangerous operation which should only be called by front-end.
+     */
+    public void setIndex(int newIndex) {
+        index = newIndex;
     }
 
     /**

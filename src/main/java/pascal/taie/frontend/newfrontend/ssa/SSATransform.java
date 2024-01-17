@@ -108,6 +108,9 @@ public class SSATransform<Block extends IBasicBlock> {
                 }
             }
         }
+
+        // step 5. remove the pruned variables that are defined by the pruned phi stmts.
+        removePrunedVars();
     }
 
     private List<Block> inEdges(int i) {
@@ -454,5 +457,10 @@ public class SSATransform<Block extends IBasicBlock> {
                 }
             }
         }
+    }
+
+    private void removePrunedVars() {
+        List<Integer> removed = isUseless.toList();
+        manager.removeAndReindexVars(var -> removed.contains(var.getIndex()));
     }
 }

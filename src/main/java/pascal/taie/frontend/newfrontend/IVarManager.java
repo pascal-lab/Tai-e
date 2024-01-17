@@ -4,6 +4,7 @@ import pascal.taie.ir.exp.Var;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public interface IVarManager {
 
@@ -30,4 +31,6 @@ public interface IVarManager {
     }
 
     List<Var> getVars();
+
+    void removeAndReindexVars(Predicate<Var> p);
 }
