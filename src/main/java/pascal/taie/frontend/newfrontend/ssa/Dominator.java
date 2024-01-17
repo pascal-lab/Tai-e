@@ -153,7 +153,7 @@ public class Dominator<N> {
     int post;
     private void dfs(int node, boolean[] visited) {
         visited[node] = true;
-        for (int i = 0; i < graph.getMergedOutEdgesCount(node); ++i) {
+        for (int i = graph.getMergedOutEdgesCount(node) - 1; i >= 0; i--) {
             int succ = graph.getMergedOutEdge(node, i);
             if (!visited[succ]) {
                 dfs(succ, visited);
