@@ -1,57 +1,30 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.DefinitionStmt;
+import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.StmtVisitor;
-import pascal.taie.util.collection.ArraySet;
 
-import javax.annotation.Nonnull;
-import java.util.Set;
-
-public class PhiStmt extends DefinitionStmt<Var, PhiExp> {
+public class PhiStmt extends AssignStmt<Var, PhiExp> {
 
     private final Var base;
 
-    private final Var def; // renamed var, different from base
-
-    private final PhiExp phiExp;
-
     public PhiStmt(Var base, Var def, PhiExp phiExp) {
+        super(def, phiExp);
         this.base = base;
-        this.def = def;
-        this.phiExp = phiExp;
     }
 
+    /**
+     * WARNING: this method and the field `base` is used only in the front-end,
+     * and you should not use this method to testify may-have-same-base relationship.
+     * Instead, check the segment before "#" in the variable name.
+     * @return the base variable before SSA renaming.
+     */
     public Var getBase() {
         return base;
-    }
-
-    @Nonnull
-    @Override
-    public Var getLValue() {
-        return def;
-    }
-
-    @Override
-    public PhiExp getRValue() {
-        return phiExp;
-    }
-
-    @Override
-    public Set<RValue> getUses() {
-        Set<RValue> uses = new ArraySet<>(phiExp.getUses());
-        uses.add(phiExp);
-        return uses;
     }
 
     @Override
     public <T> T accept(StmtVisitor<T> visitor) {
         return visitor.visit(this);
-    }
-
-    @Override
-    public String toString() {
-        return def + " = " + phiExp;
     }
 }
