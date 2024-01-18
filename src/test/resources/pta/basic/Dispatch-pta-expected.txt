@@ -1,21 +1,25 @@
 Points-to sets of all variables
-[]:<A: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}]
-[]:<A: T foo()>/temp$0 -> [[]:NewObj{<A: T foo()>[0@L11] new T}]
-[]:<A: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}, []:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}, []:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
-[]:<B: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}]
-[]:<B: T foo()>/temp$0 -> [[]:NewObj{<B: T foo()>[0@L17] new T}]
-[]:<B: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}]
-[]:<C: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
-[]:<C: T foo()>/temp$0 -> [[]:NewObj{<C: T foo()>[0@L23] new T}]
-[]:<C: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
-[]:<Dispatch: void main(java.lang.String[])>/a -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}, []:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}, []:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
+[]:<A: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L4] new A}]
+[]:<A: T foo()>/temp$0 -> [[]:NewObj{<A: T foo()>[0@L13] new T}]
+[]:<A: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<Dispatch: void main(java.lang.String[])>[3@L5] new B}, []:NewObj{<Dispatch: void main(java.lang.String[])>[6@L6] new C}]
+[]:<B: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L5] new B}]
+[]:<B: T foo()>/temp$0 -> [[]:NewObj{<B: T foo()>[0@L19] new T}]
+[]:<B: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L5] new B}]
+[]:<C: T foo()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L6] new C}]
+[]:<C: T foo()>/temp$0 -> [[]:NewObj{<C: T foo()>[0@L25] new T}]
+[]:<C: void <init>()>/%this -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L6] new C}]
+[]:<Dispatch: void main(java.lang.String[])>/%stringconst2 -> [[]:ConstantObj{java.lang.String: "<A: T foo()>"}]
+[]:<Dispatch: void main(java.lang.String[])>/%stringconst4 -> [[]:ConstantObj{java.lang.String: "<B: T foo()>"}]
+[]:<Dispatch: void main(java.lang.String[])>/%stringconst6 -> [[]:ConstantObj{java.lang.String: "<C: T foo()>"}]
+[]:<Dispatch: void main(java.lang.String[])>/a -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<Dispatch: void main(java.lang.String[])>[3@L5] new B}, []:NewObj{<Dispatch: void main(java.lang.String[])>[6@L6] new C}]
 []:<Dispatch: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<Dispatch: void main(java.lang.String[])>/0},type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}]
-[]:<Dispatch: void main(java.lang.String[])>/t -> [[]:NewObj{<A: T foo()>[0@L11] new T}, []:NewObj{<B: T foo()>[0@L17] new T}, []:NewObj{<C: T foo()>[0@L23] new T}]
-[]:<Dispatch: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L3] new A}]
-[]:<Dispatch: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L4] new B}]
-[]:<Dispatch: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L5] new C}]
-[]:<Dispatch: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<A: T foo()>[0@L11] new T}, []:NewObj{<B: T foo()>[0@L17] new T}, []:NewObj{<C: T foo()>[0@L23] new T}]
-[]:<T: void <init>(int)>/%this -> [[]:NewObj{<A: T foo()>[0@L11] new T}, []:NewObj{<B: T foo()>[0@L17] new T}, []:NewObj{<C: T foo()>[0@L23] new T}]
+[]:<Dispatch: void main(java.lang.String[])>/t -> [[]:NewObj{<A: T foo()>[0@L13] new T}, []:NewObj{<B: T foo()>[0@L19] new T}, []:NewObj{<C: T foo()>[0@L25] new T}]
+[]:<Dispatch: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[0@L4] new A}]
+[]:<Dispatch: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[3@L5] new B}]
+[]:<Dispatch: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[6@L6] new C}]
+[]:<Dispatch: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<A: T foo()>[0@L13] new T}, []:NewObj{<B: T foo()>[0@L19] new T}, []:NewObj{<C: T foo()>[0@L25] new T}]
+[]:<Dispatch: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<Dispatch: void main(java.lang.String[])>[12@L8] newarray java.lang.String[%intconst0]}]
+[]:<T: void <init>(int)>/%this -> [[]:NewObj{<A: T foo()>[0@L13] new T}, []:NewObj{<B: T foo()>[0@L19] new T}, []:NewObj{<C: T foo()>[0@L25] new T}]
 
 Points-to sets of all static fields
 
@@ -23,4 +27,5 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<Dispatch: void main(java.lang.String[])>/0},type=java.lang.String[] in <Dispatch: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Dispatch: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Dispatch: void main(java.lang.String[])>}]
+[]:NewObj{<Dispatch: void main(java.lang.String[])>[12@L8] newarray java.lang.String[%intconst0]}[*] -> [[]:ConstantObj{java.lang.String: "<A: T foo()>"}, []:ConstantObj{java.lang.String: "<B: T foo()>"}, []:ConstantObj{java.lang.String: "<C: T foo()>"}]
 

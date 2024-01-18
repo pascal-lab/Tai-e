@@ -290,6 +290,6 @@ class PFGBuilder {
                 .stream()
                 .map(Invoke::getLValue)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

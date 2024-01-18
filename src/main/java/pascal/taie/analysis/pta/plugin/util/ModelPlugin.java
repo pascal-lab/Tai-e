@@ -22,32 +22,33 @@
 
 package pascal.taie.analysis.pta.plugin.util;
 
-import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.Plugin;
+
+import java.lang.reflect.Method;
 
 /**
- * Dummy model which does nothing.
+ * Provides common functionalities for implementing the plugins which model APIs.
+ *
+ * @see InvokeHandler
  */
-public enum DummyModel implements Model {
+abstract class ModelPlugin extends SolverHolder implements Plugin {
 
-    INSTANCE;
-
-    public static Model get() {
-        return INSTANCE;
+    protected ModelPlugin(Solver solver) {
+        super(solver);
     }
 
-    @Override
-    public void handleNewInvoke(Invoke invoke) {
+    protected void registerHandlers() {
+        Class<?> clazz = getClass();
+        for (Method method : clazz.getMethods()) {
+            InvokeHandler[] invokeHandlers = method.getAnnotationsByType(InvokeHandler.class);
+            if (invokeHandlers != null) {
+                for (InvokeHandler invokeHandler : invokeHandlers) {
+                    registerHandler(invokeHandler, method);
+                }
+            }
+        }
     }
 
-    @Override
-    public boolean isRelevantVar(Var var) {
-        return false;
-    }
-
-    @Override
-    public void handleNewPointsToSet(CSVar csVar, PointsToSet pts) {
-    }
+    protected abstract void registerHandler(InvokeHandler invokeHandler, Method handler);
 }

@@ -20,26 +20,19 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.dataflow.analysis.constprop;
+package pascal.taie.analysis.pta.plugin.assertion;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.type.TypeSystem;
 
-public class InterCPTestFull extends InterCPTest {
+@FunctionalInterface
+interface Checker {
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "ArgRet",
-            "Call",
-            "DeadLoop",
-            "FloatArg",
-            "MultiReturn",
-            "CharArgs",
-            "RedBlackBST",
-            "PlusPlus",
-    })
-    void testFull(String mainClass) {
-        testInterCP(mainClass);
-    }
-
+    /**
+     * Checks the assertion at {@code invoke}.
+     */
+    Result check(Invoke invoke, PointerAnalysisResult pta,
+                 ClassHierarchy hierarchy, TypeSystem typeSystem);
 }

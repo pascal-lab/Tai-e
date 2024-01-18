@@ -309,7 +309,7 @@ public class JClass extends AbstractResultHolder
     }
 
     /**
-     * Attemps to retrieve the method with given subsignature.
+     * Attempts to retrieve the method with given subsignature.
      *
      * @param subsignature subsignature of the method
      * @return the target method with given subsignature,

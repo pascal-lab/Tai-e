@@ -45,7 +45,10 @@ import java.util.Map;
 
 /**
  * Provides common functionalities for implementing API models.
+ *
+ * @deprecated Use {@link AnalysisModelPlugin} instead.
  */
+@Deprecated
 public abstract class AbstractModel extends SolverHolder implements Model {
 
     private final MethodHandles.Lookup lookup = MethodHandles.lookup();

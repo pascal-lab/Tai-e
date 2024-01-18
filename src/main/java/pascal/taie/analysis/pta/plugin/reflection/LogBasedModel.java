@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.ir.exp.Var;
@@ -43,6 +44,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +54,7 @@ import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
-class LogBasedModel extends SolverHolder {
+class LogBasedModel extends SolverHolder implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(LogBasedModel.class);
 
@@ -105,12 +107,14 @@ class LogBasedModel extends SolverHolder {
      */
     private final Set<String> missingItems = Sets.newSet();
 
-    LogBasedModel(Solver solver, MetaObjHelper helper, String logPath) {
+    LogBasedModel(Solver solver, MetaObjHelper helper, @Nullable String logPath) {
         super(solver);
         this.helper = helper;
-        logger.info("Using reflection log from {}",
-                Path.of(logPath).toAbsolutePath());
-        LogItem.load(logPath).forEach(this::addItem);
+        if (logPath != null) {
+            logger.info("Using reflection log from {}",
+                    Path.of(logPath).toAbsolutePath());
+            LogItem.load(logPath).forEach(this::addItem);
+        }
     }
 
     private void addItem(LogItem item) {
@@ -214,7 +218,8 @@ class LogBasedModel extends SolverHolder {
         return forNameTargets;
     }
 
-    void handleNewCSMethod(CSMethod csMethod) {
+    @Override
+    public void onNewCSMethod(CSMethod csMethod) {
         JMethod method = csMethod.getMethod();
         if (relevantMethods.contains(method)) {
             method.getIR()

@@ -12,7 +12,11 @@ public class GetMethods {
         for (Method m : methods) {
             if (m.getName().equals(name)) {
                 J j = new J();
-                m.invoke(j, j); // <I: void bar(I)>, <J: void foo(J)>
+                m.invoke(j, j);
+                PTAAssert.callsExact("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
+                        "<I: void bar(I)>",
+                        "<J: void foo(J)>",
+                        "<java.lang.Object: boolean equals(java.lang.Object)>");
             }
         }
     }

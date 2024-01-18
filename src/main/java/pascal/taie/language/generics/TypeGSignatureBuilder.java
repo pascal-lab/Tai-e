@@ -61,9 +61,9 @@ class TypeGSignatureBuilder extends SignatureVisitor {
 
     private String packageName;
 
-    private List<String> classNames = new ArrayList<>();
+    private final List<String> classNames = new ArrayList<>();
 
-    private List<List<TypeArgument>> typeArgLists = new ArrayList<>();
+    private final List<List<TypeArgument>> typeArgLists = new ArrayList<>();
 
     private Character typeArgWildcard;
 
@@ -216,6 +216,5 @@ class TypeGSignatureBuilder extends SignatureVisitor {
 
         VISIT_TYPE_ARGUMENT,
 
-        ;
     }
 }

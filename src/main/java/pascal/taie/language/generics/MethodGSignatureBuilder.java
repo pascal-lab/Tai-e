@@ -35,11 +35,11 @@ final class MethodGSignatureBuilder extends TypeParameterAwareGSignatureBuilder 
 
     private MethodGSignature gSig;
 
-    private List<TypeGSignature> params = new ArrayList<>();
+    private final List<TypeGSignature> params = new ArrayList<>();
 
     private TypeGSignature returnType;
 
-    private List<TypeGSignature> exceptionTypes = new ArrayList<>();
+    private final List<TypeGSignature> exceptionTypes = new ArrayList<>();
 
     public MethodGSignature get() {
         endExceptionType();

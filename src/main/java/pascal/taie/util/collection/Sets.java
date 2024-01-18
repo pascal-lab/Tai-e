@@ -86,24 +86,4 @@ public final class Sets {
     public static <E> Set<E> newConcurrentSet() {
         return ConcurrentHashMap.newKeySet();
     }
-
-    /**
-     * @return {@code true} if two sets have at least one overlapped element.
-     */
-    public static <E> boolean haveOverlap(Set<E> s1, Set<E> s2) {
-        Set<E> small, large;
-        if (s1.size() <= s2.size()) {
-            small = s1;
-            large = s2;
-        } else {
-            small = s2;
-            large = s1;
-        }
-        for (E o : small) {
-            if (large.contains(o)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

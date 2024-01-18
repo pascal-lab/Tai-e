@@ -41,7 +41,7 @@ import java.util.Set;
 
 public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
 
-    public static String ID = "null-pointer";
+    public static final String ID = "null-pointer";
 
     public NullPointerDetection(AnalysisConfig config) {
         super(config);

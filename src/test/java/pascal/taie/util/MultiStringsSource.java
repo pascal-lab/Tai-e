@@ -62,6 +62,15 @@ import java.lang.annotation.Target;
  *     void test(String arg1, &#064;Nullable String arg2) {...}
  * </pre>
  *
+ * <p>Example 3: Multiple test cases with multiple string arguments and varargs:
+ * <pre>
+ *     &#064;ParameterizedTest
+ *     &#064;MultiStringsSource({"a1"})
+ *     &#064;MultiStringsSource({"a2", "b2"})
+ *     &#064;MultiStringsSource({"a3", "b3", "c3"})
+ *     void test(String arg1, String... arg2) {...}
+ * </pre>
+ *
  * @see org.junit.jupiter.params.provider.ArgumentsSource
  * @see org.junit.jupiter.params.ParameterizedTest
  */

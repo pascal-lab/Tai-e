@@ -40,28 +40,48 @@ class MultiStringsSourceArgumentsProvider implements ArgumentsProvider {
     @Override
     public Stream<? extends Arguments> provideArguments(
             ExtensionContext context) {
+        // check parameters' types
         Method method = context.getRequiredTestMethod();
-        int paramCount = method.getParameterCount();
+        Class<?>[] paramTypes = method.getParameterTypes();
+        int paramCount = paramTypes.length;
+        for (int i = 0; i < paramCount; ++i) {
+            Class<?> paramType = paramTypes[i];
+            boolean isLastParam = i == paramCount - 1;
+            if ((isLastParam && paramType != String.class && paramType != String[].class)
+                    || (!isLastParam && paramType != String.class)) {
+                throw new IllegalArgumentException(String.format(
+                        "Method %s must have only String or String... parameters", method));
+            }
+        }
+        boolean isStringArray = paramTypes[paramCount - 1] == String[].class;
         return context.getElement()
                 .map(annotatedElement -> AnnotationSupport.findRepeatableAnnotations(
                         annotatedElement, MultiStringsSource.class))
                 .map(List::stream)
                 .map(parameterStream -> parameterStream.map(anno ->
-                        Arguments.of((Object[]) expand(anno.value(), paramCount))))
+                        Arguments.of(normalizeParam(anno.value(), paramCount, isStringArray))))
                 .orElse(Stream.empty());
     }
 
-    private static String[] expand(String[] src, int length) {
-        String[] dest;
-        if (src.length > length) {
-            throw new IllegalArgumentException(
-                    String.format("Argument count mismatch: @MultiStringsValueSource provides %d arguments, "
-                            + "but there are only %d parameters", src.length, length));
-        } else if (src.length == length) {
-            dest = src;
+    /**
+     * Normalize the parameters to the length of the method parameters.
+     */
+    private static Object[] normalizeParam(String[] src, int length, boolean isStringArray) {
+        Object[] dest = new Object[length];
+        if (isStringArray) {
+            System.arraycopy(src, 0, dest, 0, length - 1);
+            int varargsLength = Math.max(0, src.length - length + 1);
+            String[] varargs = new String[varargsLength];
+            System.arraycopy(src, length - 1, varargs, 0, varargsLength);
+            dest[length - 1] = varargs;
         } else {
-            dest = new String[length];
-            System.arraycopy(src, 0, dest, 0, src.length);
+            if (src.length > length) {
+                throw new IllegalArgumentException(
+                        String.format("Argument count mismatch: @MultiStringsValueSource provides %d arguments, "
+                                + "but there are only %d parameters", src.length, length));
+            } else {
+                System.arraycopy(src, 0, dest, 0, src.length);
+            }
         }
         return dest;
     }

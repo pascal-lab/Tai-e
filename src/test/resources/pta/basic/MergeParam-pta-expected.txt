@@ -9,6 +9,7 @@ Points-to sets of all variables
 []:<MergeParam: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
 []:<MergeParam: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
 []:<MergeParam: void main(java.lang.String[])>/temp$3 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
+[]:<MergeParam: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[11@L9] newarray java.lang.Object[%intconst0]}]
 
 Points-to sets of all static fields
 
@@ -16,4 +17,5 @@ Points-to sets of all instance fields
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<MergeParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <MergeParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<MergeParam: void main(java.lang.String[])>/0}[*],type=java.lang.String in <MergeParam: void main(java.lang.String[])>}]
+[]:NewObj{<MergeParam: void main(java.lang.String[])>[11@L9] newarray java.lang.Object[%intconst0]}[*] -> [[]:NewObj{<MergeParam: void main(java.lang.String[])>[0@L4] new A}, []:NewObj{<MergeParam: void main(java.lang.String[])>[3@L5] new A}]
 

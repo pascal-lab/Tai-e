@@ -25,10 +25,9 @@ package pascal.taie.analysis.pta.plugin.reflection;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.util.AbstractModel;
+import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Reflections;
@@ -46,7 +45,7 @@ import java.util.stream.Stream;
  * the cases where the both the name and the receiver class object are known.
  * TODO: take ClassLoader.loadClass(...) into account.
  */
-abstract class InferenceModel extends AbstractModel {
+abstract class InferenceModel extends AnalysisModelPlugin {
 
     protected final MetaObjHelper helper;
 
@@ -58,6 +57,10 @@ abstract class InferenceModel extends AbstractModel {
         super(solver);
         this.helper = helper;
         this.invokesWithLog = invokesWithLog;
+    }
+
+    static InferenceModel getDummy(Solver solver) {
+        return new InferenceModel(solver, null, null) {};
     }
 
     protected void classForNameKnown(
@@ -115,6 +118,4 @@ abstract class InferenceModel extends AbstractModel {
             }
         }
     }
-
-    protected abstract void handleNewNonInvokeStmt(Stmt stmt);
 }

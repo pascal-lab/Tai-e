@@ -20,21 +20,20 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.reflection;
+package pascal.taie.analysis.pta.plugin.assertion;
 
-import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.Invoke;
+
+import java.util.Map;
 
 /**
- * Dummy inference model that does nothing.
+ * Represents result of {@link Checker}.
+ *
+ * @param invoke    the checked assertion.
+ * @param assertion the information of the assertion.
+ * @param failures  the information about failures, which map a program element
+ *                  to its relevant analysis result. If this map is empty,
+ *                  then it means that the assertion is passed.
  */
-class DummyModel extends InferenceModel {
-
-    DummyModel(Solver solver) {
-        super(solver, null, null);
-    }
-
-    @Override
-    protected void handleNewNonInvokeStmt(Stmt stmt) {
-    }
+record Result(Invoke invoke, String assertion, Map<?, ?> failures) {
 }

@@ -32,8 +32,7 @@ import javax.annotation.Nullable;
 /**
  * Utility methods for converting signatures.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.7.9.1">
- * JVM Spec. 4.7.9.1 Signatures</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.7.9.1">JVM Spec. 4.7.9.1 Signatures</a>
  */
 public final class GSignatures {
 
@@ -50,8 +49,7 @@ public final class GSignatures {
     public static ClassGSignature toClassSig(boolean isInterface, String sig) {
         var builder = new ClassGSignatureBuilder(isInterface);
         new SignatureReader(sig).accept(builder);
-        ClassGSignature gSig = builder.get();
-        return gSig;
+        return builder.get();
     }
 
     @Nullable
@@ -59,8 +57,7 @@ public final class GSignatures {
     public static MethodGSignature toMethodSig(String sig) {
         var builder = new MethodGSignatureBuilder();
         new SignatureReader(sig).accept(builder);
-        MethodGSignature gSig = builder.get();
-        return gSig;
+        return builder.get();
     }
 
     @Nullable

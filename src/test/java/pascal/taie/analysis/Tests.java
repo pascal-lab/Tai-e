@@ -30,6 +30,7 @@ import pascal.taie.analysis.graph.cfg.CFGBuilder;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.analysis.misc.ResultProcessor;
 import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.assertion.AssertionChecker;
 
 import java.io.File;
 import java.io.IOException;
@@ -146,40 +147,39 @@ public final class Tests {
         }
     }
 
+    /**
+     * @param dir  the directory containing the test case
+     * @param main main class of the test case
+     * @param id   analysis ID
+     * @return the expected file for given test case and analysis.
+     */
+    private static String getExpectedFile(String dir, String main, String id) {
+        String fileName = String.format("%s-%s-expected.txt", main, id);
+        return Path.of(dir, fileName).toString();
+    }
+
     public static void testPTA(String dir, String main, String... opts) {
         testPTA(true, dir, main, opts);
     }
 
-    public static void testPTA(boolean processResult, String dir, String main, String... opts) {
-        String id = PointerAnalysis.ID;
+    public static void testPTA(boolean processResult,
+                               String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
         args.add("-pp");
-        String classPath = "src/test/resources/pta/" + dir;
+        // for loading class PTAAssert
+        String ptaTestRoot = "src/test/resources/pta";
+        Collections.addAll(args, "-cp", ptaTestRoot);
+        // for loading main class
+        String classPath = ptaTestRoot + "/" + dir;
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, "-m", main);
         if (DUMP_IR) {
             // dump IR
             Collections.addAll(args, "-a", IRDumper.ID);
         }
-        List<String> ptaArgs = new ArrayList<>();
-        ptaArgs.add("implicit-entries:false");
-        String expectedFile = getExpectedFile(classPath, main, id);
-        if (processResult) {
-            ptaArgs.add(GENERATE_EXPECTED_RESULTS ? "dump:true"
-                    : "expected-file:" + expectedFile);
-        }
-        boolean specifyOnlyApp = false;
-        for (String opt : opts) {
-            ptaArgs.add(opt);
-            if (opt.contains("only-app")) {
-                specifyOnlyApp = true;
-            }
-        }
-        if (!specifyOnlyApp) {
-            // if given options do not specify only-app, then set it true
-            ptaArgs.add("only-app:true");
-        }
-        Collections.addAll(args, "-a", id + "=" + String.join(";", ptaArgs));
+        String expectedFile = getExpectedFile(classPath, main, PointerAnalysis.ID);
+        String ptaArgs = getPTAArgs(processResult, expectedFile, opts);
+        Collections.addAll(args, "-a", PointerAnalysis.ID + "=" + ptaArgs);
         Main.main(args.toArray(new String[0]));
         // move expected file
         if (processResult && GENERATE_EXPECTED_RESULTS) {
@@ -193,14 +193,29 @@ public final class Tests {
         }
     }
 
-    /**
-     * @param dir  the directory containing the test case
-     * @param main main class of the test case
-     * @param id   analysis ID
-     * @return the expected file for given test case and analysis.
-     */
-    private static String getExpectedFile(String dir, String main, String id) {
-        String fileName = String.format("%s-%s-expected.txt", main, id);
-        return Path.of(dir, fileName).toString();
+    private static String getPTAArgs(
+            boolean processResult, String expectedFile, String... opts) {
+        List<String> ptaArgs = new ArrayList<>(List.of(
+                "implicit-entries:false",
+                "only-app:true",
+                "distinguish-string-constants:all"));
+        if (processResult) {
+            ptaArgs.add(GENERATE_EXPECTED_RESULTS
+                    ? "dump:true"
+                    : "expected-file:" + expectedFile);
+        }
+        List<String> plugins = new ArrayList<>();
+        plugins.add(AssertionChecker.class.getName());
+        for (String opt : opts) {
+            if (opt.startsWith("plugins")) {
+                // "plugins:[...]"
+                String pluginStr = opt.substring(opt.indexOf('[') + 1, opt.indexOf(']'));
+                plugins.addAll(Arrays.asList(pluginStr.split(",")));
+            } else {
+                ptaArgs.add(opt);
+            }
+        }
+        ptaArgs.add("plugins:[" + String.join(",", plugins) + "]");
+        return String.join(";", ptaArgs);
     }
 }

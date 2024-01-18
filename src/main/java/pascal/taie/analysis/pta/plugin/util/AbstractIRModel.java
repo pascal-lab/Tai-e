@@ -45,7 +45,10 @@ import java.util.function.Function;
 
 /**
  * Provides common functionalities for implementing IR-based API models.
+ *
+ * @deprecated Use {@link IRModelPlugin} instead.
  */
+@Deprecated
 public abstract class AbstractIRModel extends SolverHolder implements IRModel {
 
     private final MethodHandles.Lookup lookup = MethodHandles.lookup();

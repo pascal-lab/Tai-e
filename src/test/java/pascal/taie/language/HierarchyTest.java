@@ -157,9 +157,8 @@ public class HierarchyTest {
      */
     @Test
     void testResolveField5() {
-        assertThrows(FieldResolutionFailedException.class, () -> {
-            testResolveField("G", "xxx", "G");
-        });
+        assertThrows(FieldResolutionFailedException.class,
+                () -> testResolveField("G", "xxx", "G"));
     }
 
     /**
