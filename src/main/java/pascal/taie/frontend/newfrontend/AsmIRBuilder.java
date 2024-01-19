@@ -25,6 +25,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -602,15 +603,25 @@ public class AsmIRBuilder {
 
     private void makeStmts() {
         this.stmts = new ArrayList<>(source.instructions.size());
+        // Add trigger whether we process phiStmts.
+        List<PhiStmt> phiStmts = new ArrayList<>();
         for (BytecodeBlock block : blockSortedList) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
+                    if (t instanceof PhiStmt p) {
+                        phiStmts.add(p);
+                    }
                     t.setIndex(stmts.size());
                     stmts.add(t);
                 }
                 setJumpTargets(block.getLastBytecode(), block.getLastStmt());
             }
+        }
+
+        // Make PhiStmts using stmt.index as the value source.
+        for (PhiStmt p : phiStmts) {
+            p.getRValue().indexValueAndSource();
         }
     }
 

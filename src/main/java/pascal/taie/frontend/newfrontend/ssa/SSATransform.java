@@ -102,7 +102,7 @@ public class SSATransform<Block extends IBasicBlock> {
                     if (stmt instanceof PhiStmt p) {
                         boolean useless = isUseless.has(p.getLValue().getIndex());
                         boolean renamed = p.getBase() != p.getLValue();
-                        boolean undead = p.getRValue().getUses().size() > 1;
+                        boolean undead = p.getRValue().getUsesAndInBlocks().size() > 1;
                         assert !useless && (renamed && undead);
                     }
                 }
@@ -414,7 +414,7 @@ public class SSATransform<Block extends IBasicBlock> {
         while (!stack.isEmpty()) {
             Var a = vars.get(stack.removeLast());
             PhiStmt phiStmt = correspondingPhiStmts.get(a);
-            phiStmt.getRValue().getUses().forEach(this::markUseful);
+            phiStmt.getRValue().getUsesAndInBlocks().forEach(p -> markUseful(p.first()));
         }
 
         // final pruning phase
