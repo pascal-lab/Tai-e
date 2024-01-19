@@ -174,6 +174,16 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
     }
 
     @Override
+    public List<BytecodeBlock> normalOutEdges(BytecodeBlock node) {
+        List<BytecodeBlock> r = new ArrayList<>();
+        int b = node.getIndex();
+        for (int i = 0; i < outEdgesCount[b]; i++) {
+            r.add(getNode(getOutEdge(b, i)));
+        }
+        return r;
+    }
+
+    @Override
     public BytecodeBlock getNode(int index) {
         return blockSortedList.get(index);
     }

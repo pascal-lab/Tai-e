@@ -15,6 +15,8 @@ public interface IndexedGraph <N> {
 
     List<N> outEdges(N node);
 
+    List<N> normalOutEdges(N node);
+
     default int getMergedInEdgesCount(int node) {
         return inEdges(getNode(node)).size();
     }

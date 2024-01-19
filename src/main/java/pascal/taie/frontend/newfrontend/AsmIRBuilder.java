@@ -25,6 +25,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
+import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
 import pascal.taie.ir.DefaultIR;
@@ -619,9 +620,10 @@ public class AsmIRBuilder {
             }
         }
 
+        PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
         // Make PhiStmts using stmt.index as the value source.
         for (PhiStmt p : phiStmts) {
-            p.getRValue().indexValueAndSource();
+            p.getRValue().indexValueAndSource(resolver);
         }
     }
 

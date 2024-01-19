@@ -223,6 +223,11 @@ public class TestDom {
             }
 
             @Override
+            public List<Integer> normalOutEdges(Integer node) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public Integer getNode(int index) {
                 return index;
             }

@@ -30,38 +30,13 @@ public class PhiExp implements Exp, RValue {
         return usesAndInBlocks;
     }
 
-    public void indexValueAndSource() {
-        sourceAndVar = new ArrayList<>(usesAndInBlocks.size());
-        for (Pair<Var, IBasicBlock> p : usesAndInBlocks) {
-            Var v = p.first();
-            IBasicBlock b = p.second();
-            int index = getSourceIndex(b);
-            sourceAndVar.add(new Pair<>(index, v));
-        }
+    public void indexValueAndSource(PhiResolver<? extends IBasicBlock> resolver) {
+        sourceAndVar = resolver.resolvePhi(this);
         usesAndInBlocks = null;
     }
 
     public List<Pair<Integer, Var>> getSourceAndVar() {
         return sourceAndVar;
-    }
-
-    private static int getSourceIndex(IBasicBlock block) {
-        if (block == null) {
-            return METHOD_ENTRY;
-        }
-        int index;
-        List<Stmt> stmts = block.getStmts();
-        if (!stmts.isEmpty()) {
-            index = stmts.get(stmts.size() - 1).getIndex();
-        } else {
-            /*
-            The block is within a try block, and the bytecode in it is translated as side
-            effect. So we have to find the next non-empty block and get its first stmt.
-            */
-            // TODO
-            index = -2;
-        }
-        return index;
     }
 
     @Override
