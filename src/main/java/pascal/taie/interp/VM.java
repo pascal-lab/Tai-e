@@ -2,6 +2,8 @@ package pascal.taie.interp;
 
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.java.NewFrontendException;
+import pascal.taie.frontend.newfrontend.ssa.PhiExp;
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -89,7 +91,8 @@ public class VM {
     public JValue execIR(IR ir, Frame f) {
         frames.push(f);
         while (f.getPc() >= 0) {
-            Stmt stmt = ir.getStmt(f.getPc());
+            int pc = f.getPc();
+            Stmt stmt = ir.getStmt(pc);
             try {
                 execStmt(stmt, ir, f);
             } catch (InterpreterException | NewFrontendException e) {
@@ -128,6 +131,9 @@ public class VM {
                     frames.pop();
                     throw new ClientException(exception);
                 }
+            }
+            if (!(stmt instanceof PhiStmt || stmt instanceof Catch)) {
+                f.setLastPc(pc);
             }
         }
         frames.pop();
@@ -451,6 +457,16 @@ public class VM {
             JValue v = evalExp(arrayLengthExp.getOperand(), ir, f);
             JArray array = JValue.getJArray(v);
             return JPrimitive.get(array.length());
+        } else if (e instanceof PhiExp phi) {
+            int lastPc = f.getLastPc();
+            Var v = null;
+            for (Pair<Integer, Var> p : phi.getSourceAndVar()) {
+                if (p.first() == lastPc) {
+                    v = p.second();
+                }
+            }
+            assert v != null;
+            return f.getRegs().get(v);
         } else {
             throw new InterpreterException(e + " is not implemented");
         }

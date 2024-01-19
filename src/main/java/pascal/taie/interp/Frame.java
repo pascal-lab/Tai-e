@@ -8,12 +8,17 @@ import java.util.Map;
 public class Frame {
     private int pc;
 
+    private int lastPc; // Only used for phi selection.
+
     private final Map<Var, JValue> regs;
 
     private JValue rets;
 
+    public static final int METHOD_ENTRY = -1; // Should we define a uniform index for entry?
+
     public Frame(int pc, Map<Var, JValue> regs) {
         this.pc = pc;
+        this.lastPc = METHOD_ENTRY;
         this.regs = regs;
     }
 
@@ -31,6 +36,14 @@ public class Frame {
 
     public void setPc(int pc) {
         this.pc = pc;
+    }
+
+    public int getLastPc() {
+        return lastPc;
+    }
+
+    public void setLastPc(int lastPc) {
+        this.lastPc = lastPc;
     }
 
     public Map<Var, JValue> getRegs() {
