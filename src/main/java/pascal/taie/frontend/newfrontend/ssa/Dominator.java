@@ -104,7 +104,11 @@ public class Dominator<N> {
         }
         for (int i = 0; i < graph.size(); ++i) {
             int size = graph.getMergedInEdgesCount(i);
-            if (size >= 2) {
+            if (size >= 2 || i == graph.getIntEntry()) {
+                /*
+                i == graph.getIntEntry for that we do not have pseudo entry, so we have to
+                force dominator frontier calculator to calculate df for the actual entry.
+                 */
                 for (int j = 0; j < size; ++j) {
                     int runner = graph.getMergedInEdge(i, j);
                     while (runner != dom[i]) {

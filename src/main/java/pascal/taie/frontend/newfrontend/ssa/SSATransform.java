@@ -140,7 +140,8 @@ public class SSATransform<Block extends IBasicBlock> {
         for (int i = 0; i < graph.size(); i++) {
             // TODO: current implement cannot set the init size
             //       change it if it's a performance issue
-            if (inEdges(i).size() >= 2) {
+            int entry = graph.getIntEntry();
+            if (inEdges(i).size() >= 2 || (i == entry && !inEdges(entry).isEmpty())) {
                 // only joint point needs phi functions
                 isInserted.add(new IndexerBitSet<>(indexer, false));
                 phis.add(new ArrayList<>());
