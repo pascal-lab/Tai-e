@@ -33,14 +33,7 @@ public enum PrimitiveType implements Type {
     DOUBLE("double"),
     SHORT("short");
 
-    /**
-     * Name of this type.
-     */
-    private final String name;
-
-    PrimitiveType(String name) {
-        this.name = name;
-    }
+public interface PrimitiveType extends ValueType {
 
     /**
      * @return true if given name represents a primitive type, otherwise false.
