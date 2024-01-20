@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.LongType;
 import pascal.taie.language.type.PrimitiveType;
 
 /**
@@ -59,7 +60,7 @@ public class LongLiteral implements IntegerLiteral {
 
     @Override
     public PrimitiveType getType() {
-        return PrimitiveType.LONG;
+        return LongType.LONG;
     }
 
     /**

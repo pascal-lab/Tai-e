@@ -42,9 +42,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static pascal.taie.language.type.PrimitiveType.BOOLEAN;
-import static pascal.taie.language.type.PrimitiveType.INT;
-import static pascal.taie.language.type.PrimitiveType.LONG;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.VoidType.VOID;
 
 public class HierarchyTest {

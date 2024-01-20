@@ -23,6 +23,7 @@
 package pascal.taie.ir.exp;
 
 
+import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.PrimitiveType;
 
 /**
@@ -49,7 +50,7 @@ public class NegExp implements UnaryExp {
     @Override
     public PrimitiveType getType() {
         PrimitiveType type = (PrimitiveType) value.getType();
-        return type.asInt() ? PrimitiveType.INT : type;
+        return type.asInt() ? IntType.INT : type;
     }
 
     @Override

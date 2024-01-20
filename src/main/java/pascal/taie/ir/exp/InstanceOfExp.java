@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.BooleanType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 
@@ -54,7 +55,7 @@ public class InstanceOfExp implements RValue {
 
     @Override
     public PrimitiveType getType() {
-        return PrimitiveType.BOOLEAN;
+        return BooleanType.BOOLEAN;
     }
 
     @Override

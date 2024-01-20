@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.DoubleType;
 import pascal.taie.language.type.PrimitiveType;
 
 public class DoubleLiteral implements FloatingPointLiteral {
@@ -43,7 +44,7 @@ public class DoubleLiteral implements FloatingPointLiteral {
 
     @Override
     public PrimitiveType getType() {
-        return PrimitiveType.DOUBLE;
+        return DoubleType.DOUBLE;
     }
 
     public double getValue() {

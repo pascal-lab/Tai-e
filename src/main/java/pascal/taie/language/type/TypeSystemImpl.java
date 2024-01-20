@@ -139,35 +139,35 @@ public class TypeSystemImpl implements TypeSystem {
     @Override
     public ClassType getBoxedType(PrimitiveType type) {
         return switch (type) {
-            case BOOLEAN -> BOOLEAN;
-            case BYTE -> BYTE;
-            case SHORT -> SHORT;
-            case CHAR -> CHARACTER;
-            case INT -> INTEGER;
-            case LONG -> LONG;
-            case FLOAT -> FLOAT;
-            case DOUBLE -> DOUBLE;
+            case BooleanType.BOOLEAN -> BOOLEAN;
+            case ByteType.BYTE -> BYTE;
+            case ShortType.SHORT -> SHORT;
+            case CharType.CHAR -> CHARACTER;
+            case IntType.INT -> INTEGER;
+            case LongType.LONG -> LONG;
+            case FloatType.FLOAT -> FLOAT;
+            case DoubleType.DOUBLE -> DOUBLE;
         };
     }
 
     @Override
     public PrimitiveType getUnboxedType(ClassType type) {
         if (type.equals(BOOLEAN)) {
-            return PrimitiveType.BOOLEAN;
+            return BooleanType.BOOLEAN;
         } else if (type.equals(BYTE)) {
-            return PrimitiveType.BYTE;
+            return ByteType.BYTE;
         } else if (type.equals(SHORT)) {
-            return PrimitiveType.SHORT;
+            return ShortType.SHORT;
         } else if (type.equals(CHARACTER)) {
-            return PrimitiveType.CHAR;
+            return CharType.CHAR;
         } else if (type.equals(INTEGER)) {
-            return PrimitiveType.INT;
+            return IntType.INT;
         } else if (type.equals(LONG)) {
-            return PrimitiveType.LONG;
+            return LongType.LONG;
         } else if (type.equals(FLOAT)) {
-            return PrimitiveType.FLOAT;
+            return FloatType.FLOAT;
         } else if (type.equals(DOUBLE)) {
-            return PrimitiveType.DOUBLE;
+            return DoubleType.DOUBLE;
         }
         throw new AnalysisException(type + " cannot be unboxed");
     }

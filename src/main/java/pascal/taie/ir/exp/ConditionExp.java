@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.PrimitiveType;
 
 /**
@@ -71,7 +72,7 @@ public class ConditionExp extends AbstractBinaryExp {
 
     @Override
     public PrimitiveType getType() {
-        return PrimitiveType.INT;
+        return IntType.INT;
     }
 
     @Override

@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.PrimitiveType;
 
 /**
@@ -59,7 +60,7 @@ public class IntLiteral implements IntegerLiteral {
 
     @Override
     public PrimitiveType getType() {
-        return PrimitiveType.INT;
+        return IntType.INT;
     }
 
     /**
