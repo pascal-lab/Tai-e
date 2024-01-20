@@ -22,28 +22,7 @@
 
 package pascal.taie.language.type;
 
-import java.util.Map;
-import java.util.Set;
-
 public interface PrimitiveType extends ValueType {
-
-    /**
-     * @return {@code true} if given name represents a primitive type.
-     */
-    static boolean isPrimitiveType(String name) {
-        // stub implementation to pass compilation
-        return Set.of("int").contains(name);
-    }
-
-    /**
-     * @return the primitive type specified by specific name.
-     * @throws IllegalArgumentException if given name is irrelevant to any primitive type.
-     */
-    static PrimitiveType get(String name) {
-        // stub implementation to pass compilation
-        return Map.of("int", IntType.INT).get(name);
-        //throw new IllegalArgumentException(name + " is not primitive type");
-    }
 
     @Override
     default String getName() {
