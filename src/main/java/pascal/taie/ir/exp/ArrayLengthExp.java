@@ -24,7 +24,6 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.IntType;
-import pascal.taie.language.type.PrimitiveType;
 
 /**
  * Representation of array length expression, e.g., arr.length.
@@ -48,7 +47,7 @@ public class ArrayLengthExp implements UnaryExp {
     }
 
     @Override
-    public PrimitiveType getType() {
+    public IntType getType() {
         return IntType.INT;
     }
 

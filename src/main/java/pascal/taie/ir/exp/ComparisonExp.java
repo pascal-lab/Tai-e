@@ -26,7 +26,6 @@ import pascal.taie.language.type.DoubleType;
 import pascal.taie.language.type.FloatType;
 import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.LongType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
 /**
@@ -75,7 +74,7 @@ public class ComparisonExp extends AbstractBinaryExp {
     }
 
     @Override
-    public PrimitiveType getType() {
+    public IntType getType() {
         return IntType.INT;
     }
 
