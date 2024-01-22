@@ -23,7 +23,10 @@ public class PhiResolver<T extends IBasicBlock> {
             Var v = p.first();
             IBasicBlock b = p.second();
             int index = getSourceIndex((T) b);
-            sourceAndVar.add(new Pair<>(index, v));
+            Pair<Integer, Var> np = new Pair<>(index, v);
+            if (!sourceAndVar.contains(np)) {
+                sourceAndVar.add(np);
+            }
         }
         return sourceAndVar;
     }
