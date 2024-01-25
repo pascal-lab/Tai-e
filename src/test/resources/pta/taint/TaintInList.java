@@ -27,7 +27,7 @@ class StringList {
     private void ensureCapacity(int capacity) {
         if (capacity > elements.length) {
             String[] tmp = new String[elements.length * 2];
-            for (int i = 0; i < elements.length) {
+            for (int i = 0; i < elements.length;) {
                 tmp[i] = elements[i];
             }
             elements = tmp;
