@@ -1,7 +1,10 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.SparseSet;
+import pascal.taie.frontend.newfrontend.data.IntGraph;
+import pascal.taie.frontend.newfrontend.data.IntList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +47,7 @@ public class Dominator<N> {
 
     private int[] height;
 
-    private int entry;
+    private final int entry;
 
     public static final int UNDEFINED = -1;
 
@@ -53,6 +56,7 @@ public class Dominator<N> {
         this.entry = graph.getIntEntry();
         postIndex = new int[graph.size()];
         postOrder = new int[graph.size()];
+        dfsTrav();
     }
 
     public record DominatorFrontiers(SparseSet[] res) {
@@ -73,9 +77,6 @@ public class Dominator<N> {
             boolean changed = true;
             dom = new int[graph.size()];
             Arrays.fill(dom, UNDEFINED);
-
-            // TODO: can/need we calculates idom in dfs?
-            dfsTrav();
             int entry = graph.getIndex(graph.getEntry());
             dom[entry] = entry;
             while (changed) {
@@ -111,8 +112,7 @@ public class Dominator<N> {
                  */
                 for (int j = 0; j < size; ++j) {
                     int runner = graph.getMergedInEdge(i, j);
-                    while (runner != dom[i]) {
-                        assert runner != -1;
+                    while (runner != dom[i] && runner != -1) {
                         df[runner].add(i);
                         runner = dom[runner];
                     }
@@ -124,7 +124,6 @@ public class Dominator<N> {
 
     public int[] assignDomTreeHeight() {
         if (height == null) {
-            int[] dom = getDomTree();
             height = new int[graph.size()];
             Arrays.fill(height, -1);
             for (int i = 0; i < graph.size(); ++i) {
@@ -135,6 +134,9 @@ public class Dominator<N> {
     }
 
     private void climbDomTree(int runner, int[] height) {
+        if (dom[runner] == UNDEFINED) {
+            return;
+        }
         if (height[runner] != -1) {
             return;
         } else if (dom[runner] == runner) {
@@ -147,6 +149,59 @@ public class Dominator<N> {
             climbDomTree(dom[runner], height);
             height[runner] = height[dom[runner]] + 1;
         }
+    }
+
+    public int[] getDomTreeDfsSeq() {
+        int[] dom = getDomTree();
+        IntGraph domTree = new IntGraph(graph.size());
+        for (int i = 0; i < graph.size(); ++i) {
+            // dom[entry] = entry, avoid circular reference
+            // dom[i] = UNDEFINED, avoid unreachable node
+            if (dom[i] != i && dom[i] != UNDEFINED) {
+                domTree.addEdge(dom[i], i);
+            }
+        }
+        int[] dfsSeq = new int[graph.size()];
+        forward = 0;
+        dfsDomTree(dfsSeq, domTree, graph.getIndex(graph.getEntry()));
+        return dfsSeq;
+    }
+
+    int forward;
+    private void dfsDomTree(int[] dfsSeq, IntGraph domTree, int now) {
+        dfsSeq[forward++] = now;
+        if (!domTree.has(now)) {
+            return;
+        }
+        IntList out = domTree.get(now);
+        for (int i = 0; i < out.size(); ++i) {
+            int succ = out.get(i);
+            dfsDomTree(dfsSeq, domTree, succ);
+        }
+    }
+
+    /**
+     * Check if a dominates b.
+     * @param a a node index
+     * @param b a node index
+     * @return {@code true} if a dominates b
+     * @apiNote Should be used after {@link #getDomTree()} is called.
+     */
+    public boolean dominates(int a, int b) {
+        assert dom != null;
+        do {
+            if (a == b) {
+                return true;
+            }
+            // now, `b` is entry, and `a` is not entry
+            // we can say that `a` does not dominate `b`
+            if (b == entry) {
+                return false;
+            }
+            b = dom[b];
+        } while (b != UNDEFINED);
+
+        return false;
     }
 
     private void dfsTrav() {

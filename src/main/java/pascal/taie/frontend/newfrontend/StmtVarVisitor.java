@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -8,6 +9,7 @@ import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.LValue;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.AssignStmt;
@@ -99,6 +101,12 @@ public class StmtVarVisitor {
                 | stmt instanceof New | stmt instanceof AssignLiteral) {
             // Do nothing
             return;
+        } else if (stmt instanceof PhiStmt phiStmt) {
+            for (RValue v : phiStmt.getRValue().getUses()) {
+                if (v instanceof Var var) {
+                    consumer.accept(var);
+                }
+            }
         } else {
             throw new UnsupportedOperationException();
         }

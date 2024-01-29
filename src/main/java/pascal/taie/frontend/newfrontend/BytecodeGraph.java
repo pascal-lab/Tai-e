@@ -136,6 +136,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
     }
 
     public int getOutEdge(int b, int index) {
+        assert b >= 0;
         if (index < DEFAULT_EDGE_SIZE) {
             return outEdges[b * DEFAULT_EDGE_SIZE + index];
         } else {

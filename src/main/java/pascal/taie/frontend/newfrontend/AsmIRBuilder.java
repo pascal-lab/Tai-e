@@ -22,9 +22,14 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
+import pascal.taie.frontend.newfrontend.ssa.Dominator;
+import pascal.taie.frontend.newfrontend.ssa.FastVarSplitting;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
+import pascal.taie.frontend.newfrontend.ssa.PhiExp;
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
@@ -88,19 +93,13 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.Indexer;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
@@ -135,7 +134,7 @@ public class AsmIRBuilder {
 
     private List<ExceptionEntry> exceptionEntries;
 
-    private final List<Phi> phiList;
+    private final List<StackPhi> phiList;
 
     private final DUInfo duInfo;
 
@@ -146,6 +145,12 @@ public class AsmIRBuilder {
     private static final StackItem TOP = new StackItem(Top.Top, null);
 
     private int currentLineNumber;
+
+    private static boolean EXPERIMENTAL = true;
+
+    private boolean USE_SSA = true;
+
+    private Dominator<BytecodeBlock> dom;
 
     public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
         this.method = method;
@@ -168,7 +173,7 @@ public class AsmIRBuilder {
 
     public void build() {
         // a.analyze()
-        if (! isEmpty) {
+        if (!isEmpty) {
             StageTimer stageTimer = StageTimer.getInstance();
             stageTimer.startTypelessIR();
             buildCFG();
@@ -185,7 +190,11 @@ public class AsmIRBuilder {
             makeExceptionTable();
             stageTimer.endTypelessIR();
             // TODO: add options for ssa toggle
-//            ssa();
+            if (USE_SSA && !EXPERIMENTAL) {
+                stageTimer.startSplitting();
+                ssa();
+                stageTimer.endSplitting();
+            }
             makeStmts();
             makeExceptionTable();
             verify();
@@ -195,10 +204,12 @@ public class AsmIRBuilder {
 
     void inferTypeWithFrame() {
         StageTimer stageTimer = StageTimer.getInstance();
-        stageTimer.startSplitting();
-        VarWebSplitter splitter = new VarWebSplitter(this);
-        splitter.build();
-        stageTimer.endSplitting();
+        if (!EXPERIMENTAL) {
+            stageTimer.startSplitting();
+            VarWebSplitter splitter = new VarWebSplitter(this);
+            splitter.build();
+            stageTimer.endSplitting();
+        }
         stageTimer.startTyping();
         TypeInference0 inference = new TypeInference0(this);
         inference.build();
@@ -207,10 +218,12 @@ public class AsmIRBuilder {
 
     void inferTypeWithoutFrame() {
         StageTimer stageTimer = StageTimer.getInstance();
-        stageTimer.startSplitting();
-        VarWebSplitter splitter = new VarWebSplitter(this);
-        splitter.build();
-        stageTimer.endSplitting();
+        if (!EXPERIMENTAL) {
+            stageTimer.startSplitting();
+            VarWebSplitter splitter = new VarWebSplitter(this);
+            splitter.build();
+            stageTimer.endSplitting();
+        }
         stageTimer.startTyping();
         // very important, need to build the exception table
         // before the type inference.
@@ -318,7 +331,7 @@ public class AsmIRBuilder {
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
-        if (lValue instanceof Var v) {
+        if (lValue instanceof Var v && !EXPERIMENTAL) {
             duInfo.addDefBlock(v, currentBlock);
         }
         return Utils.getAssignStmt(method, lValue, e);
@@ -420,14 +433,10 @@ public class AsmIRBuilder {
 
     private Var toVar(Exp e, AbstractInsnNode orig) {
         assert ! (e instanceof Var v && manager.isTempVar(v));
-        if (e instanceof Phi phi) {
-            if (phi.getVar() != null) {
-                return phi.getVar();
-            }
+        if (e instanceof StackPhi phi) {
             phi.setUsed();
-            Var v = manager.getTempVar();
-            phi.setVar(v);
-            return v;
+            assert phi.getVar() != null;
+            return phi.getVar();
         }
 
         Var v;
@@ -468,7 +477,7 @@ public class AsmIRBuilder {
     private Stmt popToVar(Stack<StackItem> stack, Var v, BytecodeBlock block) {
         StackItem top = popExp(stack);
         // Note: Var . getUses() will return empty set
-        if (top.e() instanceof Phi phi) {
+        if (top.e() instanceof StackPhi phi) {
             top = new StackItem(toVar(phi, null), null);
         } else {
             ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
@@ -514,7 +523,7 @@ public class AsmIRBuilder {
         for (int i = 0; i < stack.size(); ++i) {
             StackItem item = stack.get(i);
             Exp e = item.e();
-            if (e instanceof Top || e instanceof Phi) {
+            if (e instanceof Top || e instanceof StackPhi) {
                 continue;
             }
             if (predicate.apply(e)) {
@@ -524,7 +533,7 @@ public class AsmIRBuilder {
     }
 
     private boolean maySideEffect(Exp e) {
-        return !(e instanceof Var || e instanceof Phi);
+        return !(e instanceof Var || e instanceof StackPhi);
     }
 
     private void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp e) {
@@ -556,7 +565,7 @@ public class AsmIRBuilder {
     }
 
     private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = getBlockFromLabel(label);
+        BytecodeBlock block = searchForValidBlock(label);
         while (block.getStmts().isEmpty()) {
             BytecodeBlock next1 = getOutEdge(block, 0);
             BytecodeBlock next2 = blockSortedList.get(block.getIndex() + 1);
@@ -620,11 +629,12 @@ public class AsmIRBuilder {
             }
         }
 
-        PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
-        // Make PhiStmts using stmt.index as the value source.
-        for (PhiStmt p : phiStmts) {
-            p.getRValue().indexValueAndSource(resolver);
-        }
+        // TODO: some error here
+//        PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
+//        // Make PhiStmts using stmt.index as the value source.
+//        for (PhiStmt p : phiStmts) {
+//            p.getRValue().indexValueAndSource(resolver);
+//        }
     }
 
     private void makeExceptionTable() {
@@ -892,10 +902,52 @@ public class AsmIRBuilder {
         return new ArrayAccess(ref, idx);
     }
 
+    private Var getRWVar(int rwIndex) {
+        Var v;
+        int defIndex = splitting.getReachDef(rwIndex);
+        assert defIndex != -1; // wtf? undefined variable?
+        if (isFastProcessVar(defIndex)) {
+            v = reachVars[defIndex];
+        } else {
+            int realVar = splitting.getRealLocalSlot(defIndex);
+            assert realVar != -1; // must be phi-connected node, a local is assigned before
+            v = manager.getLocal(realVar);
+        }
+        assert v != null;
+        return v;
+    }
+
+    private void storeRWVar(AbstractInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block, int rwIndex) {
+        if (isFastProcessVar(rwIndex)) {
+            // load insn will use rwTables to get this var
+            Var v = popVar(stack);
+            // if this var is a local, we need create another copy
+            // in case this local var is modified later
+            if (manager.isLocal(v) && !USE_SSA) {
+                Var origin = v;
+                v = manager.getTempVar();
+                assocStmt(varNode, getAssignStmt(v, origin));
+            }
+            reachVars[rwIndex] = v;
+        } else {
+            // still use a local var
+            int realVar = splitting.getRealLocalSlot(rwIndex);
+            Var v = manager.getLocal(realVar);
+            // use this to generate store stmt
+            assert v != null;
+            storeExp(varNode, v, stack, block);
+        }
+    }
+
     private void storeExp(VarInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block) {
-        int idx = varNode.var;
-        Var v = manager.getLocal(idx);
-        storeExp(varNode, v, stack, block);
+        if (!EXPERIMENTAL) {
+            int idx = varNode.var;
+            Var v = manager.getLocal(idx);
+            storeExp(varNode, v, stack, block);
+        } else {
+            int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
+            storeRWVar(varNode, stack, block, rwIndex);
+        }
     }
 
     private void storeExp(AbstractInsnNode node, Var v, Stack<StackItem> stack, BytecodeBlock block) {
@@ -1006,9 +1058,26 @@ public class AsmIRBuilder {
         }
     }
 
+    private void emitSSAPhisForLocal(BytecodeBlock block) {
+        assert USE_SSA;
+        // should have at least one instruction
+        AbstractInsnNode first = block.instr().get(0);
+        splitting.visitLivePhis(block, (phi) -> {
+            Var phiVar = manager.getTempVar();
+            Var origin = manager.getLocal(phi.getVar());
+            PhiExp phiExp = new PhiExp();
+            reachVars[phi.getDUIndex()] = phiVar;
+            PhiStmt phiStmt = new PhiStmt(origin, phiVar, phiExp);
+            assocStmt(first, phiStmt);
+            phi.setRealPhi(phiStmt);
+            manager.aliasLocal(phiVar, manager.getSlot(origin));
+        });
+    }
+
     private BytecodeBlock currentBlock;
     private void buildBlockStmt(BytecodeBlock block) {
         currentBlock = block;
+        enter(block.getIndex());
         Stack<StackItem> inStack;
         if (block.getInStack() == null) {
             inStack = getInStack(block);
@@ -1020,42 +1089,64 @@ public class AsmIRBuilder {
         Stack<StackItem> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
+        if (USE_SSA && EXPERIMENTAL) {
+           emitSSAPhisForLocal(block);
+        }
+        // skips all non-bytecode insn
+        AbstractInsnNode insnNode = instr.next();
+        while (insnNode.getOpcode() == -1 && instr.hasNext()) {
+            insnNode = instr.next();
+            if (insnNode instanceof FrameNode f) {
+                block.setFrame(f);
+            } else if (insnNode instanceof LineNumberNode l) {
+                currentLineNumber = l.line;
+            }
+        }
+        // now, insnNode must be:
+        // 1. the first "real" bytecode insn, or
+        // 2. the last "fake" bytecode insn
         if (block.isCatch()) {
-            if (instr.hasNext()) {
-                AbstractInsnNode insnNode = instr.next();
-                // skips all non-bytecode insn
-                while (insnNode.getOpcode() == -1 && instr.hasNext()) {
-                    insnNode = instr.next();
-                    if (insnNode instanceof FrameNode f) {
-                        block.setFrame(f);
-                    }
-                }
-
-                if (insnNode.getOpcode() != -1) {
-                    // insnNode is the first bytecode insn for this block
-                    // for most cases, this should be a store insn
-                    // this insn stores the exception object to a local var
-                    if (insnNode.getOpcode() == Opcodes.ASTORE) {
-                        VarInsnNode node = (VarInsnNode) insnNode;
+            if (insnNode.getOpcode() != -1) {
+                // insnNode is the first bytecode insn for this block
+                // for most cases, this should be a store insn
+                // this insn stores the exception object to a local var
+                if (insnNode.getOpcode() == Opcodes.ASTORE) {
+                    VarInsnNode node = (VarInsnNode) insnNode;
+                    if (EXPERIMENTAL) {
+                        int rwIndex = visitRW(block.getIndex(), getIndex(node));
+                        // a little duplicate, any better way?
+                        // see also: storeRWVar
+                        Var catchVar = isFastProcessVar(rwIndex)
+                                ? manager.getTempVar()
+                                : manager.getLocal(splitting.getRealLocalSlot(rwIndex));
+                        reachVars[rwIndex] = catchVar;
+                        assocStmt(node, new Catch(catchVar));
+                    } else {
                         Var catchVar = manager.getLocal(node.var);
                         duInfo.addDefBlock(catchVar, currentBlock);
                         assocStmt(node, new Catch(catchVar));
-                    } else {
-                        // else
-                        // * for java source, insn should be POP *
-                        // 1. make a catch stmt with temp var
-                        // 2. push this temp var onto stack
-                        Var v = manager.getTempVar();
-                        duInfo.addDefBlock(v, currentBlock);
-                        assocStmt(insnNode, new Catch(v));
-                        pushExp(insnNode, nowStack, v);
-                        processInstr(nowStack, insnNode, block);
                     }
+                } else {
+                    // else
+                    // * for java source, insn should be POP *
+                    // 1. make a catch stmt with temp var
+                    // 2. push this temp var onto stack
+                    Var v = manager.getTempVar();
+                    if (!EXPERIMENTAL) {
+                        duInfo.addDefBlock(v, currentBlock);
+                    }
+                    assocStmt(insnNode, new Catch(v));
+                    pushExp(insnNode, nowStack, v);
+                    processInstr(nowStack, insnNode, block);
                 }
             }
         } else {
             assert inStack != null;
             nowStack.addAll(inStack);
+            // process the first bytecode insn
+            if (insnNode.getOpcode() != -1) {
+                processInstr(nowStack, insnNode, block);
+            }
         }
 
         while (instr.hasNext()) {
@@ -1063,192 +1154,252 @@ public class AsmIRBuilder {
             processInstr(nowStack, node, block);
         }
 
-        // if there is no out edges, it must be a return / throw block
-        // do nothing
-        // else, perform stack assign merge
-//        if (!block.outEdges().isEmpty()) {
-//            if (block.getOutStack() == null) {
-//                // Web has not been constructed. So all the succs do not have inStack.
-//                block.setOutStack(regularizeStack(block, nowStack));
-//            } else {
-//                Stack<Exp> target = block.getOutStack();
-//                mergeStack(block, nowStack, target);
-//            }
-//        }
-
-//        if (block.outEdges().size() > 1) {
-//            for (int i = 0; i < nowStack.size(); ++i) {
-//                Exp e = nowStack.get(i);
-//                if (! (e instanceof Top || e instanceof Var || e instanceof Phi)) {
-//                    nowStack.set(i, toVar(e));
-//                }
-//            }
-//        }
-
-        for (int j = 0; j < getOutEdgeCount(block); ++j) {
-            BytecodeBlock outEdge = getOutEdge(block, j);
-            if (outEdge.getInStack() != null) {
-                assert outEdge.getInStack().size() == nowStack.size();
-                for (int i = 0; i < nowStack.size(); ++i) {
-                    StackItem item = outEdge.getInStack().get(i);
-                    Exp exp = item.e();
-                    if (nowStack.get(i).e() == Top.Top) {
-                        assert exp == Top.Top;
-                        continue;
-                    }
-                    assert exp instanceof Phi;
-                    Phi phi = (Phi) exp;
-                    phi.addNodes(nowStack.get(i));
-                }
-            }
-        }
         block.setOutStack(nowStack);
-
-        // collect all the stmts associated with this block.
-
+        exit(block.getIndex());
     }
 
     private Stack<StackItem> getInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
+        int inEdgeCount = getInEdgeCount(block);
         if (isInEdgeEmpty(block)) {
             inStack = null;
-        } else {
+        } else if (inEdgeCount == 1) {
+            BytecodeBlock inEdge = getInEdge(block, 0);
             inStack = new Stack<>();
-            List<Stack<StackItem>> stacks = new ArrayList<>();
-            for (int i = 0; i < getInEdgeCount(block); ++i) {
-                BytecodeBlock inEdge = getInEdge(block, i);
-                if (inEdge.getOutStack() != null) {
-                    stacks.add(inEdge.getOutStack());
-                }
-            }
-            boolean canFastMerge = stacks.size() == getInEdgeCount(block);
-            assert !stacks.isEmpty();
-            for (int i = 0; i < stacks.get(0).size(); ++i) {
-                List<StackItem> exps = new ArrayList<>();
-                for (Stack<StackItem> stack : stacks) {
-                    StackItem exp = stack.get(i);
-                    if (!exps.contains(exp)) {
-                        exps.add(exp);
-                    }
-                }
-                boolean allSame = exps.size() == 1;
-                StackItem item = exps.get(0);
-                Exp e = item.e();
-                if ((e instanceof Top) ||
-                        (allSame && canFastMerge && e instanceof Var)) {
-                    inStack.add(item);
-                } else {
-                    Phi phi = new Phi(i, exps, block);
-                    inStack.add(new StackItem(phi, null));
-                    phiList.add(phi);
-                }
-            }
+            inStack.addAll(inEdge.getOutStack());
+        } else {
+            inStack = mergeStack(block, inEdgeCount);
         }
         return inStack;
     }
 
+    private Stack<StackItem> mergeStack(BytecodeBlock block, int inEdgeCount) {
+        boolean isLoopHeader = false;
+        Stack<StackItem> inStack = null;
+        List<List<StackItem>> inExps = new ArrayList<>();
+        for (int i = 0; i < inEdgeCount; ++i) {
+            BytecodeBlock inEdge = getInEdge(block, i);
+            if (inEdge.getOutStack() == null) {
+                isLoopHeader = true;
+                if (inStack != null) {
+                    break;
+                }
+            } else {
+                Stack<StackItem> outStack = inEdge.getOutStack();
+                if (inStack == null) {
+                    // clone the first non-null stack
+                    inStack = new Stack<>();
+                    inStack.addAll(inEdge.getOutStack());
+                    if (isLoopHeader || inStack.isEmpty()) {
+                        break;
+                    }
+                    for (StackItem stackItem : outStack) {
+                        List<StackItem> inExp = new ArrayList<>();
+                        inExp.add(stackItem);
+                        inExps.add(inExp);
+                    }
+                } else {
+                    // merge this stack with inStack
+                    mergeStackWithInEdge(block, inEdge, inStack, inExps);
+                }
+            }
+        }
+        if (isLoopHeader) {
+            assert inStack != null;
+            for (int i = 0; i < inStack.size(); ++i) {
+                StackItem item = inStack.get(i);
+                Exp e = item.e();
+                if (e instanceof Top) {
+                    continue;
+                }
+                // ignore, add inExps during phi resolving
+                inStack.set(i, createNewStackPhiItem(block, i, new ArrayList<>()));
+            }
+            block.setLoopHeader(true);
+        }
+        assert inStack != null;
+        return inStack;
+    }
+
+    private void mergeStackWithInEdge(BytecodeBlock block, BytecodeBlock inEdge,
+                                      Stack<StackItem> initStack, List<List<StackItem>> inExps) {
+        Stack<StackItem> currentStack = inEdge.getOutStack();
+        assert initStack.size() == currentStack.size();
+        for (int j = 0; j < initStack.size(); ++j) {
+            StackItem item = initStack.get(j);
+            Exp e = item.e();
+            StackItem item1 = currentStack.get(j);
+            Exp e1 = item1.e();
+            if (e instanceof Top) {
+                assert e1 instanceof Top;
+                continue;
+            }
+            List<StackItem> inExp = inExps.get(j);
+            inExp.add(item1);
+            assert !(e1 instanceof Top);
+            if (e != e1) {
+                initStack.set(j, createNewStackPhiItem(block, j, inExp));
+            }
+        }
+    }
+
+    private StackItem createNewStackPhiItem(BytecodeBlock block, int index, List<StackItem> inExp) {
+        StackPhi phi = new StackPhi(index, inExp, block);
+        phi.setVar(manager.getTempVar());
+        phiList.add(phi);
+        return new StackItem(phi, null);
+    }
+
+    private void addLocalPhiInDefs(BytecodeBlock bb) {
+        splitting.visitLivePhis(bb, (phi) ->  {
+            PhiStmt realPhi = (PhiStmt) phi.getRealPhi();
+            assert realPhi != null;
+            PhiExp phiExp = realPhi.getRValue();
+            for (int i = 0; i < phi.getInDefs().size(); ++i) {
+                int defIndex = phi.getInDefs().get(i);
+                Var v = reachVars[defIndex];
+                phiExp.addUseAndCorrespondingBlocks(v, phi.getInBlocks().get(i));
+            }
+        });
+    }
+
     private void solveAllPhiAndOutput() {
-        solvePhis();
         for (BytecodeBlock bb : blockSortedList) {
-            applyPhis(bb);
+            fillInLoopHeaderStackPhis(bb);
+            if (USE_SSA && EXPERIMENTAL) {
+                addLocalPhiInDefs(bb);
+            }
+        }
+        propagatePhiUsed();
+        resolveStackPhi();
+        for (BytecodeBlock bb : blockSortedList) {
+            if (!USE_SSA) {
+                if (stackMergeStmts.has(bb.getIndex())) {
+                    List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
+                    appendStackMergeStmts(bb, stmts);
+                }
+            }
             outputIR(bb);
         }
     }
 
-    MultiMap<Phi, Var> mergedVars = Maps.newMultiMap();
-
-    private void solvePhis() {
-        for (Phi phi : phiList) {
-            if (phi.getVar() != null) {
-                propagatePhiVar(phi, phi.getVar());
+    private void propagatePhiUsed() {
+        for (StackPhi phi : phiList) {
+            if (phi.used) {
+                setStackPhiUsed(phi);
             }
         }
+    }
 
-        for (Phi phi : phiList) {
-            if (phi.getVar() == null) {
-                Set<Var> merged = mergedVars.get(phi);
-                if (merged.size() == 1) {
-                    phi.setVar(merged.iterator().next());
-                } else if (merged.size() > 1) {
-                    phi.setVar(manager.getTempVar());
+    private void setStackPhiUsed(StackPhi phi) {
+        for (StackItem item : phi.getNodes()) {
+            Exp e = item.e();
+            if (e instanceof StackPhi phi1) {
+                if (!phi1.used) {
+                    phi1.used = true;
+                    setStackPhiUsed(phi1);
                 }
             }
         }
     }
 
-    private void propagatePhiVar(Phi current, Var var) {
-        if (! mergedVars.get(current).contains(var)) {
-            mergedVars.put(current, var);
-            for (StackItem node : current.getNodes()) {
-                if (node.e() instanceof Phi phi) {
-                    propagatePhiVar(phi, var);
+    private void resolveStackPhi() {
+        if (!USE_SSA) {
+            stackMergeStmts = new SparseArray<>(blockSortedList.size()) {
+                @Override
+                protected List<Stmt> createInstance() {
+                    return new ArrayList<>();
                 }
-            }
-        }
-    }
-
-    private void applyPhis(BytecodeBlock block) {
-        assert block.getOutStack() != null;
-        currentBlock = block;
-        if (block.getOutStack().isEmpty()) {
-            return;
-        }
-        Map<Var, Integer> killed = Maps.newMap();
-        List<Stmt> auxiliary = new ArrayList<>();
-        for (int j = 0; j < getOutEdgeCount(block); ++j) {
-            BytecodeBlock outEdge = getOutEdge(block, j);
-            Stack<StackItem> inStack = outEdge.getInStack();
-            Stack<StackItem> outStack = block.getOutStack();
-            for (int i = 0; i < inStack.size(); ++i) {
-                StackItem stackItem = inStack.get(i);
-                Exp e1 = stackItem.e();
-                if (e1 == Top.Top) {
-                    assert outStack.get(i) == TOP;
-                    continue;
-                }
-                Var var;
-                if (e1 instanceof Phi phi) {
-                    var = phi.getVar();
-                } else {
-                    continue;
-                }
-                StackItem outItem = outStack.get(i);
-                Exp e = outStack.get(i).e();
-                if (var != null) {
-                    if (e instanceof Var v) {
-                        if (var != v) {
-                            auxiliary.add(getAssignStmt(var, v));
+            };
+            for (StackPhi phi : phiList) {
+                if (!phi.resolved) {
+                    boolean hasCriticalInEdge = false;
+                    BytecodeBlock block = phi.createPos;
+                    for (int i = 0; i < getInEdgeCount(block); ++i) {
+                        int pred = g.getInEdge(block.getIndex(), i);
+                        if (g.getOutEdgesCount(pred) > 1) {
+                            hasCriticalInEdge = true;
+                            break;
                         }
-                    } else if (e instanceof Phi phi1) {
-                        Var right = phi1.getVar();
-                        assert right != null;
-                        if (var != right) {
-                            if (killed.containsKey(right)) {
-                                Var temp = manager.getTempVar();
-                                int pos = killed.get(right);
-                                Stmt stmt = auxiliary.get(pos);
-                                auxiliary.add(pos, getAssignStmt(temp, right));
-                                auxiliary.set(pos + 1, new Lenses(this.method,
-                                        Map.of(right, temp), Map.of())
-                                        .subSt(stmt));
-                                right = temp;
+                    }
+                    Stack<StackItem> inStack = block.getInStack();
+                    for (StackItem item : inStack) {
+                        Exp e = item.e();
+                        if (e instanceof StackPhi phi1) {
+                            if (!phi1.resolved) {
+                                resolveStackPhi(phi1, hasCriticalInEdge);
                             }
-                            auxiliary.add(getAssignStmt(var, right));
-                            killed.put(var, auxiliary.size() - 1);
                         }
-                    } else {
-                        // TODO: current impl is not safe
-                        auxiliary.add(getAssignStmt(var, e));
-                    }
-                } else {
-                    if (maySideEffect(e)) {
-                        Var v = toVar(outItem.e(), outItem.origin());
-                        outStack.set(i, new StackItem(v, null));
                     }
                 }
             }
+        } else {
+            // emit phi stmts for stack variable
+            for (StackPhi phi : phiList) {
+                BytecodeBlock block = phi.createPos;
+                // insert phi node in the first instruction
+                PhiExp phiExp = new PhiExp();
+                for (int i = 0; i < getInEdgeCount(block); ++i) {
+                    StackItem item = phi.getNodes().get(i);
+                    Exp e = item.e();
+                    Var v = e instanceof Var ? (Var) e : toVar(e, item.origin());
+                    phiExp.addUseAndCorrespondingBlocks(v, getInEdge(block, i));
+                }
+                PhiStmt phiStmt = new PhiStmt(phi.getVar(), phi.getVar(), phiExp);
+                addToBlockHead(block, phiStmt);
+                phi.resolved = true;
+            }
         }
-        appendStackMergeStmts(block, auxiliary);
+    }
+
+    private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
+        AbstractInsnNode first = block.instr().get(0);
+        assocStmt(first, stmt);
+    }
+
+    private SparseArray<List<Stmt>> stackMergeStmts;
+
+    private void resolveStackPhi(StackPhi phi, boolean hasCriticalInEdge) {
+        assert !phi.resolved;
+        Var writeOut = hasCriticalInEdge ? manager.getTempVar() : phi.getVar();
+        assert phi.getNodes().size() == getInEdgeCount(phi.createPos);
+        for (int i = 0; i < phi.getNodes().size(); ++i) {
+            StackItem item = phi.getNodes().get(i);
+            BytecodeBlock inEdge = getInEdge(phi.createPos, i);
+            List<Stmt> stmts = stackMergeStmts.get(inEdge.getIndex());
+            Exp e = item.e();
+            if (e instanceof StackPhi phi1) {
+                e = phi1.getVar();
+            }
+            // TODO: handle double use for `e` in two different phi
+            if (e == writeOut) {
+                continue;
+            }
+            if (maySideEffect(e) || phi.used) {
+                stmts.add(getAssignStmt(writeOut, e));
+            }
+        }
+        if (hasCriticalInEdge) {
+            // add `v = writeOut` before any definition (first instruction) in create pos
+            BytecodeBlock createPos = phi.createPos;
+            addToBlockHead(createPos, getAssignStmt(phi.getVar(), writeOut));
+        }
+        phi.resolved = true;
+    }
+
+    private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
+        if (current.isLoopHeader()) {
+            Stack<StackItem> inStack = current.getInStack();
+            for (int i = 0; i < getInEdgeCount(current); ++i) {
+                BytecodeBlock outEdge = getInEdge(current, i);
+                assert outEdge.getOutStack() != null;
+                for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
+                    StackPhi phi = (StackPhi) inStack.get(j).e();
+                    StackItem item = outEdge.getOutStack().get(j);
+                    phi.getNodes().add(item);
+                }
+            }
+        }
     }
 
     private void outputIR(BytecodeBlock block) {
@@ -1279,14 +1430,38 @@ public class AsmIRBuilder {
                 }
             }
         }
+        if (block.isCatch() && USE_SSA && EXPERIMENTAL) {
+            // adjust order for phis, put catch in the front
+            List<Stmt> stmts = new ArrayList<>();
+            Catch catchStmt = null;
+            for (Stmt stmt : blockStmt) {
+                if (stmt instanceof Catch) {
+                    assert catchStmt == null;
+                    catchStmt = (Catch) stmt;
+                } else {
+                    stmts.add(stmt);
+                }
+            }
+            assert catchStmt != null;
+            stmts.add(0, catchStmt);
+            blockStmt.clear();
+            blockStmt.addAll(stmts);
+        }
         block.setStmt2Asm(stmt2Asm);
     }
 
     private void processInstr(Stack<StackItem> nowStack, AbstractInsnNode node, BytecodeBlock block) {
         if (node instanceof VarInsnNode varNode) {
             switch (varNode.getOpcode()) {
-                case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD ->
+                case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
+                    if (!EXPERIMENTAL) {
                         pushExp(node, nowStack, manager.getLocal(varNode.var));
+                    } else {
+                        int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
+                        Var v = getRWVar(rwIndex);
+                        pushExp(node, nowStack, v);
+                    }
+                }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                         storeExp(varNode, nowStack, block);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
@@ -1295,6 +1470,7 @@ public class AsmIRBuilder {
         } else if (node instanceof InsnNode insnNode) {
             int opcode = insnNode.getOpcode();
             if (opcode == Opcodes.NOP) {
+                return;
             } else if (opcode == Opcodes.ARRAYLENGTH) {
                 pushExp(node, nowStack, new ArrayLengthExp(popVar(nowStack)));
             } else if (opcode == Opcodes.ATHROW) {
@@ -1430,11 +1606,21 @@ public class AsmIRBuilder {
 
             pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
         } else if (node instanceof IincInsnNode inc) {
-            pushConst(node, nowStack, IntLiteral.get(inc.incr));
-            Var cst = popVar(nowStack);
-            Var v = manager.getLocal(inc.var);
-            nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
-            storeExp(inc, v, nowStack, block);
+            if (EXPERIMENTAL) {
+                int use = visitRW(block.getIndex(), getIndex(inc));
+                int def = visitRW(block.getIndex(), getIndex(inc));
+                pushConst(node, nowStack, IntLiteral.get(inc.incr));
+                Var cst = popVar(nowStack);
+                Var v = getRWVar(use);
+                nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
+                storeRWVar(inc, nowStack, block, def);
+            } else {
+                pushConst(node, nowStack, IntLiteral.get(inc.incr));
+                Var cst = popVar(nowStack);
+                Var v = manager.getLocal(inc.var);
+                nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
+                storeExp(inc, v, nowStack, block);
+            }
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
@@ -1460,42 +1646,15 @@ public class AsmIRBuilder {
         } else if (node instanceof LookupSwitchInsnNode lookupSwitchInsnNode) {
             Var v = popVar(nowStack);
             assocStmt(node, new LookupSwitch(v, lookupSwitchInsnNode.keys));
-        } else if (node instanceof LabelNode) {
+        } else if (node instanceof LabelNode || node instanceof FrameNode) {
             // do nothing
+            return;
         } else if (node instanceof LineNumberNode lineNumberNode) {
             this.currentLineNumber = lineNumberNode.line;
-        } else if (node instanceof FrameNode frameNode) {
-            if (block.getFrame() == null) {
-                block.setFrame(frameNode);
-            }
         } else {
             throw new UnsupportedOperationException();
         }
     }
-
-//    private Stack<Exp> regularizeStack(BytecodeBlock bb, Stack<Exp> origin) {
-//        /*
-//            1. conversion from non-Var Exp to Var,
-//            2. no the same Vars in a stack.
-//
-//            The conversion should have effect on the InsnNode that generated the exp.
-//         */
-//        Stack<Exp> target = new Stack<>();
-//        Set<Var> used = Sets.newHybridSet();
-//        for (Exp e : origin) {
-//            if (e instanceof Top) {
-//                target.push(e);
-//            }
-//            else if (e instanceof Var v && manager.isTempVar(v) && !used.contains(v)) {
-//                used.add(v);
-//                target.push(v);
-//            } else {
-//                target.add(manager.getTempVar());
-//            }
-//        }
-//        mergeStack(bb, origin, target);
-//        return target;
-//    }
 
     private BytecodeBlock[] idx2Block;
 
@@ -1507,12 +1666,179 @@ public class AsmIRBuilder {
         int index = getIndex(target);
         BytecodeBlock b = idx2Block[index];
         assert b != null;
+        if (b.getIndex() == -1) {
+            // very unlikely, but possible
+            b = searchForValidBlock(target);
+        }
         g.addEdge(now.getIndex(), b.getIndex());
     }
 
     private void processEdges(BytecodeBlock now, List<LabelNode> targets) {
         for (LabelNode target : targets) {
             processEdge(now, target);
+        }
+    }
+
+    private int rwCount;
+    private int[] rwTable;
+    private FastVarSplitting<BytecodeBlock> splitting;
+    private Var[] reachVars;
+    private void writeRwTable(int[] table, int index, int var, boolean read) {
+        rwCount++;
+        assert var < (1 << 29);
+        int rwFlag = read ? 1 << 29 : 1 << 30;
+        table[index] = table[index] | var | rwFlag;
+    }
+
+
+    private int getParamWriteSize() {
+        int curr = method.isStatic() ? 0 : 1;
+        for (int i = 0; i < method.getParamTypes().size(); ++i) {
+            Type type = method.getParamTypes().get(i);
+            if (Utils.isTwoWord(type)) {
+                curr += 2;
+            } else {
+                curr += 1;
+            }
+        }
+        return curr;
+    }
+
+    int[] start;
+    int[] end;
+    int[] rwToIndex;
+    int currRw;
+    int paramWrite;
+    private void enter(int block) {
+        if (EXPERIMENTAL) {
+            currRw = start[block];
+        }
+    }
+
+    private int visitRW(int block, int index) {
+        assert rwToIndex[currRw] == index;
+        assert currRw < end[block];
+        return currRw++;
+    }
+
+    private void exit(int block) {
+        if (EXPERIMENTAL) {
+            assert currRw == end[block];
+        }
+    }
+
+    private void postProcess() {
+        paramWrite = getParamWriteSize();
+        rwToIndex = new int[rwCount];
+        BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
+        int counter = 0;
+        IndexedGraph<BytecodeBlock> graph = g;
+        BytecodeBlock entry = graph.getEntry();
+        start = new int[graph.size()];
+        end = new int[graph.size()];
+
+        int maxLocal = source.maxLocals;
+        List<List<BytecodeBlock>> defBlocks = new ArrayList<>(maxLocal);
+        for (int i = 0; i < maxLocal; ++i) {
+            defBlocks.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < paramWrite; ++i) {
+            rwToIndex[counter] = -1;
+            rwToBlock[counter] = entry;
+            counter++;
+        }
+
+        for (int n = 0; n < graph.size(); ++n) {
+            BytecodeBlock curr = graph.getNode(n);
+            start[curr.getIndex()] = counter;
+            int size = curr.instr().size();
+            int start1 = curr.instr().getStart();
+            for (int j = 0; j < size; ++j) {
+                int i = j + start1;
+                int rw = rwTable[i];
+                if (rw != 0) {
+                    int var = rw & ((1 << 29) - 1);
+                    boolean read = (rw & (1 << 29)) != 0;
+                    boolean write = (rw & (1 << 30)) != 0;
+                    if (read) {
+                        rwToBlock[counter] = curr;
+                        rwToIndex[counter++] = i;
+                    }
+                    if (write) {
+                        rwToBlock[counter] = curr;
+                        rwToIndex[counter++] = i;
+                        defBlocks.get(var).add(curr);
+                    }
+                }
+            }
+            end[curr.getIndex()] = counter;
+        }
+
+
+        int finalCounter = counter;
+        GenericDUInfo<BytecodeBlock> genericDUInfo = new GenericDUInfo<>() {
+            @Override
+            public List<BytecodeBlock> getDefBlock(int v) {
+                return defBlocks.get(v);
+            }
+
+            @Override
+            public int getMaxDuIndex() {
+                return finalCounter;
+            }
+
+            @Override
+            public void visit(BytecodeBlock block, DUVisitor visitor) {
+                int start1 = start[block.getIndex()];
+                int end1 = end[block.getIndex()];
+                for (int i = start1; i < end1;) {
+                    int index = rwToIndex[i];
+                    int rw = rwTable[index];
+                    int var = rw & ((1 << 29) - 1);
+                    boolean read = (rw & (1 << 29)) != 0;
+                    boolean write = (rw & (1 << 30)) != 0;
+                    // careful: the order of visit is important
+                    // and iinc can both read and write
+                    if (read) {
+                        visitor.visit(i, OccurType.USE, var);
+                        i++;
+                    }
+                    // don't use `else if`, iinc can both read and write
+                    if (write) {
+                        visitor.visit(i, OccurType.DEF, var);
+                        i++;
+                    }
+                }
+            }
+
+            @Override
+            public BytecodeBlock getBlock(int index) {
+                return rwToBlock[index];
+            }
+
+            @Override
+            public int getParamSize() {
+                return paramWrite;
+            }
+        };
+
+        splitting = new FastVarSplitting<>(graph, maxLocal, genericDUInfo, USE_SSA, dom);
+        splitting.build();
+        reachVars = new Var[splitting.getMaxDUCount()];
+        int[] paramIndexes = new int[paramWrite];
+        for (int i = 0; i < paramWrite; ++i) {
+            paramIndexes[i] = splitting.getRealLocalSlot(i);
+        }
+        if (!USE_SSA) {
+            manager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable(), paramIndexes);
+        }
+        // ensure all params is defined at beginning
+        for (int i = 0; i < paramWrite; ++i) {
+            int realVar = splitting.getRealLocalSlot(i);
+            if (realVar == -1) {
+                reachVars[i] = manager.getLocal(i);
+            }
         }
     }
 
@@ -1538,10 +1864,12 @@ public class AsmIRBuilder {
      */
     private BytecodeGraph g;
     private void buildCFG() {
+        rwCount = getParamWriteSize();
         int size = source.instructions.size();
         idx2Block = new BytecodeBlock[size];
         boolean[] fallThroughTable = new boolean[size];
         Arrays.fill(fallThroughTable, true);
+        rwTable = new int[size];
         AbstractInsnNode begin = source.instructions.getFirst();
         if (begin == null) {
             return;
@@ -1569,6 +1897,7 @@ public class AsmIRBuilder {
             }
             AbstractInsnNode now = source.instructions.get(i);
             boolean needNoBlock = true;
+            boolean splitBefore = false;
             if (now instanceof JumpInsnNode jmp) {
                 getBlock(jmp.label);
                 needNoBlock = false;
@@ -1599,12 +1928,19 @@ public class AsmIRBuilder {
                         fallThroughTable[i] = false;
                     }
                 } else if (now instanceof VarInsnNode varNode) {
-                    if (inTry) {
-                        needNoBlock = false;
+                    if (inTry && isVarStore(varNode)) {
+                        splitBefore = true;
+                    }
+                    if (EXPERIMENTAL) {
+                        writeRwTable(rwTable, i, varNode.var, !isVarStore(varNode));
                     }
                 } else if (now instanceof IincInsnNode iincInsnNode) {
                     if (inTry) {
-                        needNoBlock = false;
+                        splitBefore = true;
+                    }
+                    if (EXPERIMENTAL) {
+                        writeRwTable(rwTable, i, iincInsnNode.var, true);
+                        writeRwTable(rwTable, i, iincInsnNode.var, false);
                     }
                 }
             }
@@ -1614,6 +1950,9 @@ public class AsmIRBuilder {
                 if (next != null) {
                     getBlock(next);
                 }
+            }
+            if (splitBefore) {
+                getBlock(now);
             }
         }
 
@@ -1628,11 +1967,23 @@ public class AsmIRBuilder {
             if (idx2Block[i] != null) {
                 int end = i;
                 AbstractInsnNode edge = source.instructions.get(end - 1);
-                if (start + 1 == end && edge.getOpcode() == -1) {
+                // check for empty
+                // TODO: are there any better way to do that?
+                for (int curr = end - 1; curr >= start; --curr) {
+                    edge = source.instructions.get(curr);
+                    if (edge.getOpcode() != -1) {
+                        break;
+                    }
+                }
+                if (edge.getOpcode() == -1) {
                     // empty block
+                    BytecodeBlock before = idx2Block[start];
                     idx2Block[start] = idx2Block[i];
                     current = idx2Block[i];
-                    start = i;
+//                    start = i;
+                    if (before.getExceptionHandlerType() != null) {
+                        current.setExceptionHandlerType(before.getExceptionHandlerType());
+                    }
                 } else {
                     // process current
                     int counter = blockSortedList.size();
@@ -1682,14 +2033,23 @@ public class AsmIRBuilder {
         addExceptionEdges();
         g.setEntry(entry);
         g.setBlockSortedList(blockSortedList);
+
+        dom = new Dominator<>(g);
+        if (EXPERIMENTAL) {
+            StageTimer.getInstance().endTypelessIR();
+            StageTimer.getInstance().startSplitting();
+            postProcess();
+            StageTimer.getInstance().endSplitting();
+            StageTimer.getInstance().startTypelessIR();
+        }
     }
 
     private void addExceptionEdges() {
         for (TryCatchBlockNode now : source.tryCatchBlocks) {
-            BytecodeBlock handler = getBlock(now.handler);
-            BytecodeBlock start = getBlock(now.start);
-            BytecodeBlock end = getBlock(now.end);
-            for (int i = start.getIndex(); i < end.getIndex(); ++i) {
+            BytecodeBlock handler = searchForValidBlock(now.handler);
+            BytecodeBlock start = searchForValidBlock(now.start);
+            int end = searchForValidBlockOrEnd(now.end);
+            for (int i = start.getIndex(); i < end; ++i) {
                 g.addExceptionEdge(i, handler.getIndex());
             }
         }
@@ -1704,6 +2064,26 @@ public class AsmIRBuilder {
             idx2Block[idx] = createNewBlock(labelNode);
         }
         return idx2Block[idx];
+    }
+
+    private BytecodeBlock searchForValidBlock(AbstractInsnNode label) {
+        int idx = getIndex(label);
+        while (idx2Block[idx] == null || idx2Block[idx].getIndex() == -1) {
+            idx++;
+        }
+        return idx2Block[idx];
+    }
+
+    private int searchForValidBlockOrEnd(AbstractInsnNode label) {
+        int idx = getIndex(label);
+        int maxSize = idx2Block.length;
+        while (idx < maxSize) {
+            if (idx2Block[idx] != null && idx2Block[idx].getIndex() != -1) {
+                return idx2Block[idx].getIndex();
+            }
+            idx++;
+        }
+        return blockSortedList.size();
     }
 
     private int maxBlockCounter = 0;
@@ -1726,86 +2106,6 @@ public class AsmIRBuilder {
         };
     }
 
-//    private final Set<LabelNode> ignoredLabels = new HashSet<>();
-    /**
-     * Bridge the blocks that a wrongly separated by regarding every LabelNode as an entry of a block.
-     * We regard these pairs to be bridged: {(pred, succ) | pred.outEdges = {succ} && succ.inEdges = {pred}}
-     * Processes:
-     * 1. concat the 2 blocks;
-     * 2. delete the entry for the successor in the label2Block map.
-     */
-//    private void bridgeWronglySeparatedBlocks() {
-//        BytecodeBlock entry = label2Block.get(this.entry);
-//        Set<BytecodeBlock> visited = new HashSet<>();
-
-//        /*
-//        Temporary solution:
-//        Blocks associating the labels that is the start of a try block should be ignored in concatenating process.
-//        Collect those labels now for later query.
-//         */
-//        for (TryCatchBlockNode node : source.tryCatchBlocks) {
-//            ignoredLabels.add(node.start);
-//            ignoredLabels.add(node.end);
-//            ignoredLabels.add(node.handler);
-//        }
-
-//        dfsConcatenateBlocks(entry, visited);
-//        source.tryCatchBlocks.forEach(i -> dfsConcatenateBlocks(label2Block.get(i.handler), visited)); // mey trigger exception. be careful when used.
-//    }
-
-//    private void dfsConcatenateBlocks(BytecodeBlock bb, Set<BytecodeBlock> visitedSet) {
-//        boolean bridgeable = true;
-//        while (bridgeable) {
-//            bridgeable = concatenateSuccIfPossible(bb);
-//        }
-
-//        visitedSet.add(bb);
-
-//        // bb.setComplete();
-
-//        for (var succ : bb.outEdges()) {
-//            if (!visitedSet.contains(succ)) {
-//                dfsConcatenateBlocks(succ, visitedSet);
-//            }
-//        }
-//    }
-
-//    /**
-//     * Concatenate the successor.
-//     */
-//    private boolean concatenateSuccIfPossible(BytecodeBlock pred) {
-//        if (pred.outEdges().size() != 1) return false;
-
-//        var succ = pred.outEdges().get(0);
-//        assert !succ.isCatch(); // There should be no inEdges for exception blocks.
-//        if (succ.inEdges().size() != 1) return false;
-
-//        if (ignoredLabels.contains(succ.label())) return false;
-
-//        // Do not concatenate blocks that are explicitly declared to be separated,
-//        // because they could be separated by exception labelNodes.
-//        // i.e. GOTO, SWITCH.
-//        // But if succ is empty, the concatenation is ok.
-//        if (isCFEdge(pred.getLastBytecode()) && !succ.instr().isEmpty())
-//            return false;
-
-//        // Main concatenating process:
-//        pred.instr().addAll(succ.instr());
-//        pred.outEdges().clear();
-//        pred.outEdges().addAll(succ.outEdges());
-//        for (var succSucc : succ.outEdges()) {
-//            boolean b = succSucc.inEdges().remove(succ);
-//            assert b; // Maybe redundant.
-//            succSucc.inEdges().add(pred);
-//        }
-//        pred.setFallThrough(succ.fallThrough());
-
-//        // Remove the succ from label2Block.
-//        label2Block.remove(succ.label());
-
-//        return true;
-//    }
-
     private boolean canBeTraversedInBytecodeOrder() {
         boolean[] hasInStack = new boolean[blockSortedList.size()];
         hasInStack[0] = true;
@@ -1827,34 +2127,10 @@ public class AsmIRBuilder {
     private void traverseBlocks() {
         entry.setInStack(new Stack<>());
 
-//        boolean canBeTraversedInBytecodeOrder = canBeTraversedInBytecodeOrder();
-        boolean canBeTraversedInBytecodeOrder = false;
-        // assert canBeTraversedInBytecodeOrder; // This assertion should be satisfied at most times. Remove when released.
-        if (canBeTraversedInBytecodeOrder) {
-            for (var bb : blockSortedList) {
-                buildBlockStmt(bb);
-            }
-        } else {
-            Set<BytecodeBlock> visited = new HashSet<>();
-            Queue<BytecodeBlock> workList = new LinkedList<>();
-            workList.offer(entry);
-            source.tryCatchBlocks.forEach(i -> workList.offer(getBlockFromLabel(i.handler)));
-            while (workList.peek() != null) {
-                BytecodeBlock bb = workList.poll();
-                if (visited.contains(bb)) {
-                    continue;
-                }
-                visited.add(bb);
-
-                buildBlockStmt(bb);
-
-                for (int i = 0; i < getOutEdgeCount(bb); ++i) {
-                    BytecodeBlock succ = getOutEdge(bb, i);
-                    if (!visited.contains(succ)) {
-                        workList.offer(succ);
-                    }
-                }
-            }
+        int[] postOrder = dom.getPostOrder();
+        for (int i = postOrder.length - 1; i >= 0; --i) {
+            BytecodeBlock bb = blockSortedList.get(postOrder[i]);
+            buildBlockStmt(bb);
         }
         solveAllPhiAndOutput();
     }
@@ -1964,11 +2240,32 @@ public class AsmIRBuilder {
         return blockSortedList.get(idx);
     }
 
+    BytecodeBlock getMergedOutEdge(BytecodeBlock block, int index) {
+        int idx = g.getMergedOutEdge(block.getIndex(), index);
+        return blockSortedList.get(idx);
+    }
+
+    int getMergedOutEdgesCount(BytecodeBlock block) {
+        return g.getMergedOutEdgesCount(block.getIndex());
+    }
+
     boolean isInEdgeEmpty(BytecodeBlock block) {
         return getInEdgeCount(block) == 0;
     }
 
     boolean isOutEdgeEmpty(BytecodeBlock block) {
         return getOutEdgeCount(block) == 0;
+    }
+
+    boolean isFastProcessVar(int v) {
+        return USE_SSA || splitting.canFastProcess(v);
+    }
+
+    int[] getPostOrder() {
+        return dom.getPostOrder();
+    }
+
+    boolean isUSE_SSA() {
+        return USE_SSA;
     }
 }

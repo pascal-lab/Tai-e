@@ -5,7 +5,6 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Pair;
 
@@ -22,7 +21,7 @@ public class PhiExp implements Exp, RValue {
 
     public static final int METHOD_ENTRY = -1;
 
-    void addUseAndCorrespondingBlocks(Var v, IBasicBlock block) {
+    public void addUseAndCorrespondingBlocks(Var v, IBasicBlock block) {
         usesAndInBlocks.add(new Pair<>(v, block));
     }
 
@@ -46,9 +45,9 @@ public class PhiExp implements Exp, RValue {
 
     @Override
     public Set<RValue> getUses() {
-        return sourceAndVar
+        return usesAndInBlocks
                 .stream()
-                .map(Pair::second)
+                .map(Pair::first)
                 .collect(Collectors.toSet());
     }
 
@@ -70,5 +69,14 @@ public class PhiExp implements Exp, RValue {
                     .collect(Collectors.joining(", "));
         }
         return "Φ(" + repr + ")";
+    }
+
+    public Var findVar(IBasicBlock block) {
+        for (Pair<Var, IBasicBlock> pair : usesAndInBlocks) {
+            if (pair.second() == block) {
+                return pair.first();
+            }
+        }
+        throw new IllegalArgumentException("No such block");
     }
 }

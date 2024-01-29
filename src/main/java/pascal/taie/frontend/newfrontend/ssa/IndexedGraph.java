@@ -42,6 +42,8 @@ public interface IndexedGraph <N> {
     N getEntry();
 
     default int getIntEntry() {
-        return getIndex(getEntry());
+        int entry = getIndex(getEntry());
+        assert entry == 0;
+        return entry;
     }
 }

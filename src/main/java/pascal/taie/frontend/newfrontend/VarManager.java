@@ -55,7 +55,7 @@ public class VarManager implements IVarManager {
 
     private final Var[] intConstVarCache;
 
-    private final Var[] local2Var; // slot -> Var
+    private Var[] local2Var; // slot -> Var
 
     // parsedLocalVarTable :: slot -> (start(inclusive), end(exclusive)) -> VarNode
     private final Map<Pair<Integer, Integer>, LocalVariableNode>[] parsedLocalVarTable;
@@ -273,7 +273,7 @@ public class VarManager implements IVarManager {
     }
 
     public void fixName(Var var, String newName) {
-        assert var.getName().startsWith(LOCAL_PREFIX);
+//        assert var.getName().startsWith(LOCAL_PREFIX);
         String sub = var.getName().substring(1);
         String[] counter = sub.split("#");
         var.setName(newName + (counter.length >= 2 ? "#" + counter[1] : ""));
@@ -313,6 +313,38 @@ public class VarManager implements IVarManager {
         } else {
             return getSplitVar(getDefaultSplitName(old.getName(), index), slot);
         }
+    }
+
+    public void enlargeLocal(int newMaxLocal, int[] originMapping, int[] paramIndexes) {
+        assert newMaxLocal == originMapping.length;
+        assert paramIndexes.length <= local2Var.length;
+        Var[] newLocal2Var = new Var[newMaxLocal];
+        System.arraycopy(local2Var, 0, newLocal2Var, 0, local2Var.length);
+        int counter = 0;
+        for (int i = local2Var.length; i < originMapping.length; ++i) {
+            newLocal2Var[i] = newVar(
+                    getDefaultSplitName(newLocal2Var[originMapping[i]].getName(), counter++));
+            var2Local.put(newLocal2Var[i], originMapping[i]);
+        }
+
+        for (int i = 0; i < paramIndexes.length; ++i) {
+            int paramIndex = paramIndexes[i];
+            if (paramIndex == -1) {
+                continue;
+            }
+            Var v = newLocal2Var[paramIndex];
+            Var vOld = local2Var[i];
+            if (v != vOld) {
+                replaceParam(vOld, v);
+            }
+        }
+
+        local2Var = newLocal2Var;
+    }
+
+    public void aliasLocal(Var var, int slot) {
+        assert !var2Local.containsKey(var);
+        var2Local.put(var, slot);
     }
 
     private Var getSplitVar(String name, int slot) {
@@ -383,6 +415,10 @@ public class VarManager implements IVarManager {
      * can only be used before splitting
      */
     public boolean isLocalFast(Var v) { return v.getIndex() < local2Var.length; }
+
+    public boolean isLocal(Var v) {
+        return var2Local.containsKey(v);
+    }
 
     private static boolean verifyDefs(List<Pair<Integer, Var>> res) {
         var l = res.stream().map(Pair::first).toList();

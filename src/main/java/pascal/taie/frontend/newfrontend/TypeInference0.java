@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
@@ -124,7 +125,8 @@ public class TypeInference0 {
             if (now instanceof PrimitiveType) {
                 assert t == now || canHoldsInt(t) && canHoldsInt(now);
             } else {
-                assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType);
+                assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
+                        t1 instanceof Uninitialized);
                 Set<ReferenceType> res = lca(allTypes.stream()
                         .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
                         .map(i -> (ReferenceType) i)
@@ -161,7 +163,7 @@ public class TypeInference0 {
             Type t = typing.getType(v);
             if (t == null) {
                 int slot = localCells[v.getIndex()];
-                assert slot != -1;
+                assert slot != -1 && slot < typing.frameLocalType().size();
                 Object frameLocalType = typing.frameLocalType().get(slot);
                 Type currentType = fromAsmFrameType(frameLocalType);
                 typing.setType(v, currentType);
@@ -233,8 +235,6 @@ public class TypeInference0 {
         }
     }
 
-    private boolean[] visited;
-
     public void build() {
         buildLocalTypes();
         setThisParamRet();
@@ -284,11 +284,21 @@ public class TypeInference0 {
     }
 
     private void inferTypes() {
-        visited = new boolean[builder.blockSortedList.size()];
-        for (BytecodeBlock block : builder.blockSortedList) {
-            if (! visited[block.getIndex()]) {
-                inferTypesForBlock(block, getBlockInitTyping(block, varSize));
+//        visited = new boolean[builder.blockSortedList.size()];
+//        for (BytecodeBlock block : builder.blockSortedList) {
+//            if (!visited[block.getIndex()]) {
+//                inferTypesForBlock(block, getBlockInitTyping(block, varSize));
+//            }
+//        }
+        int[] postOrder = builder.getPostOrder();
+        Typing t = new Typing(new Type[varSize], List.of());
+        for (int index = postOrder.length - 1; index >= 0; --index) {
+            int i = postOrder[index];
+            BytecodeBlock block = builder.blockSortedList.get(i);
+            if (block.getFrame() != null) {
+                t = loadNewBlockTyping(block, t);
             }
+            inferTypesForBlock(block, t);
         }
     }
 
@@ -307,8 +317,26 @@ public class TypeInference0 {
         return new Typing(initTyping, frameLocalType);
     }
 
+    Typing loadNewBlockTyping(BytecodeBlock block, Typing typing) {
+        Type[] newTyping = typing.typing;
+        block.getInitTyping().forEach((k, v) -> {
+            if (v != Uninitialized.UNINITIALIZED) {
+                newTyping[k.getIndex()] = v;
+            }
+        });
+        // only NON-SSA need this, it will cause problem in SSA
+        if (!builder.isUSE_SSA()) {
+            for (int i = 0; i < varSize; ++i) {
+                int slot = localCells[i];
+                if (slot != -1) {
+                    newTyping[i] = null;
+                }
+            }
+        }
+        return new Typing(newTyping, block.getFrameLocalType());
+    }
+
     private void inferTypesForBlock(BytecodeBlock block, Typing typing) {
-        visited[block.getIndex()] = true;
         for (Stmt stmt : getStmts(block)) {
             stmt.accept(new StmtVisitor<Void> () {
                 @Override
@@ -450,14 +478,49 @@ public class TypeInference0 {
                     newTypeAssign(stmt.getExceptionRef(), t, typing);
                     return StmtVisitor.super.visit(stmt);
                 }
+
+                @Override
+                public Void visit(PhiStmt stmt) {
+                    Var base = stmt.getBase();
+                    int slot = localCells[base.getIndex()];
+                    if (slot != -1) {
+                        // load from frame
+                        assert slot < typing.frameLocalType().size();
+                        Type t = fromAsmFrameType(typing.frameLocalType().get(slot));
+                        // DON'T use newTypeAssign, it will lose precision
+                        // frame type is type constrain, not type assign
+                        typing.setType(stmt.getLValue(), t);
+                    }
+                    return null;
+                }
             });
         }
 
-        for (int i = 0; i < builder.getOutEdgeCount(block); ++i) {
-            BytecodeBlock succ = builder.getOutEdge(block, i);
-            if (!visited[succ.getIndex()] && succ.getFrame() == null) {
-                assert builder.getInEdgeCount(succ) == 1;
-                inferTypesForBlock(succ, typing);
+        if (builder.isUSE_SSA()) {
+            // add type assigns for phi stmts
+            addPhiAssigns(block, typing);
+        }
+    }
+
+    private void addPhiAssigns(BytecodeBlock block, Typing typing) {
+        for (int i = 0; i < builder.getMergedOutEdgesCount(block); ++i) {
+            BytecodeBlock succ = builder.getMergedOutEdge(block, i);
+            for (Stmt stmt : getStmts(succ)) {
+                if (stmt instanceof Catch) {
+                    continue;
+                }
+                if (stmt instanceof PhiStmt phiStmt) {
+                    Var v = phiStmt.getLValue();
+                    if (v.getType() != null) {
+                        continue;
+                    }
+                    Var var = phiStmt.getRValue().findVar(block);
+                    Type t = getType(typing, var);
+                    putMultiSet(localTypeAssigns, v, t);
+                } else {
+                    // no more phi stmts
+                    break;
+                }
             }
         }
     }

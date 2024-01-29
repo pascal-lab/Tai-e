@@ -9,28 +9,25 @@ import pascal.taie.language.type.Type;
 import java.util.List;
 import java.util.Set;
 
-class Phi implements Exp {
+class StackPhi implements Exp {
 
+    /**
+     * Same order as inBlocks.
+     */
     private final List<StackItem> nodes;
+
     private Var var;
     private final int height;
     boolean used;
-    int nodeSize;
     BytecodeBlock createPos;
 
-    Phi(int i, List<StackItem> exps, BytecodeBlock block) {
+    boolean resolved = false;
+
+    StackPhi(int i, List<StackItem> exps, BytecodeBlock block) {
         this.nodes = exps;
         this.height = i;
         this.createPos = block;
         used = false;
-        nodeSize = nodes.size();
-    }
-
-    void addNodes(StackItem n) {
-        if (!nodes.contains(n)) {
-            this.nodes.add(n);
-        }
-        nodeSize++;
     }
 
     void setVar(Var var) {
@@ -47,10 +44,6 @@ class Phi implements Exp {
 
     List<StackItem> getNodes() {
         return nodes;
-    }
-
-    int getHeight() {
-        return height;
     }
 
     @Override

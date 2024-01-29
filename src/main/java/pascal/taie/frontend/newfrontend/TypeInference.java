@@ -1,8 +1,10 @@
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.AssignLiteral;
@@ -203,6 +205,15 @@ public class TypeInference {
                         Type retType = builder.method.getReturnType();
                         if (retType instanceof ReferenceType r) {
                             graph.addUseConstrain(stmt.getValue(), r);
+                        }
+                        return StmtVisitor.super.visit(stmt);
+                    }
+
+                    @Override
+                    public Void visit(PhiStmt stmt) {
+                        Var lValue = stmt.getLValue();
+                        for (RValue v : stmt.getRValue().getUses()) {
+                            graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
                         }
                         return StmtVisitor.super.visit(stmt);
                     }

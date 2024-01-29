@@ -37,13 +37,15 @@ public final class BytecodeBlock implements IBasicBlock {
     private boolean complete;
 
     @Nullable
-    private final Type exceptionHandlerType;
+    private Type exceptionHandlerType;
 
     private List<Object> frameLocalType;
 
     private int[] stmt2Asm;
 
     private boolean isInTry = false;
+
+    private boolean isLoopHeader = false;
 
     public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
         this(label, fallThrough, null);
@@ -192,7 +194,7 @@ public final class BytecodeBlock implements IBasicBlock {
                     e = inStack.get(n).e();
                 }
 
-                if (e instanceof Phi phi) {
+                if (e instanceof StackPhi phi) {
                     v = phi.getVar();
                 } else if (e instanceof Var v1) {
                     v = v1;
@@ -221,7 +223,7 @@ public final class BytecodeBlock implements IBasicBlock {
                 n += 1;
             }
         }
-        tryCorrectFrame(n);
+//        tryCorrectFrame(n);
         if (inStack != null) {
             n = 0;
             for (StackItem item : inStack) {
@@ -235,6 +237,7 @@ public final class BytecodeBlock implements IBasicBlock {
                         for (int k = frameLocalType.size(); k <= slot; ++k) {
                             frameLocalType.add(0);
                         }
+                        assert n < frame.stack.size();
                         frameLocalType.set(slot, frame.stack.get(n));
                     }
                 }
@@ -289,6 +292,9 @@ public final class BytecodeBlock implements IBasicBlock {
         return exceptionHandlerType;
     }
 
+    public void setExceptionHandlerType(@Nullable Type exceptionHandlerType) {
+        this.exceptionHandlerType = exceptionHandlerType;
+    }
 
     private void tryCorrectFrame(int size) {
         if (instr.isEmpty()) {
@@ -333,5 +339,13 @@ public final class BytecodeBlock implements IBasicBlock {
                 frameLocalType.set(i, 0);
             }
         }
+    }
+
+    public boolean isLoopHeader() {
+        return isLoopHeader;
+    }
+
+    public void setLoopHeader(boolean loopHeader) {
+        isLoopHeader = loopHeader;
     }
 }
