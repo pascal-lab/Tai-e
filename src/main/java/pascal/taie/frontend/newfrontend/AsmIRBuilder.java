@@ -238,8 +238,7 @@ public class AsmIRBuilder {
     }
 
     void ssa() {
-        SSATransform<BytecodeBlock> ssa =
-                new SSATransform<>(method, g, manager, duInfo, !exceptionEntries.isEmpty());
+        SSATransform<BytecodeBlock> ssa = new SSATransform<>(method, g, manager, duInfo);
         ssa.build();
     }
 

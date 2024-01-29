@@ -16,11 +16,12 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.TriFunction;
-import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +56,9 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private final DUInfo info;
 
-    private final boolean hasExceptionHandler; // Only for debug. Remove when released.
+    private final Var[] nonSSAVars;
+
+    private final int lengthOfNonSSAVars;
 
     private final boolean DEBUG = true;
 
@@ -63,8 +66,7 @@ public class SSATransform<Block extends IBasicBlock> {
             JMethod method,
             IndexedGraph<Block> graph,
             IVarManager manager,
-            DUInfo info,
-            boolean hasExceptionHandler
+            DUInfo info
     ) {
         this.method = method;
         this.graph = graph;
@@ -75,7 +77,8 @@ public class SSATransform<Block extends IBasicBlock> {
         this.manager = manager;
         this.vars = manager.getVars();
         this.info = info;
-        this.hasExceptionHandler = hasExceptionHandler;
+        nonSSAVars = manager.getNonSSAVar();
+        lengthOfNonSSAVars = nonSSAVars.length;
     }
 
     public void build() {
@@ -95,7 +98,6 @@ public class SSATransform<Block extends IBasicBlock> {
         if (DEBUG) {
             // testify whether step 1.5 creates those data structures that is big enough
             assert safeEstimationForPhiVars >= vars.size();
-            if (hasExceptionHandler) return; // currently exception is not handled correctly
             // testify pruning.
             for (int i = 0; i < graph.size(); i++) {
                 for (Stmt stmt : graph.getNode(i).getStmts()) {
@@ -119,12 +121,13 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private final List<IndexerBitSet<Var>> isInserted = new ArrayList<>();
     private final List<List<Stmt>> phis = new ArrayList<>();
-    private Var[] nonSSAVars;
 
     private final Indexer<Var> indexer = new Indexer<>() {
         @Override
         public int getIndex(Var o) {
-            if (o == null) return -1;
+            if (o == null) {
+                return -1;
+            }
             return o.getIndex();
         }
 
@@ -136,7 +139,6 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private void phiInsertion() {
         // index with block.getIndex()
-        nonSSAVars = manager.getNonSSAVar();
         for (int i = 0; i < graph.size(); i++) {
             // TODO: current implement cannot set the init size
             //       change it if it's a performance issue
@@ -155,7 +157,9 @@ public class SSATransform<Block extends IBasicBlock> {
 
         SparseSet current = new SparseSet(graph.size(), graph.size());
         for (Var v : nonSSAVars) {
-            if (!isVarToBeSSA(v)) continue;
+            if (!isVarToBeSSA(v)) {
+                continue;
+            }
             Set<IBasicBlock> defBlocks = info.getDefBlock(v);
             for (IBasicBlock block : defBlocks) {
                 current.add(block.getIndex());
@@ -189,7 +193,7 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private int safeEstimationForPhiVars;
 
-    private IndexMap<Var, PhiStmt> correspondingPhiStmts;
+    private PhiStmt[] correspondingPhiStmts;
 
     private SparseSet isPhiDefiningVar; // only for debugging
 
@@ -212,7 +216,7 @@ public class SSATransform<Block extends IBasicBlock> {
         safeEstimationForPhiVars =
                 currentVarCount + currentVarCount * graph.size() + stmtCount;
 
-        correspondingPhiStmts = new IndexMap<>(indexer, safeEstimationForPhiVars);
+        correspondingPhiStmts = new PhiStmt[safeEstimationForPhiVars];
         isPhiDefiningVar = DEBUG ?
                 new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars) : null;
         isUseless = new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars);
@@ -225,21 +229,21 @@ public class SSATransform<Block extends IBasicBlock> {
      */
     private void renaming() {
         List<Var> params = manager.getParams(); // `params` does not contain `this`.
-        IndexMap<Var, Integer> incId = new IndexMap<>(indexer, nonSSAVars.length);
+        int[] incId = new int[lengthOfNonSSAVars];
         for (Var v : nonSSAVars) {
             if (params.contains(v)) {
-                incId.put(v, 2); // params are born with def.
+                incId[v.getIndex()] = 2; // params are born with def.
             } else {
-                incId.put(v, 1);
+                incId[v.getIndex()] = 1;
             }
         }
         // Initial definitions of parameters.
         // And the rest vars could be left to null safely because JVM based languages are strict.
-        IndexMap<Var, Var> entryDefs = new IndexMap<>(indexer, nonSSAVars.length);
+        Var[] entryDefs = new Var[lengthOfNonSSAVars];
         for (Var p : params) {
-            entryDefs.put(p, p);
+            entryDefs[p.getIndex()] = p;
         }
-        IndexMap<Var, Var>[] reachingDefsForBlocks = new IndexMap[graph.size()];
+        Var[][] reachingDefsForBlocks = new Var[graph.size()][];
         // Set defs for actual entry node.
         reachingDefsForBlocks[postOrder[graph.size() - 1]] = entryDefs;
         // Propagate params defs to the phis leading the actual entry node.
@@ -253,16 +257,85 @@ public class SSATransform<Block extends IBasicBlock> {
          */
         for (int i = graph.size() - 1; i >= 0; --i) {
             int node = postOrder[i];
-            IndexMap<Var, Var> reachingDefs = new IndexMap<>(reachingDefsForBlocks[dom[node]]);
+            Var[] reachingDefs = Arrays.copyOf(reachingDefsForBlocks[dom[node]], lengthOfNonSSAVars);
             Block block = graph.getNode(node);
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
+            Map<Var, Var> proxy = new Map<>() {
+                @Override
+                public int size() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public boolean containsKey(Object key) {
+                    if (key == null) {
+                        return false;
+                    }
+                    Var v = (Var) key;
+                    return reachingDefs[v.getIndex()] != null;
+                }
+
+                @Override
+                public boolean containsValue(Object value) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Var get(Object key) {
+                    if (key == null) {
+                        return null;
+                    }
+                    Var v = (Var) key;
+                    return reachingDefs[v.getIndex()];
+                }
+
+                @Override
+                public Var put(Var key, Var value) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Var remove(Object key) {
+                    return null;
+                }
+
+                @Override
+                public void putAll(Map<? extends Var, ? extends Var> m) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public void clear() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Set<Var> keySet() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Collection<Var> values() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public Set<Entry<Var, Var>> entrySet() {
+                    throw new UnsupportedOperationException();
+                }
+            };
             TriFunction<Stmt, Var, Map<Var, Var>, Pair<Stmt, Var>> replaceStmtAndUpdateDefs =
                     (stmt, base, uses) -> {
                 Var freshVar = getFreshDefs(incId, base);
                 Lenses lenses = new Lenses(method, uses, Map.of(base, freshVar));
                 Stmt newStmt = lenses.subSt(stmt);
                 newStmts.add(newStmt);
-                reachingDefs.put(base, freshVar);
+                reachingDefs[base.getIndex()] = freshVar;
                 return new Pair<>(newStmt, freshVar);
             };
             for (Stmt stmt : block.getStmts()) {
@@ -285,27 +358,27 @@ public class SSATransform<Block extends IBasicBlock> {
                         isPhiDefiningVar.add(freshVar.getIndex());
                     }
                     isUseless.add(freshVar.getIndex()); // Collect for pruning.
-                    correspondingPhiStmts.put(freshVar, newStmt);
+                    correspondingPhiStmts[freshVar.getIndex()] = newStmt;
                 } else if (
                         stmt instanceof DefinitionStmt<?, ?> defStmt
                                 && defStmt.getLValue() instanceof Var base
                                 && isVarToBeSSA(base)
                 ) {
                     Pair<Stmt, Var> p =
-                            replaceStmtAndUpdateDefs.apply(defStmt, base, reachingDefs);
+                            replaceStmtAndUpdateDefs.apply(defStmt, base, proxy);
                     Stmt newStmt = p.first();
                     markUsefulForStmt(newStmt);
                 } else if (stmt instanceof Catch catchStmt) {
                     Pair<Stmt, Var> p = replaceStmtAndUpdateDefs.apply(
                             catchStmt,
                             catchStmt.getExceptionRef(),
-                            reachingDefs
+                            proxy
                     );
                     Stmt newStmt = p.first();
                     markUsefulForStmt(newStmt);
                 } else {
                     // just replace the stmt by updating the uses
-                    Lenses lenses = new Lenses(method, reachingDefs, Map.of());
+                    Lenses lenses = new Lenses(method, proxy, Map.of());
                     Stmt newStmt = lenses.subSt(stmt);
                     newStmts.add(newStmt);
                     markUsefulForStmt(newStmt);
@@ -319,9 +392,10 @@ public class SSATransform<Block extends IBasicBlock> {
         }
     }
 
-    private Var getFreshDefs(IndexMap<Var, Integer> incId, Var base) {
-        int id = incId.get(base);
-        incId.put(base, 1 + id);
+    private Var getFreshDefs(int[] incId, Var base) {
+        int i = base.getIndex();
+        int id = incId[i];
+        incId[i] = id + 1;
         return manager.splitVar(base, id);
     }
 
@@ -345,7 +419,7 @@ public class SSATransform<Block extends IBasicBlock> {
         StmtVarVisitor.visitUse(stmt, this::markUseful);
     }
 
-    private void propagatePhisToSucc(Block pred, IndexMap<Var, Var> reachingDefs, Block succ) {
+    private void propagatePhisToSucc(Block pred, Var[] reachingDefs, Block succ) {
         int succNode = graph.getIndex(succ);
         if (phis.get(succNode) == null) {
             return;
@@ -353,7 +427,7 @@ public class SSATransform<Block extends IBasicBlock> {
         for (Stmt p : phis.get(succNode)) {
             PhiStmt phi = (PhiStmt) p;
             Var base = phi.getBase();
-            Var reachingDef = reachingDefs.get(base);
+            Var reachingDef = reachingDefs[base.getIndex()];
             if (reachingDef != null) {
                 // if such reaching def doesn't exist (is null), due to the strictness
                 // of Java (maybe all the JVM based languages), the phi stmt is dead,
@@ -371,7 +445,7 @@ public class SSATransform<Block extends IBasicBlock> {
         }
     }
 
-    private void propagateDefsToSuccBlocksPhis(Block block, IndexMap<Var, Var> reachingDefs) {
+    private void propagateDefsToSuccBlocksPhis(Block block, Var[] reachingDefs) {
         for (Block succ : graph.outEdges(block)) {
             propagatePhisToSucc(block, reachingDefs, succ);
         }
@@ -413,7 +487,7 @@ public class SSATransform<Block extends IBasicBlock> {
         // usefulness propagation phase
         while (!stack.isEmpty()) {
             Var a = vars.get(stack.removeLast());
-            PhiStmt phiStmt = correspondingPhiStmts.get(a);
+            PhiStmt phiStmt = correspondingPhiStmts[a.getIndex()];
             phiStmt.getRValue().getUsesAndInBlocks().forEach(p -> markUseful(p.first()));
         }
 
@@ -427,14 +501,16 @@ public class SSATransform<Block extends IBasicBlock> {
 
     private void resumeNames() {
         VarManager manager = (VarManager) this.manager;
-        if (!manager.existsLocalVariableTable) return;
+        if (!manager.existsLocalVariableTable) {
+            return;
+        }
 
         for (int n = 0; n < graph.size(); n++) {
             BytecodeBlock block = (BytecodeBlock) graph.getNode(n);
             int phiBias = 0;
             for (int i = 0; i < block.getStmts().size(); i++) {
                 Stmt stmt = block.getStmts().get(i);
-                if (stmt instanceof DefinitionStmt<?,?> definitionStmt
+                if (stmt instanceof DefinitionStmt<?, ?> definitionStmt
                         && definitionStmt.getLValue() instanceof Var def) {
                     int queryIndex;
                     if (definitionStmt instanceof PhiStmt) {
