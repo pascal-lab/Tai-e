@@ -126,7 +126,7 @@ public class TaintAnalysis implements Plugin {
     private Solver solver;
 
     @Override
-    public setSolver(Solver solver) {
+    public void setSolver(Solver solver) {
         this.solver = solver;
     }
 
