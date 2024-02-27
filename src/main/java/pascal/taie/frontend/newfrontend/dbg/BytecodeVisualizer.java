@@ -46,6 +46,9 @@ public class BytecodeVisualizer {
 
     public static void printDotFile(BytecodeGraph graph, Indexer<AbstractInsnNode> indexer, String name) {
         try {
+            if (name.length() > 200) {
+                name = name.substring(0, 200);
+            }
             Path p = Path.of("output", "bytecode", name + ".dot");
             Files.createDirectories(p.getParent());
             Files.writeString(p, printDot(graph, indexer));

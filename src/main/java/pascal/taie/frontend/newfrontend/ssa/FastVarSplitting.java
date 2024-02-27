@@ -179,32 +179,56 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         // pass 2: generate new names for each cluster and spreading through used phi functions
         // only needed when perform splitting instead of SSA
         if (!useSSA) {
-            int newVarIndex = varSize;
-            boolean[] oldVarUsed = new boolean[varSize];
+            paramToName = new int[info.getMaxDuIndex()];
+            Arrays.fill(paramToName, UNDEFINED);
+            int varIndex = 0;
             boolean[] visited = new boolean[phiCount];
-            Map<Integer, Integer> varMapping = Maps.newMap();
+            Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
             for (int i = 0; i < graph.size(); i++) {
                 for (SemiPhi phi : phis.get(i)) {
                     if (phi.used && !visited[phi.index]) {
-                        int newVarName;
-                        if (!oldVarUsed[phi.var]) {
-                            oldVarUsed[phi.var] = true;
-                            newVarName = phi.var;
-                        } else {
-                            newVarName = newVarIndex++;
-                        }
-                        varMapping.put(newVarName, phi.var);
-                        biDfs(phi, visited, newVarName);
+                        varIndexToOriginSlot.put(varIndex, phi.var);
+                        biDfs(phi, visited, varIndex);
+                        varIndex++;
                     }
                 }
             }
-            newMaxLocal = newVarIndex;
+
+            reSlot = new int[varIndex];
+            Arrays.fill(reSlot, UNDEFINED);
+            boolean[] useOriginSlot = new boolean[varSize];
+            for (int i = 0; i < info.getParamSize(); i++) {
+                if (paramToName[i] != UNDEFINED) {
+                    reSlot[paramToName[i]] = i;
+                    useOriginSlot[i] = true;
+                }
+            }
+            newMaxLocal = varSize;
+            Map<Integer, Integer> newSlotToOldSlot = Maps.newMap();
+            for (int i = 0; i < varIndex; i++) {
+                if (reSlot[i] == UNDEFINED) {
+                    int oldSlot = varIndexToOriginSlot.get(i);
+                    // param slot should not be reused
+                    if (!useOriginSlot[oldSlot] && oldSlot >= info.getParamSize()) {
+                        useOriginSlot[oldSlot] = true;
+                        reSlot[i] = oldSlot;
+                    } else {
+                        reSlot[i] = newMaxLocal++;
+                        newSlotToOldSlot.put(reSlot[i], oldSlot);
+                    }
+                }
+            }
+
             varMappingTable = new int[newMaxLocal];
             for (int i = 0; i < newMaxLocal; i++) {
-                varMappingTable[i] = varMapping.getOrDefault(i, i);
+                varMappingTable[i] = newSlotToOldSlot.getOrDefault(i, i);
             }
         }
     }
+
+    private int[] reSlot;
+
+    private int[] paramToName;
 
     void biDfs(SemiPhi phi, boolean[] visited, int varIndex) {
         if (!phi.used) {
@@ -226,6 +250,9 @@ public class FastVarSplitting<Block extends IBasicBlock> {
                 biDfs(p, visited, varIndex);
             } else {
                 renames[def] = varIndex;
+                if (def < info.getParamSize()) {
+                    paramToName[def] = varIndex;
+                }
                 if (defOwned[def] != null) {
                     for (int owned : defOwned[def]) {
                         if (!visited[getPhiByIndex(owned).index]) {
@@ -408,7 +435,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         return newMaxLocal;
     }
 
-    public int getRealLocalSlot(int rwIndex) {
+    public int getRealLocalName(int rwIndex) {
         if (rwIndex >= renames.length) {
             // this is a phi node
             return getPhiByIndex(rwIndex).newName;
@@ -416,8 +443,15 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         return renames[rwIndex];
     }
 
+    public int getRealLocalSlot(int rwIndex) {
+        if (rwIndex < info.getParamSize()) {
+            return rwIndex;
+        }
+        return reSlot[getRealLocalName(rwIndex)];
+    }
+
     public boolean canFastProcess(int rwIndex) {
-        return getRealLocalSlot(rwIndex) == UNDEFINED;
+        return getRealLocalName(rwIndex) == UNDEFINED;
     }
 
     public int[] getVarMappingTable() {

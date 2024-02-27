@@ -96,38 +96,12 @@ public final class BytecodeBlock implements IBasicBlock {
 
     public void setInStack(Stack<StackItem> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
-//        assert frame == null ||
-//                inStack.stream().filter(i -> i instanceof Var).count() == frame.stack.size();
         this.inStack = inStack;
-//        AbstractInsnNode node = instr.get(0);
-//        int popHeight = 0;
-//        while (node != null &&
-//                (node.getOpcode() == Opcodes.POP || node.getOpcode() == Opcodes.POP2)) {
-//            if (node.getOpcode() == Opcodes.POP) {
-//                popHeight++;
-//            } else {
-//                popHeight += 2;
-//            }
-//            node = node.getNext();
-//        }
-//        if (popHeight == inStack.size()) {
-//            return;
-//        }
-//        for (var pred : inEdges) {
-//            if (pred.outStack == null) {
-//                pred.setOutStack(inStack);
-//            }
-//        }
     }
 
     public void setOutStack(Stack<StackItem> outStack) {
         assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
-//        for (var succ : outEdges) {
-//            if (succ.inStack == null) {
-//                succ.setInStack(outStack);
-//            }
-//        }
     }
 
     public AbstractInsnNode getLastBytecode() {

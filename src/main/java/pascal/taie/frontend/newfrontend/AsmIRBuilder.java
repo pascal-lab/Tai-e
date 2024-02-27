@@ -30,8 +30,6 @@ import pascal.taie.frontend.newfrontend.ssa.FastVarSplitting;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import pascal.taie.frontend.newfrontend.ssa.PhiExp;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
-import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -100,6 +98,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
@@ -185,12 +184,10 @@ public class AsmIRBuilder {
             } else {
                 inferTypeWithoutFrame();
             }
-            stageTimer.startTypelessIR();
-            makeStmts();
-            makeExceptionTable();
-            stageTimer.endTypelessIR();
             // TODO: add options for ssa toggle
             if (USE_SSA && !EXPERIMENTAL) {
+                makeStmts();
+                makeExceptionTable();
                 stageTimer.startSplitting();
                 ssa();
                 stageTimer.endSplitting();
@@ -233,7 +230,6 @@ public class AsmIRBuilder {
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
-        makeStmts();
         stageTimer.endTyping();
     }
 
@@ -365,30 +361,15 @@ public class AsmIRBuilder {
     }
 
     private StackItem popExp(Stack<StackItem> stack) {
-        StackItem e = stack.pop();
+        StackItem e = popStack(stack);
         if (e.e() instanceof Top) {
-            StackItem e1 = stack.pop();
+            StackItem e1 = popStack(stack);
             assert ! (e1.e() instanceof Top);
             return e1;
         } else {
             return e;
         }
     }
-
-    private Exp peekExp(Stack<Exp> stack) {
-        Exp e = stack.peek();
-        if (e instanceof Top) {
-            Exp e1 = stack.get(stack.size() - 2);
-            assert ! (e1 instanceof Top);
-            return e1;
-        } else {
-            return e;
-        }
-    }
-
-//    private AbstractInsnNode getOrig(Exp e) {
-//        return exp2origin.get(e);
-//    }
 
     private List<Stmt> clearStmt(AbstractInsnNode node) {
         List<Stmt> res = new ArrayList<>();
@@ -464,6 +445,10 @@ public class AsmIRBuilder {
         return v;
     }
 
+    private StackItem popStack(Stack<StackItem> stack) {
+        return stack.pop();
+    }
+
     private Var popVar(Stack<StackItem> stack) {
         StackItem e = popExp(stack);
         if (e.e() instanceof Var v) {
@@ -486,7 +471,7 @@ public class AsmIRBuilder {
 
     private void popToEffect(Stack<StackItem> stack) {
         // normally, this should only be used to pop a InvokeExp
-        StackItem item = stack.pop();
+        StackItem item = popStack(stack);
         Exp e = item.e();
         if (e instanceof Top) {
             return;
@@ -500,7 +485,7 @@ public class AsmIRBuilder {
     private void dup(Stack<StackItem> stack, int takes, int seps) {
         List<StackItem> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
-            StackItem e = stack.pop();
+            StackItem e = popStack(stack);
             if (e.e() instanceof Top || e.e() instanceof Var) {
                 takesList.add(e);
             } else {
@@ -510,7 +495,7 @@ public class AsmIRBuilder {
         Collections.reverse(takesList);
         List<StackItem> sepsList = new ArrayList<>(seps);
         for (int i = 0; i < seps; ++i) {
-            sepsList.add(stack.pop());
+            sepsList.add(popStack(stack));
         }
         Collections.reverse(sepsList);
         stack.addAll(takesList);
@@ -532,12 +517,14 @@ public class AsmIRBuilder {
     }
 
     private boolean maySideEffect(Exp e) {
-        return !(e instanceof Var || e instanceof StackPhi);
+        return !(e instanceof Var || e instanceof StackPhi || e instanceof Literal);
     }
 
     private void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp e) {
         assert ! (e instanceof Top);
-        ensureStackSafety(stack, this::maySideEffect);
+        if (maySideEffect(e)) {
+            ensureStackSafety(stack, this::maySideEffect);
+        }
         stack.push(new StackItem(e, node));
         if (isDword(node, e)) {
             stack.push(TOP);
@@ -571,7 +558,7 @@ public class AsmIRBuilder {
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
-                logger.atInfo().log("[IR] Unreachable code reference detected in method: "
+                logger.atTrace().log("[IR] Unreachable code reference detected in method: "
                         + method.toString());
             }
             block = next2;
@@ -649,6 +636,10 @@ public class AsmIRBuilder {
             }
             assert start.getIndex() != -1;
             Stmt handler = getFirstStmt(node.handler);
+            if (!(handler instanceof Catch)) {
+                // unreachable
+                continue;
+            }
             Type expType = getExceptionType(node.type);
             res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
         }
@@ -901,7 +892,17 @@ public class AsmIRBuilder {
         return new ArrayAccess(ref, idx);
     }
 
-    private Var getRWVar(int rwIndex) {
+    private void tryFixVarName(Var v, int slot, AbstractInsnNode node) {
+        if (manager.existsLocalVariableTable && VarManager.mayRename(v)) {
+            Optional<String> name = manager.getName(slot, node);
+            name.ifPresent((n) -> {
+                String realName = manager.tryUseName(n);
+                v.setName(realName);
+            });
+        }
+    }
+
+    private Var getRWVar(int rwIndex, int slot, AbstractInsnNode node) {
         Var v;
         int defIndex = splitting.getReachDef(rwIndex);
         assert defIndex != -1; // wtf? undefined variable?
@@ -913,13 +914,16 @@ public class AsmIRBuilder {
             v = manager.getLocal(realVar);
         }
         assert v != null;
+        tryFixVarName(v, slot, node);
         return v;
     }
 
-    private void storeRWVar(AbstractInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block, int rwIndex) {
+    private void storeRWVar(int rwIndex, int slot, AbstractInsnNode varNode,
+                            BytecodeBlock block, Stack<StackItem> stack) {
+        Var v;
         if (isFastProcessVar(rwIndex)) {
             // load insn will use rwTables to get this var
-            Var v = popVar(stack);
+            v = popVar(stack);
             // if this var is a local, we need create another copy
             // in case this local var is modified later
             if (manager.isLocal(v) && !USE_SSA) {
@@ -931,11 +935,12 @@ public class AsmIRBuilder {
         } else {
             // still use a local var
             int realVar = splitting.getRealLocalSlot(rwIndex);
-            Var v = manager.getLocal(realVar);
+            v = manager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
             storeExp(varNode, v, stack, block);
         }
+        tryFixVarName(v, slot, varNode);
     }
 
     private void storeExp(VarInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block) {
@@ -945,7 +950,7 @@ public class AsmIRBuilder {
             storeExp(varNode, v, stack, block);
         } else {
             int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
-            storeRWVar(varNode, stack, block, rwIndex);
+            storeRWVar(rwIndex, varNode.var, varNode, block, stack);
         }
     }
 
@@ -1028,7 +1033,7 @@ public class AsmIRBuilder {
                 popToEffect(stack);
             }
             case Opcodes.DUP -> {
-                StackItem item = stack.pop();
+                StackItem item = popStack(stack);
                 Exp e = item.e();
                 assert ! (e instanceof Top);
                 StackItem op;
@@ -1047,8 +1052,9 @@ public class AsmIRBuilder {
             case Opcodes.DUP2_X2 -> dup(stack, 2, 2);
             case Opcodes.SWAP -> {
                 // swap can only be used when v1 and v2 are both category 1 c.t.
-                StackItem e1 = stack.pop();
-                StackItem e2 = stack.pop();
+                int top = stack.size() - 1;
+                StackItem e1 = popStack(stack);
+                StackItem e2 = popStack(stack);
                 assert ! (e1.e() instanceof Top) && ! (e2.e() instanceof Top);
                 stack.push(e1);
                 stack.push(e2);
@@ -1082,9 +1088,11 @@ public class AsmIRBuilder {
             inStack = getInStack(block);
             block.setInStack(inStack);
         } else {
+            assert block == entry;
             inStack = block.getInStack();
         }
         assert inStack != null || block.isCatch();
+        assert block.getOutStack() == null;
         Stack<StackItem> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
@@ -1272,6 +1280,10 @@ public class AsmIRBuilder {
         propagatePhiUsed();
         resolveStackPhi();
         for (BytecodeBlock bb : blockSortedList) {
+            // unreachable
+            if (bb.getOutStack() == null) {
+                continue;
+            }
             if (!USE_SSA) {
                 if (stackMergeStmts.has(bb.getIndex())) {
                     List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
@@ -1338,8 +1350,13 @@ public class AsmIRBuilder {
                 BytecodeBlock block = phi.createPos;
                 // insert phi node in the first instruction
                 PhiExp phiExp = new PhiExp();
+                int unreachableOffset = 0;
                 for (int i = 0; i < getInEdgeCount(block); ++i) {
-                    StackItem item = phi.getNodes().get(i);
+                    if (getInEdge(block, i).getOutStack() == null) {
+                        unreachableOffset++;
+                        continue;
+                    }
+                    StackItem item = phi.getNodes().get(i - unreachableOffset);
                     Exp e = item.e();
                     Var v = e instanceof Var ? (Var) e : toVar(e, item.origin());
                     phiExp.addUseAndCorrespondingBlocks(v, getInEdge(block, i));
@@ -1378,12 +1395,14 @@ public class AsmIRBuilder {
                 stmts.add(getAssignStmt(writeOut, e));
             }
         }
-        if (hasCriticalInEdge) {
+        if (hasCriticalInEdge && phi.used) {
             // add `v = writeOut` before any definition (first instruction) in create pos
             BytecodeBlock createPos = phi.createPos;
             addToBlockHead(createPos, getAssignStmt(phi.getVar(), writeOut));
         }
         phi.resolved = true;
+        // now the stack var is writeOut, may be different from origin phi.var
+        phi.setVar(writeOut);
     }
 
     private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
@@ -1391,9 +1410,16 @@ public class AsmIRBuilder {
             Stack<StackItem> inStack = current.getInStack();
             for (int i = 0; i < getInEdgeCount(current); ++i) {
                 BytecodeBlock outEdge = getInEdge(current, i);
-                assert outEdge.getOutStack() != null;
+                if (outEdge.getOutStack() == null) {
+                    assert outEdge.getInStack() == null;
+                    continue;
+                }
                 for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
-                    StackPhi phi = (StackPhi) inStack.get(j).e();
+                    Exp currentExp = inStack.get(j).e();
+                    if (currentExp instanceof Top) {
+                        continue;
+                    }
+                    StackPhi phi = (StackPhi) currentExp;
                     StackItem item = outEdge.getOutStack().get(j);
                     phi.getNodes().add(item);
                 }
@@ -1457,7 +1483,7 @@ public class AsmIRBuilder {
                         pushExp(node, nowStack, manager.getLocal(varNode.var));
                     } else {
                         int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
-                        Var v = getRWVar(rwIndex);
+                        Var v = getRWVar(rwIndex, varNode.var, node);
                         pushExp(node, nowStack, v);
                     }
                 }
@@ -1610,14 +1636,14 @@ public class AsmIRBuilder {
                 int def = visitRW(block.getIndex(), getIndex(inc));
                 pushConst(node, nowStack, IntLiteral.get(inc.incr));
                 Var cst = popVar(nowStack);
-                Var v = getRWVar(use);
-                nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
-                storeRWVar(inc, nowStack, block, def);
+                Var v = getRWVar(use, inc.var, node);
+                pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+                storeRWVar(def, inc.var, inc, block, nowStack);
             } else {
                 pushConst(node, nowStack, IntLiteral.get(inc.incr));
                 Var cst = popVar(nowStack);
                 Var v = manager.getLocal(inc.var);
-                nowStack.push(new StackItem(new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst), inc));
+                pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
                 storeExp(inc, v, nowStack, block);
             }
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
@@ -1825,17 +1851,12 @@ public class AsmIRBuilder {
         splitting = new FastVarSplitting<>(graph, maxLocal, genericDUInfo, USE_SSA, dom);
         splitting.build();
         reachVars = new Var[splitting.getMaxDUCount()];
-        int[] paramIndexes = new int[paramWrite];
-        for (int i = 0; i < paramWrite; ++i) {
-            paramIndexes[i] = splitting.getRealLocalSlot(i);
-        }
         if (!USE_SSA) {
-            manager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable(), paramIndexes);
+            manager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable());
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < paramWrite; ++i) {
-            int realVar = splitting.getRealLocalSlot(i);
-            if (realVar == -1) {
+            if (isFastProcessVar(i)) {
                 reachVars[i] = manager.getLocal(i);
             }
         }
@@ -2128,7 +2149,8 @@ public class AsmIRBuilder {
 
         int[] postOrder = dom.getPostOrder();
         for (int i = postOrder.length - 1; i >= 0; --i) {
-            BytecodeBlock bb = blockSortedList.get(postOrder[i]);
+            int current = postOrder[i];
+            BytecodeBlock bb = blockSortedList.get(current);
             buildBlockStmt(bb);
         }
         solveAllPhiAndOutput();

@@ -41,7 +41,7 @@ public class Dominator<N> {
      * <p>So, if we traverse the graph in reverse post order, for any block,
      * its immediate dominator must have been visited.</p>
      */
-    private final int[] postOrder;
+    private int[] postOrder;
 
     private int[] dom;
 
@@ -56,6 +56,7 @@ public class Dominator<N> {
         this.entry = graph.getIntEntry();
         postIndex = new int[graph.size()];
         postOrder = new int[graph.size()];
+        Arrays.fill(postOrder, UNDEFINED);
         dfsTrav();
     }
 
@@ -207,6 +208,9 @@ public class Dominator<N> {
     private void dfsTrav() {
         boolean[] visited = new boolean[graph.size()];
         dfs(entry, visited);
+        if (post != graph.size()) {
+            postOrder = Arrays.copyOf(postOrder, post);
+        }
     }
 
     int post;
@@ -228,7 +232,7 @@ public class Dominator<N> {
         // first set entry node's idom to itself
         dom[entry] = entry;
         // reverse post order
-        for (int i = graph.size() - 1; i >= 0; --i) {
+        for (int i = postOrder.length - 1; i >= 0; --i) {
             int node = postOrder[i];
             changed |= processNode(dom, node);
         }

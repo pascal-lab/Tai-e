@@ -230,6 +230,8 @@ public class TypeInference0 {
         if (t instanceof ArrayType arrayType) {
             Type targetType = arrayType.elementType();
             setType(typing, target, targetType);
+        } else if (t instanceof NullType) {
+            setType(typing, target, t);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -319,11 +321,6 @@ public class TypeInference0 {
 
     Typing loadNewBlockTyping(BytecodeBlock block, Typing typing) {
         Type[] newTyping = typing.typing;
-        block.getInitTyping().forEach((k, v) -> {
-            if (v != Uninitialized.UNINITIALIZED) {
-                newTyping[k.getIndex()] = v;
-            }
-        });
         // only NON-SSA need this, it will cause problem in SSA
         if (!builder.isUSE_SSA()) {
             for (int i = 0; i < varSize; ++i) {
@@ -333,6 +330,11 @@ public class TypeInference0 {
                 }
             }
         }
+        block.getInitTyping().forEach((k, v) -> {
+            if (v != Uninitialized.UNINITIALIZED) {
+                newTyping[k.getIndex()] = v;
+            }
+        });
         return new Typing(newTyping, block.getFrameLocalType());
     }
 
@@ -515,8 +517,15 @@ public class TypeInference0 {
                         continue;
                     }
                     Var var = phiStmt.getRValue().findVar(block);
-                    Type t = getType(typing, var);
-                    putMultiSet(localTypeAssigns, v, t);
+                    Set<Type> assigns = localTypeAssigns.get(var.getIndex());
+                    if (assigns != null) {
+                        for (Type t : assigns) {
+                            putMultiSet(localTypeAssigns, v, t);
+                        }
+                    } else {
+                        Type t = getType(typing, var);
+                        putMultiSet(localTypeAssigns, v, t);
+                    }
                 } else {
                     // no more phi stmts
                     break;

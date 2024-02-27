@@ -74,6 +74,8 @@ public class VarManager implements IVarManager {
 
     private @Nullable Var nullLiteral;
 
+    private final Map<String, Integer> nameUsedCount = Maps.newMap();
+
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
@@ -113,7 +115,7 @@ public class VarManager implements IVarManager {
                             .stream()
                             .findAny()
                             .map(k -> localVarTableForSlot.get(k).name)
-                            .ifPresent(v::setName);
+                            .ifPresent((name) -> v.setName(tryUseName(name)));
                 }
             }
             params.add(v);
@@ -315,28 +317,14 @@ public class VarManager implements IVarManager {
         }
     }
 
-    public void enlargeLocal(int newMaxLocal, int[] originMapping, int[] paramIndexes) {
+    public void enlargeLocal(int newMaxLocal, int[] originMapping) {
         assert newMaxLocal == originMapping.length;
-        assert paramIndexes.length <= local2Var.length;
         Var[] newLocal2Var = new Var[newMaxLocal];
         System.arraycopy(local2Var, 0, newLocal2Var, 0, local2Var.length);
         int counter = 0;
         for (int i = local2Var.length; i < originMapping.length; ++i) {
-            newLocal2Var[i] = newVar(
-                    getDefaultSplitName(newLocal2Var[originMapping[i]].getName(), counter++));
+            newLocal2Var[i] = newVar(tryUseName(newLocal2Var[originMapping[i]].getName()));
             var2Local.put(newLocal2Var[i], originMapping[i]);
-        }
-
-        for (int i = 0; i < paramIndexes.length; ++i) {
-            int paramIndex = paramIndexes[i];
-            if (paramIndex == -1) {
-                continue;
-            }
-            Var v = newLocal2Var[paramIndex];
-            Var vOld = local2Var[i];
-            if (v != vOld) {
-                replaceParam(vOld, v);
-            }
         }
 
         local2Var = newLocal2Var;
@@ -407,6 +395,11 @@ public class VarManager implements IVarManager {
         return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
+    public static boolean mayRename(Var v) {
+        return v.getName().startsWith(TEMP_PREFIX) ||
+                v.getName().startsWith(LOCAL_PREFIX);
+    }
+
     public boolean isNotSpecialVar(Var v) {
         return !v.getName().startsWith("*") && !Objects.equals(v.getName(), NULL_LITERAL);
     }
@@ -446,6 +439,7 @@ public class VarManager implements IVarManager {
     }
 
     private Var newVar(String name) {
+        name = tryUseName(name);
         Var v = new Var(method, name, null, counter++);
         vars.add(v);
         return v;
@@ -475,6 +469,17 @@ public class VarManager implements IVarManager {
         vars.removeIf(p);
         for (int i = 0; i < vars.size(); i++) {
             vars.get(i).setIndex(i);
+        }
+    }
+
+    public String tryUseName(String name) {
+        if (nameUsedCount.containsKey(name)) {
+            int count = nameUsedCount.get(name);
+            nameUsedCount.put(name, count + 1);
+            return name + "#" + count;
+        } else {
+            nameUsedCount.put(name, 1);
+            return name;
         }
     }
 }
