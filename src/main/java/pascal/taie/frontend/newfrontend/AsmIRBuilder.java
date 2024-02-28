@@ -1430,7 +1430,6 @@ public class AsmIRBuilder {
     private void outputIR(BytecodeBlock block) {
         List<Stmt> blockStmt = block.getStmts();
         AsmListSlice instr = block.instr();
-        int[] stmt2Asm = new int[instr.size()];
         int counter = 0;
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
@@ -1438,21 +1437,11 @@ public class AsmIRBuilder {
             Stmt stmt = asm2Stmt[current];
             if (stmt != null) {
                 blockStmt.add(stmt);
-                if (counter >= stmt2Asm.length) {
-                    stmt2Asm = Arrays.copyOf(stmt2Asm, stmt2Asm.length * 2);
-                }
-                stmt2Asm[counter++] = i;
             }
 
             List<Stmt> stmts = auxiliaryStmts.get(current);
             if (stmts != null) {
                 blockStmt.addAll(stmts);
-                for (int j = 0; j < stmts.size(); ++j) {
-                    if (counter >= stmt2Asm.length) {
-                        stmt2Asm = Arrays.copyOf(stmt2Asm, stmt2Asm.length * 2);
-                    }
-                    stmt2Asm[counter++] = i;
-                }
             }
         }
         if (block.isCatch() && USE_SSA && EXPERIMENTAL) {
@@ -1472,7 +1461,6 @@ public class AsmIRBuilder {
             blockStmt.clear();
             blockStmt.addAll(stmts);
         }
-        block.setStmt2Asm(stmt2Asm);
     }
 
     private void processInstr(Stack<StackItem> nowStack, AbstractInsnNode node, BytecodeBlock block) {
@@ -1908,10 +1896,12 @@ public class AsmIRBuilder {
 
         FlattenExceptionTable fet = new FlattenExceptionTable(source);
         boolean inTry = false;
-        int[] trySwitch = fet.buildExceptionSwitches();
+        Pair<int[], Integer> exceptionSwitchesPair = fet.buildExceptionSwitches();
+        int[] trySwitch = exceptionSwitchesPair.first();
+        int trySwitchSize = exceptionSwitchesPair.second();
         int trySwitchIndex = 0;
         for (int i = 0; i < size; ++i) {
-            while (trySwitchIndex < trySwitch.length && trySwitch[trySwitchIndex] == i) {
+            while (trySwitchIndex < trySwitchSize && trySwitch[trySwitchIndex] == i) {
                 inTry = !inTry;
                 trySwitchIndex++;
             }

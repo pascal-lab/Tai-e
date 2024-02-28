@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
+import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -50,27 +51,24 @@ public class FlattenExceptionTable {
         Collections.sort(exceptionEntries);
     }
 
-    public int[] buildExceptionSwitches() {
-        List<Integer> switches = new ArrayList<>();
+    public Pair<int[], Integer> buildExceptionSwitches() {
+        int[] result = new int[exceptionEntries.size()];
+        int index = 0;
         int ends = 0;
         for (ExceptionEntry entry : exceptionEntries) {
             if (entry.isStart()) {
                 if (ends == 0) {
-                    switches.add(entry.pc());
+                    result[index++] = entry.pc();
                 }
                 ends++;
             } else {
                 ends--;
                 if (ends == 0) {
-                    switches.add(entry.pc());
+                    result[index++] = entry.pc();
                 }
             }
         }
-        int[] result = new int[switches.size()];
-        for (int i = 0; i < switches.size(); ++i) {
-            result[i] = switches.get(i);
-        }
-        return result;
+        return new Pair<>(result, index);
     }
 
     List<Integer> currentHandlers = new ArrayList<>();
