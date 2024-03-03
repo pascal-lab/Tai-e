@@ -224,7 +224,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         ClassReader reader = new ClassReader(content);
 //        assert reader.getClassName().replaceAll("/", ".").equals(binaryName);
         int version = reader.readShort(6);
-        if (!preBuildIR) {
+        if (true) {
             sourceMap.put(binaryName, new AsmSource(reader, isApplication, version, null));
         } else {
             ClassNode classNode = new ClassNode(Opcodes.ASM9) {

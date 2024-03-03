@@ -158,16 +158,25 @@ public class AsmIRBuilder {
         this.classFileVersion = methodSource.classFileVersion();
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
-        this.manager = new VarManager(method,
-                source.localVariables, source.instructions, source.maxLocals);
-        this.asm2Stmt = new Stmt[instrSize];
-        this.auxiliaryStmts = new ArrayList<>(instrSize);
-        for (int i = 0; i < instrSize; ++i) {
-            auxiliaryStmts.add(null);
+        if (!isEmpty) {
+            this.manager = new VarManager(method,
+                    source.localVariables, source.instructions, source.maxLocals);
+            this.asm2Stmt = new Stmt[instrSize];
+            this.auxiliaryStmts = new ArrayList<>(instrSize);
+            for (int i = 0; i < instrSize; ++i) {
+                auxiliaryStmts.add(null);
+            }
+            this.stmts = new ArrayList<>();
+            this.phiList = new ArrayList<>();
+            this.duInfo = new DUInfo(source.maxLocals);
+        } else {
+            this.manager = null;
+            this.asm2Stmt = null;
+            this.auxiliaryStmts = null;
+            this.stmts = null;
+            this.phiList = null;
+            this.duInfo = null;
         }
-        this.stmts = new ArrayList<>();
-        this.phiList = new ArrayList<>();
-        this.duInfo = new DUInfo(source.maxLocals);
     }
 
     public void build() {
@@ -1244,6 +1253,9 @@ public class AsmIRBuilder {
             List<StackItem> inExp = inExps.get(j);
             inExp.add(item1);
             assert !(e1 instanceof Top);
+            if (initStack.get(j).e() instanceof StackPhi) {
+                continue;
+            }
             if (e != e1) {
                 initStack.set(j, createNewStackPhiItem(block, j, inExp));
             }
@@ -1323,26 +1335,33 @@ public class AsmIRBuilder {
                 }
             };
             for (StackPhi phi : phiList) {
-                if (!phi.resolved) {
-                    boolean hasCriticalInEdge = false;
-                    BytecodeBlock block = phi.createPos;
-                    for (int i = 0; i < getInEdgeCount(block); ++i) {
-                        int pred = g.getInEdge(block.getIndex(), i);
-                        if (g.getOutEdgesCount(pred) > 1) {
-                            hasCriticalInEdge = true;
-                            break;
-                        }
-                    }
-                    Stack<StackItem> inStack = block.getInStack();
-                    for (StackItem item : inStack) {
-                        Exp e = item.e();
-                        if (e instanceof StackPhi phi1) {
-                            if (!phi1.resolved) {
-                                resolveStackPhi(phi1, hasCriticalInEdge);
-                            }
-                        }
+                if (phi.getWriteOutVar() != null) continue;
+                boolean hasCriticalInEdge = false;
+                BytecodeBlock block = phi.createPos;
+                for (int i = 0; i < getInEdgeCount(block); ++i) {
+                    int pred = g.getInEdge(block.getIndex(), i);
+                    if (g.getOutEdgesCount(pred) > 1) {
+                        hasCriticalInEdge = true;
+                        break;
                     }
                 }
+                for (StackItem item : block.getInStack()) {
+                    Exp e = item.e();
+                    if (e instanceof StackPhi phi1) {
+                        if (phi1.getWriteOutVar() != null) continue;
+                        Var writeOut = hasCriticalInEdge ? manager.getTempVar() : phi1.getVar();
+                        if (hasCriticalInEdge && phi1.used) {
+                            // add `v = writeOut` before any definition (first instruction) in create pos
+                            BytecodeBlock createPos = phi1.createPos;
+                            addToBlockHead(createPos, getAssignStmt(phi1.getVar(), writeOut));
+                        }
+                        phi1.setWriteOutVar(writeOut);
+                    }
+                }
+            }
+            for (StackPhi phi : phiList) {
+                if (phi.getWriteOutVar() == null || phi.resolved) continue;
+                resolveStackPhi(phi);
             }
         } else {
             // emit phi stmts for stack variable
@@ -1362,6 +1381,7 @@ public class AsmIRBuilder {
                     phiExp.addUseAndCorrespondingBlocks(v, getInEdge(block, i));
                 }
                 PhiStmt phiStmt = new PhiStmt(phi.getVar(), phi.getVar(), phiExp);
+                phi.setWriteOutVar(phi.getVar());
                 addToBlockHead(block, phiStmt);
                 phi.resolved = true;
             }
@@ -1375,10 +1395,10 @@ public class AsmIRBuilder {
 
     private SparseArray<List<Stmt>> stackMergeStmts;
 
-    private void resolveStackPhi(StackPhi phi, boolean hasCriticalInEdge) {
+    private void resolveStackPhi(StackPhi phi) {
         assert !phi.resolved;
-        Var writeOut = hasCriticalInEdge ? manager.getTempVar() : phi.getVar();
         assert phi.getNodes().size() == getInEdgeCount(phi.createPos);
+        Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getNodes().size(); ++i) {
             StackItem item = phi.getNodes().get(i);
             BytecodeBlock inEdge = getInEdge(phi.createPos, i);
@@ -1395,14 +1415,7 @@ public class AsmIRBuilder {
                 stmts.add(getAssignStmt(writeOut, e));
             }
         }
-        if (hasCriticalInEdge && phi.used) {
-            // add `v = writeOut` before any definition (first instruction) in create pos
-            BytecodeBlock createPos = phi.createPos;
-            addToBlockHead(createPos, getAssignStmt(phi.getVar(), writeOut));
-        }
         phi.resolved = true;
-        // now the stack var is writeOut, may be different from origin phi.var
-        phi.setVar(writeOut);
     }
 
     private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
@@ -2107,7 +2120,8 @@ public class AsmIRBuilder {
         return new BytecodeBlock(label, null, exceptionType);
     }
 
-    private LabelNode createNewLabel(AbstractInsnNode next) {
+    // avoid creating outer reference, use a static method
+    private static LabelNode createNewLabel(AbstractInsnNode next) {
         return new LabelNode() {
             @Override
             public AbstractInsnNode getNext() {

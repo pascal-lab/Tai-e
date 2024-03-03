@@ -169,7 +169,7 @@ public final class BytecodeBlock implements IBasicBlock {
                 }
 
                 if (e instanceof StackPhi phi) {
-                    v = phi.getVar();
+                    v = phi.getWriteOutVar();
                 } else if (e instanceof Var v1) {
                     v = v1;
                 } else {

@@ -14,6 +14,10 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 class IRBuilder implements pascal.taie.ir.IRBuilder {
 
@@ -78,6 +82,27 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
                 }
             }
         });
+//        ExecutorService executor = Executors.newFixedThreadPool(
+//                Runtime.getRuntime().availableProcessors());
+
+//        List<Callable<Void>> tasks = classes.stream()
+//                .map(c -> (Callable<Void>) () -> {
+//                    for (JMethod m : c.getDeclaredMethods()) {
+//                        if (!m.isAbstract() && !m.isNative()) {
+//                            m.getIR();
+//                        }
+//                    }
+//                    return null;
+//                })
+//                .collect(Collectors.toList());
+
+//        try {
+//            executor.invokeAll(tasks);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+
+//        executor.shutdown();
         timer.stop();
         logger.info(timer);
         StageTimer.getInstance().reportIRTime((long)

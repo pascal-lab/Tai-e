@@ -17,6 +17,7 @@ class StackPhi implements Exp {
     private final List<StackItem> nodes;
 
     private Var var;
+    private Var writeOutVar;
     private final int height;
     boolean used;
     BytecodeBlock createPos;
@@ -40,6 +41,15 @@ class StackPhi implements Exp {
 
     Var getVar() {
         return this.var;
+    }
+
+    void setWriteOutVar(Var var) {
+        assert writeOutVar == null;
+        this.writeOutVar = var;
+    }
+
+    Var getWriteOutVar() {
+        return this.writeOutVar;
     }
 
     List<StackItem> getNodes() {
