@@ -3,13 +3,14 @@ package pascal.taie.frontend.newfrontend.ssa;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.SparseSet;
+import pascal.taie.frontend.newfrontend.data.IntList;
+import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
@@ -18,7 +19,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     public class SemiPhi {
         final int var;
 
-        final List<Integer> inDefs;
+        final IntList inDefs;
 
         final List<Block> inBlocks = new ArrayList<>();
 
@@ -36,7 +37,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
         Object realPhi;
 
-        SemiPhi(int var, List<Integer> inDefs, Block belongsTo, int index) {
+        SemiPhi(int var, IntList inDefs, Block belongsTo, int index) {
             this.var = var;
             this.inDefs = inDefs;
             this.belongsTo = belongsTo;
@@ -46,12 +47,12 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         void addInDefs(Block b, int reachDef) {
             inDefs.add(reachDef);
             inBlocks.add(b);
-            if (isSSADef(reachDef)) {
+            if (isPhiDef(reachDef)) {
                 SemiPhi p = getPhiByIndex(reachDef);
                 p.owned.add(this);
             } else {
                 if (defOwned[reachDef] == null) {
-                    defOwned[reachDef] = new ArrayList<>();
+                    defOwned[reachDef] = new IntList(4);
                 }
                 defOwned[reachDef].add(getPhiDuIndex(index));
             }
@@ -70,7 +71,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             return var;
         }
 
-        public List<Integer> getInDefs() {
+        public IntList getInDefs() {
             return inDefs;
         }
 
@@ -101,7 +102,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     private final Dominator<Block> dom;
 
-    private final List<List<SemiPhi>> phis;
+    private final SparseArray<List<SemiPhi>> phis;
 
     private final GenericDUInfo<Block> info;
 
@@ -119,11 +120,13 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     private int[] varMappingTable;
 
-    private final List<Integer>[] defOwned;
+    private final IntList[] defOwned;
 
     private final List<SemiPhi> allPhis;
 
     private final boolean useSSA;
+
+    private final boolean[] used;
 
     public FastVarSplitting(IndexedGraph<Block> graph,
                             int varSize,
@@ -135,10 +138,16 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         this.dom = dom;
         this.df = dom.getDF();
         this.info = info;
-        this.phis = new ArrayList<>(graph.size());
+        this.phis = new SparseArray<>(graph.size()) {
+            @Override
+            protected List<SemiPhi> createInstance() {
+                return new ArrayList<>();
+            }
+        };
         this.renames = new int[info.getMaxDuIndex()];
         this.allPhis = new ArrayList<>();
         this.useSSA = useSSA;
+        this.used = new boolean[info.getMaxDuIndex()];
         Arrays.fill(renames, UNDEFINED);
 
         for (int i = 0; i < graph.size(); i++) {
@@ -146,7 +155,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             assert b.getIndex() == graph.getIndex(b);
         }
 
-        defOwned = new List[info.getMaxDuIndex()];
+        defOwned = new IntList[info.getMaxDuIndex()];
     }
 
     public void build() {
@@ -156,13 +165,16 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     }
 
     private void spreadingUsed(SemiPhi phi) {
-        for (int def : phi.inDefs) {
-            if (isSSADef(def)) {
+        for (int i = 0; i < phi.inDefs.size(); ++i) {
+            int def = phi.inDefs.get(i);
+            if (isPhiDef(def)) {
                 SemiPhi p = getPhiByIndex(def);
                 if (!p.used) {
                     p.setUsed();
                     spreadingUsed(p);
                 }
+            } else {
+                used[def] = true;
             }
         }
     }
@@ -170,6 +182,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     void pruneAndRenaming(int phiCount) {
         // pass 1: prune, or spreading `used` flag
         for (int i = 0; i < graph.size(); i++) {
+            if (!phis.has(i)) continue;
             for (SemiPhi phi : phis.get(i)) {
                 if (phi.used) {
                     spreadingUsed(phi);
@@ -185,6 +198,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             boolean[] visited = new boolean[phiCount];
             Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
             for (int i = 0; i < graph.size(); i++) {
+                if (!phis.has(i)) continue;
                 for (SemiPhi phi : phis.get(i)) {
                     if (phi.used && !visited[phi.index]) {
                         varIndexToOriginSlot.put(varIndex, phi.var);
@@ -243,9 +257,10 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             biDfs(p, visited, varIndex);
         }
 
-        for (int def : phi.inDefs) {
+        for (int i = 0; i < phi.inDefs.size(); i++) {
+            int def = phi.inDefs.get(i);
             assert def != -1;
-            if (isSSADef(def)) {
+            if (isPhiDef(def)) {
                 SemiPhi p = getPhiByIndex(def);
                 biDfs(p, visited, varIndex);
             } else {
@@ -254,7 +269,9 @@ public class FastVarSplitting<Block extends IBasicBlock> {
                     paramToName[def] = varIndex;
                 }
                 if (defOwned[def] != null) {
-                    for (int owned : defOwned[def]) {
+                    IntList ownedList = defOwned[def];
+                    for (int j = 0; j < ownedList.size(); ++j) {
+                        int owned = ownedList.get(j);
                         if (!visited[getPhiByIndex(owned).index]) {
                             biDfs(getPhiByIndex(owned), visited, varIndex);
                         }
@@ -277,9 +294,11 @@ public class FastVarSplitting<Block extends IBasicBlock> {
                 int reachDef = varReachDef[v];
                 assert reachDef != UNDEFINED;
                 duReachDef[index] = reachDef;
-                if (isSSADef(reachDef)) {
+                if (isPhiDef(reachDef)) {
                     SemiPhi phi = getPhiByIndex(duReachDef[index]);
                     phi.setUsed();
+                } else {
+                    used[reachDef] = true;
                 }
             } else {
                 updateReachingDef(v, index, varReachDef);
@@ -295,6 +314,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             // and should be labeled as 0, 1, 2, 3, ... in the du index
             varReachDef[i] = i;
             // if the param is used in a phi node, we need to update the reaching def
+            if (!phis.has(graph.getIntEntry())) continue;
             for (SemiPhi phi : phis.get(graph.getIntEntry())) {
                 if (phi.var == i) {
                     phi.addInDefs(null, i);
@@ -303,7 +323,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         }
         for (int node : domTreeDfsSeq) {
             Block current = graph.getNode(node);
-            if (phis.get(node) != null) {
+            if (phis.has(node)) {
                 for (SemiPhi phi : phis.get(node)) {
                     int phiIndex = getPhiDuIndex(phi.index);
                     updateReachingDef(phi.var, phiIndex, varReachDef);
@@ -314,6 +334,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             info.visit(current, varDUVisitor);
             for (int i = 0; i < graph.getMergedOutEdgesCount(node); i++) {
                 int succIndex = graph.getMergedOutEdge(node, i);
+                if (!phis.has(succIndex)) continue;
                 for (SemiPhi phi : phis.get(succIndex)) {
                     int varIndex = phi.var;
                     updateReachingDefForBlockEnd(varIndex, varReachDef, current);
@@ -363,7 +384,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         Block b1 = getDuBlocks(insnIndex1);
         Block b2 = getDuBlocks(insnIndex2);
         if (b1 == b2) {
-            return isSSADef(insnIndex1) || insnIndex1 < insnIndex2;
+            return isPhiDef(insnIndex1) || insnIndex1 < insnIndex2;
         } else {
             return blockDominates(b1, b2);
         }
@@ -374,14 +395,14 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     }
 
     private Block getDuBlocks(int udIndex) {
-        if (!isSSADef(udIndex)) {
+        if (!isPhiDef(udIndex)) {
             return info.getBlock(udIndex);
         } else {
             return getPhiByIndex(udIndex).belongsTo;
         }
     }
 
-    private boolean isSSADef(int duIndex) {
+    private boolean isPhiDef(int duIndex) {
         return duIndex >= info.getMaxDuIndex();
     }
 
@@ -396,9 +417,6 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     private int phiInsertion() {
         int phiCount = 0;
-        for (int i = 0; i < graph.size(); i++) {
-            phis.add(new ArrayList<>());
-        }
 
         SparseSet current = new SparseSet(graph.size(), graph.size());
         for (int v = 0; v < varSize; ++v) {
@@ -410,7 +428,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
                 Block block = graph.getNode(current.removeLast());
                 for (int node : df.get(block.getIndex())) {
                     if (!isInserted(node, v)) {
-                        SemiPhi phi = new SemiPhi(v, new ArrayList<>(3), graph.getNode(node), phiCount++);
+                        SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getNode(node), phiCount++);
                         phis.get(node).add(phi);
                         allPhis.add(phi);
                         assert phiCount == allPhis.size();
@@ -423,6 +441,9 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     }
 
     private boolean isInserted(int node, int v) {
+        if (!phis.has(node)) {
+            return false;
+        }
         for (SemiPhi phi : phis.get(node)) {
             if (phi.var == v) {
                 return true;
@@ -463,7 +484,11 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     }
 
     public void visitLivePhis(Block b, Consumer<SemiPhi> consumer) {
-        for (SemiPhi phi : phis.get(graph.getIndex(b))) {
+        int index = graph.getIndex(b);
+        if (!phis.has(index)) {
+            return;
+        }
+        for (SemiPhi phi : phis.get(index)) {
             if (phi.used) {
                 consumer.accept(phi);
             }
@@ -474,7 +499,15 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         return info.getMaxDuIndex() + allPhis.size();
     }
 
-    public int[] getPostOrderSeq() {
-        return dom.getPostOrder();
+    public boolean isDefUsed(int def) {
+        // we must ensure if def1 and def2 belongs to the same phi-web,
+        // they should have the same used flag
+        // this will be ensured by the algorithm,
+        // in stage 2, only the def has been used will be marked as used will be visited
+        if (!isPhiDef(def)) {
+            return used[def];
+        } else {
+            return getPhiByIndex(def).used;
+        }
     }
 }

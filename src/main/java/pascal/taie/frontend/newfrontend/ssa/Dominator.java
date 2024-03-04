@@ -45,8 +45,6 @@ public class Dominator<N> {
 
     private int[] dom;
 
-    private int[] height;
-
     private final int entry;
 
     public static final int UNDEFINED = -1;
@@ -123,35 +121,6 @@ public class Dominator<N> {
         return new DominatorFrontiers(df);
     }
 
-    public int[] assignDomTreeHeight() {
-        if (height == null) {
-            height = new int[graph.size()];
-            Arrays.fill(height, -1);
-            for (int i = 0; i < graph.size(); ++i) {
-                climbDomTree(i, height);
-            }
-        }
-        return height;
-    }
-
-    private void climbDomTree(int runner, int[] height) {
-        if (dom[runner] == UNDEFINED) {
-            return;
-        }
-        if (height[runner] != -1) {
-            return;
-        } else if (dom[runner] == runner) {
-            height[runner] = 0;
-            return;
-        } else if (height[dom[runner]] != -1) {
-            height[runner] = height[dom[runner]] + 1;
-            return;
-        } else {
-            climbDomTree(dom[runner], height);
-            height[runner] = height[dom[runner]] + 1;
-        }
-    }
-
     public int[] getDomTreeDfsSeq() {
         int[] dom = getDomTree();
         IntGraph domTree = new IntGraph(graph.size());
@@ -163,22 +132,29 @@ public class Dominator<N> {
             }
         }
         int[] dfsSeq = new int[graph.size()];
+        timeIn = new int[graph.size()];
+        timeOut = new int[graph.size()];
         forward = 0;
+        time = 0;
         dfsDomTree(dfsSeq, domTree, graph.getIndex(graph.getEntry()));
         return dfsSeq;
     }
 
     int forward;
+    int[] timeIn;
+    int[] timeOut;
+    int time;
     private void dfsDomTree(int[] dfsSeq, IntGraph domTree, int now) {
         dfsSeq[forward++] = now;
-        if (!domTree.has(now)) {
-            return;
+        timeIn[now] = time++;
+        if (domTree.has(now)) {
+            IntList out = domTree.get(now);
+            for (int i = 0; i < out.size(); ++i) {
+                int succ = out.get(i);
+                dfsDomTree(dfsSeq, domTree, succ);
+            }
         }
-        IntList out = domTree.get(now);
-        for (int i = 0; i < out.size(); ++i) {
-            int succ = out.get(i);
-            dfsDomTree(dfsSeq, domTree, succ);
-        }
+        timeOut[now] = time++;
     }
 
     /**
@@ -189,20 +165,7 @@ public class Dominator<N> {
      * @apiNote Should be used after {@link #getDomTree()} is called.
      */
     public boolean dominates(int a, int b) {
-        assert dom != null;
-        do {
-            if (a == b) {
-                return true;
-            }
-            // now, `b` is entry, and `a` is not entry
-            // we can say that `a` does not dominate `b`
-            if (b == entry) {
-                return false;
-            }
-            b = dom[b];
-        } while (b != UNDEFINED);
-
-        return false;
+        return timeIn[a] <= timeIn[b] && timeOut[a] >= timeOut[b];
     }
 
     private void dfsTrav() {
