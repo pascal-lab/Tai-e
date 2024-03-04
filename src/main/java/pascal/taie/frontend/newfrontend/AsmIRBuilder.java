@@ -147,7 +147,7 @@ public class AsmIRBuilder {
 
     private static boolean EXPERIMENTAL = true;
 
-    private boolean USE_SSA = true;
+    private boolean USE_SSA = false;
 
     private Dominator<BytecodeBlock> dom;
 
@@ -484,11 +484,23 @@ public class AsmIRBuilder {
         Exp e = item.e();
         if (e instanceof Top) {
             return;
-        } else if (e instanceof InvokeExp invokeExp) {
+        } else {
+            expToEffect(item);
+        }
+    }
+
+    private void expToEffect(StackItem item) {
+        Exp e = item.e();
+        if (e instanceof InvokeExp invokeExp) {
             assocStmt(item, new Invoke(method, invokeExp));
         } else if (maySideEffect(e)) {
             assocStmt(item, getAssignStmt(manager.getTempVar(), e));
         }
+    }
+
+    private void automaticPopToEffect(Stack<StackItem> stack) {
+        StackItem item = popExp(stack);
+        expToEffect(item);
     }
 
     private void dup(Stack<StackItem> stack, int takes, int seps) {
@@ -930,6 +942,13 @@ public class AsmIRBuilder {
     private void storeRWVar(int rwIndex, int slot, AbstractInsnNode varNode,
                             BytecodeBlock block, Stack<StackItem> stack) {
         Var v;
+        if (!splitting.isDefUsed(rwIndex)) {
+            // this var is not used, we don't need to generate store stmt
+            // still, we need to handle the side effect (e.g. invoke)
+            // note: stack may contains `Top`, so don't use `popToEffect`
+            automaticPopToEffect(stack);
+            return;
+        }
         if (isFastProcessVar(rwIndex)) {
             // load insn will use rwTables to get this var
             v = popVar(stack);
