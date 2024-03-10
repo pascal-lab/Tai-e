@@ -29,6 +29,7 @@ import pascal.taie.frontend.newfrontend.ssa.Dominator;
 import pascal.taie.frontend.newfrontend.ssa.FastVarSplitting;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import pascal.taie.frontend.newfrontend.ssa.PhiExp;
+import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
 import pascal.taie.ir.DefaultIR;
@@ -77,6 +78,7 @@ import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
+import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
@@ -195,13 +197,13 @@ public class AsmIRBuilder {
             }
             // TODO: add options for ssa toggle
             if (USE_SSA && !EXPERIMENTAL) {
-                makeStmts();
+                makeStmts(false);
                 makeExceptionTable();
                 stageTimer.startSplitting();
                 ssa();
                 stageTimer.endSplitting();
             }
-            makeStmts();
+            makeStmts(true);
             makeExceptionTable();
             verify();
             this.ir = getIR();
@@ -235,7 +237,7 @@ public class AsmIRBuilder {
         // before the type inference.
         // e.g. (catch %1), we store type info in exception table,
         //      TypeInference need to know what type %1 is
-        makeStmts();
+        makeStmts(false);
         makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
@@ -618,15 +620,15 @@ public class AsmIRBuilder {
         // node is not jump, do nothing
     }
 
-    private void makeStmts() {
+    private void makeStmts(boolean isLastTime) {
         this.stmts = new ArrayList<>(source.instructions.size());
         // Add trigger whether we process phiStmts.
-        List<PhiStmt> phiStmts = new ArrayList<>();
+        List<PhiStmt> phiStmts = isLastTime ? new ArrayList<>() : null;
         for (BytecodeBlock block : blockSortedList) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
-                    if (t instanceof PhiStmt p) {
+                    if (isLastTime && t instanceof PhiStmt p) {
                         phiStmts.add(p);
                     }
                     t.setIndex(stmts.size());
@@ -636,12 +638,13 @@ public class AsmIRBuilder {
             }
         }
 
-        // TODO: some error here
-//        PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
-//        // Make PhiStmts using stmt.index as the value source.
-//        for (PhiStmt p : phiStmts) {
-//            p.getRValue().indexValueAndSource(resolver);
-//        }
+        if (isLastTime) {
+            PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
+            // Make PhiStmts using stmt.index as the value source.
+            for (PhiStmt p : phiStmts) {
+                p.getRValue().indexValueAndSource(resolver);
+            }
+        }
     }
 
     private void makeExceptionTable() {
@@ -1189,8 +1192,30 @@ public class AsmIRBuilder {
             processInstr(nowStack, node, block);
         }
 
+        // Temp fix. Add a nop to represent a block. Used in ssa.
+        if (USE_SSA) {
+            ensureBlockNotEmpty(block);
+        }
+
         block.setOutStack(nowStack);
         exit(block.getIndex());
+    }
+
+    private void ensureBlockNotEmpty(BytecodeBlock block) {
+        boolean blockEmpty = true;
+        AsmListSlice instr = block.instr();
+        int start = instr.getStart();
+        for (int i = 0; i < instr.size(); ++i) {
+            int current = start + i;
+            Stmt stmt = asm2Stmt[current];
+            if (stmt != null) {
+                blockEmpty = false;
+                break;
+            }
+        }
+        if (blockEmpty) {
+            asm2Stmt[start + instr.size() - 1] = new Nop();
+        }
     }
 
     private Stack<StackItem> getInStack(BytecodeBlock block) {

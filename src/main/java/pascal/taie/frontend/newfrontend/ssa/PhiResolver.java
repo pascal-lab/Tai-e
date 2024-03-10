@@ -6,6 +6,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class PhiResolver<T extends IBasicBlock> {
@@ -28,6 +29,7 @@ public class PhiResolver<T extends IBasicBlock> {
                 sourceAndVar.add(np);
             }
         }
+        sourceAndVar.sort(Comparator.comparing(Pair::first));
         return sourceAndVar;
     }
 

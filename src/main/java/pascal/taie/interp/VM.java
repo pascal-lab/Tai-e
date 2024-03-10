@@ -64,6 +64,8 @@ import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,11 +95,13 @@ public class VM {
         while (f.getPc() >= 0) {
             int pc = f.getPc();
             Stmt stmt = ir.getStmt(pc);
+            boolean exceptionTriggered = false;
             try {
                 execStmt(stmt, ir, f);
             } catch (InterpreterException | NewFrontendException e) {
                 throw e;
             } catch (Exception e) {
+                exceptionTriggered = true;
                 Exception exception;
                 if (e instanceof ClientException e1) {
                     exception = e1.internal;
@@ -132,7 +136,7 @@ public class VM {
                     throw new ClientException(exception);
                 }
             }
-            if (!(stmt instanceof PhiStmt || stmt instanceof Catch)) {
+            if (!(exceptionTriggered || stmt instanceof PhiStmt || stmt instanceof Catch)) {
                 f.setLastPc(pc);
             }
         }
@@ -459,14 +463,18 @@ public class VM {
             return JPrimitive.get(array.length());
         } else if (e instanceof PhiExp phi) {
             int lastPc = f.getLastPc();
-            Var v = null;
-            for (Pair<Integer, Var> p : phi.getSourceAndVar()) {
-                if (p.first() == lastPc) {
-                    v = p.second();
-                }
+            // The lastPc is not always the end of a block because of the exception mechanism.
+            // For that, we find the closest def.
+            var sourceAndVar = phi.getSourceAndVar();
+            Comparator<Pair<Integer, Var>> c = Comparator.comparing(Pair::first);
+            int pos = Collections.binarySearch(sourceAndVar, new Pair<>(lastPc, null), c);
+            if (pos < 0) {
+                // exception happens and not at a block exit.
+                pos = -(pos + 1);
             }
+            Var v = sourceAndVar.get(pos).second();
             assert v != null;
-            return f.getRegs().get(v);
+            return evalExp(v, ir, f);
         } else {
             throw new InterpreterException(e + " is not implemented");
         }
