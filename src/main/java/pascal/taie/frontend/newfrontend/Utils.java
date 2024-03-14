@@ -87,7 +87,7 @@ public class Utils {
         return (opcodes & modifier) != 0;
     }
 
-    static int toAsmModifier(Modifier modifier) {
+    public static int toAsmModifier(Modifier modifier) {
         return switch (modifier) {
             case PUBLIC -> Opcodes.ACC_PUBLIC;
             case PRIVATE -> Opcodes.ACC_PRIVATE;
@@ -109,6 +109,15 @@ public class Utils {
             case MANDATED -> Opcodes.ACC_MANDATED;
         };
     }
+
+    public static int toAsmModifier(Set<Modifier> modifiers) {
+        int res = 0;
+        for (Modifier modifier : modifiers) {
+            res |= toAsmModifier(modifier);
+        }
+        return res;
+    }
+
 
     static Set<Modifier> fromAsmModifier(int opcodes) {
         Set<Modifier> res = new HashSet<>();
@@ -289,7 +298,7 @@ public class Utils {
             Pair<List<pascal.taie.language.type.Type>, pascal.taie.language.type.Type>
                     mtdType = BuildContext.get().fromAsmMethodType(handle.getDesc());
             ref = MethodRef.get(jClass, handle.getName(), mtdType.first(), mtdType.second(),
-                    kind == MethodHandle.Kind.REF_invokeStatic);
+                    kind == MethodHandle.Kind.REF_invokeStatic, handle.isInterface());
         }
         return MethodHandle.get(kind, ref);
     }
