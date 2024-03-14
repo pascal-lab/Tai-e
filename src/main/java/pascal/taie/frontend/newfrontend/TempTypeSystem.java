@@ -76,6 +76,8 @@ public class TempTypeSystem implements TypeSystem {
                         dim);
             } else if (PrimitiveType.isPrimitiveType(typeName)) {
                 return PrimitiveType.get(typeName);
+            } else if (typeName.equals(VoidType.VOID.getName())) {
+                return VoidType.VOID;
             } else {
                 return getClassType(loader, typeName);
             }
