@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -232,6 +233,8 @@ public class AsmClassBuilder implements JClassBuilder {
 
     class CVisitor extends ClassVisitor {
 
+        String currentInternalName;
+
         public CVisitor() {
             super(Opcodes.ASM9);
         }
@@ -247,7 +250,7 @@ public class AsmClassBuilder implements JClassBuilder {
             if (superName != null) {
                 superClass = getClassByName(superName);
             }
-
+            currentInternalName = name;
             AsmClassBuilder.this.interfaces = Arrays.stream(interfaces)
                     .map(AsmClassBuilder::getClassByName)
                     .toList();
@@ -258,6 +261,15 @@ public class AsmClassBuilder implements JClassBuilder {
         @Override
         public void visitOuterClass(String owner, String name, String descriptor) {
             AsmClassBuilder.this.outerClass = getClassByName(owner);
+        }
+
+        @Override
+        public void visitInnerClass(String name, String outerName, String innerName, int access) {
+            if (outerName != null && Objects.equals(name, currentInternalName)) {
+                outerClass = getClassByName(outerName);
+                // also, fix modifiers
+                modifiers.addAll(fromAsmModifier(access));
+            }
         }
 
         @Override
