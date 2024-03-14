@@ -36,14 +36,11 @@ public class BuildContext {
 
     private ClassHierarchy hierarchy;
 
-    final ConcurrentMap<JMethod, JSRInlinerAdapter> method2Source;
-
     final IRService irService = new IRService();
 
     private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
         this.defaultClassLoader = defaultClassLoader;
         this.typeSystem = typeSystem;
-        method2Source = Maps.newConcurrentMap();
     }
 
     static BuildContext buildContext;
