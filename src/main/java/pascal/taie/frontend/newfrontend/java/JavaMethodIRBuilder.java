@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -735,7 +736,7 @@ public class JavaMethodIRBuilder {
                     List<Var> args = List.of(params.get(0), params.get(1));
                     MethodRef ref = MethodRef.get(getClassByName(ENUM).getJClass(),
                             MethodNames.INIT,
-                            getEnumCtorType(), VoidType.VOID, false);
+                            getEnumCtorType(), VoidType.VOID, false, false);
                     InvokeInstanceExp invoke = new InvokeSpecial(ref, getThisVar(), args);
                     addStmt(new Invoke(jMethod, invoke));
                 } else {
@@ -1697,7 +1698,8 @@ public class JavaMethodIRBuilder {
                                             List<Type> paraType,
                                             Type retType) {
             ClassType t = (ClassType) v.getType();
-            MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false);
+            MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false,
+                    t.getJClass().isInterface());
             return new InvokeVirtual(r, v, args);
         }
 
@@ -1707,7 +1709,8 @@ public class JavaMethodIRBuilder {
                                                      List<Type> paraType,
                                                      Type retType) {
             ClassType t = (ClassType) v.getType();
-            MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false);
+            MethodRef r = MethodRef.get(t.getJClass(), methodName, paraType, retType, false,
+                    t.getJClass().isInterface());
             return new InvokeInterface(r, v, args);
         }
 
@@ -3069,6 +3072,7 @@ public class JavaMethodIRBuilder {
                 return false;
             }
 
+            // TODO: check the correctness of this function
             @Override
             public boolean visit(ExpressionMethodReference mr) {
                 IMethodBinding binding = mr.resolveMethodBinding();
@@ -3106,7 +3110,7 @@ public class JavaMethodIRBuilder {
                 staticArgs.add(samMethodType);
                 staticArgs.add(mh);
                 staticArgs.add(instantiatedMethodType);
-                InvokeDynamic inDy = new InvokeDynamic(TypeUtils.getMetaFactory(),
+                InvokeDynamic inDy = new InvokeDynamic(null, TypeUtils.getMetaFactory(),
                         binding.getName(), targetType, staticArgs, dynArgs);
                 context.pushStack(inDy);
                 return false;
@@ -3246,6 +3250,22 @@ public class JavaMethodIRBuilder {
                 ITypeBinding typeBinding = tl.getType().resolveBinding();
                 Type taieType = JDTTypeToTaieType(typeBinding);
                 context.pushStack(ClassLiteral.get(taieType));
+                return false;
+            }
+
+            @Override
+            public boolean visit(LambdaExpression node) {
+                List<Var> captured = new ArrayList<>();
+                LambdaManager.LambdaDescriptor descriptor = LambdaManager.get().getDescriptor(
+                        node.resolveMethodBinding());
+                for (IVariableBinding i : descriptor.capturedVars()) {
+                    context.pushStack(getSimpleNameBinding(i));
+                    captured.add(popVar());
+                }
+                MethodType funcInterface = TypeUtils.getMethodType(descriptor.functionalInterface());
+                // if this lambda is static, we don't need to push [this] into [dynArgs]
+                boolean isStatic = descriptor.isStatic();
+                // TODO: complete this
                 return false;
             }
         }

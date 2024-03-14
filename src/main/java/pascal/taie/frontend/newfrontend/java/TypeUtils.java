@@ -160,7 +160,7 @@ public final class TypeUtils {
         return MethodRef.get(enumKlass,
                 ENUM_METHOD_VALUE_OF, List.of(getClassByName(ClassNames.CLASS),
                         getClassByName(ClassNames.STRING)),
-                getClassByName(ENUM), true);
+                getClassByName(ENUM), true, false);
     }
 
     public static String ENUM_VALUES = "VALUES";
@@ -171,7 +171,7 @@ public final class TypeUtils {
 
     public static MethodRef getArrayClone() {
         return MethodRef.get(getClassByName(ClassNames.ARRAY).getJClass(),
-                "clone", List.of(), getClassByName(ClassNames.OBJECT), false);
+                "clone", List.of(), getClassByName(ClassNames.OBJECT), false, false);
     }
     /**
      * Only handle modifier in source

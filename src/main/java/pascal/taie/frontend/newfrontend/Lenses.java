@@ -142,7 +142,7 @@ public class Lenses {
 
             @Override
             public Exp visit(InvokeDynamic invoke) {
-                return new InvokeDynamic(invoke.getBootstrapMethodRef(),
+                return new InvokeDynamic(invoke.getHandle(), invoke.getBootstrapMethodRef(),
                         invoke.getMethodName(), invoke.getMethodType(), invoke.getBootstrapArgs(),
                         subSt(invoke.getArgs()));
             }

@@ -215,7 +215,7 @@ class Converter {
                     ref.getParameterTypes(), this::convertType);
             Type returnType = convertType(ref.getReturnType());
             return MethodRef.get(cls, ref.getName(), paramTypes, returnType,
-                    ref.isStatic());
+                    ref.isStatic(), ref.getDeclaringClass().isInterface());
         });
     }
 

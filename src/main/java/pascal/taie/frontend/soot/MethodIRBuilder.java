@@ -985,7 +985,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         });
         List<Var> args = Lists.map(invokeExpr.getArgs(),
                 this::getLocalOrConstant);
-        return new InvokeDynamic(bootstrapMethodRef, methodName, methodType,
+        return new InvokeDynamic(null, bootstrapMethodRef, methodName, methodType,
                 bootstrapArgs, args);
     }
 

@@ -125,25 +125,35 @@ public class MethodRef extends MemberRef {
     @Nullable
     private transient JMethod method;
 
+    private boolean isDeclaredInInterface;
+
     public static MethodRef get(
             JClass declaringClass, String name,
             List<Type> parameterTypes, Type returnType,
-            boolean isStatic) {
+            boolean isStatic, boolean isDeclaredInInterface) {
 //        Subsignature subsignature = Subsignature.get(
 //                name, parameterTypes, returnType);
 //        Key key = new Key(declaringClass, subsignature);
 //        return map.computeIfAbsent(key, k ->
 //                new MethodRef(k, name, parameterTypes, returnType, isStatic));
         return new MethodRef(new Key(declaringClass, null),
-                name, parameterTypes, returnType, isStatic);
+                name, parameterTypes, returnType, isStatic, isDeclaredInInterface);
+    }
+
+    public static MethodRef get(
+            JClass declaringClass, String name,
+            List<Type> parameterTypes, Type returnType,
+            boolean isStatic) {
+        return get(declaringClass, name, parameterTypes, returnType, isStatic, declaringClass.isInterface());
     }
 
     private MethodRef(
             Key key, String name, List<Type> parameterTypes, Type returnType,
-            boolean isStatic) {
+            boolean isStatic, boolean isDeclaredInInterface) {
         super(key.declaringClass, name, isStatic);
         this.parameterTypes = List.copyOf(parameterTypes);
         this.returnType = returnType;
+        this.isDeclaredInInterface = isDeclaredInInterface;
 //        this.subsignature = key.subsignature;
     }
 
@@ -179,6 +189,10 @@ public class MethodRef extends MemberRef {
             return VAR_HANDLE_METHODS.contains(getName());
         }
         return false;
+    }
+
+    public boolean isDeclaredInInterface() {
+        return isDeclaredInInterface;
     }
 
     @Override

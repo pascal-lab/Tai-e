@@ -892,7 +892,7 @@ public class AsmIRBuilder {
         Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
-        MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic);
+        MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic, methodInsnNode.itf);
 
         List<Var> args = new ArrayList<>();
         for (int i = 0; i < desc.first().size(); ++i) {
@@ -1705,6 +1705,7 @@ public class AsmIRBuilder {
             }
             Collections.reverse(args);
             pushExp(node, nowStack, new InvokeDynamic(
+                    handle,
                     handle.getMethodRef(),
                     invokeDynamicInsnNode.name,
                     MethodType.get(paramRets.first(), paramRets.second()),

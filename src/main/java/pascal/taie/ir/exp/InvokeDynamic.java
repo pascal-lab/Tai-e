@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
  */
 public class InvokeDynamic extends InvokeExp {
 
+    private final MethodHandle handle;
+
     private final MethodRef bootstrapMethodRef;
 
     private final String methodName;
@@ -48,14 +50,19 @@ public class InvokeDynamic extends InvokeExp {
      */
     private final List<Literal> bootstrapArgs;
 
-    public InvokeDynamic(MethodRef bootstrapMethodRef,
+    public InvokeDynamic(MethodHandle handle, MethodRef bootstrapMethodRef,
                          String methodName, MethodType methodType,
                          List<Literal> bootstrapArgs, List<Var> args) {
         super(null, args);
+        this.handle = handle;
         this.bootstrapMethodRef = bootstrapMethodRef;
         this.methodName = methodName;
         this.methodType = methodType;
         this.bootstrapArgs = List.copyOf(bootstrapArgs);
+    }
+
+    public MethodHandle getHandle() {
+        return handle;
     }
 
     public MethodRef getBootstrapMethodRef() {
