@@ -6,6 +6,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class PhiResolver<T extends IBasicBlock> {
             }
         }
         sourceAndVar.sort(Comparator.comparing(Pair::first));
-        return sourceAndVar;
+        return Collections.unmodifiableList(sourceAndVar);
     }
 
     private int getSourceIndex(T block) {

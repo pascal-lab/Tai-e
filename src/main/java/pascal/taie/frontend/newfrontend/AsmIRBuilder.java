@@ -44,6 +44,7 @@ import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -921,7 +922,7 @@ public class AsmIRBuilder {
             Optional<String> name = manager.getName(slot, node);
             name.ifPresent((n) -> {
                 String realName = manager.tryUseName(n);
-                v.setName(realName);
+                ExpModifier.setName(v, realName);
             });
         }
     }

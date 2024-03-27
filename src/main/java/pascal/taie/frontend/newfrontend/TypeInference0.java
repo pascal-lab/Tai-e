@@ -7,6 +7,7 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
+import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -97,7 +98,7 @@ public class TypeInference0 {
             }
             Type now = computeLocalType(v);
             assert ! (now instanceof Uninitialized);
-            v.setType(now);
+            ExpModifier.setType(v, now);
         }
     }
 
@@ -184,9 +185,9 @@ public class TypeInference0 {
                 return;
             }
             if (t == Uninitialized.UNINITIALIZED) {
-                var.setType(getObject());
+                ExpModifier.setType(var, getObject());
             } else {
-                var.setType(t);
+                ExpModifier.setType(var, t);
             }
         }
     }
@@ -276,12 +277,12 @@ public class TypeInference0 {
         if (! m.isStatic()) {
             Var thisVar = this.builder.manager.getThisVar();
             assert thisVar != null;
-            thisVar.setType(m.getDeclaringClass().getType());
+            ExpModifier.setType(thisVar, m.getDeclaringClass().getType());
         }
         for (int i = 0; i < m.getParamCount(); ++i) {
             Var paramI = this.builder.manager.getParams().get(i);
             Type typeI = m.getParamTypes().get(i);
-            paramI.setType(typeI);
+            ExpModifier.setType(paramI, typeI);
         }
     }
 

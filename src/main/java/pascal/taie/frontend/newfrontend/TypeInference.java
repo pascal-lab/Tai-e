@@ -2,6 +2,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
+import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.RValue;
@@ -233,13 +234,13 @@ public class TypeInference {
                 return;
             }
             if (v.primitiveType != null) {
-                k.setType(v.primitiveType);
+                ExpModifier.setType(k, v.primitiveType);
             } else {
                 if (v.referenceType != null) {
-                    k.setType(v.referenceType);
+                    ExpModifier.setType(k, v.referenceType);
                 } else {
                     // TODO: add warning here
-                    k.setType(NullType.NULL);
+                    ExpModifier.setType(k, NullType.NULL);
                 }
             }
         });

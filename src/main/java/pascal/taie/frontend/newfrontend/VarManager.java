@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
+import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
@@ -115,7 +116,7 @@ public class VarManager implements IVarManager {
                             .stream()
                             .findAny()
                             .map(k -> localVarTableForSlot.get(k).name)
-                            .ifPresent((name) -> v.setName(tryUseName(name)));
+                            .ifPresent((name) -> ExpModifier.setName(v, tryUseName(name)));
                 }
             }
             params.add(v);
@@ -278,7 +279,7 @@ public class VarManager implements IVarManager {
 //        assert var.getName().startsWith(LOCAL_PREFIX);
         String sub = var.getName().substring(1);
         String[] counter = sub.split("#");
-        var.setName(newName + (counter.length >= 2 ? "#" + counter[1] : ""));
+        ExpModifier.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
     }
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
@@ -298,7 +299,7 @@ public class VarManager implements IVarManager {
             String finalName = name.orElse(old.getName());
 
             if (count == 1) {
-                old.setName(finalName);
+                ExpModifier.setName(old, finalName);
                 return old;
             } else {
                 Var splitLocal = getSplitVar(getDefaultSplitName(finalName, count), slot);
@@ -352,7 +353,7 @@ public class VarManager implements IVarManager {
     public Var getZeroLiteral() {
         if (zeroLiteral == null) {
             zeroLiteral = newConstVar("*intliteral0", IntLiteral.get(0));
-            zeroLiteral.setType(PrimitiveType.INT);
+            ExpModifier.setType(zeroLiteral, PrimitiveType.INT);
         }
         return zeroLiteral;
     }
@@ -360,7 +361,7 @@ public class VarManager implements IVarManager {
     public Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
-            nullLiteral.setType(NullType.NULL);
+            ExpModifier.setType(nullLiteral, NullType.NULL);
         }
         return nullLiteral;
     }
@@ -468,7 +469,7 @@ public class VarManager implements IVarManager {
     public void removeAndReindexVars(Predicate<Var> p) {
         vars.removeIf(p);
         for (int i = 0; i < vars.size(); i++) {
-            vars.get(i).setIndex(i);
+            ExpModifier.setIndex(vars.get(i), i);
         }
     }
 

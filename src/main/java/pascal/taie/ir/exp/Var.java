@@ -118,7 +118,7 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * WARNING: dangerous operation which should only be called by front-end.
      */
-    public void setIndex(int newIndex) {
+    void setIndex(int newIndex) {
         index = newIndex;
     }
 
@@ -168,11 +168,11 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * Only used by frontend
      */
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    public void setType(Type t) {
+    void setType(Type t) {
 //        assert type == null; // only set once
         this.type = t;
     }
