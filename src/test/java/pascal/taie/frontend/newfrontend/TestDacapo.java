@@ -114,7 +114,7 @@ public class TestDacapo {
             if (StringReps.isArrayType(targetClass)) {
                 targetClass = StringReps.getBaseTypeNameOf(target);
             }
-            if (!PrimitiveType.isPrimitiveType(targetClass)) {
+            if (!World.get().getTypeSystem().isPrimitiveType(targetClass)) {
                 res.add(targetClass);
             }
         });

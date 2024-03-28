@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static pascal.taie.language.type.IntType.INT;
+
 public class VarManager implements IVarManager {
 
     public static final String LOCAL_PREFIX = "%";
@@ -354,7 +356,7 @@ public class VarManager implements IVarManager {
     public Var getZeroLiteral() {
         if (zeroLiteral == null) {
             zeroLiteral = newConstVar("*intliteral0", IntLiteral.get(0));
-            ExpModifier.setType(zeroLiteral, PrimitiveType.INT);
+            ExpModifier.setType(zeroLiteral, INT);
         }
         return zeroLiteral;
     }
@@ -383,7 +385,7 @@ public class VarManager implements IVarManager {
             int index = value - INT_CACHE_LOW;
             if (intConstVarCache[index] == null) {
                 String name = TEMP_PREFIX + "c" + "i" + value;
-                Var v = new Var(method, name, PrimitiveType.INT, counter++, IntLiteral.get(value));
+                Var v = new Var(method, name, INT, counter++, IntLiteral.get(value));
                 intConstVarCache[index] = v;
                 vars.add(intConstVarCache[index]);
             }

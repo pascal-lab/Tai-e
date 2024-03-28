@@ -35,6 +35,8 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.IntType.INT;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -156,7 +158,7 @@ public class TypeInference {
                     @Override
                     public Void visit(Unary stmt) {
                         if (stmt.getRValue() instanceof ArrayLengthExp) {
-                            graph.addConstantEdge(PrimitiveType.INT, stmt.getLValue());
+                            graph.addConstantEdge(INT, stmt.getLValue());
                         } else {
                             graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
                         }
@@ -165,7 +167,7 @@ public class TypeInference {
 
                     @Override
                     public Void visit(InstanceOf stmt) {
-                        graph.addConstantEdge(PrimitiveType.BOOLEAN, stmt.getLValue());
+                        graph.addConstantEdge(BOOLEAN, stmt.getLValue());
                         return null;
                     }
 

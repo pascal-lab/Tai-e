@@ -1,13 +1,13 @@
 package pascal.taie.project;
 
 import org.junit.jupiter.api.Test;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.PrimitiveType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public class TestCHBuilder {
             if (StringReps.isArrayType(targetClass)) {
                 targetClass = StringReps.getBaseTypeNameOf(target);
             }
-            if (!PrimitiveType.isPrimitiveType(targetClass)) {
+            if (!World.get().getTypeSystem().isPrimitiveType(targetClass)) {
                 res.add(targetClass);
             }
         });

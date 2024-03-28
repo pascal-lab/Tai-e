@@ -107,6 +107,14 @@ import java.util.Stack;
 import java.util.function.Function;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
 
 public class AsmIRBuilder {
 
@@ -347,12 +355,12 @@ public class AsmIRBuilder {
     private boolean isDword(AbstractInsnNode node, Exp e) {
         if (e instanceof InvokeExp invokeExp) {
             Type returnType = invokeExp.getType();
-            return returnType == PrimitiveType.DOUBLE || returnType == PrimitiveType.LONG;
+            return returnType == DOUBLE || returnType == LONG;
         } else if (e instanceof LongLiteral || e instanceof DoubleLiteral) {
             return true;
         } else if (e instanceof FieldAccess access) {
             Type fieldType = access.getType();
-            return fieldType == PrimitiveType.DOUBLE || fieldType == PrimitiveType.LONG;
+            return fieldType == DOUBLE || fieldType == LONG;
         } else if (e instanceof Var v && v.isConst()) {
             Literal literal = v.getConstValue();
             return literal instanceof DoubleLiteral || literal instanceof LongLiteral;
@@ -849,13 +857,13 @@ public class AsmIRBuilder {
 
     private Type getCastType(int opcode) {
         return switch (opcode) {
-            case Opcodes.L2I, Opcodes.F2I, Opcodes.D2I -> PrimitiveType.INT;
-            case Opcodes.I2L, Opcodes.F2L, Opcodes.D2L -> PrimitiveType.LONG;
-            case Opcodes.I2F, Opcodes.L2F, Opcodes.D2F -> PrimitiveType.FLOAT;
-            case Opcodes.I2D, Opcodes.L2D,  Opcodes.F2D -> PrimitiveType.DOUBLE;
-            case Opcodes.I2B -> PrimitiveType.BYTE;
-            case Opcodes.I2S -> PrimitiveType.SHORT;
-            case Opcodes.I2C -> PrimitiveType.CHAR;
+            case Opcodes.L2I, Opcodes.F2I, Opcodes.D2I -> INT;
+            case Opcodes.I2L, Opcodes.F2L, Opcodes.D2L -> LONG;
+            case Opcodes.I2F, Opcodes.L2F, Opcodes.D2F -> FLOAT;
+            case Opcodes.I2D, Opcodes.L2D,  Opcodes.F2D -> DOUBLE;
+            case Opcodes.I2B -> BYTE;
+            case Opcodes.I2S -> SHORT;
+            case Opcodes.I2C -> CHAR;
             default -> throw new IllegalArgumentException();
         };
     }
@@ -1615,14 +1623,14 @@ public class AsmIRBuilder {
                 pushConst(node, nowStack, IntLiteral.get(intNode.operand));
             } else if (opcode == Opcodes.NEWARRAY) {
                 PrimitiveType base = switch (intNode.operand) {
-                    case 4 -> PrimitiveType.BOOLEAN;
-                    case 5 -> PrimitiveType.CHAR;
-                    case 6 -> PrimitiveType.FLOAT;
-                    case 7 -> PrimitiveType.DOUBLE;
-                    case 8 -> PrimitiveType.BYTE;
-                    case 9 -> PrimitiveType.SHORT;
-                    case 10 -> PrimitiveType.INT;
-                    case 11 -> PrimitiveType.LONG;
+                    case 4 -> BOOLEAN;
+                    case 5 -> CHAR;
+                    case 6 -> FLOAT;
+                    case 7 -> DOUBLE;
+                    case 8 -> BYTE;
+                    case 9 -> SHORT;
+                    case 10 -> INT;
+                    case 11 -> LONG;
                     default -> throw new IllegalArgumentException();
                 };
                 ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);

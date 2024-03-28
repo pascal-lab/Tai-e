@@ -18,6 +18,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
+
 public class Utils {
 
     public static int INT_TRUE = 1;
@@ -49,15 +58,17 @@ public class Utils {
 
     public static Class<?> toJVMType(Type t) {
         if (t instanceof PrimitiveType primitiveType) {
-            return switch (primitiveType) {
-                case BOOLEAN -> boolean.class;
-                case BYTE -> byte.class;
-                case CHAR -> char.class;
-                case SHORT -> short.class;
-                case INT -> int.class;
-                case LONG -> long.class;
-                case FLOAT -> float.class;
-                case DOUBLE -> double.class;
+            int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(primitiveType);
+            return switch (index) {
+                case 0 -> boolean.class;
+                case 1 -> byte.class;
+                case 2 -> char.class;
+                case 3 -> short.class;
+                case 4 -> int.class;
+                case 5 -> long.class;
+                case 6 -> float.class;
+                case 7 -> double.class;
+                default -> throw new InterpreterException();
             };
         } else if (t instanceof ClassType classType) {
             try {
@@ -104,12 +115,13 @@ public class Utils {
     }
 
     public static Object downCastInt(Integer i, PrimitiveType p) {
-        return switch (p) {
-            case BOOLEAN -> toBoolean(i.byteValue());
-            case BYTE -> i.byteValue();
-            case CHAR -> (char) i.intValue();
-            case SHORT -> i.shortValue();
-            case INT -> i;
+        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(p);
+        return switch (index) {
+            case 0 -> toBoolean(i.byteValue());
+            case 1 -> i.byteValue();
+            case 2 -> (char) i.intValue();
+            case 3 -> i.shortValue();
+            case 4 -> i;
             default -> throw new InterpreterException();
         };
     }
@@ -184,21 +196,21 @@ public class Utils {
     public static Type fromJVMType(Class<?> klass) {
         assert klass != null;
         if (klass == boolean.class) {
-            return PrimitiveType.BOOLEAN;
+            return BOOLEAN;
         } else if (klass == char.class) {
-            return PrimitiveType.CHAR;
+            return CHAR;
         } else if (klass == byte.class) {
-            return PrimitiveType.BYTE;
+            return BYTE;
         } else if (klass == short.class) {
-            return PrimitiveType.SHORT;
+            return SHORT;
         } else if (klass == int.class) {
-            return PrimitiveType.INT;
+            return INT;
         } else if (klass == long.class) {
-            return PrimitiveType.LONG;
+            return LONG;
         } else if (klass == float.class) {
-            return PrimitiveType.FLOAT;
+            return FLOAT;
         } else if (klass == double.class) {
-            return PrimitiveType.DOUBLE;
+            return DOUBLE;
         } else if (klass.isArray()) {
             Class<?> arr = klass;
             int dimensionCount = 0;

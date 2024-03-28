@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -68,6 +69,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
 
 public final class TypeUtils {
 
@@ -135,7 +144,7 @@ public final class TypeUtils {
     }
 
     public static List<Type> getEnumCtorType() {
-        return List.of(getStringType(), PrimitiveType.INT);
+        return List.of(getStringType(), INT);
     }
     public static List<Type> getEnumCtorArgType(List<Type> orig) {
         return addList(getEnumCtorType(), orig);
@@ -301,14 +310,14 @@ public final class TypeUtils {
     public static Type JDTTypeToTaieType(ITypeBinding typeBinding)  {
         if (typeBinding.isPrimitive()) {
             return switch (typeBinding.getName()) {
-                case JDT_BYTE -> PrimitiveType.BYTE;
-                case JDT_SHORT -> PrimitiveType.SHORT;
-                case JDT_INT -> PrimitiveType.INT;
-                case JDT_LONG -> PrimitiveType.LONG;
-                case JDT_CHAR -> PrimitiveType.CHAR;
-                case JDT_DOUBLE -> PrimitiveType.DOUBLE;
-                case JDT_FLOAT -> PrimitiveType.FLOAT;
-                case JDT_BOOLEAN -> PrimitiveType.BOOLEAN;
+                case JDT_BYTE -> BYTE;
+                case JDT_SHORT -> SHORT;
+                case JDT_INT -> INT;
+                case JDT_LONG -> LONG;
+                case JDT_CHAR -> CHAR;
+                case JDT_DOUBLE -> DOUBLE;
+                case JDT_FLOAT -> FLOAT;
+                case JDT_BOOLEAN -> BOOLEAN;
                 case JDT_VOID -> VoidType.VOID;
                 default -> throw new NewFrontendException("Primitive Type Illegal: " + typeBinding.getName());
             };
@@ -577,16 +586,7 @@ public final class TypeUtils {
     }
 
     public static int getIndexOfPrimitive(PrimitiveType t) {
-        return switch (t) {
-            case BOOLEAN -> 0;
-            case CHAR -> 1;
-            case BYTE -> 2;
-            case SHORT -> 3;
-            case INT -> 4;
-            case LONG -> 5;
-            case FLOAT -> 6;
-            case DOUBLE -> 7;
-        };
+        return Utils.getPrimitiveTypeIndex(t);
     }
 
     public static int getIndexOfPrimitive(Type t) {
@@ -609,21 +609,21 @@ public final class TypeUtils {
 
     public static PrimitiveType getPrimitiveByIndex(int i) {
         return switch (i) {
-            case 0 -> PrimitiveType.BOOLEAN;
-            case 1 -> PrimitiveType.CHAR;
-            case 2 -> PrimitiveType.BYTE;
-            case 3 -> PrimitiveType.SHORT;
-            case 4 -> PrimitiveType.INT;
-            case 5 -> PrimitiveType.LONG;
-            case 6 -> PrimitiveType.FLOAT;
-            case 7 -> PrimitiveType.DOUBLE;
+            case 0 -> BOOLEAN;
+            case 1 -> CHAR;
+            case 2 -> BYTE;
+            case 3 -> SHORT;
+            case 4 -> INT;
+            case 5 -> LONG;
+            case 6 -> FLOAT;
+            case 7 -> DOUBLE;
             default -> throw new NewFrontendException(i + " is not legal primitive index");
         };
     }
 
     public static PrimitiveType getWidenType(PrimitiveType type) {
-        if (getIndexOfPrimitive(type) < getIndexOfPrimitive(PrimitiveType.INT)) {
-            return PrimitiveType.INT;
+        if (getIndexOfPrimitive(type) < getIndexOfPrimitive(INT)) {
+            return INT;
         } else {
             return type;
         }
@@ -679,13 +679,13 @@ public final class TypeUtils {
     }
 
     public static boolean isComputeInt(PrimitiveType t) {
-        return getIndexOfPrimitive(t) <= getIndexOfPrimitive(PrimitiveType.INT);
+        return getIndexOfPrimitive(t) <= getIndexOfPrimitive(INT);
     }
 
     public static boolean computeIntWiden(PrimitiveType expType, PrimitiveType target) {
         int t1 = getIndexOfPrimitive(expType);
         int t2 = getIndexOfPrimitive(target);
-        int tInt = getIndexOfPrimitive(PrimitiveType.INT);
+        int tInt = getIndexOfPrimitive(INT);
         return t2 <= tInt && t1 <= t2;
     }
 
@@ -700,7 +700,7 @@ public final class TypeUtils {
             } else if (l instanceof LongLiteral l1) {
                 return IntLiteral.get((int) l1.getValue());
             }
-        } else if (t.equals(PrimitiveType.LONG)) {
+        } else if (t.equals(LONG)) {
             if (l instanceof IntLiteral i) {
                 return LongLiteral.get(i.getValue());
             } else if (l instanceof DoubleLiteral d) {
@@ -710,7 +710,7 @@ public final class TypeUtils {
             } else if (l instanceof LongLiteral l1) {
                 return l;
             }
-        } else if (t.equals(PrimitiveType.DOUBLE)) {
+        } else if (t.equals(DOUBLE)) {
             if (l instanceof IntLiteral i) {
                 return DoubleLiteral.get(i.getValue());
             } else if (l instanceof DoubleLiteral d) {
@@ -720,7 +720,7 @@ public final class TypeUtils {
             } else if (l instanceof LongLiteral l1) {
                 return DoubleLiteral.get(l1.getValue());
             }
-        } else if (t.equals(PrimitiveType.FLOAT)) {
+        } else if (t.equals(FLOAT)) {
             if (l instanceof IntLiteral i) {
                 return FloatLiteral.get(i.getValue());
             } else if (l instanceof DoubleLiteral d) {

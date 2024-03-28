@@ -1,19 +1,11 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -22,11 +14,17 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentMap;
+
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
 
 public class BuildContext {
 
@@ -91,14 +89,14 @@ public class BuildContext {
             return VoidType.VOID;
         } else if (sort < org.objectweb.asm.Type.ARRAY) {
             return switch (sort) {
-                case org.objectweb.asm.Type.BOOLEAN -> PrimitiveType.BOOLEAN;
-                case org.objectweb.asm.Type.BYTE -> PrimitiveType.BYTE;
-                case org.objectweb.asm.Type.CHAR -> PrimitiveType.CHAR;
-                case org.objectweb.asm.Type.SHORT -> PrimitiveType.SHORT;
-                case org.objectweb.asm.Type.INT -> PrimitiveType.INT;
-                case org.objectweb.asm.Type.LONG -> PrimitiveType.LONG;
-                case org.objectweb.asm.Type.FLOAT -> PrimitiveType.FLOAT;
-                case org.objectweb.asm.Type.DOUBLE -> PrimitiveType.DOUBLE;
+                case org.objectweb.asm.Type.BOOLEAN -> BOOLEAN;
+                case org.objectweb.asm.Type.BYTE -> BYTE;
+                case org.objectweb.asm.Type.CHAR -> CHAR;
+                case org.objectweb.asm.Type.SHORT -> SHORT;
+                case org.objectweb.asm.Type.INT -> INT;
+                case org.objectweb.asm.Type.LONG -> LONG;
+                case org.objectweb.asm.Type.FLOAT -> FLOAT;
+                case org.objectweb.asm.Type.DOUBLE -> DOUBLE;
                 default -> throw new UnsupportedOperationException();
             };
         } else if (sort == org.objectweb.asm.Type.ARRAY) {

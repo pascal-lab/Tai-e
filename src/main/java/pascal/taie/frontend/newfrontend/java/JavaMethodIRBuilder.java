@@ -165,6 +165,11 @@ import java.util.stream.Stream;
 import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
 import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.*;
 import static pascal.taie.frontend.newfrontend.java.TypeUtils.*;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
 
 
 // TODO: check all the .clone() calls
@@ -1357,10 +1362,10 @@ public class JavaMethodIRBuilder {
                     .max(Integer::compareTo);
             assert typeList.isPresent();
             int maxType = typeList.get();
-            if (maxType >= getIndexOfPrimitive(PrimitiveType.LONG)) {
+            if (maxType >= getIndexOfPrimitive(LONG)) {
                 return getPrimitiveByIndex(maxType);
             } else if (contextChoose == 0 || contextChoose == 2) {
-                return PrimitiveType.INT;
+                return INT;
             } else {
                 return getPrimitiveByIndex(maxType);
             }
@@ -1546,7 +1551,7 @@ public class JavaMethodIRBuilder {
         }
 
         private Var collectBoolEval(BiConsumer<String, String> condMaker) {
-            Var v = newTempVar(PrimitiveType.BOOLEAN);
+            Var v = newTempVar(BOOLEAN);
             String trueLabel = context.getNewLabel();
             String falseLabel = context.getNewLabel();
             String endLabel = context.getNewLabel();
@@ -1594,7 +1599,7 @@ public class JavaMethodIRBuilder {
             if (exp instanceof ConditionExp e) {
                 cond = e;
             } else {
-                Var v = expToVar(exp, PrimitiveType.BOOLEAN);
+                Var v = expToVar(exp, BOOLEAN);
                 cond = new ConditionExp(ConditionExp.Op.EQ, v, getInt(1));
             }
             genIfHeader(cond, trueLabel, falseLabel, next);
@@ -1771,7 +1776,7 @@ public class JavaMethodIRBuilder {
         protected InvokeExp genEquals(Var v1, Var v2) {
             Type objType = getType(ClassNames.OBJECT);
             return genSimpleInvoke(v1, "equals",
-                    List.of(v2), List.of(objType), PrimitiveType.BOOLEAN);
+                    List.of(v2), List.of(objType), BOOLEAN);
         }
 
         protected void genAnonBlock(List<Statement> stmts1) {
@@ -2313,7 +2318,7 @@ public class JavaMethodIRBuilder {
 
                     BiConsumer<String, String> genCond = (bodyLabel, breakLabel) -> {
                         Exp hasNext = genSimpleInterfaceInvoke(v, HAS_NEXT,
-                                List.of(), List.of(), PrimitiveType.BOOLEAN);
+                                List.of(), List.of(), BOOLEAN);
                         context.pushStack(hasNext);
                         popControlFlow(bodyLabel, breakLabel, true);
                     };
@@ -2331,7 +2336,7 @@ public class JavaMethodIRBuilder {
 
                 } else {
                     assert expVar.getType() instanceof pascal.taie.language.type.ArrayType;
-                    Var v = newTempVar(PrimitiveType.INT);
+                    Var v = newTempVar(INT);
                     Runnable genInit = () -> newAssignment(v, IntLiteral.get(0));
 
                     BiConsumer<String, String> genCond = (bodyLabel, breakLabel) -> {
@@ -2853,7 +2858,7 @@ public class JavaMethodIRBuilder {
                     case "<<", ">>", ">>>" -> {
                         Type leftType = resolveNumericPromotion(0,
                                 List.of(exp.getLeftOperand()));
-                        Type rightType = PrimitiveType.INT;
+                        Type rightType = INT;
                         numericBinaryCompute(exp, leftType, rightType, (l, r) ->
                                 new ShiftExp(TypeUtils.getShiftOp(op), l, r));
                         return false;
@@ -2868,7 +2873,7 @@ public class JavaMethodIRBuilder {
                         Type t = resolveNumericPromotion(0, getAllOperands(exp));
                         numericBinaryCompute(exp, t, t, (l, r) -> {
                             assert t instanceof PrimitiveType;
-                            if (t == PrimitiveType.FLOAT || t == PrimitiveType.DOUBLE) {
+                            if (t == FLOAT || t == DOUBLE) {
                                 ComparisonExp.Op cmpOp;
                                 ConditionExp.Op condOp;
                                 Var condOperand2 = getInt(0);
@@ -2899,7 +2904,7 @@ public class JavaMethodIRBuilder {
                     case "==", "!=" -> {
                         binaryCompute2(exp, (l, r) -> {
                             Type t = l.getType();
-                            if (t == PrimitiveType.FLOAT || t == PrimitiveType.DOUBLE) {
+                            if (t == FLOAT || t == DOUBLE) {
                                 ComparisonExp.Op cmpOp = ComparisonExp.Op.CMPL;
                                 ConditionExp.Op condOp = TypeUtils.getConditionOp(op);
                                 Var condOperand2 = getInt(0);
@@ -3105,12 +3110,12 @@ public class JavaMethodIRBuilder {
                     // if this is one dimension array, use [NewArray]
                     Expression exp = (Expression) ac.dimensions().get(0);
                     exp.accept(this);
-                    Var length = popVar(PrimitiveType.INT);
+                    Var length = popVar(INT);
                     context.pushStack(new NewArray(taieType, length));
                 } else if (arrInit == null) {
                     context.pushStack(
                             listCompute(ac.dimensions(),
-                                    Collections.nCopies(ac.dimensions().size(), PrimitiveType.INT),
+                                    Collections.nCopies(ac.dimensions().size(), INT),
                                     l -> new NewMultiArray(taieType, l)));
                 } else {
                     handleArrInit(ac.getInitializer());
@@ -3128,7 +3133,7 @@ public class JavaMethodIRBuilder {
             public boolean visit(org.eclipse.jdt.core.dom.ArrayAccess access) {
                 access.getIndex().accept(this);
                 access.getArray().accept(this);
-                context.pushStack(new ArrayAccess(popVar(), popVar(PrimitiveType.INT)));
+                context.pushStack(new ArrayAccess(popVar(), popVar(INT)));
                 return false;
             }
 

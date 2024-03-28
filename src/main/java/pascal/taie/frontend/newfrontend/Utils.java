@@ -78,6 +78,15 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
+
 public class Utils {
     static String getBinaryName(String internalName) {
         return Type.getObjectType(internalName).getClassName();
@@ -365,10 +374,10 @@ public class Utils {
         if (o instanceof Integer i) {
             return switch (i) {
                 case 0 -> Top.Top; // Opcodes.Top
-                case 1 -> PrimitiveType.INT; // Opcodes.INTEGER
-                case 2 -> PrimitiveType.FLOAT; // Opcodes.FLOAT
-                case 3 -> PrimitiveType.DOUBLE; // Opcodes.DOUBLE
-                case 4 -> PrimitiveType.LONG; // Opcodes.LONG
+                case 1 -> INT; // Opcodes.INTEGER
+                case 2 -> FLOAT; // Opcodes.FLOAT
+                case 3 -> DOUBLE; // Opcodes.DOUBLE
+                case 4 -> LONG; // Opcodes.LONG
                 case 5 -> NullType.NULL; // Opcodes.NULL
                 case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
                 default -> throw new UnsupportedOperationException();
@@ -595,7 +604,7 @@ public class Utils {
     }
 
     static boolean isTwoWord(pascal.taie.language.type.Type t) {
-        return t == PrimitiveType.DOUBLE || t == PrimitiveType.LONG;
+        return t == DOUBLE || t == LONG;
     }
 
     static boolean canHoldsInt(pascal.taie.language.type.Type t) {
@@ -701,7 +710,7 @@ public class Utils {
     }
 
     /**
-     * @return if <code>t1 <- t2</code> is valid
+     * @return if <code>t1 := t2</code> is valid
      */
     public static boolean isAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
         if (t1 == t2) {
@@ -721,24 +730,62 @@ public class Utils {
     }
 
     static int fromIntTypeIndex(PrimitiveType t) {
-        return switch (t) {
-            case BOOLEAN -> 0;
-            case BYTE -> 1;
-            case CHAR -> 2;
-            case SHORT -> 3;
-            case INT -> 4;
-            default -> throw new UnsupportedOperationException();
-        };
+        if (t == LONG || t == FLOAT || t == DOUBLE) {
+            throw new UnsupportedOperationException();
+        } else {
+            return getPrimitiveTypeIndex(t);
+        }
     }
 
     static PrimitiveType toIntType(int i) {
-        return switch (i) {
-            case 0 -> PrimitiveType.BOOLEAN;
-            case 1 -> PrimitiveType.BYTE;
-            case 2 -> PrimitiveType.CHAR;
-            case 3 -> PrimitiveType.SHORT;
-            case 4 -> PrimitiveType.INT;
-            default -> throw new UnsupportedOperationException();
-        };
+        if (i >= 5) {
+            throw new UnsupportedOperationException();
+        } else {
+            return getPrimitiveTypeByIndex(i);
+        }
+    }
+
+    public static int getPrimitiveTypeIndex(PrimitiveType t) {
+        if (t == BOOLEAN) {
+            return 0;
+        } else if (t == BYTE) {
+            return 1;
+        } else if (t == CHAR) {
+            return 2;
+        } else if (t == SHORT) {
+            return 3;
+        } else if (t == INT) {
+            return 4;
+        } else if (t == LONG) {
+            return 5;
+        } else if (t == FLOAT) {
+            return 6;
+        } else if (t == DOUBLE) {
+            return 7;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static PrimitiveType getPrimitiveTypeByIndex(int i) {
+        if (i == 0) {
+            return BOOLEAN;
+        } else if (i == 1) {
+            return BYTE;
+        } else if (i == 2) {
+            return CHAR;
+        } else if (i == 3) {
+            return SHORT;
+        } else if (i == 4) {
+            return INT;
+        } else if (i == 5) {
+            return LONG;
+        } else if (i == 6) {
+            return FLOAT;
+        } else if (i == 7) {
+            return DOUBLE;
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

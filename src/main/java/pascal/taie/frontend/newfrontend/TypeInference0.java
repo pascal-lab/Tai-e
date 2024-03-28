@@ -49,6 +49,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.ShortType.SHORT;
 
 public class TypeInference0 {
 
@@ -222,9 +227,9 @@ public class TypeInference0 {
         assert types.size() == 1 ||
                 types.stream().allMatch(Utils::canHoldsInt);
         Type resultType = types.get(0);
-        if (resultType == PrimitiveType.BOOLEAN || resultType == PrimitiveType.BYTE ||
-                resultType == PrimitiveType.SHORT || resultType == PrimitiveType.CHAR) {
-            resultType = PrimitiveType.INT;
+        if (resultType == BOOLEAN || resultType == BYTE ||
+                resultType == SHORT || resultType == CHAR) {
+            resultType = INT;
         }
         setType(typing, var, resultType);
     }

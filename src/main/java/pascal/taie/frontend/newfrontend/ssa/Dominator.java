@@ -4,9 +4,7 @@ import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.frontend.newfrontend.data.IntGraph;
 import pascal.taie.frontend.newfrontend.data.IntList;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * <p> This class implements "A Simple, Fast Dominance Algorithm"
@@ -158,11 +156,10 @@ public class Dominator<N> {
     }
 
     /**
-     * Check if a dominates b.
+     * Check if a dominates b. Should be used after {@link #getDomTree()} is called.
      * @param a a node index
      * @param b a node index
      * @return {@code true} if a dominates b
-     * @apiNote Should be used after {@link #getDomTree()} is called.
      */
     public boolean dominates(int a, int b) {
         return timeIn[a] <= timeIn[b] && timeOut[a] >= timeOut[b];

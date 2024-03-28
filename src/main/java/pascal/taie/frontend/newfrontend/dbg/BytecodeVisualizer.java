@@ -6,16 +6,16 @@ import org.objectweb.asm.util.TraceMethodVisitor;
 import pascal.taie.frontend.newfrontend.BytecodeBlock;
 import pascal.taie.frontend.newfrontend.BytecodeGraph;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.Indexer;
-import pascal.taie.util.collection.Pair;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
+
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.LongType.LONG;
 
 public class BytecodeVisualizer {
 
@@ -113,8 +113,8 @@ public class BytecodeVisualizer {
         for (int i = 0; i < block.getFrame().local.size(); i++) {
             Object o = block.getFrame().local.get(i);
             String name = Utils.fromAsmFrameType(o).getName();
-            if (name.equals(PrimitiveType.LONG.getName()) ||
-                name.equals(PrimitiveType.DOUBLE.getName())) {
+            if (name.equals(LONG.getName()) ||
+                name.equals(DOUBLE.getName())) {
                 n++;
             }
             sb.append(n).append("->").append(name);

@@ -3,6 +3,11 @@ package pascal.taie.interp;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+
 public class JPrimitive implements JValue {
 
     public final Object value;
@@ -18,13 +23,13 @@ public class JPrimitive implements JValue {
         this.value = v;
 
         if (value instanceof Integer) {
-            type = PrimitiveType.INT;
+            type = INT;
         } else if (value instanceof Long) {
-            type = PrimitiveType.LONG;
+            type = LONG;
         } else if (value instanceof Float) {
-            type = PrimitiveType.FLOAT;
+            type = FLOAT;
         } else {
-            type = PrimitiveType.DOUBLE;
+            type = DOUBLE;
         }
     }
 
@@ -51,11 +56,13 @@ public class JPrimitive implements JValue {
     }
 
     public static JPrimitive getDefault(PrimitiveType t) {
-        return switch (t) {
-            case INT, BOOLEAN, BYTE, CHAR, SHORT -> JPrimitive.get(0);
-            case LONG -> JPrimitive.get(0L);
-            case FLOAT -> JPrimitive.get(0f);
-            case DOUBLE -> JPrimitive.get(0d);
+        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(t);
+        return switch (index) {
+            case 0, 1, 2, 3, 4 -> JPrimitive.get(0);
+            case 5 -> JPrimitive.get(0L);
+            case 6 -> JPrimitive.get(0f);
+            case 7 -> JPrimitive.get(0d);
+            default -> throw new InterpreterException();
         };
     }
 

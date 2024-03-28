@@ -505,37 +505,39 @@ public class VM {
         assert v instanceof JPrimitive;
         JPrimitive p = (JPrimitive) v;
         Object o = p.value;
+        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(type);
         if (o instanceof Integer i) {
-            return switch (type) {
-                case BOOLEAN, BYTE, CHAR, SHORT -> Utils.getIntValue(Utils.downCastInt(i, type));
-                case INT -> i;
-                case LONG -> i.longValue();
-                case FLOAT -> i.floatValue();
-                case DOUBLE -> i.doubleValue();
+            return switch (index) {
+                case 0, 1, 2, 3 -> Utils.getIntValue(Utils.downCastInt(i, type));
+                case 4 -> i;
+                case 5 -> i.longValue();
+                case 6 -> i.floatValue();
+                case 7 -> i.doubleValue();
+                default -> throw new InterpreterException();
             };
         } else if (o instanceof Long l) {
-            return switch (type) {
-                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
-                case INT -> l.intValue();
-                case LONG -> l;
-                case FLOAT -> l.floatValue();
-                case DOUBLE -> l.doubleValue();
+            return switch (index) {
+                case 4 -> l.intValue();
+                case 5 -> l;
+                case 6 -> l.floatValue();
+                case 7 -> l.doubleValue();
+                default -> throw new InterpreterException();
             };
         } else if (o instanceof Float f) {
-            return switch (type) {
-                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
-                case INT -> f.intValue();
-                case LONG -> f.longValue();
-                case FLOAT -> f;
-                case DOUBLE -> f.doubleValue();
+            return switch (index) {
+                case 4 -> f.intValue();
+                case 5 -> f.longValue();
+                case 6 -> f;
+                case 7 -> f.doubleValue();
+                default -> throw new InterpreterException();
             };
         } else if (o instanceof Double d) {
-            return switch (type) {
-                case BOOLEAN, BYTE, CHAR, SHORT -> throw new InterpreterException();
-                case INT -> d.intValue();
-                case LONG -> d.longValue();
-                case FLOAT -> d.floatValue();
-                case DOUBLE -> d;
+            return switch (index) {
+                case 4 -> d.intValue();
+                case 5 -> d.longValue();
+                case 6 -> d.floatValue();
+                case 7 -> d;
+                default -> throw new InterpreterException();
             };
         }
         throw new InterpreterException();
