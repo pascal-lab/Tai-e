@@ -28,16 +28,9 @@ public class JavaSource implements ClassSource {
 
     private final ASTNode typeDeclaration;
 
-    public @Nullable String getOuterClass() {
-        return outerClass;
-    }
-
-    private final String outerClass;
-
-    public JavaSource(CompilationUnit unit, ASTNode typeDeclaration, String outerClass) {
+    public JavaSource(CompilationUnit unit, ASTNode typeDeclaration) {
         this.unit = unit;
         this.typeDeclaration = typeDeclaration;
-        this.outerClass = outerClass;
         ITypeBinding binding = ClassExtractor.getBinding(typeDeclaration);
         binaryName = JDTStringReps.getBinaryName(binding);
         instanceInits = new ArrayList<>();

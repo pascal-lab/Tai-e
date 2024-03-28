@@ -202,6 +202,7 @@ public final class TypeUtils {
 
         if (binding.isInterface()) {
             res.add(Modifier.INTERFACE);
+            res.add(Modifier.ABSTRACT);
         }
 
         if (binding.isAnnotation()) {
@@ -414,6 +415,10 @@ public final class TypeUtils {
        return (ClassType) BuildContext.get().fromAsmInternalName(name);
     }
 
+    public static JClass getJClass(ITypeBinding binding) {
+        return BuildContext.get().getClassByName(getBinaryName(binding));
+    }
+
     public static Type anyException() {
         JClass thr = World.get().getClassHierarchy().getClass(ClassNames.THROWABLE);
         if (thr != null) {
@@ -429,8 +434,13 @@ public final class TypeUtils {
      * @return Tai-e MethodType correspond to the method in {@code typeBinding}
      */
     public static MethodType extractFuncInterface(ITypeBinding typeBinding) {
-        IMethodBinding binding = typeBinding.getFunctionalInterfaceMethod();
+        IMethodBinding binding = typeBinding.getFunctionalInterfaceMethod().getMethodDeclaration();
         return getMethodType(binding);
+    }
+
+    static String extractFuncInterfaceName(ITypeBinding typeBinding) {
+        IMethodBinding binding = typeBinding.getFunctionalInterfaceMethod().getMethodDeclaration();
+        return binding.getName();
     }
 
     public static MethodType getMethodType(IMethodBinding binding) {
@@ -439,6 +449,24 @@ public final class TypeUtils {
         Type retType = JDTTypeToTaieType(binding.getReturnType());
         List<Type> paraType = fromJDTTypeList(binding.getParameterTypes());
         return MethodType.get(paraType, retType);
+    }
+
+    static MethodType getBoxedMethodType(IMethodBinding binding) {
+        assert (binding != null);
+
+        Type retType = boxing(JDTTypeToTaieType(binding.getReturnType()));
+        List<Type> paraType = fromJDTTypeList(binding.getParameterTypes())
+                .stream().map(TypeUtils::boxing)
+                .toList();
+        return MethodType.get(paraType, retType);
+    }
+
+    static Type boxing(Type t) {
+        if (t instanceof PrimitiveType p) {
+            return getClassByName(getRefNameOfPrimitive(p.getName()));
+        } else {
+            return t;
+        }
     }
 
     public static List<Type> fromJDTTypeList(ITypeBinding[] types) {

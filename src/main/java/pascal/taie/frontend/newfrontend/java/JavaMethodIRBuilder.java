@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
@@ -195,14 +196,28 @@ public class JavaMethodIRBuilder {
 
     private final List<String> synParaNames;
 
+    private final LambdaExpression lambdaDecl;
+
     public JavaMethodIRBuilder(JavaMethodSource methodSource, JMethod jMethod) {
         this.jMethod = jMethod;
         this.className = jMethod.getDeclaringClass().getName();
         this.targetClass = jMethod.getDeclaringClass();
-        this.targetMethod = methodSource.decl();
+        ASTNode decl = methodSource.decl();
+        if (decl instanceof MethodDeclaration methodDecl) {
+            this.targetMethod = methodDecl;
+            this.lambdaDecl = null;
+            this.rootAst = methodDecl.getAST();
+        } else if (decl instanceof LambdaExpression lambda) {
+            this.targetMethod = null;
+            this.lambdaDecl = lambda;
+            this.rootAst = lambda.getAST();
+        } else {
+            this.targetMethod = null;
+            this.lambdaDecl = null;
+            this.rootAst = methodSource.cu().getAST();
+        }
         this.linenoManger = new LinenoManger(methodSource.cu());
         this.source = methodSource;
-        this.rootAst = targetMethod == null ? methodSource.cu().getAST() : targetMethod.getAST();
         this.innerDesc = InnerClassManager.get().getInnerClassDesc(
                 getDeclClass());
         if (getDeclClass().isAnonymous()) {
@@ -234,6 +249,10 @@ public class JavaMethodIRBuilder {
     }
 
     public IR build() {
+        if (jMethod.isAbstract() || jMethod.isNative()) {
+            // is abstract method
+            throw new NewFrontendException("Cannot build IR for abstract or native method: " + jMethod);
+        }
         IRGenerator generator = new IRGenerator();
         return generator.build();
     }
@@ -437,6 +456,15 @@ public class JavaMethodIRBuilder {
                 }
             }
 
+            if (lambdaDecl != null) {
+                LambdaManager.LambdaDescriptor descriptor = LambdaManager.get().getDescriptor(
+                        lambdaDecl.resolveMethodBinding());
+                List<IVariableBinding> subSig = descriptor.computeArgBindings();
+                for (int i = 0; i < subSig.size(); ++i) {
+                    context.putBinding(subSig.get(i), params.get(i));
+                }
+            }
+
             assert params.size() == jMethod.getParamCount();
         }
 
@@ -459,7 +487,7 @@ public class JavaMethodIRBuilder {
                 buildEnumValuesOf();
             } else {
                 buildCtor();
-                if (targetMethod != null) {
+                if (targetMethod != null || lambdaDecl != null) {
                     buildStmt();
                 } else {
                     context.pushFlow(true);
@@ -702,6 +730,8 @@ public class JavaMethodIRBuilder {
                     //    If `expression` is null, then `enclosedInstance` is `this$0`
                     //    Or else, `enclosedInstance` is `args[0]`
                     //    Use normal protocol to get `capturedBySuper`
+                    //    TODO: normal protocol is not usable here,
+                    //          must be retrieved from the args of current method
                     //    `ctorArgs` can be retrieved from the args of current method
                     InnerClassDescriptor desc = InnerClassManager.get().getInnerClassDesc(
                             binding.getDeclaringClass());
@@ -778,7 +808,24 @@ public class JavaMethodIRBuilder {
         }
 
         private void buildStmt() {
-            targetMethod.getBody().accept(stmtVisitor);
+            if (targetMethod != null) {
+                targetMethod.getBody().accept(stmtVisitor);
+            } else {
+                ASTNode body = lambdaDecl.getBody();
+                if (body instanceof Expression exp) {
+                    visitExp(exp);
+                    if (!getReturnType().equals(VoidType.VOID)) {
+                        Var ret = popVar();
+                        addStmt(new Return(ret));
+                    } else {
+                        popSideEffect();
+                        addStmt(new Return());
+                    }
+                    context.pushFlow(false);
+                } else {
+                    body.accept(stmtVisitor);
+                }
+            }
         }
 
         private void visitStmt(Statement stmt) {
@@ -1751,9 +1798,7 @@ public class JavaMethodIRBuilder {
                     return getOuterClassField(binding, getThisVar());
                 }
             } else {
-                if (getTargetMethod() != null && isSameMethod(
-                        getTargetMethod().resolveBinding(),
-                        binding.getDeclaringMethod())) {
+                if (isLocalDefined(binding)) {
                     // 4. this is a variable defined in local scope
                     return newVar(binding.getName(), JDTTypeToTaieType(binding.getType()));
                 } else {
@@ -1786,6 +1831,21 @@ public class JavaMethodIRBuilder {
                     }
                     return new InstanceFieldAccess(ref, v);
                 }
+            }
+        }
+
+        private boolean isLocalDefined(IVariableBinding binding) {
+            if (getTargetMethod() != null) {
+                return isSameMethod(
+                        getTargetMethod().resolveBinding(),
+                        binding.getDeclaringMethod());
+            } else {
+                // any variable in lambda is already resolved to a local variable
+                // for example,
+                // int k = 0;
+                // Runnable r = () -> System.out.println(k);
+                // here, k will be resolved to the captured args of lambda
+                return lambdaDecl != null;
             }
         }
 
@@ -3072,6 +3132,32 @@ public class JavaMethodIRBuilder {
                 return false;
             }
 
+            @Override
+            public boolean visit(CreationReference cr) {
+                IMethodBinding binding = cr.resolveMethodBinding();
+                ITypeBinding typeBinding = cr.resolveTypeBinding();
+                Type funcInterType = TypeUtils.JDTTypeToTaieType(typeBinding);
+                MethodType targetType = MethodType.get(new ArrayList<>(), funcInterType);
+                MethodType samMethodType = TypeUtils.extractFuncInterface(typeBinding);
+                String name = TypeUtils.extractFuncInterfaceName(typeBinding);
+                MethodType preInstantiatedMethodType = TypeUtils.getBoxedMethodType(binding);
+                MethodRef ref = getInitRef(binding);
+                MethodType instantiatedMethodType = MethodType.get(preInstantiatedMethodType.getParamTypes(),
+                        ref.getDeclaringClass().getType());
+                MethodHandle mh = MethodHandle.get(MethodHandle.Kind.REF_newInvokeSpecial, ref);
+                List<Var> dynArgs = new ArrayList<>();
+                List<Literal> staticArgs = new ArrayList<>();
+                staticArgs.add(samMethodType);
+                staticArgs.add(mh);
+                staticArgs.add(instantiatedMethodType);
+                MethodHandle boot = MethodHandle.get(
+                        MethodHandle.Kind.REF_invokeStatic, TypeUtils.getMetaFactory());
+                InvokeDynamic inDy = new InvokeDynamic(boot, TypeUtils.getMetaFactory(),
+                        name, targetType, staticArgs, dynArgs);
+                context.pushStack(inDy);
+                return false;
+            }
+
             // TODO: check the correctness of this function
             @Override
             public boolean visit(ExpressionMethodReference mr) {
@@ -3080,7 +3166,7 @@ public class JavaMethodIRBuilder {
                 Type funcInterType = TypeUtils.JDTTypeToTaieType(typeBinding);
                 MethodType targetType = MethodType.get(new ArrayList<>(), funcInterType);
                 MethodType samMethodType = TypeUtils.extractFuncInterface(typeBinding);
-                MethodType instantiatedMethodType = TypeUtils.getMethodType(binding);
+                MethodType instantiatedMethodType = TypeUtils.getBoxedMethodType(binding);
                 MethodRef ref = getMethodRef(binding);
                 MethodHandle mh;
                 boolean needObj = true;
@@ -3110,7 +3196,9 @@ public class JavaMethodIRBuilder {
                 staticArgs.add(samMethodType);
                 staticArgs.add(mh);
                 staticArgs.add(instantiatedMethodType);
-                InvokeDynamic inDy = new InvokeDynamic(null, TypeUtils.getMetaFactory(),
+                MethodHandle boot = MethodHandle.get(
+                        MethodHandle.Kind.REF_invokeStatic, TypeUtils.getMetaFactory());
+                InvokeDynamic inDy = new InvokeDynamic(boot, TypeUtils.getMetaFactory(),
                         binding.getName(), targetType, staticArgs, dynArgs);
                 context.pushStack(inDy);
                 return false;
@@ -3258,14 +3346,37 @@ public class JavaMethodIRBuilder {
                 List<Var> captured = new ArrayList<>();
                 LambdaManager.LambdaDescriptor descriptor = LambdaManager.get().getDescriptor(
                         node.resolveMethodBinding());
-                for (IVariableBinding i : descriptor.capturedVars()) {
-                    context.pushStack(getSimpleNameBinding(i));
-                    captured.add(popVar());
-                }
-                MethodType funcInterface = TypeUtils.getMethodType(descriptor.functionalInterface());
-                // if this lambda is static, we don't need to push [this] into [dynArgs]
                 boolean isStatic = descriptor.isStatic();
-                // TODO: complete this
+                List<Type> capturedTypes = new ArrayList<>();
+                if (!isStatic) {
+                    captured.add(getThisVar());
+                    capturedTypes.add(getThisVar().getType());
+                }
+                for (IVariableBinding i : descriptor.allCaptured()) {
+                    context.pushStack(getSimpleNameBinding(i));
+                    // no boxing needed here
+                    captured.add(popVar());
+                    capturedTypes.add(JDTTypeToTaieType(i.getType()));
+                }
+                JMethod lambdaMtd = LambdaManager.get().getLambdaMethod(descriptor);
+                // here we need to erase type parameters
+                MethodType funcInterface = TypeUtils.getMethodType(
+                        descriptor.functionalInterface().getMethodDeclaration());
+                MethodHandle.Kind kind = isStatic ? MethodHandle.Kind.REF_invokeStatic :
+                                MethodHandle.Kind.REF_invokeVirtual;
+                MethodHandle mh = MethodHandle.get(kind, lambdaMtd.getRef());
+                List<Literal> staticArgs = new ArrayList<>();
+                staticArgs.add(funcInterface);
+                staticArgs.add(mh);
+                staticArgs.add(TypeUtils.getMethodType(descriptor.lambda()));
+                String funcInterfaceName = descriptor.functionalInterface().getName();
+                MethodHandle bootstrap = MethodHandle.get(MethodHandle.Kind.REF_invokeStatic, TypeUtils.getMetaFactory());
+                Type functionInterfaceClass = JDTTypeToTaieType(
+                        descriptor.functionalInterface().getDeclaringClass());
+                MethodType targetType = MethodType.get(capturedTypes, functionInterfaceClass);
+                InvokeDynamic inDy = new InvokeDynamic(bootstrap, TypeUtils.getMetaFactory(),
+                        funcInterfaceName, targetType, staticArgs, captured);
+                context.pushStack(inDy);
                 return false;
             }
         }

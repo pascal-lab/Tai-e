@@ -41,6 +41,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -83,13 +84,6 @@ public class JavaClassBuilder implements JClassBuilder  {
 
     // TODO: handle annotation
     public void build() {
-        String outerClassBinaryName = sourceFile.getOuterClass();
-        if (outerClassBinaryName != null) {
-            outerClass = BuildContext.get().getClassByName(outerClassBinaryName);
-            assert outerClass != null;
-        } else {
-            outerClass = null;
-        }
         typeDeclaration = sourceFile.getTypeDeclaration();
         CompilationUnit cu = sourceFile.getUnit();
         AtomicBoolean meetCtor = new AtomicBoolean(false);
@@ -103,6 +97,11 @@ public class JavaClassBuilder implements JClassBuilder  {
         superClass = TypeUtils.getSuperClass(binding);
         descriptor = InnerClassManager.get()
                 .getInnerClassDesc(binding);
+        if (descriptor == null) {
+            outerClass = null;
+        } else {
+            outerClass = TypeUtils.getJClass(descriptor.getOuterClass());
+        }
         holder = TypeUtils.getAnnotations(binding);
         List<EnumConstantDeclaration> enumConstDecls = new ArrayList<>();
 
@@ -119,10 +118,16 @@ public class JavaClassBuilder implements JClassBuilder  {
                 return false;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public boolean visit(MethodDeclaration node) {
-                Set<Modifier> current = TypeUtils.fromJDTModifier(node.getModifiers());
                 IMethodBinding methodBinding = node.resolveBinding();
+                Set<Modifier> sourceModifier = TypeUtils.fromJDTModifier(methodBinding.getModifiers());
+                Set<Modifier> current = new HashSet<>(sourceModifier);
+                if (node.getBody() == null) {
+                    // abstract method
+                    current.add(Modifier.ABSTRACT);
+                }
                 assert methodBinding.getDeclaringClass() == binding;
                 String name;
                 if (methodBinding.isConstructor()) {
@@ -207,7 +212,7 @@ public class JavaClassBuilder implements JClassBuilder  {
             }
         });
 
-        if (! meetCtor.get()) {
+        if (! meetCtor.get() && ! binding.isInterface()) {
             // add a default non-arg ctor
             Pair<List<Type>, List<String>> paraTypeNames = getSynCtorTypeNames(List.of(), List.of());
             List<Type> paraTypes = paraTypeNames.first();
@@ -277,6 +282,24 @@ public class JavaClassBuilder implements JClassBuilder  {
                     AnnotationHolder.emptyHolder(), null, List.of(),
                     new JavaMethodSource(cu, null, sourceFile));
             methods.add(method);
+        }
+
+        int count = 0;
+        for (LambdaManager.LambdaDescriptor lam : LambdaManager.get().getLambdasInClass(binding)) {
+            Pair<List<String>, List<ITypeBinding>> subSig = lam.computeSubSig();
+            List<String> paraNames = subSig.first();
+            List<Type> paraTypes = TypeUtils.fromJDTTypeList(subSig.second().stream());
+            Type retType = TypeUtils.JDTTypeToTaieType(lam.lambda().getReturnType());
+            String methodName = "lambda$" + count++;
+            Set<Modifier> modifiers = lam.isStatic() ?
+                    Set.of(Modifier.STATIC, Modifier.PRIVATE, Modifier.SYNTHETIC) :
+                    Set.of(Modifier.PRIVATE, Modifier.SYNTHETIC);
+            JMethod method = new JMethod(jClass, methodName, modifiers,
+                    paraTypes, retType, List.of(), null,
+                    AnnotationHolder.emptyHolder(), null, paraNames,
+                    new JavaMethodSource(cu, lam.ast(), sourceFile));
+            methods.add(method);
+            LambdaManager.get().setLambdaMethod(lam, method);
         }
     }
 

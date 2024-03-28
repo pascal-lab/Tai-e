@@ -87,7 +87,7 @@ public class JavaClassManager {
         unit.accept(extractor);
         return extractor.getTypeDeclarations()
                 .stream()
-                .map(t -> new JavaSource(unit, t, extractor.getOuterClass(t)))
+                .map(t -> new JavaSource(unit, t))
                 .toArray(JavaSource[]::new);
     }
 
@@ -127,7 +127,7 @@ public class JavaClassManager {
         parser.setBindingsRecovery(false);
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
         var options = JavaCore.getOptions();
-        options.put(JavaCore.COMPILER_SOURCE, "1.7");
+        options.put(JavaCore.COMPILER_SOURCE, "9");
         parser.setCompilerOptions(options);
         this.parser = parser;
     }

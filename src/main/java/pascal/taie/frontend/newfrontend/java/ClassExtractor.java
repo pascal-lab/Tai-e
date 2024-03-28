@@ -1,5 +1,6 @@
 package pascal.taie.frontend.newfrontend.java;
 
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -13,14 +14,17 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
@@ -104,6 +108,32 @@ public class ClassExtractor extends ASTVisitor {
         return true;
     }
 
+    @Override
+    public boolean visit(LambdaExpression node) {
+        // lambda is a special kind of method
+        // it does not affect the static context,
+        // because it's up to compiler to decide whether to generate a static method
+        IMethodBinding binding = node.resolveMethodBinding();
+        boolean isStaticContext = inStaticContext.peek();
+        IMethodBinding functionalInterface = binding.getMethodDeclaration();
+        LambdaManager.get().addLambda(node, binding, functionalInterface,
+                getCurrentClass(), isStaticContext);
+        outerClasses.add(node);
+        return true;
+    }
+
+    @Override
+    public void endVisit(LambdaExpression node) {
+        ASTNode outNode = outerClasses.pop();
+        // check for misuse, if occurs, it must be a bug
+        assert outNode == node;
+        Set<IVariableBinding> capturedVars = computeDirectInnerSet(node);
+        for (IVariableBinding captureVariable : capturedVars) {
+            LambdaManager.get().getDescriptor(node.resolveMethodBinding())
+                    .addCaptured(captureVariable);
+        }
+    }
+
     public boolean getCurrentContext(BodyDeclaration bodyDeclaration) {
         @SuppressWarnings("unchecked")
         List<IExtendedModifier> modifiers = bodyDeclaration.modifiers();
@@ -115,12 +145,79 @@ public class ClassExtractor extends ASTVisitor {
         typeDeclarations.add(node);
         if (! outerClasses.empty()) {
             ASTNode outerClass = outerClasses.peek();
+            ITypeBinding outer;
+            if (outerClass instanceof LambdaExpression le) {
+                outer = getLambdaDeclaredIn(le);
+            } else {
+                outer = getBinding(outerClass);
+            }
             InnerClassManager.get().noticeInnerClass(node,
-                    getBinding(outerClass),
+                    outer,
                     inStaticContext.peek());
             outerClassMap.put(node, outerClass);
         }
         outerClasses.push(node);
+    }
+
+    private Set<IVariableBinding> computeDirectInnerSet(ASTNode node) {
+        // find directly inner classes
+        Set<IVariableBinding> res = Sets.newSet();
+        List<ASTNode> innerClasses = new ArrayList<>();
+        for (ASTNode typeDeclaration : typeDeclarations) {
+            if (outerClassMap.get(typeDeclaration) == node) {
+                innerClasses.add(typeDeclaration);
+            }
+        }
+        // resolve capture variables
+        for (ASTNode innerClass : innerClasses) {
+            for (IVariableBinding captureVariable : getCapturedVarSet(innerClass)) {
+                // when reach here, captureVariable must be a local variable or a parameter
+                // i.e. they must belong to a method (m).
+                // if (m) is a method of class (node),
+                // then this variable should not be captured by (node).
+                if (!isDeclaredIn(node, captureVariable)) {
+                    res.add(captureVariable);
+                }
+            }
+        }
+        return res;
+    }
+
+    private Set<IVariableBinding> computeDirectCapturedSet(Set<IVariableBinding> capturedSet, ASTNode directOuter) {
+        // if outer is lambda, we have to capture all the variables
+        if (directOuter instanceof LambdaExpression) {
+            return capturedSet;
+        }
+        Set<IVariableBinding> res = Sets.newSet();
+        ITypeBinding current = getBinding(directOuter);
+        for (IVariableBinding v : capturedSet) {
+            assert !v.isField();
+            // check for misuse, inner class can only capture variables from outer classes
+            // assert isTransitiveOuter(current, v.getDeclaringMethod().getDeclaringClass());
+            if (v.getDeclaringMethod().getDeclaringClass().equals(current)) {
+                res.add(v);
+            }
+        }
+        return res;
+    }
+
+    private Set<IVariableBinding> getCapturedVarSet(ASTNode node) {
+        if (node instanceof LambdaExpression le) {
+            return LambdaManager.get().getDescriptor(le.resolveMethodBinding()).allCaptured();
+        } else {
+            InnerClassDescriptor descriptor =
+                    InnerClassManager.get().getInnerClassDesc(getBinding(node));
+            return descriptor.capturedVars();
+        }
+    }
+
+    private boolean isDeclaredIn(ASTNode node, IVariableBinding v) {
+        IBinding binding = getBindingAll(node);
+        if (binding instanceof IMethodBinding m) {
+            return m.equals(v.getDeclaringMethod());
+        } else {
+            return v.getDeclaringMethod().getDeclaringClass().equals(binding);
+        }
     }
 
     /**
@@ -137,32 +234,15 @@ public class ClassExtractor extends ASTVisitor {
             return;
         }
         ASTNode directOuter = outerClasses.peek();
-        // find directly inner classes
-        List<ASTNode> innerClasses = new ArrayList<>();
-        for (ASTNode typeDeclaration : typeDeclarations) {
-            if (outerClassMap.get(typeDeclaration) == node) {
-                innerClasses.add(typeDeclaration);
-            }
-        }
-        // resolve capture variables
         ITypeBinding current = getBinding(node);
         InnerClassDescriptor currentDescriptor =
                 InnerClassManager.get().getInnerClassDesc(current);
         if (currentDescriptor == null) {
             return;
         }
-        for (ASTNode innerClass : innerClasses) {
-            InnerClassDescriptor descriptor =
-                    InnerClassManager.get().getInnerClassDesc(getBinding(innerClass));
-            for (IVariableBinding captureVariable : descriptor.capturedVars()) {
-                // when reach here, captureVariable must be a local variable or a parameter
-                // i.e. they must belong to a method (m).
-                // if (m) is a method of class (node),
-                // then this variable should not be captured by (node).
-                if (captureVariable.getDeclaringMethod().getDeclaringClass() != getBinding(node)) {
-                    currentDescriptor.addNewCapture(captureVariable);
-                }
-            }
+        Set<IVariableBinding> innerCaptured = computeDirectInnerSet(node);
+        for (IVariableBinding captureVariable : innerCaptured) {
+            currentDescriptor.addNewCapture(captureVariable);
         }
         // resolving for inherited inner classes, this is a little tricky
         ITypeBinding parent = current.getSuperclass();
@@ -178,16 +258,8 @@ public class ClassExtractor extends ASTVisitor {
         }
         // finally, the captured set is resolved, we then resolve the direct captured set
         // and set the synthetic parameters
-        Set<IVariableBinding> directedCaptured = Sets.newSet();
-        ITypeBinding directOuterClass = getBinding(directOuter);
-        for (IVariableBinding v : currentDescriptor.capturedVars()) {
-            assert !v.isField();
-            // check for misuse, inner class can only capture variables from outer classes
-            assert isTransitiveOuter(current, v.getDeclaringMethod().getDeclaringClass());
-            if (v.getDeclaringMethod().getDeclaringClass().equals(directOuterClass)) {
-                directedCaptured.add(v);
-            }
-        }
+        Set<IVariableBinding> directedCaptured =
+                computeDirectCapturedSet(currentDescriptor.capturedVars(), directOuter);
         currentDescriptor.resolveSynPara(directedCaptured);
     }
 
@@ -285,6 +357,12 @@ public class ClassExtractor extends ASTVisitor {
         if (outerClasses.empty()) {
             return false;
         }
+        // ignore the simple name in the top-level of lambda expression
+        // captures of lambda is recorded by JDT
+        // we just make sure it does not affect the inner class capture
+        if (outerClasses.peek() instanceof LambdaExpression) {
+            return false;
+        }
         IBinding b = sn.resolveBinding();
         ITypeBinding currentClass = getCurrentClass();
         if (b instanceof IVariableBinding v) {
@@ -302,23 +380,30 @@ public class ClassExtractor extends ASTVisitor {
             return true;
         }
         ITypeBinding t = newStmt.resolveConstructorBinding().getDeclaringClass();
-        if (InnerClassManager.isLocal(t) && t.getDeclaringClass() != getCurrentClass()) {
-            InnerClassManager.get().noticeLocalClassInit(t, getCurrentClass());
+        if (InnerClassManager.isLocal(t) && !isDefineInCurrentMethod(t)) {
+            // apply rule:
+            //  if a local class is initialized,
+            //  then its captured vars must be captured by its outer class
+            ASTNode current = outerClasses.peek();
+            Set<IVariableBinding> capturedVars =
+                    InnerClassManager.get().getInnerClassDesc(t).capturedVars();
+            unionCapture(getBinding(current), capturedVars);
         }
         // there may be anonymous class in the tail of the constructor invocation
         return true;
     }
 
-    public List<ASTNode> getTypeDeclarations() {
-        return typeDeclarations;
+    private boolean isDefineInCurrentMethod(ITypeBinding binding) {
+        ASTNode decl = outerClasses.peek();
+        if (decl instanceof LambdaExpression le) {
+            return true;
+        } else {
+            return binding.getDeclaringMethod().getDeclaringClass().equals(getBinding(decl));
+        }
     }
 
-    public @Nullable String getOuterClass(ASTNode typeDeclaration) {
-        ASTNode decl = outerClassMap.get(typeDeclaration);
-        if (decl == null) {
-            return null;
-        }
-        return JDTStringReps.getBinaryName(getBinding(decl));
+    public List<ASTNode> getTypeDeclarations() {
+        return typeDeclarations;
     }
 
     public static ITypeBinding getBinding(ASTNode node) {
@@ -333,5 +418,40 @@ public class ClassExtractor extends ASTVisitor {
 
     private ITypeBinding getCurrentClass() {
         return getBinding(outerClasses.peek());
+    }
+
+    private static IBinding getBindingAll(ASTNode node) {
+       if (node instanceof LambdaExpression le) {
+           return le.resolveMethodBinding();
+       } else {
+           return getBinding(node);
+       }
+    }
+
+    private void unionCapture(IBinding binding, Set<IVariableBinding> capturedVars) {
+        for (IVariableBinding v : capturedVars) {
+            if (binding instanceof IMethodBinding m) {
+                LambdaManager.get().getDescriptor(m).addCaptured(v);
+            } else {
+                InnerClassManager.get().noticeCaptureVariableBinding(v, (ITypeBinding) binding);
+            }
+        }
+    }
+
+    public static ITypeBinding getLambdaDeclaredIn(LambdaExpression le) {
+        IBinding outer = le.resolveMethodBinding().getDeclaringMember();
+        if (outer instanceof ITypeBinding t) {
+            return t;
+        } else if (outer instanceof IMethodBinding m) {
+            return m.getDeclaringClass();
+        } else if (outer instanceof IVariableBinding v) {
+            if (v.getDeclaringMethod() == null) {
+                return v.getDeclaringClass();
+            } else {
+                return v.getDeclaringMethod().getDeclaringClass();
+            }
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

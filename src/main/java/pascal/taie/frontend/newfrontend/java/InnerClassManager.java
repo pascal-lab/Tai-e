@@ -13,7 +13,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +115,11 @@ final class InnerClassDescriptor {
     public ITypeBinding getExplicitEnclosedInstance() {
         return explicitEnclosedInstance;
     }
+
+    public ITypeBinding getOuterClass() {
+        return outerClass;
+    }
+
 }
 
 
@@ -251,13 +255,6 @@ public class InnerClassManager {
         InnerClassDescriptor desc = getDesc(currentClass);
         assert desc != null;
         desc.addNewCapture(v);
-    }
-
-    public void noticeLocalClassInit(ITypeBinding localClass, ITypeBinding currentClass) {
-        // apply rule:
-        //  if a local class is initialized,
-        //  then its captured vars must be captured by its outer class
-        applySubsetCaptureRule(localClass, currentClass);
     }
 
     public void applySubsetCaptureRule(ITypeBinding c1, ITypeBinding c2) {
