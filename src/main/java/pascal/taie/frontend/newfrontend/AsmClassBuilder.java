@@ -26,6 +26,9 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.generics.ClassGSignature;
+import pascal.taie.language.generics.GSignatures;
+import pascal.taie.language.generics.MethodGSignature;
+import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
@@ -64,6 +67,8 @@ public class AsmClassBuilder implements JClassBuilder {
      * annotations for this class
      */
     private final List<Annotation> annotations;
+
+    private ClassGSignature klassGSig;
 
     private final int version;
 
@@ -147,7 +152,7 @@ public class AsmClassBuilder implements JClassBuilder {
     @Override
     public ClassGSignature getGSignature() {
         // TODO: implement this
-        return null;
+        return klassGSig;
     }
 
     private void buildAll() {
@@ -256,6 +261,9 @@ public class AsmClassBuilder implements JClassBuilder {
                     .toList();
 
             modifiers = fromAsmModifier(access);
+            if (signature != null) {
+                klassGSig = GSignatures.toClassSig(modifiers.contains(Modifier.INTERFACE), signature);
+            }
         }
 
         @Override
@@ -290,13 +298,20 @@ public class AsmClassBuilder implements JClassBuilder {
                 String signature,
                 Object value) {
             Type type = BuildContext.get().fromAsmType(descriptor);
+            ReferenceTypeGSignature gSignature;
+            if (signature != null) {
+                gSignature = GSignatures.toTypeSig(signature);
+            } else {
+                gSignature = null;
+            }
             return new FVisitor(annotations -> fields.add(new JField(jClass, name,
-                fromAsmModifier(access), type, null, AnnotationHolder.make(annotations))));
+                fromAsmModifier(access), type, gSignature, AnnotationHolder.make(annotations))));
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            return new MVisitor(access, name, descriptor, exceptions);
+            return new MVisitor(access, name, descriptor, exceptions,
+                    signature == null ? null : GSignatures.toMethodSig(signature));
         }
 
     }
@@ -342,7 +357,9 @@ public class AsmClassBuilder implements JClassBuilder {
         @Nullable
         private List<String> paramName;
 
-        public MVisitor(int access, String name, String descriptor, String[] exceptions) {
+        private final MethodGSignature gSignature;
+
+        public MVisitor(int access, String name, String descriptor, String[] exceptions, MethodGSignature sig) {
             super(Opcodes.ASM9);
             org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             this.modifiers = fromAsmModifier(access);
@@ -359,9 +376,9 @@ public class AsmClassBuilder implements JClassBuilder {
             }
             this.retType = BuildContext.get().fromAsmType(t.getReturnType());
             this.annotations = new ArrayList<>();
-            this.paramAnnotations = null;
+            this.paramAnnotations = Maps.newMap();
+            this.gSignature = sig;
         }
-
 
         @Override
         public void visitParameter(String name, int access) {
@@ -382,9 +399,8 @@ public class AsmClassBuilder implements JClassBuilder {
             // Note: this handle may cause problem for <init>()
             // of inner class (check doc of this function)
             // TODO: fix this
-//            return new AnnoVisitor(descriptor, paramAnnotations
-//                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
-            return null;
+            return new AnnoVisitor(descriptor, paramAnnotations
+                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
         }
 
         @Override
@@ -398,7 +414,7 @@ public class AsmClassBuilder implements JClassBuilder {
 //                l.add(h);
 //            }
             JMethod method = new JMethod(jClass, methodName, modifiers, paramTypes,
-                    retType, exceptions, null,
+                    retType, exceptions, gSignature,
                     AnnotationHolder.make(annotations), null,
                     paramName,
                     null);

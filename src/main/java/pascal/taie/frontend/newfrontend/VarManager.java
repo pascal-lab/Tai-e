@@ -77,6 +77,7 @@ public class VarManager implements IVarManager {
 
     private final Map<String, Integer> nameUsedCount = Maps.newMap();
 
+    @SuppressWarnings("unchecked")
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
