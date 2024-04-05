@@ -431,6 +431,32 @@ public class AsmIRBuilder {
         assocStmt(item.origin(), stmt);
     }
 
+    /**
+     * Ensure the item is a Var, if not, lift it to a Var.
+     * Do nothing for Top, set the `item.var` for Var.
+     * @param item the item to be lifted
+     */
+    private void liftToVar(StackItem item) {
+        if (item.e() instanceof Top) {
+            return;
+        } else if (item.e() instanceof Var v) {
+            item.lift(v);
+        } else {
+            Var v = toVar(item.e(), item.origin());
+            item.lift(v);
+        }
+    }
+
+    /**
+     * Ensure the item is a Var, if not, lift it to a Var.
+     * Emit a new ($-v = e) even when `e` is a Var.
+     * @param item the item to be lifted
+     */
+    private void forceLiftToVar(StackItem item) {
+        Var v = toVar(item.e(), item.origin());
+        item.lift(v);
+    }
+
     private Var toVar(Exp e, AbstractInsnNode orig) {
         assert ! (e instanceof Var v && manager.isTempVar(v));
         if (e instanceof StackPhi phi) {
@@ -471,18 +497,15 @@ public class AsmIRBuilder {
 
     private Var popVar(Stack<StackItem> stack) {
         StackItem e = popExp(stack);
-        if (e.e() instanceof Var v) {
-            return v;
-        } else {
-            return toVar(e.e(), e.origin());
-        }
+        liftToVar(e);
+        return e.var();
     }
 
     private Stmt popToVar(Stack<StackItem> stack, Var v, BytecodeBlock block) {
         StackItem top = popExp(stack);
         // Note: Var . getUses() will return empty set
-        if (top.e() instanceof StackPhi phi) {
-            top = new StackItem(toVar(phi, null), null);
+        if (top.e() instanceof StackPhi) {
+            liftToVar(top);
         } else {
             ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
         }
@@ -518,11 +541,8 @@ public class AsmIRBuilder {
         List<StackItem> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
             StackItem e = popStack(stack);
-            if (e.e() instanceof Top || e.e() instanceof Var) {
-                takesList.add(e);
-            } else {
-                takesList.add(new StackItem(toVar(e.e(), e.origin()), null));
-            }
+            liftToVar(e);
+            takesList.add(e);
         }
         Collections.reverse(takesList);
         List<StackItem> sepsList = new ArrayList<>(seps);
@@ -536,14 +556,13 @@ public class AsmIRBuilder {
     }
 
     private void ensureStackSafety(Stack<StackItem> stack, Function<Exp, Boolean> predicate) {
-        for (int i = 0; i < stack.size(); ++i) {
-            StackItem item = stack.get(i);
+        for (StackItem item : stack) {
             Exp e = item.e();
             if (e instanceof Top || e instanceof StackPhi) {
                 continue;
             }
             if (predicate.apply(e)) {
-                stack.set(i, new StackItem(toVar(e, item.origin()), null));
+                forceLiftToVar(item);
             }
         }
     }
@@ -1076,14 +1095,9 @@ public class AsmIRBuilder {
                 StackItem item = popStack(stack);
                 Exp e = item.e();
                 assert ! (e instanceof Top);
-                StackItem op;
-                if (e instanceof Var) {
-                    op = item;
-                } else {
-                    op = new StackItem(toVar(e, item.origin()), null);
-                }
-                stack.push(op);
-                stack.push(op);
+                liftToVar(item);
+                stack.push(item);
+                stack.push(item);
             }
             case Opcodes.DUP2 -> dup(stack, 2, 0);
             case Opcodes.DUP_X1 -> dup(stack, 1, 1);
@@ -1246,6 +1260,7 @@ public class AsmIRBuilder {
         boolean isLoopHeader = false;
         Stack<StackItem> inStack = null;
         List<List<StackItem>> inExps = new ArrayList<>();
+        boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
             BytecodeBlock inEdge = getInEdge(block, i);
             if (inEdge.getOutStack() == null) {
@@ -1267,14 +1282,15 @@ public class AsmIRBuilder {
                         inExp.add(stackItem);
                         inExps.add(inExp);
                     }
+                    needPhi = new boolean[inStack.size()];
                 } else {
                     // merge this stack with inStack
-                    mergeStackWithInEdge(block, inEdge, inStack, inExps);
+                    mergeStackWithInEdge(inEdge, inStack, inExps, needPhi);
                 }
             }
         }
+        assert inStack != null;
         if (isLoopHeader) {
-            assert inStack != null;
             for (int i = 0; i < inStack.size(); ++i) {
                 StackItem item = inStack.get(i);
                 Exp e = item.e();
@@ -1285,13 +1301,18 @@ public class AsmIRBuilder {
                 inStack.set(i, createNewStackPhiItem(block, i, new ArrayList<>()));
             }
             block.setLoopHeader(true);
+        } else {
+            for (int i = 0; i < inStack.size(); ++i) {
+                if (needPhi[i]) {
+                    inStack.set(i, createNewStackPhiItem(block, i, inExps.get(i)));
+                }
+            }
         }
-        assert inStack != null;
         return inStack;
     }
 
-    private void mergeStackWithInEdge(BytecodeBlock block, BytecodeBlock inEdge,
-                                      Stack<StackItem> initStack, List<List<StackItem>> inExps) {
+    private void mergeStackWithInEdge(BytecodeBlock inEdge, Stack<StackItem> initStack,
+                                      List<List<StackItem>> inExps, boolean[] needPhi) {
         Stack<StackItem> currentStack = inEdge.getOutStack();
         assert initStack.size() == currentStack.size();
         for (int j = 0; j < initStack.size(); ++j) {
@@ -1306,12 +1327,7 @@ public class AsmIRBuilder {
             List<StackItem> inExp = inExps.get(j);
             inExp.add(item1);
             assert !(e1 instanceof Top);
-            if (initStack.get(j).e() instanceof StackPhi) {
-                continue;
-            }
-            if (e != e1) {
-                initStack.set(j, createNewStackPhiItem(block, j, inExp));
-            }
+            needPhi[j] = needPhi[j] || e != e1;
         }
     }
 
@@ -1399,7 +1415,7 @@ public class AsmIRBuilder {
                     }
                 }
                 for (StackItem item : block.getInStack()) {
-                    Exp e = item.e();
+                    Exp e = item.originalExp();
                     if (e instanceof StackPhi phi1) {
                         if (phi1.getWriteOutVar() != null) continue;
                         Var writeOut = hasCriticalInEdge ? manager.getTempVar() : phi1.getVar();
@@ -1429,9 +1445,8 @@ public class AsmIRBuilder {
                         continue;
                     }
                     StackItem item = phi.getNodes().get(i - unreachableOffset);
-                    Exp e = item.e();
-                    Var v = e instanceof Var ? (Var) e : toVar(e, item.origin());
-                    phiExp.addUseAndCorrespondingBlocks(v, getInEdge(block, i));
+                    liftToVar(item);
+                    phiExp.addUseAndCorrespondingBlocks(item.var(), getInEdge(block, i));
                 }
                 PhiStmt phiStmt = new PhiStmt(phi.getVar(), phi.getVar(), phiExp);
                 phi.setWriteOutVar(phi.getVar());
@@ -1450,17 +1465,20 @@ public class AsmIRBuilder {
 
     private void resolveStackPhi(StackPhi phi) {
         assert !phi.resolved;
-        assert phi.getNodes().size() == getInEdgeCount(phi.createPos);
+        int unreachableOffset = 0;
         Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getNodes().size(); ++i) {
             StackItem item = phi.getNodes().get(i);
-            BytecodeBlock inEdge = getInEdge(phi.createPos, i);
+            BytecodeBlock inEdge = getInEdge(phi.createPos, i + unreachableOffset);
+            if (inEdge.getOutStack() == null) {
+                unreachableOffset++;
+                continue;
+            }
             List<Stmt> stmts = stackMergeStmts.get(inEdge.getIndex());
             Exp e = item.e();
             if (e instanceof StackPhi phi1) {
                 e = phi1.getVar();
             }
-            // TODO: handle double use for `e` in two different phi
             if (e == writeOut) {
                 continue;
             }
@@ -1481,7 +1499,7 @@ public class AsmIRBuilder {
                     continue;
                 }
                 for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
-                    Exp currentExp = inStack.get(j).e();
+                    Exp currentExp = inStack.get(j).originalExp();
                     if (currentExp instanceof Top) {
                         continue;
                     }
@@ -1818,10 +1836,12 @@ public class AsmIRBuilder {
         end = new int[graph.size()];
 
         int maxLocal = source.maxLocals;
-        List<List<BytecodeBlock>> defBlocks = new ArrayList<>(maxLocal);
-        for (int i = 0; i < maxLocal; ++i) {
-            defBlocks.add(new ArrayList<>());
-        }
+        SparseArray<List<BytecodeBlock>> defBlocks = new SparseArray<>(maxLocal) {
+            @Override
+            protected List<BytecodeBlock> createInstance() {
+                return new ArrayList<>();
+            }
+        };
 
         for (int i = 0; i < paramWrite; ++i) {
             rwToIndex[counter] = -1;

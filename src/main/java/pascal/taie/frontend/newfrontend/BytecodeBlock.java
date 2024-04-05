@@ -152,13 +152,14 @@ public final class BytecodeBlock implements IBasicBlock {
             int n = 0;
             for (int i = 0; i < frame.stack.size(); ++i) {
                 Exp e = inStack.get(n).e();
+                Exp original = inStack.get(n).originalExp();
                 Var v;
                 if (e instanceof Top) {
                     n++;
                     e = inStack.get(n).e();
                 }
 
-                if (e instanceof StackPhi phi) {
+                if (original instanceof StackPhi phi) {
                     v = phi.getWriteOutVar();
                 } else if (e instanceof Var v1) {
                     v = v1;
