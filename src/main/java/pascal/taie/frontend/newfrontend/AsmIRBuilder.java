@@ -652,6 +652,14 @@ public class AsmIRBuilder {
         this.stmts = new ArrayList<>(source.instructions.size());
         // Add trigger whether we process phiStmts.
         List<PhiStmt> phiStmts = isLastTime ? new ArrayList<>() : null;
+        int now = 0;
+        for (Var v : manager.intConstVarCache) {
+            if (v != null) {
+                Stmt curr = getAssignStmt(v, v.getConstValue());
+                curr.setIndex(now++);
+                stmts.add(curr);
+            }
+        }
         for (BytecodeBlock block : blockSortedList) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
@@ -659,7 +667,7 @@ public class AsmIRBuilder {
                     if (isLastTime && t instanceof PhiStmt p) {
                         phiStmts.add(p);
                     }
-                    t.setIndex(stmts.size());
+                    t.setIndex(now++);
                     stmts.add(t);
                 }
                 setJumpTargets(block.getLastBytecode(), block.getLastStmt());
@@ -820,7 +828,7 @@ public class AsmIRBuilder {
         Var v2;
         if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             v1 = popVar(stack);
-            v2 = manager.getZeroLiteral();
+            v2 = manager.getConstVar(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
             v1 = popVar(stack);
             v2 = manager.getNullLiteral();

@@ -52,11 +52,11 @@ public class VarManager implements IVarManager {
 
     private int counter;
 
-    private final int INT_CACHE_LOW = -128;
+    final int INT_CACHE_LOW = -8;
 
-    private final int INT_CACHE_HIGH = 127;
+    final int INT_CACHE_HIGH = 7;
 
-    private final Var[] intConstVarCache;
+    final Var[] intConstVarCache;
 
     private Var[] local2Var; // slot -> Var
 
@@ -73,8 +73,6 @@ public class VarManager implements IVarManager {
 
     private @Nullable Var thisVar;
 
-    private @Nullable Var zeroLiteral;
-
     private @Nullable Var nullLiteral;
 
     private final Map<String, Integer> nameUsedCount = Maps.newMap();
@@ -88,7 +86,7 @@ public class VarManager implements IVarManager {
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
-        this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
+        intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
         this.local2Var = new Var[maxLocal];
         this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocal] : null;
         this.params = new ArrayList<>();
@@ -351,14 +349,6 @@ public class VarManager implements IVarManager {
 
     public void addReturnVar(Var v) {
         this.retVars.add(v);
-    }
-
-    public Var getZeroLiteral() {
-        if (zeroLiteral == null) {
-            zeroLiteral = newConstVar("*intliteral0", IntLiteral.get(0));
-            ExpModifier.setType(zeroLiteral, INT);
-        }
-        return zeroLiteral;
     }
 
     public Var getNullLiteral() {
