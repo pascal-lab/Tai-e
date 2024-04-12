@@ -67,7 +67,6 @@ task("fatJar", type = Jar::class) {
 
 tasks.jar {
     from("COPYING", "COPYING.LESSER")
-    from(zipTree("lib/sootclasses-modified.jar"))
     destinationDirectory.set(rootProject.layout.buildDirectory)
     manifest {
         attributes["Tai-e-Version"] = projectVersion
