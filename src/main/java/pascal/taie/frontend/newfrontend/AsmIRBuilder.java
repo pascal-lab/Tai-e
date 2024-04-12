@@ -32,6 +32,7 @@ import pascal.taie.frontend.newfrontend.ssa.PhiExp;
 import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.SSATransform;
+import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -89,6 +90,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -160,6 +162,8 @@ public class AsmIRBuilder {
 
     private boolean USE_SSA = false;
 
+    final VarSSAInfo varSSAInfo;
+
     private Dominator<BytecodeBlock> dom;
 
     public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
@@ -169,9 +173,10 @@ public class AsmIRBuilder {
         this.classFileVersion = methodSource.classFileVersion();
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
+        this.varSSAInfo = new VarSSAInfo();
         if (!isEmpty) {
             this.manager = new VarManager(method,
-                    source.localVariables, source.instructions, source.maxLocals);
+                    source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
             this.asm2Stmt = new Stmt[instrSize];
             this.auxiliaryStmts = new ArrayList<>(instrSize);
             for (int i = 0; i < instrSize; ++i) {
@@ -242,12 +247,6 @@ public class AsmIRBuilder {
             stageTimer.endSplitting();
         }
         stageTimer.startTyping();
-        // very important, need to build the exception table
-        // before the type inference.
-        // e.g. (catch %1), we store type info in exception table,
-        //      TypeInference need to know what type %1 is
-        makeStmts(false);
-        makeExceptionTable();
         TypeInference inference = new TypeInference(this);
         inference.build();
         stageTimer.endTyping();
@@ -349,7 +348,34 @@ public class AsmIRBuilder {
         if (lValue instanceof Var v && !EXPERIMENTAL) {
             duInfo.addDefBlock(v, currentBlock);
         }
+        tryInferType(lValue, e);
         return Utils.getAssignStmt(method, lValue, e);
+    }
+
+    private void tryInferType(LValue l, Exp e) {
+        if (l instanceof Var left && left.getType() == null) {
+            Type right;
+
+            if (e instanceof Var r) {
+                right = r.getType() == null ? null : r.getType();
+            } else if (e instanceof ArrayAccess ac) {
+                right = ac.getBase().getType() == null ? null :
+                        ac.getBase().getType() == NullType.NULL ? NullType.NULL :
+                                ac.getType();
+            } else if (e instanceof BinaryExp binary) {
+                right = binary.getOperand1().getType() == null ? null : binary.getType();
+            } else if (e instanceof NegExp neg) {
+                right = neg.getOperand().getType() == null ? null : neg.getType();
+            } else {
+                right = e.getType();
+            }
+
+            if (right instanceof PrimitiveType) {
+                ExpModifier.setType(left, right);
+            } else if (right != null && varSSAInfo.isSSAVar(left)) {
+                ExpModifier.setType(left, right);
+            }
+        }
     }
 
     private boolean isDword(AbstractInsnNode node, Exp e) {
@@ -993,7 +1019,7 @@ public class AsmIRBuilder {
             v = popVar(stack);
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (manager.isLocal(v) && !USE_SSA) {
+            if (manager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !USE_SSA) {
                 Var origin = v;
                 v = manager.getTempVar();
                 assocStmt(varNode, getAssignStmt(v, origin));
@@ -1135,6 +1161,7 @@ public class AsmIRBuilder {
             PhiExp phiExp = new PhiExp();
             reachVars[phi.getDUIndex()] = phiVar;
             PhiStmt phiStmt = new PhiStmt(origin, phiVar, phiExp);
+            varSSAInfo.setNonSSA(phiVar);
             assocStmt(first, phiStmt);
             phi.setRealPhi(phiStmt);
             manager.aliasLocal(phiVar, manager.getSlot(origin));
@@ -1342,6 +1369,7 @@ public class AsmIRBuilder {
     private StackItem createNewStackPhiItem(BytecodeBlock block, int index, List<StackItem> inExp) {
         StackPhi phi = new StackPhi(index, inExp, block);
         phi.setVar(manager.getTempVar());
+        varSSAInfo.setNonSSA(phi.getVar());
         phiList.add(phi);
         return new StackItem(phi, null);
     }
@@ -1426,8 +1454,10 @@ public class AsmIRBuilder {
                     Exp e = item.originalExp();
                     if (e instanceof StackPhi phi1) {
                         if (phi1.getWriteOutVar() != null) continue;
-                        Var writeOut = hasCriticalInEdge ? manager.getTempVar() : phi1.getVar();
-                        if (hasCriticalInEdge && phi1.used) {
+                        boolean useWorseSolution = hasCriticalInEdge && getInEdgeCount(block) != 0 && phi1.used;
+                        Var writeOut = useWorseSolution ? manager.getTempVar() : phi1.getVar();
+                        varSSAInfo.setNonSSA(writeOut);
+                        if (useWorseSolution) {
                             // add `v = writeOut` before any definition (first instruction) in create pos
                             BytecodeBlock createPos = phi1.createPos;
                             addToBlockHead(createPos, getAssignStmt(phi1.getVar(), writeOut));
@@ -1941,6 +1971,12 @@ public class AsmIRBuilder {
         for (int i = 0; i < paramWrite; ++i) {
             if (isFastProcessVar(i)) {
                 reachVars[i] = manager.getLocal(i);
+                Var current = reachVars[i];
+                if (splitting.canFastProcess(i)) {
+                    varSSAInfo.setSSA(current);
+                } else {
+                    varSSAInfo.setNonSSA(current);
+                }
             }
         }
     }

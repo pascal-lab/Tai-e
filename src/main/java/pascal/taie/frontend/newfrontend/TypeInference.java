@@ -4,13 +4,15 @@ import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.exp.InvokeDynamic;
+import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
 import pascal.taie.ir.stmt.Cast;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
@@ -48,6 +50,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+// TODO: moving to newfrontend.typing package
 public class TypeInference {
 
     final AsmIRBuilder builder;
@@ -87,140 +90,155 @@ public class TypeInference {
         }
     }
 
+    class ConstraintVisitor implements StmtVisitor<Void> {
+        @Override
+        public Void visit(New stmt) {
+            graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+            return null;
+        }
+
+        @Override
+        public Void visit(AssignLiteral stmt) {
+            graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+            return null;
+        }
+
+        @Override
+        public Void visit(Copy stmt) {
+            graph.addVarEdge(stmt.getRValue(), stmt.getLValue(), EdgeKind.VAR_VAR);
+            return null;
+        }
+
+        @Override
+        public Void visit(LoadArray stmt) {
+            graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.ARRAY_VAR);
+            return null;
+        }
+
+        @Override
+        public Void visit(StoreArray stmt) {
+            Type rType = stmt.getRValue().getType();
+            // skips primitive type
+            if (rType instanceof PrimitiveType) {
+                return null;
+            }
+            graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
+            return null;
+        }
+
+        @Override
+        public Void visit(LoadField stmt) {
+            graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+            if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
+                // TODO: maybe resolve() or can just setType() ?
+                graph.addUseConstrain(instanceFieldAccess.getBase(),
+                        instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(StoreField stmt) {
+            if (stmt.getLValue().getType() instanceof ReferenceType r) {
+                graph.addUseConstrain(stmt.getRValue(), r);
+            }
+            return StmtVisitor.super.visit(stmt);
+        }
+
+        @Override
+        public Void visit(Binary stmt) {
+            graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
+            return null;
+        }
+
+        @Override
+        public Void visit(Unary stmt) {
+            if (stmt.getRValue() instanceof ArrayLengthExp) {
+                graph.addConstantEdge(INT, stmt.getLValue());
+            } else {
+                graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(InstanceOf stmt) {
+            graph.addConstantEdge(BOOLEAN, stmt.getLValue());
+            return null;
+        }
+
+        @Override
+        public Void visit(Cast stmt) {
+            graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+            return null;
+        }
+
+        @Override
+        public Void visit(Invoke stmt) {
+            Var lValue = stmt.getLValue();
+            InvokeExp rValue = stmt.getRValue();
+            if (lValue != null) {
+                graph.addConstantEdge(rValue.getType(), lValue);
+            }
+
+            if (rValue instanceof InvokeInstanceExp invokeInstanceExp) {
+                if (!stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
+                    graph.addUseConstrain(invokeInstanceExp.getBase(),
+                            invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                }
+            }
+
+            if (rValue instanceof InvokeDynamic) {
+                return null;
+            }
+            List<Type> paraTypes = rValue.getMethodRef().getParameterTypes();
+            List<Var> args = rValue.getArgs();
+            for (int i = 0; i < args.size(); ++i) {
+                Type paraType = paraTypes.get(i);
+                Var arg = args.get(i);
+                if (paraType instanceof ReferenceType r) {
+                    graph.addUseConstrain(arg, r);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(Return stmt) {
+            Type retType = builder.method.getReturnType();
+            if (retType instanceof ReferenceType r) {
+                assert stmt.getValue() != null;
+                graph.addUseConstrain(stmt.getValue(), r);
+            }
+            return StmtVisitor.super.visit(stmt);
+        }
+
+        @Override
+        public Void visit(PhiStmt stmt) {
+            Var lValue = stmt.getLValue();
+            for (RValue v : stmt.getRValue().getUses()) {
+                graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
+            }
+            return StmtVisitor.super.visit(stmt);
+        }
+    }
+
     public void build() {
 
         addThisParam();
-        addExceptionRef();
-
+        ConstraintVisitor visitor = new ConstraintVisitor();
         for (BytecodeBlock block : builder.blockSortedList) {
+            if (block.getExceptionHandlerType() != null) {
+                for (Stmt stmt : block.getStmts()) {
+                    if (stmt instanceof Catch catchStmt) {
+                        graph.addConstantEdge(block.getExceptionHandlerType(),
+                                catchStmt.getExceptionRef());
+                        break;
+                    }
+                }
+            }
             for (Stmt stmt : block.getStmts()) {
-                stmt.accept(new StmtVisitor<Void>() {
-                    @Override
-                    public Void visit(New stmt) {
-                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(AssignLiteral stmt) {
-                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(Copy stmt) {
-                        graph.addVarEdge(stmt.getRValue(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(LoadArray stmt) {
-                        graph.addVarEdge(stmt.getRValue().getBase(), stmt.getLValue(), EdgeKind.ARRAY_VAR);
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(StoreArray stmt) {
-                        Type rType = stmt.getRValue().getType();
-                        // skips primitive type
-                        if (rType instanceof PrimitiveType) {
-                            return null;
-                        }
-                        graph.addVarEdge(stmt.getRValue(), stmt.getLValue().getBase(), EdgeKind.VAR_ARRAY);
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(LoadField stmt) {
-                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                        if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
-                            // TODO: maybe resolve() or can just setType() ?
-                            graph.addUseConstrain(instanceFieldAccess.getBase(),
-                                    instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(StoreField stmt) {
-                        if (stmt.getLValue().getType() instanceof ReferenceType r) {
-                            graph.addUseConstrain(stmt.getRValue(), r);
-                        }
-                        return StmtVisitor.super.visit(stmt);
-                    }
-
-                    @Override
-                    public Void visit(Binary stmt) {
-                        graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(Unary stmt) {
-                        if (stmt.getRValue() instanceof ArrayLengthExp) {
-                            graph.addConstantEdge(INT, stmt.getLValue());
-                        } else {
-                            graph.addVarEdge(stmt.getRValue().getOperand(), stmt.getLValue(), EdgeKind.VAR_VAR);
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(InstanceOf stmt) {
-                        graph.addConstantEdge(BOOLEAN, stmt.getLValue());
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(Cast stmt) {
-                        graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(Invoke stmt) {
-                        Var lValue = stmt.getLValue();
-                        if (lValue != null) {
-                            graph.addConstantEdge(stmt.getRValue().getType(), lValue);
-                        }
-
-                        if (stmt.getRValue() instanceof InvokeInstanceExp invokeInstanceExp) {
-                            if (!stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
-                                graph.addUseConstrain(invokeInstanceExp.getBase(),
-                                        invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
-                            }
-                        }
-
-                        List<Type> paraTypes = stmt.getRValue().getMethodRef().getParameterTypes();
-                        List<Var> args = stmt.getRValue().getArgs();
-                        for (int i = 0; i < args.size(); ++i) {
-                            Type paraType = paraTypes.get(i);
-                            Var arg = args.get(i);
-                            if (paraType instanceof ReferenceType r) {
-                                graph.addUseConstrain(arg, r);
-                            }
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(Return stmt) {
-                        Type retType = builder.method.getReturnType();
-                        if (retType instanceof ReferenceType r) {
-                            graph.addUseConstrain(stmt.getValue(), r);
-                        }
-                        return StmtVisitor.super.visit(stmt);
-                    }
-
-                    @Override
-                    public Void visit(PhiStmt stmt) {
-                        Var lValue = stmt.getLValue();
-                        for (RValue v : stmt.getRValue().getUses()) {
-                            graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
-                        }
-                        return StmtVisitor.super.visit(stmt);
-                    }
-                });
+                stmt.accept(visitor);
             }
         }
 
@@ -262,24 +280,29 @@ public class TypeInference {
         }
     }
 
-    private void addExceptionRef() {
-        for (ExceptionEntry entry : builder.getExceptionEntries()) {
-            graph.addConstantEdge(entry.catchType(), entry.handler().getExceptionRef());
-        }
-    }
-
-    static class TypingFlowGraph {
+    class TypingFlowGraph {
         Map<Var, TypingFlowNode> nodes = Maps.newHybridMap();
 
         public void addConstantEdge(Type t, Var v) {
             assert v != null;
+            if (v.getType() != null) {
+                return;
+            } else if (builder.varSSAInfo.isSSAVar(v)) {
+                ExpModifier.setType(v, t);
+                return;
+            }
             TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
             node.setNewType(t);
         }
 
         public void addVarEdge(Var from, Var to, EdgeKind kind) {
+            if (to.getType() != null && from.getType() != null) {
+                return;
+            }
             if (from.getType() != null) {
-                addConstantEdge(from.getType(), to);
+                computeFlowOutType(from.getType(), kind).ifPresent((t) -> {
+                    addConstantEdge(t, to);
+                });
             } else {
                 TypingFlowNode n1 = nodes.computeIfAbsent(from, TypingFlowNode::new);
                 TypingFlowNode n2 = nodes.computeIfAbsent(to, TypingFlowNode::new);
@@ -290,6 +313,9 @@ public class TypeInference {
         }
 
         public void addUseConstrain(Var v, ReferenceType constrain) {
+            if (v.getType() != null) {
+                return;
+            }
             TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
             node.addNewUseConstrain(constrain);
         }
@@ -301,16 +327,16 @@ public class TypeInference {
             for (TypingFlowNode node : nodes.values()) {
                 if (node.primitiveType != null) {
                     PrimitiveType t = node.primitiveType;
-                    queue.addAll(flowOutType(node, t));
+                    flowOutType(queue, node, t);
                 } else if (node.types != null) {
                     node.firstResolve();
-                    queue.addAll(flowOutType(node, node.referenceType));
+                    flowOutType(queue, node, node.referenceType);
                 }
             }
 
             while (!queue.isEmpty()) {
                 FlowType now = queue.poll();
-                queue.addAll(spreadingFlowType(now));
+                spreadingFlowType(queue, now);
             }
         }
 
@@ -319,73 +345,68 @@ public class TypeInference {
             for (TypingFlowNode node : nodes.values()) {
                 if (node.useValidConstrains != null) {
                     for (ReferenceType t : node.useValidConstrains) {
-                        queue.addAll(flowOutConstrains(node, t));
+                        flowOutConstrains(queue, node, t);
                     }
                 }
             }
 
             while (!queue.isEmpty()) {
                 FlowType now = queue.poll();
-                queue.addAll(spreadingUseConstrains(now));
+                spreadingUseConstrains(queue, now);
             }
         }
 
-        private List<FlowType> spreadingUseConstrains(FlowType type) {
+        private void spreadingUseConstrains(Queue<FlowType> queue, FlowType type) {
             TypingFlowNode now = type.edge.source;
             Optional<Type> optionalType = type.getSourceType();
             if (optionalType.isEmpty()) {
-                return List.of();
+                return;
             }
             Type t = optionalType.get();
             if (t instanceof ReferenceType t1) {
                 if (now.useValidConstrains.add(t1)) {
-                    return flowOutConstrains(now, t1);
+                    flowOutConstrains(queue, now, t1);
                 }
             }
-            return List.of();
         }
 
-        private List<FlowType> spreadingFlowType(FlowType type) {
+        private void spreadingFlowType(Queue<FlowType> queue, FlowType type) {
             TypingFlowNode now = type.edge.target;
             Optional<Type> optionalType = type.getTargetType();
             if (optionalType.isEmpty()) {
-                return List.of();
+                return;
             }
             Type t = optionalType.get();
             if (t instanceof PrimitiveType pType) {
                 if (now.onNewPrimitiveType(pType)) {
-                    return flowOutType(now, pType);
+                    flowOutType(queue, now, pType);
                 }
             } else if (t instanceof ReferenceType rType) {
                 boolean needSpread = now.onNewReferenceType(type.edge.kind, rType);
                 if (needSpread) {
-                    return flowOutType(now, now.referenceType);
+                    flowOutType(queue, now, now.referenceType);
                 }
             } else {
                 throw new UnsupportedOperationException();
             }
-
-            return List.of();
         }
 
-        private List<FlowType> flowOutType(TypingFlowNode node, PrimitiveType pType) {
-            return node.outEdges.stream()
-                    .map(e -> new FlowType(e, pType))
-                    .toList();
+        private void flowOutType(Queue<FlowType> queue, TypingFlowNode node, PrimitiveType pType) {
+            for (TypingFlowEdge e : node.outEdges) {
+                queue.add(new FlowType(e, pType));
+            }
         }
 
-        private List<FlowType> flowOutType(TypingFlowNode node, ReferenceType type) {
-            return node.outEdges
-                    .stream()
-                    .map(e -> new FlowType(e, type))
-                    .toList();
+        private void flowOutType(Queue<FlowType> queue, TypingFlowNode node, ReferenceType type) {
+            for (TypingFlowEdge e : node.outEdges) {
+                queue.add(new FlowType(e, type));
+            }
         }
 
-        private List<FlowType> flowOutConstrains(TypingFlowNode node, ReferenceType type) {
-            return node.inEdges
-                    .stream()
-                    .map(e -> new FlowType(e, type))
-                    .toList();
+        private void flowOutConstrains(Queue<FlowType> queue, TypingFlowNode node, ReferenceType type) {
+            for (TypingFlowEdge e : node.inEdges) {
+                queue.add(new FlowType(e, type));
+            }
         }
     }
 
@@ -405,6 +426,14 @@ public class TypeInference {
                 case ARRAY_VAR -> plusOneArray(type);
             };
         }
+    }
+
+    private static Optional<Type> computeFlowOutType(Type t, EdgeKind kind) {
+        return switch (kind) {
+            case VAR_VAR -> Optional.of(t);
+            case VAR_ARRAY -> plusOneArray(t);
+            case ARRAY_VAR -> subOneArray(t);
+        };
     }
 
     static final class TypingFlowNode {

@@ -55,6 +55,7 @@ import static pascal.taie.language.type.CharType.CHAR;
 import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.ShortType.SHORT;
 
+// TODO: moving to newfrontend.typing package
 public class TypeInference0 {
 
     private final AsmIRBuilder builder;
@@ -198,8 +199,7 @@ public class TypeInference0 {
     }
 
     private boolean isLocal(Var v) {
-        return localTypeConstrains.get(v.getIndex()) != null
-                || localCells[v.getIndex()] != -1;
+        return !builder.varSSAInfo.isSSAVar(v);
     }
 
     private void setType(Typing typing, Var v, Type t) {
@@ -208,6 +208,9 @@ public class TypeInference0 {
     }
 
     private void newTypeAssign(Var var, Type t, Typing typing) {
+        if (var.getType() != null) {
+            return;
+        }
         setType(typing, var, t);
     }
 
@@ -407,6 +410,7 @@ public class TypeInference0 {
             @Override
             public Void visit(StoreField stmt) {
                 addConstrainsForFieldAccess(stmt.getFieldAccess());
+                addTypeConstrain(stmt.getRValue(), stmt.getFieldAccess().getFieldRef().getType());
                 return StmtVisitor.super.visit(stmt);
             }
 

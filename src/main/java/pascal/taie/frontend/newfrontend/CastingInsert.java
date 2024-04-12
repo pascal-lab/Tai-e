@@ -56,7 +56,7 @@ public class CastingInsert {
     }
 
     private Cast getNewCast(Var left, Var right, Type t) {
-        logger.atInfo().log("[CASTING] Current stmt: " + currentStmt + "\n" +
+        logger.atTrace().log("[CASTING] Current stmt: " + currentStmt + "\n" +
                             "          Var " + right + " With Type: " + right.getType() + "\n" +
                             "          Excepted Type: " + t + "\n" +
                             "          In method: " + builder.method);
@@ -233,7 +233,7 @@ public class CastingInsert {
                                         // assert isAssignable(t, v.getType());
                                         return stage1Transform(stmt, base, v);
                                     } else {
-                                        logger.atInfo().log("[CASTING] fallback solution for stage1");
+                                        logger.atTrace().log("[CASTING] fallback solution for stage1");
                                     }
                                 }
 

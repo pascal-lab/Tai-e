@@ -6,6 +6,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
+import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
 import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
@@ -13,7 +14,6 @@ import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
@@ -77,11 +77,14 @@ public class VarManager implements IVarManager {
 
     private final Map<String, Integer> nameUsedCount = Maps.newMap();
 
+    private final VarSSAInfo info;
+
     @SuppressWarnings("unchecked")
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
-                      int maxLocal) {
+                      int maxLocal,
+                      VarSSAInfo info) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
@@ -93,6 +96,7 @@ public class VarManager implements IVarManager {
         this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>(maxLocal * 6);
         this.retVars = new HashSet<>();
+        this.info = info;
 
         if (existsLocalVariableTable) {
             processLocalVarTable();
@@ -187,7 +191,9 @@ public class VarManager implements IVarManager {
     }
 
     public Var getTempVar() {
-        return newVar(TEMP_PREFIX + "v" + counter);
+        Var v = newVar(TEMP_PREFIX + "v" + counter);
+        info.setSSA(v);
+        return v;
     }
 
     @Override
@@ -266,6 +272,7 @@ public class VarManager implements IVarManager {
         Var v1 = newVar(name);
         var2Local.put(v1, slot);
         local2Var[slot] = v1;
+        info.setNonSSA(v1);
     }
 
     private String getLocalName(int slot, boolean isStatic) {
@@ -440,8 +447,9 @@ public class VarManager implements IVarManager {
     }
 
     private Var newConstVar(String name, Literal literal) {
-        Var v = new Var(method, name, null, counter++, literal);
+        Var v = new Var(method, name, literal.getType(), counter++, literal);
         vars.add(v);
+        info.setNonSSA(v);
         return v;
     }
 
