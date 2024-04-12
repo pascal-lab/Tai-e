@@ -25,6 +25,7 @@ import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
@@ -98,7 +99,8 @@ public class StmtVarVisitor {
         } else if (stmt instanceof Throw throwStmt) {
             consumer.accept(throwStmt.getExceptionRef());
         } else if (stmt instanceof Catch | stmt instanceof Goto
-                | stmt instanceof New | stmt instanceof AssignLiteral) {
+                | stmt instanceof New | stmt instanceof AssignLiteral
+                | stmt instanceof Nop) {
             // Do nothing
             return;
         } else if (stmt instanceof PhiStmt phiStmt) {

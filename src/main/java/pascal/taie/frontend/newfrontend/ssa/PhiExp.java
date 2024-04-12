@@ -45,10 +45,17 @@ public class PhiExp implements Exp, RValue {
 
     @Override
     public Set<RValue> getUses() {
-        return usesAndInBlocks
-                .stream()
-                .map(Pair::first)
-                .collect(Collectors.toSet());
+        if (sourceAndVar != null) {
+            return sourceAndVar
+                    .stream()
+                    .map(Pair::second)
+                    .collect(Collectors.toSet());
+        } else {
+            return usesAndInBlocks
+                    .stream()
+                    .map(Pair::first)
+                    .collect(Collectors.toSet());
+        }
     }
 
     @Override
