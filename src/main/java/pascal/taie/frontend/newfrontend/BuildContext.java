@@ -30,7 +30,7 @@ public class BuildContext {
 
     private final JClassLoader defaultClassLoader;
 
-    private final TypeSystem typeSystem;
+    private final TempTypeSystem typeSystem;
 
     private ClassHierarchy hierarchy;
 
@@ -38,7 +38,7 @@ public class BuildContext {
 
     private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
         this.defaultClassLoader = defaultClassLoader;
-        this.typeSystem = typeSystem;
+        this.typeSystem = (TempTypeSystem) typeSystem;
     }
 
     static BuildContext buildContext;
@@ -74,13 +74,29 @@ public class BuildContext {
     }
 
     public ReferenceType fromAsmInternalName(String internalName) {
+        if (internalName.charAt(0) != '[') {
+            return typeSystem.getClassTypeByInternalName(internalName);
+        }
         return (ReferenceType) fromAsmType(
                 org.objectweb.asm.Type.getObjectType(internalName));
     }
 
     public Type fromAsmType(String descriptor) {
-        org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-        return fromAsmType(t);
+        return switch (descriptor.charAt(0)) {
+            case 'V' -> VoidType.VOID;
+            case 'Z' -> BOOLEAN;
+            case 'C' -> CHAR;
+            case 'B' -> BYTE;
+            case 'S' -> SHORT;
+            case 'I' -> INT;
+            case 'F' -> FLOAT;
+            case 'J' -> LONG;
+            case 'D' -> DOUBLE;
+            case '[' -> fromAsmType(org.objectweb.asm.Type.getType(descriptor));
+            case 'L' -> typeSystem.getClassTypeByInternalName(
+                    descriptor.substring(1, descriptor.length() - 1));
+            default -> throw new IllegalArgumentException("Invalid descriptor: " + descriptor);
+        };
     }
 
     public Type fromAsmType(org.objectweb.asm.Type t) {
@@ -123,7 +139,7 @@ public class BuildContext {
         return fromAsmMethodType(t);
     }
 
-    public Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type t) {
+    private Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type t) {
         if (t.getSort() == org.objectweb.asm.Type.METHOD) {
             List<Type> paramTypes = new ArrayList<>();
             for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
@@ -141,10 +157,10 @@ public class BuildContext {
     }
 
     public JClass toJClass(String internalName) {
-        if (internalName.startsWith("[")) {
+        if (internalName.charAt(0) == '[') {
             return Utils.getObject().getJClass();
         } else {
-            return getClassByName(org.objectweb.asm.Type.getObjectType(internalName).getClassName());
+            return typeSystem.getClassTypeByInternalName(internalName).getJClass();
         }
     }
 

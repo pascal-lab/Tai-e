@@ -32,6 +32,7 @@ import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Pair;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -361,7 +362,6 @@ public class AsmClassBuilder implements JClassBuilder {
 
         public MVisitor(int access, String name, String descriptor, String[] exceptions, MethodGSignature sig) {
             super(Opcodes.ASM9);
-            org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
             this.modifiers = fromAsmModifier(access);
             this.methodName = name;
             this.exceptions = new ArrayList<>();
@@ -370,11 +370,9 @@ public class AsmClassBuilder implements JClassBuilder {
                     this.exceptions.add((ClassType) BuildContext.get().fromAsmInternalName(exception));
                 }
             }
-            this.paramTypes = new ArrayList<>();
-            for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
-                paramTypes.add(BuildContext.get().fromAsmType(t1));
-            }
-            this.retType = BuildContext.get().fromAsmType(t.getReturnType());
+            Pair<List<Type>, Type> mtdType = BuildContext.get().fromAsmMethodType(descriptor);
+            this.retType = mtdType.second();
+            this.paramTypes = mtdType.first();
             this.annotations = new ArrayList<>();
             this.paramAnnotations = Maps.newMap();
             this.gSignature = sig;

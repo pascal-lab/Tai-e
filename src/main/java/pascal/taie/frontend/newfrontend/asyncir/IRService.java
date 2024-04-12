@@ -14,13 +14,11 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.type.Type;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -105,11 +103,9 @@ public class IRService {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                 JSRInlinerAdapter adapter = new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);
-                org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-                var paramTypes = Arrays.stream(t.getArgumentTypes())
-                        .map(BuildContext.get()::fromAsmType)
-                        .toList();
-                var retType = BuildContext.get().fromAsmType(t.getReturnType());
+                var paramAndRet = BuildContext.get().fromAsmMethodType(descriptor);
+                List<Type> paramTypes = paramAndRet.first();
+                Type retType = paramAndRet.second();
                 JMethod method1 = clazz.getDeclaredMethod(Subsignature.get(name, paramTypes, retType));
                 if (method1 == null) {
                     throw new IllegalStateException("Cannot find method %s in class %s".formatted(name, clazz));

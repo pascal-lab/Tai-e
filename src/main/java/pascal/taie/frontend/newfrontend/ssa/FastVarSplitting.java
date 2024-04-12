@@ -2,15 +2,16 @@ package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.frontend.newfrontend.data.IntList;
 import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.util.collection.Maps;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 public class FastVarSplitting<Block extends IBasicBlock> {
@@ -417,14 +418,14 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     private int phiInsertion() {
         int phiCount = 0;
 
-        SparseSet current = new SparseSet(graph.size(), graph.size());
+        Queue<Integer> current = new ArrayDeque<>();
         for (int v = 0; v < varSize; ++v) {
             List<Block> defBlocks = info.getDefBlock(v);
             for (Block block : defBlocks) {
                 current.add(block.getIndex());
             }
             while (!current.isEmpty()) {
-                Block block = graph.getNode(current.removeLast());
+                Block block = graph.getNode(current.poll());
                 for (int node : df.get(block.getIndex())) {
                     if (!isInserted(node, v)) {
                         SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getNode(node), phiCount++);

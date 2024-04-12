@@ -1,8 +1,11 @@
 package pascal.taie.frontend.newfrontend;
 
 
+import pascal.taie.frontend.newfrontend.data.IntList;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,88 +14,41 @@ import java.util.List;
  * <p>This data structure will be more efficient (O(k), k is the element size) for element iterate</p>
  */
 public class SparseSet implements Iterable<Integer> {
-    private final int[] sparse;
-    private final int[] dense;
-    private final int capacity;
-    private final int maxValue;
-    private int numberOfElements;
+    private final BitSet bitSet;
 
-    public static int NOT_EXIST = -1;
+    private final IntList list;
 
     public SparseSet(int maxV, int cap) {
-        sparse = new int[maxV + 1];
-        dense = new int[cap];
-        capacity = cap;
-        maxValue = maxV;
-        numberOfElements = 0;
-    }
-
-    public int search(int x) {
-
-        if (x > maxValue) {
-            return NOT_EXIST;
-        }
-
-        if (sparse[x] < numberOfElements && dense[sparse[x]] == x) {
-            return sparse[x];
-        }
-        return NOT_EXIST;
+        bitSet = new BitSet(maxV + 1);
+        list = new IntList(4);
     }
 
     public boolean has(int x) {
-        return search(x) != NOT_EXIST;
+        return bitSet.get(x);
     }
 
     public void add(int x) {
-        // the element already exists in the set
-        if (search(x) != NOT_EXIST) {
+        if (has(x)) {
             return;
         }
-        assert !(x > maxValue || numberOfElements >= capacity);
-        // add the element to the end of the dense array
-        dense[numberOfElements] = x;
-
-        // update the index of the element in the sparse array
-        sparse[x] = numberOfElements;
-
-        numberOfElements++; // increment the size of the set
-    }
-
-    public void union(SparseSet another) {
-        for (int i = 0; i < another.numberOfElements; ++i) {
-            add(another.dense[i]);
-        }
+        bitSet.set(x);
+        list.add(x);
     }
 
     public boolean isEmpty() {
-        return numberOfElements == 0;
+        return list.size() == 0;
     }
 
     public void clear() {
-        numberOfElements = 0;
+        throw new UnsupportedOperationException();
     }
 
     public int removeLast() {
-        assert numberOfElements > 0;
-        int res = dense[numberOfElements - 1];
-        numberOfElements--;
-        return res;
+        throw new UnsupportedOperationException();
     }
 
     public void delete(int x) {
-
-        int index = search(x); // find the index of the element
-
-        // check if the element exists in the set
-        if (index == NOT_EXIST) {
-            return; // if not, do nothing and return
-        }
-
-        // swap the element with the last element in the dense array
-        int temp = dense[numberOfElements - 1];
-        dense[index] = temp;
-        sparse[temp] = index;
-        numberOfElements--; // decrement the size of the set
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -103,27 +59,26 @@ public class SparseSet implements Iterable<Integer> {
 
             @Override
             public boolean hasNext() {
-                return index < numberOfElements;
+                return index < list.size();
             }
 
             @Override
             public Integer next() {
-                return dense[index++];
+                return list.get(index++);
             }
         };
     }
 
     public List<Integer> toList() {
-        List<Integer> res = new ArrayList<>(numberOfElements);
-        for (int i = 0; i < numberOfElements; ++i) {
-            res.add(dense[i]);
+        List<Integer> res = new ArrayList<>(list.size());
+        for (int i = 0; i < list.size(); ++i) {
+            res.add(list.get(i));
         }
-        res.sort(Integer::compareTo);
         return res;
     }
 
     public int size() {
-        return numberOfElements;
+        return list.size();
     }
 
 }

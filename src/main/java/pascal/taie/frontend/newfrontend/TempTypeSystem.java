@@ -38,6 +38,8 @@ public class TempTypeSystem implements TypeSystem {
 
     private final Map<String, ClassType> defaultClassTypes = newConcurrentMap();
 
+    private final Map<String, ClassType> internalNameClassTypes = newConcurrentMap();
+
     /**
      * This map may be concurrently written during IR construction,
      * thus we use concurrent map to ensure its thread-safety.
@@ -108,13 +110,19 @@ public class TempTypeSystem implements TypeSystem {
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
-        assert loader == defaultClassLoader;
-        if (loader == defaultClassLoader) {
-            return defaultClassTypes.computeIfAbsent(className,
-                    name -> new ClassType(loader, name));
-        }
-        return classTypes.computeIfAbsent(loader, l -> newConcurrentMap())
-                .computeIfAbsent(className, name -> new ClassType(loader, name));
+//        assert loader == defaultClassLoader;
+//        if (loader == defaultClassLoader) {
+//            return defaultClassTypes.computeIfAbsent(className,
+//                    name -> new ClassType(loader, name));
+//        }
+//        return classTypes.computeIfAbsent(loader, l -> newConcurrentMap())
+//                .computeIfAbsent(className, name -> new ClassType(loader, name));
+        return getClassTypeByInternalName(className.replace('.', '/'));
+    }
+
+    public ClassType getClassTypeByInternalName(String internalName) {
+        return internalNameClassTypes.computeIfAbsent(internalName,
+                name -> new ClassType(defaultClassLoader, name.replace('/', '.')));
     }
 
     @Override

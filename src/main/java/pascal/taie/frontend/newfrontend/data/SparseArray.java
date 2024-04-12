@@ -1,7 +1,7 @@
 package pascal.taie.frontend.newfrontend.data;
 
 public abstract class SparseArray<T> {
-    private Object[] items;
+    private final Object[] items;
 
     public SparseArray(int initialCapacity) {
         items = new Object[initialCapacity];
@@ -23,5 +23,9 @@ public abstract class SparseArray<T> {
     }
 
     protected abstract T createInstance();
+
+    public Object[] getItems() {
+        return items;
+    }
 }
 

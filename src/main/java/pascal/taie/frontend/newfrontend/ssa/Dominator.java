@@ -3,6 +3,7 @@ package pascal.taie.frontend.newfrontend.ssa;
 import pascal.taie.frontend.newfrontend.SparseSet;
 import pascal.taie.frontend.newfrontend.data.IntGraph;
 import pascal.taie.frontend.newfrontend.data.IntList;
+import pascal.taie.frontend.newfrontend.data.SparseArray;
 
 import java.util.Arrays;
 
@@ -56,9 +57,9 @@ public class Dominator<N> {
         dfsTrav();
     }
 
-    public record DominatorFrontiers(SparseSet[] res) {
+    public record DominatorFrontiers(SparseArray<SparseSet> res) {
         public SparseSet get(int index) {
-            return res[index];
+            return res.get(index);
         }
     }
 
@@ -96,10 +97,13 @@ public class Dominator<N> {
         int[] dom = getDomTree();
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
-        SparseSet[] df = new SparseSet[graph.size()];
-        for (int i = 0; i < graph.size(); ++i) {
-            df[i] = new SparseSet(graph.size(), graph.size());
-        }
+        int gSize = graph.size();
+        SparseArray<SparseSet> df = new SparseArray<>(gSize) {
+            @Override
+            protected SparseSet createInstance() {
+                return new SparseSet(gSize, gSize);
+            }
+        };
         for (int i = 0; i < graph.size(); ++i) {
             int size = graph.getMergedInEdgesCount(i);
             if (size >= 2 || i == graph.getIntEntry()) {
@@ -110,7 +114,7 @@ public class Dominator<N> {
                 for (int j = 0; j < size; ++j) {
                     int runner = graph.getMergedInEdge(i, j);
                     while (runner != dom[i] && runner != -1) {
-                        df[runner].add(i);
+                        df.get(runner).add(i);
                         runner = dom[runner];
                     }
                 }

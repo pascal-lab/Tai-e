@@ -127,8 +127,34 @@ public class Utils {
         return res;
     }
 
+    static final Set<Modifier> pub = Set.of(Modifier.PUBLIC);
+    static final Set<Modifier> pri = Set.of(Modifier.PRIVATE);
+    static final Set<Modifier> pro = Set.of(Modifier.PROTECTED);
+    static final Set<Modifier> sta = Set.of(Modifier.STATIC);
+    static final Set<Modifier> pubFinal = Set.of(Modifier.PUBLIC, Modifier.FINAL);
+    static final Set<Modifier> priFinal = Set.of(Modifier.PRIVATE, Modifier.FINAL);
+    static final Set<Modifier> proFinal = Set.of(Modifier.PROTECTED, Modifier.FINAL);
+
 
     static Set<Modifier> fromAsmModifier(int opcodes) {
+        // shortcuts
+        switch (opcodes) {
+            case Opcodes.ACC_PUBLIC:
+                return pub;
+            case Opcodes.ACC_PRIVATE:
+                return pri;
+            case Opcodes.ACC_PROTECTED:
+                return pro;
+            case Opcodes.ACC_STATIC:
+                return sta;
+            case Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL:
+                return pubFinal;
+            case Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL:
+                return priFinal;
+            case Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL:
+                return proFinal;
+        }
+
         Set<Modifier> res = new HashSet<>();
         if (hasAsmModifier(opcodes, Opcodes.ACC_PUBLIC)) {
             res.add(Modifier.PUBLIC);
