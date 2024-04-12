@@ -723,9 +723,7 @@ public class BytecodeEmitter {
                 default ->
                         throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
             };
-        } else if (type instanceof ClassType) {
-            return new VarInsnNode(Opcodes.ASTORE, index);
-        } else if (type instanceof ArrayType) {
+        } else if (type instanceof ReferenceType) {
             return new VarInsnNode(Opcodes.ASTORE, index);
         } else {
             throw new IllegalArgumentException("Unknown type: " + type);
