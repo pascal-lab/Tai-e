@@ -6,15 +6,20 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 class TaieCastingInfoSerializer extends StdSerializer<TaieCastingReporter.TaieCastingInfo> {
@@ -151,21 +157,10 @@ public class TaieCastingReporter {
             classes.add(l);
             getJClass(info.rightType).ifPresent(classes::add);
         });
-        IR ir = info.method.getIR();
-        for (Stmt stmt : ir.getStmts()) {
-            if (stmt instanceof DefinitionStmt<?,?> def) {
-                if (def.getLValue() instanceof Var var && var.equals(info.var)) {
-                    getJClass(def.getRValue().getType()).ifPresent(classes::add);
-                }
-            }
+        TaieCastingContext context = getTaieCastingContext(info);
+        for (TypeDefs def : context.defs()) {
+            getJClass(def.type()).ifPresent(classes::add);
         }
-        for (ExceptionEntry entry : ir.getExceptionEntries()) {
-            Var var = entry.handler().getExceptionRef();
-            if (var.equals(info.var)) {
-                classes.add(entry.catchType().getJClass());
-            }
-        }
-
         return new ClassHierarchyTree(classes).toDotFile();
     }
 
@@ -192,10 +187,12 @@ public class TaieCastingReporter {
         List<TypeDefs> defs = new ArrayList<>();
         List<TypeConstraint> uses = new ArrayList<>();
         IR ir = info.method.getIR();
+        MultiMap<Var, Stmt> varDefs = Maps.newMultiMap();
+        MultiMap<Catch, Type> catchTypes = Maps.newMultiMap();
         for (Stmt stmt : ir.getStmts()) {
             if (stmt instanceof DefinitionStmt<?,?> def) {
-                if (def.getLValue() instanceof Var var && var.equals(info.var)) {
-                    defs.add(new TypeDefs(stmt, def.getRValue().getType()));
+                if (def.getLValue() instanceof Var var) {
+                    varDefs.put(var, stmt);
                 }
             }
             if (stmt.getUses().contains(info.var)) {
@@ -204,10 +201,37 @@ public class TaieCastingReporter {
         }
         for (ExceptionEntry entry : ir.getExceptionEntries()) {
             Var var = entry.handler().getExceptionRef();
-            if (var.equals(info.var)) {
-                defs.add(new TypeDefs(entry.handler(), entry.catchType()));
+            varDefs.put(var, entry.handler());
+            catchTypes.put(entry.handler(), entry.catchType());
+        }
+        Queue<Var> queue = new java.util.LinkedList<>();
+        queue.add(info.var);
+        Set<Var> visited = new HashSet<>();
+        while (!queue.isEmpty()) {
+            Var var = queue.poll();
+            if (visited.contains(var)) continue;
+            visited.add(var);
+            Set<Stmt> def = varDefs.get(var);
+            for (Stmt stmt : def) {
+                if (stmt instanceof DefinitionStmt<?,?> defStmt) {
+                    if (stmt instanceof PhiStmt phiStmt) {
+                        for (RValue v : phiStmt.getRValue().getUses()) {
+                            if (v instanceof Var _v) {
+                                queue.add(_v);
+                            }
+                        }
+                    } else {
+                        defs.add(new TypeDefs(stmt, defStmt.getRValue().getType()));
+                    }
+                }
+                if (stmt instanceof Catch _catch) {
+                    for (Type type : catchTypes.get(_catch)) {
+                        defs.add(new TypeDefs(stmt, type));
+                    }
+                }
             }
         }
+
         return new TaieCastingContext(info, defs, uses);
     }
 
