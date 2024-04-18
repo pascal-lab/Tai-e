@@ -103,6 +103,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -160,7 +161,9 @@ public class AsmIRBuilder {
 
     private static boolean EXPERIMENTAL = true;
 
-    private boolean USE_SSA = false;
+    private final boolean USE_SSA;
+
+    private final boolean USE_TYPING_ALGO2;
 
     final VarSSAInfo varSSAInfo;
 
@@ -174,6 +177,8 @@ public class AsmIRBuilder {
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
+        this.USE_SSA = FrontendOptions.get().isSSA();
+        this.USE_TYPING_ALGO2 = FrontendOptions.get().isUseTypingAlgo2();
         if (!isEmpty) {
             this.manager = new VarManager(method,
                     source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
@@ -204,12 +209,11 @@ public class AsmIRBuilder {
             traverseBlocks();
             stageTimer.endTypelessIR();
             this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
-            if (isFrameUsable()) {
+            if (isFrameUsable() && !USE_TYPING_ALGO2) {
                 inferTypeWithFrame();
             } else {
                 inferTypeWithoutFrame();
             }
-            // TODO: add options for ssa toggle
             if (USE_SSA && !EXPERIMENTAL) {
                 makeStmts(false);
                 makeExceptionTable();
@@ -726,15 +730,10 @@ public class AsmIRBuilder {
                 // unreachable
                 continue;
             }
-            Type expType = getExceptionType(node.type);
-            res.add(new ExceptionEntry(start, end, (Catch) handler, (ClassType) expType));
+            ClassType expType = fromExceptionType(node.type);
+            res.add(new ExceptionEntry(start, end, (Catch) handler, expType));
         }
         exceptionEntries = res;
-    }
-
-    private Type getExceptionType(String s) {
-        String name = s == null ? getThrowable() : s;
-        return BuildContext.get().fromAsmInternalName(name);
     }
 
     private boolean inRange(int opcode, int min, int max) {
@@ -1203,6 +1202,7 @@ public class AsmIRBuilder {
         // 2. the last "fake" bytecode insn
         if (block.isCatch()) {
             if (insnNode.getOpcode() != -1) {
+                Var catchVar;
                 // insnNode is the first bytecode insn for this block
                 // for most cases, this should be a store insn
                 // this insn stores the exception object to a local var
@@ -1212,13 +1212,13 @@ public class AsmIRBuilder {
                         int rwIndex = visitRW(block.getIndex(), getIndex(node));
                         // a little duplicate, any better way?
                         // see also: storeRWVar
-                        Var catchVar = isFastProcessVar(rwIndex)
+                        catchVar = isFastProcessVar(rwIndex)
                                 ? manager.getTempVar()
                                 : manager.getLocal(splitting.getRealLocalSlot(rwIndex));
                         reachVars[rwIndex] = catchVar;
                         assocStmt(node, new Catch(catchVar));
                     } else {
-                        Var catchVar = manager.getLocal(node.var);
+                        catchVar = manager.getLocal(node.var);
                         duInfo.addDefBlock(catchVar, currentBlock);
                         assocStmt(node, new Catch(catchVar));
                     }
@@ -1227,15 +1227,24 @@ public class AsmIRBuilder {
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
-                    Var v = manager.getTempVar();
+                    catchVar = manager.getTempVar();
                     if (!EXPERIMENTAL) {
-                        duInfo.addDefBlock(v, currentBlock);
+                        duInfo.addDefBlock(catchVar, currentBlock);
                     }
-                    assocStmt(insnNode, new Catch(v));
-                    pushExp(insnNode, nowStack, v);
+                    assocStmt(insnNode, new Catch(catchVar));
+                    pushExp(insnNode, nowStack, catchVar);
                     processInstr(nowStack, insnNode, block);
                 }
+                List<ClassType> handlerTypes = Objects.requireNonNull(block.getExceptionHandlerTypes());
+                if (handlerTypes.size() == 1) {
+                    ExpModifier.setType(catchVar, handlerTypes.get(0));
+                } else {
+                    // let type inference decide the type
+                    varSSAInfo.setNonSSA(catchVar);
+                }
             }
+            // `insnNode.getOpcode() == -1` which means the last bytecode is also synthetic
+            // this block is totally empty. Do nothing.
         } else {
             assert inStack != null;
             nowStack.addAll(inStack);
@@ -2021,8 +2030,7 @@ public class AsmIRBuilder {
         for (TryCatchBlockNode now : source.tryCatchBlocks) {
             getBlock(now.start);
             getBlock(now.end);
-            idx2Block[getIndex(now.handler)] =
-                    createNewBlock(now.handler, getExceptionType(now.type));
+            getBlock(now.handler);
         }
 
         FlattenExceptionTable fet = new FlattenExceptionTable(source);
@@ -2121,10 +2129,6 @@ public class AsmIRBuilder {
                     BytecodeBlock before = idx2Block[start];
                     idx2Block[start] = idx2Block[i];
                     current = idx2Block[i];
-//                    start = i;
-                    if (before.getExceptionHandlerType() != null) {
-                        current.setExceptionHandlerType(before.getExceptionHandlerType());
-                    }
                 } else {
                     // process current
                     int counter = blockSortedList.size();
@@ -2193,6 +2197,20 @@ public class AsmIRBuilder {
             for (int i = start.getIndex(); i < end; ++i) {
                 g.addExceptionEdge(i, handler.getIndex());
             }
+            handler.addExceptionHandlerType(fromExceptionType(now.type));
+        }
+    }
+
+    private ClassType fromExceptionType(String internalName) {
+        if (internalName == null) {
+            return Utils.getThrowable();
+        } else {
+            ReferenceType r = BuildContext.get().fromAsmInternalName(internalName);
+            if (r instanceof ClassType c) {
+                return c;
+            } else {
+                throw new UnsupportedOperationException("Unsupported exception type: " + r);
+            }
         }
     }
 
@@ -2230,12 +2248,7 @@ public class AsmIRBuilder {
     private int maxBlockCounter = 0;
     private BytecodeBlock createNewBlock(LabelNode label) {
         maxBlockCounter++;
-        return new BytecodeBlock(label, null);
-    }
-
-    private BytecodeBlock createNewBlock(LabelNode label, Type exceptionType) {
-        maxBlockCounter++;
-        return new BytecodeBlock(label, null, exceptionType);
+        return new BytecodeBlock(label);
     }
 
     // avoid creating outer reference, use a static method

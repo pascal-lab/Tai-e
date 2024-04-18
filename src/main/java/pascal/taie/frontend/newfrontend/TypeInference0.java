@@ -44,6 +44,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -252,7 +253,6 @@ public class TypeInference0 {
 
     public void build() {
         buildLocalTypes();
-        setThisParamRet();
         inferTypes();
         setTypeForLocal();
         CastingInsert insert = new CastingInsert(builder);
@@ -284,17 +284,17 @@ public class TypeInference0 {
         }
     }
 
-    private void setThisParamRet() {
+    private void setThisParamRet(Typing typing) {
         JMethod m = this.builder.method;
         if (! m.isStatic()) {
             Var thisVar = this.builder.manager.getThisVar();
             assert thisVar != null;
-            ExpModifier.setType(thisVar, m.getDeclaringClass().getType());
+            setType(typing, thisVar, m.getDeclaringClass().getType());
         }
         for (int i = 0; i < m.getParamCount(); ++i) {
             Var paramI = this.builder.manager.getParams().get(i);
             Type typeI = m.getParamTypes().get(i);
-            ExpModifier.setType(paramI, typeI);
+            setType(typing, paramI, typeI);
         }
     }
 
@@ -307,6 +307,7 @@ public class TypeInference0 {
 //        }
         int[] postOrder = builder.getPostOrder();
         Typing t = new Typing(new Type[varSize], List.of());
+        setThisParamRet(t);
         for (int index = postOrder.length - 1; index >= 0; --index) {
             int i = postOrder[index];
             BytecodeBlock block = builder.blockSortedList.get(i);
@@ -488,9 +489,12 @@ public class TypeInference0 {
 
             @Override
             public Void visit(Catch stmt) {
-                Type t = block.getExceptionHandlerType();
-                assert t != null;
-                newTypeAssign(stmt.getExceptionRef(), t, typing);
+                List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
+                assert exceptionTypes != null;
+                // calculate lca here
+                Set<ReferenceType> res = lca(new HashSet<>(exceptionTypes));
+                ReferenceType type = res.isEmpty() ? getThrowable() : res.iterator().next();
+                newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return StmtVisitor.super.visit(stmt);
             }
 

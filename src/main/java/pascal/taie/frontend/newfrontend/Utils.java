@@ -417,17 +417,13 @@ public class Utils {
         }
     }
 
-    static String getThrowable() {
-        return "java/lang/Throwable";
-    }
-
-
     private static ClassType object;
     private static ClassType serializable;
     private static ClassType cloneable;
     private static ClassType string;
     private static ClassType reflectArray;
     private static ClassType klass;
+    private static ClassType throwable;
 
     static {
         World.registerResetCallback(() -> {
@@ -437,6 +433,7 @@ public class Utils {
             string = null;
             reflectArray = null;
             klass = null;
+            throwable = null;
         });
     }
 
@@ -475,11 +472,18 @@ public class Utils {
         return reflectArray;
     }
 
-    static synchronized  ClassType getKlass() {
+    static synchronized ClassType getKlass() {
         if (klass == null) {
             klass = getClassType(ClassNames.CLASS);
         }
         return klass;
+    }
+
+    static synchronized ClassType getThrowable() {
+        if (throwable == null) {
+            throwable = getClassType(ClassNames.THROWABLE);
+        }
+        return throwable;
     }
 
     private static ClassType getClassType(String s) {

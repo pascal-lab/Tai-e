@@ -224,16 +224,20 @@ public class TypeInference {
     }
 
     public void build() {
-
         addThisParam();
         ConstraintVisitor visitor = new ConstraintVisitor();
         for (BytecodeBlock block : builder.blockSortedList) {
-            if (block.getExceptionHandlerType() != null) {
+            if (block.getExceptionHandlerTypes() != null) {
+                Var ref = null;
                 for (Stmt stmt : block.getStmts()) {
                     if (stmt instanceof Catch catchStmt) {
-                        graph.addConstantEdge(block.getExceptionHandlerType(),
-                                catchStmt.getExceptionRef());
+                        ref = catchStmt.getExceptionRef();
                         break;
+                    }
+                }
+                if (ref != null) {
+                    for (ReferenceType t : block.getExceptionHandlerTypes()) {
+                        graph.addConstantEdge(t, ref);
                     }
                 }
             }
@@ -299,7 +303,7 @@ public class TypeInference {
             if (to.getType() != null && from.getType() != null) {
                 return;
             }
-            if (from.getType() != null) {
+            if (from.getType() != null && kind != EdgeKind.VAR_ARRAY) {
                 computeFlowOutType(from.getType(), kind).ifPresent((t) -> {
                     addConstantEdge(t, to);
                 });
@@ -371,6 +375,7 @@ public class TypeInference {
         }
 
         private void spreadingFlowType(Queue<FlowType> queue, FlowType type) {
+            if (type.edge.kind == EdgeKind.VAR_ARRAY) return;
             TypingFlowNode now = type.edge.target;
             Optional<Type> optionalType = type.getTargetType();
             if (optionalType.isEmpty()) {

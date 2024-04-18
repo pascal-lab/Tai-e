@@ -9,6 +9,7 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,7 @@ public final class BytecodeBlock implements IBasicBlock {
     private FrameNode frame;
 
     @Nullable
-    private Type exceptionHandlerType;
+    private List<ClassType> exceptionHandlerTypes;
 
     private List<Object> frameLocalType;
 
@@ -44,18 +45,9 @@ public final class BytecodeBlock implements IBasicBlock {
 
     private boolean isLoopHeader = false;
 
-    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough) {
-        this(label, fallThrough, null);
-    }
-
-    public BytecodeBlock(LabelNode label, @Nullable BytecodeBlock fallThrough, @Nullable Type exceptionHandlerType) {
+    public BytecodeBlock(LabelNode label) {
         this.label = label;
         this.stmts = new ArrayList<>();
-        this.exceptionHandlerType = exceptionHandlerType;
-    }
-
-    public LabelNode label() {
-        return label;
     }
 
     public AsmListSlice instr() {
@@ -67,7 +59,7 @@ public final class BytecodeBlock implements IBasicBlock {
     }
 
     public boolean isCatch() {
-        return getExceptionHandlerType() != null;
+        return getExceptionHandlerTypes() != null;
     }
 
     public void setIsInTry() {
@@ -240,12 +232,15 @@ public final class BytecodeBlock implements IBasicBlock {
     }
 
     @Nullable
-    public Type getExceptionHandlerType() {
-        return exceptionHandlerType;
+    public List<ClassType> getExceptionHandlerTypes() {
+        return exceptionHandlerTypes;
     }
 
-    public void setExceptionHandlerType(@Nullable Type exceptionHandlerType) {
-        this.exceptionHandlerType = exceptionHandlerType;
+    public void addExceptionHandlerType(ClassType type) {
+        if (exceptionHandlerTypes == null) {
+            exceptionHandlerTypes = new ArrayList<>();
+        }
+        exceptionHandlerTypes.add(type);
     }
 
     private void tryCorrectFrame(int size) {

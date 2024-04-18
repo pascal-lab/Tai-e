@@ -8,6 +8,7 @@ import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
@@ -158,6 +159,13 @@ public class TaieCastingReporter {
                 }
             }
         }
+        for (ExceptionEntry entry : ir.getExceptionEntries()) {
+            Var var = entry.handler().getExceptionRef();
+            if (var.equals(info.var)) {
+                classes.add(entry.catchType().getJClass());
+            }
+        }
+
         return new ClassHierarchyTree(classes).toDotFile();
     }
 
@@ -192,6 +200,12 @@ public class TaieCastingReporter {
             }
             if (stmt.getUses().contains(info.var)) {
                 uses.add(new TypeConstraint(stmt, null));
+            }
+        }
+        for (ExceptionEntry entry : ir.getExceptionEntries()) {
+            Var var = entry.handler().getExceptionRef();
+            if (var.equals(info.var)) {
+                defs.add(new TypeDefs(entry.handler(), entry.catchType()));
             }
         }
         return new TaieCastingContext(info, defs, uses);
