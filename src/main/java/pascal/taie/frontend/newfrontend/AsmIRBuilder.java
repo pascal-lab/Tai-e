@@ -2424,4 +2424,12 @@ public class AsmIRBuilder {
     boolean isUSE_SSA() {
         return USE_SSA;
     }
+
+    Dominator<BytecodeBlock> getDom() {
+        return dom;
+    }
+
+    BytecodeGraph getGraph() {
+        return g;
+    }
 }
