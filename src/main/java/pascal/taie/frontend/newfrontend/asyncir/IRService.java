@@ -9,6 +9,7 @@ import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.AsmSource;
 import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
@@ -99,6 +100,7 @@ public class IRService {
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
         int version = source.getClassFileVersion();
+        boolean discardFrame = FrontendOptions.get().isUseTypingAlgo2();
         source.r().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
@@ -119,7 +121,7 @@ public class IRService {
                 method2Source.put(method1, new AsmMethodSource(adapter, version));
                 return adapter;
             }
-        }, ClassReader.EXPAND_FRAMES);
+        }, discardFrame ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES);
     }
 
     public void noticeMethodCall(MethodRef ref) {

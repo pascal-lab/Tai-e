@@ -325,6 +325,16 @@ public class Options implements Serializable {
         return useNonParallelCWAlgorithm;
     }
 
+    @JsonProperty
+    @Option(names = {"--frontend"},
+            description = "Options for frontend",
+            split = ",", paramLabel = "<key=value>")
+    private Map<String, String> frontendOptions = Map.of();
+
+    public Map<String, String> getFrontendOptions() {
+        return frontendOptions;
+    }
+
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */
