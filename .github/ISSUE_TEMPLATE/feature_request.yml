@@ -5,7 +5,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        We appreciate your interest in enhancing Tai-e. Your suggestions play a crucial role in our project's evolution. Please provide detailed information about the feature you envision.
+        ❤️ We appreciate your interest in enhancing Tai-e.
+        Your suggestions play a crucial role in our project's evolution.
+        Please provide detailed information about the feature you envision.
 
   - type: textarea
     id: feature-description

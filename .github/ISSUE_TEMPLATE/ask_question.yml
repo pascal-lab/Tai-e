@@ -1,12 +1,11 @@
-name: 🐞 Bug Report
-description: Help us improve by reporting a bug
-labels: ["type: bug"]
+name: ❔ Ask Question
+description: Ask a question about how to use something, or to understand why something isn't working as you expect it to.
+labels: ["type: question"]
 body:
   - type: markdown
     attributes:
       value: |
-        ❤️ Thank you for contributing to the improvement of Tai-e.
-        Every bug report is a significant contribution towards bettering our project.
+        ❤️ Thank you for contributing to the using of Tai-e.
 
         **❗ Please note:**
         To expedite our response to your report and ensure it receives appropriate priority, please **include a reproducible test case** or script if possible ([see an example of how to write a reproducible case](https://github.com/pascal-lab/Tai-e/compare/how-to-write-a-reproducible-case)).
