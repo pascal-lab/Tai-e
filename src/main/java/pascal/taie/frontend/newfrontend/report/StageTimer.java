@@ -22,6 +22,10 @@ public class StageTimer {
 
     private long cwTime;
 
+    private long bytecodeParsingStartTime;
+
+    private long totalBytecodeParsingTime = 0;
+
     private StageTimer() {
     }
 
@@ -32,6 +36,7 @@ public class StageTimer {
             getInstance().totalTypelessIRTime = 0;
             getInstance().irTime = 0;
             getInstance().cwTime = 0;
+            getInstance().totalBytecodeParsingTime = 0;
         });
     }
 
@@ -83,6 +88,15 @@ public class StageTimer {
         totalTypingTime += current - typingStartTime;
     }
 
+    public void startBytecodeParsing() {
+        bytecodeParsingStartTime = System.currentTimeMillis();
+    }
+
+    public void endBytecodeParsing() {
+        long current = System.currentTimeMillis();
+        totalBytecodeParsingTime += current - bytecodeParsingStartTime;
+    }
+
     public long getTotalTypingTime() {
         return totalTypingTime;
     }
@@ -99,11 +113,15 @@ public class StageTimer {
         if (World.get().getOptions().isPreBuildIR()) {
             return irTime;
         } else {
-            return totalTypelessIRTime + totalSplittingTime + totalTypingTime;
+            return totalTypelessIRTime + totalSplittingTime + totalTypingTime + totalBytecodeParsingTime;
         }
     }
 
     public long getCWTime() {
         return cwTime;
+    }
+
+    public long getTotalBytecodeParsingTime() {
+        return totalBytecodeParsingTime;
     }
 }

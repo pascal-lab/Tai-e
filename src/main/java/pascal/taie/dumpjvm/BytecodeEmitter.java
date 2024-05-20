@@ -842,31 +842,7 @@ public class BytecodeEmitter {
         if (type instanceof ClassType ct) {
             noticeInnerClass(ct.getJClass());
         }
-        return computeDescriptor(type);
-    }
-
-    static String computeDescriptor(Type type) {
-        if (type instanceof ClassType) {
-            return "L" + type.getName().replace('.', '/') + ";";
-        } else if (type instanceof PrimitiveType) {
-            return switch (type.getName()) {
-                case "int" -> "I";
-                case "long" -> "J";
-                case "short" -> "S";
-                case "byte" -> "B";
-                case "char" -> "C";
-                case "float" -> "F";
-                case "double" -> "D";
-                case "boolean" -> "Z";
-                default -> throw new IllegalArgumentException("Unknown primitive type: " + type);
-            };
-        } else if (type instanceof VoidType) {
-            return "V";
-        } else if (type instanceof ArrayType arrayType) {
-            return "[" + computeDescriptor(arrayType.elementType());
-        } else {
-            throw new IllegalArgumentException("Unknown type: " + type);
-        }
+        return BinaryUtils.computeDescriptor(type);
     }
 
     private void noticeInnerClass(JClass jClass) {

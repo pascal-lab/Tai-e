@@ -170,6 +170,7 @@ public class AsmIRBuilder {
     private Dominator<BytecodeBlock> dom;
 
     public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
+        StageTimer.getInstance().startTypelessIR();
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
@@ -198,6 +199,7 @@ public class AsmIRBuilder {
             this.phiList = null;
             this.duInfo = null;
         }
+        StageTimer.getInstance().endTypelessIR();
     }
 
     public void build() {

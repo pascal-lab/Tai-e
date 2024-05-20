@@ -5,25 +5,49 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
+import pascal.taie.dumpjvm.BinaryUtils;
 import pascal.taie.frontend.newfrontend.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.AsmSource;
-import pascal.taie.frontend.newfrontend.BuildContext;
 import pascal.taie.frontend.newfrontend.FrontendOptions;
+import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.MethodType;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Subsignature;
-import pascal.taie.language.type.Type;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IRService {
+
+    private static class LoadingKV {
+        private final Map<String, AsmMethodSource> fastMap;
+        private final Map<String, Map<String, AsmMethodSource>> slowMap;
+
+        public LoadingKV() {
+            fastMap = new HashMap<>();
+            slowMap = new HashMap<>();
+        }
+
+        public void put(String name, String descriptor, AsmMethodSource value) {
+            if (slowMap.containsKey(name)) {
+                slowMap.get(name).put(descriptor, value);
+            } else if (fastMap.containsKey(name)) {
+                slowMap.put(name, new HashMap<>());
+                AsmMethodSource oldValue = fastMap.remove(name);
+                slowMap.get(name).put(oldValue.adapter().desc, oldValue);
+                slowMap.get(name).put(descriptor, value);
+            } else {
+                fastMap.put(name, value);
+            }
+        }
+    }
 
     private static final int NOT_LOADED = 0;
     private static final int LOADING_START = 1;
@@ -68,6 +92,7 @@ public class IRService {
 
     public void loadClassSourceSync(JClass clazz) {
         // TODO: current sync method is correct, but may need some optimization
+        StageTimer.getInstance().startBytecodeParsing();
         AtomicInteger status = classStatusMap.computeIfAbsent(clazz, k -> new AtomicInteger(NOT_LOADED));
         if (status.get() == LOADING_DONE) {
             return;
@@ -93,6 +118,7 @@ public class IRService {
                 }
             }
         }
+        StageTimer.getInstance().endBytecodeParsing();
     }
 
     public void loadClassSourceImpl(JClass clazz) {
@@ -101,27 +127,29 @@ public class IRService {
         assert source != null;
         int version = source.getClassFileVersion();
         boolean discardFrame = FrontendOptions.get().isUseTypingAlgo2();
+        LoadingKV kv = new LoadingKV();
         source.r().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                 JSRInlinerAdapter adapter = new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);
-                var paramAndRet = BuildContext.get().fromAsmMethodType(descriptor);
-                List<Type> paramTypes = paramAndRet.first();
-                Type retType = paramAndRet.second();
-                JMethod method1 = clazz.getDeclaredMethod(Subsignature.get(name, paramTypes, retType));
-                if (method1 == null) {
-                    throw new IllegalStateException("Cannot find method %s in class %s".formatted(name, clazz));
-                }
-                if (method2Source.containsKey(method1)) {
-                    throw new IllegalStateException("Method %s is built twice".formatted(method1));
-                }
-                if (method1.getDeclaringClass() != clazz) {
-                    throw new IllegalStateException("Method %s is not declared in class %s".formatted(method1, clazz));
-                }
-                method2Source.put(method1, new AsmMethodSource(adapter, version));
+                kv.put(name, descriptor, new AsmMethodSource(adapter, version));
                 return adapter;
             }
         }, discardFrame ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES);
+        paringMethodSource(kv, clazz);
+    }
+
+    private void paringMethodSource(LoadingKV kv, JClass clazz) {
+        for (JMethod method : clazz.getDeclaredMethods()) {
+            AsmMethodSource source = kv.fastMap.get(method.getName());
+            if (source == null) {
+                source = kv.slowMap.get(method.getName()).get(BinaryUtils.computeDescriptor(method));
+            }
+            if (source == null) {
+                throw new IllegalStateException("Cannot find method source for %s".formatted(method));
+            }
+            method2Source.put(method, source);
+        }
     }
 
     public void noticeMethodCall(MethodRef ref) {
