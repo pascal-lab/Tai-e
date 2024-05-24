@@ -45,6 +45,8 @@ task("fatJar", type = Jar::class) {
     description = "Creates a single jar file including Tai-e and all dependencies"
     manifest {
         attributes["Main-Class"] = "pascal.taie.Main"
+        attributes["Tai-e-Version"] = projectVersion
+        attributes["Tai-e-Commit"] = projectCommit
     }
     archiveBaseName.set("tai-e-all")
     from(
@@ -62,6 +64,10 @@ tasks.jar {
     from("COPYING", "COPYING.LESSER")
     from(zipTree("lib/sootclasses-modified.jar"))
     destinationDirectory.set(rootProject.layout.buildDirectory)
+    manifest {
+        attributes["Tai-e-Version"] = projectVersion
+        attributes["Tai-e-Commit"] = projectCommit
+    }
 }
 
 tasks.withType<Test> {
