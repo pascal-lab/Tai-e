@@ -21,6 +21,15 @@ body:
       required: true
 
   - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "What you expected to happen"
+    validations:
+      required: true
+
+  - type: textarea
     id: current-behavior
     attributes:
       label: Current Behavior
@@ -30,65 +39,63 @@ body:
       required: true
 
   - type: textarea
-    id: expected-behavior
+    id: tai-e-arguments
     attributes:
-      label: Expected Behavior
-      description: Describe what you expected to happen.
-      placeholder: "What you expected to happen"
-    validations:
-      required: true
+      label: Tai-e Arguments
+      description: |
+        Please provide the running arguments of Tai-e.
+        _Note:_ You can paste the `output/options.yml` and `output/tai-e-plan.yml` files into the placeholders below.
+      value: |
+        <details>
+          <summary>Click here to see Tai-e Options</summary>
+          <!-- Please leave one blank line below for enabling the code block rendering. -->
 
-  - type: input
-    id: tai-e-version
-    attributes:
-      label: Tai-e Version
-      description: Specify the version or commit-hash of Tai-e you're using.
-      placeholder: "Tai-e version or commit-hash"
+          ```yaml
+          {{The content of 'output/options.yml' file}}
+          ```
+        </details>
+        <details>
+          <summary>Click here to see Tai-e Analysis Plan</summary>
+          <!-- Please leave one blank line below for enabling the code block rendering. -->
+
+          ```yaml
+          {{The content of 'output/tai-e-plan.yml' file}}
+          ```
+        </details>
     validations:
       required: true
 
   - type: textarea
-    id: tai-e-arguments
+    id: tai-e-log
     attributes:
-      label: Tai-e Arguments
-      description: List the arguments or settings used. Especially the analysis you are running, e.g., `-a pta=cs:ci;only-app:false -a ir-dumper`.
-      placeholder: |
-        Example:
-        -pp
-        -cp src/test/resources/pta
-        -a pta=cs:ci;only-app:false
-        -a ir-dumper
+      label: Tai-e Log
+      description: |
+        Provide the Tai-e log output which contains important information, such as JVM/OS, Tai-e version (git commit).
+        _Note:_ You can paste the `output/tai-e.log` file into the placeholder below. If it is too long, you can attach it as a file.
+      value: |
+        <details>
+          <summary>Click here to see Tai-e Log</summary>
+          <!-- Please leave one blank line below for enabling the code block rendering. -->
+
+          ```
+          {{The content of 'output/tai-e.log' file}}
+          ```
+        </details>
     validations:
       required: true
-
-  - type: input
-    id: jdk-version
-    attributes:
-      label: JDK Version
-      description: Specify the version of Java Development Kit (JDK) you are using. You can find this by running `java -version` in your terminal.
-      placeholder: "JDK version (e.g., Temurin 17.0.6+10)"
-    validations:
-      required: false
-
-  - type: input
-    id: os-info
-    attributes:
-      label: System Environment
-      description: Specify the operating system you are using, e.g., `Windows 10 x64`, `macOS 13.4.1 (Apple silicon)`, `Ubuntu 22.04 x64`, etc.
-      placeholder: Your operating system.
-    validations:
-      required: false
 
   - type: textarea
     id: additional-info
     attributes:
       label: Additional Information
-      description: Provide any additional information or context about the bug. Such as the complete analyzed program (and/or its `.tir`), the taint configuration (`taint-config.yml`), the log of Tai-e (`tai-e.log`), etc.
+      description: |
+        Provide any additional information or context about the bug.
+        Such as the complete analyzed program (and/or its `.tir`), the taint configuration (`taint-config.yml`), etc.
       placeholder: |
         Any other relevant information, e.g.,
           the complete analyzed program (and/or its `.tir`),
           the taint configuration (`taint-config.yml`),
-          the log of Tai-e (`tai-e.log`),
+          the code you modified/added in Tai-e,
           etc.
     validations:
       required: false
