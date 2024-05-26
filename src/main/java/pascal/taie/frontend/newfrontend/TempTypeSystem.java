@@ -170,6 +170,6 @@ public class TempTypeSystem implements TypeSystem {
 
     @Override
     public boolean isPrimitiveType(String typeName) {
-        return false;
+        return primitiveTypes.containsKey(typeName);
     }
 }
