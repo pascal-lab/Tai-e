@@ -27,6 +27,7 @@ import pascal.taie.util.Copyable;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -56,6 +57,8 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
      * @return the difference between {@code pts} and this set.
      */
     PointsToSet addAllDiff(PointsToSet pts);
+
+    void removeIf(Predicate<CSObj> predicate);
 
     /**
      * @return true if this set contains given object, otherwise false.

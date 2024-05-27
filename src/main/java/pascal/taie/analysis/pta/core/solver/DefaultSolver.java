@@ -304,7 +304,7 @@ public class DefaultSolver implements Solver {
     /**
      * Processes work list entries until the work list is empty.
      */
-    public void analyze() {
+    private void analyze() {
         while (!workList.isEmpty() && !isTimeout) {
             // phase starts
             while (!workList.isEmpty() && !isTimeout) {

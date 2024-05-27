@@ -89,6 +89,16 @@ public class CompositePlugin implements Plugin {
         }
     }
 
+    public void clearAllPlugins() {
+        allPlugins.clear();
+        onNewPointsToSetPlugins.clear();
+        onNewCallEdgePlugins.clear();
+        onNewMethodPlugins.clear();
+        onNewStmtPlugins.clear();
+        onNewCSMethodPlugins.clear();
+        onUnresolvedCallPlugins.clear();
+    }
+
     @Override
     public void setSolver(Solver solver) {
         allPlugins.forEach(p -> p.setSolver(solver));

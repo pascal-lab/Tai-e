@@ -180,8 +180,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         if (!propTypes.isAllowed(var)) {
             return Set.of();
         }
-//        return varPointsTo.computeIfAbsent(var, v ->
-        return varPointsTo.compute(var, (__, v)  ->
+        return varPointsTo.computeIfAbsent(var, v ->
                 removeContexts(csManager.getCSVarsOf(var)
                         .stream()
                         .flatMap(Pointer::objects)));
@@ -207,8 +206,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             return Set.of();
         }
         // TODO - properly handle non-exist base.field
-//        return ifieldPointsTo.computeIfAbsent(new Pair<>(base, field), p ->
-        return ifieldPointsTo.compute(new Pair<>(base, field), (k, v) ->
+        return ifieldPointsTo.computeIfAbsent(new Pair<>(base, field), p ->
                 removeContexts(csManager.getCSVarsOf(base)
                         .stream()
                         .flatMap(Pointer::objects)
@@ -272,8 +270,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
             logger.warn("{} is not an array", base);
             return Set.of();
         }
-//        return arrayPointsTo.computeIfAbsent(base, b ->
-        return arrayPointsTo.compute(base, (b, __) ->
+        return arrayPointsTo.computeIfAbsent(base, b ->
                 removeContexts(csManager.getCSVarsOf(b)
                         .stream()
                         .flatMap(Pointer::objects)

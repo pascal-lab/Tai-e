@@ -52,6 +52,10 @@ public interface Pointer extends Indexable {
     @Nullable
     PointsToSet getPointsToSet();
 
+    void rmFromPointsToIf(Predicate<CSObj> predicate);
+
+    void rmFromOutEdgesIf(Predicate<PointerFlowEdge> predicate);
+
     /**
      * Sets the associated points-to set of this pointer.
      */

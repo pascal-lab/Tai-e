@@ -38,7 +38,6 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.EntryPointHandler;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
-import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
@@ -46,7 +45,6 @@ import pascal.taie.analysis.pta.plugin.invokedynamic.Java9StringConcatHandler;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
 import pascal.taie.analysis.pta.plugin.natives.NativeModeller;
 import pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis;
-import pascal.taie.analysis.pta.plugin.taint.DCTaintAnalysis;
 import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
 import pascal.taie.analysis.pta.toolkit.CollectionMethods;
 import pascal.taie.analysis.pta.toolkit.mahjong.Mahjong;
@@ -153,8 +151,7 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
             plugin.addPlugin(new InvokeDynamicAnalysis());
         }
         if (options.getString("taint-config") != null) {
-//            plugin.addPlugin(new TaintAnalysis());
-            plugin.addPlugin(new DCTaintAnalysis());
+            plugin.addPlugin(new TaintAnalysis());
         }
 //        plugin.addPlugin(new ResultProcessor());
         // add plugins specified in options
