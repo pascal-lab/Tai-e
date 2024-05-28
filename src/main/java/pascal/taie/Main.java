@@ -60,8 +60,8 @@ public class Main {
             }
             buildWorld(options, plan.analyses());
             executePlan(plan);
-            LoggerConfigs.reconfigure();
         }, "Tai-e");
+        LoggerConfigs.reconfigure();
     }
 
     /**
