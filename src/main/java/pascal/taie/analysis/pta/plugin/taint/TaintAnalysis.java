@@ -56,10 +56,10 @@ public class TaintAnalysis extends CompositePlugin {
         this.solver = solver;
         AnalysisOptions options = solver.getOptions();
         isInteractive = options.getBoolean("taint-interactive");
-        initilize();
+        initialize();
     }
 
-    private void initilize() {
+    private void initialize() {
         TaintManager manager = new TaintManager(solver.getHeapModel());
         TaintConfig config = TaintConfig.loadConfig(
                 solver.getOptions().getString("taint-config"),
@@ -72,9 +72,12 @@ public class TaintAnalysis extends CompositePlugin {
                 new SanitizerHandler(context));
     }
 
-    private boolean reInitilize() {
+    /**
+     * Add comment
+     */
+    private boolean reInitialize() {
         clearPlugins();
-        initilize();
+        initialize();
         CSManager csManager = solver.getCSManager();
         TaintManager taintManager = context.manager();
         csManager.pointers().forEach(p -> {
@@ -110,7 +113,7 @@ public class TaintAnalysis extends CompositePlugin {
                 }
                 String input = scan.nextLine().strip();
                 if ("r".equals(input)) {
-                    if (reInitilize()) {
+                    if (reInitialize()) {
                         break;
                     }
                 } else if ("e".equals(input)) {
