@@ -89,7 +89,7 @@ public class CompositePlugin implements Plugin {
         }
     }
 
-    public void clearAllPlugins() {
+    public void clearPlugins() {
         allPlugins.clear();
         onNewPointsToSetPlugins.clear();
         onNewCallEdgePlugins.clear();

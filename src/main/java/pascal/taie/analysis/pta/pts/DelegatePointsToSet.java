@@ -60,8 +60,8 @@ abstract class DelegatePointsToSet implements PointsToSet {
     }
 
     @Override
-    public void removeIf(Predicate<CSObj> predicate) {
-        set.removeIf(predicate);
+    public void removeIf(Predicate<CSObj> filter) {
+        set.removeIf(filter);
     }
 
     @Override

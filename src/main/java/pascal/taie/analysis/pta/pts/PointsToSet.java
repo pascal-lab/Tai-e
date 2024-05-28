@@ -58,7 +58,10 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
      */
     PointsToSet addAllDiff(PointsToSet pts);
 
-    void removeIf(Predicate<CSObj> predicate);
+    /**
+     * Removes objects from this set if they satisfy the filter.
+     */
+    void removeIf(Predicate<CSObj> filter);
 
     /**
      * @return true if this set contains given object, otherwise false.

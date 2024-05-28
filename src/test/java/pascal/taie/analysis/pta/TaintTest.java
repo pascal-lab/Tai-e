@@ -22,9 +22,14 @@
 
 package pascal.taie.analysis.pta;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class TaintTest {
 
@@ -36,38 +41,60 @@ public class TaintTest {
 
     @ParameterizedTest
     @MultiStringsSource({"ArrayTaint", TAINT_CONFIG})
-//    @MultiStringsSource({"CharArray", TAINT_CONFIG})
-//    @MultiStringsSource({"FieldTaint", TAINT_CONFIG})
-//    @MultiStringsSource({"LinkedQueue", TAINT_CONFIG})
-//    @MultiStringsSource({"CSTaint", "cs:1-obj", TAINT_CONFIG})
-//    @MultiStringsSource({"TwoObjectTaint", "cs:2-obj", TAINT_CONFIG})
-//    @MultiStringsSource({"TaintCorner", TAINT_CONFIG})
-//    @MultiStringsSource({"CycleTaint", TAINT_CONFIG})
-//    @MultiStringsSource({"ComplexTaint", TAINT_CONFIG})
-//    @MultiStringsSource({"SimpleTaint", TAINT_CONFIG})
-//    @MultiStringsSource({"ArgToResult", TAINT_CONFIG})
-//    @MultiStringsSource({"BaseToResult", TAINT_CONFIG})
-//    @MultiStringsSource({"StringAppend", TAINT_CONFIG})
-//    @MultiStringsSource({"Java9StringConcat", TAINT_CONFIG})
-//    @MultiStringsSource({"OneCallTaint", "cs:1-call", TAINT_CONFIG})
-//    @MultiStringsSource({"InterTaintTransfer", "cs:2-call", TAINT_CONFIG})
-//    @MultiStringsSource({"TaintInList", "cs:2-obj", TAINT_CONFIG})
-//    @MultiStringsSource({"BackPropagation", TAINT_CONFIG})
-//    @MultiStringsSource({"CSBackPropagation", "cs:1-obj", TAINT_CONFIG})
-//    @MultiStringsSource({"StaticTaintTransfer",
-//            TAINT_CONFIG_PREFIX + "taint-config-static-taint-transfer.yml"})
-//    @MultiStringsSource({"InstanceSourceSink",
-//            TAINT_CONFIG_PREFIX + "taint-config-instance-source-sink.yml"})
-//    @MultiStringsSource({"ArrayFieldTransfer",
-//            TAINT_CONFIG_PREFIX + "taint-config-array-field-transfer.yml"})
-//    @MultiStringsSource({"TaintParam",
-//            TAINT_CONFIG_PREFIX + "taint-config-param-source.yml"})
-//    @MultiStringsSource({"TaintCall",
-//            TAINT_CONFIG_PREFIX + "taint-config-call-source.yml"})
-//    @MultiStringsSource({"CallSiteMode",
-//            TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
+    @MultiStringsSource({"CharArray", TAINT_CONFIG})
+    @MultiStringsSource({"FieldTaint", TAINT_CONFIG})
+    @MultiStringsSource({"LinkedQueue", TAINT_CONFIG})
+    @MultiStringsSource({"CSTaint", "cs:1-obj", TAINT_CONFIG})
+    @MultiStringsSource({"TwoObjectTaint", "cs:2-obj", TAINT_CONFIG})
+    @MultiStringsSource({"TaintCorner", TAINT_CONFIG})
+    @MultiStringsSource({"CycleTaint", TAINT_CONFIG})
+    @MultiStringsSource({"ComplexTaint", TAINT_CONFIG})
+    @MultiStringsSource({"SimpleTaint", TAINT_CONFIG})
+    @MultiStringsSource({"ArgToResult", TAINT_CONFIG})
+    @MultiStringsSource({"BaseToResult", TAINT_CONFIG})
+    @MultiStringsSource({"StringAppend", TAINT_CONFIG})
+    @MultiStringsSource({"Java9StringConcat", TAINT_CONFIG})
+    @MultiStringsSource({"OneCallTaint", "cs:1-call", TAINT_CONFIG})
+    @MultiStringsSource({"InterTaintTransfer", "cs:2-call", TAINT_CONFIG})
+    @MultiStringsSource({"TaintInList", "cs:2-obj", TAINT_CONFIG})
+    @MultiStringsSource({"BackPropagation", TAINT_CONFIG})
+    @MultiStringsSource({"CSBackPropagation", "cs:1-obj", TAINT_CONFIG})
+    @MultiStringsSource({"StaticTaintTransfer",
+            TAINT_CONFIG_PREFIX + "taint-config-static-taint-transfer.yml"})
+    @MultiStringsSource({"InstanceSourceSink",
+            TAINT_CONFIG_PREFIX + "taint-config-instance-source-sink.yml"})
+    @MultiStringsSource({"ArrayFieldTransfer",
+            TAINT_CONFIG_PREFIX + "taint-config-array-field-transfer.yml"})
+    @MultiStringsSource({"TaintParam",
+            TAINT_CONFIG_PREFIX + "taint-config-param-source.yml"})
+    @MultiStringsSource({"TaintCall",
+            TAINT_CONFIG_PREFIX + "taint-config-call-source.yml"})
+    @MultiStringsSource({"CallSiteMode",
+            TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
+    }
+
+    @Test
+    void testInteractiveTaintAnalysis() {
+        InputStream originalSystemIn = System.in;
+        try {
+            InputStream testIn = new ByteArrayInputStream("r\ne\n".getBytes());
+            System.setIn(testIn);
+            Main.main(
+                    "-pp",
+                    "-cp", "src/test/resources/pta/taint",
+                    "-m", "ArrayTaint",
+                    "-a", "pta="
+                            + "implicit-entries:false;"
+                            + "only-app:true;"
+                            + "distinguish-string-constants:all;"
+                            + "interactive-taint-analysis:true;"
+                            + TAINT_CONFIG
+            );
+        } finally {
+            System.setIn(originalSystemIn);
+        }
     }
 
 }

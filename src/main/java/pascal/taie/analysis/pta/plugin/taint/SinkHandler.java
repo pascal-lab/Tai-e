@@ -25,22 +25,22 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
-import pascal.taie.analysis.pta.core.cs.element.*;
-import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.Canonicalizer;
-import pascal.taie.util.collection.*;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.MultiMapCollector;
+import pascal.taie.util.collection.Sets;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Handles sinks in taint analysis.
@@ -49,17 +49,9 @@ class SinkHandler extends Handler {
 
     private final List<Sink> sinks;
 
-    private final CSManager csManager;
-
-    private final HeapModel heapModel;
-
-    private final PointerToSetManager ptsManager = new PointerToSetManager();
-
     SinkHandler(HandlerContext context) {
         super(context);
         sinks = context.config().sinks();
-        csManager = context.solver().getCSManager();
-        heapModel = context.solver().getHeapModel();
     }
 
     Set<TaintFlow> collectTaintFlows() {
@@ -100,9 +92,25 @@ class SinkHandler extends Handler {
         SinkPoint sinkPoint = new SinkPoint(sinkCall, indexRef);
         // obtain objects to check for different IndexRef.Kind
         Set<Obj> objs = switch (indexRef.kind()) {
-            case VAR -> ptsManager.getPointsToSet(arg);
-            case ARRAY -> ptsManager.getPointsToSet(arg, (Var) null);
-            case FIELD -> ptsManager.getPointsToSet(arg, indexRef.field());
+            case VAR -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
+            case ARRAY -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(csManager::getArrayIndex)
+                    .flatMap(ArrayIndex::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
+            case FIELD -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(o -> csManager.getInstanceField(o, indexRef.field()))
+                    .flatMap(InstanceField::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
         };
         return objs.stream()
                 .filter(manager::isTaint)
@@ -111,38 +119,4 @@ class SinkHandler extends Handler {
                 .collect(Collectors.toSet());
     }
 
-    class PointerToSetManager {
-        // todo: don't repeat urself!
-
-        private static final Canonicalizer<Set<Obj>> canonicalizer = new Canonicalizer<>();
-
-        private Set<Obj> removeContexts(Stream<CSObj> objects) {
-            Set<Obj> set = new HybridBitSet<>(heapModel, true);
-            objects.map(CSObj::getObject).forEach(set::add);
-            return canonicalizer.get(Collections.unmodifiableSet(set));
-        }
-
-        Set<Obj> getPointsToSet(Var var) {
-            return removeContexts(csManager.getCSVarsOf(var)
-                    .stream()
-                    .flatMap(Pointer::objects));
-        }
-
-        Set<Obj> getPointsToSet(Var base, JField field) {
-            return removeContexts(csManager.getCSVarsOf(base)
-                    .stream()
-                    .flatMap(Pointer::objects)
-                    .map(o -> csManager.getInstanceField(o, field))
-                    .flatMap(InstanceField::objects));
-        }
-
-        Set<Obj> getPointsToSet(Var base, Var index) {
-            return removeContexts(csManager.getCSVarsOf(base)
-                    .stream()
-                    .flatMap(Pointer::objects)
-                    .map(csManager::getArrayIndex)
-                    .flatMap(ArrayIndex::objects));
-        }
-
-    }
 }

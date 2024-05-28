@@ -52,14 +52,15 @@ public interface Pointer extends Indexable {
     @Nullable
     PointsToSet getPointsToSet();
 
-    void rmFromPointsToIf(Predicate<CSObj> predicate);
-
-    void rmFromOutEdgesIf(Predicate<PointerFlowEdge> predicate);
-
     /**
      * Sets the associated points-to set of this pointer.
      */
     void setPointsToSet(PointsToSet pointsToSet);
+
+    /**
+     * Removes objects pointed to by this pointer if they satisfy the filter.
+     */
+    void removeObjsIf(Predicate<CSObj> filter);
 
     /**
      * Adds filter to filter out objects pointed to by this pointer.
@@ -100,6 +101,11 @@ public interface Pointer extends Indexable {
      * </ul>
      */
     PointerFlowEdge addEdge(PointerFlowEdge edge);
+
+    /**
+     * Removes out edges of this pointer if they satisfy the filter.
+     */
+    void removeEdgesIf(Predicate<PointerFlowEdge> filter);
 
     /**
      * @return out edges of this pointer in pointer flow graph.

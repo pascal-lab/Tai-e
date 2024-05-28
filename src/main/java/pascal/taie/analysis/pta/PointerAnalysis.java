@@ -38,6 +38,7 @@ import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.EntryPointHandler;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
+import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
@@ -153,7 +154,7 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         if (options.getString("taint-config") != null) {
             plugin.addPlugin(new TaintAnalysis());
         }
-//        plugin.addPlugin(new ResultProcessor());
+        plugin.addPlugin(new ResultProcessor());
         // add plugins specified in options
         // noinspection unchecked
         addPlugins(plugin, (List<String>) options.get("plugins"));

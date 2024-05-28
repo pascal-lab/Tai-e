@@ -67,16 +67,9 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public void rmFromPointsToIf(Predicate<CSObj> predicate) {
+    public void removeObjsIf(Predicate<CSObj> filter) {
         if (pointsToSet != null) {
-            pointsToSet.removeIf(predicate);
-        }
-    }
-
-    @Override
-    public void rmFromOutEdgesIf(Predicate<PointerFlowEdge> predicate) {
-        if (! outEdges.isEmpty()) {
-            outEdges.removeIf(predicate);
+            pointsToSet.removeIf(filter);
         }
     }
 
@@ -120,6 +113,11 @@ abstract class AbstractPointer implements Pointer {
             return edge;
         }
         return null;
+    }
+
+    @Override
+    public void removeEdgesIf(Predicate<PointerFlowEdge> filter) {
+        outEdges.removeIf(filter);
     }
 
     @Override
