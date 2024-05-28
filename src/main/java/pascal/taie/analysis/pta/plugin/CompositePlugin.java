@@ -37,6 +37,7 @@ import pascal.taie.language.classes.JMethod;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Composite plugin which allows multiple independent plugins
@@ -90,13 +91,9 @@ public class CompositePlugin implements Plugin {
     }
 
     public void clearPlugins() {
-        allPlugins.clear();
-        onNewPointsToSetPlugins.clear();
-        onNewCallEdgePlugins.clear();
-        onNewMethodPlugins.clear();
-        onNewStmtPlugins.clear();
-        onNewCSMethodPlugins.clear();
-        onUnresolvedCallPlugins.clear();
+        Stream.of(allPlugins, onNewPointsToSetPlugins, onNewCallEdgePlugins,
+                onNewMethodPlugins, onNewStmtPlugins, onNewCSMethodPlugins,
+                onUnresolvedCallPlugins).forEach(List::clear);
     }
 
     @Override
