@@ -34,7 +34,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
@@ -91,11 +90,12 @@ public class TaintAnalysis extends CompositePlugin {
                 JMethod method = csMethod.getMethod();
                 Context ctxt = csMethod.getContext();
                 IR ir = csMethod.getMethod().getIR();
-                if (context.config().callSiteMode()) {
+                if (context.config().callSiteMode() ||
+                        context.config().sources().stream().anyMatch(FieldSource.class::isInstance)) {
                     ir.forEach(stmt -> onNewStmt(stmt, method));
                 }
-                csMethod.getEdges().forEach(this::onNewCallEdge);
                 this.onNewCSMethod(csMethod);
+                csMethod.getEdges().forEach(this::onNewCallEdge);
                 ir.getParams().forEach(param -> {
                     CSVar csParam = csManager.getCSVar(ctxt, param);
                     onNewPointsToSet(csParam, csParam.getPointsToSet());
