@@ -73,25 +73,15 @@ public class TaintTest {
             TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
-    }
-
-    @Test
-    void testInteractiveTaintAnalysis() {
+        // test interactive mode
         InputStream originalSystemIn = System.in;
         try {
-            String simulatedInput = "r\nr\ne";
+            String simulatedInput = "r\ne\n";
             System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
-            Main.main(
-                    "-pp",
-                    "-cp", "src/test/resources/pta/taint",
-                    "-m", "ArrayTaint",
-                    "-a", "pta="
-                            + "implicit-entries:false;"
-                            + "only-app:true;"
-                            + "distinguish-string-constants:all;"
-                            + "taint-interactive-mode:true;"
-                            + TAINT_CONFIG
-            );
+            String[] newOpts = new String[opts.length + 1];
+            System.arraycopy(opts, 0, newOpts, 0, opts.length);
+            newOpts[opts.length] = "taint-interactive-mode:true";
+            Tests.testPTA(DIR, mainClass, newOpts);
         } finally {
             System.setIn(originalSystemIn);
         }
