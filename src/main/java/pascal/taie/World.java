@@ -22,7 +22,7 @@
 
 package pascal.taie;
 
-import pascal.taie.analysis.pta.plugin.android.parser.IParser;
+import pascal.taie.android.info.ApkInfo;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.ir.IRBuilder;
@@ -84,9 +84,9 @@ public final class World extends AbstractResultHolder
 
     private JMethod mainMethod;
 
-    private IParser parser;
-
     private Collection<JMethod> implicitEntries;
+
+    private ApkInfo apkInfo;
 
     /**
      * Sets current world to {@code world}.
@@ -167,6 +167,14 @@ public final class World extends AbstractResultHolder
         checkAndSet("implicitEntries", implicitEntries);
     }
 
+    public ApkInfo getApkInfo() {
+        return apkInfo;
+    }
+
+    public void setApkInfo(ApkInfo apkInfo) {
+        checkAndSet("apkInfo", apkInfo);
+    }
+
     /**
      * Sets value for specified field (by {@code fieldName}).
      * Ensures that the specified field is set at most once.
@@ -182,14 +190,6 @@ public final class World extends AbstractResultHolder
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException("Failed to set World." + fieldName);
         }
-    }
-
-    public IParser getParser() {
-        return parser;
-    }
-
-    public void setParser(IParser parser) {
-        this.parser =  parser;
     }
 
     @Serial

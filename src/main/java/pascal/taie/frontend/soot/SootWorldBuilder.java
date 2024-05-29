@@ -31,6 +31,9 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.android.info.ApkInfo;
+import pascal.taie.android.info.RawApkInfo;
+import pascal.taie.android.util.LayoutFileParser;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -47,6 +50,8 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
+import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.resources.ARSCFileParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,8 +61,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -73,33 +76,17 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
     private static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
 
-    protected static final Map<Integer, Integer> sdkToJdk = Map.ofEntries(
-            Map.entry(33, 11),
-            Map.entry(32, 11),
-            Map.entry(31, 11),
-            Map.entry(30, 8),
-            Map.entry(29, 8),
-            Map.entry(28, 8),
-            Map.entry(27, 8),
-            Map.entry(26, 8),
-            Map.entry(25, 8),
-            Map.entry(24, 8),
-            Map.entry(23, 7),
-            Map.entry(22, 7),
-            Map.entry(21, 7)
-    );
-
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
-        Scene scene = initSoot(options, analyses, this);
+        initSoot(options, analyses, this);
         if (options.isAndroidMode()) {
-            buildForAndroid(options, scene);
+            buildForAndroid(options);
         } else {
             buildForJava(options);
         }
     }
 
-    private static Scene initSoot(Options options, List<AnalysisConfig> analyses,
+    private static void initSoot(Options options, List<AnalysisConfig> analyses,
                                  SootWorldBuilder builder) {
         // reset Soot
         G.reset();
@@ -150,7 +137,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         PackManager.v()
                 .getPack("wjtp")
                 .add(transform);
-        return scene;
     }
 
     /**
@@ -216,16 +202,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         World world = new World();
         World.set(world);
 
-        /**
-        // parser entry and some lifecycle
-        IParser parser = new ApkParser(options.getApkPath());
-        parser.parse();
-        //inject parser into world singleton
-        World.get().setParser(parser);
-        // options will be used during World building, thus it should be
-        // set at first.
-        */
-
         world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
@@ -270,12 +246,50 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);
         }
+
+        // set apkInfo
+        if (options.isAndroidMode()) {
+            world.setApkInfo(getApkInfo(options, hierarchy));
+        }
     }
 
     protected static void buildClasses(ClassHierarchy hierarchy, Scene scene) {
         // TODO: parallelize?
         new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
+    }
+
+    private static ApkInfo getApkInfo(Options options, ClassHierarchy hierarchy) {
+        RawApkInfo rawApkInfo = getRawApkInfo(options);
+        ApkInfo.ApkInfoConverter apkInfoConverter = new ApkInfo.ApkInfoConverter(rawApkInfo, hierarchy);
+        return new ApkInfo(apkInfoConverter.convertApplication(),
+                apkInfoConverter.convertExportedActivities(),
+                apkInfoConverter.convertExportedServices(),
+                apkInfoConverter.convertExportedBroadcastReceivers(),
+                apkInfoConverter.convertExportedContentProviders(),
+                apkInfoConverter.convertEnabledActivities(),
+                apkInfoConverter.convertEnabledServices(),
+                apkInfoConverter.convertEnabledBroadcastReceivers(),
+                apkInfoConverter.convertEnabledContentProviders(),
+                apkInfoConverter.convertLayoutCallbacks(),
+                apkInfoConverter.convertLayoutFragments(),
+                apkInfoConverter.convertLayoutViews(),
+                apkInfoConverter.convertAndroidCallbacks(),
+                apkInfoConverter.convertComponentFilterInfo(),
+                rawApkInfo);
+    }
+
+    private static RawApkInfo getRawApkInfo(Options options) {
+        try {
+            String apkPath = options.getClassPath().get(0);
+            ARSCFileParser resources = new ARSCFileParser();
+            resources.parse(apkPath);
+            ProcessManifest manifest = new ProcessManifest(new File(apkPath), resources);
+            LayoutFileParser layoutFile = new LayoutFileParser(manifest.getPackageName(), apkPath, resources);
+            return new RawApkInfo(manifest, layoutFile, resources);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void buildForJava(Options options) {
@@ -317,15 +331,13 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    private static void buildForAndroid(Options options, Scene scene) {
+    private static void buildForAndroid(Options options) {
         soot.options.Options.v().set_src_prec(soot.options.Options.src_prec_apk);
         soot.options.Options.v().set_process_multiple_dex(true);
         List<String> args = new ArrayList<>();
         // set Java version for Android
         String apkPath = options.getClassPath().get(0);
-        int sdkVersion = getSDKVersion(scene, apkPath);
-        int javaVersion = sdkToJdk.getOrDefault(sdkVersion, 6);
-        options.setJavaVersion(javaVersion);
+        int javaVersion = options.getJavaVersion();
         // set android JDK path
         String androidJDKPath = (javaVersion >= 9)
                 ? ModulePathSourceLocator.DUMMY_CLASSPATH_JDK9_FS
@@ -350,24 +362,5 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             throw new RuntimeException("Soot frontend failed to build Scene" +
                     " in Android mode", e);
         }
-    }
-
-    private static int getSDKVersion(Scene scene, String apkPath) {
-        String androidJar = scene.getAndroidJarPath(ANDROID_PLATFORMS, apkPath);
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(androidJar);
-
-        int lastMatchStart = -1;
-        int lastMatchEnd = -1;
-
-        while (matcher.find()) {
-            lastMatchStart = matcher.start();
-            lastMatchEnd = matcher.end();
-        }
-        if (lastMatchStart != -1) {
-            return Integer.parseInt(androidJar
-                    .substring(lastMatchStart, lastMatchEnd));
-        }
-        throw new RuntimeException("Erroneous apk path: " + apkPath);
     }
 }
