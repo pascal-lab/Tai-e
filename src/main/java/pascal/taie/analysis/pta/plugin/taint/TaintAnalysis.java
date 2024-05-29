@@ -86,12 +86,13 @@ public class TaintAnalysis extends CompositePlugin {
         // trigger the creation of taint objects
         CallGraph<CSCallSite, CSMethod> cg = solver.getCallGraph();
         if (cg != null) {
+            boolean handleStmt = context.config().callSiteMode()
+                    || context.config().sources().stream().anyMatch(FieldSource.class::isInstance);
             cg.reachableMethods().forEach(csMethod -> {
                 JMethod method = csMethod.getMethod();
                 Context ctxt = csMethod.getContext();
                 IR ir = csMethod.getMethod().getIR();
-                if (context.config().callSiteMode() ||
-                        context.config().sources().stream().anyMatch(FieldSource.class::isInstance)) {
+                if (handleStmt) {
                     ir.forEach(stmt -> onNewStmt(stmt, method));
                 }
                 this.onNewCSMethod(csMethod);
