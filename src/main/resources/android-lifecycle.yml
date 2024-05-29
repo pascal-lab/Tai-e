@@ -20,6 +20,8 @@
     - void onAttachFragment(android.app.Fragment)
     - void onLowMemory()
     - void onUserLeaveHint()
+    - void onRequestPermissionsResult(int,java.lang.String[],int[])
+    - void onNewIntent(android.content.Intent)
 
 - className: android.content.BroadcastReceiver
   callbackMethodSubSigs:
@@ -35,6 +37,10 @@
     - boolean onUnbind(android.content.Intent)
     - void onDestroy()
     - void onLowMemory()
+
+- className: android.app.IntentService
+  callbackMethodSubSigs:
+    - void onHandleIntent(android.content.Intent)
 
 - className: android.content.ContentProvider
   callbackMethodSubSigs:

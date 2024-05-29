@@ -33,6 +33,7 @@
 - android.app.Activity
 - android.content.BroadcastReceiver
 - android.app.Service
+- android.app.IntentService
 - android.content.ContentProvider
 - android.app.Fragment
 - androidx.fragment.app.Fragment
