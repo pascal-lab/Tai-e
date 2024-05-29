@@ -69,6 +69,9 @@ import soot.SootMethod;
 import soot.SootMethodRef;
 import soot.VoidType;
 import soot.jimple.toolkits.typing.fast.BottomType;
+import soot.jimple.toolkits.typing.fast.Integer127Type;
+import soot.jimple.toolkits.typing.fast.Integer1Type;
+import soot.jimple.toolkits.typing.fast.Integer32767Type;
 import soot.tagkit.AbstractHost;
 import soot.tagkit.AnnotationAnnotationElem;
 import soot.tagkit.AnnotationArrayElem;
@@ -131,7 +134,10 @@ class Converter {
                 return PrimitiveType.BYTE;
             } else if (sootType instanceof ShortType) {
                 return PrimitiveType.SHORT;
-            } else if (sootType instanceof IntType) {
+            } else if (sootType instanceof IntType
+                    || sootType instanceof Integer1Type
+                    || sootType instanceof Integer127Type
+                    || sootType instanceof Integer32767Type) {
                 return PrimitiveType.INT;
             } else if (sootType instanceof LongType) {
                 return PrimitiveType.LONG;
