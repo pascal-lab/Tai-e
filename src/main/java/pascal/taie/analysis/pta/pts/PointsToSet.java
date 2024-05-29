@@ -60,6 +60,10 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
 
     /**
      * Removes objects from this set if they satisfy the filter.
+     * <p>
+     * <strong>Note:</strong> This method should be used with caution during pointer analysis iterations,
+     * as it can break the monotonicity of the analysis.
+     * </p>
      */
     void removeIf(Predicate<CSObj> filter);
 

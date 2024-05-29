@@ -58,11 +58,6 @@ public interface Pointer extends Indexable {
     void setPointsToSet(PointsToSet pointsToSet);
 
     /**
-     * Removes objects pointed to by this pointer if they satisfy the filter.
-     */
-    void removeObjsIf(Predicate<CSObj> filter);
-
-    /**
      * Adds filter to filter out objects pointed to by this pointer.
      */
     void addFilter(Predicate<CSObj> filter);
@@ -104,6 +99,10 @@ public interface Pointer extends Indexable {
 
     /**
      * Removes out edges of this pointer if they satisfy the filter.
+     * <p>
+     * <strong>Note:</strong> This method should not be used during pointer analysis iterations,
+     * as it can break the monotonicity of the analysis.
+     * </p>
      */
     void removeEdgesIf(Predicate<PointerFlowEdge> filter);
 

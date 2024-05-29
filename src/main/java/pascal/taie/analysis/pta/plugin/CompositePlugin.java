@@ -91,9 +91,10 @@ public class CompositePlugin implements Plugin {
     }
 
     public void clearPlugins() {
-        Stream.of(allPlugins, onNewPointsToSetPlugins, onNewCallEdgePlugins,
-                onNewMethodPlugins, onNewStmtPlugins, onNewCSMethodPlugins,
-                onUnresolvedCallPlugins).forEach(List::clear);
+        Stream.of(allPlugins,
+                onNewPointsToSetPlugins, onNewCallEdgePlugins, onNewMethodPlugins,
+                onNewStmtPlugins, onNewCSMethodPlugins, onUnresolvedCallPlugins
+        ).forEach(List::clear);
     }
 
     @Override

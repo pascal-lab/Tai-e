@@ -25,18 +25,22 @@ package pascal.taie.analysis.pta.plugin.taint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Timer;
 
+import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Scanner;
 import java.util.Set;
 
 public class TaintAnalysis extends CompositePlugin {
@@ -54,12 +58,13 @@ public class TaintAnalysis extends CompositePlugin {
     @Override
     public void setSolver(Solver solver) {
         this.solver = solver;
-        AnalysisOptions options = solver.getOptions();
-        isInteractive = options.getBoolean("taint-interactive");
+        isInteractive = solver.getOptions().getBoolean("taint-interactive-mode");
         initialize();
     }
 
     private void initialize() {
+        // reset sub-plugins
+        clearPlugins();
         TaintManager manager = new TaintManager(solver.getHeapModel());
         TaintConfig config = TaintConfig.loadConfig(
                 solver.getOptions().getString("taint-config"),
@@ -70,60 +75,85 @@ public class TaintAnalysis extends CompositePlugin {
         addPlugin(new SourceHandler(context),
                 new TransferHandler(context),
                 new SanitizerHandler(context));
-    }
-
-    /**
-     * Add comment
-     */
-    private boolean reInitialize() {
-        clearPlugins();
-        initialize();
+        // clear all taint objects and taint edges
         CSManager csManager = solver.getCSManager();
-        TaintManager taintManager = context.manager();
         csManager.pointers().forEach(p -> {
-            p.removeObjsIf(csObj -> taintManager.isTaint(csObj.getObject()));
+            PointsToSet pts = p.getPointsToSet();
+            if (pts != null) {
+                pts.removeIf(csObj -> manager.isTaint(csObj.getObject()));
+            }
             p.removeEdgesIf(TaintTransferEdge.class::isInstance);
         });
-        solver.getCallGraph().reachableMethods().forEach(csMethod -> {
-            JMethod method = csMethod.getMethod();
-            Context ctxt = csMethod.getContext();
-            IR ir = csMethod.getMethod().getIR();
-            if (context.config().callSiteMode()) {
-                ir.forEach(stmt -> onNewStmt(stmt, method));
-            }
-            csMethod.getEdges().forEach(this::onNewCallEdge);
-            this.onNewCSMethod(csMethod);
-            ir.getParams().forEach(param -> {
-                CSVar csParam = csManager.getCSVar(ctxt, param);
-                onNewPointsToSet(csParam, csParam.getPointsToSet());
+        // trigger the creation of taint objects
+        CallGraph<CSCallSite, CSMethod> cg = solver.getCallGraph();
+        if (cg != null) {
+            cg.reachableMethods().forEach(csMethod -> {
+                JMethod method = csMethod.getMethod();
+                Context ctxt = csMethod.getContext();
+                IR ir = csMethod.getMethod().getIR();
+                if (context.config().callSiteMode()) {
+                    ir.forEach(stmt -> onNewStmt(stmt, method));
+                }
+                csMethod.getEdges().forEach(this::onNewCallEdge);
+                this.onNewCSMethod(csMethod);
+                ir.getParams().forEach(param -> {
+                    CSVar csParam = csManager.getCSVar(ctxt, param);
+                    onNewPointsToSet(csParam, csParam.getPointsToSet());
+                });
             });
-        });
-        return !taintManager.getTaintObjs().isEmpty();
+        }
     }
 
     @Override
     public void onPhaseFinish() {
         reportTaintFlows();
         if (isInteractive) {
-            Scanner scan = new Scanner(System.in);
             while (true) {
-                logger.info("Change your taint config, and input 'r' to continue, 'e' to exit:");
-                if (!scan.hasNextLine()) {
+                System.out.println("Taint Analysis is in interactive mode,"
+                        + " you can change your taint config and run the analysis again.\n"
+                        + "Enter 'r' to run, 'e' to exit: ");
+                String input = nextLineFromConsole();
+                if (input == null) {
                     break;
                 }
-                String input = scan.nextLine().strip();
+                input = input.strip();
+                System.out.println("You have entered: '" + input + "'");
                 if ("r".equals(input)) {
-                    if (reInitialize()) {
+                    initialize();
+                    if (!context.manager().getTaintObjs().isEmpty()) {
                         break;
                     }
                 } else if ("e".equals(input)) {
                     isInteractive = false;
                     break;
-                } else {
-                    logger.error("Invalid input");
                 }
             }
         }
+    }
+
+    /**
+     * A utility method for reading one line from the console using {@code System.in}.
+     * This method does not use buffering to ensure it does not read more than necessary.
+     * <br>
+     *
+     * @return one line line read from the console,
+     * or {@code null} if no line is available
+     */
+    @Nullable
+    private static String nextLineFromConsole() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            int c;
+            while ((c = System.in.read()) != -1) {
+                if (c == '\r' || c == '\n') {
+                    return sb.toString();
+                }
+                sb.append((char) c);
+            }
+        } catch (Exception e) {
+            logger.error("Error reading from console", e);
+        }
+        return sb.isEmpty() ? null : sb.toString();
     }
 
     private void reportTaintFlows() {
@@ -137,5 +167,4 @@ public class TaintAnalysis extends CompositePlugin {
                         new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE)),
                 "TFGDumper");
     }
-
 }

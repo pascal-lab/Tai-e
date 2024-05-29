@@ -67,13 +67,6 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
-    public void removeObjsIf(Predicate<CSObj> filter) {
-        if (pointsToSet != null) {
-            pointsToSet.removeIf(filter);
-        }
-    }
-
-    @Override
     public void addFilter(Predicate<CSObj> filter) {
         if (filters.isEmpty()) {
             filters = Sets.newHybridSet();

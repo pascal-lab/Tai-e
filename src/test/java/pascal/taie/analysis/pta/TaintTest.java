@@ -79,8 +79,8 @@ public class TaintTest {
     void testInteractiveTaintAnalysis() {
         InputStream originalSystemIn = System.in;
         try {
-            InputStream testIn = new ByteArrayInputStream("r\ne\n".getBytes());
-            System.setIn(testIn);
+            String simulatedInput = "r\nr\ne";
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
             Main.main(
                     "-pp",
                     "-cp", "src/test/resources/pta/taint",
@@ -89,7 +89,7 @@ public class TaintTest {
                             + "implicit-entries:false;"
                             + "only-app:true;"
                             + "distinguish-string-constants:all;"
-                            + "interactive-taint-analysis:true;"
+                            + "taint-interactive-mode:true;"
                             + TAINT_CONFIG
             );
         } finally {

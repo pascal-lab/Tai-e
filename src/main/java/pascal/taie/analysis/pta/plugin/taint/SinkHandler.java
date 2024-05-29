@@ -118,5 +118,4 @@ class SinkHandler extends Handler {
                 .map(sourcePoint -> new TaintFlow(sourcePoint, sinkPoint))
                 .collect(Collectors.toSet());
     }
-
 }
