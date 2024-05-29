@@ -100,8 +100,9 @@ public interface Pointer extends Indexable {
     /**
      * Removes out edges of this pointer if they satisfy the filter.
      * <p>
-     * <strong>Note:</strong> This method should not be used during pointer analysis iterations,
-     * as it can break the monotonicity of the analysis.
+     * <strong>Note:</strong> This method should not be called outside of
+     * {@link pascal.taie.analysis.pta.plugin.Plugin#onPhaseFinish()},
+     * otherwise it may break the monotonicity of pointer analysis.
      * </p>
      */
     void removeEdgesIf(Predicate<PointerFlowEdge> filter);

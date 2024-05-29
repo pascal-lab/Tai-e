@@ -61,8 +61,9 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
     /**
      * Removes objects from this set if they satisfy the filter.
      * <p>
-     * <strong>Note:</strong> This method should be used with caution during pointer analysis iterations,
-     * as it can break the monotonicity of the analysis.
+     * <strong>Note:</strong> This method should not be called outside of
+     * {@link pascal.taie.analysis.pta.plugin.Plugin#onPhaseFinish()},
+     * otherwise it may break the monotonicity of pointer analysis.
      * </p>
      */
     void removeIf(Predicate<CSObj> filter);

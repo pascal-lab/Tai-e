@@ -22,9 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
 
@@ -72,8 +70,15 @@ public class TaintTest {
     @MultiStringsSource({"CallSiteMode",
             TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
+        testInNonInteractiveMode(mainClass, opts);
+        testInInteractiveMode(mainClass, opts);
+    }
+
+    private void testInNonInteractiveMode(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
-        // test interactive mode
+    }
+
+    private void testInInteractiveMode(String mainClass, String... opts) {
         InputStream originalSystemIn = System.in;
         try {
             String simulatedInput = "r\ne\n";

@@ -113,7 +113,7 @@ public class TaintAnalysis extends CompositePlugin {
                 System.out.println("Taint Analysis is in interactive mode,"
                         + " you can change your taint config and run the analysis again.\n"
                         + "Enter 'r' to run, 'e' to exit: ");
-                String input = nextLineFromConsole();
+                String input = readLineFromConsole();
                 if (input == null) {
                     break;
                 }
@@ -141,7 +141,7 @@ public class TaintAnalysis extends CompositePlugin {
      * or {@code null} if no line is available
      */
     @Nullable
-    private static String nextLineFromConsole() {
+    private static String readLineFromConsole() {
         StringBuilder sb = new StringBuilder();
         try {
             int c;
