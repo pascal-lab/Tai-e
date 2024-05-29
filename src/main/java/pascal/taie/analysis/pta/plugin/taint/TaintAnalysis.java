@@ -42,6 +42,20 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * Maintains the process of taint analysis and supports interactive mode.
+ * <br>
+ *
+ * The interactive mode goes as follows:
+ * <ol>
+ *     <li>Captures user's rerun request in {@link #onPhaseFinish()} when pointer analysis finishes
+ *     <li>Call {@link #initialize()} to re-initialize the analysis
+ *     <li>Reset sub-plugins based on the newly loaded taint config
+ *     <li>Clear previous taint objects and taint edges
+ *     <li>Trigger the creation of taint objects based on the new taint config
+ *     <li>P/Taint analysis will continue when exit {@link #initialize()}
+ * </ol>
+ */
 public class TaintAnalysis extends CompositePlugin {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
