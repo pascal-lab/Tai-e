@@ -27,6 +27,7 @@ import pascal.taie.util.Copyable;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -56,6 +57,16 @@ public interface PointsToSet extends Iterable<CSObj>, Copyable<PointsToSet> {
      * @return the difference between {@code pts} and this set.
      */
     PointsToSet addAllDiff(PointsToSet pts);
+
+    /**
+     * Removes objects from this set if they satisfy the filter.
+     * <p>
+     * <strong>Note:</strong> This method should not be called outside of
+     * {@link pascal.taie.analysis.pta.plugin.Plugin#onPhaseFinish()},
+     * otherwise it may break the monotonicity of pointer analysis.
+     * </p>
+     */
+    void removeIf(Predicate<CSObj> filter);
 
     /**
      * @return true if this set contains given object, otherwise false.

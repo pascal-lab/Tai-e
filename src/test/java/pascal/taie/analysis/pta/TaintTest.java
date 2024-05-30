@@ -26,6 +26,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 public class TaintTest {
 
     static final String DIR = "taint";
@@ -67,7 +70,26 @@ public class TaintTest {
     @MultiStringsSource({"CallSiteMode",
             TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
+        testInNonInteractiveMode(mainClass, opts);
+        testInInteractiveMode(mainClass, opts);
+    }
+
+    private void testInNonInteractiveMode(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
+    }
+
+    private void testInInteractiveMode(String mainClass, String... opts) {
+        InputStream originalSystemIn = System.in;
+        try {
+            String simulatedInput = "r\ne\n";
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+            String[] newOpts = new String[opts.length + 1];
+            System.arraycopy(opts, 0, newOpts, 0, opts.length);
+            newOpts[opts.length] = "taint-interactive-mode:true";
+            Tests.testPTA(DIR, mainClass, newOpts);
+        } finally {
+            System.setIn(originalSystemIn);
+        }
     }
 
 }

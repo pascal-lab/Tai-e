@@ -37,6 +37,7 @@ import pascal.taie.language.classes.JMethod;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Composite plugin which allows multiple independent plugins
@@ -87,6 +88,13 @@ public class CompositePlugin implements Plugin {
             throw new RuntimeException("Can't find method '" + name +
                     "' in " + plugin.getClass(), e);
         }
+    }
+
+    public void clearPlugins() {
+        Stream.of(allPlugins,
+                onNewPointsToSetPlugins, onNewCallEdgePlugins, onNewMethodPlugins,
+                onNewStmtPlugins, onNewCSMethodPlugins, onUnresolvedCallPlugins
+        ).forEach(List::clear);
     }
 
     @Override
