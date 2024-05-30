@@ -48,6 +48,33 @@ import java.util.Set;
  * {@link TaintTransfer}, and {@link Sanitizer} respectively.
  * The analysis finally gathers taint flows from {@link Sink} through {@link SinkHandler}
  * and generates reports.
+ * <br>
+ * The following diagram illustrates the workflow of the taint analysis:
+ * <pre><code class='text'>
+ *     ┌───────────────────────────┐   ┌─────────────────────────────┐
+ * ┌──►│       initialize()        ├───┤Clean Up                     │
+ * │   └─────────────┬─────────────┘   │                             │
+ * │      on-the-fly │with PTA         │ 1.Clear composited handlers │
+ * │                 ▼                 │ 2.Remove taint objects      │
+ * │   ┌───────────────────────────┐   │   from points-to set        │
+ * │   │      onPhaseFinish()      │   │ 3.Remove taint transfer     │
+ * │Yes│ ┌───────────────────────┐ │   │   edge from pointer flow    │
+ * │ ┌─┼─┤In interactive mode and│ │   │   graph                     │
+ * └─┼─┼─┤Enter 'r' from console?│ │   │                             │
+ *   │ │ └───────────┬───────────┘ │   │Start Up                     │
+ *   │ │             │             │   │                             │
+ *   │ └─────────────┼─────────────┘   │ 4. Load taint configuration │
+ *   │               │No               │ 5. Create Source/Transfer/  │
+ *   │               ▼                 │    Sanitizer handlers       │
+ *   │ ┌───────────────────────────┐   │ 6. Create taint objects     │
+ *   │ │         onFinish()        │   └─────────────────────────────┘
+ *   │ └─────────────┬─────────────┘
+ *   │               │
+ *   │               ▼                 ┌─────────────────────────────┐
+ *   │ ┌───────────────────────────┐   │Collect taint analysis result│
+ *   └►│     reportTaintFlows()    ├───┤and report taint flows       │
+ *     └───────────────────────────┘   └─────────────────────────────┘
+ * </code></pre>
  */
 public class TaintAnalysis extends CompositePlugin {
 
@@ -76,31 +103,34 @@ public class TaintAnalysis extends CompositePlugin {
     }
 
     private void initialize() {
+        // clean composited plugins, taint objects and taint transfer edges
         isReported = false;
-        // reset composited plugins
         clearPlugins();
-        TaintManager manager = new TaintManager(solver.getHeapModel());
+        if (context != null) {
+            TaintManager manager = context.manager();
+            solver.getCSManager().pointers().forEach(p -> {
+                PointsToSet pts = p.getPointsToSet();
+                if (pts != null) {
+                    pts.removeIf(csObj -> manager.isTaint(csObj.getObject()));
+                }
+                p.removeEdgesIf(TaintTransferEdge.class::isInstance);
+            });
+        }
+        // load taint configuration and create new handlers
         TaintConfig config = TaintConfig.loadConfig(
                 solver.getOptions().getString("taint-config"),
                 solver.getHierarchy(),
                 solver.getTypeSystem());
         logger.info(config);
-        context = new HandlerContext(solver, manager, config);
+        context = new HandlerContext(solver, new TaintManager(
+                solver.getHeapModel()), config);
         addPlugin(new SourceHandler(context),
                 new TransferHandler(context),
                 new SanitizerHandler(context));
-        // clear all taint objects and taint edges
-        CSManager csManager = solver.getCSManager();
-        csManager.pointers().forEach(p -> {
-            PointsToSet pts = p.getPointsToSet();
-            if (pts != null) {
-                pts.removeIf(csObj -> manager.isTaint(csObj.getObject()));
-            }
-            p.removeEdgesIf(TaintTransferEdge.class::isInstance);
-        });
         // trigger the creation of taint objects
         CallGraph<CSCallSite, CSMethod> cg = solver.getCallGraph();
         if (cg != null) {
+            CSManager csManager = solver.getCSManager();
             boolean handleStmt = context.config().callSiteMode()
                     || context.config().sources().stream().anyMatch(FieldSource.class::isInstance);
             cg.reachableMethods().forEach(csMethod -> {
