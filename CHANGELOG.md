@@ -14,6 +14,7 @@
 - Taint analysis
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
+  - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
 
 ### Breaking Changes
 - API changes

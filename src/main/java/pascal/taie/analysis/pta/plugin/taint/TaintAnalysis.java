@@ -42,6 +42,13 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * Taint Analysis composites plugins {@link SourceHandler}, {@link TransferHandler}
+ * and {@link SanitizerHandler} to handle the logic associated with {@link Source},
+ * {@link TaintTransfer}, and {@link Sanitizer} respectively.
+ * The analysis finally gathers taint flows from {@link Sink} through {@link SinkHandler}
+ * and generates reports.
+ */
 public class TaintAnalysis extends CompositePlugin {
 
     private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
