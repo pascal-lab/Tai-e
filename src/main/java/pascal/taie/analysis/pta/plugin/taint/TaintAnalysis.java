@@ -52,6 +52,13 @@ public class TaintAnalysis extends CompositePlugin {
 
     private boolean isInteractive;
 
+    /**
+     * Indicates whether the taint analysis result has been reported.
+     * It is used to ensures that {@link #reportTaintFlows()} executes only once
+     * during a taint analysis.
+     */
+    private boolean isReported;
+
     private HandlerContext context;
 
     @Override
@@ -62,6 +69,7 @@ public class TaintAnalysis extends CompositePlugin {
     }
 
     private void initialize() {
+        isReported = false;
         // reset composited plugins
         clearPlugins();
         TaintManager manager = new TaintManager(solver.getHeapModel());
@@ -107,11 +115,11 @@ public class TaintAnalysis extends CompositePlugin {
 
     @Override
     public void onPhaseFinish() {
-        reportTaintFlows();
         if (isInteractive) {
             while (true) {
+                reportTaintFlows();
                 System.out.println("Taint Analysis is in interactive mode,"
-                        + " you can change your taint config and run the analysis again.\n"
+                        + " you can modify the taint configuration and run the analysis again.\n"
                         + "Enter 'r' to run, 'e' to exit: ");
                 String input = readLineFromConsole();
                 if (input == null) {
@@ -157,7 +165,16 @@ public class TaintAnalysis extends CompositePlugin {
         return sb.isEmpty() ? null : sb.toString();
     }
 
+    @Override
+    public void onFinish() {
+        reportTaintFlows();
+    }
+
     private void reportTaintFlows() {
+        if (isReported) {
+            return;
+        }
+        isReported = true;
         Set<TaintFlow> taintFlows = new SinkHandler(context).collectTaintFlows();
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
