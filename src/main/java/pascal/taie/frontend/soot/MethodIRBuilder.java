@@ -58,6 +58,7 @@ import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
@@ -81,6 +82,7 @@ import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.Phi;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
@@ -173,6 +175,7 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
+import soot.shimple.PhiExpr;
 import soot.shimple.Shimple;
 import soot.util.Chain;
 
@@ -602,6 +605,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 buildInstanceOf(lvar, (InstanceOfExpr) rhs);
             } else if (rhs instanceof CastExpr) {
                 buildCast(lvar, (CastExpr) rhs);
+            } else if (rhs instanceof PhiExpr) {
+                buildPhi(lvar, (PhiExpr) rhs);
             } else {
                 throw new SootFrontendException(
                         "Cannot handle AssignStmt: " + stmt);
@@ -876,6 +881,15 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 getLocalOrConstant(rhs.getOp()),
                 converter.convertType(rhs.getCastType()));
         addStmt(new Cast(getVar(lhs), castExp));
+    }
+
+    private void buildPhi(Local lhs, PhiExpr rhs) {
+        List<Var> values = rhs.getValues()
+                .stream()
+                .map(this::getLocalOrConstant)
+                .toList();
+        PhiExp phiExp = new PhiExp(converter.convertType(rhs.getType()), values);
+        addStmt(new Phi(getVar(lhs), phiExp));
     }
 
     @Override
