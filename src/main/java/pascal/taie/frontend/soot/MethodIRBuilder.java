@@ -24,6 +24,7 @@ package pascal.taie.frontend.soot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -172,6 +173,7 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
+import soot.shimple.Shimple;
 import soot.util.Chain;
 
 import java.util.ArrayList;
@@ -208,6 +210,10 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
     IR build() {
         SootMethod m = (SootMethod) method.getMethodSource();
         Body body = m.retrieveActiveBody();
+        if (method.isApplication() && World.get().getOptions().isAndroidMode()) {
+            // Use SSA for application code in Android mode for better precision
+            body = Shimple.v().newBody(body);
+        }
         m.releaseActiveBody(); // release body to save memory
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
