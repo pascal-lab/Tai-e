@@ -25,6 +25,7 @@ package pascal.taie.analysis.graph.callgraph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.config.ConfigException;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
@@ -56,12 +57,46 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
      */
     private TwoKeyMap<JClass, MemberRef, Set<JMethod>> resolveTable;
 
+    /**
+     * Whether ignore methods declared in java.lang.Object,
+     * which may introduce a large number of spurious callees.
+     */
+    private final boolean ignoreObjectMethods;
+
+    /**
+     * Number of allowing callees resolved at each call site.
+     * If the number exceeds this limit, then the call site will be ignored.
+     */
+    private final int calleeLimit;
+
+    CHABuilder(String algorithm) {
+        switch (algorithm) {
+            case "cha" -> { // default setting, ignore Object's methods
+                ignoreObjectMethods = true;
+                calleeLimit = Integer.MAX_VALUE;
+            }
+            case "cha-full" -> { // full mode, resolve all call sites
+                ignoreObjectMethods = false;
+                calleeLimit = Integer.MAX_VALUE;
+            }
+            default -> { // cha-LIMIT, where LIMIT should be a number
+                try {
+                    ignoreObjectMethods = false;
+                    calleeLimit = Integer.parseInt(algorithm.split("-")[1]);
+                } catch (Exception e) {
+                    throw new ConfigException("Invalid CHA option: " + algorithm);
+                }
+            }
+        }
+    }
+
     @Override
     public CallGraph<Invoke, JMethod> build() {
         return buildCallGraph(World.get().getMainMethod());
     }
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
+        logger.info("Building call graph by CHA");
         hierarchy = World.get().getClassHierarchy();
         resolveTable = Maps.newTwoKeyMap();
         DefaultCallGraph callGraph = new DefaultCallGraph();
@@ -109,7 +144,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
             }
             case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
             case DYNAMIC -> {
-                logger.debug("CHA cannot resolve invokedynamic " + callSite);
+                logger.debug("CHA cannot resolve invokedynamic {}", callSite);
                 yield Set.of();
             }
             default -> throw new AnalysisException(
