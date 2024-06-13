@@ -26,8 +26,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.android.AndroidBenchTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class ICCBenchTest extends AndroidBenchTest {
 
     private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/ICC-Bench/apks/";

@@ -24,20 +24,7 @@ package pascal.taie.android;
 
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
-import pascal.taie.android.droidbench.AliasingTest;
-import pascal.taie.android.droidbench.AndroidSpecificTest;
-import pascal.taie.android.droidbench.ArraysAndListsTest;
-import pascal.taie.android.droidbench.CallbackTest;
 import pascal.taie.android.droidbench.DroidBenchTestSuite;
-import pascal.taie.android.droidbench.EmulatorDetectionTest;
-import pascal.taie.android.droidbench.FieldAndObjectSensitivityTest;
-import pascal.taie.android.droidbench.GeneralJavaTest;
-import pascal.taie.android.droidbench.InterAppCommunicationTest;
-import pascal.taie.android.droidbench.InterComponentCommunicationTest;
-import pascal.taie.android.droidbench.LifecycleTest;
-import pascal.taie.android.droidbench.ReflectionTest;
-import pascal.taie.android.droidbench.ThreadingTest;
-import pascal.taie.android.droidbench.UnreachableCodeTest;
 import pascal.taie.android.iccbench.ICCBenchTest;
 import pascal.taie.android.ubcbench.UBCBenchTest;
 
