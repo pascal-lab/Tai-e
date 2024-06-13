@@ -33,15 +33,20 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
+import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -55,6 +60,8 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
@@ -242,8 +249,11 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", argIndexes = {0})
-    public void arrayNewInstance(Context context, Invoke invoke, PointsToSet pts) {
+    @InvokeHandler(signature = {
+            "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>",
+            "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int[])>"
+    }, argIndexes = {0, 1})
+    public void arrayNewInstance(Context context, Invoke invoke, PointsToSet pts, PointsToSet arrayObjs) {
         Var result = invoke.getResult();
         if (result == null) {
             return;
@@ -254,12 +264,50 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             }
             Type baseType = CSObjs.toType(obj);
             if (baseType != null && !(baseType instanceof VoidType)) {
-                ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
-                CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
-                solver.addVarPointsTo(context, result, csNewArray);
-                allTargets.put(invoke, arrayType);
+                List<Integer> dimensions = new ArrayList<>();
+
+                if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType arrayType) {
+                    arrayObjs.forEach(arrayObj -> {
+                        if (arrayObj.getObject().getAllocation() instanceof New stmt
+                                && stmt.getRValue() instanceof NewArray newArray
+                                && newArray.getLength().isConst()
+                                && newArray.getLength().getConstValue() instanceof IntLiteral intLiteral) {
+                            dimensions.add(intLiteral.getValue());
+                        }
+                    });
+                } else {
+                    dimensions.add(1);
+                }
+
+                dimensions.forEach(d -> {
+                    ArrayType arrayType = typeSystem.getArrayType(baseType, d);
+                    CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
+                    solver.addVarPointsTo(context, result, csNewArray);
+                    allTargets.put(invoke, arrayType);
+                    processNewMultiArray(context, invoke, csNewArray.getObject(), arrayType, d);
+                });
+
             }
         });
+    }
+
+    private void processNewMultiArray(
+            Context arrayContext, Invoke invoke, Obj array, ArrayType arrayType, int dimensions) {
+        Obj[] newArrays = new MockObj[dimensions - 1];
+        for (int i = 1; i < dimensions; ++i) {
+            Type type = arrayType.elementType();
+            newArrays[i - 1] = heapModel.getMockObj(REF_OBJ_DESC,
+                    invoke + "[" + (i - 1) + "]", type, invoke.getContainer());
+        }
+        for (Obj newArray : newArrays) {
+            Context elemContext = selector
+                    .selectHeapContext(csManager.getCSMethod(arrayContext, invoke.getContainer()), newArray);
+            CSObj arrayObj = csManager.getCSObj(arrayContext, array);
+            ArrayIndex arrayIndex = csManager.getArrayIndex(arrayObj);
+            solver.addPointsTo(arrayIndex, elemContext, newArray);
+            array = newArray;
+            arrayContext = elemContext;
+        }
     }
 
     /**
