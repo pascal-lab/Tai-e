@@ -70,7 +70,7 @@ public class AndroidBenchTest {
                 "distinguish-string-constants", "app",
                 "merge-string-objects", "true",
                 "taint-config", isRealWorld ? TAINT_CONFIG_REAL : TAINT_CONFIG_MICRO,
-                "propagate-types", "[reference,int,long,double,char]",
+                "propagate-types", "[reference,int,long,double,char,float]",
                 "reflection-inference", "string-constant"
         );
 
