@@ -75,7 +75,7 @@ public class CallbackHandler extends LifecycleHandler {
     private void processCallback(Invoke invoke) {
         MethodRef methodRef = invoke.getMethodRef();
         JMethod resolve = methodRef.resolveNullable();
-        if (resolve != null && !resolve.isApplication()) {
+        if (resolve != null) {
             InvokeExp invokeExp = invoke.getInvokeExp();
             IntStream.range(0, invokeExp.getArgCount())
                     .mapToObj(i -> new Pair<>(invokeExp.getArg(i), methodRef.getParameterTypes().get(i)))
