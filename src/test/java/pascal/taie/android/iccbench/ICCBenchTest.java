@@ -60,6 +60,6 @@ public class ICCBenchTest extends AndroidBenchTest {
             "icc_stateful",
     })
     void test(String benchmark) {
-        run(BENCHMARK_HOME_PREFIX, benchmark);
+        run(BENCHMARK_HOME_PREFIX, benchmark, false);
     }
 }

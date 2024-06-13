@@ -20,18 +20,32 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.android.droidbench;
+package pascal.taie.android.realworld;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.android.AndroidBenchTest;
 
-import java.io.File;
+public class RealWorldTest extends AndroidBenchTest {
 
-public class DroidBenchTest extends AndroidBenchTest {
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/real-world";
 
-    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/DroidBench/apk";
-
-    public void run(String type, String benchmark) {
-        super.run(new File(BENCHMARK_HOME_PREFIX, type).getPath(), benchmark, false);
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "UBCBench-20",
+            "UBCBench-21",
+            "UBCBench-22",
+            "UBCBench-23",
+            "UBCBench-24",
+            "UBCBench-25",
+            "TaintBench-beita_com_beita_contact",
+            "TaintBench-cajino_baidu",
+            "TaintBench-death_ring_materialflow",
+            "TaintBench-smssilience_fake_vertu",
+            "TaintBench-threatjapan_uracto",
+            "TaintBench-xbot_android_samp"
+    })
+    void test(String benchmark) {
+        run(BENCHMARK_HOME_PREFIX, benchmark, true);
     }
-
 }

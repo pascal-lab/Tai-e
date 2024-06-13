@@ -62,7 +62,7 @@ public class UBCBenchTest extends AndroidBenchTest {
             "PathSensitivity"
     })
     void test(String benchmark) {
-        run(BENCHMARK_HOME_PREFIX, benchmark);
+        run(BENCHMARK_HOME_PREFIX, benchmark, false);
     }
 
 }
