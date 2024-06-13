@@ -46,7 +46,6 @@ import pascal.taie.language.generics.GSignatures;
 import pascal.taie.language.generics.MethodGSignature;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Lists;
@@ -146,8 +145,6 @@ class Converter {
                     || sootType instanceof Integer1Type
                     || sootType instanceof Integer127Type
                     || sootType instanceof Integer32767Type) {
-                return INT;
-            } else if (sootType instanceof IntType) {
                 return INT;
             } else if (sootType instanceof LongType) {
                 return LONG;
