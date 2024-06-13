@@ -35,6 +35,7 @@
 - android.app.Service
 - android.app.IntentService
 - android.content.ContentProvider
+- android.support.v4.app.Fragment
 - android.app.Fragment
 - androidx.fragment.app.Fragment
 - android.app.ListFragment

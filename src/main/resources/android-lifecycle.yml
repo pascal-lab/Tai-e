@@ -51,7 +51,26 @@
     - int delete(android.net.Uri,java.lang.String,java.lang.String[])
     - java.lang.String getType(android.net.Uri)
 
-- className: android.app.Fragment # old sdk version
+# old sdk version
+- className: android.support.v4.app.Fragment
+  callbackMethodSubSigs:
+    - android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)
+    - void onAttach(android.content.Context)
+    - void onAttach(android.app.Activity)
+    - void onCreate(android.os.Bundle)
+    - void onViewCreated(android.view.View,android.os.Bundle)
+    - void onStart()
+    - void onResume()
+    - void onPause()
+    - void onStop()
+    - void onDestroyView()
+    - void onDestroy()
+    - void onDetach()
+    - void onActivityCreated(android.os.Bundle)
+    - void onActivityResult(  int,int,android.content.Intent)
+    - void onAttachFragment(android.support.v4.app.Fragment)
+
+- className: android.app.Fragment
   callbackMethodSubSigs:
     - android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)
     - void onAttach(android.content.Context)
@@ -67,7 +86,7 @@
     - void onDetach()
     - void onActivityCreated(android.os.Bundle)
     - void onActivityResult(int,int,android.content.Intent)
-    - void onAttachFragment(androidx.fragment.app.Fragment)
+    - void onAttachFragment(android.fragment.app.Fragment)
 
 - className: androidx.fragment.app.Fragment
   callbackMethodSubSigs:

@@ -402,3 +402,4 @@
 - android.media.MediaRouter$SimpleCallback
 - android.view.View$OnTouchListener
 - android.view.SurfaceHolder$Callback2
+- com.google.android.gms.tasks.OnSuccessListener
