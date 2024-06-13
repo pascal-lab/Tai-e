@@ -27,6 +27,7 @@ import pascal.taie.util.collection.ArraySet;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PhiExp implements RValue {
 
@@ -57,4 +58,13 @@ public class PhiExp implements RValue {
     public <T> T accept(ExpVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
+
+    @Override
+    public String toString() {
+        return String.format("phi(%s)", vars.stream()
+                .map(Var::toString)
+                .collect(Collectors.joining(", ")));
+    }
+
 }
