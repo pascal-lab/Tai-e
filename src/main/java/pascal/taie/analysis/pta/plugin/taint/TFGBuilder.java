@@ -123,19 +123,21 @@ class TFGBuilder {
         Set<Node> sourceNodes = Sets.newLinkedSet();
         for (Obj taintObj : taintManager.getTaintObjs()) {
             SourcePoint p = taintManager.getSourcePoint(taintObj);
-            if (p instanceof CallSourcePoint csp) {
-                IndexRef indexRef = csp.indexRef();
-                Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
-                sourceNodes.addAll(getNodes(var, indexRef));
-            } else if (p instanceof ParamSourcePoint psp) {
-                IndexRef indexRef = psp.indexRef();
-                Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
-                sourceNodes.addAll(getNodes(var, indexRef));
-            } else if (p instanceof FieldSourcePoint fsp) {
-                Var lhs = fsp.loadField().getLValue();
-                Node sourceNode = ofg.getVarNode(lhs);
-                if (sourceNode != null) {
-                    sourceNodes.add(sourceNode);
+            if (p.getContainer().isApplication()) {
+                if (p instanceof CallSourcePoint csp) {
+                    IndexRef indexRef = csp.indexRef();
+                    Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
+                    sourceNodes.addAll(getNodes(var, indexRef));
+                } else if (p instanceof ParamSourcePoint psp) {
+                    IndexRef indexRef = psp.indexRef();
+                    Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
+                    sourceNodes.addAll(getNodes(var, indexRef));
+                } else if (p instanceof FieldSourcePoint fsp) {
+                    Var lhs = fsp.loadField().getLValue();
+                    Node sourceNode = ofg.getVarNode(lhs);
+                    if (sourceNode != null) {
+                        sourceNodes.add(sourceNode);
+                    }
                 }
             }
         }
@@ -148,9 +150,11 @@ class TFGBuilder {
         Set<Node> sinkNodes = Sets.newLinkedSet();
         taintFlows.forEach(taintFlow -> {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
-            IndexRef indexRef = sinkPoint.indexRef();
-            Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
-            sinkNodes.addAll(getNodes(var, indexRef));
+            if (sinkPoint.sinkCall().getContainer().isApplication()) {
+                IndexRef indexRef = sinkPoint.indexRef();
+                Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
+                sinkNodes.addAll(getNodes(var, indexRef));
+            }
         });
         logger.info("Sink nodes:");
         sinkNodes.forEach(logger::info);

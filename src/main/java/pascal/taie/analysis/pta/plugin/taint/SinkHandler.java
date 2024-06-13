@@ -96,6 +96,12 @@ class SinkHandler extends Handler {
                 .filter(manager::isTaint)
                 .map(manager::getSourcePoint)
                 .map(sourcePoint -> new TaintFlow(sourcePoint, sinkPoint))
+                .filter(this::isApplicationTaint)
                 .collect(Collectors.toSet());
+    }
+
+    private boolean isApplicationTaint(TaintFlow taintFlow) {
+        return taintFlow.sourcePoint().getContainer().isApplication()
+                && taintFlow.sinkPoint().sinkCall().getContainer().isApplication();
     }
 }
