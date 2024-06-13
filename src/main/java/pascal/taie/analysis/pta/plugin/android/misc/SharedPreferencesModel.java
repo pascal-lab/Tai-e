@@ -59,7 +59,8 @@ public class SharedPreferencesModel extends AndroidMiscHandler {
             if (csObj.getObject() instanceof ConstantObj constantObj
                     && constantObj.getAllocation() instanceof StringLiteral stringLiteral) {
                 Obj sharedPreferences = handlerContext.androidObjManager().getSharedPreferencesObj(stringLiteral.getString(), result);
-                solver.addVarPointsTo(context, result, context, sharedPreferences);
+                // sharedPreferences obj must be global share
+                solver.addVarPointsTo(context, result, sharedPreferences);
             }
         });
     }

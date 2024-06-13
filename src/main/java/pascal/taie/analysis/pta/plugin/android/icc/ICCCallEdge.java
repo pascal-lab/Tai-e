@@ -37,9 +37,9 @@ class ICCCallEdge extends OtherEdge<CSCallSite, CSMethod> {
      */
     private final ICCInfo iccInfo;
 
-    ICCCallEdge(CSCallSite csCallSite, CSMethod callee, ICCInfo iccInfo) {
-        super(csCallSite, callee);
-        this.iccInfo = iccInfo;
+    ICCCallEdge(ICCInfo sourceICCInfo, CSMethod callee) {
+        super(sourceICCInfo.iccCSCallSite(), callee);
+        this.iccInfo = sourceICCInfo;
     }
 
     ICCInfo getICCInfo() {

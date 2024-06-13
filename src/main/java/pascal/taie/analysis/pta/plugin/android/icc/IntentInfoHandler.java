@@ -143,12 +143,11 @@ public class IntentInfoHandler extends ICCHandler {
         JMethod method = invoke.getMethodRef().resolve();
         InvokeExp invokeExp = invoke.getInvokeExp();
         List<IntentInfo> intentInfos = new ArrayList<>();
+        CSVar base = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
         switch (method.getSignature()) {
             case INIT_WITH_INTENT -> solver.addPFGEdge(
-                    new AndroidTransferEdge(
-                            csManager.getCSVar(context, invokeExp.getArg(0)),
-                            csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE))
-                    ), InvokeUtils.getVar(invoke, BASE).getType());
+                    new AndroidTransferEdge(csManager.getCSVar(context, invokeExp.getArg(0)), base),
+                    base.getType());
             case INIT_WITH_ACTION, SET_ACTION -> intentInfos.add(new IntentInfo(
                     List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
                     ACTION));
@@ -206,6 +205,12 @@ public class IntentInfoHandler extends ICCHandler {
         }
         if (!intentInfos.isEmpty()) {
             pts.forEach(csObj -> handlerContext.intent2IntentInfo().putAll(csObj, intentInfos));
+        }
+
+        // process result
+        Var result = invoke.getResult();
+        if (result != null) {
+            solver.addPFGEdge(new AndroidTransferEdge(base, csManager.getCSVar(context, result)));
         }
     }
 

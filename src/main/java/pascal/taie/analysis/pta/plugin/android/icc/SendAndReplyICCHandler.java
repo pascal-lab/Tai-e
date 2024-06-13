@@ -28,7 +28,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.ConstantObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.android.info.TransferDataInfo;
 import pascal.taie.android.info.TransferFilterInfo;
@@ -233,7 +232,14 @@ public class SendAndReplyICCHandler extends ICCHandler {
         CSObj recvObj = csManager.getCSObj(emptyContext, handlerContext.androidObjManager().getComponentObj(targetComponent));
         Context calleeCtx = selector.selectContext(sourceICCInfo.iccCSCallSite(), recvObj, callee);
         CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-        solver.addCallEdge(new ICCCallEdge(sourceICCInfo.iccCSCallSite(), csCallee, sourceICCInfo));
+        addICCCallEdge(sourceICCInfo, csCallee, recvObj);
+    }
+
+    private void addICCCallEdge(ICCInfo sourceICCInfo, CSMethod callee, CSObj recvObj) {
+        // build call edge
+        solver.addCallEdge(new ICCCallEdge(sourceICCInfo, callee));
+        // pass receiver object to *this* variable
+        solver.addVarPointsTo(callee.getContext(), callee.getMethod().getIR().getThis(), recvObj);
     }
 
     private Set<JClass> transferVarToClass(CSVar component) {
@@ -261,7 +267,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
         JMethod callee = target.info().getVar().getMethod();
         Context calleeCtx = selector.selectContext(source.iccCSCallSite(), recvObj, callee);
         CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-        solver.addCallEdge(new ICCCallEdge(source.iccCSCallSite(), csCallee, source));
+        addICCCallEdge(source, csCallee, recvObj);
     }
 
     private Set<JClass> getTargetComponents(CSObj csObj, boolean isStartActivity) {
@@ -385,7 +391,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
         return solver.getPointsToSetOf(csVar)
                 .objects()
                 .map(CSObj::getObject)
-                .filter(object -> object instanceof ConstantObj)
+//                .filter(object -> object instanceof ConstantObj)
                 .map(Obj::getAllocation)
                 .map(allocation -> {
                     if (allocation instanceof StringLiteral stringLiteral) {
