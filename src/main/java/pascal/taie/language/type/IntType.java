@@ -20,46 +20,19 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.ir.exp;
+package pascal.taie.language.type;
 
+public enum IntType implements PrimitiveType {
 
-import pascal.taie.language.type.IntType;
-import pascal.taie.language.type.PrimitiveType;
-
-/**
- * Representation of negation expression, e.g., -o;
- */
-public class NegExp implements UnaryExp {
-
-    private final Var value;
-
-    public NegExp(Var value) {
-        this.value = value;
-        assert value.getType() instanceof PrimitiveType;
-    }
-
-    public Var getValue() {
-        return value;
-    }
-
-    @Override
-    public Var getOperand() {
-        return value;
-    }
-
-    @Override
-    public PrimitiveType getType() {
-        PrimitiveType type = (PrimitiveType) value.getType();
-        return type.asInt() ? IntType.INT : type;
-    }
-
-    @Override
-    public <T> T accept(ExpVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
+    INT;
 
     @Override
     public String toString() {
-        return "-" + value;
+        return "int";
+    }
+
+    @Override
+    public boolean asInt() {
+        return true;
     }
 }

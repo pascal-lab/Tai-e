@@ -98,7 +98,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
     /**
      * Associates argument variable (Object[]) to reflective call edges.
      */
-    private final MultiMap<Var, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
+    private final MultiMap<CSVar, ReflectiveCallEdge> reflectiveArgs = Maps.newMultiMap();
 
     /**
      * Set of invocations that are annotated by the reflection log.
@@ -356,7 +356,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
                 CSVar csArgs = csManager.getCSVar(callerCtx, args);
                 passReflectiveArgs(refEdge, solver.getPointsToSetOf(csArgs));
                 // record args for later-arrive array objects
-                reflectiveArgs.put(args, refEdge);
+                reflectiveArgs.put(csArgs, refEdge);
             }
             // pass return value
             Invoke invoke = refEdge.getCallSite().getCallSite();
@@ -397,8 +397,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         super.onNewPointsToSet(csVar, pts);
-        reflectiveArgs.get(csVar.getVar())
-                .forEach(edge -> passReflectiveArgs(edge, pts));
+        reflectiveArgs.get(csVar).forEach(edge -> passReflectiveArgs(edge, pts));
     }
 
     MultiMap<Invoke, Object> getAllTargets() {

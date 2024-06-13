@@ -28,7 +28,9 @@ import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.util.AnalysisException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
 import static pascal.taie.util.collection.Maps.newMap;
@@ -49,18 +51,25 @@ public class TypeSystemImpl implements TypeSystem {
             = newConcurrentMap(8);
 
     private final ClassType OBJECT;
+
     private final ClassType SERIALIZABLE;
+
     private final ClassType CLONEABLE;
 
-    // Boxed types
-    private final ClassType BOOLEAN;
-    private final ClassType BYTE;
-    private final ClassType SHORT;
-    private final ClassType CHARACTER;
-    private final ClassType INTEGER;
-    private final ClassType LONG;
-    private final ClassType FLOAT;
-    private final ClassType DOUBLE;
+    /**
+     * Maps a primitive type to its boxed type.
+     */
+    private final Map<PrimitiveType, ClassType> boxedMap;
+
+    /**
+     * Maps a boxed class type to its unboxed primitive type.
+     */
+    private final Map<ClassType, PrimitiveType> unboxedMap;
+
+    /**
+     * Maps a primitive type name to the corresponding type.
+     */
+    private final Map<String, PrimitiveType> primitiveTypes;
 
     public TypeSystemImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
@@ -69,14 +78,21 @@ public class TypeSystemImpl implements TypeSystem {
         OBJECT = getClassType(loader, ClassNames.OBJECT);
         SERIALIZABLE = getClassType(loader, ClassNames.SERIALIZABLE);
         CLONEABLE = getClassType(loader, ClassNames.CLONEABLE);
-        BOOLEAN = getClassType(loader, ClassNames.BOOLEAN);
-        BYTE = getClassType(loader, ClassNames.BYTE);
-        SHORT = getClassType(loader, ClassNames.SHORT);
-        CHARACTER = getClassType(loader, ClassNames.CHARACTER);
-        INTEGER = getClassType(loader, ClassNames.INTEGER);
-        LONG = getClassType(loader, ClassNames.LONG);
-        FLOAT = getClassType(loader, ClassNames.FLOAT);
-        DOUBLE = getClassType(loader, ClassNames.DOUBLE);
+        boxedMap = Map.of(
+                BooleanType.BOOLEAN, getClassType(loader, ClassNames.BOOLEAN),
+                ByteType.BYTE, getClassType(loader, ClassNames.BYTE),
+                ShortType.SHORT, getClassType(loader, ClassNames.SHORT),
+                CharType.CHAR, getClassType(loader, ClassNames.CHARACTER),
+                IntType.INT, getClassType(loader, ClassNames.INTEGER),
+                LongType.LONG, getClassType(loader, ClassNames.LONG),
+                FloatType.FLOAT, getClassType(loader, ClassNames.FLOAT),
+                DoubleType.DOUBLE, getClassType(loader, ClassNames.DOUBLE));
+        unboxedMap = boxedMap.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        primitiveTypes = boxedMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(PrimitiveType::getName, t -> t));
     }
 
     @Override
@@ -96,8 +112,8 @@ public class TypeSystemImpl implements TypeSystem {
                 return getArrayType(
                         getType(loader, typeName.substring(0, i + 1)),
                         dim);
-            } else if (PrimitiveType.isPrimitiveType(typeName)) {
-                return PrimitiveType.get(typeName);
+            } else if (isPrimitiveType(typeName)) {
+                return getPrimitiveType(typeName);
             } else {
                 return getClassType(loader, typeName);
             }
@@ -137,39 +153,20 @@ public class TypeSystemImpl implements TypeSystem {
     }
 
     @Override
+    public PrimitiveType getPrimitiveType(String typeName) {
+        return Objects.requireNonNull(primitiveTypes.get(typeName),
+                typeName + " is not a primitive type");
+    }
+
+    @Override
     public ClassType getBoxedType(PrimitiveType type) {
-        return switch (type) {
-            case BOOLEAN -> BOOLEAN;
-            case BYTE -> BYTE;
-            case SHORT -> SHORT;
-            case CHAR -> CHARACTER;
-            case INT -> INTEGER;
-            case LONG -> LONG;
-            case FLOAT -> FLOAT;
-            case DOUBLE -> DOUBLE;
-        };
+        return boxedMap.get(type);
     }
 
     @Override
     public PrimitiveType getUnboxedType(ClassType type) {
-        if (type.equals(BOOLEAN)) {
-            return PrimitiveType.BOOLEAN;
-        } else if (type.equals(BYTE)) {
-            return PrimitiveType.BYTE;
-        } else if (type.equals(SHORT)) {
-            return PrimitiveType.SHORT;
-        } else if (type.equals(CHARACTER)) {
-            return PrimitiveType.CHAR;
-        } else if (type.equals(INTEGER)) {
-            return PrimitiveType.INT;
-        } else if (type.equals(LONG)) {
-            return PrimitiveType.LONG;
-        } else if (type.equals(FLOAT)) {
-            return PrimitiveType.FLOAT;
-        } else if (type.equals(DOUBLE)) {
-            return PrimitiveType.DOUBLE;
-        }
-        throw new AnalysisException(type + " cannot be unboxed");
+        return Objects.requireNonNull(unboxedMap.get(type),
+                type + " cannot be unboxed");
     }
 
     @Override
@@ -211,5 +208,10 @@ public class TypeSystemImpl implements TypeSystem {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isPrimitiveType(String typeName) {
+        return primitiveTypes.containsKey(typeName);
     }
 }

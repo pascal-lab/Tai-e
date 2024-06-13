@@ -25,3 +25,4 @@ transfers:
 
 sanitizers:
   - { kind: param, method: "<Sanitizer: java.lang.String sanitize(java.lang.String)>", index: 0 }
+  - { kind: param, method: "<Sanitizer: Sanitizer sanitize()>", index: base }

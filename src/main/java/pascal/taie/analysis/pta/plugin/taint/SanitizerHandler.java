@@ -34,6 +34,8 @@ import pascal.taie.util.collection.MultiMap;
 
 import java.util.function.Predicate;
 
+import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
+
 /**
  * Handles sanitizers in taint analysis.
  */
@@ -64,11 +66,17 @@ class SanitizerHandler extends OnFlyHandler {
             Context context = csMethod.getContext();
             IR ir = method.getIR();
             paramSanitizers.get(method).forEach(sanitizer -> {
-                int index = sanitizer.index();
-                Var param = ir.getParam(index);
+                Var param = getParam(ir, sanitizer.index());
                 CSVar csParam = csManager.getCSVar(context, param);
                 solver.addPointerFilter(csParam, taintFilter);
             });
         }
+    }
+
+    private static Var getParam(IR ir, int index) {
+        return switch (index) {
+            case BASE -> ir.getThis();
+            default -> ir.getParam(index);
+        };
     }
 }

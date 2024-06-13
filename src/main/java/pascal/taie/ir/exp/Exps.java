@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.language.type.LongType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 
@@ -54,7 +55,7 @@ public final class Exps {
      * @return {@code true} if {@code exp} can hold long values.
      */
     public static boolean holdsLong(Exp exp) {
-        return exp.getType().equals(PrimitiveType.LONG);
+        return exp.getType().equals(LongType.LONG);
     }
 
     /**

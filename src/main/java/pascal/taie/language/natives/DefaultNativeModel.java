@@ -47,8 +47,9 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.BooleanType;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
@@ -263,7 +264,7 @@ public class DefaultNativeModel implements NativeModel {
                 Var arr = helper.getReturnVar();
                 // here n is just a placeholder of array-related statements,
                 // thus is value is irrelevant.
-                Var n = helper.newTempVar(PrimitiveType.INT);
+                Var n = helper.newTempVar(IntType.INT);
                 List<Stmt> stmts = new ArrayList<>();
                 stmts.add(new New(m, str, new NewInstance(string)));
                 stmts.add(new New(m, arr, new NewArray(stringArray, n)));
@@ -329,7 +330,7 @@ public class DefaultNativeModel implements NativeModel {
                 allocateObject(m, "<java.security.AccessControlContext: void <init>(java.security.ProtectionDomain[],boolean)>", b -> {
                     Var context = b.newTempVar(typeSystem.getArrayType(
                             typeSystem.getClassType("java.security.ProtectionDomain"), 1));
-                    Var isPrivileged = b.newTempVar(PrimitiveType.BOOLEAN);
+                    Var isPrivileged = b.newTempVar(BooleanType.BOOLEAN);
                     return List.of(context, isPrivileged);
                 }));
 
@@ -354,7 +355,7 @@ public class DefaultNativeModel implements NativeModel {
         register("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>", m -> {
             IRBuildHelper helper = new IRBuildHelper(m);
             Var array = helper.newTempVar(objArrayType);
-            Var i = helper.newTempVar(PrimitiveType.INT);
+            Var i = helper.newTempVar(IntType.INT);
             List<Stmt> stmts = List.of(
                     new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
                     new StoreArray(new ArrayAccess(array, i), helper.getParam(3)),
@@ -366,7 +367,7 @@ public class DefaultNativeModel implements NativeModel {
         Function<JMethod, IR> unsafePut = m -> {
             IRBuildHelper helper = new IRBuildHelper(m);
             Var array = helper.newTempVar(objArrayType);
-            Var i = helper.newTempVar(PrimitiveType.INT);
+            Var i = helper.newTempVar(IntType.INT);
             List<Stmt> stmts = List.of(
                     new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
                     new StoreArray(new ArrayAccess(array, i), helper.getParam(2)),
@@ -389,7 +390,7 @@ public class DefaultNativeModel implements NativeModel {
         Function<JMethod, IR> unsafeGet = m -> {
             IRBuildHelper helper = new IRBuildHelper(m);
             Var array = helper.newTempVar(objArrayType);
-            Var i = helper.newTempVar(PrimitiveType.INT);
+            Var i = helper.newTempVar(IntType.INT);
             List<Stmt> stmts = List.of(
                     new Cast(array, new CastExp(helper.getParam(0), objArrayType)),
                     new LoadArray(helper.getReturnVar(), new ArrayAccess(array, i)),
@@ -481,7 +482,7 @@ public class DefaultNativeModel implements NativeModel {
     private IR allocateArray(JMethod method, Type elemType) {
         IRBuildHelper helper = new IRBuildHelper(method);
         List<Stmt> stmts = new ArrayList<>();
-        Var len = helper.newTempVar(PrimitiveType.INT);
+        Var len = helper.newTempVar(IntType.INT);
         ArrayType arrayType = typeSystem.getArrayType(elemType, 1);
         Var array = helper.getReturnVar();
         stmts.add(new New(method, array, new NewArray(arrayType, len)));

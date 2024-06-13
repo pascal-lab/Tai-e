@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2024-01-15
+## [Unreleased] - 2024-01-20
 
 ### New Features
 - Add side-effect analysis.
@@ -14,11 +14,13 @@
 - Taint analysis
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
+  - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
 
 ### Breaking Changes
 - API changes
   - Change `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Type)` and `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Transfer)` to `Solver.addPFGEdge(PointerFlowEdge)` and related APIs.
   - Deprecate `pascal.taie.analysis.pta.plugin.util.Model` and `IRModel` (these two interfaces are currently preserved for compatibility, and will be removed in the future).
+  - Change `PrimitiveType` from `enum` to an `interface` and implement it by classes that represent concrete primitive types. Refine the types of certain expressions from `PrimitiveType` to the concrete primitive types.
 
 ## [0.2.2] - 2023-09-23
 

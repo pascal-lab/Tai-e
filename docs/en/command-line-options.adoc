@@ -117,7 +117,7 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 
 * Options file (--options-file): `--options-file <optionsFile>`
 ** You can specify the command-line options in a file and use `--options-file` to process the file. When this option is given, Tai-e ignores all other command-line options, and only processes the options in the file. The options file should be written in YAML.
-** Tai-e will output all options to `output/options.yml` at each run if this option is not given.
+** Tai-e will output all options to `output/options.yml` at each run.
 
 * Generate plan file (-g, --gen-plan-file)
 ** Merely generate analysis plan file (the plan will not be executed) to `output/tai-e-plan.yml`.

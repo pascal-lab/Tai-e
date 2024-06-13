@@ -22,7 +22,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.FloatType;
 
 public class FloatLiteral implements FloatingPointLiteral {
 
@@ -42,8 +42,8 @@ public class FloatLiteral implements FloatingPointLiteral {
     }
 
     @Override
-    public PrimitiveType getType() {
-        return PrimitiveType.FLOAT;
+    public FloatType getType() {
+        return FloatType.FLOAT;
     }
 
     public float getValue() {

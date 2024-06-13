@@ -35,6 +35,7 @@ import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
+import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Lists;
 
@@ -51,6 +52,7 @@ public class Main {
         Timer.runAndCount(() -> {
             Options options = processArgs(args);
             LoggerConfigs.setOutput(options.getOutputDir());
+            RuntimeInfoLogger.logRuntimeInfo();
             Plan plan = processConfigs(options);
             if (plan.analyses().isEmpty()) {
                 logger.info("No analyses are specified");
@@ -58,8 +60,8 @@ public class Main {
             }
             buildWorld(options, plan.analyses());
             executePlan(plan);
-            LoggerConfigs.reconfigure();
         }, "Tai-e");
+        LoggerConfigs.reconfigure();
     }
 
     /**

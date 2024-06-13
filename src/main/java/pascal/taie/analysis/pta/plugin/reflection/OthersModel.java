@@ -40,7 +40,6 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 
@@ -106,7 +105,7 @@ public class OthersModel extends AnalysisModelPlugin {
                 String name = CSObjs.toString(nameObj);
                 if (name != null) {
                     Type type = name.equals("void") ?
-                            VoidType.VOID : PrimitiveType.get(name);
+                            VoidType.VOID : typeSystem.getPrimitiveType(name);
                     solver.addVarPointsTo(context, result,
                             heapModel.getConstantObj(ClassLiteral.get(type)));
                 }

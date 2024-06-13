@@ -22,7 +22,10 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.DoubleType;
+import pascal.taie.language.type.FloatType;
+import pascal.taie.language.type.IntType;
+import pascal.taie.language.type.LongType;
 import pascal.taie.language.type.Type;
 
 /**
@@ -60,9 +63,9 @@ public class ComparisonExp extends AbstractBinaryExp {
     protected void validate() {
         Type v1type = operand1.getType();
         assert v1type.equals(operand2.getType());
-        assert v1type.equals(PrimitiveType.LONG) ||
-                v1type.equals(PrimitiveType.FLOAT) ||
-                v1type.equals(PrimitiveType.DOUBLE);
+        assert v1type.equals(LongType.LONG) ||
+                v1type.equals(FloatType.FLOAT) ||
+                v1type.equals(DoubleType.DOUBLE);
     }
 
     @Override
@@ -71,8 +74,8 @@ public class ComparisonExp extends AbstractBinaryExp {
     }
 
     @Override
-    public PrimitiveType getType() {
-        return PrimitiveType.INT;
+    public IntType getType() {
+        return IntType.INT;
     }
 
     @Override

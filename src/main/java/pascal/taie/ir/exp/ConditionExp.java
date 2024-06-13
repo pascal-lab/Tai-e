@@ -22,7 +22,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.IntType;
 
 /**
  * Representation of condition expression, e.g., a == b.
@@ -70,8 +70,8 @@ public class ConditionExp extends AbstractBinaryExp {
     }
 
     @Override
-    public PrimitiveType getType() {
-        return PrimitiveType.INT;
+    public IntType getType() {
+        return IntType.INT;
     }
 
     @Override
