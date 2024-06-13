@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin.android;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
@@ -40,6 +41,8 @@ public class AndroidObjManager {
 
     private static final Descriptor SHARED_PREFERENCES_DESC = () -> "SharedPreferencesObj";
 
+    private static final Descriptor LAYOUT_NAME_DESC = () -> "LayoutNameObj";
+
     private static final Descriptor ANDROID_SPECIFIC_DESC = () -> "AndroidSpecificObj";
 
     private final HeapModel heapModel;
@@ -49,6 +52,8 @@ public class AndroidObjManager {
     private final Map<String, Obj> sharedPreferencesObj = Maps.newMap();
 
     private final Map<Var, Obj> androidSpecificObj = Maps.newMap();
+
+    private final Map<StringLiteral, Obj> layoutStringObj = Maps.newMap();
 
     AndroidObjManager(HeapModel heapModel) {
         this.heapModel = heapModel;
@@ -79,6 +84,16 @@ public class AndroidObjManager {
                         f,
                         result.getType(),
                         result.getMethod()
+                )
+        );
+    }
+
+    public Obj getAndroidStringObj(StringLiteral name, Var result) {
+        return layoutStringObj.computeIfAbsent(name,
+                f -> heapModel.getMockObj(
+                        LAYOUT_NAME_DESC,
+                        f,
+                        result.getType()
                 )
         );
     }

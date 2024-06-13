@@ -165,6 +165,17 @@ public class MapHolderHandler extends AndroidMiscHandler {
     }
 
     @InvokeHandler(signature = {
+            "<android.content.Intent: android.os.Bundle getExtras()>"},
+            argIndexes = {BASE})
+    public void mapHolderSpecialGet(Context context, Invoke invoke, PointsToSet mapObjs) {
+        Var result = invoke.getResult();
+        if (result != null) {
+            mapObjs.forEach(mapObj -> solver.addVarPointsTo(context, result, mapObj));
+        }
+    }
+
+
+    @InvokeHandler(signature = {
             "<android.content.Intent: java.lang.Object getExtra(java.lang.String, java.lang.Object)>",
             "<android.content.Intent: boolean getBooleanExtra(java.lang.String,boolean)>",
             "<android.content.Intent: byte getByteExtra(java.lang.String,byte)>",

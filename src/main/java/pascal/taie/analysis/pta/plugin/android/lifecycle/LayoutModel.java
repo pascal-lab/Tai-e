@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
+import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.RESULT;
 
 public class LayoutModel extends LifecycleHandler {
 
@@ -50,18 +52,47 @@ public class LayoutModel extends LifecycleHandler {
         super(context);
     }
 
+    @InvokeHandler(signature = {
+            "<android.app.FragmentManager: android.app.Fragment findFragmentById(int)>",
+            "<android.app.Activity: android.view.View findViewById(int)>"
+    }, argIndexes = {BASE})
+    public void findById(Context context, Invoke invoke, PointsToSet baseObj) {
+        Var result = InvokeUtils.getVar(invoke, RESULT);
+        if (result == null) {
+            return;
+        }
+        Integer id = getInteger(invoke);
+        String name = getString(id);
+
+        // transfer name
+        if (name == null && id != null) {
+            ARSCFileParser.AbstractResource resource = handlerContext.apkInfo().findResource(id);
+            if (resource != null) {
+                if (resource.getResourceName().equals("button")) {
+                    generateInvokeResultObj(context, invoke);
+                }
+                name = handlerContext.apkInfo().getPackageName() + "." + toCamelCase(resource.getResourceName());
+            }
+        }
+
+        if (name != null) {
+            JClass jClass = hierarchy.getClass(name);
+            if (jClass != null) {
+                Obj fragment = handlerContext.androidObjManager().getComponentObj(jClass);
+                solver.addVarPointsTo(context, result, fragment);
+            }
+        }
+    }
+
     @InvokeHandler(signature = "<android.app.Activity: void setContentView(int)>", argIndexes = {BASE})
     public void setContentView(Context context, Invoke invoke, PointsToSet pts) {
         Var base = InvokeUtils.getVar(invoke, BASE);
         if (base.getType() instanceof ClassType classType) {
             JClass decl = classType.getJClass();
-            Integer resourceId = processInvoke(invoke);
             Set<String> layoutFileNames = Sets.newSet();
-            if (resourceId != null) {
-                ARSCFileParser.AbstractResource resource = super.handlerContext.apkInfo().findResource(resourceId);
-                if (resource instanceof ARSCFileParser.StringResource stringResource) {
-                    layoutFileNames.add(stringResource.getValue());
-                }
+            String fileName = getString(getInteger(invoke));
+            if (fileName != null) {
+                layoutFileNames.add(fileName);
             }
             if (layoutFileNames.isEmpty()) {
                 layoutFileNames.addAll(Stream.of(handlerContext.apkInfo().layoutCallbacks().keySet(),
@@ -75,7 +106,30 @@ public class LayoutModel extends LifecycleHandler {
         }
     }
 
-    private Integer processInvoke(Invoke invoke) {
+    @InvokeHandler(signature = "<android.content.Context: java.lang.String getString(int)>", argIndexes = {BASE})
+    public void getString(Context context, Invoke invoke, PointsToSet pts) {
+        Var result = InvokeUtils.getVar(invoke, RESULT);
+        if (result == null) {
+            return;
+        }
+        String name = getString(getInteger(invoke));
+        if (name != null) {
+            Obj nameObj = handlerContext.androidObjManager().getAndroidStringObj(StringLiteral.get(name), result);
+            solver.addVarPointsTo(context, result, nameObj);
+        }
+    }
+
+    public String getString(Integer id) {
+        if (id != null) {
+            ARSCFileParser.AbstractResource resource = handlerContext.apkInfo().findResource(id);
+            if (resource instanceof ARSCFileParser.StringResource stringResource) {
+                return stringResource.getValue();
+            }
+        }
+        return null;
+    }
+
+    private Integer getInteger(Invoke invoke) {
         Var arg = invoke.getInvokeExp().getArg(0);
         if(arg.isConst() && arg.getConstValue() instanceof IntLiteral intLiteral) {
             return intLiteral.getValue();
@@ -112,6 +166,25 @@ public class LayoutModel extends LifecycleHandler {
                                 });
                     }
                 });
+    }
+
+    private static String toCamelCase(String input) {
+        StringBuilder result = new StringBuilder();
+
+        boolean convertNext = true;
+        for (char ch : input.toCharArray()) {
+            if (ch == '_') {
+                convertNext = true;
+            } else {
+                if (convertNext) {
+                    result.append(Character.toUpperCase(ch));
+                    convertNext = false;
+                } else {
+                    result.append(ch);
+                }
+            }
+        }
+        return result.toString();
     }
 
 }

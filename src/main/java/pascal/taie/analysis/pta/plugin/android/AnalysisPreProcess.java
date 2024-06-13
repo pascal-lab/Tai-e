@@ -22,23 +22,31 @@
 
 package pascal.taie.analysis.pta.plugin.android;
 
-import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.android.icc.ICCAnalysis;
-import pascal.taie.analysis.pta.plugin.android.lifecycle.LifecycleAnalysis;
-import pascal.taie.analysis.pta.plugin.android.misc.AndroidMiscAnalysis;
+import java.util.List;
 
-public class AndroidAnalysis extends CompositePlugin {
+public class AnalysisPreProcess extends AndroidHandler {
+
+    public static final List<String> ANDROID_SYSTEM_PACKAGES =
+            List.of("com.android.",
+                    "android.",
+                    "androidx.");
+
+    public AnalysisPreProcess(AndroidContext androidContext) {
+        super(androidContext);
+    }
 
     @Override
-    public void setSolver(Solver solver) {
-        AndroidContext androidContext = new AndroidContext(solver);
-        addPlugin(
-                new AnalysisPreProcess(androidContext),
-                new LifecycleAnalysis(androidContext),
-                new ICCAnalysis(androidContext),
-                new AndroidMiscAnalysis(androidContext)
-        );
+    public void onStart() {
+        // Avoid analysis crashes caused by analyzing fields not found in Android class
+        solver.getHierarchy().allClasses().forEach(c -> {
+            if (isAndroidSystemClass(c.getName())) {
+                c.getDeclaredMethods().forEach(solver::addIgnoredMethod);
+            }
+        });
+    }
+
+    protected boolean isAndroidSystemClass(String name) {
+        return ANDROID_SYSTEM_PACKAGES.stream().anyMatch(name::startsWith);
     }
 
 }

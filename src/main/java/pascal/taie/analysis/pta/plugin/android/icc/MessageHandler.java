@@ -91,7 +91,10 @@ public class MessageHandler extends ICCHandler {
         }
     }
 
-    @InvokeHandler(signature = {"<android.os.Handler: boolean sendMessage(android.os.Message)>"}, argIndexes = {BASE})
+    @InvokeHandler(signature = {
+            "<android.os.Handler: boolean sendMessage(android.os.Message)>",
+            "<android.os.Handler: void dispatchMessage(android.os.Message)>"},
+            argIndexes = {BASE})
     public void handlerSendMessage(Context context, Invoke invoke, PointsToSet pts) {
         Var arg = invoke.getInvokeExp().getArg(0);
         pts.forEach(csObj -> {
