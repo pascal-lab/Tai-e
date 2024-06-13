@@ -34,17 +34,15 @@ public class InterAppCommunicationTest extends DroidBenchTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {
-            "Echoer",
-            "SendSMS",
-            "StartActivityForResult1",
-            "Collector",
-            "DeviceId_Broadcast1",
-            "DeviceId_contentProvider1",
-            "DeviceId_OrderedIntent1",
-            "DeviceId_Service1",
-            "Location1",
-            "Location_Broadcast1",
-            "Location_Service1"
+            "SendSMS-Echoer",
+            "StartActivityForResult1-Echoer",
+            "DeviceId_Broadcast1-Echoer",
+            "DeviceId_contentProvider1-Echoer",
+            "DeviceId_OrderedIntent1-Echoer",
+            "DeviceId_Service1-Echoer",
+            "Location1-Echoer",
+            "Location_Broadcast1-Echoer",
+            "Location_Service1-Echoer"
     })
     void test(String benchmark) {
         run(CATEGORY, benchmark);

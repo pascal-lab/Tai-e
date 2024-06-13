@@ -22,61 +22,16 @@
 
 package pascal.taie.android.droidbench;
 
-import pascal.taie.Main;
-import pascal.taie.World;
-import pascal.taie.analysis.pta.PointerAnalysis;
-import pascal.taie.analysis.pta.PointerAnalysisResultImpl;
-import pascal.taie.analysis.pta.plugin.taint.TaintAnalysis;
-import pascal.taie.analysis.pta.plugin.taint.TaintFlow;
+import pascal.taie.android.AndroidBenchTest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+public class DroidBenchTest extends AndroidBenchTest {
 
-public class DroidBenchTest {
-
-    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/DroidBench/apk/";
-
-    private static final String BENCHMARK_INFO = "benchmark-info.yml";
-
-    private static final String TAINT_CONFIG = BENCHMARK_HOME_PREFIX + "taint-config.yml";
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/DroidBench/apk";
 
     public void run(String type, String benchmark) {
-        System.out.println("\nAnalyzing " + benchmark);
-        Map<String, AndroidBenchmarkInfo> benchmarkInfos = AndroidBenchmarkInfo.load(BENCHMARK_HOME_PREFIX + type, BENCHMARK_INFO);
-        AndroidBenchmarkInfo info = benchmarkInfos.get(benchmark);
-        Main.main(composeArgs(info));
-        PointerAnalysisResultImpl result = World.get().getResult(PointerAnalysis.ID);
-        Set<TaintFlow> res = result.getResult(TaintAnalysis.class.getName());
-        assertEquals(info.expected(), res.size());
+        super.run(new File(BENCHMARK_HOME_PREFIX, type).getPath(), benchmark);
     }
 
-    private String[] composeArgs(AndroidBenchmarkInfo info) {
-        List<String> args = new ArrayList<>();
-        Collections.addAll(args,
-                "-pp",
-                "-cp", BENCHMARK_HOME_PREFIX + info.apk(),
-                "-am");
-        Map<String, String> ptaArgs = Map.of(
-                "distinguish-string-constants", info.distinguishString(),
-                "merge-string-objects", "true",
-                "only-app", info.onlyApp(),
-                "taint-config", TAINT_CONFIG,
-                "propagate-types", "[reference,int,long,double,char]",
-                "cs" , info.cs()
-        );
-        Collections.addAll(args,
-                "-a", "pta=" + ptaArgs.entrySet()
-                        .stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(";")),
-                "-a", "may-fail-cast",
-                "-a", "poly-call");
-        return args.toArray(new String[0]);
-    }
 }

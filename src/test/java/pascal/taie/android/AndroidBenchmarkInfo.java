@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.android.droidbench;
+package pascal.taie.android;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,31 +33,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-record AndroidBenchmarkInfo(String id,
+public record AndroidBenchmarkInfo(String id,
                             String apk,
-                            String distinguishString,
-                            String onlyApp,
-                            String cs,
                             int expected) {
     @JsonCreator
     public AndroidBenchmarkInfo(
             @JsonProperty("id") String id,
             @JsonProperty("apk") String apk,
-            @JsonProperty("distinguishString") String distinguishString,
-            @JsonProperty("onlyApp") String onlyApp,
-            @JsonProperty("cs") String cs,
             @JsonProperty("expected") int expected) {
         this.id = id;
         this.apk = apk;
-        this.distinguishString = Objects.requireNonNullElse(distinguishString, "app");
-        this.onlyApp = Objects.requireNonNullElse(onlyApp, "true");
-        this.cs = Objects.requireNonNullElse(cs, "ci");
         this.expected = expected;
     }
 
-    static Map<String, AndroidBenchmarkInfo> load(String parentPath, String childPath) {
+    public static Map<String, AndroidBenchmarkInfo> load(String parentPath, String childPath) {
         File file = new File(parentPath, childPath);
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         TypeReference<List<AndroidBenchmarkInfo>> typeRef = new TypeReference<>() {};
