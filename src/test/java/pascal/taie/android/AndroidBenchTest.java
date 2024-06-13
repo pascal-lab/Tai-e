@@ -43,20 +43,23 @@ public class AndroidBenchTest {
 
     private static final String BENCHMARK_INFO = "benchmark-info.yml";
 
-    private static final String TAINT_CONFIG = "android-benchmarks/taint-config-micro.yml";
+    protected static final String TAINT_CONFIG_MICRO = "android-benchmarks/taint-config-micro.yml";
 
+    protected static final String TAINT_CONFIG_REAL = "android-benchmarks/taint-config-real.yml";
 
-    public void run(String benchmarkPrefix, String benchmark) {
+    public void run(String benchmarkPrefix, String benchmark, boolean isRealWorld) {
         System.out.println("\nAnalyzing " + benchmark);
         Map<String, AndroidBenchmarkInfo> benchmarkInfos = AndroidBenchmarkInfo.load(benchmarkPrefix, BENCHMARK_INFO);
         AndroidBenchmarkInfo info = benchmarkInfos.get(benchmark);
-        Main.main(composeArgs(benchmarkPrefix, info));
+        Main.main(composeArgs(benchmarkPrefix, info, isRealWorld));
         PointerAnalysisResultImpl result = World.get().getResult(PointerAnalysis.ID);
         Set<TaintFlow> res = result.getResult(TaintAnalysis.class.getName());
-        assertEquals(info.expected(), res.size());
+        if (!isRealWorld) {
+            assertEquals(info.expected(), res.size());
+        }
     }
 
-    private String[] composeArgs(String benchmarkHomePrefix, AndroidBenchmarkInfo info) {
+    private String[] composeArgs(String benchmarkHomePrefix, AndroidBenchmarkInfo info, boolean isRealWorld) {
         List<String> args = new ArrayList<>();
         Collections.addAll(args,
                 "-pp",
@@ -66,7 +69,7 @@ public class AndroidBenchTest {
                 "implicit-entries", "false",
                 "distinguish-string-constants", "app",
                 "merge-string-objects", "true",
-                "taint-config", TAINT_CONFIG,
+                "taint-config", isRealWorld ? TAINT_CONFIG_REAL : TAINT_CONFIG_MICRO,
                 "propagate-types", "[reference,int,long,double,char]",
                 "reflection-inference", "string-constant"
         );
