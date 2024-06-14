@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2024-01-20
+## [Unreleased] - 2024-06-14
 
 ### New Features
 - Add side-effect analysis.
@@ -15,6 +15,9 @@
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
   - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
+- Class Hierarchy Analysis (CHA)
+  - Support ignoring call sites that call methods of `java.lang.Object`.
+  - Support ignoring call sites whose callees exceed given limit.
 
 ### Breaking Changes
 - API changes
