@@ -30,8 +30,10 @@ import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Subsignature;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -51,6 +53,11 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     private static final Logger logger = LogManager.getLogger(CHABuilder.class);
 
     private ClassHierarchy hierarchy;
+
+    /**
+     * Subsignatures of methods in java.lang.Object.
+     */
+    private Set<Subsignature> objectMethods;
 
     /**
      * Cache resolve results for interface/virtual invocations.
@@ -97,7 +104,19 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
         logger.info("Building call graph by CHA");
+        if (ignoreObjectMethods) {
+            logger.info("Ignore methods of java.lang.Object");
+        }
+        if (calleeLimit < Integer.MAX_VALUE) {
+            logger.info("Ignore call sites whose callees > {}", calleeLimit);
+        }
         hierarchy = World.get().getClassHierarchy();
+        JClass object = hierarchy.getJREClass(ClassNames.OBJECT);
+        objectMethods = Objects.requireNonNull(object)
+                .getDeclaredMethods()
+                .stream()
+                .map(JMethod::getSubsignature)
+                .collect(Collectors.toUnmodifiableSet());
         resolveTable = Maps.newTwoKeyMap();
         DefaultCallGraph callGraph = new DefaultCallGraph();
         callGraph.addEntryMethod(entry);
@@ -129,6 +148,9 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
         return switch (kind) {
             case INTERFACE, VIRTUAL -> {
                 MethodRef methodRef = callSite.getMethodRef();
+                if (ignoreObjectMethods && isObjectMethod(methodRef)) {
+                    yield Set.of();
+                }
                 JClass cls = methodRef.getDeclaringClass();
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees == null) {
@@ -140,7 +162,7 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                             .collect(Collectors.toUnmodifiableSet());
                     resolveTable.put(cls, methodRef, callees);
                 }
-                yield callees;
+                yield callees.size() <= calleeLimit ? callees : Set.of();
             }
             case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
             case DYNAMIC -> {
@@ -150,5 +172,9 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
             default -> throw new AnalysisException(
                     "Failed to resolve call site: " + callSite);
         };
+    }
+
+    private boolean isObjectMethod(MethodRef methodRef) {
+        return objectMethods.contains(methodRef.getSubsignature());
     }
 }
