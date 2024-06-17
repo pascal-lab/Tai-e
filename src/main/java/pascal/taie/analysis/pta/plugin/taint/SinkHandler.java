@@ -25,6 +25,10 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.ir.exp.Var;
@@ -59,7 +63,7 @@ class SinkHandler extends Handler {
                     // TODO: handle other call edges
                     .filter(e -> e.getKind() != CallKind.OTHER)
                     .map(Edge::getCallSite)
-                    .map(sinkCall -> collectTaintFlows(result, sinkCall, sink))
+                    .map(sinkCall -> collectTaintFlows(sinkCall, sink))
                     .forEach(taintFlows::addAll);
         }
         if (callSiteMode) {
@@ -73,7 +77,7 @@ class SinkHandler extends Handler {
                         JMethod callee = callSite.getMethodRef().resolveNullable();
                         if (callee != null) {
                             for (Sink sink : sinkMap.get(callee)) {
-                                taintFlows.addAll(collectTaintFlows(result, callSite, sink));
+                                taintFlows.addAll(collectTaintFlows(callSite, sink));
                             }
                         }
                     });
@@ -82,15 +86,31 @@ class SinkHandler extends Handler {
     }
 
     private Set<TaintFlow> collectTaintFlows(
-            PointerAnalysisResult result, Invoke sinkCall, Sink sink) {
+            Invoke sinkCall, Sink sink) {
         IndexRef indexRef = sink.indexRef();
         Var arg = InvokeUtils.getVar(sinkCall, indexRef.index());
         SinkPoint sinkPoint = new SinkPoint(sinkCall, indexRef);
         // obtain objects to check for different IndexRef.Kind
         Set<Obj> objs = switch (indexRef.kind()) {
-            case VAR -> result.getPointsToSet(arg);
-            case ARRAY -> result.getPointsToSet(arg, (Var) null);
-            case FIELD -> result.getPointsToSet(arg, indexRef.field());
+            case VAR -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
+            case ARRAY -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(csManager::getArrayIndex)
+                    .flatMap(ArrayIndex::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
+            case FIELD -> csManager.getCSVarsOf(arg)
+                    .stream()
+                    .flatMap(Pointer::objects)
+                    .map(o -> csManager.getInstanceField(o, indexRef.field()))
+                    .flatMap(InstanceField::objects)
+                    .map(CSObj::getObject)
+                    .collect(Collectors.toUnmodifiableSet());
         };
         return objs.stream()
                 .filter(manager::isTaint)

@@ -70,17 +70,18 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
         workList.add(entry);
         while (!workList.isEmpty()) {
             JMethod method = workList.poll();
-            callGraph.addReachableMethod(method);
-            callGraph.callSitesIn(method).forEach(invoke -> {
-                Set<JMethod> callees = resolveCalleesOf(invoke);
-                callees.forEach(callee -> {
-                    if (!callGraph.contains(callee)) {
-                        workList.add(callee);
-                    }
-                    callGraph.addEdge(new Edge<>(
-                            CallGraphs.getCallKind(invoke), invoke, callee));
+            if (callGraph.addReachableMethod(method)) {
+                callGraph.callSitesIn(method).forEach(invoke -> {
+                    Set<JMethod> callees = resolveCalleesOf(invoke);
+                    callees.forEach(callee -> {
+                        if (!callGraph.contains(callee)) {
+                            workList.add(callee);
+                        }
+                        callGraph.addEdge(new Edge<>(
+                                CallGraphs.getCallKind(invoke), invoke, callee));
+                    });
                 });
-            });
+            }
         }
         return callGraph;
     }

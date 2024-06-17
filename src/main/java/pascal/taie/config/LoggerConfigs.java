@@ -60,12 +60,12 @@ public final class LoggerConfigs {
      */
     public static void reconfigure() {
         // stop the last configuration
-        Configuration config = ((LoggerContext) LogManager.getContext(false))
-                .getConfiguration();
+        LoggerContext ctx = ((org.apache.logging.log4j.core.Logger) logger).getContext();
+        Configuration config = ctx.getConfiguration();
         config.stop();
         // re-fetch the configuration and reconfigure it
         if (config instanceof Reconfigurable reconfigurableConfig) {
-            Configurator.reconfigure(reconfigurableConfig.reconfigure());
+            ctx.reconfigure(reconfigurableConfig.reconfigure());
         }
     }
 
@@ -73,8 +73,8 @@ public final class LoggerConfigs {
      * Set the log output file based on the given output dir.
      */
     public static void setOutput(File outputDir) {
-        Configuration config = ((LoggerContext) LogManager.getContext(false))
-                .getConfiguration();
+        LoggerContext ctx = ((org.apache.logging.log4j.core.Logger) logger).getContext();
+        Configuration config = ctx.getConfiguration();
         // new a file appender
         FileAppender fileAppender = FileAppender
                 .newBuilder()

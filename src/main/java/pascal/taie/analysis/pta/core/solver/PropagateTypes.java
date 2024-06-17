@@ -27,10 +27,11 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Checks whether propagation of objects is allowed.
@@ -53,16 +54,13 @@ public class PropagateTypes {
      *     <li>various primitive types: allow the corresponding primitive types</li>
      * </ul>
      */
-    public PropagateTypes(List<String> types) {
+    public PropagateTypes(List<String> types, TypeSystem typeSystem) {
         allowReference = types.contains("reference");
         allowNull = types.contains("null") || types.contains(null);
-        List<PrimitiveType> primitiveTypes = types.stream()
-                .filter(PrimitiveType::isPrimitiveType)
-                .map(PrimitiveType::get)
-                .toList();
-        allowedPrimitives = primitiveTypes.isEmpty()
-                ? Set.of()
-                : EnumSet.copyOf(primitiveTypes);
+        allowedPrimitives = types.stream()
+                .filter(typeSystem::isPrimitiveType)
+                .map(typeSystem::getPrimitiveType)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public boolean isAllowed(Type type) {

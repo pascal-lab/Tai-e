@@ -109,6 +109,11 @@ abstract class AbstractPointer implements Pointer {
     }
 
     @Override
+    public void removeEdgesIf(Predicate<PointerFlowEdge> filter) {
+        outEdges.removeIf(filter);
+    }
+
+    @Override
     public Set<PointerFlowEdge> getOutEdges() {
         return Collections.unmodifiableSet(new ArraySet<>(outEdges, true));
     }

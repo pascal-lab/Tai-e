@@ -10,6 +10,10 @@ class SourceSink {
         return new String();
     }
 
+    static Sanitizer sourceS() {
+        return new Sanitizer();
+    }
+
     static void sink(String s) {
     }
 
@@ -17,6 +21,9 @@ class SourceSink {
     }
 
     static void sink(String s1, String s2) {
+    }
+
+    static void sink(Sanitizer s) {
     }
 
     static String sourceAndSink(String s1, String s2) {

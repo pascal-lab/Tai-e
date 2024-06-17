@@ -329,11 +329,8 @@ public class Options implements Serializable {
         }
         logger.info("Output directory: {}",
                 options.outputDir.getAbsolutePath());
-        // TODO: turn off output in testing?
-        if (options.optionsFile == null) {
-            // write options to file only when it is not given
-            writeOptions(options, new File(options.outputDir, OPTIONS_FILE));
-        }
+        // write options to file for future reviewing and issue submitting
+        writeOptions(options, new File(options.outputDir, OPTIONS_FILE));
         return options;
     }
 
@@ -368,6 +365,7 @@ public class Options implements Serializable {
         ObjectMapper mapper = new ObjectMapper(
                 new YAMLFactory()
                         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                        .disable(YAMLGenerator.Feature.SPLIT_LINES)
                         .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
         try {
             logger.info("Writing options to {}", output.getAbsolutePath());
