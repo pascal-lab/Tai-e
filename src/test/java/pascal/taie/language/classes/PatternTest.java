@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static pascal.taie.language.classes.Pattern.ClassPattern;
 import static pascal.taie.language.classes.Pattern.NamePattern;
 import static pascal.taie.language.classes.Pattern.STAR;
 import static pascal.taie.language.classes.Pattern.STARSTAR;
@@ -35,5 +36,9 @@ public class PatternTest {
                 NP("com.example.", "**", ".abc.", "*"), parseNamePattern("com.example.**.abc.*"),
                 NP("com.example.", "**", ".abc.", "*", ".def"), parseNamePattern("com.example.**.abc.*.def")
         ).forEach(Assertions::assertEquals);
+    }
+
+    private static ClassPattern CP(boolean includeSubclasses, String... nps) {
+        return new ClassPattern(NP(nps), includeSubclasses);
     }
 }
