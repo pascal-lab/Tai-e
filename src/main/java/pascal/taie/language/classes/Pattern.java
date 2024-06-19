@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +32,34 @@ class Pattern {
 
     static ClassPattern ofC(String cp) {
         throw new UnsupportedOperationException();
+    }
+
+    static NamePattern parseNamePattern(String s) {
+        List<NameUnit> units = new ArrayList<>();
+        int i = 0, lastI = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c == '*') {
+                if (lastI < i) {
+                    units.add(new StringUnit(s.substring(lastI, i)));
+                }
+                if (i + 1 < s.length() && s.charAt(i + 1) == '*') {
+                    units.add(STARSTAR);
+                    ++i;
+                } else {
+                    units.add(STAR);
+                }
+                lastI = ++i;
+            } else if (Character.isJavaIdentifierPart(c) || c == '.') {
+                ++i;
+            } else {
+                throw new IllegalArgumentException(s + " is an invalid NamePattern");
+            }
+        }
+        if (lastI < i) {
+            units.add(new StringUnit(s.substring(lastI, i)));
+        }
+        return new NamePattern(units);
     }
 
     static MethodPattern ofM(String mp) {
@@ -44,8 +73,12 @@ class Pattern {
     interface NameUnit {
     }
 
-    record StringUnit(String content) implements NameUnit {
-    }
+    static final NameUnit STARSTAR = new NameUnit() {
+        @Override
+        public String toString() {
+            return "STARSTAR";
+        }
+    };
 
     static final NameUnit STAR = new NameUnit() {
         @Override
@@ -54,12 +87,8 @@ class Pattern {
         }
     };
 
-    static final NameUnit STARSTAR = new NameUnit() {
-        @Override
-        public String toString() {
-            return "STARSTAR";
-        }
-    };
+    record StringUnit(String content) implements NameUnit {
+    }
 
     record NamePattern(List<NameUnit> units) {
     }
