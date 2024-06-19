@@ -31,7 +31,14 @@ import java.util.List;
 class Pattern {
 
     static ClassPattern ofC(String cp) {
-        throw new UnsupportedOperationException();
+        boolean includeSubclasses;
+        if (cp.endsWith("^")) {
+            includeSubclasses = true;
+            cp = cp.substring(0, cp.length() - 1);
+        } else {
+            includeSubclasses = false;
+        }
+        return new ClassPattern(parseNamePattern(cp), includeSubclasses);
     }
 
     static NamePattern parseNamePattern(String s) {
@@ -40,13 +47,13 @@ class Pattern {
         while (i < s.length()) {
             char c = s.charAt(i);
             if (c == '*') {
-                if (lastI < i) {
+                if (lastI < i) { // match string
                     units.add(new StringUnit(s.substring(lastI, i)));
                 }
-                if (i + 1 < s.length() && s.charAt(i + 1) == '*') {
+                if (i + 1 < s.length() && s.charAt(i + 1) == '*') { // match **
                     units.add(STARSTAR);
                     ++i;
-                } else {
+                } else { // match *
                     units.add(STAR);
                 }
                 lastI = ++i;
@@ -56,7 +63,7 @@ class Pattern {
                 throw new IllegalArgumentException(s + " is an invalid NamePattern");
             }
         }
-        if (lastI < i) {
+        if (lastI < i) { // match rest string
             units.add(new StringUnit(s.substring(lastI, i)));
         }
         return new NamePattern(units);
@@ -93,32 +100,21 @@ class Pattern {
     record NamePattern(List<NameUnit> units) {
     }
 
-    static class TypePattern implements ParamUnit {
+    static class ClassPattern {
 
         private final NamePattern name;
-
-        TypePattern(NamePattern name) {
-            this.name = name;
-        }
-
-        public NamePattern getName() {
-            return name;
-        }
-    }
-
-    static class ClassPattern extends TypePattern {
 
         private final boolean includeSubclasses;
 
         ClassPattern(NamePattern name, boolean includeSubclasses) {
-            super(name);
+            this.name = name;
             this.includeSubclasses = includeSubclasses;
         }
 
         @Override
         public String toString() {
             return "ClassPattern{" +
-                    ", name=" + getName() +
+                    ", name=" + name +
                     "includeSubclasses=" + includeSubclasses +
                     '}';
         }
@@ -133,6 +129,30 @@ class Pattern {
             return "WILDCARD";
         }
     };
+
+    static class TypePattern implements ParamUnit {
+
+        private final NamePattern name;
+
+        private final boolean includeSubtypes;
+
+        TypePattern(NamePattern name, boolean includeSubtypes) {
+            this.name = name;
+            this.includeSubtypes = includeSubtypes;
+        }
+
+        NamePattern getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return "TypePattern{" +
+                    "name=" + name +
+                    ", includeSubtypes=" + includeSubtypes +
+                    '}';
+        }
+    }
 
     record MethodPattern(ClassPattern klass,
                          TypePattern retType, NamePattern name, List<ParamUnit> params) {
