@@ -137,7 +137,14 @@ class Pattern {
     };
 
     static TypePattern parseTypePattern(String tp) {
-        throw new UnsupportedOperationException();
+        boolean includeSubtypes;
+        if (tp.endsWith("^")) {
+            includeSubtypes = true;
+            tp = tp.substring(0, tp.length() - 1);
+        } else {
+            includeSubtypes = false;
+        }
+        return new TypePattern(parseNamePattern(tp), includeSubtypes);
     }
 
     static class TypePattern implements ParamUnit {
@@ -169,13 +176,10 @@ class Pattern {
      */
     static FieldPattern ofF(String fp) {
         try {
-            String[] splits = fp.split(" ");
-            String cp = splits[0].substring(1, splits[0].length() - 1);
-            ClassPattern klass = ofC(cp);
-            String tp = splits[1];
-            TypePattern type = parseTypePattern(tp);
-            String np = splits[2].substring(0, splits[2].length() - 1);
-            NamePattern name = parseNamePattern(np);
+            String[] splits = fp.split("[<:\\s>]");
+            ClassPattern klass = ofC(splits[0]);
+            TypePattern type = parseTypePattern(splits[1]);
+            NamePattern name = parseNamePattern(splits[2]);
             return new FieldPattern(klass, type, name);
         } catch (Exception e) {
             throw new IllegalArgumentException("Illegal field pattern: " + fp);
