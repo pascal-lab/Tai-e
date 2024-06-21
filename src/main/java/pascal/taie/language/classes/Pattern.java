@@ -23,6 +23,7 @@
 package pascal.taie.language.classes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -83,7 +84,7 @@ class Pattern {
             } else if (Character.isJavaIdentifierPart(c) || c == '.') {
                 ++i;
             } else {
-                throw new IllegalArgumentException(s + " is an invalid NamePattern");
+                throw new IllegalArgumentException("Invalid name pattern: " + s);
             }
         }
         if (lastI < i) { // match rest string
@@ -119,11 +120,27 @@ class Pattern {
      * MethodPattern -> <ClassPattern: TypePattern NamePattern(ParamUnit...)>
      */
     static MethodPattern ofM(String mp) {
-        throw new UnsupportedOperationException();
+        try {
+            String[] splits = mp.split("[<:\\s(,)>]");
+            ClassPattern klass = ofC(splits[0]);
+            TypePattern type = parseTypePattern(splits[1]);
+            NamePattern name = parseNamePattern(splits[2]);
+            List<ParamUnit> params = Arrays.stream(splits)
+                    .skip(3)
+                    .map(Pattern::parseParamUnit)
+                    .toList();
+            return new MethodPattern(klass, type, name, params);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid method pattern: " + mp);
+        }
     }
 
     record MethodPattern(ClassPattern klass,
                          TypePattern retType, NamePattern name, List<ParamUnit> params) {
+    }
+
+    static ParamUnit parseParamUnit(String pu) {
+        return pu.equals("~") ? WILDCARD : parseTypePattern(pu);
     }
 
     interface ParamUnit {
@@ -182,7 +199,7 @@ class Pattern {
             NamePattern name = parseNamePattern(splits[2]);
             return new FieldPattern(klass, type, name);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Illegal field pattern: " + fp);
+            throw new IllegalArgumentException("Invalid field pattern: " + fp);
         }
     }
 
