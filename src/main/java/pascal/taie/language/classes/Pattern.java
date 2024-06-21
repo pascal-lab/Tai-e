@@ -30,6 +30,9 @@ import java.util.List;
  */
 class Pattern {
 
+    /**
+     * ClassPattern -> NamePattern[^]
+     */
     static ClassPattern ofC(String cp) {
         boolean includeSubclasses;
         if (cp.endsWith("^")) {
@@ -39,6 +42,26 @@ class Pattern {
             includeSubclasses = false;
         }
         return new ClassPattern(parseNamePattern(cp), includeSubclasses);
+    }
+
+    static class ClassPattern {
+
+        private final NamePattern name;
+
+        private final boolean includeSubclasses;
+
+        ClassPattern(NamePattern name, boolean includeSubclasses) {
+            this.name = name;
+            this.includeSubclasses = includeSubclasses;
+        }
+
+        @Override
+        public String toString() {
+            return "ClassPattern{" +
+                    ", name=" + name +
+                    "includeSubclasses=" + includeSubclasses +
+                    '}';
+        }
     }
 
     static NamePattern parseNamePattern(String s) {
@@ -69,12 +92,7 @@ class Pattern {
         return new NamePattern(units);
     }
 
-    static MethodPattern ofM(String mp) {
-        throw new UnsupportedOperationException();
-    }
-
-    static FieldPattern ofF(String fp) {
-        throw new UnsupportedOperationException();
+    record NamePattern(List<NameUnit> units) {
     }
 
     interface NameUnit {
@@ -97,27 +115,15 @@ class Pattern {
     record StringUnit(String content) implements NameUnit {
     }
 
-    record NamePattern(List<NameUnit> units) {
+    /**
+     * MethodPattern -> <ClassPattern: TypePattern NamePattern(ParamUnit...)>
+     */
+    static MethodPattern ofM(String mp) {
+        throw new UnsupportedOperationException();
     }
 
-    static class ClassPattern {
-
-        private final NamePattern name;
-
-        private final boolean includeSubclasses;
-
-        ClassPattern(NamePattern name, boolean includeSubclasses) {
-            this.name = name;
-            this.includeSubclasses = includeSubclasses;
-        }
-
-        @Override
-        public String toString() {
-            return "ClassPattern{" +
-                    ", name=" + name +
-                    "includeSubclasses=" + includeSubclasses +
-                    '}';
-        }
+    record MethodPattern(ClassPattern klass,
+                         TypePattern retType, NamePattern name, List<ParamUnit> params) {
     }
 
     interface ParamUnit {
@@ -129,6 +135,10 @@ class Pattern {
             return "WILDCARD";
         }
     };
+
+    static TypePattern parseTypePattern(String tp) {
+        throw new UnsupportedOperationException();
+    }
 
     static class TypePattern implements ParamUnit {
 
@@ -154,8 +164,22 @@ class Pattern {
         }
     }
 
-    record MethodPattern(ClassPattern klass,
-                         TypePattern retType, NamePattern name, List<ParamUnit> params) {
+    /**
+     * FieldPattern -> <ClassPattern: TypePattern NamePattern>
+     */
+    static FieldPattern ofF(String fp) {
+        try {
+            String[] splits = fp.split(" ");
+            String cp = splits[0].substring(1, splits[0].length() - 1);
+            ClassPattern klass = ofC(cp);
+            String tp = splits[1];
+            TypePattern type = parseTypePattern(tp);
+            String np = splits[2].substring(0, splits[2].length() - 1);
+            NamePattern name = parseNamePattern(np);
+            return new FieldPattern(klass, type, name);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Illegal field pattern: " + fp);
+        }
     }
 
     record FieldPattern(ClassPattern klass,
