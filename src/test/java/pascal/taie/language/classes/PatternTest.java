@@ -1,13 +1,11 @@
 package pascal.taie.language.classes;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pascal.taie.language.classes.Pattern.*;
 
 public class PatternTest {
@@ -24,72 +22,96 @@ public class PatternTest {
 
     @Test
     void testNamePattern() {
-        Map.of(
-                NP("**"), parseNamePattern("**"),
-                NP("*"), parseNamePattern("*"),
-                NP("ABC"), parseNamePattern("ABC"),
-                NP("com", "**", "X"), parseNamePattern("com**X"),
-                NP("com.example.", "*"), parseNamePattern("com.example.*"),
-                NP("com.example.", "*", ".abc.", "**"), parseNamePattern("com.example.*.abc.**"),
-                NP("com.example.", "**", ".abc.", "*"), parseNamePattern("com.example.**.abc.*"),
-                NP("com.example.", "**", ".abc.", "*", ".def"), parseNamePattern("com.example.**.abc.*.def")
-        ).forEach(Assertions::assertEquals);
+        assertEquals(NP("**"), parseNamePattern("**"));
+        assertEquals(NP("*"), parseNamePattern("*"));
+        assertEquals(NP("ABC"), parseNamePattern("ABC"));
+        assertEquals(NP("com", "**", "X"), parseNamePattern("com**X"));
+        assertEquals(NP("com.example.", "*"), parseNamePattern("com.example.*"));
+        assertEquals(NP("com.example.", "*", ".abc.", "**"), parseNamePattern("com.example.*.abc.**"));
+        assertEquals(NP("com.example.", "**", ".abc.", "*"), parseNamePattern("com.example.**.abc.*"));
+        assertEquals(NP("com.example.", "**", ".abc.", "*", ".def"), parseNamePattern("com.example.**.abc.*.def"));
+    }
+
+    /**
+     * Class pattern, without subclasses.
+     */
+    private static ClassPattern CP1(String... nps) {
+        return new ClassPattern(NP(nps), false);
+    }
+
+    /**
+     * Class pattern, including subclasses.
+     */
+    private static ClassPattern CP2(String... nps) {
+        return new ClassPattern(NP(nps), true);
     }
 
     @Test
-    void testOfC() {
-        Map.of(
-                new ClassPattern(NP("com.example.", "*"), false), ofC("com.example.*"),
-                new ClassPattern(NP("com", "**", "X"), false), ofC("com**X"),
-                new ClassPattern(NP("com.example.", "*", ".abc.", "**"), false), ofC("com.example.*.abc.**"),
-                new ClassPattern(NP("com.example.", "**", ".abc.", "*"), false), ofC("com.example.**.abc.*"),
-                new ClassPattern(NP("com.example.", "**", ".abc.", "*", ".def"), false), ofC("com.example.**.abc.*.def"),
-                new ClassPattern(NP("com", "**", "X"), true), ofC("com**X^"),
-                new ClassPattern(NP("com.example.", "*", ".abc.", "**"), true), ofC("com.example.*.abc.**^"),
-                new ClassPattern(NP("com.example.", "**", ".abc.", "*"), true), ofC("com.example.**.abc.*^"),
-                new ClassPattern(NP("com.example.", "**", ".abc.", "*", ".def"), true), ofC("com.example.**.abc.*.def^")
-        ).forEach(Assertions::assertEquals);
+    void testClassPattern() {
+        assertEquals(CP1("com.example.", "*"), ofC("com.example.*"));
+        assertEquals(CP1("com", "**", "X"), ofC("com**X"));
+        assertEquals(CP1("com.example.", "*", ".abc.", "**"), ofC("com.example.*.abc.**"));
+        assertEquals(CP1("com.example.", "**", ".abc.", "*"), ofC("com.example.**.abc.*"));
+        assertEquals(CP1("com.example.", "**", ".abc.", "*", ".def"), ofC("com.example.**.abc.*.def"));
+        assertEquals(CP2("com", "**", "X"), ofC("com**X^"));
+        assertEquals(CP2("com.example.", "*", ".abc.", "**"), ofC("com.example.*.abc.**^"));
+        assertEquals(CP2("com.example.", "**", ".abc.", "*"), ofC("com.example.**.abc.*^"));
+        assertEquals(CP2("com.example.", "**", ".abc.", "*", ".def"), ofC("com.example.**.abc.*.def^"));
     }
+
+    /**
+     * Type pattern, without subtypes.
+     */
+    private static TypePattern TP1(String... nps) {
+        return new TypePattern(NP(nps), false);
+    }
+
+    /**
+     * Type pattern, including subtypes.
+     */
+    private static TypePattern TP2(String... nps) {
+        return new TypePattern(NP(nps), true);
+    }
+
     @Test
-    void testOfM() {
-        Map.of(
+    void testMethodPattern() {
+        assertEquals(
                 new MethodPattern(
-                        new ClassPattern(NP("com.example.", "*"), false),
-                        new TypePattern(NP("int"), false),
-                        NP("foo", "*"),
-                        new ArrayList<>(Arrays.asList(new TypePattern(NP("java.lang.String"), false),
-                                new TypePattern(NP("int"), false)))),
-                ofM("<com.example.*: int foo(java.lang.String, int)>"),
+                        CP1("com.example.", "*"),
+                        TP1("int"),
+                        NP("foo"),
+                        List.of(TP1("java.lang.String"), TP1("int"))
+                ),
+                ofM("<com.example.*: int foo(java.lang.String,int)>")
+        );
+        assertEquals(
                 new MethodPattern(
-                        new ClassPattern(NP("com.example.", "*"), false),
-                        new TypePattern(NP("int"), false),
-                        NP("foo", "*"),
-                        new ArrayList<>(Arrays.asList(new TypePattern(NP("java.lang.String"), false),
-                                WILDCARD))),
-                ofM("<com.example.*: int foo(java.lang.String, ~)>"),
+                        CP1("com.example.", "*"),
+                        TP1("int"),
+                        NP("foo"),
+                        List.of(TP1("java.lang.String"), WILDCARD)
+                ),
+                ofM("<com.example.*: int foo(java.lang.String,~)>")
+        );
+        assertEquals(
                 new MethodPattern(
-                        new ClassPattern(NP("com.example.", "*"), false),
-                        new TypePattern(NP("int"), false),
+                        CP1("com.example.", "*"),
+                        TP1("int"),
                         NP("foo", "*"),
-                        new ArrayList<>(Arrays.asList(new TypePattern(NP("java.lang.String"), false),
-                                WILDCARD,
-                                new TypePattern(NP("java.lang.String"), false),
-                                WILDCARD))),
-                ofM("<com.example.*: int foo(java.lang.String, ~, int, ~)>"),
+                        List.of(TP1("java.lang.String"), WILDCARD,
+                                TP1("int"), WILDCARD)
+                ),
+                ofM("<com.example.*: int foo*(java.lang.String,~,int,~)>")
+        );
+        assertEquals(
                 new MethodPattern(
-                        new ClassPattern(NP("com.example.", "*"), false),
-                        new TypePattern(NP("void"), false),
+                        CP1("com.example.", "*"),
+                        TP1("void"),
                         NP("foo", "*"),
-                        new ArrayList<>(Arrays.asList(new TypePattern(NP("java.util.Collection"), true),
-                                WILDCARD,
-                                new TypePattern(NP("java.lang.String"), false),
-                                WILDCARD))),
-                ofM("<com.example.*: void foo(java.util.Collection^, ~, int, ~)>")
-        ).forEach(Assertions::assertEquals);
-    }
-
-
-    private static ClassPattern CP(boolean includeSubclasses, String... nps) {
-        return new ClassPattern(NP(nps), includeSubclasses);
+                        List.of(TP2("java.util.Collection"), WILDCARD,
+                                TP1("java.lang.String"), WILDCARD)
+                ),
+                ofM("<com.example.*: void foo*(java.util.Collection^,~,java.lang.String,~)>")
+        );
     }
 }
