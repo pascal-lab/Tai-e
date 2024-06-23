@@ -22,11 +22,37 @@
 
 package pascal.taie.language.classes;
 
+import java.util.Set;
+
 public class Matcher {
 
     private final ClassHierarchy hierarchy;
 
     public Matcher(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
+    }
+
+    public Set<JClass> getClasses(String cp) {
+        return getClasses(Pattern.ofC(cp));
+    }
+
+    Set<JClass> getClasses(Pattern.ClassPattern classPattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<JMethod> getMethods(String mp) {
+        return getMethods(Pattern.ofM(mp));
+    }
+
+    Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<JField> getFields(String fp) {
+        return getFields(Pattern.ofF(fp));
+    }
+
+    Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
+        throw new UnsupportedOperationException();
     }
 }
