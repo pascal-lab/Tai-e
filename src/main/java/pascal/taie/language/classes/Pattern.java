@@ -22,12 +22,14 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.util.Hashes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Pattern parsing and representation.
+ * Pattern representation and parsing.
  */
 class Pattern {
 
@@ -57,10 +59,27 @@ class Pattern {
         }
 
         @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof ClassPattern other)) {
+                return false;
+            }
+            return name.equals(other.name)
+                    && includeSubclasses == other.includeSubclasses;
+        }
+
+        @Override
+        public int hashCode() {
+            return Hashes.hash(name, includeSubclasses);
+        }
+
+        @Override
         public String toString() {
             return "ClassPattern{" +
-                    ", name=" + name +
-                    "includeSubclasses=" + includeSubclasses +
+                    "name=" + name +
+                    ", includeSubclasses=" + includeSubclasses +
                     '}';
         }
     }
@@ -121,11 +140,13 @@ class Pattern {
      */
     static MethodPattern ofM(String mp) {
         try {
-            String[] splits = mp.split("[<:\\s(,)>]");
-            ClassPattern klass = ofC(splits[0]);
-            TypePattern type = parseTypePattern(splits[1]);
-            NamePattern name = parseNamePattern(splits[2]);
-            List<ParamUnit> params = Arrays.stream(splits)
+            List<String> splits = Arrays.stream(mp.split("[<:\\s(,)>]"))
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+            ClassPattern klass = ofC(splits.get(0));
+            TypePattern type = parseTypePattern(splits.get(1));
+            NamePattern name = parseNamePattern(splits.get(2));
+            List<ParamUnit> params = splits.stream()
                     .skip(3)
                     .map(Pattern::parseParamUnit)
                     .toList();
@@ -180,6 +201,23 @@ class Pattern {
         }
 
         @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof TypePattern other)) {
+                return false;
+            }
+            return name.equals(other.name)
+                    && includeSubtypes == other.includeSubtypes;
+        }
+
+        @Override
+        public int hashCode() {
+            return Hashes.hash(name, includeSubtypes);
+        }
+
+        @Override
         public String toString() {
             return "TypePattern{" +
                     "name=" + name +
@@ -193,10 +231,12 @@ class Pattern {
      */
     static FieldPattern ofF(String fp) {
         try {
-            String[] splits = fp.split("[<:\\s>]");
-            ClassPattern klass = ofC(splits[0]);
-            TypePattern type = parseTypePattern(splits[1]);
-            NamePattern name = parseNamePattern(splits[2]);
+            List<String> splits = Arrays.stream(fp.split("[<:\\s>]"))
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+            ClassPattern klass = ofC(splits.get(0));
+            TypePattern type = parseTypePattern(splits.get(1));
+            NamePattern name = parseNamePattern(splits.get(2));
             return new FieldPattern(klass, type, name);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid field pattern: " + fp);
