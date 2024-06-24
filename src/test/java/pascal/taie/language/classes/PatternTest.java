@@ -13,8 +13,8 @@ public class PatternTest {
     private static NamePattern NP(String... nps) {
         return new NamePattern(Stream.of(nps)
                 .map(np -> switch (np) {
-                    case "**" -> STARSTAR;
-                    case "*" -> STAR;
+                    case FULLNAME_WILDCARD_MARK -> FULLNAME_WILDCARD;
+                    case NAME_WILDCARD_MARK -> NAME_WILDCARD;
                     default -> new StringUnit(np);
                 })
                 .toList());
@@ -89,7 +89,7 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo"),
-                        List.of(TP1("java.lang.String"), WILDCARD)
+                        List.of(TP1("java.lang.String"), PARAM_WILDCARD)
                 ),
                 ofM("<com.example.*: int foo(java.lang.String,~)>")
         );
@@ -98,8 +98,8 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo", "*"),
-                        List.of(TP1("java.lang.String"), WILDCARD,
-                                TP1("int"), WILDCARD)
+                        List.of(TP1("java.lang.String"), PARAM_WILDCARD,
+                                TP1("int"), PARAM_WILDCARD)
                 ),
                 ofM("<com.example.*: int foo*(java.lang.String,~,int,~)>")
         );
@@ -108,8 +108,8 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("void"),
                         NP("foo", "*"),
-                        List.of(TP2("java.util.Collection"), WILDCARD,
-                                TP1("java.lang.String"), WILDCARD)
+                        List.of(TP2("java.util.Collection"), PARAM_WILDCARD,
+                                TP1("java.lang.String"), PARAM_WILDCARD)
                 ),
                 ofM("<com.example.*: void foo*(java.util.Collection^,~,java.lang.String,~)>")
         );
@@ -121,9 +121,9 @@ public class PatternTest {
                 new FieldPattern(
                         CP1("com.example.", "*"),
                         TP1("int"),
-                        NP("field1")
+                        NP("field", "*")
                 ),
-                ofF("<com.example.*: int field1>")
+                ofF("<com.example.*: int field*>")
         );
         assertEquals(
                 new FieldPattern(

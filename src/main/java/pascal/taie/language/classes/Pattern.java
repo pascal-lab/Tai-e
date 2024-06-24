@@ -27,18 +27,28 @@ import pascal.taie.util.Hashes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Pattern representation and parsing.
  */
 class Pattern {
 
+    static final String SUB_MARK = "^";
+
+    static final String FULLNAME_WILDCARD_MARK = "**";
+
+    static final String NAME_WILDCARD_MARK = "*";
+
+    static final String PARAM_WILDCARD_MARK = "~";
+
     /**
      * ClassPattern -> NamePattern[^]
      */
     static ClassPattern ofC(String cp) {
         boolean includeSubclasses;
-        if (cp.endsWith("^")) {
+        if (cp.endsWith(SUB_MARK)) {
             includeSubclasses = true;
             cp = cp.substring(0, cp.length() - 1);
         } else {
@@ -77,10 +87,7 @@ class Pattern {
 
         @Override
         public String toString() {
-            return "ClassPattern{" +
-                    "name=" + name +
-                    ", includeSubclasses=" + includeSubclasses +
-                    '}';
+            return includeSubclasses ? name + SUB_MARK : name.toString();
         }
     }
 
@@ -94,10 +101,10 @@ class Pattern {
                     units.add(new StringUnit(s.substring(lastI, i)));
                 }
                 if (i + 1 < s.length() && s.charAt(i + 1) == '*') { // match **
-                    units.add(STARSTAR);
+                    units.add(FULLNAME_WILDCARD);
                     ++i;
                 } else { // match *
-                    units.add(STAR);
+                    units.add(NAME_WILDCARD);
                 }
                 lastI = ++i;
             } else if (Character.isJavaIdentifierPart(c) || c == '.') {
@@ -113,26 +120,36 @@ class Pattern {
     }
 
     record NamePattern(List<NameUnit> units) {
+        @Override
+        public String toString() {
+            return units.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(""));
+        }
     }
 
     interface NameUnit {
     }
 
-    static final NameUnit STARSTAR = new NameUnit() {
+    static final NameUnit FULLNAME_WILDCARD = new NameUnit() {
         @Override
         public String toString() {
-            return "STARSTAR";
+            return FULLNAME_WILDCARD_MARK;
         }
     };
 
-    static final NameUnit STAR = new NameUnit() {
+    static final NameUnit NAME_WILDCARD = new NameUnit() {
         @Override
         public String toString() {
-            return "STAR";
+            return NAME_WILDCARD_MARK;
         }
     };
 
     record StringUnit(String content) implements NameUnit {
+        @Override
+        public String toString() {
+            return content;
+        }
     }
 
     /**
@@ -158,19 +175,28 @@ class Pattern {
 
     record MethodPattern(ClassPattern klass,
                          TypePattern retType, NamePattern name, List<ParamUnit> params) {
+        @Override
+        public String toString() {
+            return "<" + klass + ": " + retType +
+                    " " + name +
+                    "(" + params.stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.joining(","))
+                    + ")>";
+        }
     }
 
     static ParamUnit parseParamUnit(String pu) {
-        return pu.equals("~") ? WILDCARD : parseTypePattern(pu);
+        return pu.equals(PARAM_WILDCARD_MARK) ? PARAM_WILDCARD : parseTypePattern(pu);
     }
 
     interface ParamUnit {
     }
 
-    static final ParamUnit WILDCARD = new ParamUnit() {
+    static final ParamUnit PARAM_WILDCARD = new ParamUnit() {
         @Override
         public String toString() {
-            return "WILDCARD";
+            return PARAM_WILDCARD_MARK;
         }
     };
 
@@ -219,10 +245,7 @@ class Pattern {
 
         @Override
         public String toString() {
-            return "TypePattern{" +
-                    "name=" + name +
-                    ", includeSubtypes=" + includeSubtypes +
-                    '}';
+            return includeSubtypes ? name + SUB_MARK : name.toString();
         }
     }
 
@@ -245,5 +268,9 @@ class Pattern {
 
     record FieldPattern(ClassPattern klass,
                         TypePattern type, NamePattern name) {
+        @Override
+        public String toString() {
+            return "<" + klass + ": " + type + " " + name + ">";
+        }
     }
 }
