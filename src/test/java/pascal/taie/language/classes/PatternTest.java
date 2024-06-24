@@ -114,4 +114,56 @@ public class PatternTest {
                 ofM("<com.example.*: void foo*(java.util.Collection^,~,java.lang.String,~)>")
         );
     }
+
+    @Test
+    void testFieldPattern() {
+        assertEquals(
+                new FieldPattern(
+                        CP1("com.example.", "*"),
+                        TP1("int"),
+                        NP("field1")
+                ),
+                ofF("<com.example.*: int field1>")
+        );
+        assertEquals(
+                new FieldPattern(
+                        CP1("com", "**", "X"),
+                        TP1("int"),
+                        NP("field1")
+                ),
+                ofF("<com**X: int field1>")
+        );
+        assertEquals(
+                new FieldPattern(
+                        CP1("com", "**", "X"),
+                        TP2("java.util.Collection"),
+                        NP("field1")
+                ),
+                ofF("<com**X: java.util.Collection^ field1>")
+        );
+        assertEquals(
+                new FieldPattern(
+                        CP2("com", "**", "X"),
+                        TP2("java.util.Collection"),
+                        NP("field1")
+                ),
+                ofF("<com**X^: java.util.Collection^ field1>")
+        );
+        assertEquals(
+                new FieldPattern(
+                        CP2("com", "**", "X"),
+                        TP2("com.example.", "*"),
+                        NP("field2")
+                ),
+                ofF("<com**X^: com.example.*^ field2>")
+        );
+        assertEquals(
+                new FieldPattern(
+                        CP1("com.example.", "*"),
+                        TP1("void"),
+                        NP("field2")
+                ),
+                ofF("<com.example.*: void field2>")
+        );
+    }
 }
