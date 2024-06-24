@@ -1,4 +1,5 @@
 package com.example;
+
 public class XFather {
 
     public void foo() {
