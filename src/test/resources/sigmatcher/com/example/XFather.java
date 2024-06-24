@@ -11,7 +11,6 @@ public class XFather {
     public void foo(int number) {
     }
 
-    public int foo(String message, int number) {
-        return number
+    public void foo(String message, int number) {
     }
 }

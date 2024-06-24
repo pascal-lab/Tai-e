@@ -11,15 +11,15 @@ public class Y {
     public void fun(XFather xFather) {
     }
 
-    public X fun(X x, int i) {
+    public X foo(X x) {
         return x;
     }
 
-    public X1 fun(X1 x1, int i) {
+    public X1 foo(X1 x1) {
         return x1;
     }
 
-    public XFather fun(XFather xFather, int i) {
+    public XFather foo(XFather xFather) {
         return xFather;
     }
 }
