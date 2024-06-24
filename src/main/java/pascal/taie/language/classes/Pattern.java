@@ -46,15 +46,15 @@ class Pattern {
     /**
      * ClassPattern -> NamePattern[^]
      */
-    static ClassPattern ofC(String cp) {
+    static ClassPattern parseClassPattern(String pattern) {
         boolean includeSubclasses;
-        if (cp.endsWith(SUB_MARK)) {
+        if (pattern.endsWith(SUB_MARK)) {
             includeSubclasses = true;
-            cp = cp.substring(0, cp.length() - 1);
+            pattern = pattern.substring(0, pattern.length() - 1);
         } else {
             includeSubclasses = false;
         }
-        return new ClassPattern(parseNamePattern(cp), includeSubclasses);
+        return new ClassPattern(parseNamePattern(pattern), includeSubclasses);
     }
 
     static class ClassPattern {
@@ -91,16 +91,16 @@ class Pattern {
         }
     }
 
-    static NamePattern parseNamePattern(String s) {
+    static NamePattern parseNamePattern(String pattern) {
         List<NameUnit> units = new ArrayList<>();
         int i = 0, lastI = 0;
-        while (i < s.length()) {
-            char c = s.charAt(i);
+        while (i < pattern.length()) {
+            char c = pattern.charAt(i);
             if (c == '*') {
                 if (lastI < i) { // match string
-                    units.add(new StringUnit(s.substring(lastI, i)));
+                    units.add(new StringUnit(pattern.substring(lastI, i)));
                 }
-                if (i + 1 < s.length() && s.charAt(i + 1) == '*') { // match **
+                if (i + 1 < pattern.length() && pattern.charAt(i + 1) == '*') { // match **
                     units.add(FULLNAME_WILDCARD);
                     ++i;
                 } else { // match *
@@ -110,11 +110,11 @@ class Pattern {
             } else if (Character.isJavaIdentifierPart(c) || c == '.') {
                 ++i;
             } else {
-                throw new IllegalArgumentException("Invalid name pattern: " + s);
+                throw new IllegalArgumentException("Invalid name pattern: " + pattern);
             }
         }
         if (lastI < i) { // match rest string
-            units.add(new StringUnit(s.substring(lastI, i)));
+            units.add(new StringUnit(pattern.substring(lastI, i)));
         }
         return new NamePattern(units);
     }
@@ -155,12 +155,12 @@ class Pattern {
     /**
      * MethodPattern -> <ClassPattern: TypePattern NamePattern(ParamUnit...)>
      */
-    static MethodPattern ofM(String mp) {
+    static MethodPattern parseMethodPattern(String pattern) {
         try {
-            List<String> splits = Arrays.stream(mp.split("[<:\\s(,)>]"))
+            List<String> splits = Arrays.stream(pattern.split("[<:\\s(,)>]"))
                     .filter(s -> !s.isEmpty())
                     .toList();
-            ClassPattern klass = ofC(splits.get(0));
+            ClassPattern klass = parseClassPattern(splits.get(0));
             TypePattern type = parseTypePattern(splits.get(1));
             NamePattern name = parseNamePattern(splits.get(2));
             List<ParamUnit> params = splits.stream()
@@ -169,7 +169,7 @@ class Pattern {
                     .toList();
             return new MethodPattern(klass, type, name, params);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid method pattern: " + mp);
+            throw new IllegalArgumentException("Invalid method pattern: " + pattern);
         }
     }
 
@@ -186,8 +186,9 @@ class Pattern {
         }
     }
 
-    static ParamUnit parseParamUnit(String pu) {
-        return pu.equals(PARAM_WILDCARD_MARK) ? PARAM_WILDCARD : parseTypePattern(pu);
+    static ParamUnit parseParamUnit(String pattern) {
+        return pattern.equals(PARAM_WILDCARD_MARK)
+                ? PARAM_WILDCARD : parseTypePattern(pattern);
     }
 
     interface ParamUnit {
@@ -200,15 +201,15 @@ class Pattern {
         }
     };
 
-    static TypePattern parseTypePattern(String tp) {
+    static TypePattern parseTypePattern(String pattern) {
         boolean includeSubtypes;
-        if (tp.endsWith("^")) {
+        if (pattern.endsWith(SUB_MARK)) {
             includeSubtypes = true;
-            tp = tp.substring(0, tp.length() - 1);
+            pattern = pattern.substring(0, pattern.length() - 1);
         } else {
             includeSubtypes = false;
         }
-        return new TypePattern(parseNamePattern(tp), includeSubtypes);
+        return new TypePattern(parseNamePattern(pattern), includeSubtypes);
     }
 
     static class TypePattern implements ParamUnit {
@@ -252,17 +253,17 @@ class Pattern {
     /**
      * FieldPattern -> <ClassPattern: TypePattern NamePattern>
      */
-    static FieldPattern ofF(String fp) {
+    static FieldPattern parseFieldPattern(String pattern) {
         try {
-            List<String> splits = Arrays.stream(fp.split("[<:\\s>]"))
+            List<String> splits = Arrays.stream(pattern.split("[<:\\s>]"))
                     .filter(s -> !s.isEmpty())
                     .toList();
-            ClassPattern klass = ofC(splits.get(0));
+            ClassPattern klass = parseClassPattern(splits.get(0));
             TypePattern type = parseTypePattern(splits.get(1));
             NamePattern name = parseNamePattern(splits.get(2));
             return new FieldPattern(klass, type, name);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid field pattern: " + fp);
+            throw new IllegalArgumentException("Invalid field pattern: " + pattern);
         }
     }
 

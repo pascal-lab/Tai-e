@@ -22,14 +22,22 @@ public class PatternTest {
 
     @Test
     void testNamePattern() {
-        assertEquals(NP("**"), parseNamePattern("**"));
-        assertEquals(NP("*"), parseNamePattern("*"));
-        assertEquals(NP("ABC"), parseNamePattern("ABC"));
-        assertEquals(NP("com", "**", "X"), parseNamePattern("com**X"));
-        assertEquals(NP("com.example.", "*"), parseNamePattern("com.example.*"));
-        assertEquals(NP("com.example.", "*", ".abc.", "**"), parseNamePattern("com.example.*.abc.**"));
-        assertEquals(NP("com.example.", "**", ".abc.", "*"), parseNamePattern("com.example.**.abc.*"));
-        assertEquals(NP("com.example.", "**", ".abc.", "*", ".def"), parseNamePattern("com.example.**.abc.*.def"));
+        assertEquals(NP("**"),
+                parseNamePattern("**"));
+        assertEquals(NP("*"),
+                parseNamePattern("*"));
+        assertEquals(NP("ABC"),
+                parseNamePattern("ABC"));
+        assertEquals(NP("com", "**", "X"),
+                parseNamePattern("com**X"));
+        assertEquals(NP("com.example.", "*"),
+                parseNamePattern("com.example.*"));
+        assertEquals(NP("com.example.", "*", ".abc.", "**"),
+                parseNamePattern("com.example.*.abc.**"));
+        assertEquals(NP("com.example.", "**", ".abc.", "*"),
+                parseNamePattern("com.example.**.abc.*"));
+        assertEquals(NP("com.example.", "**", ".abc.", "*", ".def"),
+                parseNamePattern("com.example.**.abc.*.def"));
     }
 
     /**
@@ -48,15 +56,24 @@ public class PatternTest {
 
     @Test
     void testClassPattern() {
-        assertEquals(CP1("com.example.", "*"), ofC("com.example.*"));
-        assertEquals(CP1("com", "**", "X"), ofC("com**X"));
-        assertEquals(CP1("com.example.", "*", ".abc.", "**"), ofC("com.example.*.abc.**"));
-        assertEquals(CP1("com.example.", "**", ".abc.", "*"), ofC("com.example.**.abc.*"));
-        assertEquals(CP1("com.example.", "**", ".abc.", "*", ".def"), ofC("com.example.**.abc.*.def"));
-        assertEquals(CP2("com", "**", "X"), ofC("com**X^"));
-        assertEquals(CP2("com.example.", "*", ".abc.", "**"), ofC("com.example.*.abc.**^"));
-        assertEquals(CP2("com.example.", "**", ".abc.", "*"), ofC("com.example.**.abc.*^"));
-        assertEquals(CP2("com.example.", "**", ".abc.", "*", ".def"), ofC("com.example.**.abc.*.def^"));
+        assertEquals(CP1("com.example.", "*"),
+                parseClassPattern("com.example.*"));
+        assertEquals(CP1("com", "**", "X"),
+                parseClassPattern("com**X"));
+        assertEquals(CP1("com.example.", "*", ".abc.", "**"),
+                parseClassPattern("com.example.*.abc.**"));
+        assertEquals(CP1("com.example.", "**", ".abc.", "*"),
+                parseClassPattern("com.example.**.abc.*"));
+        assertEquals(CP1("com.example.", "**", ".abc.", "*", ".def"),
+                parseClassPattern("com.example.**.abc.*.def"));
+        assertEquals(CP2("com", "**", "X"),
+                parseClassPattern("com**X^"));
+        assertEquals(CP2("com.example.", "*", ".abc.", "**"),
+                parseClassPattern("com.example.*.abc.**^"));
+        assertEquals(CP2("com.example.", "**", ".abc.", "*"),
+                parseClassPattern("com.example.**.abc.*^"));
+        assertEquals(CP2("com.example.", "**", ".abc.", "*", ".def"),
+                parseClassPattern("com.example.**.abc.*.def^"));
     }
 
     /**
@@ -82,7 +99,7 @@ public class PatternTest {
                         NP("foo"),
                         List.of(TP1("java.lang.String"), TP1("int"))
                 ),
-                ofM("<com.example.*: int foo(java.lang.String,int)>")
+                parseMethodPattern("<com.example.*: int foo(java.lang.String,int)>")
         );
         assertEquals(
                 new MethodPattern(
@@ -91,7 +108,7 @@ public class PatternTest {
                         NP("foo"),
                         List.of(TP1("java.lang.String"), PARAM_WILDCARD)
                 ),
-                ofM("<com.example.*: int foo(java.lang.String,~)>")
+                parseMethodPattern("<com.example.*: int foo(java.lang.String,~)>")
         );
         assertEquals(
                 new MethodPattern(
@@ -101,7 +118,7 @@ public class PatternTest {
                         List.of(TP1("java.lang.String"), PARAM_WILDCARD,
                                 TP1("int"), PARAM_WILDCARD)
                 ),
-                ofM("<com.example.*: int foo*(java.lang.String,~,int,~)>")
+                parseMethodPattern("<com.example.*: int foo*(java.lang.String,~,int,~)>")
         );
         assertEquals(
                 new MethodPattern(
@@ -111,7 +128,7 @@ public class PatternTest {
                         List.of(TP2("java.util.Collection"), PARAM_WILDCARD,
                                 TP1("java.lang.String"), PARAM_WILDCARD)
                 ),
-                ofM("<com.example.*: void foo*(java.util.Collection^,~,java.lang.String,~)>")
+                parseMethodPattern("<com.example.*: void foo*(java.util.Collection^,~,java.lang.String,~)>")
         );
     }
 
@@ -123,7 +140,7 @@ public class PatternTest {
                         TP1("int"),
                         NP("field", "*")
                 ),
-                ofF("<com.example.*: int field*>")
+                parseFieldPattern("<com.example.*: int field*>")
         );
         assertEquals(
                 new FieldPattern(
@@ -131,7 +148,7 @@ public class PatternTest {
                         TP1("int"),
                         NP("field1")
                 ),
-                ofF("<com**X: int field1>")
+                parseFieldPattern("<com**X: int field1>")
         );
         assertEquals(
                 new FieldPattern(
@@ -139,7 +156,7 @@ public class PatternTest {
                         TP2("java.util.Collection"),
                         NP("field1")
                 ),
-                ofF("<com**X: java.util.Collection^ field1>")
+                parseFieldPattern("<com**X: java.util.Collection^ field1>")
         );
         assertEquals(
                 new FieldPattern(
@@ -147,7 +164,7 @@ public class PatternTest {
                         TP2("java.util.Collection"),
                         NP("field1")
                 ),
-                ofF("<com**X^: java.util.Collection^ field1>")
+                parseFieldPattern("<com**X^: java.util.Collection^ field1>")
         );
         assertEquals(
                 new FieldPattern(
@@ -155,7 +172,7 @@ public class PatternTest {
                         TP2("com.example.", "*"),
                         NP("field2")
                 ),
-                ofF("<com**X^: com.example.*^ field2>")
+                parseFieldPattern("<com**X^: com.example.*^ field2>")
         );
         assertEquals(
                 new FieldPattern(
@@ -163,7 +180,7 @@ public class PatternTest {
                         TP1("void"),
                         NP("field2")
                 ),
-                ofF("<com.example.*: void field2>")
+                parseFieldPattern("<com.example.*: void field2>")
         );
     }
 }
