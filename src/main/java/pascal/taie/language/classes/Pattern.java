@@ -22,8 +22,6 @@
 
 package pascal.taie.language.classes;
 
-import pascal.taie.util.Hashes;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,32 +55,10 @@ class Pattern {
         return new ClassPattern(parseNamePattern(pattern), includeSubclasses);
     }
 
-    static class ClassPattern {
+    record ClassPattern(NamePattern name, boolean includeSubclasses) {
 
-        private final NamePattern name;
-
-        private final boolean includeSubclasses;
-
-        ClassPattern(NamePattern name, boolean includeSubclasses) {
-            this.name = name;
-            this.includeSubclasses = includeSubclasses;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof ClassPattern other)) {
-                return false;
-            }
-            return name.equals(other.name)
-                    && includeSubclasses == other.includeSubclasses;
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(name, includeSubclasses);
+        boolean isExactMatch() {
+            return !name.hasWildcard() && !includeSubclasses;
         }
 
         @Override
@@ -120,6 +96,11 @@ class Pattern {
     }
 
     record NamePattern(List<NameUnit> units) {
+
+        boolean hasWildcard() {
+            return units.stream().anyMatch(u -> !(u instanceof StringUnit));
+        }
+
         @Override
         public String toString() {
             return units.stream()
@@ -175,6 +156,14 @@ class Pattern {
 
     record MethodPattern(ClassPattern klass,
                          TypePattern retType, NamePattern name, List<ParamUnit> params) {
+        boolean isExactMatch() {
+            return klass.isExactMatch()
+                    && retType.isExactMatch()
+                    && !name.hasWildcard()
+                    && params.stream().allMatch(
+                            u -> (u instanceof TypePattern tp) && tp.isExactMatch());
+        }
+
         @Override
         public String toString() {
             return "<" + klass + ": " + retType +
@@ -212,36 +201,10 @@ class Pattern {
         return new TypePattern(parseNamePattern(pattern), includeSubtypes);
     }
 
-    static class TypePattern implements ParamUnit {
+    record TypePattern(NamePattern name, boolean includeSubtypes) implements ParamUnit {
 
-        private final NamePattern name;
-
-        private final boolean includeSubtypes;
-
-        TypePattern(NamePattern name, boolean includeSubtypes) {
-            this.name = name;
-            this.includeSubtypes = includeSubtypes;
-        }
-
-        NamePattern getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof TypePattern other)) {
-                return false;
-            }
-            return name.equals(other.name)
-                    && includeSubtypes == other.includeSubtypes;
-        }
-
-        @Override
-        public int hashCode() {
-            return Hashes.hash(name, includeSubtypes);
+        boolean isExactMatch() {
+            return !name.hasWildcard() && !includeSubtypes;
         }
 
         @Override
@@ -269,6 +232,12 @@ class Pattern {
 
     record FieldPattern(ClassPattern klass,
                         TypePattern type, NamePattern name) {
+        boolean isExactMatch() {
+            return klass.isExactMatch()
+                    && type.isExactMatch()
+                    && !name.hasWildcard();
+        }
+
         @Override
         public String toString() {
             return "<" + klass + ": " + type + " " + name + ">";
