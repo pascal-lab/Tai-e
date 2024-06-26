@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static pascal.taie.language.classes.Pattern.*;
 
 public class PatternTest {
@@ -76,6 +78,15 @@ public class PatternTest {
                 parseClassPattern("com.example.**.abc.*.def^"));
     }
 
+    @Test
+    void testClassPatternIsExactMatch() {
+        assertTrue(parseClassPattern("com.example.X").isExactMatch());
+        assertTrue(parseClassPattern("X").isExactMatch());
+        assertFalse(parseClassPattern("com.example.*").isExactMatch());
+        assertFalse(parseClassPattern("**.X").isExactMatch());
+        assertFalse(parseClassPattern("com.example.X^").isExactMatch());
+    }
+
     /**
      * Type pattern, without subtypes.
      */
@@ -133,6 +144,19 @@ public class PatternTest {
     }
 
     @Test
+    void testMethodPatternIsExactMatch() {
+        assertTrue(parseMethodPattern("<A: B foo(C)>").isExactMatch());
+        assertTrue(parseMethodPattern("<A: B foo(C,D)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A*: B foo(C)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B* foo(C)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo*(C)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C*)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C^,D)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C,~,D)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C,~)>").isExactMatch());
+    }
+
+    @Test
     void testFieldPattern() {
         assertEquals(
                 new FieldPattern(
@@ -182,5 +206,14 @@ public class PatternTest {
                 ),
                 parseFieldPattern("<com.example.*: void field2>")
         );
+    }
+
+    @Test
+    void testFieldPatternIsExactMatch() {
+        assertTrue(parseFieldPattern("<A: B foo>").isExactMatch());
+        assertFalse(parseFieldPattern("<A*: B foo>").isExactMatch());
+        assertFalse(parseFieldPattern("<A^: B foo>").isExactMatch());
+        assertFalse(parseFieldPattern("<A: B* foo>").isExactMatch());
+        assertFalse(parseFieldPattern("<A: B^ foo>").isExactMatch());
     }
 }
