@@ -47,8 +47,12 @@ public class Matcher {
                 result.add(klass);
             }
         } else {
-            // TODO: process name pattern with wildcard
+            // Iterate the whole class hierarchy to find matched classes.
+            // This operation MAY cause performance issues.
             java.util.regex.Pattern regex = toRegex(name);
+            hierarchy.allClasses()
+                    .filter(c -> regex.matcher(c.getName()).matches())
+                    .forEach(result::add);
         }
         if (classPattern.includeSubclasses()) {
             new ArrayList<>(result).forEach(c ->
@@ -57,7 +61,7 @@ public class Matcher {
         return result;
     }
 
-    static java.util.regex.Pattern toRegex(Pattern.NamePattern namePattern) {
+    private static java.util.regex.Pattern toRegex(Pattern.NamePattern namePattern) {
         StringBuilder regex = new StringBuilder("^");
         namePattern.forEach(unit -> {
             if (unit.equals(Pattern.FULLNAME_WILDCARD)) {
@@ -67,7 +71,7 @@ public class Matcher {
             } else {
                 ((Pattern.StringUnit) unit).content()
                         .chars()
-                        .forEach(c -> regex.append((c != '.') ? c : "\\."));
+                        .forEach(c -> regex.append((c != '.') ? (char) c : "\\."));
             }
         });
         regex.append('$');
