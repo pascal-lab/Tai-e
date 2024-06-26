@@ -22,8 +22,10 @@
 
 package pascal.taie.language.classes;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -95,10 +97,15 @@ class Pattern {
         return new NamePattern(units);
     }
 
-    record NamePattern(List<NameUnit> units) {
-
+    record NamePattern(List<NameUnit> units) implements Iterable<NameUnit> {
         boolean hasWildcard() {
             return units.stream().anyMatch(u -> !(u instanceof StringUnit));
+        }
+
+        @Nonnull
+        @Override
+        public Iterator<NameUnit> iterator() {
+            return units.iterator();
         }
 
         @Override

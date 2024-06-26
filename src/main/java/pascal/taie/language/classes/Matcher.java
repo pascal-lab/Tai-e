@@ -48,12 +48,30 @@ public class Matcher {
             }
         } else {
             // TODO: process name pattern with wildcard
+            java.util.regex.Pattern regex = toRegex(name);
         }
         if (classPattern.includeSubclasses()) {
             new ArrayList<>(result).forEach(c ->
                     result.addAll(hierarchy.getAllSubclassesOf(c)));
         }
         return result;
+    }
+
+    static java.util.regex.Pattern toRegex(Pattern.NamePattern namePattern) {
+        StringBuilder regex = new StringBuilder("^");
+        namePattern.forEach(unit -> {
+            if (unit.equals(Pattern.FULLNAME_WILDCARD)) {
+                regex.append(".*");
+            } else if (unit.equals(Pattern.NAME_WILDCARD)) {
+                regex.append("[^\\.]*");
+            } else {
+                ((Pattern.StringUnit) unit).content()
+                        .chars()
+                        .forEach(c -> regex.append((c != '.') ? c : "\\."));
+            }
+        });
+        regex.append('$');
+        return java.util.regex.Pattern.compile(regex.toString());
     }
 
     public Set<JMethod> getMethods(String methodPattern) {
