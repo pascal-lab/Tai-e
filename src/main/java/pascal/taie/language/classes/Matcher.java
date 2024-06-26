@@ -22,6 +22,8 @@
 
 package pascal.taie.language.classes;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Matcher {
@@ -32,24 +34,38 @@ public class Matcher {
         this.hierarchy = hierarchy;
     }
 
-    public Set<JClass> getClasses(String cp) {
-        return getClasses(Pattern.ofC(cp));
+    public Set<JClass> getClasses(String classPattern) {
+        return getClasses(Pattern.parseClassPattern(classPattern));
     }
 
     Set<JClass> getClasses(Pattern.ClassPattern classPattern) {
-        throw new UnsupportedOperationException();
+        Set<JClass> result = new LinkedHashSet<>();
+        Pattern.NamePattern name = classPattern.name();
+        if (!name.hasWildcard()) {
+            JClass klass = hierarchy.getClass(classPattern.toString());
+            if (klass != null) {
+                result.add(klass);
+            }
+        } else {
+            // TODO: process name pattern with wildcard
+        }
+        if (classPattern.includeSubclasses()) {
+            new ArrayList<>(result).forEach(c ->
+                    result.addAll(hierarchy.getAllSubclassesOf(c)));
+        }
+        return result;
     }
 
-    public Set<JMethod> getMethods(String mp) {
-        return getMethods(Pattern.ofM(mp));
+    public Set<JMethod> getMethods(String methodPattern) {
+        return getMethods(Pattern.parseMethodPattern(methodPattern));
     }
 
     Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
         throw new UnsupportedOperationException();
     }
 
-    public Set<JField> getFields(String fp) {
-        return getFields(Pattern.ofF(fp));
+    public Set<JField> getFields(String fieldPattern) {
+        return getFields(Pattern.parseFieldPattern(fieldPattern));
     }
 
     Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
