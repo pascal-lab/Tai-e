@@ -37,8 +37,6 @@ class Pattern {
 
     static final String SUB_MARK = "^";
 
-    static final String FULLNAME_WILDCARD_MARK = "**";
-
     static final String NAME_WILDCARD_MARK = "*";
 
     static final String PARAM_WILDCARD_MARK = "~";
@@ -78,12 +76,7 @@ class Pattern {
                 if (lastI < i) { // match string
                     units.add(new StringUnit(pattern.substring(lastI, i)));
                 }
-                if (i + 1 < pattern.length() && pattern.charAt(i + 1) == '*') { // match **
-                    units.add(FULLNAME_WILDCARD);
-                    ++i;
-                } else { // match *
-                    units.add(NAME_WILDCARD);
-                }
+                units.add(NAME_WILDCARD); // match wildcard (*)
                 lastI = ++i;
             } else if (Character.isJavaIdentifierPart(c) || c == '.') {
                 ++i;
@@ -91,7 +84,7 @@ class Pattern {
                 throw new IllegalArgumentException("Invalid name pattern: " + pattern);
             }
         }
-        if (lastI < i) { // match rest string
+        if (lastI < i) { // match last string
             units.add(new StringUnit(pattern.substring(lastI, i)));
         }
         return new NamePattern(units);
@@ -99,7 +92,7 @@ class Pattern {
 
     record NamePattern(List<NameUnit> units) implements Iterable<NameUnit> {
         boolean hasWildcard() {
-            return units.stream().anyMatch(u -> !(u instanceof StringUnit));
+            return units.stream().anyMatch(NAME_WILDCARD::equals);
         }
 
         @Nonnull
@@ -118,13 +111,6 @@ class Pattern {
 
     interface NameUnit {
     }
-
-    static final NameUnit FULLNAME_WILDCARD = new NameUnit() {
-        @Override
-        public String toString() {
-            return FULLNAME_WILDCARD_MARK;
-        }
-    };
 
     static final NameUnit NAME_WILDCARD = new NameUnit() {
         @Override

@@ -25,8 +25,6 @@ public class PatternTest {
     void testNamePattern() {
         assertEquals(NP("*"),
                 parseNamePattern("*"));
-        assertEquals(NP("*"),
-                parseNamePattern("*"));
         assertEquals(NP("ABC"),
                 parseNamePattern("ABC"));
         assertEquals(NP("com", "*", "X"),
@@ -154,8 +152,8 @@ public class PatternTest {
         assertFalse(parseMethodPattern("<A: B foo*(C)>").isExactMatch());
         assertFalse(parseMethodPattern("<A: B foo(C*)>").isExactMatch());
         assertFalse(parseMethodPattern("<A: B foo(C^,D)>").isExactMatch());
-        assertFalse(parseMethodPattern("<A: B foo(C,~,D)>").isExactMatch());
-        assertFalse(parseMethodPattern("<A: B foo(C,~)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C,*{0+},D)>").isExactMatch());
+        assertFalse(parseMethodPattern("<A: B foo(C,*{0+})>").isExactMatch());
     }
 
     @Test

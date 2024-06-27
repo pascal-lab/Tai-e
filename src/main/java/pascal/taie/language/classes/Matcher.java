@@ -64,10 +64,8 @@ public class Matcher {
     private static java.util.regex.Pattern toRegex(Pattern.NamePattern namePattern) {
         StringBuilder regex = new StringBuilder("^");
         namePattern.forEach(unit -> {
-            if (unit.equals(Pattern.FULLNAME_WILDCARD)) {
+            if (unit.equals(Pattern.NAME_WILDCARD)) {
                 regex.append(".*");
-            } else if (unit.equals(Pattern.NAME_WILDCARD)) {
-                regex.append("[^\\.]*");
             } else {
                 ((Pattern.StringUnit) unit).content()
                         .chars()
