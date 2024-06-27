@@ -28,7 +28,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+
+import static java.util.regex.Pattern.compile;
 
 /**
  * Pattern representation and parsing.
@@ -38,8 +41,6 @@ class Pattern {
     static final String SUB_MARK = "^";
 
     static final String NAME_WILDCARD_MARK = "*";
-
-    static final String PARAM_WILDCARD_MARK = "~";
 
     /**
      * ClassPattern -> NamePattern[^]
@@ -153,8 +154,7 @@ class Pattern {
             return klass.isExactMatch()
                     && retType.isExactMatch()
                     && !name.hasWildcard()
-                    && params.stream().allMatch(
-                            u -> (u instanceof TypePattern tp) && tp.isExactMatch());
+                    && params.stream().allMatch(ParamUnit::isExactMatch);
         }
 
         @Override
@@ -169,19 +169,27 @@ class Pattern {
     }
 
     static ParamUnit parseParamUnit(String pattern) {
-        return pattern.equals(PARAM_WILDCARD_MARK)
-                ? PARAM_WILDCARD : parseTypePattern(pattern);
+        int i = pattern.indexOf('{'); // check if pattern ends with {...}
+        if (i == -1) {
+            return new ParamUnit(parseTypePattern(pattern), Repeat.ONCE);
+        } else {
+            TypePattern type = parseTypePattern(pattern.substring(0, i));
+            Repeat repeat = Repeat.parse(pattern.substring(i));
+            return new ParamUnit(type, repeat);
+        }
     }
 
-    interface ParamUnit {
-    }
+    record ParamUnit(TypePattern type, Repeat repeat) {
+        boolean isExactMatch() {
+            return type.isExactMatch() && repeat.equals(Repeat.ONCE);
+        }
 
-    static final ParamUnit PARAM_WILDCARD = new ParamUnit() {
         @Override
         public String toString() {
-            return PARAM_WILDCARD_MARK;
+            String typeStr = type.toString();
+            return repeat.equals(Repeat.ONCE) ? typeStr : typeStr + repeat;
         }
-    };
+    }
 
     static TypePattern parseTypePattern(String pattern) {
         boolean includeSubtypes;
@@ -194,7 +202,7 @@ class Pattern {
         return new TypePattern(parseNamePattern(pattern), includeSubtypes);
     }
 
-    record TypePattern(NamePattern name, boolean includeSubtypes) implements ParamUnit {
+    record TypePattern(NamePattern name, boolean includeSubtypes) {
 
         boolean isExactMatch() {
             return !name.hasWildcard() && !includeSubtypes;
@@ -203,6 +211,53 @@ class Pattern {
         @Override
         public String toString() {
             return includeSubtypes ? name + SUB_MARK : name.toString();
+        }
+    }
+
+    record Repeat(int from, int to) {
+
+        private static final Repeat ONCE = new Repeat(1, 1);
+
+        private static final int MAX = Integer.MAX_VALUE;
+
+        // {N}
+        private static final java.util.regex.Pattern N = compile("\\{(\\d+)}");
+
+        // {N+}
+        private static final java.util.regex.Pattern N_OR_MORE = compile("\\{(\\d+)\\+}");
+
+        // {N-M}
+        private static final java.util.regex.Pattern RANGE = compile("\\{(\\d+)-(\\d+)}");
+
+        private static Repeat parse(String str) {
+            Matcher nOrMore = N_OR_MORE.matcher(str);
+            if (nOrMore.matches()) {
+                int from = Integer.parseInt(nOrMore.group(1));
+                return new Repeat(from, MAX);
+            }
+            Matcher n = N.matcher(str);
+            if (n.matches()) {
+                int times = Integer.parseInt(n.group(1));
+                return new Repeat(times, times);
+            }
+            Matcher range = RANGE.matcher(str);
+            if (range.matches()) {
+                int from = Integer.parseInt(n.group(1));
+                int to = Integer.parseInt(n.group(2));
+                return new Repeat(from, to);
+            }
+            throw new IllegalArgumentException("Invalid parameter repetition: " + str);
+        }
+
+        @Override
+        public String toString() {
+            if (from == to) {
+                return "{" + from + "}";
+            } else if (to == MAX) {
+                return "{" + from + "+}";
+            } else {
+                return "{" + from + "-" + to + "}";
+            }
         }
     }
 
