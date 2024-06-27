@@ -216,9 +216,9 @@ class Pattern {
 
     record Repeat(int from, int to) {
 
-        private static final Repeat ONCE = new Repeat(1, 1);
+        public static final Repeat ONCE = new Repeat(1, 1);
 
-        private static final int MAX = Integer.MAX_VALUE;
+        public static final int MAX = Integer.MAX_VALUE;
 
         // {N}
         private static final java.util.regex.Pattern N = compile("\\{(\\d+)}");

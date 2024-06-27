@@ -98,6 +98,22 @@ public class PatternTest {
         return new TypePattern(NP(nps), true);
     }
 
+    private static ParamUnit PU1(String... nps) {
+        return new ParamUnit(TP1(nps), Repeat.ONCE);
+    }
+
+    private static ParamUnit PU1WithRepeat(int min, int max, String... nps) {
+        return new ParamUnit(TP1(nps), new Repeat(min, max));
+    }
+
+    private static ParamUnit PU2(String... nps) {
+        return new ParamUnit(TP2(nps), Repeat.ONCE);
+    }
+
+    private static ParamUnit PU2WithRepeat(int min, int max, String... nps) {
+        return new ParamUnit(TP2(nps), new Repeat(min, max));
+    }
+
     @Test
     void testMethodPattern() {
         assertEquals(
@@ -105,7 +121,7 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo"),
-                        List.of(TP1("java.lang.String"), TP1("int"))
+                        List.of(PU1("java.lang.String"), PU1("int"))
                 ),
                 parseMethodPattern("<com.example.*: int foo(java.lang.String,int)>")
         );
@@ -115,7 +131,7 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo"),
-                        List.of(TP1("java.lang.String"), PARAM_WILDCARD)
+                        List.of(PU1("java.lang.String"), PU1WithRepeat(0,Repeat.MAX,"*"))
                 ),
                 parseMethodPattern("<com.example.*: int foo(java.lang.String,*{0+})>")
         );
@@ -125,9 +141,9 @@ public class PatternTest {
                         CP1("org.example.", "*"),
                         TP1("boolean"),
                         NP("bar", "*"),
-                        List.of(TP1("java.lang.String"), PARAM_WILDCARD,
-                                TP1("int"), PARAM_WILDCARD,
-                                TP1("boolean"), PARAM_WILDCARD)
+                        List.of(PU1("java.lang.String"), PU1WithRepeat(2,2,"*"),
+                                PU1("int"), PU1WithRepeat(1,1,"*"),
+                                PU1("boolean"), PU1WithRepeat(1,1,"*"))
                 ),
                 parseMethodPattern("<org.example.*: boolean bar*(java.lang.String,*{2},int,*{1},boolean,*{1})>")
         );
@@ -137,8 +153,8 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo", "*"),
-                        List.of(TP1("java.lang.String"), PARAM_WILDCARD,
-                                TP1("int"), PARAM_WILDCARD)
+                        List.of(PU1("java.lang.String"), PU1WithRepeat(1,1,"*"),
+                                PU1("int"), PU1WithRepeat(0,Repeat.MAX,"*"))
                 ),
                 parseMethodPattern("<com.example.*: int foo*(java.lang.String,*{1},int,*{0+})>")
         );
@@ -146,12 +162,12 @@ public class PatternTest {
         assertEquals(
                 new MethodPattern(
                         CP1("com.test.", "*"),
-                        TP1("char"),
+                        TP1("int"),
                         NP("test", "*"),
-                        List.of(TP1("java.lang.Character"), PARAM_WILDCARD,
-                                TP1("java.lang.String"), PARAM_WILDCARD)
+                        List.of(PU1("java.lang.Character"), PU1WithRepeat(1,2,"*"),
+                                PU1("java.lang.String"), PU1WithRepeat(0,1,"*"))
                 ),
-                parseMethodPattern("<com.test.*: char test*(java.lang.Character,*{1-2},java.lang.String,*{0-1})>")
+                parseMethodPattern("<com.test.*: int test*(java.lang.Character,*{1-2},java.lang.String,*{0-1})>")
         );
 
         assertEquals(
@@ -159,10 +175,10 @@ public class PatternTest {
                         CP1("example.test.", "*"),
                         TP1("float"),
                         NP("exampleMethod", "*"),
-                        List.of(TP1("java.lang.Float"), PARAM_WILDCARD,
-                                TP1("java.lang.Object"), PARAM_WILDCARD)
+                        List.of(PU1("java.lang.Float"), PU1WithRepeat(3,3,"*X"),
+                                PU1("java.lang.Object"), PU2WithRepeat(0,1,"com*X"))
                 ),
-                parseMethodPattern("<example.test.*: float exampleMethod*(java.lang.Float,*X{3},java.lang.Object,com*X{0-1})>")
+                parseMethodPattern("<example.test.*: float exampleMethod*(java.lang.Float,*X{3},java.lang.Object,com*X^{0-1})>")
         );
 
         assertEquals(
@@ -170,8 +186,8 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("void"),
                         NP("foo", "*"),
-                        List.of(TP2("java.util.Collection"), PARAM_WILDCARD,
-                                TP1("java.lang.String"), PARAM_WILDCARD)
+                        List.of(PU2("java.util.Collection"), PU1WithRepeat(0,Repeat.MAX,"*"),
+                                PU1("java.lang.String"), PU1WithRepeat(0,Repeat.MAX,"*"))
                 ),
                 parseMethodPattern("<com.example.*: void foo*(java.util.Collection^,*{0+},java.lang.String,*{0+})>")
         );
