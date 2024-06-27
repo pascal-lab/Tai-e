@@ -2,6 +2,16 @@ package com.example;
 
 public class Y {
 
+    XFather xFatherField;
+
+    X1 x1Field;
+
+    com.example1.X1 x11Field;
+
+    com.example1.X xxField;
+
+    Y yField;
+
     public void fun(X x) {
     }
 

@@ -14,6 +14,7 @@ public class MatcherTest {
     private static final String CLASS_PATH = "src/test/resources/sigmatcher/";
 
     private static final String MAIN_CLASS = "com.example.X";
+
     @BeforeAll
     public static void buildWorld() {
         Main.buildWorld("-cp", CLASS_PATH, "-m", MAIN_CLASS);
@@ -76,6 +77,32 @@ public class MatcherTest {
 
     @Test
     void testGetFieldFromPattern() {
+        ClassHierarchy classHierarchy = World.get().getClassHierarchy();
+        Matcher matcher = new Matcher(classHierarchy);
+        JField x_XFather = classHierarchy.getField("<com.example.X: com.example.XFather xFatherField>");
+        JField x_x1 = classHierarchy.getField("<com.example.X: com.example.X1 x1Field>");
+        JField x_e1_x1 = classHierarchy.getField("<com.example.X: com.example1.X1 x11Field>");
+        JField x_e1_x = classHierarchy.getField("<com.example.X: com.example1.X xxField>");
+        JField y_XFather = classHierarchy.getField("<com.example.Y: com.example.XFather xFatherField>");
+        JField y_y = classHierarchy.getField("<com.example.Y: com.example.Y yField>");
+        JField y_x1 = classHierarchy.getField("<com.example.Y: com.example.X1 x1Field>");
+        JField y_e1_x1 = classHierarchy.getField("<com.example.Y: com.example1.X1 x11Field>");
+        JField y_e1_x = classHierarchy.getField("<com.example.Y: com.example1.X xxField>");
+        JField XFather_XFather = classHierarchy.getField("<com.example.XFather: com.example.XFather xFatherField>");
+        JField XFather_x1 = classHierarchy.getField("<com.example.XFather: com.example.X1 x1Field>");
+        JField XFather_e1_x1 = classHierarchy.getField("<com.example.XFather: com.example1.X1 x11Field>");
+        JField XFather_e1_x = classHierarchy.getField("<com.example.XFather: com.example1.X xxField>");
+        JField e1_x1_x_x1 = classHierarchy.getField("<com.example1.X1: com.example1.X1 x1Field>");
+        JField e1_x1_x_x = classHierarchy.getField("<com.example1.X1: com.example1.X xField>");
 
+        assertEquals(Set.of(x_XFather, XFather_XFather), matcher.getFields(Pattern.parseFieldPattern("<com.example.XFather^: com.example.XFather xFatherField>")));
+        assertEquals(Set.of(x_XFather, XFather_XFather, y_XFather), matcher.getFields(Pattern.parseFieldPattern("<*: com.example.XFather xFatherField>")));
+        assertEquals(Set.of(x_x1, y_x1, XFather_x1), matcher.getFields(Pattern.parseFieldPattern("<*: com.example.X1 x1Field>")));
+        assertEquals(Set.of(x_x1, x_e1_x1, y_x1, y_e1_x1, XFather_x1, XFather_e1_x1, e1_x1_x_x1), matcher.getFields(Pattern.parseFieldPattern("<*: *X1 *>")));
+        assertEquals(Set.of(x_e1_x, y_e1_x, XFather_e1_x, e1_x1_x_x), matcher.getFields(Pattern.parseFieldPattern("<*: *X *>")));
+        assertEquals(Set.of(x_XFather, x_x1, y_XFather, y_x1, XFather_XFather, XFather_x1), matcher.getFields(Pattern.parseFieldPattern("<*: com.example.XFather^ *>")));
+        assertEquals(Set.of(y_y), matcher.getFields(Pattern.parseFieldPattern("<*: * yField>")));
+        assertEquals(Set.of(x_e1_x, y_e1_x, XFather_e1_x), matcher.getFields(Pattern.parseFieldPattern("<*: * xx*>")));
+        assertEquals(Set.of(e1_x1_x_x1, e1_x1_x_x), matcher.getFields(Pattern.parseFieldPattern("<com.example1.X1: * *>")));
     }
 }

@@ -4,6 +4,13 @@ import com.example1.*;
 
 public class X extends XFather {
 
+    XFather xFatherField;
+
+    X1 x1Field;
+
+    com.example1.X1 x11Field;
+
+    com.example1.X xxField;
     public void foo(String message) {
         message = "str"
     }
