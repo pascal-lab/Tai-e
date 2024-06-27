@@ -119,7 +119,19 @@ public class PatternTest {
                 ),
                 parseMethodPattern("<com.example.*: int foo(java.lang.String,*{0+})>")
         );
-        //TODO: The method pattern for *{} is not defined
+
+        assertEquals(
+                new MethodPattern(
+                        CP1("org.example.", "*"),
+                        TP1("boolean"),
+                        NP("bar", "*"),
+                        List.of(TP1("java.lang.String"), PARAM_WILDCARD,
+                                TP1("int"), PARAM_WILDCARD,
+                                TP1("boolean"), PARAM_WILDCARD)
+                ),
+                parseMethodPattern("<org.example.*: boolean bar*(java.lang.String,*{2},int,*{1},boolean,*{1})>")
+        );
+
         assertEquals(
                 new MethodPattern(
                         CP1("com.example.", "*"),
@@ -130,7 +142,29 @@ public class PatternTest {
                 ),
                 parseMethodPattern("<com.example.*: int foo*(java.lang.String,*{1},int,*{0+})>")
         );
-        //TODO: The method pattern for *{} is not defined
+
+        assertEquals(
+                new MethodPattern(
+                        CP1("com.test.", "*"),
+                        TP1("char"),
+                        NP("test", "*"),
+                        List.of(TP1("java.lang.Character"), PARAM_WILDCARD,
+                                TP1("java.lang.String"), PARAM_WILDCARD)
+                ),
+                parseMethodPattern("<com.test.*: char test*(java.lang.Character,*{1-2},java.lang.String,*{0-1})>")
+        );
+
+        assertEquals(
+                new MethodPattern(
+                        CP1("example.test.", "*"),
+                        TP1("float"),
+                        NP("exampleMethod", "*"),
+                        List.of(TP1("java.lang.Float"), PARAM_WILDCARD,
+                                TP1("java.lang.Object"), PARAM_WILDCARD)
+                ),
+                parseMethodPattern("<example.test.*: float exampleMethod*(java.lang.Float,*X{3},java.lang.Object,com*X{0-1})>")
+        );
+
         assertEquals(
                 new MethodPattern(
                         CP1("com.example.", "*"),
