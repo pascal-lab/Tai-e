@@ -214,11 +214,11 @@ class Pattern {
         }
     }
 
-    record Repeat(int from, int to) {
+    record Repeat(int min, int max) {
 
-        public static final Repeat ONCE = new Repeat(1, 1);
+        static final Repeat ONCE = new Repeat(1, 1);
 
-        public static final int MAX = Integer.MAX_VALUE;
+        static final int MAX = Integer.MAX_VALUE;
 
         // {N}
         private static final java.util.regex.Pattern N = compile("\\{(\\d+)}");
@@ -232,8 +232,8 @@ class Pattern {
         private static Repeat parse(String str) {
             Matcher nOrMore = N_OR_MORE.matcher(str);
             if (nOrMore.matches()) {
-                int from = Integer.parseInt(nOrMore.group(1));
-                return new Repeat(from, MAX);
+                int min = Integer.parseInt(nOrMore.group(1));
+                return new Repeat(min, MAX);
             }
             Matcher n = N.matcher(str);
             if (n.matches()) {
@@ -242,21 +242,21 @@ class Pattern {
             }
             Matcher range = RANGE.matcher(str);
             if (range.matches()) {
-                int from = Integer.parseInt(n.group(1));
-                int to = Integer.parseInt(n.group(2));
-                return new Repeat(from, to);
+                int min = Integer.parseInt(range.group(1));
+                int max = Integer.parseInt(range.group(2));
+                return new Repeat(min, max);
             }
             throw new IllegalArgumentException("Invalid parameter repetition: " + str);
         }
 
         @Override
         public String toString() {
-            if (from == to) {
-                return "{" + from + "}";
-            } else if (to == MAX) {
-                return "{" + from + "+}";
+            if (min == max) {
+                return "{" + min + "}";
+            } else if (max == MAX) {
+                return "{" + min + "+}";
             } else {
-                return "{" + from + "-" + to + "}";
+                return "{" + min + "-" + max + "}";
             }
         }
     }
