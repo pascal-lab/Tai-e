@@ -98,20 +98,12 @@ public class PatternTest {
         return new TypePattern(NP(nps), true);
     }
 
-    private static ParamUnit PU1(String... nps) {
+    private static ParamUnit PU(TypePattern type, int min, int max) {
+        return new ParamUnit(type, new Repeat(min, max));
+    }
+
+    private static ParamUnit PU(String... nps) {
         return new ParamUnit(TP1(nps), Repeat.ONCE);
-    }
-
-    private static ParamUnit PU1WithRepeat(int min, int max, String... nps) {
-        return new ParamUnit(TP1(nps), new Repeat(min, max));
-    }
-
-    private static ParamUnit PU2(String... nps) {
-        return new ParamUnit(TP2(nps), Repeat.ONCE);
-    }
-
-    private static ParamUnit PU2WithRepeat(int min, int max, String... nps) {
-        return new ParamUnit(TP2(nps), new Repeat(min, max));
     }
 
     @Test
@@ -121,73 +113,79 @@ public class PatternTest {
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo"),
-                        List.of(PU1("java.lang.String"), PU1("int"))
+                        List.of(PU("java.lang.String"), PU("int"))
                 ),
                 parseMethodPattern("<com.example.*: int foo(java.lang.String,int)>")
         );
-        //TODO: The method pattern for *{} is not defined
         assertEquals(
                 new MethodPattern(
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo"),
-                        List.of(PU1("java.lang.String"), PU1WithRepeat(0,Repeat.MAX,"*"))
+                        List.of(PU("java.lang.String"),
+                                PU(TP1("*"), 0, Repeat.MAX))
                 ),
                 parseMethodPattern("<com.example.*: int foo(java.lang.String,*{0+})>")
         );
-
         assertEquals(
                 new MethodPattern(
                         CP1("org.example.", "*"),
                         TP1("boolean"),
                         NP("bar", "*"),
-                        List.of(PU1("java.lang.String"), PU1WithRepeat(2,2,"*"),
-                                PU1("int"), PU1WithRepeat(1,1,"*"),
-                                PU1("boolean"), PU1WithRepeat(1,1,"*"))
+                        List.of(PU("java.lang.String"),
+                                PU(TP1("*"), 2, 2),
+                                PU("int"),
+                                PU(TP1("*"), 1, 1),
+                                PU("boolean"),
+                                PU(TP1("*"), 1, 1))
                 ),
                 parseMethodPattern("<org.example.*: boolean bar*(java.lang.String,*{2},int,*{1},boolean,*{1})>")
         );
-
         assertEquals(
                 new MethodPattern(
                         CP1("com.example.", "*"),
                         TP1("int"),
                         NP("foo", "*"),
-                        List.of(PU1("java.lang.String"), PU1WithRepeat(1,1,"*"),
-                                PU1("int"), PU1WithRepeat(0,Repeat.MAX,"*"))
+                        List.of(PU("java.lang.String"),
+                                PU(TP1("*"), 1, 1),
+                                PU("int"),
+                                PU(TP1("*"), 0, Repeat.MAX))
                 ),
                 parseMethodPattern("<com.example.*: int foo*(java.lang.String,*{1},int,*{0+})>")
         );
-
         assertEquals(
                 new MethodPattern(
                         CP1("com.test.", "*"),
                         TP1("int"),
                         NP("test", "*"),
-                        List.of(PU1("java.lang.Character"), PU1WithRepeat(1,2,"*"),
-                                PU1("java.lang.String"), PU1WithRepeat(0,1,"*"))
+                        List.of(PU("java.lang.Character"),
+                                PU(TP1("*"), 1, 2),
+                                PU("java.lang.String"),
+                                PU(TP1("*"), 0, 1))
                 ),
                 parseMethodPattern("<com.test.*: int test*(java.lang.Character,*{1-2},java.lang.String,*{0-1})>")
         );
-
         assertEquals(
                 new MethodPattern(
                         CP1("example.test.", "*"),
                         TP1("float"),
                         NP("exampleMethod", "*"),
-                        List.of(PU1("java.lang.Float"), PU1WithRepeat(3,3,"*X"),
-                                PU1("java.lang.Object"), PU2WithRepeat(0,1,"com*X"))
+                        List.of(PU("java.lang.Float"),
+                                PU(TP1("*", "X"), 3, 3),
+                                PU("java.lang.Object"),
+                                PU(TP2("com", "*", "X"), 0, 1))
                 ),
                 parseMethodPattern("<example.test.*: float exampleMethod*(java.lang.Float,*X{3},java.lang.Object,com*X^{0-1})>")
         );
-
         assertEquals(
                 new MethodPattern(
                         CP1("com.example.", "*"),
                         TP1("void"),
                         NP("foo", "*"),
-                        List.of(PU2("java.util.Collection"), PU1WithRepeat(0,Repeat.MAX,"*"),
-                                PU1("java.lang.String"), PU1WithRepeat(0,Repeat.MAX,"*"))
+                        List.of(PU(TP2("java.util.Collection"), 1, 1),
+                                PU(TP1("*"), 0, Repeat.MAX),
+                                PU("java.lang.String"),
+                                PU(TP1("*"), 0, Repeat.MAX))
                 ),
                 parseMethodPattern("<com.example.*: void foo*(java.util.Collection^,*{0+},java.lang.String,*{0+})>")
         );
@@ -197,6 +195,7 @@ public class PatternTest {
     void testMethodPatternIsExactMatch() {
         assertTrue(parseMethodPattern("<A: B foo(C)>").isExactMatch());
         assertTrue(parseMethodPattern("<A: B foo(C,D)>").isExactMatch());
+        assertTrue(parseMethodPattern("<A: B foo(C,D{1})>").isExactMatch());
         assertFalse(parseMethodPattern("<A*: B foo(C)>").isExactMatch());
         assertFalse(parseMethodPattern("<A: B* foo(C)>").isExactMatch());
         assertFalse(parseMethodPattern("<A: B foo*(C)>").isExactMatch());
