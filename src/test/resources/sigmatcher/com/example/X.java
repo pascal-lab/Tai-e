@@ -1,7 +1,5 @@
 package com.example;
 
-import com.example1.*;
-
 public class X extends XFather {
 
     XFather xFatherField;
@@ -11,14 +9,13 @@ public class X extends XFather {
     com.example1.X1 x11Field;
 
     com.example1.X xxField;
-    public void foo(String message) {
-        message = "str"
+
+    @Override
+    public void foo(String s) {
     }
 
-    public void foo(int number) {
-        if (number == 0) {
-            number = 1
-        }
+    @Override
+    public void foo(int n) {
     }
 
     public static void main(String[] args) {

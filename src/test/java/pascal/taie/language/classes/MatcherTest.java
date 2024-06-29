@@ -6,43 +6,57 @@ import pascal.taie.Main;
 import pascal.taie.World;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MatcherTest {
 
-    private static final String CLASS_PATH = "src/test/resources/sigmatcher/";
+    private static final String CLASS_PATH = "src/test/resources/sigmatcher";
 
     private static final String MAIN_CLASS = "com.example.X";
+
+    private static ClassHierarchy hierarchy;
+
+    private static Matcher matcher;
 
     @BeforeAll
     public static void buildWorld() {
         Main.buildWorld("-cp", CLASS_PATH, "-m", MAIN_CLASS);
+        hierarchy = World.get().getClassHierarchy();
+        matcher = new Matcher(hierarchy);
     }
 
     @Test
-    void testGetClassFromPattern() {
-        ClassHierarchy classHierarchy = World.get().getClassHierarchy();
-        Matcher matcher = new Matcher(classHierarchy);
-        JClass e_x = classHierarchy.getClass("com.example.X");
-        JClass e_x1 = classHierarchy.getClass("com.example.X1");
-        JClass y = classHierarchy.getClass("com.example.Y");
-        JClass XFather = classHierarchy.getClass("com.example.XFather");
-        JClass e1_x = classHierarchy.getClass("com.example1.X");
-        JClass e1_x1 = classHierarchy.getClass("com.example1.X1");
+    void testGetClasses() {
+        JClass e_x = hierarchy.getClass("com.example.X");
+        JClass e_x1 = hierarchy.getClass("com.example.X1");
+        JClass y = hierarchy.getClass("com.example.Y");
+        JClass XFather = hierarchy.getClass("com.example.XFather");
+        JClass e1_x = hierarchy.getClass("com.example1.X");
+        JClass e1_x1 = hierarchy.getClass("com.example1.X1");
 
-        assertEquals(Set.of(e_x, e1_x), matcher.getClasses(Pattern.parseClassPattern("com*X")));
-        assertEquals(Set.of(e_x, y, XFather, e_x1), matcher.getClasses(Pattern.parseClassPattern("com.example.*")));
-        assertEquals(Set.of(e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("com.example1.*")));
-        assertEquals(Set.of(e_x1, e1_x1), matcher.getClasses(Pattern.parseClassPattern("com.*.X1")));
-        assertEquals(Set.of(e_x, e_x1, e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("*X*")));
-        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("*example*")));
-        assertEquals(Set.of(XFather), matcher.getClasses(Pattern.parseClassPattern("*a*a*")));
-        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("*e*e*")));
-        assertEquals(Set.of(XFather), matcher.getClasses(Pattern.parseClassPattern("*e*e*e*")));
-        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("*")));
-        assertEquals(Set.of(XFather, e_x, e_x1), matcher.getClasses(Pattern.parseClassPattern("*e*e*e*^")));
-        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1), matcher.getClasses(Pattern.parseClassPattern("*example*^")));
+        assertEquals(Set.of(e_x, e1_x),
+                matcher.getClasses(Pattern.parseClassPattern("com*X")));
+        assertEquals(Set.of(e_x, y, XFather, e_x1),
+                matcher.getClasses(Pattern.parseClassPattern("com.example.*")));
+        assertEquals(Set.of(e1_x, e1_x1),
+                matcher.getClasses(Pattern.parseClassPattern("com.example1.*")));
+        assertEquals(Set.of(e_x1, e1_x1),
+                matcher.getClasses(Pattern.parseClassPattern("com.*.X1")));
+        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
+                matcher.getClasses(Pattern.parseClassPattern("*example*")));
+        assertEquals(Set.of(XFather),
+                matcher.getClasses(Pattern.parseClassPattern("*.XFather")));
+        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
+                matcher.getClasses(Pattern.parseClassPattern("*"))
+                        .stream()
+                        .filter(JClass::isApplication)
+                        .collect(Collectors.toSet()));
+        assertEquals(Set.of(XFather, e_x, e_x1),
+                matcher.getClasses(Pattern.parseClassPattern("*.XFather^")));
+        assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
+                matcher.getClasses(Pattern.parseClassPattern("com.example*.*^")));
     }
 
     @Test

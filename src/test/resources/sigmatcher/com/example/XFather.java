@@ -13,12 +13,12 @@ public class XFather {
     public void foo() {
     }
 
-    public void foo(String message) {
+    public void foo(String s) {
     }
 
-    public void foo(int number) {
+    public void foo(int n) {
     }
 
-    public void foo(String message, int number) {
+    public void foo(String s, int n) {
     }
 }
