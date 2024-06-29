@@ -54,7 +54,7 @@ public class MatcherTest {
                         .filter(JClass::isApplication)
                         .collect(Collectors.toSet()));
         assertEquals(Set.of(XFather, e_x, e_x1),
-                matcher.getClasses(Pattern.parseClassPattern("*.XFather^")));
+                matcher.getClasses(Pattern.parseClassPattern("com.example.XFather^")));
         assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
                 matcher.getClasses(Pattern.parseClassPattern("com.example*.*^")));
     }

@@ -42,16 +42,16 @@ public class Matcher {
         Set<JClass> result = new LinkedHashSet<>();
         Pattern.NamePattern name = classPattern.name();
         if (!name.hasWildcard()) {
-            JClass klass = hierarchy.getClass(classPattern.toString());
+            JClass klass = hierarchy.getClass(name.toString());
             if (klass != null) {
                 result.add(klass);
             }
         } else {
             // Iterate the whole class hierarchy to find matched classes.
             // This operation MAY cause performance issues.
-            java.util.regex.Pattern regex = toRegex(name);
+            Predicate<String> nameMatcher = new NameMatcher(name);
             hierarchy.allClasses()
-                    .filter(c -> regex.matcher(c.getName()).matches())
+                    .filter(c -> nameMatcher.test(c.getName()))
                     .forEach(result::add);
         }
         if (classPattern.includeSubclasses()) {
@@ -59,21 +59,6 @@ public class Matcher {
                     result.addAll(hierarchy.getAllSubclassesOf(c)));
         }
         return result;
-    }
-
-    private static java.util.regex.Pattern toRegex(Pattern.NamePattern namePattern) {
-        StringBuilder regex = new StringBuilder("^");
-        namePattern.forEach(unit -> {
-            if (unit.equals(Pattern.NAME_WILDCARD)) {
-                regex.append(".*");
-            } else {
-                ((Pattern.StringUnit) unit).content()
-                        .chars()
-                        .forEach(c -> regex.append((c != '.') ? (char) c : "\\."));
-            }
-        });
-        regex.append('$');
-        return java.util.regex.Pattern.compile(regex.toString());
     }
 
     public Set<JMethod> getMethods(String methodPattern) {
@@ -90,5 +75,32 @@ public class Matcher {
 
     Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
         throw new UnsupportedOperationException();
+
+    private static class NameMatcher implements Predicate<String> {
+
+        private final Predicate<String> matcher;
+
+        private NameMatcher(Pattern.NamePattern pattern) {
+            StringBuilder regex = new StringBuilder("^");
+            pattern.forEach(unit -> {
+                if (unit.equals(Pattern.NAME_WILDCARD)) {
+                    regex.append(".*");
+                } else {
+                    ((Pattern.StringUnit) unit).content()
+                            .chars()
+                            .forEach(c -> regex.append((c != '.') ? (char) c : "\\."));
+                }
+            });
+            regex.append('$');
+            matcher = java.util.regex.Pattern.compile(regex.toString())
+                    .asMatchPredicate();
+        }
+
+        @Override
+        public boolean test(String s) {
+            return matcher.test(s);
+        }
+    }
+
     }
 }
