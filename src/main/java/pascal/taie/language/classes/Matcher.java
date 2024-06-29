@@ -22,9 +22,14 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class Matcher {
 
@@ -74,7 +79,26 @@ public class Matcher {
     }
 
     Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
-        throw new UnsupportedOperationException();
+        Set<JField> result = new LinkedHashSet<>();
+        if (fieldPattern.isExactMatch()) {
+            JField field = hierarchy.getField(fieldPattern.toString());
+            if (field != null) {
+                result.add(field);
+            }
+        } else {
+            Predicate<Type> typeMatcher = new TypeMatcher(fieldPattern.type());
+            Predicate<String> nameMatcher = new NameMatcher(fieldPattern.name());
+            var cs = getClasses(fieldPattern.klass());
+            getClasses(fieldPattern.klass())
+                    .stream()
+                    .map(JClass::getDeclaredFields)
+                    .flatMap(Collection::stream)
+                    .filter(field -> typeMatcher.test(field.getType())
+                            && nameMatcher.test(field.getName()))
+                    .forEach(result::add);
+        }
+        return result;
+    }
 
     private static class NameMatcher implements Predicate<String> {
 
@@ -102,5 +126,41 @@ public class Matcher {
         }
     }
 
+    /**
+     * If type pattern includes subtypes, we only consider class types.
+     */
+    private class TypeMatcher implements Predicate<Type> {
+
+        private final boolean includeSubtypes;
+
+        private final Set<JClass> superClasses;
+
+        private final NameMatcher matcher;
+
+        private TypeMatcher(Pattern.TypePattern pattern) {
+            includeSubtypes = pattern.includeSubtypes();
+            if (includeSubtypes) {
+                superClasses = getClasses(pattern.name().toString());
+                matcher = null;
+            } else {
+                superClasses = null;
+                matcher = new NameMatcher(pattern.name());
+            }
+        }
+
+        @Override
+        public boolean test(Type type) {
+            if (includeSubtypes) {
+                if (type instanceof ClassType classType) {
+                    JClass klass = classType.getJClass();
+                    return superClasses.stream()
+                            .anyMatch(c -> hierarchy.isSubclass(c, klass));
+                } else {
+                    return false;
+                }
+            } else {
+                return matcher.test(type.getName());
+            }
+        }
     }
 }
