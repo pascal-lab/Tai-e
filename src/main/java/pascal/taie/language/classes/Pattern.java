@@ -218,7 +218,10 @@ class Pattern {
 
         static final Repeat ONCE = new Repeat(1, 1);
 
-        static final int MAX = Integer.MAX_VALUE;
+        /**
+         * Upper bound of number of method parameters.
+         */
+        static final int MAX = 256;
 
         // {N}
         private static final java.util.regex.Pattern N = compile("\\{(\\d+)}");

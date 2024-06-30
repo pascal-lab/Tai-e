@@ -28,8 +28,11 @@ import pascal.taie.language.type.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Matcher {
 
@@ -71,7 +74,26 @@ public class Matcher {
     }
 
     Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
-        throw new UnsupportedOperationException();
+        Set<JMethod> result = new LinkedHashSet<>();
+        if (methodPattern.isExactMatch()) {
+            JMethod method = hierarchy.getMethod(methodPattern.toString());
+            if (method != null) {
+                result.add(method);
+            }
+        } else {
+            Predicate<Type> typeMatcher = new TypeMatcher(methodPattern.retType());
+            Predicate<String> nameMatcher = new NameMatcher(methodPattern.name());
+            Predicate<List<Type>> paramsMatcher = new ParamsMatcher(methodPattern.params());
+            getClasses(methodPattern.klass())
+                    .stream()
+                    .map(JClass::getDeclaredMethods)
+                    .flatMap(Collection::stream)
+                    .filter(method -> typeMatcher.test(method.getReturnType())
+                            && nameMatcher.test(method.getName())
+                            && paramsMatcher.test(method.getParamTypes()))
+                    .forEach(result::add);
+        }
+        return result;
     }
 
     public Set<JField> getFields(String fieldPattern) {
@@ -88,7 +110,6 @@ public class Matcher {
         } else {
             Predicate<Type> typeMatcher = new TypeMatcher(fieldPattern.type());
             Predicate<String> nameMatcher = new NameMatcher(fieldPattern.name());
-            var cs = getClasses(fieldPattern.klass());
             getClasses(fieldPattern.klass())
                     .stream()
                     .map(JClass::getDeclaredFields)
@@ -161,6 +182,62 @@ public class Matcher {
             } else {
                 return matcher.test(type.getName());
             }
+        }
+    }
+
+    private class ParamsMatcher implements Predicate<List<Type>> {
+
+        private final List<Pattern.ParamUnit> units;
+
+        private final Map<Pattern.TypePattern, TypeMatcher> typeMatchers;
+
+        private ParamsMatcher(List<Pattern.ParamUnit> units) {
+            this.units = units;
+            this.typeMatchers = units.stream()
+                    .map(Pattern.ParamUnit::type)
+                    .collect(Collectors.toMap(
+                            tp -> tp,
+                            TypeMatcher::new,
+                            (tm1, tm2) -> tm1));
+        }
+
+        @Override
+        public boolean test(List<Type> params) {
+            return matches(0, params, 0);
+        }
+
+        private boolean matches(int unitIndex, List<Type> params, int paramIndex) {
+            if (unitIndex == units.size()) { // all units have been matched
+                return paramIndex == params.size();
+            }
+            Pattern.ParamUnit currentUnit = units.get(unitIndex);
+            TypeMatcher typeMatcher = typeMatchers.get(currentUnit.type());
+            Pattern.Repeat repeat = currentUnit.repeat();
+            // iterate over times of repetition
+            for (int count = repeat.min(); count <= repeat.max(); ++count) {
+                // compute the range of parameters to be matched by currentUnit
+                // i.e., [paramIndex, nextParamIndex]
+                int nextParamIndex = paramIndex + count;
+                if (nextParamIndex > params.size()) {
+                    // exceed params, no need for further iteration
+                    break;
+                }
+                // matches currentUnit and parameter types
+                // in [paramIndex, nextParamIndex]
+                boolean match = true;
+                for (int i = paramIndex; i < nextParamIndex; ++i) {
+                    if (!typeMatcher.test(params.get(i))) {
+                        match = false;
+                        break;
+                    }
+                }
+                // currentUnit and [paramIndex, nextParamIndex] match,
+                // skip currentUnit and try to match the rest of units
+                if (match && matches(unitIndex + 1, params, nextParamIndex)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
