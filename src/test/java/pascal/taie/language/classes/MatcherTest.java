@@ -90,10 +90,33 @@ public class MatcherTest {
                 matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather^: void foo(java.lang.String)>")));
         assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.*)>")));
+        assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.Father^{1+})>")));
         assertEquals(Set.of(y_foo_X, y_foo_X1, y_foo_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: com.example.XFather^ foo(*{1+})>")));
         assertEquals(Set.of(x_foo_str, x_foo_int, XFather_foo, XFather_foo_int, XFather_foo_int, XFather_foo_str_and_int, y_foo_X, y_foo_X1, y_foo_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<*: * foo(*{0+})>")));
+    }
+
+    @Test
+    void testGetMethodFromPatternOfMultiParam() {
+        JMethod XFather_multi1 = hierarchy.getMethod("<com.example.XFather: void multi(java.lang.String,int,int)>");
+        JMethod XFather_multi2 = hierarchy.getMethod("<com.example.XFather: void multi(java.lang.String,int,char)>");
+        JMethod XFather_multi3 = hierarchy.getMethod("<com.example.XFather: void multi(java.lang.String,int,char,int)>");
+        JMethod XFather_multi4 = hierarchy.getMethod("<com.example.XFather: void multi(java.lang.String,int,char,int,byte)>");
+
+        assertEquals(Set.of(XFather_multi1, XFather_multi3),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{0+},int)>")));
+        assertEquals(Set.of(XFather_multi3),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{1+},int)>")));
+        assertEquals(Set.of(XFather_multi2, XFather_multi3, XFather_multi4),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{0+})>")));
+        assertEquals(Set.of(XFather_multi4),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,byte,*{0+})>")));
+        assertEquals(Set.of(XFather_multi3, XFather_multi4),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{1+})>")));
+        assertEquals(Set.of(XFather_multi1),
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,int{2+})>")));
     }
 
     @Test
