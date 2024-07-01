@@ -91,10 +91,12 @@ public class MatcherTest {
         assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.*)>")));
         assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.Father^{1+})>")));
+                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.XFather^{1+})>")));
         assertEquals(Set.of(y_foo_X, y_foo_X1, y_foo_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: com.example.XFather^ foo(*{1+})>")));
-        assertEquals(Set.of(x_foo_str, x_foo_int, XFather_foo, XFather_foo_int, XFather_foo_int, XFather_foo_str_and_int, y_foo_X, y_foo_X1, y_foo_XFather),
+        assertEquals(Set.of(XFather_foo, XFather_foo_str, XFather_foo_int, XFather_foo_str_and_int,
+                        x_foo_str, x_foo_int,
+                        y_foo_X, y_foo_X1, y_foo_XFather),
                 matcher.getMethods(Pattern.parseMethodPattern("<*: * foo(*{0+})>")));
     }
 
