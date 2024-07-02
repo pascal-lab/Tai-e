@@ -174,16 +174,13 @@ record TaintConfig(List<Source> sources,
      */
     private static class Deserializer extends JsonDeserializer<TaintConfig> {
 
-        private final ClassHierarchy hierarchy;
+        private final Matcher matcher;
 
         private final TypeSystem typeSystem;
 
-        private final Matcher matcher;
-
         private Deserializer(ClassHierarchy hierarchy, TypeSystem typeSystem) {
-            this.hierarchy = hierarchy;
-            this.typeSystem = typeSystem;
             this.matcher = new Matcher(hierarchy);
+            this.typeSystem = typeSystem;
         }
 
         @Override
@@ -432,18 +429,19 @@ record TaintConfig(List<Source> sources,
          */
         private List<ParamSanitizer> deserializeSanitizers(JsonNode node) {
             if (node instanceof ArrayNode arrayNode) {
-                List<ParamSanitizer> sanitizers = new ArrayList<>(arrayNode.size());
+                List<ParamSanitizer> result = new ArrayList<>();
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
-                    JMethod method = hierarchy.getMethod(methodSig);
-                    if (method != null) {
+                    List<ParamSanitizer> sanitizers = matcher.getMethods(methodSig).stream().map(method -> {
                         int index = InvokeUtils.toInt(elem.get("index").asText());
-                        sanitizers.add(new ParamSanitizer(method, index));
-                    } else {
+                        return new ParamSanitizer(method, index);
+                    }).toList();
+                    if (sanitizers.isEmpty()) {
                         logger.warn("Cannot find sanitizer method '{}'", methodSig);
                     }
+                    result.addAll(sanitizers);
                 }
-                return Collections.unmodifiableList(sanitizers);
+                return Collections.unmodifiableList(result);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
