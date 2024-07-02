@@ -344,13 +344,10 @@ record TaintConfig(List<Source> sources,
          */
         private List<TaintTransfer> deserializeTransfers(JsonNode node) {
             if (node instanceof ArrayNode arrayNode) {
-                List<TaintTransfer> transfers = new ArrayList<>(arrayNode.size());
+                List<TaintTransfer> result = new ArrayList<>();
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
-                    JMethod method = hierarchy.getMethod(methodSig);
-                    if (method != null) {
-                        // if the method (given in config file) is absent in
-                        // the class hierarchy, just ignore it.
+                    List<TaintTransfer> transfers = matcher.getMethods(methodSig).stream().map(method -> {
                         IndexRef from = toIndexRef(method, elem.get("from").asText());
                         IndexRef to = toIndexRef(method, elem.get("to").asText());
                         JsonNode typeNode = elem.get("type");
@@ -366,12 +363,16 @@ record TaintConfig(List<Source> sources,
                                 case FIELD -> to.field().getType();
                             };
                         }
-                        transfers.add(new TaintTransfer(method, from, to, type));
-                    } else {
+                        return new TaintTransfer(method, from, to, type);
+                    }).toList();
+                    if (transfers.isEmpty()) {
+                        // if we do not find matched methods with the signature
+                        // given in config file, just ignore it.
                         logger.warn("Cannot find taint-transfer method '{}'", methodSig);
                     }
+                    result.addAll(transfers);
                 }
-                return Collections.unmodifiableList(transfers);
+                return Collections.unmodifiableList(result);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
