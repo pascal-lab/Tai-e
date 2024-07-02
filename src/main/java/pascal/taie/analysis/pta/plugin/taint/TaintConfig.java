@@ -314,20 +314,21 @@ record TaintConfig(List<Source> sources,
          */
         private List<Sink> deserializeSinks(JsonNode node) {
             if (node instanceof ArrayNode arrayNode) {
-                List<Sink> sinks = new ArrayList<>(arrayNode.size());
+                List<Sink> result = new ArrayList<>();
                 for (JsonNode elem : arrayNode) {
                     String methodSig = elem.get("method").asText();
-                    JMethod method = hierarchy.getMethod(methodSig);
-                    if (method != null) {
-                        // if the method (given in config file) is absent in
-                        // the class hierarchy, just ignore it.
+                    List<Sink> sinks = matcher.getMethods(methodSig).stream().map(method -> {
                         IndexRef indexRef = toIndexRef(method, elem.get("index").asText());
-                        sinks.add(new Sink(method, indexRef));
-                    } else {
+                        return new Sink(method, indexRef);
+                    }).toList();
+                    if (sinks.isEmpty()) {
+                        // if we do not find matched methods with the signature
+                        // given in config file, just ignore it.
                         logger.warn("Cannot find sink method '{}'", methodSig);
                     }
+                    result.addAll(sinks);
                 }
-                return Collections.unmodifiableList(sinks);
+                return Collections.unmodifiableList(result);
             } else {
                 // if node is not an instance of ArrayNode, just return an empty set.
                 return List.of();
