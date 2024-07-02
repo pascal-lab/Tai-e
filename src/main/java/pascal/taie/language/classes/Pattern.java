@@ -82,6 +82,7 @@ class Pattern {
             } else if (Character.isJavaIdentifierPart(c)
                     || c == '.' // package separator
                     || c == '[' || c == ']' // array type
+                    || c == '<' || c == '>' // <init> and <clinit>
             ) {
                 ++i;
             } else {
@@ -135,7 +136,12 @@ class Pattern {
      */
     static MethodPattern parseMethodPattern(String pattern) {
         try {
-            List<String> splits = Arrays.stream(pattern.split("[<:\\s(,)>]"))
+            // method names of constructors (<init>) and static initializers
+            // (<clinit>) contain '<' and '>', so we cannot simply treat them
+            // as separator like in field pattern
+            List<String> splits = Arrays.stream(pattern
+                            .substring(1, pattern.length() - 1)
+                            .split("[:\\s(,)]"))
                     .filter(s -> !s.isEmpty())
                     .toList();
             ClassPattern klass = parseClassPattern(splits.get(0));
@@ -147,7 +153,7 @@ class Pattern {
                     .toList();
             return new MethodPattern(klass, type, name, params);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid method pattern: " + pattern);
+            throw new IllegalArgumentException("Invalid method pattern: " + pattern, e);
         }
     }
 
@@ -280,7 +286,7 @@ class Pattern {
             NamePattern name = parseNamePattern(splits.get(2));
             return new FieldPattern(klass, type, name);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid field pattern: " + pattern);
+            throw new IllegalArgumentException("Invalid field pattern: " + pattern, e);
         }
     }
 
