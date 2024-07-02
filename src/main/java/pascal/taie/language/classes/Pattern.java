@@ -79,7 +79,10 @@ class Pattern {
                 }
                 units.add(NAME_WILDCARD); // match wildcard (*)
                 lastI = ++i;
-            } else if (Character.isJavaIdentifierPart(c) || c == '.') {
+            } else if (Character.isJavaIdentifierPart(c)
+                    || c == '.' // package separator
+                    || c == '[' || c == ']' // array type
+            ) {
                 ++i;
             } else {
                 throw new IllegalArgumentException("Invalid name pattern: " + pattern);
