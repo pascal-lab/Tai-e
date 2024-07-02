@@ -34,6 +34,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Provides functionality to match signatures with wildcards.
+ */
 public class Matcher {
 
     private final ClassHierarchy hierarchy;
@@ -46,7 +49,7 @@ public class Matcher {
         return getClasses(Pattern.parseClassPattern(classPattern));
     }
 
-    Set<JClass> getClasses(Pattern.ClassPattern classPattern) {
+    private Set<JClass> getClasses(Pattern.ClassPattern classPattern) {
         Set<JClass> result = new LinkedHashSet<>();
         Pattern.NamePattern name = classPattern.name();
         if (!name.hasWildcard()) {
@@ -73,7 +76,7 @@ public class Matcher {
         return getMethods(Pattern.parseMethodPattern(methodPattern));
     }
 
-    Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
+    private Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
         Set<JMethod> result = new LinkedHashSet<>();
         if (methodPattern.isExactMatch()) {
             JMethod method = hierarchy.getMethod(methodPattern.toString());
@@ -100,7 +103,7 @@ public class Matcher {
         return getFields(Pattern.parseFieldPattern(fieldPattern));
     }
 
-    Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
+    private Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
         Set<JField> result = new LinkedHashSet<>();
         if (fieldPattern.isExactMatch()) {
             JField field = hierarchy.getField(fieldPattern.toString());

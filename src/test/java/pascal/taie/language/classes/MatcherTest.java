@@ -37,26 +37,26 @@ public class MatcherTest {
         JClass e1_x1 = hierarchy.getClass("com.example1.X1");
 
         assertEquals(Set.of(e_x, e1_x),
-                matcher.getClasses(Pattern.parseClassPattern("com*X")));
+                matcher.getClasses("com*X"));
         assertEquals(Set.of(e_x, y, XFather, e_x1),
-                matcher.getClasses(Pattern.parseClassPattern("com.example.*")));
+                matcher.getClasses("com.example.*"));
         assertEquals(Set.of(e1_x, e1_x1),
-                matcher.getClasses(Pattern.parseClassPattern("com.example1.*")));
+                matcher.getClasses("com.example1.*"));
         assertEquals(Set.of(e_x1, e1_x1),
-                matcher.getClasses(Pattern.parseClassPattern("com.*.X1")));
+                matcher.getClasses("com.*.X1"));
         assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
-                matcher.getClasses(Pattern.parseClassPattern("*example*")));
+                matcher.getClasses("*example*"));
         assertEquals(Set.of(XFather),
-                matcher.getClasses(Pattern.parseClassPattern("*.XFather")));
+                matcher.getClasses("*.XFather"));
         assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
-                matcher.getClasses(Pattern.parseClassPattern("*"))
+                matcher.getClasses("*")
                         .stream()
                         .filter(JClass::isApplication)
                         .collect(Collectors.toSet()));
         assertEquals(Set.of(XFather, e_x, e_x1),
-                matcher.getClasses(Pattern.parseClassPattern("com.example.XFather^")));
+                matcher.getClasses("com.example.XFather^"));
         assertEquals(Set.of(e_x, e_x1, y, XFather, e1_x, e1_x1),
-                matcher.getClasses(Pattern.parseClassPattern("com.example*.*^")));
+                matcher.getClasses("com.example*.*^"));
     }
 
     @Test
@@ -75,29 +75,29 @@ public class MatcherTest {
         JMethod y_foo_XFather = hierarchy.getMethod("<com.example.Y: com.example.XFather foo(com.example.XFather)>");
 
         assertEquals(Set.of(x_foo_str, x_foo_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.X: void foo(*{1+})>")));
+                matcher.getMethods("<com.example.X: void foo(*{1+})>"));
         assertEquals(Set.of(XFather_foo, XFather_foo_str, XFather_foo_int, XFather_foo_str_and_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void foo(*{0+})>")));
+                matcher.getMethods("<com.example.XFather: void foo(*{0+})>"));
         assertEquals(Set.of(XFather_foo_str, XFather_foo_str_and_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void foo(java.lang.String,*{0+})>")));
+                matcher.getMethods("<com.example.XFather: void foo(java.lang.String,*{0+})>"));
         assertEquals(Set.of(XFather_foo_str_and_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void foo(java.lang.String,*{1},*{0+})>")));
+                matcher.getMethods("<com.example.XFather: void foo(java.lang.String,*{1},*{0+})>"));
         assertEquals(Set.of(XFather_foo_int, XFather_foo_str, XFather_foo_str_and_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void foo(*{1-2})>")));
+                matcher.getMethods("<com.example.XFather: void foo(*{1-2})>"));
         assertEquals(Set.of(x_foo_int, XFather_foo_int),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.X*: void foo(int)>")));
+                matcher.getMethods("<com.example.X*: void foo(int)>"));
         assertEquals(Set.of(x_foo_str, XFather_foo_str),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather^: void foo(java.lang.String)>")));
+                matcher.getMethods("<com.example.XFather^: void foo(java.lang.String)>"));
         assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.*)>")));
+                matcher.getMethods("<com.example.Y: void fun(com.example.*)>"));
         assertEquals(Set.of(y_fun_X, y_fun_X1, y_fun_XFather),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: void fun(com.example.XFather^{1+})>")));
+                matcher.getMethods("<com.example.Y: void fun(com.example.XFather^{1+})>"));
         assertEquals(Set.of(y_foo_X, y_foo_X1, y_foo_XFather),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.Y: com.example.XFather^ foo(*{1+})>")));
+                matcher.getMethods("<com.example.Y: com.example.XFather^ foo(*{1+})>"));
         assertEquals(Set.of(XFather_foo, XFather_foo_str, XFather_foo_int, XFather_foo_str_and_int,
                         x_foo_str, x_foo_int,
                         y_foo_X, y_foo_X1, y_foo_XFather),
-                matcher.getMethods(Pattern.parseMethodPattern("<*: * foo(*{0+})>")));
+                matcher.getMethods("<*: * foo(*{0+})>"));
     }
 
     @Test
@@ -108,17 +108,17 @@ public class MatcherTest {
         JMethod XFather_multi4 = hierarchy.getMethod("<com.example.XFather: void multi(java.lang.String,int,char,int,byte)>");
 
         assertEquals(Set.of(XFather_multi1, XFather_multi3),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{0+},int)>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{0+},int)>"));
         assertEquals(Set.of(XFather_multi3),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{1+},int)>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,*{0+},int,*{1+},int)>"));
         assertEquals(Set.of(XFather_multi2, XFather_multi3, XFather_multi4),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{0+})>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{0+})>"));
         assertEquals(Set.of(XFather_multi4),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,byte,*{0+})>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,*{0+},int,byte,*{0+})>"));
         assertEquals(Set.of(XFather_multi3, XFather_multi4),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{1+})>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,*{0+},int,char,*{1+})>"));
         assertEquals(Set.of(XFather_multi1),
-                matcher.getMethods(Pattern.parseMethodPattern("<com.example.XFather: void multi(java.lang.String,int{2+})>")));
+                matcher.getMethods("<com.example.XFather: void multi(java.lang.String,int{2+})>"));
     }
 
     @Test
@@ -140,22 +140,22 @@ public class MatcherTest {
         JField e1_x1_x_x = hierarchy.getField("<com.example1.X1: com.example1.X xField>");
 
         assertEquals(Set.of(x_XFather, XFather_XFather),
-                matcher.getFields(Pattern.parseFieldPattern("<com.example.XFather^: com.example.XFather xFatherField>")));
+                matcher.getFields("<com.example.XFather^: com.example.XFather xFatherField>"));
         assertEquals(Set.of(x_XFather, XFather_XFather, y_XFather),
-                matcher.getFields(Pattern.parseFieldPattern("<*: com.example.XFather xFatherField>")));
+                matcher.getFields("<*: com.example.XFather xFatherField>"));
         assertEquals(Set.of(x_x1, y_x1, XFather_x1),
-                matcher.getFields(Pattern.parseFieldPattern("<*: com.example.X1 x1Field>")));
+                matcher.getFields("<*: com.example.X1 x1Field>"));
         assertEquals(Set.of(x_x1, x_e1_x1, y_x1, y_e1_x1, XFather_x1, XFather_e1_x1, e1_x1_x_x1),
-                matcher.getFields(Pattern.parseFieldPattern("<*: *X1 *>")));
+                matcher.getFields("<*: *X1 *>"));
         assertEquals(Set.of(x_e1_x, y_e1_x, XFather_e1_x, e1_x1_x_x),
-                matcher.getFields(Pattern.parseFieldPattern("<*: *X *>")));
+                matcher.getFields("<*: *X *>"));
         assertEquals(Set.of(x_XFather, x_x1, y_XFather, y_x1, XFather_XFather, XFather_x1),
-                matcher.getFields(Pattern.parseFieldPattern("<*: com.example.XFather^ *>")));
+                matcher.getFields("<*: com.example.XFather^ *>"));
         assertEquals(Set.of(y_y),
-                matcher.getFields(Pattern.parseFieldPattern("<*: * yField>")));
+                matcher.getFields("<*: * yField>"));
         assertEquals(Set.of(x_e1_x, y_e1_x, XFather_e1_x),
-                matcher.getFields(Pattern.parseFieldPattern("<*: * xx*>")));
+                matcher.getFields("<*: * xx*>"));
         assertEquals(Set.of(e1_x1_x_x1, e1_x1_x_x),
-                matcher.getFields(Pattern.parseFieldPattern("<com.example1.X1: * *>")));
+                matcher.getFields("<com.example1.X1: * *>"));
     }
 }
