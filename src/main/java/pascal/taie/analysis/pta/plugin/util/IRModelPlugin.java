@@ -27,6 +27,7 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Matcher;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 
@@ -58,9 +59,9 @@ public abstract class IRModelPlugin extends ModelPlugin {
 
     @Override
     protected void registerHandler(InvokeHandler invokeHandler, Method handler) {
+        Matcher matcher = new Matcher(hierarchy);
         for (String signature : invokeHandler.signature()) {
-            JMethod api = hierarchy.getMethod(signature);
-            if (api != null) {
+            matcher.getMethods(signature).forEach(api -> {
                 if (handlers.containsKey(api)) {
                     throw new RuntimeException(
                             this + " registers multiple handlers for " +
@@ -68,7 +69,7 @@ public abstract class IRModelPlugin extends ModelPlugin {
                                     "can be registered for a method)");
                 }
                 handlers.put(api, validate(handler));
-            }
+            });
         }
     }
 

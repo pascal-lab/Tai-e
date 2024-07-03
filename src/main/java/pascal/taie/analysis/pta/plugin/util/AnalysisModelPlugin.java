@@ -30,6 +30,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Matcher;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -63,16 +64,18 @@ public abstract class AnalysisModelPlugin extends ModelPlugin {
 
     @Override
     protected void registerHandler(InvokeHandler invokeHandler, Method handler) {
+        Matcher matcher = new Matcher(hierarchy);
         for (String signature : invokeHandler.signature()) {
-            JMethod api = hierarchy.getMethod(signature);
-            if (api != null) {
+            matcher.getMethods(signature).forEach(api -> {
                 if (handlers.containsKey(api)) {
-                    throw new RuntimeException(this + " registers multiple handlers for " +
-                            api + " (in a Model, at most one handler can be registered for a method)");
+                    throw new RuntimeException(this +
+                            " registers multiple handlers for " +
+                            api + " (in a Model, at most one handler" +
+                            " can be registered for a method)");
                 }
                 handlers.put(api, validate(handler, invokeHandler));
                 relevantVarIndexes.put(api, invokeHandler.argIndexes());
-            }
+            });
         }
     }
 
