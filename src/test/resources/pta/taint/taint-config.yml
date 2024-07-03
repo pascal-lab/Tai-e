@@ -1,8 +1,6 @@
 sources:
-  - { kind: call, method: "<SourceSink: java.lang.String source()>", index: result }
-  - { kind: call, method: "<SourceSink: java.lang.String sourceAndSink(java.lang.String,java.lang.String)>", index: result }
-  - { kind: field, field: "<SourceSink: java.lang.String tainted1>" }
-  - { kind: field, field: "<SourceSink: java.lang.String tainted2>" }
+  - { kind: call, method: "<SourceSink: * source*(*{0+})>", index: result }
+  - { kind: field, field: "<SourceSink: * tainted*>" }
 
 sinks:
   - { method: "<SourceSink: void sink(java.lang.String)>", index: 0 }
@@ -16,12 +14,8 @@ transfers:
   - { method: "<java.lang.String: char[] toCharArray()>", from: base, to: result }
   - { method: "<java.lang.String: void <init>(char[])>", from: 0, to: base }
   - { method: "<java.lang.String: void getChars(int,int,char[],int)>", from: base, to: 2 }
-  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base }
-  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>", from: 0, to: base }
-  - { method: "<java.lang.StringBuffer: java.lang.String toString()>", from: base, to: result }
-  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", from: 0, to: base }
-  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>", from: 0, to: base }
-  - { method: "<java.lang.StringBuilder: java.lang.String toString()>", from: base, to: result }
+  - { method: "<java.lang.AbstractStringBuilder^: * append(java.lang.Object^)>", from: 0, to: base }
+  - { method: "<java.lang.AbstractStringBuilder^: * toString()>", from: base, to: result }
 
 sanitizers:
   - { kind: param, method: "<Sanitizer: java.lang.String sanitize(java.lang.String)>", index: 0 }
