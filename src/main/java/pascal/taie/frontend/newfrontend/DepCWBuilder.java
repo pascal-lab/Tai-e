@@ -53,17 +53,17 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private final CompletionService<Completed> completionService;
 
-    private final boolean preBuildIR;
-
     private Project project;
 
     private SearchIndex index;
 
     public DepCWBuilder() {
+        int threadPoolSize = FrontendOptions.get().isUseParallelHierarchy()
+                ? THREAD_POOL_SIZE
+                : 1;
         sourceMap = Maps.newConcurrentMap();
-        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        executorService = Executors.newFixedThreadPool(threadPoolSize);
         completionService = new ExecutorCompletionService<>(executorService);
-        preBuildIR = World.get().getOptions().isPreBuildIR();
     }
 
     @Override

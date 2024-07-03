@@ -10,6 +10,7 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class DefaultCHBuilder implements ClassHierarchyBuilder {
 
@@ -28,8 +29,10 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
         ch.setBootstrapClassLoader(dcl);
         BuildContext.make(dcl);
 
-        boolean preBuild = World.get().getOptions().isPreBuildIR();
-        sources.parallelStream().forEach(i -> {
+        Stream<ClassSource> classToBuild = FrontendOptions.get().isUseParallelHierarchy()
+                ? sources.parallelStream()
+                : sources.stream();
+        classToBuild.forEach(i -> {
             JClass klass = m.getOrDefault(i.getClassName(), null);
             if (klass == null) {
                 throw new IllegalStateException();

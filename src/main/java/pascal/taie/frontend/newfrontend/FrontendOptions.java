@@ -10,11 +10,14 @@ public class FrontendOptions {
 
     private final boolean useTypingAlgo2;
 
+    private final boolean useParallelHierarchy;
+
     private static FrontendOptions instance;
 
-    private FrontendOptions(boolean isSSA, boolean useTypingAlgo2) {
+    private FrontendOptions(boolean isSSA, boolean useTypingAlgo2, boolean useParallelHierarchy) {
         this.isSSA = isSSA;
         this.useTypingAlgo2 = useTypingAlgo2;
+        this.useParallelHierarchy = useParallelHierarchy;
     }
 
     public synchronized static FrontendOptions get() {
@@ -27,8 +30,10 @@ public class FrontendOptions {
     private static FrontendOptions parse() {
         Map <String, String> options = World.get().getOptions().getFrontendOptions();
         boolean isSSA = Boolean.parseBoolean(options.getOrDefault("ssa", "false"));
-        boolean useTypingAlgo2 = Boolean.parseBoolean(options.getOrDefault("useTypingAlgo2", "false"));
-        return new FrontendOptions(isSSA, useTypingAlgo2);
+        boolean useTypingAlgo2 = Boolean.parseBoolean(options.getOrDefault("useTypingAlgo2", "true"));
+        boolean useParallelHierarchy = Boolean.parseBoolean(
+                options.getOrDefault("useParallelHierarchy", "true"));
+        return new FrontendOptions(isSSA, useTypingAlgo2, useParallelHierarchy);
     }
 
     static {
@@ -45,5 +50,9 @@ public class FrontendOptions {
 
     public boolean isUseTypingAlgo2() {
         return useTypingAlgo2;
+    }
+
+    public boolean isUseParallelHierarchy() {
+        return useParallelHierarchy;
     }
 }
