@@ -35,16 +35,19 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Provides functionality to match signatures with wildcards.
+ * Provides functionality to match signatures by given patterns.
  */
-public class Matcher {
+public class SignatureMatcher {
 
     private final ClassHierarchy hierarchy;
 
-    public Matcher(ClassHierarchy hierarchy) {
+    public SignatureMatcher(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
     }
 
+    /**
+     * @return the classes that match given pattern.
+     */
     public Set<JClass> getClasses(String classPattern) {
         return getClasses(Pattern.parseClassPattern(classPattern));
     }
@@ -72,22 +75,22 @@ public class Matcher {
         return result;
     }
 
+    /**
+     * @return the methods that match given pattern.
+     */
     public Set<JMethod> getMethods(String methodPattern) {
-        return getMethods(Pattern.parseMethodPattern(methodPattern));
-    }
-
-    private Set<JMethod> getMethods(Pattern.MethodPattern methodPattern) {
+        Pattern.MethodPattern pattern = Pattern.parseMethodPattern(methodPattern);
         Set<JMethod> result = new LinkedHashSet<>();
-        if (methodPattern.isExactMatch()) {
-            JMethod method = hierarchy.getMethod(methodPattern.toString());
+        if (pattern.isExactMatch()) {
+            JMethod method = hierarchy.getMethod(pattern.toString());
             if (method != null) {
                 result.add(method);
             }
         } else {
-            Predicate<Type> typeMatcher = new TypeMatcher(methodPattern.retType());
-            Predicate<String> nameMatcher = new NameMatcher(methodPattern.name());
-            Predicate<List<Type>> paramsMatcher = new ParamsMatcher(methodPattern.params());
-            getClasses(methodPattern.klass())
+            Predicate<Type> typeMatcher = new TypeMatcher(pattern.retType());
+            Predicate<String> nameMatcher = new NameMatcher(pattern.name());
+            Predicate<List<Type>> paramsMatcher = new ParamsMatcher(pattern.params());
+            getClasses(pattern.klass())
                     .stream()
                     .map(JClass::getDeclaredMethods)
                     .flatMap(Collection::stream)
@@ -99,21 +102,21 @@ public class Matcher {
         return result;
     }
 
+    /**
+     * @return the fields that match given pattern.
+     */
     public Set<JField> getFields(String fieldPattern) {
-        return getFields(Pattern.parseFieldPattern(fieldPattern));
-    }
-
-    private Set<JField> getFields(Pattern.FieldPattern fieldPattern) {
+        Pattern.FieldPattern pattern = Pattern.parseFieldPattern(fieldPattern);
         Set<JField> result = new LinkedHashSet<>();
-        if (fieldPattern.isExactMatch()) {
-            JField field = hierarchy.getField(fieldPattern.toString());
+        if (pattern.isExactMatch()) {
+            JField field = hierarchy.getField(pattern.toString());
             if (field != null) {
                 result.add(field);
             }
         } else {
-            Predicate<Type> typeMatcher = new TypeMatcher(fieldPattern.type());
-            Predicate<String> nameMatcher = new NameMatcher(fieldPattern.name());
-            getClasses(fieldPattern.klass())
+            Predicate<Type> typeMatcher = new TypeMatcher(pattern.type());
+            Predicate<String> nameMatcher = new NameMatcher(pattern.name());
+            getClasses(pattern.klass())
                     .stream()
                     .map(JClass::getDeclaredFields)
                     .flatMap(Collection::stream)

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MatcherTest {
+public class SignatureMatcherTest {
 
     private static final String CLASS_PATH = "src/test/resources/sigmatcher";
 
@@ -18,13 +18,13 @@ public class MatcherTest {
 
     private static ClassHierarchy hierarchy;
 
-    private static Matcher matcher;
+    private static SignatureMatcher matcher;
 
     @BeforeAll
     public static void buildWorld() {
         Main.buildWorld("-cp", CLASS_PATH, "-m", MAIN_CLASS);
         hierarchy = World.get().getClassHierarchy();
-        matcher = new Matcher(hierarchy);
+        matcher = new SignatureMatcher(hierarchy);
     }
 
     @Test

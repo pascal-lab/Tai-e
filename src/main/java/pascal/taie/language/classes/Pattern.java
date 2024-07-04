@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import static java.util.regex.Pattern.compile;
 
 /**
- * Pattern representation and parsing.
+ * Pattern representation and parsing for class/method/field signatures.
  */
 class Pattern {
 
@@ -83,7 +83,7 @@ class Pattern {
                     || c == '.' // package separator
                     || c == '[' || c == ']' // array type
                     || c == '<' || c == '>' // <init> and <clinit>
-            ) {
+            ) { // character c is valid
                 ++i;
             } else {
                 throw new IllegalArgumentException("Invalid name pattern: " + pattern);

@@ -39,7 +39,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Matcher;
+import pascal.taie.language.classes.SignatureMatcher;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
@@ -174,12 +174,12 @@ record TaintConfig(List<Source> sources,
      */
     private static class Deserializer extends JsonDeserializer<TaintConfig> {
 
-        private final Matcher matcher;
+        private final SignatureMatcher matcher;
 
         private final TypeSystem typeSystem;
 
         private Deserializer(ClassHierarchy hierarchy, TypeSystem typeSystem) {
-            this.matcher = new Matcher(hierarchy);
+            this.matcher = new SignatureMatcher(hierarchy);
             this.typeSystem = typeSystem;
         }
 

@@ -30,7 +30,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Matcher;
+import pascal.taie.language.classes.SignatureMatcher;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -64,7 +64,7 @@ public abstract class AnalysisModelPlugin extends ModelPlugin {
 
     @Override
     protected void registerHandler(InvokeHandler invokeHandler, Method handler) {
-        Matcher matcher = new Matcher(hierarchy);
+        SignatureMatcher matcher = new SignatureMatcher(hierarchy);
         for (String signature : invokeHandler.signature()) {
             matcher.getMethods(signature).forEach(api -> {
                 if (handlers.containsKey(api)) {
