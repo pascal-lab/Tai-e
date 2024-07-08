@@ -15,6 +15,7 @@
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
   - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
+  - Enhance TFG dumping by adding taint configuration and call site info to Source/Sink node and TaintTransfer edge
 - Class hierarchy analysis (CHA)
   - Support ignoring call sites that call methods declared in `java.lang.Object`.
   - Support ignoring call sites whose callees exceed given limit.

@@ -237,6 +237,7 @@ record TaintConfig(List<Source> sources,
         }
 
         private List<CallSource> deserializeCallSources(JsonNode node) {
+            String rawEntry = node.toString();
             String methodSig = node.get("method").asText();
             List<CallSource> result = matcher.getMethods(methodSig).stream().map(method -> {
                 IndexRef indexRef = toIndexRef(method, node.get("index").asText());
@@ -245,7 +246,7 @@ record TaintConfig(List<Source> sources,
                         ? typeSystem.getType(typeNode.asText())
                         // type not given, retrieve it from method signature
                         : getMethodType(method, indexRef.index());
-                return new CallSource(method, indexRef, type);
+                return new CallSource(method, indexRef, type, rawEntry);
             }).toList();
             if (result.isEmpty()) {
                 // if we do not find matched methods with the signature
@@ -256,6 +257,7 @@ record TaintConfig(List<Source> sources,
         }
 
         private List<ParamSource> deserializeParamSources(JsonNode node) {
+            String rawEntry = node.toString();
             String methodSig = node.get("method").asText();
             List<ParamSource> result = matcher.getMethods(methodSig).stream().map(method -> {
                 IndexRef indexRef = toIndexRef(method, node.get("index").asText());
@@ -264,7 +266,7 @@ record TaintConfig(List<Source> sources,
                         ? typeSystem.getType(typeNode.asText())
                         // type not given, retrieve it from method signature
                         : getMethodType(method, indexRef.index());
-                return new ParamSource(method, indexRef, type);
+                return new ParamSource(method, indexRef, type, rawEntry);
             }).toList();
             if (result.isEmpty()) {
                 // if we do not find matched methods with the signature
@@ -275,13 +277,14 @@ record TaintConfig(List<Source> sources,
         }
 
         private List<FieldSource> deserializeFieldSources(JsonNode node) {
+            String rawEntry = node.toString();
             String fieldSig = node.get("field").asText();
             List<FieldSource> result = matcher.getFields(fieldSig).stream().map(field -> {
                 JsonNode typeNode = node.get("type");
                 Type type = (typeNode != null)
                         ? typeSystem.getType(typeNode.asText())
                         : field.getType(); // type not given, use field type
-                return new FieldSource(field, type);
+                return new FieldSource(field, type, rawEntry);
             }).toList();
             if (result.isEmpty()) {
                 // if we do not find matched fields with the signature
@@ -313,10 +316,11 @@ record TaintConfig(List<Source> sources,
             if (node instanceof ArrayNode arrayNode) {
                 List<Sink> result = new ArrayList<>();
                 for (JsonNode elem : arrayNode) {
+                    String rawEntry = elem.toString();
                     String methodSig = elem.get("method").asText();
                     List<Sink> sinks = matcher.getMethods(methodSig).stream().map(method -> {
                         IndexRef indexRef = toIndexRef(method, elem.get("index").asText());
-                        return new Sink(method, indexRef);
+                        return new Sink(method, indexRef, rawEntry);
                     }).toList();
                     if (sinks.isEmpty()) {
                         // if we do not find matched methods with the signature
@@ -343,6 +347,7 @@ record TaintConfig(List<Source> sources,
             if (node instanceof ArrayNode arrayNode) {
                 List<TaintTransfer> result = new ArrayList<>();
                 for (JsonNode elem : arrayNode) {
+                    String rawEntry = elem.toString();
                     String methodSig = elem.get("method").asText();
                     List<TaintTransfer> transfers = matcher.getMethods(methodSig).stream().map(method -> {
                         IndexRef from = toIndexRef(method, elem.get("from").asText());
@@ -360,7 +365,7 @@ record TaintConfig(List<Source> sources,
                                 case FIELD -> to.field().getType();
                             };
                         }
-                        return new TaintTransfer(method, from, to, type);
+                        return new TaintTransfer(method, from, to, type, rawEntry);
                     }).toList();
                     if (transfers.isEmpty()) {
                         // if we do not find matched methods with the signature

@@ -94,13 +94,13 @@ class TFGBuilder {
      * Builds a complete taint flow graph.
      */
     private TaintFlowGraph buildComplete() {
-        Set<Node> sourceNodes = collectSourceNodes();
-        Set<Node> sinkNodes = collectSinkNode();
         // builds taint flow graph
         node2TaintSet = Maps.newMap();
-        TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
+        TaintFlowGraph tfg = new TaintFlowGraph(
+                collectSourceNodes(), collectSinkNode());
         Set<Node> visitedNodes = Sets.newSet();
-        Deque<Node> workList = new ArrayDeque<>(sourceNodes);
+        Deque<Node> workList = new ArrayDeque<>(
+                tfg.getSourceNodes());
         while (!workList.isEmpty()) {
             Node node = workList.poll();
             if (visitedNodes.add(node)) {
@@ -119,42 +119,48 @@ class TFGBuilder {
         return tfg;
     }
 
-    private Set<Node> collectSourceNodes() {
-        Set<Node> sourceNodes = Sets.newLinkedSet();
+    private Map<Node, SourcePoint> collectSourceNodes() {
+        Map<Node, SourcePoint> sourceNode2SourcePoint = Maps.newMap();
         for (Obj taintObj : taintManager.getTaintObjs()) {
             SourcePoint p = taintManager.getSourcePoint(taintObj);
             if (p instanceof CallSourcePoint csp) {
                 IndexRef indexRef = csp.indexRef();
                 Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
-                sourceNodes.addAll(getNodes(var, indexRef));
+                for (Node sourceNode : getNodes(var, indexRef)) {
+                    sourceNode2SourcePoint.put(sourceNode, p);
+                }
             } else if (p instanceof ParamSourcePoint psp) {
                 IndexRef indexRef = psp.indexRef();
                 Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
-                sourceNodes.addAll(getNodes(var, indexRef));
+                for (Node sourceNode : getNodes(var, indexRef)) {
+                    sourceNode2SourcePoint.put(sourceNode, p);
+                }
             } else if (p instanceof FieldSourcePoint fsp) {
                 Var lhs = fsp.loadField().getLValue();
                 Node sourceNode = ofg.getVarNode(lhs);
                 if (sourceNode != null) {
-                    sourceNodes.add(sourceNode);
+                    sourceNode2SourcePoint.put(sourceNode, p);
                 }
             }
         }
         logger.info("Source nodes:");
-        sourceNodes.forEach(logger::info);
-        return sourceNodes;
+        sourceNode2SourcePoint.keySet().forEach(logger::info);
+        return sourceNode2SourcePoint;
     }
 
-    private Set<Node> collectSinkNode() {
-        Set<Node> sinkNodes = Sets.newLinkedSet();
+    private Map<Node, SinkPoint> collectSinkNode() {
+        Map<Node, SinkPoint> sinkNode2SinkPoint = Maps.newMap();
         taintFlows.forEach(taintFlow -> {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
             IndexRef indexRef = sinkPoint.indexRef();
             Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
-            sinkNodes.addAll(getNodes(var, indexRef));
+            for (Node sinkNode : getNodes(var, indexRef)) {
+                sinkNode2SinkPoint.put(sinkNode, sinkPoint);
+            }
         });
         logger.info("Sink nodes:");
-        sinkNodes.forEach(logger::info);
-        return sinkNodes;
+        sinkNode2SinkPoint.keySet().forEach(logger::info);
+        return sinkNode2SinkPoint;
     }
 
     private Set<Node> getNodes(Var baseVar, IndexRef indexRef) {
@@ -231,14 +237,14 @@ class TFGBuilder {
 
     TaintFlowGraph build() {
         TaintFlowGraph complete = buildComplete();
-        Set<Node> sourceNodes = complete.getSourceNodes();
-        Set<Node> sinkNodes = complete.getSinkNodes();
-        TaintFlowGraph tfg = new TaintFlowGraph(sourceNodes, sinkNodes);
+        TaintFlowGraph tfg = new TaintFlowGraph(
+                complete.getSourceNode2SourcePoint(),
+                complete.getSinkNode2SinkPoint());
         Set<Node> nodesReachSink = null;
         if (onlyReachSink) {
             nodesReachSink = Sets.newHybridSet();
             Reachability<Node> reachability = new Reachability<>(complete);
-            for (Node sink : sinkNodes) {
+            for (Node sink : complete.getSinkNodes()) {
                 nodesReachSink.addAll(reachability.nodesCanReach(sink));
             }
         }

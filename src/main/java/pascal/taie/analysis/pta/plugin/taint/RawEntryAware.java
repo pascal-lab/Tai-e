@@ -22,19 +22,11 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.pta.core.cs.element.Pointer;
-import pascal.taie.analysis.pta.core.solver.OtherEdge;
+interface RawEntryAware {
 
-public class TaintTransferEdge extends OtherEdge {
+    /**
+     * @return the raw entry in the taint configuration file
+     */
+    String rawEntry();
 
-    private final TaintTransfer transfer;
-
-    TaintTransferEdge(Pointer source, Pointer target, TaintTransfer transfer) {
-        super(source, target);
-        this.transfer = transfer;
-    }
-
-    public TaintTransfer getTransfer() {
-        return transfer;
-    }
 }

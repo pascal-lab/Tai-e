@@ -33,8 +33,9 @@ import pascal.taie.language.type.Type;
  *                 receive inputs (treated as taints).
  * @param indexRef the index of the tainted reference.
  * @param type     the type of the generated taint object.
+ * @param rawEntry the raw entry in the taint configuration file
  */
-record ParamSource(JMethod method, IndexRef indexRef, Type type)
+record ParamSource(JMethod method, IndexRef indexRef, Type type, String rawEntry)
         implements Source {
 
     @Override

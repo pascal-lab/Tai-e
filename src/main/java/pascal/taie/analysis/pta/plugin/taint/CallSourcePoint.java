@@ -31,7 +31,7 @@ import java.util.Comparator;
 /**
  * A {@code CallSourcePoint} is variable at an invocation site.
  */
-public record CallSourcePoint(Invoke sourceCall, IndexRef indexRef)
+public record CallSourcePoint(Invoke sourceCall, IndexRef indexRef, CallSource source)
         implements SourcePoint {
 
     private static final Comparator<CallSourcePoint> COMPARATOR =

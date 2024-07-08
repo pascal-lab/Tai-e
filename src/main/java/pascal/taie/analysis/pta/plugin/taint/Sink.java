@@ -30,8 +30,10 @@ import pascal.taie.language.classes.JMethod;
  * @param method   the sink method.
  * @param indexRef the specific reference used to locate the sensitive argument
  *                 at the call site of {@code method}.
+ * @param rawEntry the raw entry in the taint configuration file
  */
-record Sink(JMethod method, IndexRef indexRef) {
+record Sink(JMethod method, IndexRef indexRef, String rawEntry)
+        implements RawEntryAware {
 
     @Override
     public String toString() {

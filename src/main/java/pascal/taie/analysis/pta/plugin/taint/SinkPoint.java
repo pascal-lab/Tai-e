@@ -33,7 +33,7 @@ import java.util.Comparator;
  * @param sinkCall call site of the sink method.
  * @param indexRef    index of the sensitive argument at {@code sinkCall}.
  */
-public record SinkPoint(Invoke sinkCall, IndexRef indexRef)
+public record SinkPoint(Invoke sinkCall, IndexRef indexRef, Sink sink)
         implements Comparable<SinkPoint> {
 
     private static final Comparator<SinkPoint> COMPARATOR =

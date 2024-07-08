@@ -33,9 +33,12 @@ import pascal.taie.language.type.Type;
  *     <li>from: the index of "from" variable
  *     <li>to: the index of "to" variable
  *     <li>type: the type of the transferred taint object
+ *     <li>rawEntry: the raw entry in the taint configuration file
  * </ul>
  */
-record TaintTransfer(JMethod method, IndexRef from, IndexRef to, Type type) {
+record TaintTransfer(JMethod method, IndexRef from, IndexRef to,
+                     Type type, String rawEntry)
+        implements RawEntryAware {
 
     @Override
     public String toString() {

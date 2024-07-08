@@ -45,4 +45,6 @@ public interface SourcePoint extends Comparable<SourcePoint> {
     static int compare(SourcePoint sp1, SourcePoint sp2) {
         return COMPARATOR.compare(sp1, sp2);
     }
+
+    Source source();
 }
