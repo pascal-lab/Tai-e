@@ -29,7 +29,7 @@ import pascal.taie.language.classes.JMethod;
 import javax.annotation.Nonnull;
 import java.util.Comparator;
 
-public record FieldSourcePoint(JMethod container, LoadField loadField, FieldSource source)
+record FieldSourcePoint(JMethod container, LoadField loadField, FieldSource source)
         implements SourcePoint {
 
     private static final Comparator<FieldSourcePoint> COMPARATOR =

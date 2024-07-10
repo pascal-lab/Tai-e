@@ -132,6 +132,7 @@ public class DotDumper<N> {
             graph.forEach(this::dumpNode);
             // dump edges
             graph.forEach(n -> graph.getOutEdgesOf(n).forEach(this::dumpEdge));
+            // dump other information
             dumpOthers();
             // dump ends
             out.println("}");
@@ -142,7 +143,7 @@ public class DotDumper<N> {
 
     /**
      * Subclasses can override this method to dump other information
-     * except type parameter <code>&lt;N&gt;</code>.
+     * other than type parameter <code>&lt;N&gt;</code>.
      */
     protected void dumpOthers() {
     }

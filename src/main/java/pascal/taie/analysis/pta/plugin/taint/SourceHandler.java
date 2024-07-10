@@ -77,7 +77,7 @@ class SourceHandler extends OnFlyHandler {
     private final boolean handleFieldSources;
 
     /**
-     * Map from a source field taint objects generated from it.
+     * Map from a source field to its field source.
      */
     private final Map<JField, FieldSource> fieldSources = Maps.newMap();
 
@@ -128,8 +128,7 @@ class SourceHandler extends OnFlyHandler {
             return;
         }
         Var var = InvokeUtils.getVar(callSite, index);
-        SourcePoint sourcePoint = new CallSourcePoint(
-                callSite, indexRef, source);
+        SourcePoint sourcePoint = new CallSourcePoint(callSite, indexRef, source);
         Obj taint = manager.makeTaint(sourcePoint, source.type());
         switch (indexRef.kind()) {
             case VAR -> solver.addVarPointsTo(context, var, taint);
@@ -208,8 +207,7 @@ class SourceHandler extends OnFlyHandler {
             paramSources.get(method).forEach(source -> {
                 IndexRef indexRef = source.indexRef();
                 Var param = ir.getParam(indexRef.index());
-                SourcePoint sourcePoint = new ParamSourcePoint(
-                        method, indexRef, source);
+                SourcePoint sourcePoint = new ParamSourcePoint(method, indexRef, source);
                 Obj taint = manager.makeTaint(sourcePoint, source.type());
                 switch (indexRef.kind()) {
                     case VAR -> solver.addVarPointsTo(context, param, taint);
@@ -232,10 +230,9 @@ class SourceHandler extends OnFlyHandler {
             loads.forEach(load -> {
                 Var lhs = load.getLValue();
                 JField field = load.getFieldRef().resolve();
-                FieldSource fieldSource = fieldSources.get(field);
-                SourcePoint sourcePoint = new FieldSourcePoint(
-                        method, load, fieldSource);
-                Obj taint = manager.makeTaint(sourcePoint, fieldSource.type());
+                FieldSource fieldSrc = fieldSources.get(field);
+                SourcePoint sourcePoint = new FieldSourcePoint(method, load, fieldSrc);
+                Obj taint = manager.makeTaint(sourcePoint, fieldSrc.type());
                 solver.addVarPointsTo(context, lhs, taint);
             });
         }

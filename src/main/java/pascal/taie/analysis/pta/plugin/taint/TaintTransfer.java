@@ -38,7 +38,7 @@ import pascal.taie.language.type.Type;
  */
 record TaintTransfer(JMethod method, IndexRef from, IndexRef to,
                      Type type, String rawEntry)
-        implements RawEntryAware {
+        implements WithRawEntry {
 
     @Override
     public String toString() {

@@ -22,11 +22,14 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-interface RawEntryAware {
+/**
+ * Represents an entity that provides a raw entry. Implementing classes
+ * should provide the raw entry as a string via the {@code rawEntry()} method.
+ */
+interface WithRawEntry {
 
     /**
-     * @return the raw entry in the taint configuration file
+     * @return the raw entry of this source in the taint configuration file.
      */
     String rawEntry();
-
 }

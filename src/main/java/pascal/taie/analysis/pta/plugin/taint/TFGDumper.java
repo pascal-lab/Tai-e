@@ -49,11 +49,6 @@ class TFGDumper extends DotDumper<Node> {
 
     private static final Logger logger = LogManager.getLogger(TFGDumper.class);
 
-    private static final transient Function TO_NULL = __ -> null;
-
-    private static final transient Function TO_QUOTED_STRING =
-            o -> "\"" + o.toString().replace("\"", "\\\"") + "\"";
-
     private final Set<String> highlightNodes;
 
     private TaintFlowGraph tfg;
@@ -85,38 +80,45 @@ class TFGDumper extends DotDumper<Node> {
     @Override
     protected void dumpOthers() {
         Set<Object> dumped = Sets.newSet();
-        // dump all Source and Source->SourceNode
+        // dump all source nodes and their source configs
+        Function<String, DotAttributes> sourceAttrs = __ -> DotAttributes.of(
+                "shape", "doubleoctagon",
+                "fillcolor", "gold",
+                "style", "filled");
         for (var entry : tfg.getSourceNode2SourcePoint().entrySet()) {
             Node sourceNode = entry.getKey();
             SourcePoint sourcePoint = entry.getValue();
             String elem = sourcePoint.source().rawEntry() + "\\n" + sourcePoint;
             if (dumped.add(elem)) {
-                dumpElement(elem, TO_QUOTED_STRING, TO_NULL,
-                        __ -> DotAttributes.of(
-                                "shape", "doubleoctagon",
-                                "fillcolor", "gold",
-                                "style", "filled"));
+                dumpElement(elem, TFGDumper::quoted, TFGDumper::toNull, sourceAttrs);
+
             }
-            dumpElement(TO_QUOTED_STRING.apply(elem)
-                            + " -> " + TO_QUOTED_STRING.apply(sourceNode),
-                    Object::toString, TO_NULL, TO_NULL);
+            dumpElement(quoted(elem) + " -> " + quoted(sourceNode),
+                    Object::toString, TFGDumper::toNull, TFGDumper::toNull);
         }
-        // dump all Sink and Sink->SinkNode
+        // dump all sink nodes and their sink configs
+        Function<String, DotAttributes> sinkAttrs = __ -> DotAttributes.of(
+                "shape", "doubleoctagon",
+                "fillcolor", "deepskyblue",
+                "style", "filled");
         for (var entry : tfg.getSinkNode2SinkPoint().entrySet()) {
             Node sinkNode = entry.getKey();
             SinkPoint sinkPoint = entry.getValue();
             String elem = sinkPoint.sink().rawEntry() + "\\n" + sinkPoint;
             if (dumped.add(elem)) {
-                dumpElement(elem, TO_QUOTED_STRING, TO_NULL,
-                        __ -> DotAttributes.of(
-                                "shape", "doubleoctagon",
-                                "fillcolor", "deepskyblue",
-                                "style", "filled"));
+                dumpElement(elem, TFGDumper::quoted, TFGDumper::toNull, sinkAttrs);
             }
-            dumpElement(TO_QUOTED_STRING.apply(sinkNode)
-                            + " -> " + TO_QUOTED_STRING.apply(elem),
-                    Object::toString, TO_NULL, TO_NULL);
+            dumpElement(quoted(sinkNode) + " -> " + quoted(elem),
+                    Object::toString, TFGDumper::toNull, TFGDumper::toNull);
         }
+    }
+
+    private static <T> String quoted(T o) {
+        return "\"" + o.toString().replace("\"", "\\\"") + "\"";
+    }
+
+    private static <T, R> R toNull(T unused) {
+        return null;
     }
 
     private DotAttributes nodeAttributer(Node node) {
@@ -147,9 +149,10 @@ class TFGDumper extends DotDumper<Node> {
             case OTHER -> {
                 if (edge instanceof OtherFlowEdge fe
                         && fe.rawEdge() instanceof TaintTransferEdge e) {
+                    // dump raw taint transfer entry of each taint transfer
+                    // edge for better understandability
                     yield DotAttributes.of("color", "green3", "style", "dashed",
-                            "label", (String) TO_QUOTED_STRING.apply(
-                                    e.getTransfer().rawEntry()));
+                            "label", quoted(e.getTransfer().rawEntry()));
                 } else {
                     yield DotAttributes.of("color", "green3", "style", "dashed");
                 }
@@ -157,12 +160,11 @@ class TFGDumper extends DotDumper<Node> {
             default -> throw new IllegalArgumentException(
                     "Unsupported edge kind: " + flowEdge.kind());
         };
-        if (highlightNodes.contains(flowEdge.source().toString()) &&
-                highlightNodes.contains(flowEdge.target().toString())) {
+        if (highlightNodes.contains(flowEdge.source().toString())
+                && highlightNodes.contains(flowEdge.target().toString())) {
             return attrs.add("style", "bold");
         } else {
             return attrs;
         }
     }
-
 }

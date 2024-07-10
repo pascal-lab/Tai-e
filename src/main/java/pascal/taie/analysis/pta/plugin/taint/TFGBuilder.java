@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Taint flow graph builder.
@@ -126,15 +126,13 @@ class TFGBuilder {
             if (p instanceof CallSourcePoint csp) {
                 IndexRef indexRef = csp.indexRef();
                 Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
-                for (Node sourceNode : getNodes(var, indexRef)) {
-                    sourceNode2SourcePoint.put(sourceNode, p);
-                }
+                getNodes(var, indexRef).forEach(
+                        node ->  sourceNode2SourcePoint.put(node, p));
             } else if (p instanceof ParamSourcePoint psp) {
                 IndexRef indexRef = psp.indexRef();
                 Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
-                for (Node sourceNode : getNodes(var, indexRef)) {
-                    sourceNode2SourcePoint.put(sourceNode, p);
-                }
+                getNodes(var, indexRef).forEach(
+                        node ->  sourceNode2SourcePoint.put(node, p));
             } else if (p instanceof FieldSourcePoint fsp) {
                 Var lhs = fsp.loadField().getLValue();
                 Node sourceNode = ofg.getVarNode(lhs);
@@ -154,33 +152,30 @@ class TFGBuilder {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
             IndexRef indexRef = sinkPoint.indexRef();
             Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
-            for (Node sinkNode : getNodes(var, indexRef)) {
-                sinkNode2SinkPoint.put(sinkNode, sinkPoint);
-            }
+            getNodes(var, indexRef).forEach(
+                    node -> sinkNode2SinkPoint.put(node, sinkPoint));
         });
         logger.info("Sink nodes:");
         sinkNode2SinkPoint.keySet().forEach(logger::info);
         return sinkNode2SinkPoint;
     }
 
-    private Set<Node> getNodes(Var baseVar, IndexRef indexRef) {
+    private Stream<? extends Node> getNodes(Var baseVar, IndexRef indexRef) {
         return switch (indexRef.kind()) {
             case VAR -> {
                 Node node = ofg.getVarNode(baseVar);
-                yield node != null ? Set.of(node) : Set.of();
+                yield node != null ? Stream.of(node) : Stream.empty();
             }
             case ARRAY -> pta.getPointsToSet(baseVar)
                     .stream()
                     .map(ofg::getArrayIndexNode)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+                    .filter(Objects::nonNull);
             case FIELD -> {
                 JField field = indexRef.field();
                 yield pta.getPointsToSet(baseVar)
                         .stream()
                         .map(o -> ofg.getInstanceFieldNode(o, field))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
+                        .filter(Objects::nonNull);
             }
         };
     }
