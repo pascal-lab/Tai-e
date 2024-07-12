@@ -132,7 +132,7 @@ class Pattern {
     }
 
     /**
-     * MethodPattern -> <ClassPattern: TypePattern NamePattern(ParamUnit...)>
+     * MethodPattern -> &lt;ClassPattern: TypePattern NamePattern(ParamUnit...)&gt;
      */
     static MethodPattern parseMethodPattern(String pattern) {
         try {
@@ -274,7 +274,7 @@ class Pattern {
     }
 
     /**
-     * FieldPattern -> <ClassPattern: TypePattern NamePattern>
+     * FieldPattern -> &lt;ClassPattern: TypePattern NamePattern&gt;
      */
     static FieldPattern parseFieldPattern(String pattern) {
         try {

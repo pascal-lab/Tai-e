@@ -24,10 +24,10 @@ package pascal.taie.language.classes;
 
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class SignatureMatcher {
     }
 
     private Set<JClass> getClasses(Pattern.ClassPattern classPattern) {
-        Set<JClass> result = new LinkedHashSet<>();
+        Set<JClass> result = Sets.newLinkedSet();
         Pattern.NamePattern name = classPattern.name();
         if (!name.hasWildcard()) {
             JClass klass = hierarchy.getClass(name.toString());
@@ -80,7 +80,7 @@ public class SignatureMatcher {
      */
     public Set<JMethod> getMethods(String methodPattern) {
         Pattern.MethodPattern pattern = Pattern.parseMethodPattern(methodPattern);
-        Set<JMethod> result = new LinkedHashSet<>();
+        Set<JMethod> result = Sets.newLinkedSet();
         if (pattern.isExactMatch()) {
             JMethod method = hierarchy.getMethod(pattern.toString());
             if (method != null) {
@@ -107,7 +107,7 @@ public class SignatureMatcher {
      */
     public Set<JField> getFields(String fieldPattern) {
         Pattern.FieldPattern pattern = Pattern.parseFieldPattern(fieldPattern);
-        Set<JField> result = new LinkedHashSet<>();
+        Set<JField> result = Sets.newLinkedSet();
         if (pattern.isExactMatch()) {
             JField field = hierarchy.getField(pattern.toString());
             if (field != null) {
