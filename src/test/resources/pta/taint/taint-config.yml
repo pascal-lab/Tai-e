@@ -1,5 +1,5 @@
 sources:
-  - { kind: call, method: "<SourceSink: * source*(*{0+})>", index: result }
+  - { kind: call, method: "<SourceSink: java.lang.String source*(*{0+})>", index: result }
   - { kind: field, field: "<SourceSink: * tainted*>" }
 
 sinks:
