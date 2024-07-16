@@ -29,19 +29,17 @@ import pascal.taie.language.type.Type;
  * Represents taint transfer between argument/base/return variables
  * caused by invocation to specific method.
  * <ul>
- *     <li>method: the method that causes taint transfer
- *     <li>from: the index of "from" variable
- *     <li>to: the index of "to" variable
- *     <li>type: the type of the transferred taint object
- *     <li>rawEntry: the raw entry in the taint configuration file
+ *     <li>method: the method that causes taint transfer</li>
+ *     <li>from: the index of "from" variable</li>
+ *     <li>to: the index of "to" variable</li>
+ *     <li>type: the type of the transferred taint object</li>
  * </ul>
  */
-record TaintTransfer(JMethod method, IndexRef from, IndexRef to,
-                     Type type, String rawEntry)
-        implements WithRawEntry {
+record TaintTransfer(JMethod method, IndexRef from, IndexRef to, Type type) {
 
     @Override
     public String toString() {
-        return method + ": " + from + " -> " + to + "(" + type + ")";
+        return String.format("{ method: \"%s\", from: \"%s\", to: \"%s\", type: \"%s\" }",
+                method, from, to, type);
     }
 }

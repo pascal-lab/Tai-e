@@ -88,7 +88,7 @@ class TFGDumper extends DotDumper<Node> {
         for (var entry : tfg.getSourceNode2SourcePoint().entrySet()) {
             Node sourceNode = entry.getKey();
             SourcePoint sourcePoint = entry.getValue();
-            String elem = sourcePoint.source().rawEntry() + "\\n" + sourcePoint;
+            String elem = sourcePoint.source() + "\\n" + sourcePoint;
             if (dumped.add(elem)) {
                 dumpElement(elem, TFGDumper::quoted, TFGDumper::toNull, sourceAttrs);
 
@@ -104,7 +104,7 @@ class TFGDumper extends DotDumper<Node> {
         for (var entry : tfg.getSinkNode2SinkPoint().entrySet()) {
             Node sinkNode = entry.getKey();
             SinkPoint sinkPoint = entry.getValue();
-            String elem = sinkPoint.sink().rawEntry() + "\\n" + sinkPoint;
+            String elem = sinkPoint.sink() + "\\n" + sinkPoint;
             if (dumped.add(elem)) {
                 dumpElement(elem, TFGDumper::quoted, TFGDumper::toNull, sinkAttrs);
             }
@@ -152,7 +152,7 @@ class TFGDumper extends DotDumper<Node> {
                     // dump raw taint transfer entry of each taint transfer
                     // edge for better understandability
                     yield DotAttributes.of("color", "green3", "style", "dashed",
-                            "label", quoted(e.getTransfer().rawEntry()));
+                            "label", quoted(e.getTransfer()));
                 } else {
                     yield DotAttributes.of("color", "green3", "style", "dashed");
                 }

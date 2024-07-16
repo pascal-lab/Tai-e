@@ -35,7 +35,8 @@ record ParamSanitizer(JMethod method, int index) implements Sanitizer {
 
     @Override
     public String toString() {
-        return String.format("ParamSanitizer{%s/%s}",
+        return String.format("{ kind: \"param\", method: \"%s\", index: \"%s\" }",
                 method, InvokeUtils.toString(index));
     }
+
 }

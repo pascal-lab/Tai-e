@@ -31,13 +31,13 @@ import pascal.taie.language.type.Type;
  * @param method   the method that generates taint object at call site.
  * @param indexRef the index of the tainted reference at the call site.
  * @param type     type of the generated taint object.
- * @param rawEntry the raw entry in the taint configuration file.
  */
-record CallSource(JMethod method, IndexRef indexRef, Type type, String rawEntry)
+record CallSource(JMethod method, IndexRef indexRef, Type type)
         implements Source {
 
     @Override
     public String toString() {
-        return String.format("CallSource{%s/%s(%s)}", method, indexRef, type);
+        return String.format("{ kind: \"call\", method: \"%s\", index: \"%s\", type: \"%s\" }",
+                method, indexRef, type);
     }
 }

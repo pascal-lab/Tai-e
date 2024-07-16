@@ -25,11 +25,12 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.Type;
 
-record FieldSource(JField field, Type type, String rawEntry)
+record FieldSource(JField field, Type type)
         implements Source {
 
     @Override
     public String toString() {
-        return String.format("FieldSource{%s(%s)}", field, type);
+        return String.format("{ kind: \"field\", field: \"%s\", type: \"%s\" }",
+                field, type);
     }
 }
