@@ -35,7 +35,7 @@ import pascal.taie.language.type.Type;
  *     <li>type: the type of the transferred taint object</li>
  * </ul>
  */
-record TaintTransfer(JMethod method, IndexRef from, IndexRef to, Type type) {
+public record TaintTransfer(JMethod method, IndexRef from, IndexRef to, Type type) {
 
     @Override
     public String toString() {

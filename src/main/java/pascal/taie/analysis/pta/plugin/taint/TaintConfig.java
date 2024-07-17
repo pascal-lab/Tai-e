@@ -60,18 +60,18 @@ import static pascal.taie.analysis.pta.plugin.taint.IndexRef.ARRAY_SUFFIX;
 /**
  * Configuration for taint analysis.
  */
-record TaintConfig(List<Source> sources,
-                   List<Sink> sinks,
-                   List<TaintTransfer> transfers,
-                   List<ParamSanitizer> paramSanitizers,
-                   boolean callSiteMode) {
+public record TaintConfig(List<Source> sources,
+                          List<Sink> sinks,
+                          List<TaintTransfer> transfers,
+                          List<ParamSanitizer> paramSanitizers,
+                          boolean callSiteMode) {
 
     private static final Logger logger = LogManager.getLogger(TaintConfig.class);
 
     /**
      * An empty taint config.
      */
-    private static final TaintConfig EMPTY = new TaintConfig(
+    public static final TaintConfig EMPTY = new TaintConfig(
             List.of(), List.of(), List.of(), List.of(), false);
 
     /**

@@ -31,7 +31,7 @@ import pascal.taie.language.classes.JMethod;
  * @param indexRef the specific reference used to locate the sensitive argument
  *                 at the call site of {@code method}.
  */
-record Sink(JMethod method, IndexRef indexRef) {
+public record Sink(JMethod method, IndexRef indexRef) {
 
     @Override
     public String toString() {

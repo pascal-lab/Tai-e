@@ -23,11 +23,15 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class TaintTest {
 
@@ -90,6 +94,29 @@ public class TaintTest {
         } finally {
             System.setIn(originalSystemIn);
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SimpleTaint",
+            "TaintCall",
+            "TaintParam",
+    })
+    void testTaintConfigProvider(String mainClass) {
+        Collection<String> ptaArgs = new ArrayList<>();
+        Collections.addAll(ptaArgs,
+                "implicit-entries:false",
+                "only-app:true",
+                "distinguish-string-constants:all",
+                "expected-file:src/test/resources/pta/taint/" + mainClass + "-pta-expected.txt",
+                "taint-config-providers:[pascal.taie.analysis.pta.taint.MyTaintConfigProvider]"
+        );
+        pascal.taie.Main.main(
+                "-pp",
+                "-cp", "src/test/resources/pta/taint",
+                "-m", mainClass,
+                "-a", "pta=" + String.join(";", ptaArgs)
+        );
     }
 
 }

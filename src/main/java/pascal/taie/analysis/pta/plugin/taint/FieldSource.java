@@ -25,7 +25,7 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.Type;
 
-record FieldSource(JField field, Type type)
+public record FieldSource(JField field, Type type)
         implements Source {
 
     @Override

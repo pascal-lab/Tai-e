@@ -22,33 +22,22 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.language.classes.JField;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.type.TypeSystem;
 
-import javax.annotation.Nullable;
+import java.util.List;
 
-public record IndexRef(Kind kind, int index, @Nullable JField field)
-        implements Comparable<IndexRef> {
+import static java.util.Collections.unmodifiableList;
 
-    static final String ARRAY_SUFFIX = "[*]";
+/**
+ * @see AbstractTaintConfigProvider
+ */
+public interface TaintConfigProvider {
 
-    public enum Kind {
-        VAR, ARRAY, FIELD
+    default void initilize(ClassHierarchy hierarchy,
+                           TypeSystem typeSystem) {
     }
 
-    @Override
-    public int compareTo(IndexRef other) {
-        int cmp = index - other.index;
-        return cmp != 0 ? cmp : kind.compareTo(other.kind);
-    }
+    TaintConfig taintConfig();
 
-    @Override
-    public String toString() {
-        String base = InvokeUtils.toString(index);
-        return switch (kind) {
-            case VAR -> base;
-            case ARRAY -> base + ARRAY_SUFFIX;
-            case FIELD -> base + "." + field.getName();
-        };
-    }
 }
