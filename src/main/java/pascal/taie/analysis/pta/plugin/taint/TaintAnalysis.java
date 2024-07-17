@@ -126,10 +126,9 @@ public class TaintAnalysis extends CompositePlugin {
         AnalysisOptions options = solver.getOptions();
         TaintConfig config = TaintConfig.EMPTY;
         if (options.getString("taint-config") != null) {
-            config = TaintConfig.loadConfig(
-                    options.getString("taint-config"),
-                    solver.getHierarchy(),
-                    solver.getTypeSystem());
+            var yamlTcp = new YamlTaintConfigProvider(options.getString("taint-config"));
+            yamlTcp.initilize(solver.getHierarchy(), solver.getTypeSystem());
+            config = yamlTcp.taintConfig();
         }
         // load programmatic taint configuration
         List<String> taintConfigProviders = (List<String>) solver
