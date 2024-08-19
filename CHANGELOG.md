@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2024-07-04
+## [Unreleased] - 2024-08-18
 
 ### New Features
 - Add side-effect analysis.
@@ -28,6 +28,12 @@
   - Change `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Type)` and `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Transfer)` to `Solver.addPFGEdge(PointerFlowEdge)` and related APIs.
   - Deprecate `pascal.taie.analysis.pta.plugin.util.Model` and `IRModel` (these two interfaces are currently preserved for compatibility, and will be removed in the future).
   - Change `PrimitiveType` from `enum` to an `interface` and implement it by classes that represent concrete primitive types. Refine the types of certain expressions from `PrimitiveType` to the concrete primitive types.
+
+### Fixes
+- Fix incorrect classpath argument for the frontend where the `-acp` option is not being used. This issue is only reproducible when `--prepend-JVM` (`-pp`) is set to `true`.
+- Fix mismatch between number of parameter names and number of actual parameters in JMethod for inner class.
+- Fix option parser, now treat only the first colon as delimiter between a key and a value (before each colon is treated as delimiter).
+- Fix empty log file when running via JAR.
 
 ## [0.2.2] - 2023-09-23
 
