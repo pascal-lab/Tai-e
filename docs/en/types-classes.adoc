@@ -1,0 +1,40 @@
+include::attributes.adoc[]
+
+= How to Specify and Obtain Types, Classes, and Class Members (Methods and Fields)
+
+Java programs consist of types and classes (made up by class members, i.e., methods and fields).
+Tai-e provides a unique identifier for each type, class, and class member, called signature.
+With signatures, users can easily specify behaviors of program analyzer for certain program elements in the configuration, e.g., taint configuration (link to taint-analysis.adoc); and analysis developers can easily obtain the program element they want to manipulate, through the convenient APIs provided by Tai-e.
+
+In addition, we find that sometimes we need to specify many classes or class members in configuration or implementing certain program analysis.
+To ease such tasks, we design and implement a set of signature wildcards, allowing to specify multiple classes and class members in one signature wildcard.
+
+In this documentation, we introduce format of the signatures for types, classes, and class members, as well as the APIs to obtain these program elements via signatures.
+
+== Type Signatures
+
+=== Class Type
+
+=== Array Type
+
+=== Primitive Type
+
+=== Void Type
+* rarely used
+
+=== Obtain A Type via Signature Programmatically
+
+== Class and Class Member Signatures
+
+=== Class Signature
+
+=== Method Signature
+
+* constructor
+* class initializer
+
+=== Field Signature
+
+=== Obtain A Class or Member via Signature Programmatically
+
+== Signature Wildcard
