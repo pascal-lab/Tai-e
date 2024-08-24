@@ -37,7 +37,9 @@ import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
 import pascal.taie.ir.IR;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Timer;
 
@@ -126,9 +128,10 @@ public class TaintAnalysis extends CompositePlugin {
         AnalysisOptions options = solver.getOptions();
         TaintConfig config = TaintConfig.EMPTY;
         if (options.getString("taint-config") != null) {
-            var yamlTcp = new YamlTaintConfigProvider(options.getString("taint-config"));
-            yamlTcp.initilize(solver.getHierarchy(), solver.getTypeSystem());
-            config = yamlTcp.taintConfig();
+            var provider = new YamlTaintConfigProvider(
+                    solver.getHierarchy(), solver.getTypeSystem());
+            provider.setPath(options.getString("taint-config"));
+            config = provider.get();
         }
         // load programmatic taint configuration
         List<String> taintConfigProviders = (List<String>) solver
@@ -136,17 +139,17 @@ public class TaintAnalysis extends CompositePlugin {
         for (String taintConfigProvider : taintConfigProviders) {
             try {
                 Class<?> clazz = Class.forName(taintConfigProvider);
-                Constructor<?> ctor = clazz.getConstructor();
-                var tcp = (TaintConfigProvider) ctor.newInstance();
-                tcp.initilize(solver.getHierarchy(), solver.getTypeSystem());
-                config = config.mergeWith(tcp.taintConfig());
+                Constructor<?> ctor = clazz.getConstructor(
+                        ClassHierarchy.class, TypeSystem.class);
+                var provider = (TaintConfigProvider) ctor.newInstance(
+                        solver.getHierarchy(), solver.getTypeSystem());
+                config = config.mergeWith(provider.get());
             } catch (ClassNotFoundException e) {
                 throw new ConfigException(
                         "Taint config class " + taintConfigProvider + " is not found");
             } catch (IllegalAccessException | NoSuchMethodException e) {
-                throw new AnalysisException("Failed to get constructor of " +
-                        taintConfigProvider + ", does the plugin class" +
-                        " provide a public non-arg constructor?");
+                throw new AnalysisException(
+                        "Failed to access constructor of " + taintConfigProvider, e);
             } catch (InvocationTargetException | InstantiationException e) {
                 throw new AnalysisException(
                         "Failed to create plugin instance for " + taintConfigProvider, e);

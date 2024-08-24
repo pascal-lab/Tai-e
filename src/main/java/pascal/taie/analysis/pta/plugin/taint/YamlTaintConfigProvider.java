@@ -44,7 +44,6 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.util.collection.Lists;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,21 +56,25 @@ import java.util.stream.Stream;
 
 import static pascal.taie.analysis.pta.plugin.taint.IndexRef.ARRAY_SUFFIX;
 
-class YamlTaintConfigProvider extends AbstractTaintConfigProvider {
+class YamlTaintConfigProvider extends TaintConfigProvider {
 
     private static final Logger logger = LogManager.getLogger(YamlTaintConfigProvider.class);
 
-    private final String path;
+    private String path;
+
+    YamlTaintConfigProvider(ClassHierarchy hierarchy, TypeSystem typeSystem) {
+        super(hierarchy, typeSystem);
+    }
 
     /**
-     * Loads a taint analysis configuration from given path.
+     * Sets path where the taint analysis configuration is loaded.
      * If the path is a file, then loads config from the file;
      * if the path is a directory, then loads all YAML files in the directory
      * and merge them as the result.
      *
      * @param path the path
      */
-    public YamlTaintConfigProvider(String path) {
+    void setPath(String path) {
         this.path = path;
     }
 
@@ -79,7 +82,7 @@ class YamlTaintConfigProvider extends AbstractTaintConfigProvider {
      * @throws pascal.taie.config.ConfigException if failed to load the config
      */
     @Override
-    public TaintConfig taintConfig() {
+    public TaintConfig get() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TaintConfig.class,

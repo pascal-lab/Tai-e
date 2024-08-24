@@ -22,40 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
-import pascal.taie.config.ConfigException;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JField;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.SignatureMatcher;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Lists;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
-
-import static pascal.taie.analysis.pta.plugin.taint.IndexRef.ARRAY_SUFFIX;
 
 /**
  * Configuration for taint analysis.

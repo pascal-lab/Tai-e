@@ -23,21 +23,51 @@
 package pascal.taie.analysis.pta.plugin.taint;
 
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.SignatureMatcher;
 import pascal.taie.language.type.TypeSystem;
 
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-/**
- * @see AbstractTaintConfigProvider
- */
-public interface TaintConfigProvider {
+public abstract class TaintConfigProvider {
 
-    default void initilize(ClassHierarchy hierarchy,
-                           TypeSystem typeSystem) {
+    protected final ClassHierarchy hierarchy;
+
+    protected final TypeSystem typeSystem;
+
+    protected final SignatureMatcher matcher;
+
+    protected TaintConfigProvider(ClassHierarchy hierarchy, TypeSystem typeSystem) {
+        this.hierarchy = hierarchy;
+        this.typeSystem = typeSystem;
+        this.matcher = new SignatureMatcher(hierarchy);
     }
 
-    TaintConfig taintConfig();
+    protected List<Source> sources() {
+        return List.of();
+    }
+
+    protected List<Sink> sinks() {
+        return List.of();
+    }
+
+    protected List<TaintTransfer> transfers() {
+        return List.of();
+    }
+
+    protected List<ParamSanitizer> sanitizers() {
+        return List.of();
+    }
+
+    protected boolean callSiteMode() {
+        return false;
+    }
+
+    public TaintConfig get() {
+        return new TaintConfig(unmodifiableList(sources()),
+                unmodifiableList(sinks()), unmodifiableList(transfers()),
+                unmodifiableList(sanitizers()), callSiteMode());
+    }
 
 }
