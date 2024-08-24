@@ -30,6 +30,11 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
+/**
+ * Provides a configuration for taint analysis.
+ * Subclasses should implement the constructor {@link #TaintConfigProvider(ClassHierarchy, TypeSystem)}
+ * and override the necessary methods to provide specific configurations.
+ */
 public abstract class TaintConfigProvider {
 
     protected final ClassHierarchy hierarchy;
