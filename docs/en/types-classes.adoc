@@ -1,15 +1,17 @@
 include::attributes.adoc[]
 
-= How to Specify and Obtain Types, Classes, and Class Members (Methods and Fields)
+= How to Specify and Access Types, Classes, and Class Members (Methods and Fields)
+Java programs are built using types and classes, which consist of class members such as methods and fields.
+Tai-e assigns a unique identifier, known as a signature, to each type, class, and class member.
+These signatures enable users to easily configure and specify the behavior of program analyzers for specific elements, such as in taint configuration (see <<taint-analysis#,How to Use Taint Analysis?>>).
+Additionally, they allow analysis developers to easily retrieve and manipulate program elements through Tai-e's convenient APIs.
 
-Java programs consist of types and classes (made up by class members, i.e., methods and fields).
-Tai-e provides a unique identifier for each type, class, and class member, called signature.
-With signatures, users can easily specify behaviors of program analyzer for certain program elements in the configuration, e.g., taint configuration (link to taint-analysis.adoc); and analysis developers can easily obtain the program element they want to manipulate, through the convenient APIs provided by Tai-e.
+In some cases, it may be necessary to specify _a large number_ of classes or class members within a configuration or when implementing a particular program analysis.
+To streamline this process, we have designed and implemented signature wildcards, which allow you to specify multiple classes and class members using a single wildcard signature.
 
-In addition, we find that sometimes we need to specify many classes or class members in configuration or implementing certain program analysis.
-To ease such tasks, we design and implement a set of signature wildcards, allowing to specify multiple classes and class members in one signature wildcard.
+This documentation will guide you through the format of signatures for types, classes, and class members, as well as the APIs for accessing these program elements via their signatures.
 
-In this documentation, we introduce format of the signatures for types, classes, and class members, as well as the APIs to obtain these program elements via signatures.
+NOTE: Since generic types are erased in Java, type signatures, along with class and class member signatures, *do not include type parameters*.
 
 == Type Signatures
 
