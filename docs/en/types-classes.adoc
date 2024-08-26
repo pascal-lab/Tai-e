@@ -14,21 +14,43 @@ This documentation will guide you through the format of signatures for types, cl
 NOTE: Since generic types are erased in Java, type signatures, along with class and class member signatures, *do not include type parameters*.
 
 == Type Signatures
+In this section, we introduce the signatures for various Java types, including primitive types, reference types, and the `void` type.
 
-=== Class Type
+=== Primitive Types
+The signatures for the eight Java primitive types are simply their names: `byte`, `short`, `int`, `long`, `float`, `double`, `char`, and `boolean`.
 
-=== Array Type
+=== Reference Types
+Java reference types include class types (encompassing interfaces and enums) and array types.
+The signature formats for these types are outlined below.
 
-=== Primitive Type
+==== Class Types (Including Interfaces and Enums)
+The signature for a class type is its fully-qualified class name, which includes the package name.
+For an inner class, insert a `$` between the outer class name and the inner class name.
+Here are some examples:
+
+* `java.lang.String`
+* `pascal.taie.Main`
+* `org.example.MyClass`
+* `java.util.Map$Entry`
+
+==== Array Types
+An array type signature consists of its base type followed by one or more `[]`, with the number of `[]` indicating the array's dimensions.
+Here are some examples:
+
+* `java.lang.String[]`
+* `org.example.MyClass[][]`
+* `char[]`
 
 === Void Type
-* rarely used
+The signature for the void type is simply void. This appears in <<Method Signature,Method Signature>> for methods that do not return a value.
 
 === Obtain A Type via Signature Programmatically
+For analysis developers, `World.get().getTypeSystem()`
 
 == Class and Class Member Signatures
 
 === Class Signature
+* unsurprisingly, exactly same as class type signature.
 
 === Method Signature
 
