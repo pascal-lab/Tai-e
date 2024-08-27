@@ -44,8 +44,17 @@ Here are some examples:
 === Void Type
 The signature for the void type is simply void. This appears in <<Method Signature,Method Signature>> for methods that do not return a value.
 
-=== Obtain A Type via Signature Programmatically
-For analysis developers, `World.get().getTypeSystem()`
+=== Programmatically Accessing a Type via Signature
+For analysis developers, Tai-e provides convenient APIs to access various types. All the classes related to types, mentioned below, are located in the `pascal.taie.language.type package`.
+
+In Tai-e, the `TypeSystem` class (accessible via `World.get().getTypeSystem()`) offers APIs to retrieve all types (except `void`, which is discussed later):
+
+* `TypeSystem.getPrimitiveType(String)`: Retrieves a primitive type by its signature.
+* `TypeSystem.getClassType(String)`: Retrieves a class type by its signature.
+* `TypeSystem.getArrayType(Type,int)`: Retrieves an array type by its base type and the number of dimensions.
+* `TypeSystem.getType(String)`: Retrieves a primitive type, class type, or array type by its signature.
+
+Additionally, primitive types and the `void` type are implemented as enums in Tai-e, and can be directly accessed through their respective classes, such as `IntType.INT` and `VoidType.VOID`.
 
 == Class and Class Member Signatures
 
