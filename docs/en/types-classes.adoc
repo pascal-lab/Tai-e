@@ -1,6 +1,7 @@
 include::attributes.adoc[]
 
 = How to Specify and Access Types, Classes, and Class Members (Methods and Fields)
+
 Java programs are built using types and classes, which consist of class members such as methods and fields.
 Tai-e assigns a unique identifier, known as a signature, to each type, class, and class member.
 These signatures enable users to easily configure and specify the behavior of program analyzers for specific elements, such as in taint configuration (see <<taint-analysis#configuring-taint-analysis,How to Use Taint Analysis?>>).
@@ -64,11 +65,73 @@ While constructors are typically considered class members, in Tai-e, they are tr
 Unsurprisingly, the format for class signatures is identical to that of <<Class Types (Including Interfaces and Enums),class types>>, so we won’t repeat the details here.
 
 === Method Signatures
+The format of a method signature is as follows:
 
-* constructor
-* class initializer
+[source]
+----
+<CLASS_TYPE: RETURN_TYPE METHOD_NAME(PARAMETER_TYPES)>
+----
+
+* `CLASS_TYPE`: The signature of the class in which the method is declared.
+* `RETURN_TYPE`: The signature of the method's return type.
+* `METHOD_NAME`: The name of the method.
+* `PARAMETER_TYPES`: A `,`-separated list of parameter type signatures (Do not insert spaces around the `,`!).
+If the method has no parameters, use `()`.
+
+Here are some examples of method signatures:
+
+[source]
+----
+<java.lang.Object: java.lang.String toString()>
+<java.lang.Object: boolean equals(java.lang.Object)>
+<java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
+----
+
+As mentioned earlier, *constructors* are treated as methods in Tai-e.
+Each constructor has the name `<init>`, and its return type is always `void`.
+For example, the constructor signatures for `ArrayList` are:
+
+[source]
+----
+<java.util.ArrayList: void <init>()>
+<java.util.ArrayList: void <init>(int)>
+<java.util.ArrayList: void <init>(java.util.Collection)>
+----
+
+Another special class member is the *static initializer* (also known as the class initializer), which is treated as a method with no arguments and no return value in Tai-e.
+The method name for a static initializer is `<clinit>`.
+For example, the signature of static initializer for `Object` is `<java.lang.Object: void <clinit>()>`.
 
 === Field Signatures
+Like methods, field signatures uniquely identify fields within a Java program.
+The format of a field signature is as follows:
+
+[source]
+----
+<CLASS_TYPE: FIELD_TYPE FIELD_NAME>
+----
+
+* `CLASS_TYPE`: The signature of the class where the field is declared.
+* `FIELD_TYPE`: The signature of the field's type.
+* `FIELD_NAME`: The name of the field.
+
+For example, the signature for the field `info` in the following code:
+
+[source,java]
+----
+package org.example;
+
+class MyClass {
+    String info;
+}
+----
+
+is:
+
+[source]
+----
+<org.example.MyClass: java.lang.String info>
+----
 
 === Programmatically Accessing a Class or Member via Signature
 
