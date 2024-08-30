@@ -134,5 +134,11 @@ is:
 ----
 
 === Programmatically Accessing a Class or Member via Signature
+Tai-e offers convenient APIs through the `pascal.taie.language.classes.ClassHierarchy` class, allowing analysis developers to access a class or member by its signature.
+The available methods are:
+
+* `ClassHierarchy.getClass(String)`: Retrieves a class (`JClass`) by its signature.
+* `ClassHierarchy.getMethod(String)`: Retrieves a method (`JMethod`) by its signature.
+* `ClassHierarchy.getField(String)`: Retrieves a field (`JField`) by its signature.
 
 == Signature Wildcard
