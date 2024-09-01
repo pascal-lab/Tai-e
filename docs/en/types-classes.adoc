@@ -7,7 +7,7 @@ Tai-e assigns a unique identifier, known as a signature, to each type, class, an
 These signatures enable users to easily configure and specify the behavior of program analyzers for specific elements, such as in taint configuration (see <<taint-analysis#configuring-taint-analysis,How to Use Taint Analysis?>>).
 Additionally, they allow analysis developers to easily retrieve and manipulate program elements through Tai-e's convenient APIs.
 
-In some cases, it may be necessary to specify _a large number_ of classes or class members within a configuration or when implementing a particular program analysis.
+In some cases, it may be necessary to specify _a large number_ of related classes or class members within a configuration or when implementing a particular program analysis.
 To streamline this process, we have designed and implemented various signature patterns and matchers for classes, methods, and fields, enabling you to specify and retrieve multiple elements using a single signature pattern.
 
 This documentation will guide you through the format of signatures for types, classes, and class members, as well as the APIs for accessing these program elements via their signatures.
@@ -142,15 +142,31 @@ The available methods are:
 * `ClassHierarchy.getField(String)`: Retrieves a field (`JField`) by its signature.
 
 == Signature Pattern
+Sometimes, the user need to specify multiple relevant classes or members in the configuration, e.g., <<taint-analysis#configuring-taint-analysis,taint analysis>>.
+To ease such configuration, we design and implement _signature pattern_ mechanism (akin to regular expression, tailored for class or member), which allows the user to specify multiple relevant classes or members with a single signature pattern.
+In this section, we introduce the formats of signature patterns and how to use it in analysis development.
 
+== Signature Patterns
+Sometimes, users need to specify multiple related classes or members in a configuration, such as in <<taint-analysis#configuring-taint-analysis,taint analysis>>.
+To simplify this process, we have designed and implemented the _signature pattern_ mechanism, similar to regular expressions but specifically tailored for classes and members.
+This allows users to specify multiple related classes or members using a single signature pattern.
 
-* name wildcard (class name, method name, field name, and type name in method and field signature)
+In this section, we will introduce the formats of signature patterns and explain how to use them in analysis development.
+
+=== Name Wildcards
+Signatures are composed of various names, including class names, method names, field names, and type names within method and field signatures.
+To simplify specifying these names, we introduce the concept of *name wildcards*, which are the core of signature patterns.
+
+A name wildcard is simply a name that includes one or more `\*` characters, where each `\*` can match zero or more characters within the name.
+For example, `java.util.\*` can match the names of all classes in the `java.util` package and its sub-packages, such as `java.util.regex`.
+Similarly, `get*` can match all method names that start with `get`, like `getName` or `getKey`.
 
 === Class Signature Pattern
 * subclass wildcard
 
 === Method Signature Pattern
-* parameter wildcard
+* type signature pattern
+* parameter wildcard (repetition)
 
 === Field Signature Pattern
 The format of field signature pattern is simpler than method signature pattern, since a field signature is essentially a method signature without parameter list.
