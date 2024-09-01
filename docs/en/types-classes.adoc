@@ -8,7 +8,7 @@ These signatures enable users to easily configure and specify the behavior of pr
 Additionally, they allow analysis developers to easily retrieve and manipulate program elements through Tai-e's convenient APIs.
 
 In some cases, it may be necessary to specify _a large number_ of classes or class members within a configuration or when implementing a particular program analysis.
-To streamline this process, we have designed and implemented signature wildcards, which allow you to specify multiple classes and class members using a single wildcard signature.
+To streamline this process, we have designed and implemented various signature patterns and matchers for classes, methods, and fields, enabling you to specify and retrieve multiple elements using a single signature pattern.
 
 This documentation will guide you through the format of signatures for types, classes, and class members, as well as the APIs for accessing these program elements via their signatures.
 
@@ -141,4 +141,25 @@ The available methods are:
 * `ClassHierarchy.getMethod(String)`: Retrieves a method (`JMethod`) by its signature.
 * `ClassHierarchy.getField(String)`: Retrieves a field (`JField`) by its signature.
 
-== Signature Wildcard
+== Signature Pattern
+
+
+* name wildcard (class name, method name, field name, and type name in method and field signature)
+
+=== Class Signature Pattern
+* subclass wildcard
+
+=== Method Signature Pattern
+* parameter wildcard
+
+=== Field Signature Pattern
+The format of field signature pattern is simpler than method signature pattern, since a field signature is essentially a method signature without parameter list.
+
+=== Programmatically Accessing Multiple Classes or Members via Signature Pattern
+Tai-e provides convenient APIs for analysis developers to retrieve multiple classes or members using signature patterns.
+To use these, developers first create a `pascal.taie.language.classes.SignatureMatcher` object, passing a `ClassHierarchy` as an argument.
+They can then use the following APIs:
+
+* `SignatureMatcher.getClasses(String)`: Retrieves classes (`JClass`) based on the specified signature pattern.
+* `SignatureMatcher.getMethods(String)`: Retrieves methods (`JMethod`) based on the specified signature pattern.
+* `SignatureMatcher.getFields(String)`: Retrieves fields (`JField`) based on the specified signature pattern.
