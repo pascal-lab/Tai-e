@@ -216,7 +216,7 @@ public class TaintAnalysis extends CompositePlugin {
      * This method does not use buffering to ensure it does not read more than necessary.
      * <br>
      *
-     * @return one line line read from the console,
+     * @return one line read from the console,
      * or {@code null} if no line is available
      */
     @Nullable
