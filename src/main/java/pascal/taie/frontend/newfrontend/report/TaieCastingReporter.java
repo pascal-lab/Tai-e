@@ -1,3 +1,25 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.frontend.newfrontend.report;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -212,7 +234,7 @@ public class TaieCastingReporter {
         Set<Var> visited = new HashSet<>();
         while (!queue.isEmpty()) {
             Var var = queue.poll();
-            if (visited.contains(var)) continue;
+            if (visited.contains(var)) { continue; }
             visited.add(var);
             Set<Stmt> def = varDefs.get(var);
             for (Stmt stmt : def) {
@@ -255,9 +277,9 @@ public class TaieCastingReporter {
         List<String> inputClasses = World.get().getOptions().getInputClasses();
         Set<String> input = new HashSet<>(inputClasses);
         World.get().getClassHierarchy().allClasses().forEach((c) -> {
-           if (c.getSuperClass() == null) return;
-           if (affected.contains(c)) return;
-           if (!input.contains(c.getName())) return;
+           if (c.getSuperClass() == null
+                   || affected.contains(c)
+                   || !input.contains(c.getName())) { return; }
            Set<JClass> directUpper = new HashSet<>();
            directUpper.add(c.getSuperClass());
            directUpper.addAll(c.getInterfaces());
@@ -269,7 +291,7 @@ public class TaieCastingReporter {
                    .collect(Collectors.toSet());
 
            for (JClass child : children) {
-               if (child == c) continue;
+               if (child == c) { continue; }
                Set<ReferenceType> lca = lcaWithoutObj(Set.of(c.getType(), child.getType()));
                if (lca.size() <= 1) {
                    continue;

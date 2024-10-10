@@ -1,3 +1,25 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
@@ -182,7 +204,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
     void pruneAndRenaming(int phiCount) {
         // pass 1: prune, or spreading `used` flag
         for (int i = 0; i < graph.size(); i++) {
-            if (!phis.has(i)) continue;
+            if (!phis.has(i)) { continue; }
             for (SemiPhi phi : phis.get(i)) {
                 if (phi.used) {
                     spreadingUsed(phi);
@@ -198,7 +220,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             boolean[] visited = new boolean[phiCount];
             Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
             for (int i = 0; i < graph.size(); i++) {
-                if (!phis.has(i)) continue;
+                if (!phis.has(i)) { continue; }
                 for (SemiPhi phi : phis.get(i)) {
                     if (phi.used && !visited[phi.index]) {
                         varIndexToOriginSlot.put(varIndex, phi.var);
@@ -314,7 +336,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             // and should be labeled as 0, 1, 2, 3, ... in the du index
             varReachDef[i] = i;
             // if the param is used in a phi node, we need to update the reaching def
-            if (!phis.has(graph.getIntEntry())) continue;
+            if (!phis.has(graph.getIntEntry())) { continue; }
             for (SemiPhi phi : phis.get(graph.getIntEntry())) {
                 if (phi.var == i) {
                     phi.addInDefs(null, i);

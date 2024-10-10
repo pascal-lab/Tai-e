@@ -1,3 +1,25 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.frontend.newfrontend;
 
 import org.apache.logging.log4j.LogManager;
@@ -1470,7 +1492,7 @@ public class AsmIRBuilder {
                 }
             };
             for (StackPhi phi : phiList) {
-                if (phi.getWriteOutVar() != null) continue;
+                if (phi.getWriteOutVar() != null) { continue; }
                 BytecodeBlock block = phi.createPos;
                 boolean hasCriticalInEdge = block.isLoopHeader();
 //                for (int i = 0; i < getInEdgeCount(block); ++i) {
@@ -1483,7 +1505,7 @@ public class AsmIRBuilder {
                 for (StackItem item : block.getInStack()) {
                     Exp e = item.originalExp();
                     if (e instanceof StackPhi phi1) {
-                        if (phi1.getWriteOutVar() != null) continue;
+                        if (phi1.getWriteOutVar() != null) { continue; }
                         boolean useWorseSolution = hasCriticalInEdge && phi1.used;
                         Var writeOut = useWorseSolution ? manager.getTempVar() : phi1.getVar();
                         varSSAInfo.setNonSSA(writeOut);
@@ -1497,7 +1519,7 @@ public class AsmIRBuilder {
                 }
             }
             for (StackPhi phi : phiList) {
-                if (phi.getWriteOutVar() == null || phi.resolved) continue;
+                if (phi.getWriteOutVar() == null || phi.resolved) { continue; }
                 resolveStackPhi(phi);
             }
         } else {
@@ -2371,7 +2393,7 @@ public class AsmIRBuilder {
                 pessimisticBlocks++;
                 pessimisticPhis += bb.getInStack().size();
                 for (StackItem item : bb.getInStack()) {
-                    if (item.originalExp() instanceof Top) continue;
+                    if (item.originalExp() instanceof Top) { continue; }
                     StackPhi exp = (StackPhi) item.originalExp();
                     if (exp.used) {
                         pessimisticLivePhis++;

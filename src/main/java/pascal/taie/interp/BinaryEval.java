@@ -1,3 +1,25 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.interp;
 
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -13,7 +35,8 @@ public class BinaryEval {
             if (v1 instanceof JPrimitive && v2 instanceof JPrimitive) {
                 Integer i1 = JValue.getInt(v1);
                 Integer i2 = JValue.getInt(v2);
-                return JPrimitive.getBoolean(switch (op1) {
+                return JPrimitive.getBoolean(
+                        switch (op1) {
                     case EQ -> i1.equals(i2);
                     case GE -> i1 >= i2;
                     case GT -> i1 > i2;
@@ -97,11 +120,12 @@ public class BinaryEval {
             if (pv1 instanceof Long) {
                 long ll1 = JValue.getLong(v1);
                 int i2 = JValue.getInt(v2);
-                return JPrimitive.get(switch (op1) {
-                    case SHL -> ll1 << i2;
-                    case SHR -> ll1 >> i2;
-                    case USHR -> ll1 >>> i2;
-                });
+                return JPrimitive.get(
+                        switch (op1) {
+                            case SHL -> ll1 << i2;
+                            case SHR -> ll1 >> i2;
+                            case USHR -> ll1 >>> i2;
+                        });
             } else {
                 int i1 = JValue.getInt(v1);
                 int i2 = JValue.getInt(v2);
