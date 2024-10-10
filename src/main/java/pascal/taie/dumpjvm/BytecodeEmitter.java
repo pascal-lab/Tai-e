@@ -575,31 +575,35 @@ public class BytecodeEmitter {
         BinaryExp.Op op = binaryExp.getOperator();
         int size = getSize(op1.getType());
         if (op instanceof ArithmeticExp.Op aop) {
-            nodeList.add(new InsnNode(selectArithmeticOp(switch (aop) {
-                case ADD -> 0;
-                case SUB -> 1;
-                case MUL -> 2;
-                case DIV -> 3;
-                case REM -> 4;
-            }, size)));
+            nodeList.add(new InsnNode(selectArithmeticOp(
+                    switch (aop) {
+                        case ADD -> 0;
+                        case SUB -> 1;
+                        case MUL -> 2;
+                        case DIV -> 3;
+                        case REM -> 4;
+                    }, size)));
         } else if (op instanceof BitwiseExp.Op bop) {
-            nodeList.add(new InsnNode(selectBitwiseOp(switch (bop) {
-                case AND -> 0;
-                case OR -> 1;
-                case XOR -> 2;
-            }, size)));
+            nodeList.add(new InsnNode(selectBitwiseOp(
+                    switch (bop) {
+                        case AND -> 0;
+                        case OR -> 1;
+                        case XOR -> 2;
+                    }, size)));
         } else if (op instanceof ShiftExp.Op sop) {
-            nodeList.add(new InsnNode(selectBitwiseOp(switch (sop) {
-                case SHL -> 3;
-                case SHR -> 4;
-                case USHR -> 5;
-            }, size)));
+            nodeList.add(new InsnNode(selectBitwiseOp(
+                    switch (sop) {
+                        case SHL -> 3;
+                        case SHR -> 4;
+                        case USHR -> 5;
+                    }, size)));
         } else if (op instanceof ComparisonExp.Op comprOp) {
-            nodeList.add(new InsnNode(selectComparsionOp(switch (comprOp) {
-                case CMP -> 0;
-                case CMPL -> 1;
-                case CMPG -> 2;
-            }, size)));
+            nodeList.add(new InsnNode(selectComparsionOp(
+                    switch (comprOp) {
+                        case CMP -> 0;
+                        case CMPL -> 1;
+                        case CMPG -> 2;
+                    }, size)));
         } else if (op instanceof ConditionExp.Op) {
             throw new IllegalArgumentException("Condition expression in (v := exp) is not supported");
         } else {
@@ -674,14 +678,15 @@ public class BytecodeEmitter {
             emitMayConstLoad(ret, nodeList);
             Type type = ret.getType();
             if (type instanceof PrimitiveType) {
-                nodeList.add(new InsnNode(switch (type.getName()) {
-                    case "int", "short", "byte", "boolean", "char" -> Opcodes.IRETURN;
-                    case "long" -> Opcodes.LRETURN;
-                    case "float" -> Opcodes.FRETURN;
-                    case "double" -> Opcodes.DRETURN;
-                    default ->
-                            throw new IllegalArgumentException("Unknown primitive type: " + type);
-                }));
+                nodeList.add(new InsnNode(
+                        switch (type.getName()) {
+                            case "int", "short", "byte", "boolean", "char" -> Opcodes.IRETURN;
+                            case "long" -> Opcodes.LRETURN;
+                            case "float" -> Opcodes.FRETURN;
+                            case "double" -> Opcodes.DRETURN;
+                            default ->
+                                    throw new IllegalArgumentException("Unknown primitive type: " + type);
+                        }));
             } else if (type instanceof VoidType) {
                 throw new IllegalArgumentException("Cannot return void type");
             } else if (type instanceof ReferenceType) {

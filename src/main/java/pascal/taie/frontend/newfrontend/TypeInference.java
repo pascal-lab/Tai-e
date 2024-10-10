@@ -397,7 +397,9 @@ public class TypeInference {
         }
 
         private void spreadingFlowType(Queue<FlowType> queue, FlowType type) {
-            if (type.edge.kind == EdgeKind.VAR_ARRAY) { return; }
+            if (type.edge.kind == EdgeKind.VAR_ARRAY) {
+                return;
+            }
             TypingFlowNode now = type.edge.target;
             Optional<Type> optionalType = type.getTargetType();
             if (optionalType.isEmpty()) {

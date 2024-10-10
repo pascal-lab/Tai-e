@@ -60,7 +60,9 @@ public class JarDumper {
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");
             for (JClass jClass : classes) {
-                if (!jClass.isApplication()) { continue; }
+                if (!jClass.isApplication()) {
+                    continue;
+                }
                 try {
                     byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
                     Path classfilePath = tempDir.resolve(

@@ -130,7 +130,7 @@ public class VarManager implements IVarManager {
 
         int firstParamIndex = method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
-        for (int NoOfParam = firstParamIndex; NoOfParam < method.getParamCount() + firstParamIndex; ++NoOfParam) {
+        for (int noOfParam = firstParamIndex; noOfParam < method.getParamCount() + firstParamIndex; ++noOfParam) {
             assert slotOfCurrentParam < maxLocal;
             Var v = getLocal(slotOfCurrentParam);
             if (existsLocalVariableTable) {
@@ -147,7 +147,7 @@ public class VarManager implements IVarManager {
                 }
             }
             params.add(v);
-            if (Utils.isTwoWord(method.getParamType(NoOfParam - firstParamIndex))) {
+            if (Utils.isTwoWord(method.getParamType(noOfParam - firstParamIndex))) {
                 slotOfCurrentParam += 2;
             } else {
                 slotOfCurrentParam += 1;
@@ -430,7 +430,9 @@ public class VarManager implements IVarManager {
     /**
      * can only be used before splitting
      */
-    public boolean isLocalFast(Var v) { return v.getIndex() < local2Var.length; }
+    public boolean isLocalFast(Var v) {
+        return v.getIndex() < local2Var.length;
+    }
 
     public boolean isLocal(Var v) {
         return var2Local.containsKey(v);

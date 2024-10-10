@@ -429,7 +429,9 @@ public class SSATransform<Block extends IBasicBlock> {
          */
         if (DEBUG) {
             Predicate<RValue> p = r -> {
-                if (!(r instanceof Var x)) { return true; }
+                if (!(r instanceof Var x)) {
+                    return true;
+                }
                 boolean visited =
                         isUseless.has(x.getIndex()) || stack.has(x.getIndex());
                 return isPhiDefiningVar.has(x.getIndex()) == visited;

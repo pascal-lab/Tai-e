@@ -1904,7 +1904,7 @@ public class JavaMethodIRBuilder {
             JClass nowClass = targetClass;
             FieldRef ref;
             context.pushStack(thisVar);
-            while (nowClass != null && !predicate.apply(nowClass)){
+            while (nowClass != null && !predicate.apply(nowClass)) {
                 thisVar = popVar();
                 ref = InnerClassManager.get().getOuterClassRef(nowClass);
                 nowClass = nowClass.getOuterClass();

@@ -129,29 +129,32 @@ public class BinaryEval {
             } else {
                 int i1 = JValue.getInt(v1);
                 int i2 = JValue.getInt(v2);
-                return JPrimitive.get(switch (op1) {
-                    case SHL -> i1 << i2;
-                    case SHR -> i1 >> i2;
-                    case USHR -> i1 >>> i2;
-                });
+                return JPrimitive.get(
+                        switch (op1) {
+                            case SHL -> i1 << i2;
+                            case SHR -> i1 >> i2;
+                            case USHR -> i1 >>> i2;
+                        });
             }
         } else if (op instanceof BitwiseExp.Op op1) {
             if (pv1 instanceof Long) {
                 long ll1 = JValue.getLong(v1);
                 long ll2 = JValue.getLong(v2);
-                return JPrimitive.get(switch (op1) {
-                    case OR -> ll1 | ll2;
-                    case AND -> ll1 & ll2;
-                    case XOR -> ll1 ^ ll2;
-                });
+                return JPrimitive.get(
+                        switch (op1) {
+                            case OR -> ll1 | ll2;
+                            case AND -> ll1 & ll2;
+                            case XOR -> ll1 ^ ll2;
+                        });
             } else {
                 int i1 = JValue.getInt(v1);
                 int i2 = JValue.getInt(v2);
-                return JPrimitive.get(switch (op1) {
-                    case OR -> i1 | i2;
-                    case AND -> i1 & i2;
-                    case XOR -> i1 ^ i2;
-                });
+                return JPrimitive.get(
+                        switch (op1) {
+                            case OR -> i1 | i2;
+                            case AND -> i1 & i2;
+                            case XOR -> i1 ^ i2;
+                        });
             }
         } else {
             throw new InterpreterException();
@@ -160,37 +163,41 @@ public class BinaryEval {
 
     public static JValue evalArithmetic(ArithmeticExp.Op op, Object v1, Object v2) {
         if (v1 instanceof Integer l1 && v2 instanceof Integer l2) {
-            return new JPrimitive(switch (op) {
-                case ADD -> l1 + l2;
-                case DIV -> l1 / l2;
-                case MUL -> l1 * l2;
-                case REM -> l1 % l2;
-                case SUB -> l1 - l2;
-            });
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> l1 + l2;
+                        case DIV -> l1 / l2;
+                        case MUL -> l1 * l2;
+                        case REM -> l1 % l2;
+                        case SUB -> l1 - l2;
+                    });
         } else if (v1 instanceof Long l1 && v2 instanceof Long l2) {
-            return new JPrimitive(switch (op) {
-                case ADD -> l1 + l2;
-                case SUB -> l1 - l2;
-                case MUL -> l1 * l2;
-                case DIV -> l1 / l2;
-                case REM -> l1 % l2;
-            });
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> l1 + l2;
+                        case SUB -> l1 - l2;
+                        case MUL -> l1 * l2;
+                        case DIV -> l1 / l2;
+                        case REM -> l1 % l2;
+                    });
         } else if (v1 instanceof Float f1 && v2 instanceof Float f2) {
-            return new JPrimitive(switch (op) {
-                case ADD -> f1 + f2;
-                case SUB -> f1 - f2;
-                case MUL -> f1 * f2;
-                case DIV -> f1 / f2;
-                case REM -> f1 % f2;
-            });
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> f1 + f2;
+                        case SUB -> f1 - f2;
+                        case MUL -> f1 * f2;
+                        case DIV -> f1 / f2;
+                        case REM -> f1 % f2;
+                    });
         } else if (v1 instanceof Double f1 && v2 instanceof Double f2) {
-            return new JPrimitive(switch (op) {
-                case ADD -> f1 + f2;
-                case SUB -> f1 - f2;
-                case MUL -> f1 * f2;
-                case DIV -> f1 / f2;
-                case REM -> f1 % f2;
-            });
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> f1 + f2;
+                        case SUB -> f1 - f2;
+                        case MUL -> f1 * f2;
+                        case DIV -> f1 / f2;
+                        case REM -> f1 % f2;
+                    });
         } else {
             throw new InterpreterException();
         }

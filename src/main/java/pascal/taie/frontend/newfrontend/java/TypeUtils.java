@@ -293,8 +293,7 @@ public final class TypeUtils {
     public static String getErasedSignature(
             ITypeBinding[] paramType,
             ITypeBinding returnType,
-            String methodName)
-    {
+            String methodName) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getErasedName(returnType));
         stringBuilder.append(" ");
@@ -316,8 +315,7 @@ public final class TypeUtils {
      * <p>{@code signature} need to be erased</p>
      */
     public static boolean isSubSignature(
-            String signature, IMethodBinding iMethodBinding)
-    {
+            String signature, IMethodBinding iMethodBinding) {
         var signature2 = getErasedSignature(iMethodBinding.getParameterTypes(),
                 iMethodBinding.getReturnType(),
                 iMethodBinding.getName());

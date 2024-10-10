@@ -51,7 +51,9 @@ class ClassLocation {
      * <br/>     "ClassLocation": "ClassLocation"
      */
     public String next() throws IndexOutOfBoundsException {
-        if (index >= fullClassLocation.length()) { throw new IndexOutOfBoundsException(); }
+        if (index >= fullClassLocation.length()) {
+            throw new IndexOutOfBoundsException();
+        }
         int nextDot = fullClassLocation.indexOf('.', index);
         String result;
         if (nextDot != -1) {

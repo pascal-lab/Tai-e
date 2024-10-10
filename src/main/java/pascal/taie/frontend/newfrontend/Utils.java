@@ -514,7 +514,7 @@ public class Utils {
 
     static Set<ReferenceType> minimum(Set<ClassType> in) {
         Set<ClassType> removed = Sets.newHybridSet();
-        for (ClassType t1: in) {
+        for (ClassType t1 : in) {
             if (removed.contains(t1)) {
                 continue;
             } else {

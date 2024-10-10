@@ -62,7 +62,9 @@ final class StackItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) { return true; }
+        if (obj == this) {
+            return true;
+        }
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (StackItem) obj;
         return Objects.equals(this.e, that.e) &&

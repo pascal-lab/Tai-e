@@ -71,10 +71,10 @@ public class LambdaManager {
 
         List<IVariableBinding> computeArgBindings() {
             List<IVariableBinding> argBindings = new ArrayList<>(allCaptured);
-            for (Object _svd : ast.parameters()) {
-                if (_svd instanceof SingleVariableDeclaration svd) {
+            for (Object svd1 : ast.parameters()) {
+                if (svd1 instanceof SingleVariableDeclaration svd) {
                     argBindings.add(svd.resolveBinding());
-                } else if (_svd instanceof VariableDeclarationFragment fragment) {
+                } else if (svd1 instanceof VariableDeclarationFragment fragment) {
                     argBindings.add(fragment.resolveBinding());
                 } else {
                     throw new UnsupportedOperationException();

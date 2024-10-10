@@ -234,7 +234,9 @@ public class TaieCastingReporter {
         Set<Var> visited = new HashSet<>();
         while (!queue.isEmpty()) {
             Var var = queue.poll();
-            if (visited.contains(var)) { continue; }
+            if (visited.contains(var)) {
+                continue;
+            }
             visited.add(var);
             Set<Stmt> def = varDefs.get(var);
             for (Stmt stmt : def) {
@@ -279,7 +281,9 @@ public class TaieCastingReporter {
         World.get().getClassHierarchy().allClasses().forEach((c) -> {
            if (c.getSuperClass() == null
                    || affected.contains(c)
-                   || !input.contains(c.getName())) { return; }
+                   || !input.contains(c.getName())) {
+               return;
+           }
            Set<JClass> directUpper = new HashSet<>();
            directUpper.add(c.getSuperClass());
            directUpper.addAll(c.getInterfaces());
@@ -291,7 +295,9 @@ public class TaieCastingReporter {
                    .collect(Collectors.toSet());
 
            for (JClass child : children) {
-               if (child == c) { continue; }
+               if (child == c) {
+                   continue;
+               }
                Set<ReferenceType> lca = lcaWithoutObj(Set.of(c.getType(), child.getType()));
                if (lca.size() <= 1) {
                    continue;

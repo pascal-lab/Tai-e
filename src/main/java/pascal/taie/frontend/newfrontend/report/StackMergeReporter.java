@@ -51,7 +51,7 @@ public class StackMergeReporter {
 
     public void showStats() {
         System.out.println("total basic blocks:         " + totalBlocks  + "\n" +
-                           "pessimistic basic blocks:   " + pessimisticBlocks + ", " + (double) pessimisticBlocks / totalBlocks +"\n" +
+                           "pessimistic basic blocks:   " + pessimisticBlocks + ", " + (double) pessimisticBlocks / totalBlocks + "\n" +
                            "                            " + pessimisticPhis + ", " + pessimisticLivePhis
                 );
     }

@@ -1492,7 +1492,9 @@ public class AsmIRBuilder {
                 }
             };
             for (StackPhi phi : phiList) {
-                if (phi.getWriteOutVar() != null) { continue; }
+                if (phi.getWriteOutVar() != null) {
+                    continue;
+                }
                 BytecodeBlock block = phi.createPos;
                 boolean hasCriticalInEdge = block.isLoopHeader();
 //                for (int i = 0; i < getInEdgeCount(block); ++i) {
@@ -1505,7 +1507,9 @@ public class AsmIRBuilder {
                 for (StackItem item : block.getInStack()) {
                     Exp e = item.originalExp();
                     if (e instanceof StackPhi phi1) {
-                        if (phi1.getWriteOutVar() != null) { continue; }
+                        if (phi1.getWriteOutVar() != null) {
+                            continue;
+                        }
                         boolean useWorseSolution = hasCriticalInEdge && phi1.used;
                         Var writeOut = useWorseSolution ? manager.getTempVar() : phi1.getVar();
                         varSSAInfo.setNonSSA(writeOut);
@@ -1519,7 +1523,9 @@ public class AsmIRBuilder {
                 }
             }
             for (StackPhi phi : phiList) {
-                if (phi.getWriteOutVar() == null || phi.resolved) { continue; }
+                if (phi.getWriteOutVar() == null || phi.resolved) {
+                    continue;
+                }
                 resolveStackPhi(phi);
             }
         } else {
@@ -2393,7 +2399,9 @@ public class AsmIRBuilder {
                 pessimisticBlocks++;
                 pessimisticPhis += bb.getInStack().size();
                 for (StackItem item : bb.getInStack()) {
-                    if (item.originalExp() instanceof Top) { continue; }
+                    if (item.originalExp() instanceof Top) {
+                        continue;
+                    }
                     StackPhi exp = (StackPhi) item.originalExp();
                     if (exp.used) {
                         pessimisticLivePhis++;
