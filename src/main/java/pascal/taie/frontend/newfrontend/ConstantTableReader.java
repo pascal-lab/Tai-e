@@ -23,11 +23,15 @@
 package pascal.taie.frontend.newfrontend;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * Read constant table from class file.
- * Some code is taken from asm library.
+ * <p>Read constant table from class file.
+ * Some code is taken from the asm library.</p>
+ *
+ * <p>The implementation mainly focus on efficiency,
+ * contains some tricky code</p>
  */
 public class ConstantTableReader {
     public static final int HEAD = 0xcafebabe;
@@ -48,8 +52,20 @@ public class ConstantTableReader {
     public static final byte CONSTANT_InvokeDynamic = 18;
     public static final byte CONSTANT_Module = 19;
     public static final byte CONSTANT_Package = 20;
+    private static final byte[] RUNTIME_VISIBLE_ANNOTATIONS_UTF8 = {
+            (byte) 0x52, (byte) 0x75, (byte) 0x6e, (byte) 0x74, (byte) 0x69, (byte) 0x6d,
+            (byte) 0x65, (byte) 0x56, (byte) 0x69, (byte) 0x73, (byte) 0x69, (byte) 0x62,
+            (byte) 0x6c, (byte) 0x65, (byte) 0x41, (byte) 0x6e, (byte) 0x6e, (byte) 0x6f,
+            (byte) 0x74, (byte) 0x61, (byte) 0x74, (byte) 0x69, (byte) 0x6f, (byte) 0x6e,
+            (byte) 0x73
+    };
 
     private List<String> binaryNames;
+
+    private int[] constantsOffset;
+    private boolean[] internalsLoad;
+    private boolean[] descriptorsLoad;
+    private char[] decodeBuffer;
 
     private final byte[] classFileBuffer;
 
@@ -64,12 +80,17 @@ public class ConstantTableReader {
         return binaryNames;
     }
 
-    public int readUnsignedShort() {
+    private int readUnsignedShort() {
         byte[] classBuffer = classFileBuffer;
         return ((classBuffer[offset++] & 0xFF) << 8) | (classBuffer[offset++] & 0xFF);
     }
 
-    public int readInt() {
+    private int readUnsignedShortPure(int offset) {
+        byte[] classBuffer = classFileBuffer;
+        return ((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF);
+    }
+
+    private int readInt() {
         byte[] classBuffer = classFileBuffer;
         return ((classBuffer[offset++] & 0xFF) << 24)
                 | ((classBuffer[offset++] & 0xFF) << 16)
@@ -77,7 +98,19 @@ public class ConstantTableReader {
                 | (classBuffer[offset++] & 0xFF);
     }
 
-    void parse() {
+    private boolean arrayEqualsPure(byte[] target, int offset, int len) {
+        if (len != target.length) {
+            return false;
+        }
+        for (int i = 0; i < len; i++) {
+            if (classFileBuffer[offset + i] != target[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void parse() {
         binaryNames = new ArrayList<>();
         // head
         offset += 4;
@@ -86,20 +119,26 @@ public class ConstantTableReader {
         // version
         offset += 2;
         int count = readUnsignedShort();
-        String[] constants = new String[count];
-        boolean[] internalsLoad = new boolean[count];
-        boolean[] descriptorsLoad = new boolean[count];
-        char[] maxBuffer = new char[classFileBuffer.length];
+        constantsOffset = new int[count];
+        internalsLoad = new boolean[count];
+        descriptorsLoad = new boolean[count];
+        int maxLen = 0;
         for (int ix = 1; ix < count; ix++) {
             int index1, index2;
             byte tag = classFileBuffer[offset++];
             switch (tag) {
                 default -> throw new FrontendException("unknown pool item type");
                 case CONSTANT_Utf8 -> {
-                    String str = decodeString(maxBuffer);
-                    constants[ix] = str;
+                    constantsOffset[ix] = offset;
+                    int len = readUnsignedShort();
+                    maxLen = Math.max(len, maxLen);
+                    offset += len;
                 }
                 case CONSTANT_Class -> {
+                    // CONSTANT_Class_info {
+                    //    u1 tag;
+                    //    u2 name_index;
+                    // }
                     index1 = readUnsignedShort();
                     internalsLoad[index1] = true;
                 }
@@ -107,10 +146,15 @@ public class ConstantTableReader {
                     index1 = readUnsignedShort();
                     descriptorsLoad[index1] = true;
                 }
-                case CONSTANT_FieldRef, CONSTANT_MethodRef, CONSTANT_InterfaceMethodRef -> {
-                    index1 = readUnsignedShort();
-                    offset += 2;
-                    internalsLoad[index1] = true;
+                case CONSTANT_FieldRef, CONSTANT_MethodRef, CONSTANT_InterfaceMethodRef,
+                     CONSTANT_InvokeDynamic -> {
+                    // E.g.
+                    // CONSTANT_Fieldref_info {
+                    //    u1 tag;
+                    //    u2 class_index;          ;; Points to CONSTANT_Class_info
+                    //    u2 name_and_type_index;  ;; Points to CONSTANT_NameAndType_info
+                    // }
+                    offset += 4;
                 }
                 case CONSTANT_NameAndType -> {
                     offset += 2;
@@ -124,9 +168,6 @@ public class ConstantTableReader {
                 case CONSTANT_MethodHandle -> {
                     offset += 3;
                 }
-                case CONSTANT_InvokeDynamic -> {
-                    offset += 4;
-                }
                 case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
                 case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
             }
@@ -137,12 +178,15 @@ public class ConstantTableReader {
         offset += interfaceCount * 2;
         readFieldOrMethod(descriptorsLoad);
         readFieldOrMethod(descriptorsLoad);
-        for (int i = 0; i < count; ++i) {
+        parseAnnotations();
+
+        // Now parse descriptors and internal names
+        decodeBuffer = new char[maxLen];
+        for (int i = 1; i < count; ++i) {
             if (internalsLoad[i]) {
-                addInternalName(constants[i]);
-            }
-            if (descriptorsLoad[i]) {
-                addDescriptor(constants[i]);
+                visitInternalName(constantsOffset[i], binaryNames);
+            } else if (descriptorsLoad[i]) {
+                visitDescriptor(constantsOffset[i], binaryNames);
             }
         }
     }
@@ -152,33 +196,78 @@ public class ConstantTableReader {
         for (int i = 0; i < methodCount; i++) {
             offset += 4;
             descriptors[readUnsignedShort()] = true;
-            int attrCount = readUnsignedShort();
-            for (int j = 0; j < attrCount; j++) {
-                offset += 2;
-                int len = readInt();
-                offset += len;
+            parseAnnotations();
+        }
+    }
+
+    private void parseAnnotations() {
+        int attributesCount = readUnsignedShort();
+        for (int i = 0; i < attributesCount; i++) {
+            int nameIndex = readUnsignedShort();
+            int attributeLength = readInt();
+
+            int nameOffset = constantsOffset[nameIndex];
+            int nameLength = readUnsignedShortPure(nameOffset);
+            if (arrayEqualsPure(RUNTIME_VISIBLE_ANNOTATIONS_UTF8, nameOffset + 2, nameLength)) {
+                parseAnnotationContent();  // Parse annotation content
+            } else {
+                offset += attributeLength; // Skip other attributes
             }
         }
     }
 
-    private void addDescriptor(String descriptor) {
-        InternalNameVisitor.visitDescriptor(descriptor, binaryNames);
-    }
+    private void parseAnnotationContent() {
+        int numAnnotations = readUnsignedShort();
+        for (int i = 0; i < numAnnotations; i++) {
+            int typeIndex = readUnsignedShort();  // Class descriptor
+            descriptorsLoad[typeIndex] = true;
 
-    private void addInternalName(String internalName) {
-        if (internalName == null) {
-            return;
+            int numElementValuePairs = readUnsignedShort();
+            for (int j = 0; j < numElementValuePairs; j++) {
+                readUnsignedShort();  // Ignore element name
+                parseElementValue();  // Parse element value and check for class references
+            }
         }
-        InternalNameVisitor.visitInternalName(internalName, binaryNames);
     }
 
+    private void parseElementValue() {
+        byte tag = classFileBuffer[offset++];
+        switch (tag) {
+            case 'B': case 'C': case 'D': case 'F': case 'I': case 'J': case 'S': case 'Z':
+                offset += 2; // primitive type, just skip
+                break;
+            case 's':
+                offset += 2; // skip strings for now
+                break;
+            case 'c': // class type
+                int ix = readUnsignedShort();
+                descriptorsLoad[ix] = true;
+                break;
+            case 'e':
+                offset += 4;
+                break;
+            case '@': // Nested annotation
+                parseAnnotationContent(); // Recursive call for nested annotations
+                break;
+            case '[': // Array of values
+                int arraySize = readUnsignedShort();
+                for (int i = 0; i < arraySize; i++) {
+                    parseElementValue(); // Parse each element in the array
+                }
+                break;
+            default:
+                throw new FrontendException("Unknown element value tag: " + tag);
+        }
+    }
 
-    private String decodeString(char[] charBuffer) {
-        // TODO: avoid substring allocation
-        // here we don't allocate any string except the final one
-        // but during addDescriptor/addInternalName, we allocate a lot of strings
-        int currentOffset = this.offset;
-        int len = readUnsignedShort();
+    /**
+     * Decode string at position offset.
+     * Now only used for debug purpose
+     */
+    private String decodeString(int offset) {
+        char[] charBuffer = decodeBuffer;
+        int currentOffset = offset;
+        int len = readUnsignedShortPure(currentOffset);
         currentOffset += 2;
         int endOffset = currentOffset + len;
         int strLength = 0;
@@ -198,7 +287,105 @@ public class ConstantTableReader {
                                         + (classBuffer[currentOffset++] & 0x3F));
             }
         }
-        offset = endOffset;
         return new String(charBuffer, 0, strLength);
+    }
+
+    // These fields are used to parse descriptors and internal names
+    private int currentOffset;
+    private int decodeOffset;
+
+    private void visitDescriptor(int offset, Collection<String> container) {
+        currentOffset = offset + 2;
+        decodeOffset = 0;
+        char first = nextChar();
+        if (first == 'L') {
+            extractAndAddInternalName(container);
+        } else if (first == '[') {
+            extractArrayType(container);
+        } else if (first == '(') {
+            char now;
+            now = nextChar();
+            while (now != ')') {
+                switch (now) {
+                    case 'B', 'C', 'D', 'I', 'F', 'J', 'S', 'Z' -> {
+                    }
+                    case '[' -> {
+                        extractArrayType(container);
+                    }
+                    case 'L' -> {
+                        extractAndAddInternalName(container);
+                    }
+                    default -> throw new UnsupportedOperationException();
+                }
+                now = nextChar();
+            }
+            if (nextChar() == 'L') {
+                String internalName = extractInternalName();
+                container.add(internalName);
+            }
+        }
+    }
+
+    /**
+     * The input (Content of <code>CONSTANT_Class_info</code>) is either
+     * <ul>
+     *     <li>Real internal name, e.g. <code>java/lang/Thread</code></li>
+     *     <li>Array Descriptor, e.g. <code>[Ljava/lang/Thread;</code></li>
+     * </ul>
+     */
+    private void visitInternalName(int offset, Collection<String> container) {
+        int len = readUnsignedShortPure(offset);
+        currentOffset = offset + 2;
+        int start = currentOffset;
+        decodeOffset = 0;
+        char c = nextChar();
+        if (c == '[') {
+            extractArrayType(container);
+        } else {
+            while (currentOffset < len + start) {
+                nextChar();
+            }
+            container.add(new String(decodeBuffer, 0, decodeOffset));
+        }
+    }
+
+    private void extractAndAddInternalName(Collection<String> container) {
+        String internalName = extractInternalName();
+        container.add(internalName);
+    }
+
+    private String extractInternalName() {
+        int startOffset = decodeOffset;
+        while (nextChar() != ';') {
+        }
+        String str = new String(decodeBuffer, startOffset, decodeOffset - startOffset - 1);
+        assert !str.endsWith(";");
+        return str;
+    }
+
+    private void extractArrayType(Collection<String> container) {
+        char curr;
+        do {
+            curr = nextChar();
+        } while (curr == '[');
+        if (curr == 'L') {
+            String res = extractInternalName();
+            container.add(res);
+        }
+    }
+
+    private char nextChar() {
+        int currentByte = classFileBuffer[currentOffset++];
+        char now;
+        if ((currentByte & 0x80) == 0) {
+            now = (char) (currentByte & 0x7F);
+        } else if ((currentByte & 0xE0) == 0xC0) {
+            now = (char) (((currentByte & 0x1F) << 6) + (classFileBuffer[currentOffset++] & 0x3F));
+        } else {
+            now = (char) (((currentByte & 0x0F) << 12) + ((classFileBuffer[currentOffset++] & 0x3F) << 6)
+                    + (classFileBuffer[currentOffset++] & 0x3F));
+        }
+        decodeBuffer[decodeOffset++] = now;
+        return now;
     }
 }
