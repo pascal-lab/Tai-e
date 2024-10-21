@@ -34,24 +34,24 @@ import java.util.List;
  * contains some tricky code</p>
  */
 public class ConstantTableReader {
-    public static final int HEAD = 0xcafebabe;
+    private static final int HEAD = 0xcafebabe;
     // Constant pool types
-    public static final byte CONSTANT_Utf8 = 1;
-    public static final byte CONSTANT_Integer = 3;
-    public static final byte CONSTANT_Float = 4;
-    public static final byte CONSTANT_Long = 5;
-    public static final byte CONSTANT_Double = 6;
-    public static final byte CONSTANT_Class = 7;
-    public static final byte CONSTANT_String = 8;
-    public static final byte CONSTANT_FieldRef = 9;
-    public static final byte CONSTANT_MethodRef = 10;
-    public static final byte CONSTANT_InterfaceMethodRef = 11;
-    public static final byte CONSTANT_NameAndType = 12;
-    public static final byte CONSTANT_MethodHandle = 15;
-    public static final byte CONSTANT_MethodType = 16;
-    public static final byte CONSTANT_InvokeDynamic = 18;
-    public static final byte CONSTANT_Module = 19;
-    public static final byte CONSTANT_Package = 20;
+    private static final byte CONSTANT_Utf8 = 1;
+    private static final byte CONSTANT_Integer = 3;
+    private static final byte CONSTANT_Float = 4;
+    private static final byte CONSTANT_Long = 5;
+    private static final byte CONSTANT_Double = 6;
+    private static final byte CONSTANT_Class = 7;
+    private static final byte CONSTANT_String = 8;
+    private static final byte CONSTANT_FieldRef = 9;
+    private static final byte CONSTANT_MethodRef = 10;
+    private static final byte CONSTANT_InterfaceMethodRef = 11;
+    private static final byte CONSTANT_NameAndType = 12;
+    private static final byte CONSTANT_MethodHandle = 15;
+    private static final byte CONSTANT_MethodType = 16;
+    private static final byte CONSTANT_InvokeDynamic = 18;
+    private static final byte CONSTANT_Module = 19;
+    private static final byte CONSTANT_Package = 20;
     private static final byte[] RUNTIME_VISIBLE_ANNOTATIONS_UTF8 = {
             (byte) 0x52, (byte) 0x75, (byte) 0x6e, (byte) 0x74, (byte) 0x69, (byte) 0x6d,
             (byte) 0x65, (byte) 0x56, (byte) 0x69, (byte) 0x73, (byte) 0x69, (byte) 0x62,
