@@ -25,13 +25,13 @@ package pascal.taie.frontend.newfrontend;
 /**
  * Represents the errors raised during constructing program information from bytecode in ASM form.
  */
-class AsmFrontendException extends FrontendException {
+public class AsmFrontendException extends FrontendException {
 
     AsmFrontendException(String msg) {
         super(msg);
     }
 
-    AsmFrontendException(String msg, Throwable cause) {
+    public AsmFrontendException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }

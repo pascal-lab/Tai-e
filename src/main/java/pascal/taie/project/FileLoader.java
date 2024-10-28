@@ -80,6 +80,8 @@ public class FileLoader {
         return (dotIndex == -1) ? s : s.substring(0, dotIndex);
     }
 
+
+
     private boolean isClassFile(Path p) {
         return getExt(p).equals("class");
     }
@@ -96,19 +98,28 @@ public class FileLoader {
         return getExt(p).equals("java");
     }
 
-    private Resource mkResource(Parent p, Path path) throws IOException {
+    private Resource mkResource(Parent parent, Path path) throws IOException {
         // fs is default means it's a file on the disk
-        if (p.fs() == FileSystems.getDefault()) {
+        if (parent.fs() == FileSystems.getDefault()) {
             return new FileResource(path);
         } else { // otherwise it's an entry of a zip file
             // path of [p] is on the disk, use lazy load
-            if (p.p().getFileSystem() == FileSystems.getDefault()) {
-                return new ZipEntryResource(p.p(), null, path.toString(), p.fs());
+            if (parent.p().getFileSystem() == FileSystems.getDefault()) {
+                return new ZipEntryResource(parent.p(), null, path.toString(), parent.fs());
             } else {
                 // path of [p] is an entry of a zip file, unzip the file of [path]
                 byte[] cache = Files.readAllBytes(path);
-                return new ZipEntryResource(p.p(), cache, path.toString(), null);
+                return new ZipEntryResource(parent.p(), cache, path.toString(), null);
             }
+        }
+    }
+
+    private Path getRelativePath(Parent parent, Path p) {
+        if (parent.fs() == FileSystems.getDefault()) {
+            return parent.p().relativize(p);
+        } else {
+            // just need to substrate root
+            return parent.fs().getPath("/").relativize(p);
         }
     }
 
@@ -207,10 +218,12 @@ public class FileLoader {
             } else {
                 Resource r = mkResource(parent, path);
                 FileTime time = Files.getLastModifiedTime(path);
+                Path relativePath = getRelativePath(parent, path);
+                String internalName = getName(relativePath);
                 if (isClassFile(path)) {
-                    fileWorker.apply(new ClassFile(getName(path), time, r, rootContainer));
+                    fileWorker.apply(new ClassFile(getName(path), internalName, time, r, rootContainer));
                 } else if (isJavaSourceFile(path)) {
-                    fileWorker.apply(new JavaSourceFile(getName(path), time, r, rootContainer));
+                    fileWorker.apply(new JavaSourceFile(getName(path), internalName, time, r, rootContainer));
                 } else {
                     fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r, rootContainer));
                 }

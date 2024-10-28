@@ -59,12 +59,6 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
 
     protected abstract List<FileContainer> getRootContainers();
 
-    @Override
-    public Project build() {
-        return new Project(getMainClass(), getJavaVersion(),
-                getInputClasses(), getRootContainers(), null);
-    }
-
     /**
      * return value excludes app-class-path
      */

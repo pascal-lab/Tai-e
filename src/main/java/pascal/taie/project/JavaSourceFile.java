@@ -26,17 +26,24 @@ import java.nio.file.attribute.FileTime;
 
 public record JavaSourceFile(
         String className,
+        String internalName,
         FileTime timeStamp,
         Resource resource,
         FileContainer rootContainer
-) implements AnalysisFile {
+) implements AnalysisFile, ClassLike {
 
     @Override
     public String fileName() {
         return className + ".java";
     }
 
+    @Override
     public String getClassName() {
         return className;
+    }
+
+    @Override
+    public String getInternalName() {
+        return internalName;
     }
 }

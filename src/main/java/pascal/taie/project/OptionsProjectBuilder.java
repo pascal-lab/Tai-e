@@ -84,7 +84,11 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     FileLoader.get().loadRootContainers(
                             Stream.concat(
                                 libClassPaths.stream().distinct().map(Paths::get),
-                                listJrtModule(options)).toList()));
+                                listJrtModule(options)).toList()),
+                    String.join(File.pathSeparator,
+                            Stream.concat(
+                                    options.getClassPath().stream(),
+                                    options.getAppClassPath().stream()).toList()));
             if (options.getExtractAllClasses()) {
                 List<String> inputClasses = project.getInputClasses();
                 for (FileContainer path : project.getLibRootContainers()) {

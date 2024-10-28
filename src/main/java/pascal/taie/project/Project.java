@@ -22,8 +22,11 @@
 
 package pascal.taie.project;
 
+import pascal.taie.util.collection.Sets;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -37,20 +40,27 @@ public class Project {
 
     private final List<String> inputClasses;
 
+    private final Set<String> inputClassesSet;
+
     private final List<FileContainer> appRootContainers;
 
     private final List<FileContainer> libRootContainers;
+
+    private final String classPath;
 
     Project(String mainClass,
             int javaVersion,
             List<String> inputClasses,
             List<FileContainer> appRootContainers,
-            List<FileContainer> libRootContainers) {
+            List<FileContainer> libRootContainers,
+            String classPath) {
         this.mainClass = mainClass;
         this.javaVersion = javaVersion;
         this.inputClasses = inputClasses;
+        this.inputClassesSet = Sets.newSet(inputClasses);
         this.appRootContainers = appRootContainers;
         this.libRootContainers = libRootContainers;
+        this.classPath = classPath;
     }
 
     public String getMainClass() {
@@ -74,7 +84,21 @@ public class Project {
     }
 
     public boolean isApp(AnalysisFile file) {
-        return appRootContainers.contains(file.rootContainer());
+        return appRootContainers.contains(file.rootContainer()) ||
+                isMainOrInputClass(file);
+    }
+
+    private boolean isMainOrInputClass(AnalysisFile file) {
+        if (file instanceof ClassLike classLike) {
+            String className = classLike.getBinaryName();
+            return inputClassesSet.contains(className) || className.equals(mainClass);
+        } else {
+            return false;
+        }
+    }
+
+    public String getClassPath() {
+        return classPath;
     }
 
     /**
