@@ -33,6 +33,7 @@ import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
@@ -64,28 +65,31 @@ public class AsyncTaskModel extends AndroidMiscHandler {
             "<android.os.AsyncTask: android.os.AsyncTask execute(java.lang.Object[])>"},
             argIndexes = {BASE, 0})
     public void asyncTaskExecute(Context context, Invoke invoke, PointsToSet baseObjs, PointsToSet argObjs) {
+        AtomicReference<JMethod> onPostExecute = new AtomicReference<>();
+        AtomicReference<JMethod> doInBack = new AtomicReference<>();
         baseObjs.forEach(csObj -> {
             if (csObj.getObject().getType() instanceof ClassType classType) {
-                for (Subsignature subsignature : ASYNC_TASK_METHODS) {
-                    JMethod asyncTaskMethod = classType.getJClass().getDeclaredMethod(subsignature);
-                    if (asyncTaskMethod != null) {
-                        addEntryPoint(asyncTaskMethod, csObj.getObject());
-                        // process doInBackground
-                        if (subsignature.equals(DO_IN_BACKGROUND_SUB_SIG)) {
-                            solver.addVarPointsTo(emptyContext, asyncTaskMethod.getIR().getParam(0), argObjs);
-
-                            // process onPostExecute
-                            JMethod onPostExecute = classType.getJClass().getDeclaredMethod(ON_POST_EXECUTE_SUB_SIG);
-                            if (onPostExecute != null) {
-                                addEntryPoint(onPostExecute, csObj.getObject());
-                                CSVar postExecuteParamVar = csManager.getCSVar(emptyContext, onPostExecute.getIR().getParam(0));
-                                asyncTaskMethod.getIR().getReturnVars().forEach(returnVar -> {
-                                    CSVar csReturnVar = csManager.getCSVar(emptyContext, returnVar);
-                                    solver.addPFGEdge(new AndroidTransferEdge(csReturnVar, postExecuteParamVar));
-                                });
+                handlerContext.lifecycleHelper().getLifeCycleMethods(classType.getJClass())
+                        .forEach(asyncTaskMethod -> {
+                            Subsignature subsignature = asyncTaskMethod.getSubsignature();
+                            addEntryPoint(asyncTaskMethod, csObj.getObject());
+                            // process doInBackground
+                            if (subsignature.equals(DO_IN_BACKGROUND_SUB_SIG)) {
+                                doInBack.set(asyncTaskMethod);
+                                solver.addVarPointsTo(emptyContext, asyncTaskMethod.getIR().getParam(0), argObjs);
                             }
-                        }
-                    }
+                            if (subsignature.equals(ON_POST_EXECUTE_SUB_SIG)) {
+                                onPostExecute.set(asyncTaskMethod);
+                            }
+                        });
+                // process onPostExecute
+                if (onPostExecute.get() != null && doInBack.get() != null) {
+                    addEntryPoint(onPostExecute.get(), csObj.getObject());
+                    CSVar postExecuteParamVar = csManager.getCSVar(emptyContext, onPostExecute.get().getIR().getParam(0));
+                    doInBack.get().getIR().getReturnVars().forEach(returnVar -> {
+                        CSVar csReturnVar = csManager.getCSVar(emptyContext, returnVar);
+                        solver.addPFGEdge(new AndroidTransferEdge(csReturnVar, postExecuteParamVar));
+                    });
                 }
             }
         });
