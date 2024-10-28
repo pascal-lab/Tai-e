@@ -34,7 +34,6 @@ public class AndroidAnalysis extends CompositePlugin {
     public void setSolver(Solver solver) {
         AndroidContext androidContext = new AndroidContext(solver);
         addPlugin(
-                new AnalysisPreProcess(androidContext),
                 new LifecycleAnalysis(androidContext),
                 new ICCAnalysis(androidContext),
                 new AndroidMiscAnalysis(androidContext)
