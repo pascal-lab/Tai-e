@@ -43,3 +43,8 @@
 - android.app.Application
 - android.content.ServiceConnection
 - android.os.Handler
+- android.os.AsyncTask
+- android.content.ContextWrapper
+
+# Android library class
+- org.apache.http.impl.client.DefaultHttpClient

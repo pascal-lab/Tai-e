@@ -1,3 +1,7 @@
+- className: android.content.ContextWrapper
+  callbackMethodSubSigs:
+    - void attachBaseContext(android.content.Context) # android.app.Activity may not have this method in older sdk version
+
 - className: android.view.ContextThemeWrapper
   callbackMethodSubSigs:
     - void attachBaseContext(android.content.Context) # android.app.Activity may not have this method in older sdk version
@@ -145,3 +149,10 @@
   callbackMethodSubSigs:
     - void handleMessage(android.os.Message)
 
+- className: android.os.AsyncTask
+  callbackMethodSubSigs:
+    - void onPreExecute()
+    - java.lang.Object doInBackground(java.lang.Object[])
+    - void onProgressUpdate(java.lang.Object[])
+    - void onPostExecute(java.lang.Object)
+    - void onCancelled()
