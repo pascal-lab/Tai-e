@@ -18,7 +18,8 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
-    "io.github.yaphetsh:soot:4.6.0".let {
+    "org.soot-oss:soot:4.4.1".let {
+//    "io.github.yaphetsh:soot:4.6.0".let {
         // Disable transitive dependencies from Soot in compile classpath
         compileOnly(it) { isTransitive = false }
         testCompileOnly(it) { isTransitive = false }
@@ -33,7 +34,8 @@ dependencies {
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use FlowDroid to parse apk
-    implementation("io.github.yaphetsh:soot-infoflow-android:2.14.0")
+    implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.10.0")
+//    implementation("io.github.yaphetsh:soot-infoflow-android:2.14.0")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
