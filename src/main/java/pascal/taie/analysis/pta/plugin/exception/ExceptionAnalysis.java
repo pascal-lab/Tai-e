@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.exception;
 
+import pascal.taie.World;
 import pascal.taie.analysis.exception.CatchAnalysis;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
@@ -180,6 +181,11 @@ public class ExceptionAnalysis implements Plugin {
         while (!workList.isEmpty()) {
             Entry entry = workList.poll();
             CSMethod csMethod = entry.csMethod();
+            if (World.get().getOptions().isAndroidMode()) {
+                if (solver.getOptions().getBoolean("only-app") && !csMethod.getMethod().isApplication()) {
+                    continue;
+                }
+            }
             Stmt stmt = entry.stmt();
             Set<CSObj> exceptions = entry.exceptions();
             CSMethodThrowResult result = csMethod.getResult(getClass().getName(),
