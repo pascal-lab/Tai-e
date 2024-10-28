@@ -31,7 +31,7 @@ import pascal.taie.language.classes.JClass;
 public class DependencyAnalysisTest {
     @Test
     public void testAnnotation() {
-        Main.buildWorld("-java", "8",
+        Main.buildWorld("-java", "17",
                 "-cp", "src/test/resources/frontend/newfrontend/closeworld/my-annotation-demo-1.0-SNAPSHOT.jar",
                 "-m", "com.example.Main"
                 );

@@ -20,8 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.closedworld;
 
+import pascal.taie.frontend.newfrontend.ClassSource;
 import pascal.taie.project.Project;
 
 import java.util.Collection;

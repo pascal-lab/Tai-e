@@ -4,12 +4,9 @@ package pascal.taie.frontend.newfrontend;
 import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
-import pascal.taie.frontend.newfrontend.DefaultCHBuilder;
-import pascal.taie.frontend.newfrontend.DepCWBuilder;
+import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.project.MockOptions;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
@@ -68,9 +65,9 @@ public class SootVSNew {
     private void ours(World w) throws FileNotFoundException {
         String mainClass = "PrintClassPath";
         Project project = createProject(path, mainClass, List.of());
-        DepCWBuilder depCWBuilder = new DepCWBuilder();
-        depCWBuilder.build(project);
-        var cw = depCWBuilder.getClosedWorld();
+        DependencyCWBuilder dependencyCWBuilder = new DependencyCWBuilder();
+        dependencyCWBuilder.build(project);
+        var cw = dependencyCWBuilder.getClosedWorld();
         ClassHierarchyBuilder builder = new DefaultCHBuilder();
         var ch = builder.build(cw);
 

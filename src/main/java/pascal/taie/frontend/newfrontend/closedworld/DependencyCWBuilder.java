@@ -20,26 +20,23 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.closedworld;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.ClassNode;
+import pascal.taie.frontend.newfrontend.AsmFrontendException;
+import pascal.taie.frontend.newfrontend.ClassSource;
+import pascal.taie.frontend.newfrontend.FrontendException;
+import pascal.taie.frontend.newfrontend.FrontendOptions;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
-import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.World;
 import pascal.taie.project.AnalysisFile;
-import pascal.taie.project.ClassFile;
-import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.SearchIndex;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
 import java.io.FileNotFoundException;
@@ -54,13 +51,12 @@ import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DepCWBuilder implements ClosedWorldBuilder {
+public class DependencyCWBuilder implements ClosedWorldBuilder {
 
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
@@ -73,13 +69,13 @@ public class DepCWBuilder implements ClosedWorldBuilder {
 
     private final ExecutorService executorService;
 
-    private final CompletionService<Completed> completionService;
+    private final CompletionService<ResolveResult> completionService;
 
     private Project project;
 
     private SearchIndex index;
 
-    public DepCWBuilder() {
+    public DependencyCWBuilder() {
         int threadPoolSize = FrontendOptions.get().isUseParallelHierarchy()
                 ? THREAD_POOL_SIZE
                 : 1;
@@ -156,8 +152,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
                 String binaryName = workList.poll();
                 if (!founded.contains(binaryName)) {
                     founded.add(binaryName);
-                    completionService.submit(() ->
-                            new Completed(binaryName, buildDeps(binaryName)));
+                    completionService.submit(() -> buildDeps(binaryName));
                     tempDeltaCount++;
                 }
             }
@@ -170,9 +165,9 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             if (deltaCount >= THREAD_POOL_SIZE || tempDeltaCount == 0) {
                 while (deltaCount > 0) {
                     try {
-                        Future<Completed> future = completionService.take();
-                        Completed res = future.get();
-                        workList.addAll(res.res);
+                        Future<ResolveResult> future = completionService.take();
+                        ResolveResult r = future.get();
+                        updateIteration(founded, workList, r);
                         deltaCount--;
                     } catch (ExecutionException | InterruptedException e) {
                         throw new RuntimeException(e);
@@ -191,8 +186,8 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             if (! founded.contains(now)) {
                 founded.add(now);
                 try {
-                    Collection<String> deps = buildDeps(now);
-                    workList.addAll(deps);
+                    ResolveResult r = buildDeps(now);
+                    updateIteration(founded, workList, r);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -200,70 +195,40 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         }
     }
 
-    private Collection<String> buildDeps(String binaryName) throws IOException {
+    private void updateIteration(Set<String> founded, Queue<String> workList, ResolveResult r) {
+        if (r == null) {
+            return;
+        } else {
+            for (Pair<String, ClassSource> resolved : r.resolvedSource()) {
+                founded.add(resolved.first());
+            }
+            workList.addAll(r.dependencies());
+        }
+    }
+
+    private ResolveResult buildDeps(String binaryName) throws IOException {
         AnalysisFile f = index.locate(binaryName);
         if (f == null) {
             if (basicClassesList.contains(binaryName.replace('/', '.'))) {
                 // if some classes in basicClassesList are not found, then just ignore them
                 // for that we use try-catch style here to load them.
                 // E.g. you usually only load one of the three concrete FileSystem s.
-                return List.of();
+                return null;
             }
             if (World.get().getOptions().isAllowPhantom()) {
-                return List.of();
+                return null;
             }
             throw new FileNotFoundException(binaryName);
-        }
-
-        if (f instanceof JavaSourceFile javaSourceFile) {
-//            logger.warn(
-//                    "WARNING: currently new frontend does not support java source code("
-//                    + ((JavaSourceFile) f).getClassName()
-//                    + "). So this class would be ignored and the rest task continues on.");
-
-            // DO NOT change the order of next 2 stmts
-            List<String> deps = JavaClassManager.get().getImports(project, javaSourceFile);
-            JavaSource[] sources = JavaClassManager.get().getJavaSources(javaSourceFile);
-            for (JavaSource s : sources) {
-                sourceMap.put(s.getClassName().replace('.', '/'), s);
+        } else {
+             ResolveResult depAndSources =
+                    DependencyResolver.resolve(project, binaryName, f);
+            for (Pair<String, ClassSource> source : depAndSources.resolvedSource()) {
+                sourceMap.put(source.first(), source.second());
             }
-            return deps.stream()
-                    .map(n -> n.replace('.', '/')).toList();
-        } else if (f instanceof ClassFile classFile) {
-            return buildClassDeps(binaryName, classFile);
-        } else {
-            throw new UnsupportedOperationException();
+            return depAndSources;
         }
     }
 
-    private Collection<String> buildClassDeps(String binaryName, ClassFile cFile) throws IOException {
-        boolean isApplication = project.isApp(cFile)
-//                || project.getInputClasses().contains(binaryName)
-                || binaryName.equals(project.getMainClass());
-        byte[] content = cFile.resource().getContent();
-        cFile.resource().release();
-        assert content != null;
-        ClassReader reader = new ClassReader(content);
-//        assert reader.getClassName().replaceAll("/", ".").equals(binaryName);
-        int version = reader.readShort(6);
-        if (true) {
-            sourceMap.put(binaryName, new AsmSource(reader, isApplication, version, null));
-        } else {
-            ClassNode classNode = new ClassNode(Opcodes.ASM9) {
-                @Override
-                public MethodVisitor visitMethod(int access, String name, String descriptor,
-                                                 String signature, String[] exceptions) {
-                    JSRInlinerAdapter adapter =
-                            new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);
-                    methods.add(adapter);
-                    return adapter;
-                }
-            };
-            sourceMap.put(binaryName, new AsmSource(null, isApplication, version, classNode));
-            reader.accept(classNode, ClassReader.EXPAND_FRAMES);
-        }
-        return new ConstantTableReader(content).read();
-    }
 
     private List<String> loadNecessaryClasses() {
         return List.of("java.lang.ref.Finalizer");
@@ -277,7 +242,7 @@ public class DepCWBuilder implements ClosedWorldBuilder {
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, String.class);
         try {
-            InputStream content = DepCWBuilder.class
+            InputStream content = DependencyCWBuilder.class
                     .getClassLoader()
                     .getResourceAsStream(BASIC_CLASSES);
             return mapper.readValue(content, type);
@@ -285,6 +250,4 @@ public class DepCWBuilder implements ClosedWorldBuilder {
             throw new AsmFrontendException("Failed to read newfrontend basic classes", e);
         }
     }
-
-    private record Completed(String input, Collection<String> res) {}
 }

@@ -28,6 +28,8 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
+import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -62,7 +64,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
-        ClosedWorldBuilder closedWorldBuilder = new DepCWBuilder(); // Configurable
+        ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(); // Configurable
         closedWorldBuilder.build(project);
         Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
         ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder();
