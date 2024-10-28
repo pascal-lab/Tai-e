@@ -1,0 +1,162 @@
+- description: whole-program pointer analysis
+  analysisClass: pascal.taie.analysis.pta.PointerAnalysis
+  id: pta
+  options:
+    cs: ci # | k-[obj|type|call][-k'h]
+    only-app: false # only analyze application code
+    implicit-entries: false # analyze implicit entries
+    distinguish-string-constants: app # (distinguish reflection-relevant
+    # string constants, i.e., class, method, and field names)
+    # | null (do not distinguish any string constants)
+    # | app (distinguish string constants in application code)
+    # | all (distinguish all string constants)
+    # | <predicate-class-name>
+    merge-string-objects: true
+    merge-string-builders: true
+    merge-exception-objects: true
+    handle-invokedynamic: false
+    propagate-types: [ reference,int,long,double,char,float ] # ,null,int,long,...(other primitive types)
+    advanced: null # specify advanced analysis:
+    # zipper | zipper-e | zipper-e=PV
+    # scaler | scaler=TST
+    # mahjong | collection
+    dump: false # whether dump points-to results (with contexts)
+    dump-ci: false # whether dump points-to results (without contexts)
+    dump-yaml: false # whether dump points-to results in yaml format
+    expected-file: null # path of expected file for comparing results
+    reflection-inference: string-constant # | solar | null
+    reflection-log: null # path to reflection log, required when reflection option is log
+    taint-config: null # path to config file of taint analysis,
+    # when this file is given, taint analysis will be enabled
+    taint-interactive-mode: false # whether enable interactive mode for taint analysis
+    plugins: [ ] # | [ pluginClass, ... ]
+    time-limit: -1 # set time limit (in seconds) for pointer analysis,
+    # -1 means no time limit
+
+- description: call graph construction
+  analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder
+  id: cg
+  requires: [ pta(algorithm=pta) ]
+  options:
+    algorithm: pta # | cha
+    dump: false # whether dump call graph in dot file
+    dump-methods: false # whether dump reachable methods
+    dump-call-edges: false # whether dump call edges
+
+- description: identify casts that may fail
+  analysisClass: pascal.taie.analysis.pta.client.MayFailCast
+  id: may-fail-cast
+  requires: [ pta ]
+
+- description: identify polymorphic callsites
+  analysisClass: pascal.taie.analysis.pta.client.PolymorphicCallSite
+  id: poly-call
+  requires: [ pta ]
+
+- description: find modified objects of methods and statements
+  analysisClass: pascal.taie.analysis.sideeffect.SideEffectAnalysis
+  id: side-effect
+  requires: [ pta ]
+  options:
+    only-app: true # only track modifications on the objects
+    # created in application code
+
+- description: throw analysis
+  analysisClass: pascal.taie.analysis.exception.ThrowAnalysis
+  id: throw
+  requires: [ pta(algorithm=pta) ] # only required by pta-based analysis
+  options:
+    exception: explicit # | all (includes implicit and explicit exceptions)
+    algorithm: intra # | pta (pointer analysis based throw analysis)
+
+- description: intraprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.graph.cfg.CFGBuilder
+  id: cfg
+  requires: [ throw(exception=explicit|all) ]
+  options:
+    exception: explicit # | null | all (includes implicit and explicit exceptions)
+    dump: false # dump control-flow graph
+
+- description: interprocedural control-flow graph
+  analysisClass: pascal.taie.analysis.graph.icfg.ICFGBuilder
+  id: icfg
+  requires: [ cfg,cg ]
+  options:
+    dump: false # dump inter-procedural control-flow graph
+
+- description: live variable analysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.LiveVariable
+  id: live-var
+  requires: [ cfg ]
+  options:
+    strongly: true # enable strongly live variable analysis
+
+- description: available expression analysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.availexp.AvailableExpression
+  id: avail-exp
+  requires: [ cfg ]
+
+- description: reaching definition analysis
+  analysisClass: pascal.taie.analysis.dataflow.analysis.ReachingDefinition
+  id: reach-def
+  requires: [ cfg ]
+
+- description: constant propagation
+  analysisClass: pascal.taie.analysis.dataflow.analysis.constprop.ConstantPropagation
+  id: const-prop
+  requires: [ cfg ]
+  options:
+    edge-refine: true # refine lattice value via edge transfer
+
+- description: def-use analysis
+  analysisClass: pascal.taie.analysis.defuse.DefUseAnalysis
+  id: def-use
+  requires: [ reach-def ]
+  options:
+    compute-defs: true # whether compute definitions of variables
+    compute-uses: false # whether compute uses of variables
+
+- description: inter-procedural constant propagation
+  analysisClass: pascal.taie.analysis.dataflow.inter.InterConstantPropagation
+  id: inter-const-prop
+  requires: [ icfg, pta(alias-aware=true) ]
+  options:
+    edge-refine: true # refine lattice value via edge transfer
+    alias-aware: false # leverage alias information to improve precision
+
+- description: dead code detection
+  analysisClass: pascal.taie.analysis.deadcode.DeadCodeDetection
+  id: dead-code
+  requires: [ cfg,const-prop,live-var ]
+
+- description: process results of previously-run analyses
+  analysisClass: pascal.taie.analysis.misc.ResultProcessor
+  id: process-result
+  options:
+    analyses: [ ] # IDs of analyses whose results are to be processed
+    only-app: true # only process results of application code
+    action: dump # | compare
+    action-file: null # path of file to dump/compare
+    log-mismatches: false # | whether log mismatched items
+
+- description: dump Tai-e IR for classes of input program
+  analysisClass: pascal.taie.analysis.misc.IRDumper
+  id: ir-dumper
+
+- description: null value analysis
+  analysisClass: pascal.taie.analysis.bugfinder.nullpointer.IsNullAnalysis
+  id: is-null
+  requires: [ cfg ]
+
+- description: Null pointer and redundant comparison detector
+  analysisClass: pascal.taie.analysis.bugfinder.nullpointer.NullPointerDetection
+  id: null-pointer
+  requires: [ is-null ]
+
+- description: find clone() related problems
+  analysisClass: pascal.taie.analysis.bugfinder.CloneIdiom
+  id: clone-idiom
+
+- description: find the method that may drop or ignore exceptions
+  analysisClass: pascal.taie.analysis.bugfinder.DroppedException
+  id: dropped-exception
