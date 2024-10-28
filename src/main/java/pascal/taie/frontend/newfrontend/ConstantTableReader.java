@@ -173,15 +173,15 @@ public class ConstantTableReader {
             }
         }
 
+        decodeBuffer = new char[maxLen];
         offset += 6;
         int interfaceCount =  readUnsignedShort();
         offset += interfaceCount * 2;
         readFieldOrMethod(descriptorsLoad);
         readFieldOrMethod(descriptorsLoad);
-        parseAnnotations();
+        parseAttributes();
 
         // Now parse descriptors and internal names
-        decodeBuffer = new char[maxLen];
         for (int i = 1; i < count; ++i) {
             if (internalsLoad[i]) {
                 visitInternalName(constantsOffset[i], binaryNames);
@@ -196,11 +196,11 @@ public class ConstantTableReader {
         for (int i = 0; i < methodCount; i++) {
             offset += 4;
             descriptors[readUnsignedShort()] = true;
-            parseAnnotations();
+            parseAttributes();
         }
     }
 
-    private void parseAnnotations() {
+    private void parseAttributes() {
         int attributesCount = readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
             int nameIndex = readUnsignedShort();
@@ -216,17 +216,25 @@ public class ConstantTableReader {
         }
     }
 
+    /**
+     * <p>Precondition</p>
+     * <code>offset</code> points to the <code>num_annotations;</code> of annotation attribute
+     */
     private void parseAnnotationContent() {
         int numAnnotations = readUnsignedShort();
         for (int i = 0; i < numAnnotations; i++) {
-            int typeIndex = readUnsignedShort();  // Class descriptor
-            descriptorsLoad[typeIndex] = true;
+            parseAnnotation();
+        }
+    }
 
-            int numElementValuePairs = readUnsignedShort();
-            for (int j = 0; j < numElementValuePairs; j++) {
-                readUnsignedShort();  // Ignore element name
-                parseElementValue();  // Parse element value and check for class references
-            }
+    private void parseAnnotation() {
+        int typeIndex = readUnsignedShort();  // Class descriptor
+        descriptorsLoad[typeIndex] = true;
+
+        int numElementValuePairs = readUnsignedShort();
+        for (int j = 0; j < numElementValuePairs; j++) {
+            readUnsignedShort();  // Ignore element name
+            parseElementValue();  // Parse element value and check for class references
         }
     }
 
@@ -247,7 +255,7 @@ public class ConstantTableReader {
                 offset += 4;
                 break;
             case '@': // Nested annotation
-                parseAnnotationContent(); // Recursive call for nested annotations
+                parseAnnotation(); // Recursive call for nested annotations
                 break;
             case '[': // Array of values
                 int arraySize = readUnsignedShort();
