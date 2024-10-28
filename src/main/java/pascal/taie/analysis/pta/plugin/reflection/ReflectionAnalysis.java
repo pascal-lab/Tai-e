@@ -24,10 +24,13 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapEntry;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -39,7 +42,7 @@ public class ReflectionAnalysis extends CompositePlugin {
 
     private static final Logger logger = LogManager.getLogger(ReflectionAnalysis.class);
 
-    private static final int IMPRECISE_THRESHOLD = 50;
+    public static final int IMPRECISE_THRESHOLD = 5;
 
     private LogBasedModel logBasedModel;
 
@@ -82,6 +85,16 @@ public class ReflectionAnalysis extends CompositePlugin {
                 reflectiveActionModel,
                 new AnnotationModel(solver, helper),
                 new OthersModel(solver, helper));
+    }
+
+    @Override
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (World.get().getOptions().isAndroidMode()
+                && stmt instanceof Invoke invoke
+                && !invoke.isDynamic()
+                && invoke.getContainer().isApplication()) {
+            super.onNewStmt(stmt, container);
+        }
     }
 
     @Override

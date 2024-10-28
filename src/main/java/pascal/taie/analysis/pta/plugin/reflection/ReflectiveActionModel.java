@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -68,6 +69,7 @@ import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
+import static pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis.IMPRECISE_THRESHOLD;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
@@ -266,7 +268,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             if (baseType != null && !(baseType instanceof VoidType)) {
                 List<Integer> dimensions = new ArrayList<>();
 
-                if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType arrayType) {
+                if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType) {
                     arrayObjs.forEach(arrayObj -> {
                         if (arrayObj.getObject().getAllocation() instanceof New stmt
                                 && stmt.getRValue() instanceof NewArray newArray
@@ -281,9 +283,12 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
 
                 dimensions.forEach(d -> {
                     ArrayType arrayType = typeSystem.getArrayType(baseType, d);
+                    allTargets.put(invoke, arrayType);
+                    if (allTargets.get(invoke).size() > IMPRECISE_THRESHOLD) {
+                        return;
+                    }
                     CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
                     solver.addVarPointsTo(context, result, csNewArray);
-                    allTargets.put(invoke, arrayType);
                     processNewMultiArray(context, invoke, csNewArray.getObject(), arrayType, d);
                 });
 
@@ -331,6 +336,12 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
                 return;
             }
         }
+        allTargets.put(callSite, callee); // record target
+        if (World.get().getOptions().isAndroidMode()) {
+            if (!callee.isApplication() || allTargets.get(callSite).size() > IMPRECISE_THRESHOLD) {
+                return;
+            }
+        }
         CSCallSite csCallSite = csManager.getCSCallSite(callerCtx, callSite);
         Context calleeCtx;
         if (callee.isStatic()) {
@@ -343,7 +354,6 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         ReflectiveCallEdge callEdge = new ReflectiveCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), args);
         solver.addCallEdge(callEdge);
-        allTargets.put(callSite, callee); // record target
     }
 
     @Override
