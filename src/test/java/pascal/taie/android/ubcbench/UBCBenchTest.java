@@ -33,11 +33,13 @@ public class UBCBenchTest extends AndroidBenchTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "ViewCasting",
+            "CastingForward",
             "ConservativeModel1",
             "ConservativeModel2",
             "ConservativeModel3",
             "HardCodedLocationTest",
             "CallbacksIntentHandling",
+            "GetClass",
             "SetContentView",
             "CallbacksInFragment",
             "ReflectionOverloaded",
