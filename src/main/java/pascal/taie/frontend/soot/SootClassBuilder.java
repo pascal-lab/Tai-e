@@ -113,10 +113,9 @@ class SootClassBuilder implements JClassBuilder {
 
     @Override
     public boolean isApplication() {
-        return (World.get().getOptions().isAndroidMode()
-                && AndroidSystemClassUtil.haveStartWithName(sootClass.getName())) ?
-                AndroidSystemClassUtil.isApplicationClass(sootClass.getName()) :
-                sootClass.isApplicationClass();
+        return !(World.get().getOptions().isAndroidMode()
+                && AndroidSystemClassUtil.isAndroidSystemClass(sootClass.getName()))
+                && sootClass.isApplicationClass();
     }
 
     @Override
