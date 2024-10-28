@@ -55,6 +55,8 @@ public final class AndroidClassNames {
 
     public static final String VIEW = "android.view.View";
 
+    public static final String TEXT_VIEW = "android.widget.TextView";
+
     public static final String FRAGMENT_MANAGER = "android.app.FragmentManager";
 
     public static final String ANDROIDX_FRAGMENT_MANAGER = "androidx.fragment.app.FragmentManager";
@@ -66,6 +68,10 @@ public final class AndroidClassNames {
     public static final String SHARED_PREFERENCES = "android.content.SharedPreferences";
 
     public static final String BUNDLE = "android.os.Bundle";
+
+    public static final String URL_CONNECTION = "java.net.URLConnection";
+
+    public static final String ACCOUNT = "android.accounts.Account";
 
     // Suppresses default constructor, ensuring non-instantiability.
     private AndroidClassNames() {
