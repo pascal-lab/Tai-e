@@ -63,8 +63,10 @@ public class ClassInitializer implements Plugin {
             }
         } else if (stmt instanceof FieldStmt<?, ?> fieldStmt) {
             if (fieldStmt.isStatic()) {
-                JField field = fieldStmt.getFieldRef().resolve();
-                solver.initializeClass(field.getDeclaringClass());
+                JField field = fieldStmt.getFieldRef().resolveNullable();
+                if (field != null) {
+                    solver.initializeClass(field.getDeclaringClass());
+                }
             }
         }
     }
