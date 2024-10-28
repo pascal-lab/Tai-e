@@ -62,6 +62,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         world.setOptions(options);
 
         // initialize class hierarchy
+        FrontendOptions.init(options.getFrontendOptions());
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
         ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(); // Configurable

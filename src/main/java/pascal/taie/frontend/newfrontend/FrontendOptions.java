@@ -44,17 +44,25 @@ public class FrontendOptions {
 
     public synchronized static FrontendOptions get() {
         if (instance == null) {
-            instance = parse();
+            throw new IllegalStateException("Frontend options not initialized");
+        } else {
+            return instance;
         }
-        return instance;
     }
 
-    private static FrontendOptions parse() {
-        Map <String, String> options = World.get().getOptions().getFrontendOptions();
-        boolean isSSA = Boolean.parseBoolean(options.getOrDefault("ssa", "false"));
-        boolean useTypingAlgo2 = Boolean.parseBoolean(options.getOrDefault("useTypingAlgo2", "true"));
+    static void init(Map<String, String> raw) {
+        if (instance != null) {
+            throw new IllegalStateException("Frontend options have already been initialized.");
+        } else {
+            instance = parse(raw);
+        }
+    }
+
+    private static FrontendOptions parse(Map<String, String> raw) {
+        boolean isSSA = Boolean.parseBoolean(raw.getOrDefault("ssa", "false"));
+        boolean useTypingAlgo2 = Boolean.parseBoolean(raw.getOrDefault("useTypingAlgo2", "true"));
         boolean useParallelHierarchy = Boolean.parseBoolean(
-                options.getOrDefault("useParallelHierarchy", "true"));
+                raw.getOrDefault("useParallelHierarchy", "true"));
         return new FrontendOptions(isSSA, useTypingAlgo2, useParallelHierarchy);
     }
 
