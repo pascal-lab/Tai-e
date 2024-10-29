@@ -27,6 +27,22 @@ import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Bytecode control flow graph representation optimized for performance.</p>
+ * <p>The graph is represented using adjacency lists for in-edges, out-edges, and exception edges.
+ * Each node can have up to three edges stored directly in the main arrays. If a node has more than
+ * three edges, the additional edges are stored in extra arrays.</p>
+ *
+ * <p>For example, the layout of the {@link #inEdges} array is as follows:</p>
+ *
+ * <pre>
+ * i,                         i + 1, i + 2, i + 3
+ * ^^^^^^                     ^^^^^^^^^^^^^^^^^^^
+ * the current in edge count    in edges (0, 1, 2)
+ * </pre>
+ *
+ * <p>If a node has more than three in-edges, the remaining edges are stored in the {@link #extraInEdges} array.</p>
+ */
 public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     private final int[] inEdges;
@@ -55,6 +71,11 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     List<BytecodeBlock> blockSortedList;
 
+    /**
+     * Constructs a new BytecodeGraph with the specified maximum block size.
+     *
+     * @param maxBlockSize The maximum number of blocks in the graph.
+     */
     BytecodeGraph(int maxBlockSize) {
         // [ count, edge1, edge2, edge3 ]
         int defaultSize = 4;

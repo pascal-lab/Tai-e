@@ -29,34 +29,42 @@ import pascal.taie.ir.exp.Var;
 import java.util.Objects;
 
 /**
- * <p>A {@link StackItem} represents the value on JVM stack in the runtime.</p>
+ * Represents a value on the JVM stack during runtime.
  * <p>
- * The design of this class is inspired by the "lazy evaluation" principle.
- * <p>When it's created, it will be a Taie {@link Exp}, and the {@link StackItem#originalExp},
- * {@link StackItem#e} both points to the exp.</p>
- * <p>Then there might be two cases,<p>
+ * This class is designed with the principle of "lazy evaluation" in mind.
+ * When a {@code StackItem} is created, it initially holds a Taie {@link Exp} (expression).
+ * The {@link #originalExp} and {@link #e} fields both point to this initial expression.
+ * <p>
+ * There are two primary scenarios for the use of a {@code StackItem}:
  * <ul>
- *     <li>This value is used as the right value of a {@link pascal.taie.ir.stmt.AssignStmt},
- *     then we just generate <code>v = e</code></li>
- *     <li>This value is needed to be converted tot a {@link Var},
- *     then we {@link StackItem#lift} it, now {@link StackItem#e} is set to this var,
- *     and {@link StackItem#originalExp} keeps the original value</li>
+ *     <li><strong>Assignment:</strong> If the value is used as the right-hand side of an
+ *     {@link pascal.taie.ir.stmt.AssignStmt}, the expression is directly assigned to a variable.
+ *     For example, <code>v = e</code>.</li>
+ *     <li><strong>Lifting:</strong> If the value needs to be converted to a {@link Var},
+ *     the {@link #lift} method is called. This method updates the {@link #e} field to
+ *     reference the new variable, while {@link #originalExp} retains the original expression.</li>
  * </ul>
+ * <p>
+ * The {@link #origin} field stores the bytecode instruction that pushed this value onto the stack.
  */
 final class StackItem {
+
     /**
-     * A <em>mutable</em> expression represent the value in Taie IR.
+     * A mutable expression representing the value in Taie IR.
      * <ul>
-     *     <li>When this value is created, <code>e = originalExp</code></li>
-     *     <li>When this value is {@link StackItem#lift}, <code>e</code> will be a {@link Var}</li>
+     *     <li>Initially, this field points to the same expression as {@link #originalExp}.</li>
+     *     <li>After calling {@link #lift}, this field is updated to reference a {@link Var}.</li>
      * </ul>
      */
     private Exp e;
 
+    /**
+     * The original expression that this {@code StackItem} represents.
+     */
     private final Exp originalExp;
 
     /**
-     * The bytecode instruction that <em>pushes</em> this value
+     * The bytecode instruction that pushed this value onto the stack.
      */
     private final AbstractInsnNode origin;
 

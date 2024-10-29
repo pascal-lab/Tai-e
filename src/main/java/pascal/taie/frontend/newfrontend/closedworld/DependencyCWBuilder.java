@@ -56,6 +56,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Build Closed world by dependency resolving
+ */
 public class DependencyCWBuilder implements ClosedWorldBuilder {
 
     private static final String BASIC_CLASSES = "basic-classes.yml";
