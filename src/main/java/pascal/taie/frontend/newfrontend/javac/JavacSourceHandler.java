@@ -1,5 +1,5 @@
 package pascal.taie.frontend.newfrontend.javac;
-import pascal.taie.frontend.newfrontend.FrontendException;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.Resource;

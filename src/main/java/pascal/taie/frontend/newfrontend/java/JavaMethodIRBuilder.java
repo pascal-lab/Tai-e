@@ -94,7 +94,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.JavaMethodSource;
+import pascal.taie.frontend.newfrontend.source.JavaMethodSource;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;

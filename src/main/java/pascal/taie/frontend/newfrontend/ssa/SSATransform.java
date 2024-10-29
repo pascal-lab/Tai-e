@@ -22,14 +22,14 @@
 
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.frontend.newfrontend.BytecodeBlock;
+import pascal.taie.frontend.newfrontend.bcir.BytecodeBlock;
 import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.frontend.newfrontend.IVarManager;
+import pascal.taie.frontend.newfrontend.bcir.IVarManager;
 import pascal.taie.frontend.newfrontend.Lenses;
-import pascal.taie.frontend.newfrontend.SparseSet;
+import pascal.taie.frontend.newfrontend.data.SparseSet;
 import pascal.taie.frontend.newfrontend.StmtVarVisitor;
-import pascal.taie.frontend.newfrontend.VarManager;
+import pascal.taie.frontend.newfrontend.bcir.VarManager;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;

@@ -20,28 +20,36 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.closedworld;
+package pascal.taie.frontend.newfrontend.source;
 
-import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.project.Project;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
-import java.util.Collection;
+public record AsmSource(
+        ClassReader r,
+        boolean isApplication,
+        int version,
+        ClassNode node
+) implements ClassSource {
 
-public interface ClosedWorldBuilder {
-
+    @Override
+    public String getClassName() {
+        String name;
+        if (r == null) {
+            name = node.name;
+        } else {
+            name = r.getClassName();
+        }
+        return Type.getObjectType(name).getClassName();
+    }
 
     /**
-     * Get the number of total Classes in the closed-world
+     * @return the class file version of current class file
      */
-    int getTotalClasses();
-
-    /**
-     * Get the closed-world, i.e., all classes needed in analysis
-     */
-    Collection<ClassSource> getClosedWorld();
-
-    /**
-     * make the closed-world
-     */
-    void build(Project p);
+    public int getClassFileVersion() {
+        // some hack here
+        // 6 is the offset of classfile version
+        return version;
+    }
 }

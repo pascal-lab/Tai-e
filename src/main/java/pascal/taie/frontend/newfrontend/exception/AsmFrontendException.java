@@ -20,28 +20,18 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.closedworld;
+package pascal.taie.frontend.newfrontend.exception;
 
-import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.project.Project;
+/**
+ * Represents the errors raised during constructing program information from bytecode in ASM form.
+ */
+public class AsmFrontendException extends FrontendException {
 
-import java.util.Collection;
+    AsmFrontendException(String msg) {
+        super(msg);
+    }
 
-public interface ClosedWorldBuilder {
-
-
-    /**
-     * Get the number of total Classes in the closed-world
-     */
-    int getTotalClasses();
-
-    /**
-     * Get the closed-world, i.e., all classes needed in analysis
-     */
-    Collection<ClassSource> getClosedWorld();
-
-    /**
-     * make the closed-world
-     */
-    void build(Project p);
+    public AsmFrontendException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

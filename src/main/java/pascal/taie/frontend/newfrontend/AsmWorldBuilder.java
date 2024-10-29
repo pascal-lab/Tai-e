@@ -30,6 +30,9 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
+import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
+import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
+import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -43,6 +46,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The world builder for new frontend. This class is the entry point of the frontend processing.
+ */
 public class AsmWorldBuilder extends AbstractWorldBuilder {
 
     private static final Logger logger = LogManager.getLogger(AsmWorldBuilder.class);

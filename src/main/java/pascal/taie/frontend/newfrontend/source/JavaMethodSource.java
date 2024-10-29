@@ -20,28 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.closedworld;
+package pascal.taie.frontend.newfrontend.source;
 
-import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.project.Project;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import java.util.Collection;
-
-public interface ClosedWorldBuilder {
-
-
-    /**
-     * Get the number of total Classes in the closed-world
-     */
-    int getTotalClasses();
-
-    /**
-     * Get the closed-world, i.e., all classes needed in analysis
-     */
-    Collection<ClassSource> getClosedWorld();
-
-    /**
-     * make the closed-world
-     */
-    void build(Project p);
-}
+public record JavaMethodSource(CompilationUnit cu, ASTNode decl, JavaSource source) {}

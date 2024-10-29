@@ -25,7 +25,7 @@ package pascal.taie.frontend.newfrontend.dbg;
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.frontend.newfrontend.AsmIRBuilder;
+import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;

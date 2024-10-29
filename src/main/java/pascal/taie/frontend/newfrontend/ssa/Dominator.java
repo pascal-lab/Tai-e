@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.frontend.newfrontend.SparseSet;
+import pascal.taie.frontend.newfrontend.data.SparseSet;
 import pascal.taie.frontend.newfrontend.data.IntGraph;
 import pascal.taie.frontend.newfrontend.data.IntList;
 import pascal.taie.frontend.newfrontend.data.SparseArray;

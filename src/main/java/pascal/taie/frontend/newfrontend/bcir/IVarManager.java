@@ -20,28 +20,39 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.closedworld;
+package pascal.taie.frontend.newfrontend.bcir;
 
-import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.project.Project;
+import pascal.taie.ir.exp.Var;
 
-import java.util.Collection;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Predicate;
 
-public interface ClosedWorldBuilder {
-
-
-    /**
-     * Get the number of total Classes in the closed-world
-     */
-    int getTotalClasses();
+public interface IVarManager {
 
     /**
-     * Get the closed-world, i.e., all classes needed in analysis
+     * Generate a new temporary variable
+     * @return the new temporary variable
      */
-    Collection<ClassSource> getClosedWorld();
+    Var getTempVar();
+
+    @Nullable
+    Var getThisVar();
+
+    Var splitVar(Var var, int index);
 
     /**
-     * make the closed-world
+     * @return parameters except `this`.
      */
-    void build(Project p);
+    List<Var> getParams();
+
+    Var[] getLocals();
+
+    default Var[] getNonSSAVar() {
+        return getLocals();
+    }
+
+    List<Var> getVars();
+
+    void removeAndReindexVars(Predicate<Var> p);
 }

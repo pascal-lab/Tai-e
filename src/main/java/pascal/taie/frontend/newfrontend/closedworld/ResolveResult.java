@@ -1,6 +1,6 @@
 package pascal.taie.frontend.newfrontend.closedworld;
 
-import pascal.taie.frontend.newfrontend.ClassSource;
+import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.util.collection.Pair;
 
 import java.util.List;

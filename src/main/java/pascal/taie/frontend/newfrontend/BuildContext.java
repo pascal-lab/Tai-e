@@ -24,6 +24,7 @@ package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
+import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -48,6 +49,10 @@ import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
+/**
+ * The context for frontend processing. Can be viewed as global state of
+ * the new frontend.
+ */
 public class BuildContext {
 
     private final JClassLoader defaultClassLoader;
@@ -78,7 +83,7 @@ public class BuildContext {
         return buildContext;
     }
 
-    static void make(JClassLoader loader) {
+    public static void make(JClassLoader loader) {
         assert buildContext == null;
         buildContext = new BuildContext(loader, new TempTypeSystem(loader));
     }

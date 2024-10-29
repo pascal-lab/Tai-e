@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
-import pascal.taie.frontend.newfrontend.FrontendException;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 
 import java.util.HashSet;
 import java.util.List;

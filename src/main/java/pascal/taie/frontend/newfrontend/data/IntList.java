@@ -22,6 +22,9 @@
 
 package pascal.taie.frontend.newfrontend.data;
 
+/**
+ * Similar to {@link java.util.ArrayList}, but optimized for primitive type <code>int</code>
+ */
 public class IntList {
     private int[] items;
     private int size;

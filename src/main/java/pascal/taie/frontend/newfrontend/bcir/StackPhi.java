@@ -20,30 +20,68 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.bcir;
 
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.Type;
 
 import java.util.List;
 import java.util.Set;
 
-/**
- * see JVM spec 4.10.1.2. Verification Type System <br>
- * when push a double / long to stack, first push a Top. <br>
- * [top, double, ...]
- */
-public enum Top implements Exp, Type {
+class StackPhi implements Exp {
 
-    Top;
+    /**
+     * Same order as inBlocks.
+     */
+    private final List<StackItem> nodes;
+
+    private Var var;
+    private Var writeOutVar;
+    private final int height;
+    boolean used;
+    BytecodeBlock createPos;
+
+    boolean resolved = false;
+
+    StackPhi(int i, List<StackItem> exps, BytecodeBlock block) {
+        this.nodes = exps;
+        this.height = i;
+        this.createPos = block;
+        used = false;
+    }
+
+    void setVar(Var var) {
+        this.var = var;
+    }
+
+    void setUsed() {
+        this.used = true;
+    }
+
+    Var getVar() {
+        return this.var;
+    }
+
+    void setWriteOutVar(Var var) {
+        assert writeOutVar == null;
+        this.writeOutVar = var;
+    }
+
+    Var getWriteOutVar() {
+        return this.writeOutVar;
+    }
+
+    List<StackItem> getNodes() {
+        return nodes;
+    }
 
     @Override
     public Type getType() {
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public Set<RValue> getUses() {
@@ -53,10 +91,5 @@ public enum Top implements Exp, Type {
     @Override
     public <T> T accept(ExpVisitor<T> visitor) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getName() {
-        return "top";
     }
 }

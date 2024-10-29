@@ -22,6 +22,11 @@
 
 package pascal.taie.frontend.newfrontend.data;
 
+/**
+ * <p>A lazy initialization array.</p>
+ * <p>A typical use case is to store sparse data.</p>
+ * @param <T> The type of element
+ */
 public abstract class SparseArray<T> {
     private final Object[] items;
 

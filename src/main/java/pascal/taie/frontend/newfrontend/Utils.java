@@ -101,6 +101,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static pascal.taie.frontend.newfrontend.Top.Top;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -111,7 +112,7 @@ import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
 public class Utils {
-    static String getBinaryName(String internalName) {
+    public static String getBinaryName(String internalName) {
         return Type.getObjectType(internalName).getClassName();
     }
 
@@ -159,7 +160,7 @@ public class Utils {
     static final Set<Modifier> proFinal = Set.of(Modifier.PROTECTED, Modifier.FINAL);
 
 
-    static Set<Modifier> fromAsmModifier(int opcodes) {
+    public static Set<Modifier> fromAsmModifier(int opcodes) {
         // shortcuts
         switch (opcodes) {
             case Opcodes.ACC_PUBLIC:
@@ -240,7 +241,7 @@ public class Utils {
      * Convert object to tai-e Annotation rep.
      * @param ele object, should be boxed primitive type OR string OR array OR asm type
      */
-    static Element toElement(Object ele) {
+    public static Element toElement(Object ele) {
         if (ele instanceof Boolean b) {
             return new BooleanElement(b);
         } else if (ele instanceof Character c) {
@@ -273,7 +274,7 @@ public class Utils {
     /**
      * Check if an asm instruction indices the control flow edge
      */
-    static boolean isCFEdge(AbstractInsnNode node) {
+    public static boolean isCFEdge(AbstractInsnNode node) {
         return node instanceof JumpInsnNode ||
                 node instanceof TableSwitchInsnNode ||
                 node instanceof LookupSwitchInsnNode ||
@@ -282,7 +283,7 @@ public class Utils {
                 isThrow(node);
     }
 
-    static boolean isVarStore(AbstractInsnNode node) {
+    public static boolean isVarStore(AbstractInsnNode node) {
         if (node instanceof VarInsnNode varInsnNode) {
             int op = varInsnNode.getOpcode();
             return op == Opcodes.ISTORE ||
@@ -295,7 +296,7 @@ public class Utils {
         }
     }
 
-    static boolean isReturn(AbstractInsnNode node) {
+    public static boolean isReturn(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             int op = insnNode.getOpcode();
             return op == Opcodes.ARETURN ||
@@ -309,14 +310,14 @@ public class Utils {
         }
     }
 
-    static boolean isThrow(AbstractInsnNode node) {
+    public static boolean isThrow(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             return insnNode.getOpcode() == Opcodes.ATHROW;
         }
         return false;
     }
 
-    static Literal fromObject(Object o) {
+    public static Literal fromObject(Object o) {
         // TODO: handle MethodType / ConstantDynamic
         if (o instanceof Integer i) {
             return IntLiteral.get(i);
@@ -341,7 +342,7 @@ public class Utils {
         }
     }
 
-    static MethodHandle fromAsmHandle(Handle handle) {
+    public static MethodHandle fromAsmHandle(Handle handle) {
         MethodHandle.Kind kind = toMethodHandleKind(handle.getTag());
         MemberRef ref;
         JClass jClass = BuildContext.get().toJClass(handle.getOwner());
@@ -382,7 +383,7 @@ public class Utils {
         };
     }
 
-    static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
+    public static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
         if (left instanceof Var v) {
             if (e instanceof BinaryExp binaryExp) {
                 return new Binary(v, binaryExp);
@@ -421,7 +422,7 @@ public class Utils {
     public  static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
         if (o instanceof Integer i) {
             return switch (i) {
-                case 0 -> Top.Top; // Opcodes.Top
+                case 0 -> Top; // Opcodes.Top
                 case 1 -> INT; // Opcodes.INTEGER
                 case 2 -> FLOAT; // Opcodes.FLOAT
                 case 3 -> DOUBLE; // Opcodes.DOUBLE
@@ -480,7 +481,7 @@ public class Utils {
         return cloneable;
     }
 
-    static synchronized ClassType getString() {
+    public static synchronized ClassType getString() {
         if (string == null) {
             string = getClassType(ClassNames.STRING);
         }
@@ -494,14 +495,14 @@ public class Utils {
         return reflectArray;
     }
 
-    static synchronized ClassType getKlass() {
+    public static synchronized ClassType getKlass() {
         if (klass == null) {
             klass = getClassType(ClassNames.CLASS);
         }
         return klass;
     }
 
-    static synchronized ClassType getThrowable() {
+    public static synchronized ClassType getThrowable() {
         if (throwable == null) {
             throwable = getClassType(ClassNames.THROWABLE);
         }
@@ -621,7 +622,7 @@ public class Utils {
                 && arrayType.elementType() instanceof ReferenceType);
     }
 
-    static ArrayType wrap1(ReferenceType referenceType) {
+    public static ArrayType wrap1(ReferenceType referenceType) {
         TypeSystem ts = BuildContext.get().getTypeSystem();
         if (referenceType instanceof ArrayType at) {
             return ts.getArrayType(at.baseType(), at.dimensions() + 1);
@@ -655,11 +656,11 @@ public class Utils {
         return res;
     }
 
-    static boolean isTwoWord(pascal.taie.language.type.Type t) {
+    public static boolean isTwoWord(pascal.taie.language.type.Type t) {
         return t == DOUBLE || t == LONG;
     }
 
-    static boolean canHoldsInt(pascal.taie.language.type.Type t) {
+    public static boolean canHoldsInt(pascal.taie.language.type.Type t) {
         return t instanceof PrimitiveType p && p.asInt();
     }
 
@@ -753,11 +754,11 @@ public class Utils {
         return false;
     }
 
-    static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {
+    public static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {
         return t instanceof ArrayType at && canHoldsInt(at.baseType());
     }
 
-    static boolean isIntAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
+    public static boolean isIntAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
         return canHoldsInt(t2) && canHoldsInt(t1);
     }
 

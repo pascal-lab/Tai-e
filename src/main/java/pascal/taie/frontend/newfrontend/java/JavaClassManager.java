@@ -33,7 +33,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.JavaSource;
+import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.FileContainer;
 import pascal.taie.project.FileResource;

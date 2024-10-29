@@ -26,6 +26,9 @@ import pascal.taie.World;
 
 import java.util.Map;
 
+/**
+ * Additional Options for frontend
+ */
 public class FrontendOptions {
 
     private final boolean isSSA;

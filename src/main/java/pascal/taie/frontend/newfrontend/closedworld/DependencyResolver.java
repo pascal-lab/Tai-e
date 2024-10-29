@@ -23,10 +23,9 @@
 package pascal.taie.frontend.newfrontend.closedworld;
 
 import org.objectweb.asm.ClassReader;
-import pascal.taie.frontend.newfrontend.AsmSource;
-import pascal.taie.frontend.newfrontend.ClassSource;
-import pascal.taie.frontend.newfrontend.ConstantTableReader;
-import pascal.taie.frontend.newfrontend.JavaSource;
+import pascal.taie.frontend.newfrontend.source.AsmSource;
+import pascal.taie.frontend.newfrontend.source.ClassSource;
+import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.frontend.newfrontend.javac.JavacSourceHandler;
 import pascal.taie.project.AnalysisFile;

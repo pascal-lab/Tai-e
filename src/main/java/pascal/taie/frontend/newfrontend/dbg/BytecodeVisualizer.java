@@ -25,8 +25,8 @@ package pascal.taie.frontend.newfrontend.dbg;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import pascal.taie.frontend.newfrontend.BytecodeBlock;
-import pascal.taie.frontend.newfrontend.BytecodeGraph;
+import pascal.taie.frontend.newfrontend.bcir.BytecodeBlock;
+import pascal.taie.frontend.newfrontend.bcir.BytecodeGraph;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.util.Indexer;
 
