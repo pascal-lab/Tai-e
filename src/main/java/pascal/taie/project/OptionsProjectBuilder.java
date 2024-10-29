@@ -23,15 +23,12 @@
 package pascal.taie.project;
 
 import pascal.taie.config.Options;
-import pascal.taie.frontend.newfrontend.AllClassesCWBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 public class OptionsProjectBuilder extends AbstractProjectBuilder {
@@ -92,7 +89,7 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
             if (options.getExtractAllClasses()) {
                 List<String> inputClasses = project.getInputClasses();
                 for (FileContainer path : project.getLibRootContainers()) {
-                    inputClasses.addAll(AllClassesCWBuilder.outPutAll(path));
+                    inputClasses.addAll(outPutAll(path));
                 }
             }
             return project;
@@ -103,5 +100,29 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
         }
     }
 
+    public static List<String> outPutAll(FileContainer root) {
+        return outPutAll("", root, true);
+    }
+
+    private static List<String> outPutAll(String current, FileContainer container, boolean isRoot) {
+        String currentNext = (isRoot) ? "" : current + container.className() + ".";
+        List<String> res = new ArrayList<>(container.files().stream()
+                .filter(f -> f instanceof ClassFile)
+                .filter(f -> ! f.fileName().equals("module-info.class"))
+                .map(c -> {
+                    String fullClassName = currentNext + ((ClassFile) c).getClassName();
+                    assert !fullClassName.contains("/");
+                    return fullClassName;
+                })
+                .toList());
+        res.addAll(outPutAll(currentNext, container.containers()));
+        return res;
+    }
+
+    private static List<String> outPutAll(String current, List<FileContainer> containers) {
+        return containers.stream()
+                .flatMap(c -> outPutAll(current, c, false).stream())
+                .toList();
+    }
 
 }

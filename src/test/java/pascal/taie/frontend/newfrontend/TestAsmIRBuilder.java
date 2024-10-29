@@ -206,9 +206,6 @@ public class TestAsmIRBuilder {
         System.out.println(StageTimer.getInstance().message());
     }
 
-    /**
-     * need to use {@link AllClassesCWBuilder}
-     */
     @Test
     public void benchmarkForNewFrontEnd11() {
         int javaVersion = 11;
