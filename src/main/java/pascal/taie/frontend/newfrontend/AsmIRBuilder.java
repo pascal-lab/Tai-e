@@ -182,8 +182,9 @@ public class AsmIRBuilder {
 
     private int currentLineNumber;
 
-    private static boolean EXPERIMENTAL = true;
-
+    /**
+     * If we build SSA IR. Read from {@link FrontendOptions}
+     */
     private final boolean USE_SSA;
 
     private final boolean USE_TYPING_ALGO2;
@@ -239,13 +240,13 @@ public class AsmIRBuilder {
             } else {
                 inferTypeWithoutFrame();
             }
-            if (USE_SSA && !EXPERIMENTAL) {
-                makeStmts(false);
-                makeExceptionTable();
-                stageTimer.startSplitting();
-                ssa();
-                stageTimer.endSplitting();
-            }
+//            if (USE_SSA && !EXPERIMENTAL) {
+//                makeStmts(false);
+//                makeExceptionTable();
+//                stageTimer.startSplitting();
+//                ssa();
+//                stageTimer.endSplitting();
+//            }
             stageTimer.startTypelessIR();
             makeStmts(true);
             makeExceptionTable();
@@ -258,12 +259,12 @@ public class AsmIRBuilder {
 
     void inferTypeWithFrame() {
         StageTimer stageTimer = StageTimer.getInstance();
-        if (!EXPERIMENTAL) {
-            stageTimer.startSplitting();
-            VarWebSplitter splitter = new VarWebSplitter(this);
-            splitter.build();
-            stageTimer.endSplitting();
-        }
+//        if (!EXPERIMENTAL) {
+//            stageTimer.startSplitting();
+//            VarWebSplitter splitter = new VarWebSplitter(this);
+//            splitter.build();
+//            stageTimer.endSplitting();
+//        }
         stageTimer.startTyping();
         TypeInference0 inference = new TypeInference0(this);
         inference.build();
@@ -272,12 +273,12 @@ public class AsmIRBuilder {
 
     void inferTypeWithoutFrame() {
         StageTimer stageTimer = StageTimer.getInstance();
-        if (!EXPERIMENTAL) {
-            stageTimer.startSplitting();
-            VarWebSplitter splitter = new VarWebSplitter(this);
-            splitter.build();
-            stageTimer.endSplitting();
-        }
+//        if (!EXPERIMENTAL) {
+//            stageTimer.startSplitting();
+//            VarWebSplitter splitter = new VarWebSplitter(this);
+//            splitter.build();
+//            stageTimer.endSplitting();
+//        }
         stageTimer.startTyping();
         TypeInference inference = new TypeInference(this);
         inference.build();
@@ -377,9 +378,9 @@ public class AsmIRBuilder {
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
-        if (lValue instanceof Var v && !EXPERIMENTAL) {
-            duInfo.addDefBlock(v, currentBlock);
-        }
+//        if (lValue instanceof Var v && !EXPERIMENTAL) {
+//            duInfo.addDefBlock(v, currentBlock);
+//        }
         tryInferType(lValue, e);
         return Utils.getAssignStmt(method, lValue, e);
     }
@@ -1076,14 +1077,8 @@ public class AsmIRBuilder {
     }
 
     private void storeExp(VarInsnNode varNode, Stack<StackItem> stack, BytecodeBlock block) {
-        if (!EXPERIMENTAL) {
-            int idx = varNode.var;
-            Var v = manager.getLocal(idx);
-            storeExp(varNode, v, stack, block);
-        } else {
-            int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
-            storeRWVar(rwIndex, varNode.var, varNode, block, stack);
-        }
+        int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
+        storeRWVar(rwIndex, varNode.var, varNode, block, stack);
     }
 
     private void storeExp(AbstractInsnNode node, Var v, Stack<StackItem> stack, BytecodeBlock block) {
@@ -1226,7 +1221,7 @@ public class AsmIRBuilder {
         Stack<StackItem> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
-        if (USE_SSA && EXPERIMENTAL) {
+        if (USE_SSA) {
            emitSSAPhisForLocal(block);
         }
         // skips all non-bytecode insn
@@ -1250,29 +1245,23 @@ public class AsmIRBuilder {
                 // this insn stores the exception object to a local var
                 if (insnNode.getOpcode() == Opcodes.ASTORE) {
                     VarInsnNode node = (VarInsnNode) insnNode;
-                    if (EXPERIMENTAL) {
-                        int rwIndex = visitRW(block.getIndex(), getIndex(node));
-                        // a little duplicate, any better way?
-                        // see also: storeRWVar
-                        catchVar = isFastProcessVar(rwIndex)
-                                ? manager.getTempVar()
-                                : manager.getLocal(splitting.getRealLocalSlot(rwIndex));
-                        reachVars[rwIndex] = catchVar;
-                        assocStmt(node, new Catch(catchVar));
-                    } else {
-                        catchVar = manager.getLocal(node.var);
-                        duInfo.addDefBlock(catchVar, currentBlock);
-                        assocStmt(node, new Catch(catchVar));
-                    }
+                    int rwIndex = visitRW(block.getIndex(), getIndex(node));
+                    // a little duplicate, any better way?
+                    // see also: storeRWVar
+                    catchVar = isFastProcessVar(rwIndex)
+                            ? manager.getTempVar()
+                            : manager.getLocal(splitting.getRealLocalSlot(rwIndex));
+                    reachVars[rwIndex] = catchVar;
+                    assocStmt(node, new Catch(catchVar));
                 } else {
                     // else
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
                     catchVar = manager.getTempVar();
-                    if (!EXPERIMENTAL) {
-                        duInfo.addDefBlock(catchVar, currentBlock);
-                    }
+//                    if (!EXPERIMENTAL) {
+//                        duInfo.addDefBlock(catchVar, currentBlock);
+//                    }
                     assocStmt(insnNode, new Catch(catchVar));
                     pushExp(insnNode, nowStack, catchVar);
                     processInstr(nowStack, insnNode, block);
@@ -1442,7 +1431,7 @@ public class AsmIRBuilder {
     private void solveAllPhiAndOutput() {
         for (BytecodeBlock bb : blockSortedList) {
             fillInLoopHeaderStackPhis(bb);
-            if (USE_SSA && EXPERIMENTAL) {
+            if (USE_SSA) {
                 addLocalPhiInDefs(bb);
             }
         }
@@ -1624,7 +1613,7 @@ public class AsmIRBuilder {
                 blockStmt.addAll(stmts);
             }
         }
-        if (block.isCatch() && USE_SSA && EXPERIMENTAL) {
+        if (block.isCatch() && USE_SSA) {
             // adjust order for phis, put catch in the front
             List<Stmt> stmts = new ArrayList<>();
             Catch catchStmt = null;
@@ -1647,13 +1636,9 @@ public class AsmIRBuilder {
         if (node instanceof VarInsnNode varNode) {
             switch (varNode.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
-                    if (!EXPERIMENTAL) {
-                        pushExp(node, nowStack, manager.getLocal(varNode.var));
-                    } else {
-                        int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
-                        Var v = getRWVar(rwIndex, varNode.var, node);
-                        pushExp(node, nowStack, v);
-                    }
+                    int rwIndex = visitRW(block.getIndex(), getIndex(varNode));
+                    Var v = getRWVar(rwIndex, varNode.var, node);
+                    pushExp(node, nowStack, v);
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
                         storeExp(varNode, nowStack, block);
@@ -1801,21 +1786,13 @@ public class AsmIRBuilder {
 
             pushExp(node, nowStack, new NewMultiArray((ArrayType) type, lengths));
         } else if (node instanceof IincInsnNode inc) {
-            if (EXPERIMENTAL) {
-                int use = visitRW(block.getIndex(), getIndex(inc));
-                int def = visitRW(block.getIndex(), getIndex(inc));
-                pushConst(node, nowStack, IntLiteral.get(inc.incr));
-                Var cst = popVar(nowStack);
-                Var v = getRWVar(use, inc.var, node);
-                pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-                storeRWVar(def, inc.var, inc, block, nowStack);
-            } else {
-                pushConst(node, nowStack, IntLiteral.get(inc.incr));
-                Var cst = popVar(nowStack);
-                Var v = manager.getLocal(inc.var);
-                pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-                storeExp(inc, v, nowStack, block);
-            }
+            int use = visitRW(block.getIndex(), getIndex(inc));
+            int def = visitRW(block.getIndex(), getIndex(inc));
+            pushConst(node, nowStack, IntLiteral.get(inc.incr));
+            Var cst = popVar(nowStack);
+            Var v = getRWVar(use, inc.var, node);
+            pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            storeRWVar(def, inc.var, inc, block, nowStack);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
             MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
@@ -1906,9 +1883,7 @@ public class AsmIRBuilder {
     int currRw;
     int paramWrite;
     private void enter(int block) {
-        if (EXPERIMENTAL) {
-            currRw = start[block];
-        }
+        currRw = start[block];
     }
 
     private int visitRW(int block, int index) {
@@ -1918,9 +1893,7 @@ public class AsmIRBuilder {
     }
 
     private void exit(int block) {
-        if (EXPERIMENTAL) {
-            assert currRw == end[block];
-        }
+        assert currRw == end[block];
     }
 
     private void postProcess() {
@@ -2131,17 +2104,13 @@ public class AsmIRBuilder {
                     if (inTry && isVarStore(varNode)) {
                         splitBefore = true;
                     }
-                    if (EXPERIMENTAL) {
-                        writeRwTable(rwTable, i, varNode.var, !isVarStore(varNode));
-                    }
+                    writeRwTable(rwTable, i, varNode.var, !isVarStore(varNode));
                 } else if (now instanceof IincInsnNode iincInsnNode) {
                     if (inTry) {
                         splitBefore = true;
                     }
-                    if (EXPERIMENTAL) {
-                        writeRwTable(rwTable, i, iincInsnNode.var, true);
-                        writeRwTable(rwTable, i, iincInsnNode.var, false);
-                    }
+                    writeRwTable(rwTable, i, iincInsnNode.var, true);
+                    writeRwTable(rwTable, i, iincInsnNode.var, false);
                 }
             }
 
@@ -2230,13 +2199,11 @@ public class AsmIRBuilder {
         g.setBlockSortedList(blockSortedList);
 
         dom = new Dominator<>(g);
-        if (EXPERIMENTAL) {
-            StageTimer.getInstance().endTypelessIR();
-            StageTimer.getInstance().startSplitting();
-            postProcess();
-            StageTimer.getInstance().endSplitting();
-            StageTimer.getInstance().startTypelessIR();
-        }
+        StageTimer.getInstance().endTypelessIR();
+        StageTimer.getInstance().startSplitting();
+        postProcess();
+        StageTimer.getInstance().endSplitting();
+        StageTimer.getInstance().startTypelessIR();
     }
 
     private void addExceptionEdges() {
