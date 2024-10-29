@@ -51,7 +51,7 @@ class DependencyResolver {
         }
     }
 
-    private static Pair<List<String>, List<Pair<String, ClassSource>>>
+    private static ResolveResult
     resolveWithJDT(Project project, String binaryName, JavaSourceFile javaSourceFile) {
         // DO NOT change the order of next 2 stmts
         List<String> deps = JavaClassManager.get().getImports(project, javaSourceFile);
@@ -61,7 +61,7 @@ class DependencyResolver {
             String binaryNameOfFile = s.getClassName().replace('.', '/');
             sources.add(new Pair<>(binaryNameOfFile, s));
         }
-        return new Pair<>(deps, sources);
+        return new ResolveResult(deps, sources);
     }
 
     private static ResolveResult
