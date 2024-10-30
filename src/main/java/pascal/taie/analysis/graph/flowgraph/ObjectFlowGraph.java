@@ -82,7 +82,7 @@ public class ObjectFlowGraph extends NodeManager
         Node source = toNode(edge.source());
         Node target = toNode(edge.target());
         FlowEdge flowEdge = switch (kind) {
-            case OTHER -> new OtherFlowEdge(edge.getInfo(), source, target);
+            case OTHER -> new OtherFlowEdge(edge.getInfo(), source, target, edge);
             default -> new BasicFlowEdge(kind, source, target);
         };
         addFlowEdge(flowEdge);

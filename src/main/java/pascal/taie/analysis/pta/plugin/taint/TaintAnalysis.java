@@ -34,12 +34,20 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.config.AnalysisOptions;
+import pascal.taie.config.ConfigException;
 import pascal.taie.ir.IR;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Timer;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -117,10 +125,36 @@ public class TaintAnalysis extends CompositePlugin {
             });
         }
         // load taint configuration and create new handlers
-        TaintConfig config = TaintConfig.loadConfig(
-                solver.getOptions().getString("taint-config"),
-                solver.getHierarchy(),
-                solver.getTypeSystem());
+        AnalysisOptions options = solver.getOptions();
+        TaintConfig config = TaintConfig.EMPTY;
+        if (options.getString("taint-config") != null) {
+            var provider = new YamlTaintConfigProvider(
+                    solver.getHierarchy(), solver.getTypeSystem());
+            provider.setPath(options.getString("taint-config"));
+            config = provider.get();
+        }
+        // load programmatic taint configuration
+        List<String> taintConfigProviders = (List<String>) solver
+                .getOptions().get("taint-config-providers");
+        for (String taintConfigProvider : taintConfigProviders) {
+            try {
+                Class<?> clazz = Class.forName(taintConfigProvider);
+                Constructor<?> ctor = clazz.getConstructor(
+                        ClassHierarchy.class, TypeSystem.class);
+                var provider = (TaintConfigProvider) ctor.newInstance(
+                        solver.getHierarchy(), solver.getTypeSystem());
+                config = config.mergeWith(provider.get());
+            } catch (ClassNotFoundException e) {
+                throw new ConfigException(
+                        "Taint config class " + taintConfigProvider + " is not found");
+            } catch (IllegalAccessException | NoSuchMethodException e) {
+                throw new AnalysisException(
+                        "Failed to access constructor of " + taintConfigProvider, e);
+            } catch (InvocationTargetException | InstantiationException e) {
+                throw new AnalysisException(
+                        "Failed to create plugin instance for " + taintConfigProvider, e);
+            }
+        }
         logger.info(config);
         context = new HandlerContext(solver, new TaintManager(
                 solver.getHeapModel()), config);
@@ -182,7 +216,7 @@ public class TaintAnalysis extends CompositePlugin {
      * This method does not use buffering to ensure it does not read more than necessary.
      * <br>
      *
-     * @return one line line read from the console,
+     * @return one line read from the console,
      * or {@code null} if no line is available
      */
     @Nullable

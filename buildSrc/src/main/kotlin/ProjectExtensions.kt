@@ -4,7 +4,10 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.forEachLine
 import kotlin.io.path.readText
+import kotlin.io.path.useLines
 
 fun Project.getProperty(key: String) =
     providers.gradleProperty(key).get()
@@ -29,7 +32,19 @@ val Project.projectCommit: String
         try {
             val gitHead = Path(rootDir.path, ".git", "HEAD").readText()
             if (gitHead.startsWith("ref: ")) {
-                return Path(rootDir.path, ".git", gitHead.substring(5).trim()).readText().trim()
+                val ref = gitHead.substring(5).trim()
+                // path '.git/refs/heads/branchName'
+                val p = Path(rootDir.path, ".git", ref)
+                if (p.exists()) {
+                    return p.readText().trim()
+                } else {
+                    // read from '.git/info/refs' line by line
+                    Path(rootDir.path, ".git", "info", "refs").forEachLine {
+                        if (it.endsWith(ref)) {
+                            return it.split("\t")[0]
+                        }
+                    }
+                }
             } else {
                 return gitHead.trim()
             }

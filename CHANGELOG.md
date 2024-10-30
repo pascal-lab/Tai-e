@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2024-01-20
+## [Unreleased] - 2024-08-18
 
 ### New Features
 - Add side-effect analysis.
@@ -9,18 +9,32 @@
   - Add `Plugin.onPhaseFinish()`.
   - Support specifying multiple method signatures in one `@InvokeHandler` annotation.
   - Add `getInfo()` to call graph edges and pointer flow edges.
-  - Add pointer analysis assertion mechanism.
+  - Add pointer analysis assertion mechanism to ease testing.
   - Add `pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin`and `IRModelPlugin` to replace original `Model` and `IRModel`, provide more convenient interfaces to support `@InvokeHandler`.
 - Taint analysis
   - Support specifying IndexRef (e.g., `index: "0[*]"` and `index: "0.f"`) in call sources and parameter sources.
   - Support specifying IndexRef in sinks.
   - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
+  - Enhance TFG dumping by adding taint configuration and call site info to Source/Sink node and TaintTransfer edge.
+  - Support programmatical taint config provider.
+- Class hierarchy analysis (CHA)
+  - Support ignoring call sites that call methods declared in `java.lang.Object`.
+  - Support ignoring call sites whose callees exceed given limit.
+- Signature pattern and matcher
+  - Add `pascal.taie.language.classes.SignatureMatcher` which supports retrieving classes, methods, or fields whose signature match given pattern.
+  - Use signature matcher in taint analysis and `@InvokeHandler` to simplify signature configuration.
 
 ### Breaking Changes
 - API changes
   - Change `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Type)` and `Solver.addPFGEdge(Pointer,Pointer,FlowKind,Transfer)` to `Solver.addPFGEdge(PointerFlowEdge)` and related APIs.
   - Deprecate `pascal.taie.analysis.pta.plugin.util.Model` and `IRModel` (these two interfaces are currently preserved for compatibility, and will be removed in the future).
   - Change `PrimitiveType` from `enum` to an `interface` and implement it by classes that represent concrete primitive types. Refine the types of certain expressions from `PrimitiveType` to the concrete primitive types.
+
+### Fixes
+- Fix incorrect classpath argument for the frontend where the `-acp` option is not being used. This issue is only reproducible when `--prepend-JVM` (`-pp`) is set to `true`.
+- Fix mismatch between number of parameter names and number of actual parameters in JMethod for inner class.
+- Fix option parser, now treat only the first colon as delimiter between a key and a value (before each colon is treated as delimiter).
+- Fix empty log file when running via JAR.
 
 ## [0.2.2] - 2023-09-23
 

@@ -38,6 +38,7 @@ import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.FieldTest;
 import pascal.taie.language.HierarchyTest;
 import pascal.taie.language.TypeTest;
+import pascal.taie.language.classes.PatternTest;
 import pascal.taie.language.classes.StringRepsTest;
 import pascal.taie.language.generics.GSignaturesTest;
 import pascal.taie.util.UtilTestSuite;
@@ -63,6 +64,7 @@ import pascal.taie.util.UtilTestSuite;
         // util
         OptionsTest.class,
         UtilTestSuite.class,
+        PatternTest.class,
         StringRepsTest.class,
 })
 public class TaieTestSuite {

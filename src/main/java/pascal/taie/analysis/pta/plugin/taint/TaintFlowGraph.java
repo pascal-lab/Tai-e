@@ -30,13 +30,14 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 import pascal.taie.util.graph.Graph;
 
+import java.util.Map;
 import java.util.Set;
 
 class TaintFlowGraph implements Graph<Node> {
 
-    private final Set<Node> sourceNodes;
+    private final Map<Node, SourcePoint> sourceNode2SourcePoint;
 
-    private final Set<Node> sinkNodes;
+    private final Map<Node, SinkPoint> sinkNode2SinkPoint;
 
     private final Set<Node> nodes = Sets.newHybridSet();
 
@@ -44,19 +45,28 @@ class TaintFlowGraph implements Graph<Node> {
 
     private final MultiMap<Node, FlowEdge> outEdges = Maps.newMultiMap();
 
-    TaintFlowGraph(Set<Node> sourceNodes, Set<Node> sinkNodes) {
-        this.sourceNodes = Set.copyOf(sourceNodes);
-        nodes.addAll(sourceNodes);
-        this.sinkNodes = Set.copyOf(sinkNodes);
-        nodes.addAll(sinkNodes);
+    TaintFlowGraph(Map<Node, SourcePoint> sourceNode2SourcePoint,
+                   Map<Node, SinkPoint> sinkNode2SinkPoint) {
+        this.sourceNode2SourcePoint = sourceNode2SourcePoint;
+        this.sinkNode2SinkPoint = sinkNode2SinkPoint;
+        nodes.addAll(getSourceNodes());
+        nodes.addAll(getSinkNodes());
+    }
+
+    Map<Node, SourcePoint> getSourceNode2SourcePoint() {
+        return sourceNode2SourcePoint;
+    }
+
+    Map<Node, SinkPoint> getSinkNode2SinkPoint() {
+        return sinkNode2SinkPoint;
     }
 
     Set<Node> getSourceNodes() {
-        return sourceNodes;
+        return this.sourceNode2SourcePoint.keySet();
     }
 
     Set<Node> getSinkNodes() {
-        return sinkNodes;
+        return this.sinkNode2SinkPoint.keySet();
     }
 
     void addEdge(FlowEdge edge) {

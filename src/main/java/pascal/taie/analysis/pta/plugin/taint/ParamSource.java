@@ -34,11 +34,12 @@ import pascal.taie.language.type.Type;
  * @param indexRef the index of the tainted reference.
  * @param type     the type of the generated taint object.
  */
-record ParamSource(JMethod method, IndexRef indexRef, Type type)
+public record ParamSource(JMethod method, IndexRef indexRef, Type type)
         implements Source {
 
     @Override
     public String toString() {
-        return String.format("ParamSource{%s/%s(%s)}", method, indexRef, type);
+        return String.format("{ kind: \"param\", method: \"%s\", index: \"%s\", type: \"%s\" }",
+                method, indexRef, type);
     }
 }

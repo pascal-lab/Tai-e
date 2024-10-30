@@ -89,7 +89,7 @@ class SinkHandler extends Handler {
             Invoke sinkCall, Sink sink) {
         IndexRef indexRef = sink.indexRef();
         Var arg = InvokeUtils.getVar(sinkCall, indexRef.index());
-        SinkPoint sinkPoint = new SinkPoint(sinkCall, indexRef);
+        SinkPoint sinkPoint = new SinkPoint(sinkCall, indexRef, sink);
         // obtain objects to check for different IndexRef.Kind
         Set<Obj> objs = switch (indexRef.kind()) {
             case VAR -> csManager.getCSVarsOf(arg)

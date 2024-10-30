@@ -27,7 +27,14 @@ import pascal.taie.analysis.pta.core.solver.OtherEdge;
 
 class TaintTransferEdge extends OtherEdge {
 
-    TaintTransferEdge(Pointer source, Pointer target) {
+    private final TaintTransfer transfer;
+
+    TaintTransferEdge(Pointer source, Pointer target, TaintTransfer transfer) {
         super(source, target);
+        this.transfer = transfer;
+    }
+
+    TaintTransfer getTransfer() {
+        return transfer;
     }
 }

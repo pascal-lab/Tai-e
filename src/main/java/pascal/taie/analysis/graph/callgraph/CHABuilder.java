@@ -25,12 +25,15 @@ package pascal.taie.analysis.graph.callgraph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.config.ConfigException;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Subsignature;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -52,9 +55,47 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     private ClassHierarchy hierarchy;
 
     /**
+     * Subsignatures of methods in java.lang.Object.
+     */
+    private Set<Subsignature> objectMethods;
+
+    /**
      * Cache resolve results for interface/virtual invocations.
      */
     private TwoKeyMap<JClass, MemberRef, Set<JMethod>> resolveTable;
+
+    /**
+     * Whether ignore methods declared in java.lang.Object,
+     * which may introduce a large number of spurious callees.
+     */
+    private final boolean ignoreObjectMethods;
+
+    /**
+     * Number of allowing callees resolved at each call site.
+     * If the number exceeds this limit, then the call site will be ignored.
+     */
+    private final int calleeLimit;
+
+    CHABuilder(String algorithm) {
+        switch (algorithm) {
+            case "cha" -> { // default setting, ignore Object's methods
+                ignoreObjectMethods = true;
+                calleeLimit = Integer.MAX_VALUE;
+            }
+            case "cha-full" -> { // full mode, resolve all call sites
+                ignoreObjectMethods = false;
+                calleeLimit = Integer.MAX_VALUE;
+            }
+            default -> { // cha-LIMIT, where LIMIT should be a number
+                try {
+                    ignoreObjectMethods = false;
+                    calleeLimit = Integer.parseInt(algorithm.split("-")[1]);
+                } catch (Exception e) {
+                    throw new ConfigException("Invalid CHA option: " + algorithm);
+                }
+            }
+        }
+    }
 
     @Override
     public CallGraph<Invoke, JMethod> build() {
@@ -62,7 +103,20 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
     }
 
     private CallGraph<Invoke, JMethod> buildCallGraph(JMethod entry) {
+        logger.info("Building call graph by CHA");
+        if (ignoreObjectMethods) {
+            logger.info("Ignore methods of java.lang.Object");
+        }
+        if (calleeLimit < Integer.MAX_VALUE) {
+            logger.info("Ignore call sites whose callees > {}", calleeLimit);
+        }
         hierarchy = World.get().getClassHierarchy();
+        JClass object = hierarchy.getJREClass(ClassNames.OBJECT);
+        objectMethods = Objects.requireNonNull(object)
+                .getDeclaredMethods()
+                .stream()
+                .map(JMethod::getSubsignature)
+                .collect(Collectors.toUnmodifiableSet());
         resolveTable = Maps.newTwoKeyMap();
         DefaultCallGraph callGraph = new DefaultCallGraph();
         callGraph.addEntryMethod(entry);
@@ -94,6 +148,9 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
         return switch (kind) {
             case INTERFACE, VIRTUAL -> {
                 MethodRef methodRef = callSite.getMethodRef();
+                if (ignoreObjectMethods && isObjectMethod(methodRef)) {
+                    yield Set.of();
+                }
                 JClass cls = methodRef.getDeclaringClass();
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees == null) {
@@ -105,15 +162,19 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                             .collect(Collectors.toUnmodifiableSet());
                     resolveTable.put(cls, methodRef, callees);
                 }
-                yield callees;
+                yield callees.size() <= calleeLimit ? callees : Set.of();
             }
             case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
             case DYNAMIC -> {
-                logger.debug("CHA cannot resolve invokedynamic " + callSite);
+                logger.debug("CHA cannot resolve invokedynamic {}", callSite);
                 yield Set.of();
             }
             default -> throw new AnalysisException(
                     "Failed to resolve call site: " + callSite);
         };
+    }
+
+    private boolean isObjectMethod(MethodRef methodRef) {
+        return objectMethods.contains(methodRef.getSubsignature());
     }
 }
