@@ -46,7 +46,6 @@ import pascal.taie.language.generics.GSignatures;
 import pascal.taie.language.generics.MethodGSignature;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Lists;
@@ -93,7 +92,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.BottomType.BOTTOM;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
 import static pascal.taie.language.type.VoidType.VOID;
 import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
@@ -128,21 +135,21 @@ class Converter {
     Type convertType(soot.Type sootType) {
         if (sootType instanceof PrimType) {
             if (sootType instanceof ByteType) {
-                return PrimitiveType.BYTE;
+                return BYTE;
             } else if (sootType instanceof ShortType) {
-                return PrimitiveType.SHORT;
+                return SHORT;
             } else if (sootType instanceof IntType) {
-                return PrimitiveType.INT;
+                return INT;
             } else if (sootType instanceof LongType) {
-                return PrimitiveType.LONG;
+                return LONG;
             } else if (sootType instanceof FloatType) {
-                return PrimitiveType.FLOAT;
+                return FLOAT;
             } else if (sootType instanceof DoubleType) {
-                return PrimitiveType.DOUBLE;
+                return DOUBLE;
             } else if (sootType instanceof CharType) {
-                return PrimitiveType.CHAR;
+                return CHAR;
             } else if (sootType instanceof BooleanType) {
-                return PrimitiveType.BOOLEAN;
+                return BOOLEAN;
             }
         } else if (sootType instanceof RefType) {
             return typeSystem.getClassType(loader, sootType.toString());

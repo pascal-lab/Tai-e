@@ -151,7 +151,8 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 InvokeDynamicAnalysis.useMethodHandle()) {
             plugin.addPlugin(new InvokeDynamicAnalysis());
         }
-        if (options.getString("taint-config") != null) {
+        if (options.getString("taint-config") != null
+                || !((List<String>) options.get("taint-config-providers")).isEmpty()) {
             plugin.addPlugin(new TaintAnalysis());
         }
         plugin.addPlugin(new ResultProcessor());

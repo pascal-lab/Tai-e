@@ -26,8 +26,10 @@
     expected-file: null # path of expected file for comparing results
     reflection-inference: string-constant # | solar | null
     reflection-log: null # path to reflection log, required when reflection option is log
-    taint-config: null # path to config file of taint analysis,
-    # when this file is given, taint analysis will be enabled
+    taint-config: null # path (of dir/file) to config file of taint analysis,
+    taint-config-providers: [ ] # class names of taint config provider classes
+    # when this path/provider is given, taint analysis will be enabled
+    taint-interactive-mode: false # whether enable interactive mode for taint analysis
     plugins: [ ] # | [ pluginClass, ... ]
     time-limit: -1 # set time limit (in seconds) for pointer analysis,
     # -1 means no time limit
@@ -37,7 +39,7 @@
   id: cg
   requires: [ pta(algorithm=pta) ]
   options:
-    algorithm: pta # | cha
+    algorithm: pta # | cha | cha=LIMIT | cha-full
     dump: false # whether dump call graph in dot file
     dump-methods: false # whether dump reachable methods
     dump-call-edges: false # whether dump call edges

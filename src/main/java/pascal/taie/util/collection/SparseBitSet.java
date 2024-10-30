@@ -482,6 +482,9 @@ public class SparseBitSet extends AbstractBitSet
 
     @Override
     public boolean intersects(IBitSet set) {
+        if (this.isEmpty() || set.isEmpty()) {
+            return false;
+        }
         if (this == set) {
             return true;
         }

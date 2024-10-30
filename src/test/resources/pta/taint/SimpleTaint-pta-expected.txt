@@ -1,22 +1,30 @@
 Points-to sets of all variables
+[]:<Sanitizer: Sanitizer sanitize()>/%this -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
 []:<Sanitizer: java.lang.String sanitize(java.lang.String)>/input -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<Sanitizer: void <init>()>/%this -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
 []:<SimpleTaint: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<SimpleTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <SimpleTaint: void main(java.lang.String[])>}]
 []:<SimpleTaint: void main(java.lang.String[])>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SimpleTaint: void main(java.lang.String[])>/s2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SimpleTaint: void main(java.lang.String[])>/s3 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:<SimpleTaint: void main(java.lang.String[])>/s4 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SimpleTaint: void main(java.lang.String[])>/s5 -> [[]:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [23@L18] s5 = <SourceSink: java.lang.String tainted1>,type=java.lang.String}]
-[]:<SimpleTaint: void main(java.lang.String[])>/s6 -> []
-[]:<SimpleTaint: void main(java.lang.String[])>/s7 -> [[]:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [29@L24] s7 = temp$5.<SourceSink: java.lang.String tainted2>,type=java.lang.String}]
+[]:<SimpleTaint: void main(java.lang.String[])>/s4 -> [[]:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [20@L15] s4 = <SourceSink: java.lang.String tainted1>,type=java.lang.String}]
+[]:<SimpleTaint: void main(java.lang.String[])>/s5 -> []
+[]:<SimpleTaint: void main(java.lang.String[])>/s6 -> [[]:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [26@L21] s6 = temp$4.<SourceSink: java.lang.String tainted2>,type=java.lang.String}]
+[]:<SimpleTaint: void main(java.lang.String[])>/s7 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SimpleTaint: void main(java.lang.String[])>/s8 -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
 []:<SimpleTaint: void main(java.lang.String[])>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SimpleTaint: void main(java.lang.String[])>/temp$1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SimpleTaint: void main(java.lang.String[])>/temp$2 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SimpleTaint: void main(java.lang.String[])>/temp$3 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SimpleTaint: void main(java.lang.String[])>/temp$4 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SimpleTaint: void main(java.lang.String[])>/temp$5 -> [[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[27@L24] new SourceSink}]
+[]:<SimpleTaint: void main(java.lang.String[])>/temp$4 -> [[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[24@L21] new SourceSink}]
+[]:<SimpleTaint: void main(java.lang.String[])>/temp$5 -> [[]:MergedObj{<Merged java.lang.String>}]
+[]:<SimpleTaint: void main(java.lang.String[])>/temp$6 -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
+[]:<SimpleTaint: void main(java.lang.String[])>/temp$7 -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
+[]:<SourceSink: Sanitizer sourceS()>/temp$0 -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
 []:<SourceSink: java.lang.String source()>/temp$0 -> [[]:MergedObj{<Merged java.lang.String>}]
-[]:<SourceSink: void <init>()>/%this -> [[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[27@L24] new SourceSink}]
-[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [23@L18] s5 = <SourceSink: java.lang.String tainted1>,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [29@L24] s7 = temp$5.<SourceSink: java.lang.String tainted2>,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<SourceSink: void <init>()>/%this -> [[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[24@L21] new SourceSink}]
+[]:<SourceSink: void sink(Sanitizer)>/s -> [[]:NewObj{<SourceSink: Sanitizer sourceS()>[0@L13] new Sanitizer}]
+[]:<SourceSink: void sink(java.lang.String)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [20@L15] s4 = <SourceSink: java.lang.String tainted1>,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])> [26@L21] s6 = temp$4.<SourceSink: java.lang.String tainted2>,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:<SourceSink: void sink(java.lang.String,int)>/n -> []
 []:<SourceSink: void sink(java.lang.String,int)>/s -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SourceSink: void sink(java.lang.String,java.lang.String)>/s1 -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.String}, []:TaintObj{alloc=<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=java.lang.String}]
 []:<SourceSink: void sink(java.lang.String,java.lang.String)>/s2 -> [[]:MergedObj{<Merged java.lang.String>}]
@@ -26,7 +34,7 @@ Points-to sets of all static fields
 <SourceSink: java.lang.String untainted> -> []
 
 Points-to sets of all instance fields
-[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[27@L24] new SourceSink}.tainted2 -> []
+[]:NewObj{<SimpleTaint: void main(java.lang.String[])>[24@L21] new SourceSink}.tainted2 -> []
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<SimpleTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <SimpleTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<SimpleTaint: void main(java.lang.String[])>/0}[*],type=java.lang.String in <SimpleTaint: void main(java.lang.String[])>}]
@@ -36,6 +44,6 @@ TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestat
 TaintFlow{<SimpleTaint: void main(java.lang.String[])>[0@L4] temp$0 = invokestatic SourceSink.source()/result -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic SourceSink.sink(s3, %intconst0)/0}
 TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result -> <SimpleTaint: void main(java.lang.String[])>[5@L8] invokestatic SourceSink.sink(s2)/0}
 TaintFlow{<SimpleTaint: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result -> <SimpleTaint: void main(java.lang.String[])>[16@L11] invokestatic SourceSink.sink(s3, %intconst0)/0}
-TaintFlow{<SimpleTaint: void main(java.lang.String[])> [23@L18] s5 = <SourceSink: java.lang.String tainted1> -> <SimpleTaint: void main(java.lang.String[])>[24@L19] invokestatic SourceSink.sink(s5)/0}
-TaintFlow{<SimpleTaint: void main(java.lang.String[])> [29@L24] s7 = temp$5.<SourceSink: java.lang.String tainted2> -> <SimpleTaint: void main(java.lang.String[])>[30@L25] invokestatic SourceSink.sink(s7)/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])> [20@L15] s4 = <SourceSink: java.lang.String tainted1> -> <SimpleTaint: void main(java.lang.String[])>[21@L16] invokestatic SourceSink.sink(s4)/0}
+TaintFlow{<SimpleTaint: void main(java.lang.String[])> [26@L21] s6 = temp$4.<SourceSink: java.lang.String tainted2> -> <SimpleTaint: void main(java.lang.String[])>[27@L22] invokestatic SourceSink.sink(s6)/0}
 

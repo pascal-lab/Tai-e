@@ -25,18 +25,15 @@ package pascal.taie.analysis.pta.plugin.taint;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JField;
 
-record IndexRef(Kind kind, int index, JField field)
+import javax.annotation.Nullable;
+
+public record IndexRef(Kind kind, int index, @Nullable JField field)
         implements Comparable<IndexRef> {
 
     static final String ARRAY_SUFFIX = "[*]";
 
-    enum Kind {
+    public enum Kind {
         VAR, ARRAY, FIELD
-    }
-
-    @Override
-    public JField field() {
-        return field;
     }
 
     @Override

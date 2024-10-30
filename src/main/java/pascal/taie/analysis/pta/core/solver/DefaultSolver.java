@@ -175,7 +175,9 @@ public class DefaultSolver implements Solver {
         hierarchy = World.get().getClassHierarchy();
         typeSystem = World.get().getTypeSystem();
         ptsFactory = new PointsToSetFactory(csManager.getObjectIndexer());
-        propTypes = new PropagateTypes((List<String>) options.get("propagate-types"));
+        propTypes = new PropagateTypes(
+                (List<String>) options.get("propagate-types"),
+                typeSystem);
         onlyApp = options.getBoolean("only-app");
         timeLimit = options.getInt("time-limit");
     }

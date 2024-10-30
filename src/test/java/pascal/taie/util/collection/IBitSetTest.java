@@ -73,8 +73,10 @@ public abstract class IBitSetTest {
     @Test
     void testIntersects() {
         IBitSet s1 = of();
+        assertFalse(s1.intersects(s1));
         IBitSet s2 = of();
         assertFalse(s1.intersects(s2));
+        assertFalse(s2.intersects(s1));
         s2 = of(1, 233, 666);
         assertFalse(s1.intersects(s2));
         assertFalse(s2.intersects(s1));
@@ -83,6 +85,7 @@ public abstract class IBitSetTest {
         assertTrue(s2.intersects(s1));
         s1.clear(666);
         assertFalse(s1.intersects(s2));
+        assertFalse(s2.intersects(s1));
     }
 
     @Test

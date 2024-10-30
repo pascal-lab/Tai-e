@@ -23,16 +23,24 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class TaintTest {
 
-    static final String DIR = "taint";
+    private static final String DIR = "taint";
 
-    static final String TAINT_CONFIG_PREFIX = "taint-config:src/test/resources/pta/taint/";
+    private static final String TAINT_CONFIG_PREFIX = "taint-config:src/test/resources/pta/taint/";
 
-    static final String TAINT_CONFIG = TAINT_CONFIG_PREFIX + "taint-config.yml";
+    private static final String TAINT_CONFIG = TAINT_CONFIG_PREFIX + "taint-config.yml";
 
     @ParameterizedTest
 //    @MultiStringsSource({"ArrayTaint", TAINT_CONFIG})
@@ -67,7 +75,48 @@ public class TaintTest {
 //    @MultiStringsSource({"CallSiteMode",
 //            TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
     void test(String mainClass, String... opts) {
+        testInNonInteractiveMode(mainClass, opts);
+        testInInteractiveMode(mainClass, opts);
+    }
+
+    private void testInNonInteractiveMode(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
     }
 
+    private void testInInteractiveMode(String mainClass, String... opts) {
+        InputStream originalSystemIn = System.in;
+        try {
+            String simulatedInput = "r\ne\n";
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+            String[] newOpts = new String[opts.length + 1];
+            System.arraycopy(opts, 0, newOpts, 0, opts.length);
+            newOpts[opts.length] = "taint-interactive-mode:true";
+            Tests.testPTA(DIR, mainClass, newOpts);
+        } finally {
+            System.setIn(originalSystemIn);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SimpleTaint",
+            "TaintCall",
+            "TaintParam",
+    })
+    void testTaintConfigProvider(String mainClass) {
+        List<String> ptaArgs = new ArrayList<>();
+        Collections.addAll(ptaArgs,
+                "implicit-entries:false",
+                "only-app:true",
+                "distinguish-string-constants:all",
+                "expected-file:src/test/resources/pta/taint/" + mainClass + "-pta-expected.txt",
+                "taint-config-providers:[pascal.taie.analysis.pta.MockTaintConfigProvider]"
+        );
+        Main.main(
+                "-pp",
+                "-cp", "src/test/resources/pta/taint",
+                "-m", mainClass,
+                "-a", "pta=" + String.join(";", ptaArgs)
+        );
+    }
 }

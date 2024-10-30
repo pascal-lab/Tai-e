@@ -403,6 +403,38 @@ Users can simply place all relevant configuration files within a designated dire
 TIP: The taint analysis will traverse the directory iteratively during the configuration loading process.
 Therefore, you have the flexibility to organize the configuration files as you see fit, including placing them in multiple subdirectories if desired.
 
+=== Programmatical Taint Configuration Provider
+
+In addition to the YAML configuration file, Tai-e also supports programmatical taint configuration.
+
+To enable it, start pointer analysis with option `taint-config-provider`, for example:
+
+[source]
+----
+-a pta=...;taint-config-provider:[my.example.MyTaintConfigProvider];...
+----
+
+The class `my.example.MyTaintConfigProvider` should extends the interface `pascal.taie.analysis.pta.plugin.taint.TaintConfigProvider`.
+
+[source,java,subs="verbatim"]
+----
+package my.example;
+
+public class MyTaintConfigProvider extends TaintConfigProvider {
+    public MyTaintConfigProvider(ClassHierarchy hierarchy, TypeSystem typeSystem) {
+        super(hierarchy, typeSystem);
+    }
+
+    @Override
+    protected List<Source> sources() { return List.of(); }
+
+    @Override
+    protected List<Sink> sinks() { return List.of(); }
+// ...
+}
+----
+
+
 == Output of Taint Analysis
 Currently, the output of the taint analysis consists of two parts: console output and taint flow graph.
 

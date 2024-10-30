@@ -27,6 +27,7 @@ import pascal.taie.util.collection.SetEx;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -56,6 +57,11 @@ abstract class DelegatePointsToSet implements PointsToSet {
             }
             return changed;
         }
+    }
+
+    @Override
+    public void removeIf(Predicate<CSObj> filter) {
+        set.removeIf(filter);
     }
 
     @Override

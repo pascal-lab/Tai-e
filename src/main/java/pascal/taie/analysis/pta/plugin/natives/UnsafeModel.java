@@ -35,7 +35,7 @@ import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.IntType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
@@ -60,7 +60,7 @@ public class UnsafeModel extends IRModelPlugin {
         if (o.getType() instanceof ArrayType) { // if o is of ArrayType
             // generate o[i] = x;
             Var i = new Var(invoke.getContainer(),
-                    "%unsafe-index" + counter++, PrimitiveType.INT, -1);
+                    "%unsafe-index" + counter++, IntType.INT, -1);
             stmts.add(new StoreArray(new ArrayAccess(o, i), x));
         } else { // otherwise, o is of ClassType
             // generate o.f = x; for field f that has the same type of x.

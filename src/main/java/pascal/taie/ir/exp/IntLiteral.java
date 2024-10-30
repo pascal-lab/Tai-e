@@ -22,7 +22,7 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.PrimitiveType;
+import pascal.taie.language.type.IntType;
 
 /**
  * Representation of int literals.
@@ -58,8 +58,8 @@ public class IntLiteral implements IntegerLiteral {
     }
 
     @Override
-    public PrimitiveType getType() {
-        return PrimitiveType.INT;
+    public IntType getType() {
+        return IntType.INT;
     }
 
     /**

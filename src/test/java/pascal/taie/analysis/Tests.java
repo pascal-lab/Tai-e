@@ -155,7 +155,7 @@ public final class Tests {
      */
     private static String getExpectedFile(String dir, String main, String id) {
         String fileName = String.format("%s-%s-expected.txt", main, id);
-        return Path.of(dir, fileName).toString();
+        return Path.of(dir, fileName).toString().replace('\\', '/');
     }
 
     public static void testPTA(String dir, String main, String... opts) {
