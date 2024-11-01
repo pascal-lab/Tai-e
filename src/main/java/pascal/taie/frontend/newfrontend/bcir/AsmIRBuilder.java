@@ -251,7 +251,7 @@ public class AsmIRBuilder {
     @Deprecated
     private List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(AsmIRBuilder.class);
 
     /**
      * The top element, used as a placeholder two word stack value (e.g. long and double)
@@ -2247,7 +2247,7 @@ public class AsmIRBuilder {
             }
         }
         // the last block is not processed
-        // but for some cases, it is an emtpy block
+        // but for some cases, it is an empty block
         // first check for that
         boolean emtpyLast = start == size - 1 && source.instructions.getLast().getOpcode() == -1;
         if (!emtpyLast) {
