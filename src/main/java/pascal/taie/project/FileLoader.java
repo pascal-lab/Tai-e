@@ -74,14 +74,6 @@ public class FileLoader {
         return (dotIndex == -1) ? "" : s.substring(dotIndex + 1);
     }
 
-    private String getName(Path p) {
-        String s = p.getFileName().toString();
-        int dotIndex = s.lastIndexOf('.');
-        return (dotIndex == -1) ? s : s.substring(0, dotIndex);
-    }
-
-
-
     private boolean isClassFile(Path p) {
         return getExt(p).equals("class");
     }
@@ -194,7 +186,7 @@ public class FileLoader {
                 Parent newParent = new Parent(fs, path);
                 List<AnalysisFile> files = new ArrayList<>();
                 FileTime time = Files.getLastModifiedTime(path);
-                String name = getName(path);
+                String name = PathUtils.getClassName(path);
 
                 FileContainer currentContainer;
                 if (isJarFile(path)) {
@@ -219,11 +211,11 @@ public class FileLoader {
                 Resource r = mkResource(parent, path);
                 FileTime time = Files.getLastModifiedTime(path);
                 Path relativePath = getRelativePath(parent, path);
-                String internalName = getName(relativePath);
+                String internalName = PathUtils.getInternalName(relativePath);
                 if (isClassFile(path)) {
-                    fileWorker.apply(new ClassFile(getName(path), internalName, time, r, rootContainer));
+                    fileWorker.apply(new ClassFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
                 } else if (isJavaSourceFile(path)) {
-                    fileWorker.apply(new JavaSourceFile(getName(path), internalName, time, r, rootContainer));
+                    fileWorker.apply(new JavaSourceFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
                 } else {
                     fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r, rootContainer));
                 }

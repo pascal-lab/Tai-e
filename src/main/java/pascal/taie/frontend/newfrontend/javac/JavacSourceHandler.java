@@ -1,7 +1,10 @@
 package pascal.taie.frontend.newfrontend.javac;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.FileResource;
+import pascal.taie.project.PathUtils;
 import pascal.taie.project.Resource;
 
 import javax.tools.DiagnosticCollector;
@@ -22,13 +25,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+// TODO: check concurrent behavior, note compile may be called concurrently
 public class JavacSourceHandler {
 
+    private final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
     private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     private final StandardJavaFileManager fileManager =
             compiler.getStandardFileManager(diagnostics, null, null);
-    private final String tempOutDir = System.getProperty("java.io.tmpdir") + "/taie";
+    private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir")).resolve("taie");
+    private final Pattern writePattern = getWritePattern();
 
     public List<ClassFile> compile(String cp, String javaSourceFile, int javaVersion) throws IOException {
         if (compiler == null) {
@@ -41,8 +47,9 @@ public class JavacSourceHandler {
 
         List<String> options = List.of("-classpath", cp, "-verbose",
                 "--release", "" + javaVersion,
-                "-d", tempOutDir,
-                "-implicit:class");
+                "-d", tempOutDir.toAbsolutePath().toString(),
+                "-implicit:class",
+                "-g");
 
         JavaCompiler.CompilationTask task =
                 compiler.getTask(output, fileManager, diagnostics, options, null, compilationUnits);
@@ -75,9 +82,7 @@ public class JavacSourceHandler {
         String[] lines = output.split("\n");
         List<String> files = new ArrayList<>();
         for (String line : lines) {
-            // TODO: check language & system settings affects output
-            Pattern pattern = Pattern.compile("\\[wrote " + Pattern.quote(tempOutDir) + "/(.+)\\.class]");
-            Matcher matcher = pattern.matcher(line);
+            Matcher matcher = writePattern.matcher(line);
             if (matcher.find()) {
                 String fileName = matcher.group(1);
                 files.add(fileName);
@@ -86,15 +91,32 @@ public class JavacSourceHandler {
         return files;
     }
 
-    private ClassFile createPhantomClassFile(String internalName) throws IOException {
-        Path p = Paths.get(tempOutDir, internalName + ".class");
-        FileTime time = Files.getLastModifiedTime(p);
-        Resource r = new FileResource(p);
-        return new ClassFile(getName(internalName), internalName, time, r, null);
+    private ClassFile createPhantomClassFile(String outputPath) throws IOException {
+        Path output = Paths.get(outputPath);
+        Path relative = tempOutDir.relativize(output);
+        String className = PathUtils.getClassName(relative);
+        String internalName = PathUtils.getInternalName(relative);
+        FileTime time = Files.getLastModifiedTime(output);
+        Resource r = new FileResource(output);
+        return new ClassFile(className, internalName, time, r, null);
     }
 
-    private String getName(String internalName) {
-        int slashIndex = internalName.lastIndexOf('/');
-        return (slashIndex == -1) ? internalName : internalName.substring(slashIndex + 1);
+    private Pattern getWritePattern() {
+        String lang = System.getProperty("user.language");
+        String country = System.getProperty("user.country");
+        if (lang.equals("en")) {
+            return Pattern.compile("\\[wrote (.*\\.class)]");
+        } else if (lang.equals("de")) {
+            return Pattern.compile("\\[(.*\\.class) geschrieben]");
+        } else if (lang.equals("ja")) {
+            return Pattern.compile("\\[(.*\\.class)を書込み完了]");
+        } else if (lang.equals("zh") && country.equals("CN")) {
+            return Pattern.compile("\\[已写入(.*\\.class)]");
+        } else {
+            logger.warn("Unknown language: {}, country: {}\n" +
+                    "The Java source code frontend may not work properly\n" +
+                    "Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]", lang, country);
+            return Pattern.compile("\\[wrote (.*\\.class)]");
+        }
     }
 }
