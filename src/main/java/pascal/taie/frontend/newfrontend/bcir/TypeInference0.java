@@ -22,8 +22,11 @@
 
 package pascal.taie.frontend.newfrontend.bcir;
 
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.Uninitialized;
 import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
+import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -85,7 +88,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * Type inference based on stack map frames
  */
-public class TypeInference0 {
+public class TypeInference0 extends NewFrontendIRComponent {
 
     private final AsmIRBuilder builder;
 
@@ -99,7 +102,8 @@ public class TypeInference0 {
 
     private final ClassType stringType;
 
-    public TypeInference0(AsmIRBuilder builder) {
+    public TypeInference0(AsmIRBuilder builder, BuildContext context) {
+        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         varSize = builder.manager.getVars().size();
 
@@ -112,7 +116,7 @@ public class TypeInference0 {
             localTypeAssigns.add(null);
         }
         localCells = builder.manager.getSlotTable();
-        stringType = getString();
+        stringType = tCtx().string();
     }
 
     private void putMultiSet(List<Set<Type>> set, Var v, Type t) {
@@ -143,9 +147,9 @@ public class TypeInference0 {
         Type now = allTypes.iterator().next();
         if (allTypes.size() == 1) {
             if (now == Uninitialized.UNINITIALIZED) {
-                return getObject();
+                return tCtx().object();
             }
-            if (now == getObject()) {
+            if (now == tCtx().object()) {
                 Set<Type> constrains = localTypeConstrains.get(v.getIndex());
                 if (constrains != null && constrains.size() == 1) {
                     return constrains.iterator().next();
@@ -163,12 +167,13 @@ public class TypeInference0 {
             } else {
                 assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
                         t1 instanceof Uninitialized);
-                Set<ReferenceType> res = lca(allTypes.stream()
+                Set<ReferenceType> res = lca(tCtx(),
+                        allTypes.stream()
                         .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
                         .map(i -> (ReferenceType) i)
                         .collect(Collectors.toSet()));
                 if (res.isEmpty())  {
-                    now = Utils.getObject();
+                    now = tCtx().object();
                 } else if (res.size() == 1) {
                     now = res.iterator().next();
                 } else {
@@ -176,14 +181,14 @@ public class TypeInference0 {
                     int count = -1;
                     for (ReferenceType type : res) {
                         int newCount = (int) constrains.stream()
-                                .filter(c -> isAssignable(c, type)).count();
+                                .filter(c -> isAssignable(tCtx(), c, type)).count();
                         if (newCount > count) {
                             now = type;
                             count = newCount;
                         }
                     }
                     if (now == null) {
-                        now = getObject();
+                        now = tCtx().object();
                     }
                 }
                 break;
@@ -220,7 +225,7 @@ public class TypeInference0 {
                 return;
             }
             if (t == Uninitialized.UNINITIALIZED) {
-                ExpModifier.setType(var, getObject());
+                ExpModifier.setType(var, tCtx().object());
             } else {
                 ExpModifier.setType(var, t);
             }
@@ -283,7 +288,7 @@ public class TypeInference0 {
         buildLocalTypes();
         inferTypes();
         setTypeForLocal();
-        CastingInsert insert = new CastingInsert(builder);
+        CastingInsert insert = new CastingInsert(builder, ctx());
         insert.build();
     }
 
@@ -395,7 +400,7 @@ public class TypeInference0 {
                 if (l instanceof StringLiteral) {
                     t = stringType;
                 } else if (l instanceof ClassLiteral) {
-                    t = getKlass();
+                    t = tCtx().klass();
                 } else {
                     t = l.getType();
                 }
@@ -423,7 +428,7 @@ public class TypeInference0 {
                     // TODO: this rule is useless, and may not be safe
                     //       But currently works well, check & remove this in the future
                     if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                        putMultiSet(localTypeAssigns, base, wrap1(referenceType));
+                        putMultiSet(localTypeAssigns, base, wrap1(tCtx(), referenceType));
                     }
                 }
                 return StmtVisitor.super.visit(stmt);
@@ -520,8 +525,8 @@ public class TypeInference0 {
                 List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
                 assert exceptionTypes != null;
                 // calculate lca here
-                Set<ReferenceType> res = lca(new HashSet<>(exceptionTypes));
-                ReferenceType type = res.isEmpty() ? getThrowable() : res.iterator().next();
+                Set<ReferenceType> res = lca(tCtx(), new HashSet<>(exceptionTypes));
+                ReferenceType type = res.isEmpty() ? tCtx().throwable() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return StmtVisitor.super.visit(stmt);
             }

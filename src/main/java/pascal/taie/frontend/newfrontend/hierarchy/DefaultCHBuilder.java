@@ -22,10 +22,10 @@
 
 package pascal.taie.frontend.newfrontend.hierarchy;
 
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.frontend.newfrontend.FrontendOptions;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassBuilder;
 import pascal.taie.World;
@@ -39,12 +39,18 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class DefaultCHBuilder implements ClassHierarchyBuilder {
+public class DefaultCHBuilder extends NewFrontendComponent
+        implements ClassHierarchyBuilder {
+
+    public DefaultCHBuilder(BuildContext context) {
+        super(context);
+    }
 
     @Override
     public ClassHierarchy build(Collection<ClassSource> sources) {
         ClassHierarchyImpl ch = new ClassHierarchyImpl();
-        DefaultClassLoader dcl = new DefaultClassLoader(ch, World.get().getOptions().isAllowPhantom());
+        DefaultClassLoader dcl = new DefaultClassLoader(
+                ctx(), ch, World.get().getOptions().isAllowPhantom());
         Map<String, JClass> m = Maps.newMap();
         dcl.setMapping(m);
         sources.forEach(i -> {
@@ -54,9 +60,9 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
 
         ch.setDefaultClassLoader(dcl);
         ch.setBootstrapClassLoader(dcl);
-        BuildContext.make(dcl);
+        ctx().initClassloaderAndTypeSystem(dcl);
 
-        Stream<ClassSource> classToBuild = FrontendOptions.get().isUseParallelHierarchy()
+        Stream<ClassSource> classToBuild = ctx().getFrontendOptions().isUseParallelHierarchy()
                 ? sources.parallelStream()
                 : sources.stream();
         classToBuild.forEach(i -> {
@@ -67,7 +73,7 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
             JClassBuilder asb = getClassBuilder(i, klass);
             asb.build(klass);
             if (i instanceof AsmSource as) {
-                BuildContext.get().noticeClassSource(klass, as);
+                ctx().noticeClassSource(klass, as);
             }
         });
 
@@ -76,15 +82,14 @@ public class DefaultCHBuilder implements ClassHierarchyBuilder {
                 ch.addClass(i);
             }
         }
-
-        BuildContext.get().setHierarchy(ch);
+        ctx().initHierarchy(ch);
         return ch;
     }
 
     private JClassBuilder getClassBuilder(
-            ClassSource source,  JClass jClass) {
+            ClassSource source, JClass jClass) {
         if (source instanceof AsmSource i) {
-            return new AsmClassBuilder(i, jClass);
+            return new AsmClassBuilder(ctx(), i, jClass);
         } else if (source instanceof JavaSource j) {
             return new JavaClassBuilder(j, jClass);
         } else {

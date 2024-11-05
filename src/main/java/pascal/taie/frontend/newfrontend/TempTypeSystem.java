@@ -22,6 +22,8 @@
 
 package pascal.taie.frontend.newfrontend;
 
+import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.type.ArrayType;
@@ -52,7 +54,8 @@ import static pascal.taie.util.collection.Maps.newConcurrentMap;
  * Temporary Type System for frontend,
  * Copy and Paste from language.type.TypeSystemImpl
  */
-public class TempTypeSystem implements TypeSystem {
+public class TempTypeSystem extends NewFrontendComponent
+        implements TypeSystem {
 
     private final JClassLoader defaultClassLoader;
 
@@ -76,7 +79,8 @@ public class TempTypeSystem implements TypeSystem {
 
     private final Map<String, PrimitiveType> primitiveTypes;
 
-    public TempTypeSystem(JClassLoader loader) {
+    public TempTypeSystem(BuildContext ctx, JClassLoader loader) {
+        super(ctx);
         defaultClassLoader = loader;
         boxedMap = Map.of(
                 BooleanType.BOOLEAN, getClassType(loader, ClassNames.BOOLEAN),
@@ -187,7 +191,7 @@ public class TempTypeSystem implements TypeSystem {
      */
     @Override
     public boolean isSubtype(Type supertype, Type subtype) {
-        return Utils.isSubtype(supertype, subtype);
+        return Utils.isSubtype(tCtx(), supertype, subtype);
     }
 
     @Override

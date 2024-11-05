@@ -22,6 +22,8 @@
 
 package pascal.taie.frontend.newfrontend.hierarchy;
 
+import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
@@ -29,7 +31,8 @@ import pascal.taie.language.classes.JClassLoader;
 import java.util.Collection;
 import java.util.Map;
 
-public class DefaultClassLoader implements JClassLoader {
+public class DefaultClassLoader extends NewFrontendComponent
+        implements JClassLoader {
 
     private final ClassHierarchy hierarchy;
 
@@ -39,7 +42,8 @@ public class DefaultClassLoader implements JClassLoader {
 
     private final Object phantomLock = new Object();
 
-    DefaultClassLoader(ClassHierarchy hierarchy, boolean allowPhantom) {
+    DefaultClassLoader(BuildContext context, ClassHierarchy hierarchy, boolean allowPhantom) {
+        super(context);
         this.hierarchy = hierarchy;
         this.allowPhantom = allowPhantom;
     }
@@ -60,7 +64,7 @@ public class DefaultClassLoader implements JClassLoader {
                     // what should a moduleName for a phantom class be?
                     jclass = new JClass(this, name, null);
                     mapping.put(name, jclass); // mapping itself is a concurrent map
-                    new PhantomClassBuilder(name).build(jclass);
+                    new PhantomClassBuilder(ctx(), name).build(jclass);
                     // Here is the only point where hierarchy could be concurrently added
                     // if there is no mutex.
                     hierarchy.addClass(jclass);

@@ -22,8 +22,8 @@
 
 package pascal.taie.frontend.newfrontend.hierarchy;
 
-import pascal.taie.frontend.newfrontend.BuildContext;
-import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
@@ -39,11 +39,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-class PhantomClassBuilder implements JClassBuilder {
+class PhantomClassBuilder extends NewFrontendComponent
+        implements JClassBuilder {
 
     private final String name;
 
-    PhantomClassBuilder(String name) {
+    PhantomClassBuilder(BuildContext context, String name) {
+        super(context);
         this.name = name;
     }
 
@@ -71,7 +73,7 @@ class PhantomClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        return BuildContext.get().getTypeSystem().getClassType(name);
+        return typeSystem().getClassType(name);
     }
 
     @Override
@@ -81,7 +83,7 @@ class PhantomClassBuilder implements JClassBuilder {
         }
         else {
             // Object for phantom class. However, is it better to fake a "ILL" supertype?
-            return Utils.getObject().getJClass();
+            return tCtx().object().getJClass();
         }
     }
 

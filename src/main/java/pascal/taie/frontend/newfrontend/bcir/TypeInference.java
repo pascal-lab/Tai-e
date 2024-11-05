@@ -22,8 +22,10 @@
 
 package pascal.taie.frontend.newfrontend.bcir;
 
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
+import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.ExpModifier;
@@ -81,24 +83,25 @@ import java.util.Set;
  *
  * <p>The algorithm is based on (1), but contains non-trivial improvement</p>
  * <p>(1) Ben Bellamy, Pavel Avgustinov, Oege de Moor, and Damien Sereni. 2008. Efficient local type inference.
- * SIGPLAN Not. 43, 10 (September 2008), 475–492. <a href="https://doi.org/10.1145/1449955.1449802">link</a><p>
+ * SIGPLAN Not. 43, 10 (September 2008), 475–492. <a href="https://doi.org/10.1145/1449955.1449802">link</a>
  */
-public class TypeInference {
+public class TypeInference extends NewFrontendIRComponent {
 
     final AsmIRBuilder builder;
 
     final TypingFlowGraph graph;
 
-    public TypeInference(AsmIRBuilder builder) {
+    public TypeInference(AsmIRBuilder builder, BuildContext context) {
+        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         graph = new TypingFlowGraph();
     }
 
-    public static Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
-        return Utils.lca(r1, r2);
+    public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
+        return Utils.lca(tCtx(), r1, r2);
     }
 
-    public static Optional<Type> plusOneArray(Type t) {
+    public Optional<Type> plusOneArray(Type t) {
         if (t instanceof NullType) {
             return Optional.empty();
         }
@@ -111,7 +114,7 @@ public class TypeInference {
             baseType = t;
             dim = 1;
         }
-        return Optional.of(BuildContext.get().getTypeSystem().getArrayType(baseType, dim));
+        return Optional.of(typeSystem().getArrayType(baseType, dim));
     }
 
     public static Optional<Type> subOneArray(Type t) {
@@ -280,7 +283,7 @@ public class TypeInference {
 
         graph.inferTypes();
         setTypes(graph);
-        CastingInsert insert = new CastingInsert(builder);
+        CastingInsert insert = new CastingInsert(builder, ctx());
         insert.build();
     }
 
@@ -449,7 +452,15 @@ public class TypeInference {
         }
     }
 
-    record FlowType(TypingFlowEdge edge, Type type) {
+    final class FlowType {
+        private final TypingFlowEdge edge;
+        private final Type type;
+
+        FlowType(TypingFlowEdge edge, Type type) {
+            this.edge = edge;
+            this.type = type;
+        }
+
         Optional<Type> getTargetType() {
             return switch (edge.kind) {
                 case VAR_VAR -> Optional.of(type);
@@ -465,9 +476,13 @@ public class TypeInference {
                 case ARRAY_VAR -> plusOneArray(type);
             };
         }
+
+        public Type type() {
+            return type;
+        }
     }
 
-    private static Optional<Type> computeFlowOutType(Type t, EdgeKind kind) {
+    private Optional<Type> computeFlowOutType(Type t, EdgeKind kind) {
         return switch (kind) {
             case VAR_VAR -> Optional.of(t);
             case VAR_ARRAY -> plusOneArray(t);
@@ -475,7 +490,7 @@ public class TypeInference {
         };
     }
 
-    static final class TypingFlowNode {
+    final class TypingFlowNode {
         private final Var var;
         @Nullable
         private Set<ReferenceType> types;
@@ -570,7 +585,7 @@ public class TypeInference {
 
         private boolean isUseValid(ReferenceType t) {
             return useValidConstrains.stream()
-                    .allMatch(c -> Utils.isAssignable(c, t));
+                    .allMatch(c -> Utils.isAssignable(tCtx(), c, t));
         }
 
         private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
@@ -585,14 +600,13 @@ public class TypeInference {
             } else {
                 if (newType.isEmpty()) {
                     // normally impossible, but possible for phantom
-                    return Utils.getObject();
+                    return tCtx().object();
                 }
                 ReferenceType t1 = newType.iterator().next();
                 if (t1 instanceof ClassType) {
-                    return Utils.getObject();
+                    return tCtx().object();
                 } else if (t1 instanceof ArrayType arrayType) {
-                    return BuildContext.get().getTypeSystem()
-                            .getArrayType(Utils.getObject(), arrayType.dimensions());
+                    return typeSystem().getArrayType(tCtx().object(), arrayType.dimensions());
                 } else {
                     throw new UnsupportedOperationException();
                 }

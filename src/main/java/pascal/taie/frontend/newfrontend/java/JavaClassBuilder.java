@@ -41,7 +41,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.source.JavaMethodSource;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.ir.exp.MethodType;

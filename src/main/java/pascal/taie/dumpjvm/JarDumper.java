@@ -50,7 +50,7 @@ public class JarDumper {
             throw new RuntimeException("Error: The file " + p + " does not exist.");
         }
         Main.buildWorld("-pp", "-acp", p.toString(),
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                 "--allow-phantom");
         // convert each class in this file
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();

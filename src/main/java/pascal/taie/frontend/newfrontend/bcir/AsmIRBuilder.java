@@ -44,15 +44,17 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.DUInfo;
-import pascal.taie.frontend.newfrontend.FrontendOptions;
+import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.Top;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
+import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
+import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.report.StackMergeReporter;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
@@ -153,7 +155,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * <p>The main class for IR building of bytecode frontend</p>
  */
-public class AsmIRBuilder {
+public class AsmIRBuilder extends NewFrontendIRComponent {
 
     /**
      * Taie IR output
@@ -291,7 +293,8 @@ public class AsmIRBuilder {
      */
     private Dominator<BytecodeBlock> dom;
 
-    public AsmIRBuilder(JMethod method, AsmMethodSource methodSource) {
+    public AsmIRBuilder(BuildContext context, JMethod method, AsmMethodSource methodSource) {
+        super(context, IRBuildingPhase.BYTECODE_UNTYPED_IR_BUILDING);
         StageTimer.getInstance().startTypelessIR();
         this.method = method;
         this.source = methodSource.adapter();
@@ -300,8 +303,8 @@ public class AsmIRBuilder {
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
-        this.USE_SSA = FrontendOptions.get().isSSA();
-        this.USE_TYPING_ALGO2 = FrontendOptions.get().isUseTypingAlgo2();
+        this.USE_SSA = ctx().getFrontendOptions().isSSA();
+        this.USE_TYPING_ALGO2 = ctx().getFrontendOptions().isUseTypingAlgo2();
         if (!isEmpty) {
             this.manager = new VarManager(method,
                     source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
@@ -364,7 +367,7 @@ public class AsmIRBuilder {
 //            stageTimer.endSplitting();
 //        }
         stageTimer.startTyping();
-        TypeInference0 inference = new TypeInference0(this);
+        TypeInference0 inference = new TypeInference0(this, ctx());
         inference.build();
         stageTimer.endTyping();
     }
@@ -378,7 +381,7 @@ public class AsmIRBuilder {
 //            stageTimer.endSplitting();
 //        }
         stageTimer.startTyping();
-        TypeInference inference = new TypeInference(this);
+        TypeInference inference = new TypeInference(this, ctx());
         inference.build();
         stageTimer.endTyping();
     }
@@ -1067,9 +1070,9 @@ public class AsmIRBuilder {
 
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<StackItem> stack) {
         int opcode = methodInsnNode.getOpcode();
-        JClass owner = BuildContext.get().toJClass(methodInsnNode.owner);
+        JClass owner = ctx().toJClass(methodInsnNode.owner);
         assert owner != null;
-        Pair<List<Type>, Type> desc = BuildContext.get().fromAsmMethodType(methodInsnNode.desc);
+        Pair<List<Type>, Type> desc = ctx().fromAsmMethodType(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
         MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic, methodInsnNode.itf);
@@ -1769,10 +1772,10 @@ public class AsmIRBuilder {
                 assocStmt(jump, new If(cond));
             }
         } else if (node instanceof LdcInsnNode ldc) {
-            pushConst(node, nowStack, fromObject(ldc.cst));
+            pushConst(node, nowStack, fromObject(ctx(), ldc.cst));
         } else if (node instanceof TypeInsnNode typeNode) {
             int opcode = typeNode.getOpcode();
-            ReferenceType type = BuildContext.get().fromAsmInternalName(typeNode.desc);
+            ReferenceType type = ctx().fromAsmInternalName(typeNode.desc);
             if (opcode == Opcodes.CHECKCAST) {
                 pushExp(node, nowStack, getCastExp(nowStack, type));
             } else if (opcode == Opcodes.NEW) {
@@ -1787,7 +1790,7 @@ public class AsmIRBuilder {
                 } else {
                     base = type;
                 }
-                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, dims);
+                ArrayType arrayType = typeSystem().getArrayType(base, dims);
                 pushExp(node, nowStack, new NewArray(arrayType, length));
             } else if (opcode == Opcodes.INSTANCEOF) {
                 Var obj = popVar(nowStack);
@@ -1811,7 +1814,7 @@ public class AsmIRBuilder {
                     case 11 -> LONG;
                     default -> throw new IllegalArgumentException();
                 };
-                ArrayType arrayType = BuildContext.get().getTypeSystem().getArrayType(base, 1);
+                ArrayType arrayType = typeSystem().getArrayType(base, 1);
                 Var length = popVar(nowStack);
                 pushExp(node, nowStack, new NewArray(arrayType, length));
             } else {
@@ -1820,8 +1823,8 @@ public class AsmIRBuilder {
         } else if (node instanceof FieldInsnNode fieldInsnNode) {
             int opcode = fieldInsnNode.getOpcode();
             ClassType owner = (ClassType)
-                    BuildContext.get().fromAsmInternalName(fieldInsnNode.owner);
-            Type type = BuildContext.get().fromAsmType(fieldInsnNode.desc);
+                    ctx().fromAsmInternalName(fieldInsnNode.owner);
+            Type type = ctx().fromAsmType(fieldInsnNode.desc);
             String name = fieldInsnNode.name;
             FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                     opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
@@ -1853,7 +1856,7 @@ public class AsmIRBuilder {
                 popToEffect(nowStack);
             }
         } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
-            Type type = BuildContext.get().fromAsmType(newArrayInsnNode.desc);
+            Type type = ctx().fromAsmType(newArrayInsnNode.desc);
             assert type instanceof ArrayType;
 
             List<Var> lengths = new ArrayList<>();
@@ -1873,12 +1876,12 @@ public class AsmIRBuilder {
             pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
             storeRWVar(def, inc.var, inc, block, nowStack);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
-            MethodHandle handle = fromAsmHandle(invokeDynamicInsnNode.bsm);
+            MethodHandle handle = fromAsmHandle(ctx(), invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
-                    .map(Utils::fromObject).toList();
+                    .map((o) -> Utils.fromObject(ctx(), o)).toList();
             assert handle.isMethodRef();
             Pair<List<Type>, Type> paramRets =
-                    BuildContext.get().fromAsmMethodType(invokeDynamicInsnNode.desc);
+                    ctx().fromAsmMethodType(invokeDynamicInsnNode.desc);
             List<Var> args = new ArrayList<>();
             for (int i = 0; i < paramRets.first().size(); ++i) {
                 args.add(popVar(nowStack));
@@ -2299,9 +2302,9 @@ public class AsmIRBuilder {
 
     private ClassType fromExceptionType(String internalName) {
         if (internalName == null) {
-            return Utils.getThrowable();
+            return tCtx().throwable();
         } else {
-            ReferenceType r = BuildContext.get().fromAsmInternalName(internalName);
+            ReferenceType r = ctx().fromAsmInternalName(internalName);
             if (r instanceof ClassType c) {
                 return c;
             } else {

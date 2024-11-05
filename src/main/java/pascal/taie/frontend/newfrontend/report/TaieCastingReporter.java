@@ -274,49 +274,49 @@ public class TaieCastingReporter {
         }
     }
 
-    public static void analysisForBoom() {
-        Set<JClass> affected = new HashSet<>();
-        List<String> inputClasses = World.get().getOptions().getInputClasses();
-        Set<String> input = new HashSet<>(inputClasses);
-        World.get().getClassHierarchy().allClasses().forEach((c) -> {
-           if (c.getSuperClass() == null
-                   || affected.contains(c)
-                   || !input.contains(c.getName())) {
-               return;
-           }
-           Set<JClass> directUpper = new HashSet<>();
-           directUpper.add(c.getSuperClass());
-           directUpper.addAll(c.getInterfaces());
-
-           Set<JClass> children = directUpper.stream()
-                   .filter(c1 -> c1.getType() != Utils.getObject())
-                   .flatMap((c1) -> World.get().getClassHierarchy().getAllSubclassesOf(c1)
-                           .stream())
-                   .collect(Collectors.toSet());
-
-           for (JClass child : children) {
-               if (child == c) {
-                   continue;
-               }
-               Set<ReferenceType> lca = lcaWithoutObj(Set.of(c.getType(), child.getType()));
-               if (lca.size() <= 1) {
-                   continue;
-               }
-               Set<ReferenceType> lca2 = lcaWithoutObj(lca);
-               if (lca2.size() >= 2) {
-                   affected.add(c);
-                   affected.add(child);
-                   affected.addAll(lca.stream().map(TaieCastingReporter::getJClass).map(Optional::get).toList());
-                   affected.addAll(lca2.stream().map(TaieCastingReporter::getJClass).map(Optional::get).toList());
-               }
-           }
-       });
-       System.out.println("3-crown size: " + affected.size());
-    }
-
-    private static Set<ReferenceType> lcaWithoutObj(Set<ReferenceType> in) {
-        return Utils.lca(in).stream().filter(c -> c != Utils.getObject())
-                .collect(Collectors.toSet());
-    }
+//    public static void analysisForBoom() {
+//        Set<JClass> affected = new HashSet<>();
+//        List<String> inputClasses = World.get().getOptions().getInputClasses();
+//        Set<String> input = new HashSet<>(inputClasses);
+//        World.get().getClassHierarchy().allClasses().forEach((c) -> {
+//           if (c.getSuperClass() == null
+//                   || affected.contains(c)
+//                   || !input.contains(c.getName())) {
+//               return;
+//           }
+//           Set<JClass> directUpper = new HashSet<>();
+//           directUpper.add(c.getSuperClass());
+//           directUpper.addAll(c.getInterfaces());
+//
+//           Set<JClass> children = directUpper.stream()
+//                   .filter(c1 -> c1.getType() != Utils.getObject())
+//                   .flatMap((c1) -> World.get().getClassHierarchy().getAllSubclassesOf(c1)
+//                           .stream())
+//                   .collect(Collectors.toSet());
+//
+//           for (JClass child : children) {
+//               if (child == c) {
+//                   continue;
+//               }
+//               Set<ReferenceType> lca = lcaWithoutObj(Set.of(c.getType(), child.getType()));
+//               if (lca.size() <= 1) {
+//                   continue;
+//               }
+//               Set<ReferenceType> lca2 = lcaWithoutObj(lca);
+//               if (lca2.size() >= 2) {
+//                   affected.add(c);
+//                   affected.add(child);
+//                   affected.addAll(lca.stream().map(TaieCastingReporter::getJClass).map(Optional::get).toList());
+//                   affected.addAll(lca2.stream().map(TaieCastingReporter::getJClass).map(Optional::get).toList());
+//               }
+//           }
+//       });
+//       System.out.println("3-crown size: " + affected.size());
+//    }
+//
+//    private static Set<ReferenceType> lcaWithoutObj(Set<ReferenceType> in) {
+//        return Utils.lca(in).stream().filter(c -> c != Utils.getObject())
+//                .collect(Collectors.toSet());
+//    }
 }
 

@@ -54,7 +54,7 @@ public class TestAsmIRBuilder {
         // Collections.addAll(args, "-a", "cfg");
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
-        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder");
+        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder");
         Collections.addAll(args, "-m", mainClass);
         Main.buildWorld(args.toArray(new String[0]));
 
@@ -87,7 +87,7 @@ public class TestAsmIRBuilder {
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
                 "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
                 "returnInt", "exception", "monitor", "iinc");
-        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                 "-java", "8",
                 "-cp", "src/test/resources/world",
                 "--main-class", "AllInOne",
@@ -145,7 +145,7 @@ public class TestAsmIRBuilder {
                 "-java", Integer.toString(javaVersion),
                 "-acp", worldPath,
                 "--input-classes", "AllInOne",
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                 "--pre-build-ir"
                 );
         World.get()
@@ -171,7 +171,7 @@ public class TestAsmIRBuilder {
         Main.buildWorld(
                 "-java", Integer.toString(javaVersion),
                 "-acp", jrePaths(javaVersion),
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                 "--pre-build-ir"
         );
     }
@@ -185,7 +185,7 @@ public class TestAsmIRBuilder {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
                     "-acp", jrePaths(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder"
             );
 
             Timer.runAndCount(() ->
@@ -213,7 +213,7 @@ public class TestAsmIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                     "--extract-all"
             );
 
@@ -260,7 +260,7 @@ public class TestAsmIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-pp",
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                     "--extract-all"
             );
 
@@ -401,7 +401,7 @@ public class TestAsmIRBuilder {
         Main.buildWorld(
                 "-java", Integer.toString(javaVersion),
                 "-acp", worldPath,
-                "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder"
+                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder"
         );
 
         Timer.runAndCount(() -> {

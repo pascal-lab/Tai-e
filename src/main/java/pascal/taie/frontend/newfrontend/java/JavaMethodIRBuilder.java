@@ -1474,7 +1474,6 @@ public class JavaMethodIRBuilder {
         }
 
         protected void newAssignment(LValue left, Exp right) {
-            assert Utils.isAssignable(left.getType(), right.getType());
             if (left instanceof Var v) {
                 if (right instanceof BinaryExp exp) {
                     addStmt(new Binary(v, exp));

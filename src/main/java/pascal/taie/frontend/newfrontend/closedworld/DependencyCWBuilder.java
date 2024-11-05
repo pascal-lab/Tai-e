@@ -25,10 +25,11 @@ package pascal.taie.frontend.newfrontend.closedworld;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.exception.AsmFrontendException;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
-import pascal.taie.frontend.newfrontend.FrontendOptions;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.World;
 import pascal.taie.project.AnalysisFile;
@@ -59,7 +60,8 @@ import java.util.concurrent.Future;
 /**
  * Build Closed world by dependency resolving
  */
-public class DependencyCWBuilder implements ClosedWorldBuilder {
+public class DependencyCWBuilder extends NewFrontendComponent
+        implements ClosedWorldBuilder {
 
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
@@ -78,8 +80,9 @@ public class DependencyCWBuilder implements ClosedWorldBuilder {
 
     private SearchIndex index;
 
-    public DependencyCWBuilder() {
-        int threadPoolSize = FrontendOptions.get().isUseParallelHierarchy()
+    public DependencyCWBuilder(BuildContext context) {
+        super(context);
+        int threadPoolSize = ctx().getFrontendOptions().isUseParallelHierarchy()
                 ? THREAD_POOL_SIZE
                 : 1;
         sourceMap = Maps.newConcurrentMap();

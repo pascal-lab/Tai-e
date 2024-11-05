@@ -28,10 +28,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.dumpjvm.BinaryUtils;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
-import pascal.taie.frontend.newfrontend.FrontendOptions;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -45,7 +46,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IRService {
+public class IRService extends NewFrontendComponent  {
+
+    public IRService(BuildContext context) {
+        super(context);
+    }
 
     private static class LoadingKV {
         private final Map<String, AsmMethodSource> fastMap;
@@ -102,7 +107,7 @@ public class IRService {
                     most likely the method is built twice by mistake.
                     """.formatted(method));
         }
-        AsmIRBuilder builder = new AsmIRBuilder(method, source);
+        AsmIRBuilder builder = new AsmIRBuilder(ctx(), method, source);
         builder.build();
         IR ir = builder.getIr();
         if (ir == null) {
@@ -147,7 +152,7 @@ public class IRService {
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
         int version = source.getClassFileVersion();
-        boolean discardFrame = FrontendOptions.get().isUseTypingAlgo2();
+        boolean discardFrame = ctx().getFrontendOptions().isUseTypingAlgo2();
         LoadingKV kv = new LoadingKV();
         source.r().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override

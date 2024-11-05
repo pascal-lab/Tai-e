@@ -24,8 +24,11 @@ package pascal.taie.frontend.newfrontend.bcir;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.Lenses;
+import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
+import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.report.TaieCastingReporter;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
@@ -62,21 +65,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static pascal.taie.frontend.newfrontend.Utils.*;
-
-public class CastingInsert {
+public class CastingInsert extends NewFrontendIRComponent {
 
     private final AsmIRBuilder builder;
 
-    private static final Logger logger = LogManager.getLogger("Casting");
+    private static final Logger logger = LogManager.getLogger(CastingInsert.class);
 
     private Stmt currentStmt;
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    public CastingInsert(AsmIRBuilder builder) {
+    public CastingInsert(AsmIRBuilder builder, BuildContext context) {
+        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();
+    }
+
+    private boolean isAssignable(Type left, Type right) {
+        return Utils.isAssignable(tCtx(), left, right);
     }
 
     private Cast getNewCast(Var left, Var right, Type t) {
@@ -105,7 +111,7 @@ public class CastingInsert {
     }
 
     private Stmt ensureValidArrayType(ArrayAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
-        Type t = BuildContext.get().getTypeSystem().getArrayType(getObject(), 1);
+        Type t = typeSystem().getArrayType(tCtx().object(), 1);
         if (access.getBase().getType() instanceof ArrayType) {
             return stmt;
         } else {

@@ -20,10 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.context;
 
-import pascal.taie.World;
+import pascal.taie.frontend.newfrontend.TempTypeSystem;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
+import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -55,46 +56,53 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class BuildContext {
 
-    private final JClassLoader defaultClassLoader;
+    private JClassLoader defaultClassLoader;
 
-    private final TempTypeSystem typeSystem;
+    private TempTypeSystem typeSystem;
 
     private ClassHierarchy hierarchy;
 
-    final IRService irService = new IRService();
+    private TypeContext typeContext;
+
+    private final FrontendOptions frontendOptions;
+
+    final IRService irService = new IRService(this);
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
-    private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
-        this.defaultClassLoader = defaultClassLoader;
-        this.typeSystem = (TempTypeSystem) typeSystem;
-    }
-
-    static BuildContext buildContext;
-
-    static {
-        World.registerResetCallback(() -> {
-            buildContext = null;
-        });
+    public BuildContext(FrontendOptions frontendOptions) {
+        this.frontendOptions = frontendOptions;
     }
 
     public static BuildContext get() {
-        assert buildContext != null;
-        return buildContext;
+//        assert buildContext != null;
+//        return buildContext;
+        throw new UnsupportedOperationException();
     }
 
-    public static void make(JClassLoader loader) {
-        assert buildContext == null;
-        buildContext = new BuildContext(loader, new TempTypeSystem(loader));
+    public void initClassloaderAndTypeSystem(JClassLoader loader) {
+        this.defaultClassLoader = loader;
+        this.typeSystem = new TempTypeSystem(this, defaultClassLoader);
+        this.typeContext = new TypeContext(typeSystem);
     }
 
-    public void setHierarchy(ClassHierarchy hierarchy) {
+    public void initHierarchy(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
     }
 
     public TypeSystem getTypeSystem() {
         return typeSystem;
     }
+
+    public IRService getIrService() {
+        return irService;
+    }
+
+    public TypeContext getTypeContext() {
+        return typeContext;
+    }
+
+    public FrontendOptions getFrontendOptions() { return frontendOptions; }
 
     public JClass getClassByName(String name) {
         JClass klass = defaultClassLoader.loadClass(name);
@@ -185,7 +193,7 @@ public class BuildContext {
 
     public JClass toJClass(String internalName) {
         if (internalName.charAt(0) == '[') {
-            return Utils.getObject().getJClass();
+            return typeContext.object().getJClass();
         } else {
             return typeSystem.getClassTypeByInternalName(internalName).getJClass();
         }

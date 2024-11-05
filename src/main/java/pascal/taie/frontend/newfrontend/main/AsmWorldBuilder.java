@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.main;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +28,8 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.asyncir.IRBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
@@ -67,17 +69,18 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         // set at first.
         world.setOptions(options);
 
+        // initialize build context
+        BuildContext ctx = new BuildContext(FrontendOptions.parse(options.getFrontendOptions()));
         // initialize class hierarchy
-        FrontendOptions.init(options.getFrontendOptions());
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
-        ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(); // Configurable
+        ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(ctx); // Configurable
         closedWorldBuilder.build(project);
         Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
-        ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder();
+        ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder(ctx);
         ClassHierarchy hierarchy = hierarchyBuilder.build(closedWorld);
         world.setClassHierarchy(hierarchy);
-        TypeSystem typeSystem = BuildContext.get().getTypeSystem(); // the singleton context was built in hierarchyBuilder.build
+        TypeSystem typeSystem = ctx.getTypeSystem(); // the singleton context was built in hierarchyBuilder.build
         world.setTypeSystem(typeSystem);
 
         // classes has been built in hierarchyBuilder.build()
@@ -112,7 +115,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        IRBuilder irBuilder = new IRBuilder();
+        IRBuilder irBuilder = new IRBuilder(ctx);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);

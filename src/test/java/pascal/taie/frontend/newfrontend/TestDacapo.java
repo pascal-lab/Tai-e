@@ -11,6 +11,7 @@ import pascal.taie.util.Timer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TestDacapo {
 
@@ -72,6 +73,7 @@ public class TestDacapo {
                     String log = "java-benchmarks/dacapo-2006/" + i + "-refl.log";
                     return getInputClasses(log).stream();
                 })
+                .filter(i -> !Set.of("int", "char", "boolean", "byte", "long", "float", "double").contains(i))
                 .reduce((a, b) -> a + ',' + b)
                 .get();
 
@@ -79,7 +81,7 @@ public class TestDacapo {
             Main.buildWorld(
                     "-java", Integer.toString(6),
                     "-cp", sb.toString(),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.AsmWorldBuilder",
+                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                     "--input-classes", inputClass,
                     "--main-class", mainClass
             );
@@ -114,9 +116,7 @@ public class TestDacapo {
             if (StringReps.isArrayType(targetClass)) {
                 targetClass = StringReps.getBaseTypeNameOf(target);
             }
-            if (!World.get().getTypeSystem().isPrimitiveType(targetClass)) {
-                res.add(targetClass);
-            }
+            res.add(targetClass);
         });
         return res;
     }

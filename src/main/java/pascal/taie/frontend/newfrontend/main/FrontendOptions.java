@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.main;
 
 import pascal.taie.World;
 
@@ -37,44 +37,18 @@ public class FrontendOptions {
 
     private final boolean useParallelHierarchy;
 
-    private static FrontendOptions instance;
-
     private FrontendOptions(boolean isSSA, boolean useTypingAlgo2, boolean useParallelHierarchy) {
         this.isSSA = isSSA;
         this.useTypingAlgo2 = useTypingAlgo2;
         this.useParallelHierarchy = useParallelHierarchy;
     }
 
-    public synchronized static FrontendOptions get() {
-        if (instance == null) {
-            throw new IllegalStateException("Frontend options not initialized");
-        } else {
-            return instance;
-        }
-    }
-
-    static void init(Map<String, String> raw) {
-        if (instance != null) {
-            throw new IllegalStateException("Frontend options have already been initialized.");
-        } else {
-            instance = parse(raw);
-        }
-    }
-
-    private static FrontendOptions parse(Map<String, String> raw) {
+    public static FrontendOptions parse(Map<String, String> raw) {
         boolean isSSA = Boolean.parseBoolean(raw.getOrDefault("ssa", "false"));
         boolean useTypingAlgo2 = Boolean.parseBoolean(raw.getOrDefault("useTypingAlgo2", "true"));
         boolean useParallelHierarchy = Boolean.parseBoolean(
                 raw.getOrDefault("useParallelHierarchy", "true"));
         return new FrontendOptions(isSSA, useTypingAlgo2, useParallelHierarchy);
-    }
-
-    static {
-        World.registerResetCallback(FrontendOptions::reset);
-    }
-
-    static void reset() {
-        instance = null;
     }
 
     public boolean isSSA() {

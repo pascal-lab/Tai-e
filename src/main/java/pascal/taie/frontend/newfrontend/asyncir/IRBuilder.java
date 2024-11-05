@@ -20,13 +20,15 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend;
+package pascal.taie.frontend.newfrontend.asyncir;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
@@ -40,21 +42,38 @@ import pascal.taie.util.Timer;
 
 import java.util.List;
 
-class IRBuilder implements pascal.taie.ir.IRBuilder {
+/**
+ * This class implements the IRBuilder interface and is responsible for
+ * building Intermediate Representations (IR) for Java methods.
+ * It supports building IR for JVM Bytecode ({@link AsmMethodSource})
+ * and Java ({@link JavaMethodSource}) method sources.
+ */
+public class IRBuilder extends NewFrontendComponent
+        implements pascal.taie.ir.IRBuilder {
 
     private static final Logger logger = LogManager.getLogger(IRBuilder.class);
 
+    public IRBuilder(BuildContext context) {
+        super(context);
+    }
+
+    /**
+     * Builds the Intermediate Representation (IR) for the given Java method.
+     *
+     * @param method the Java method for which to build the IR
+     * @return the built IR
+     */
     @Override
     public IR buildIR(JMethod method) {
         try {
             // TODO: Add more IRBuilder for different types of source.
             Object source = method.getMethodSource();
             if (source instanceof AsmMethodSource asmMethodSource) {
-                AsmIRBuilder builder = new AsmIRBuilder(method, asmMethodSource);
+                AsmIRBuilder builder = new AsmIRBuilder(ctx(), method, asmMethodSource);
                 builder.build();
                 return builder.getIr();
             } else if (source == null) {
-                return BuildContext.get().irService.loadingAndGetIR(method);
+                return ctx().getIrService().loadingAndGetIR(method);
             } else if (source instanceof JavaMethodSource javaMethodSource) {
                 JavaMethodIRBuilder builder = new JavaMethodIRBuilder(javaMethodSource, method);
                 return builder.build();

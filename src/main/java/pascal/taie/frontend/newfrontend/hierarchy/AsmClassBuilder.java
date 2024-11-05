@@ -29,15 +29,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.ParameterNode;
-import pascal.taie.frontend.newfrontend.BuildContext;
+import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
+import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
@@ -72,7 +66,8 @@ import java.util.function.Consumer;
 
 import static pascal.taie.frontend.newfrontend.Utils.*;
 
-public class AsmClassBuilder implements JClassBuilder {
+public class AsmClassBuilder extends NewFrontendComponent
+        implements JClassBuilder {
 
     private final AsmSource source;
 
@@ -99,8 +94,8 @@ public class AsmClassBuilder implements JClassBuilder {
 
     private final int version;
 
-    public AsmClassBuilder(
-            AsmSource source, JClass jClass) {
+    public AsmClassBuilder(BuildContext context, AsmSource source, JClass jClass) {
+        super(context);
         this.source = source;
         this.jClass = jClass;
         this.fields = new ArrayList<>();
@@ -130,9 +125,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        return BuildContext.get()
-                .getTypeSystem()
-                .getClassType(source.getClassName());
+        return typeSystem().getClassType(source.getClassName());
     }
 
     @Override
@@ -183,72 +176,8 @@ public class AsmClassBuilder implements JClassBuilder {
     }
 
     private void buildAll() {
-        if (source.node() == null) {
-            CVisitor visitor = new CVisitor();
-            source.r().accept(visitor, ClassReader.SKIP_CODE);
-        } else {
-            ClassNode node = source.node();
-            if (node.superName != null) {
-                this.superClass = getClassByName(node.superName);
-            }
-            this.interfaces = node.interfaces.stream()
-                    .map(AsmClassBuilder::getClassByName)
-                    .toList();
-            if (node.outerClass != null) {
-                this.outerClass = getClassByName(node.outerClass);
-            }
-            this.modifiers = fromAsmModifier(node.access);
-            for (FieldNode fieldNode : node.fields) {
-                fields.add(new JField(jClass, fieldNode.name,
-                        fromAsmModifier(fieldNode.access),
-                        BuildContext.get().fromAsmType(fieldNode.desc),
-                        null,
-                        AnnotationHolder.make(new FVisitor(annotations -> {}).annotations),
-                        fieldNode.value == null ? null : Utils.fromObject(fieldNode.value)));
-            }
-            if (node.visibleAnnotations != null) {
-                for (AnnotationNode annotationNode : node.visibleAnnotations) {
-                    annotationNode.accept(new AnnoVisitor(annotationNode.desc, annotations::add));
-                }
-            }
-            for (MethodNode methodNode : node.methods) {
-                assert methodNode instanceof JSRInlinerAdapter;
-                Set<Modifier> modifiers1 = fromAsmModifier(methodNode.access);
-                List<Type> paramTypes = new ArrayList<>();
-                org.objectweb.asm.Type methodType = org.objectweb.asm.Type.getMethodType(methodNode.desc);
-                for (org.objectweb.asm.Type t1 : methodType.getArgumentTypes()) {
-                    paramTypes.add(BuildContext.get().fromAsmType(t1));
-                }
-                Type retType = BuildContext.get().fromAsmType(methodType.getReturnType());
-                List<ClassType> exceptions = new ArrayList<>();
-                if (methodNode.exceptions != null) {
-                    for (String exception : methodNode.exceptions) {
-                        exceptions.add((ClassType) BuildContext.get().fromAsmInternalName(exception));
-                    }
-                }
-                List<Annotation> annotations1 = new ArrayList<>();
-                if (methodNode.visibleAnnotations != null) {
-                    for (AnnotationNode annotationNode : methodNode.visibleAnnotations) {
-                        annotationNode.accept(
-                                new AnnoVisitor(annotationNode.desc, annotations1::add));
-                    }
-                }
-                List<String> paramName = null;
-                if (methodNode.parameters != null) {
-                    paramName = new ArrayList<>();
-                    for (ParameterNode parameterNode : methodNode.parameters) {
-                        paramName.add(parameterNode.name);
-                    }
-                }
-                JMethod method = new JMethod(jClass, methodNode.name, modifiers1, paramTypes,
-                        retType, exceptions, null,
-                        AnnotationHolder.make(annotations1), null,
-                        paramName,
-                        new AsmMethodSource((JSRInlinerAdapter) methodNode, version));
-                methods.add(method);
-            }
-
-        }
+        CVisitor visitor = new CVisitor();
+        source.r().accept(visitor, ClassReader.SKIP_CODE);
     }
 
     private String getSimpleName(String binaryName) {
@@ -259,8 +188,8 @@ public class AsmClassBuilder implements JClassBuilder {
         return binaryName.substring(lastIndex + 1);
     }
 
-    private static JClass getClassByName(String internalName) {
-        return BuildContext.get().getClassByName(getBinaryName(internalName));
+    private JClass getClassByName(String internalName) {
+        return ctx().getClassByName(getBinaryName(internalName));
     }
 
     class CVisitor extends ClassVisitor {
@@ -284,7 +213,7 @@ public class AsmClassBuilder implements JClassBuilder {
             }
             currentInternalName = name;
             AsmClassBuilder.this.interfaces = Arrays.stream(interfaces)
-                    .map(AsmClassBuilder::getClassByName)
+                    .map(AsmClassBuilder.this::getClassByName)
                     .toList();
 
             modifiers = fromAsmModifier(access);
@@ -324,7 +253,7 @@ public class AsmClassBuilder implements JClassBuilder {
                 String descriptor,
                 String signature,
                 Object value) {
-            Type type = BuildContext.get().fromAsmType(descriptor);
+            Type type = ctx().fromAsmType(descriptor);
             ReferenceTypeGSignature gSignature;
             if (signature != null) {
                 gSignature = GSignatures.toTypeSig(signature);
@@ -334,7 +263,7 @@ public class AsmClassBuilder implements JClassBuilder {
             return new FVisitor(annotations -> fields.add(
                     new JField(jClass, name, fromAsmModifier(access), type, gSignature,
                             AnnotationHolder.make(annotations),
-                            value == null ? null : Utils.fromObject(value))));
+                            value == null ? null : Utils.fromObject(ctx(), value))));
         }
 
         @Override
@@ -395,10 +324,10 @@ public class AsmClassBuilder implements JClassBuilder {
             this.exceptions = new ArrayList<>();
             if (exceptions != null) {
                 for (String exception : exceptions) {
-                    this.exceptions.add((ClassType) BuildContext.get().fromAsmInternalName(exception));
+                    this.exceptions.add((ClassType) ctx().fromAsmInternalName(exception));
                 }
             }
-            Pair<List<Type>, Type> mtdType = BuildContext.get().fromAsmMethodType(descriptor);
+            Pair<List<Type>, Type> mtdType = ctx().fromAsmMethodType(descriptor);
             this.retType = mtdType.second();
             this.paramTypes = mtdType.first();
             this.annotations = new ArrayList<>();
