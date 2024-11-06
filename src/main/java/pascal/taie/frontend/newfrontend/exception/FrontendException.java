@@ -39,4 +39,6 @@ public abstract sealed class FrontendException extends Exception
     private FrontendException(String msg) {
         super(msg);
     }
+
+    public static String TAIE_ISSUES = "https://github.com/pascal-lab/Tai-e/issues";
 }

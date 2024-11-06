@@ -43,6 +43,6 @@ public final class JavacException extends FrontendException {
      * @param compileError the error message from the Javac compiler
      */
     public JavacException(String compileError) {
-        super(TaiePhase.CLOSED_WORLD_ANALYSIS, String.format("Javac compile error:\n%s", compileError));
+        super(TaiePhase.CLOSED_WORLD_ANALYSIS, compileError);
     }
 }

@@ -1,6 +1,7 @@
 package pascal.taie.frontend.newfrontend.javac;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.exception.JavacException;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.FileResource;
@@ -75,6 +76,15 @@ public class JavacSourceHandler {
         List<ClassFile> compileResults = new ArrayList<>();
         for (String compileResult : getCompiledFiles(output.toString())) {
             compileResults.add(createPhantomClassFile(compileResult));
+        }
+        if (compileResults.isEmpty()) {
+            throw new JavacException(
+                    String.format("""
+                    Javac compilation failed for %s. Insufficient information was found to determine the cause.
+                    Please check the following potential reasons:
+                    1) Ensure JAVA_TOOL_OPTIONS is properly set. Refer to the warning message for guidance.
+                    2) Verify that your JDK version meets the minimum requirement of Java 11. We recommend using Java 17 or higher.
+                    3) This might be a Tai-e bug, consider submit a bug report at %s""", javaSourceFile, FrontendException.TAIE_ISSUES));
         }
         return compileResults;
     }

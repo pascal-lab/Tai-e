@@ -42,8 +42,8 @@ public final class UnknownException extends FrontendException {
         super(phase, String.format("""
                 Unexpected error occurred
                 %s
-                Consider submitting a bug report at https://github.com/pascal-lab/Tai-e/issues
-                """, printException(e)));
+                Consider submitting a bug report at %s
+                """, printException(e), TAIE_ISSUES));
     }
 
     /**
