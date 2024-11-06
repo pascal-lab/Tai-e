@@ -22,21 +22,6 @@
 
 package pascal.taie.frontend.newfrontend.exception;
 
-import pascal.taie.frontend.newfrontend.main.TaiePhase;
-
-/**
- * Represents the errors raised during constructing program information using new frontend.
- */
-public abstract sealed class FrontendException extends Exception
-        permits ClassNotFoundException, CorruptClassFileException, JavacException, UnknownException {
-    protected FrontendException(TaiePhase phase, String message) {
-        this(String.format("""
-                !!! ERROR in FRONTEND DURING %s !!!
-                %s
-                """, phase, message));
-    }
-
-    private FrontendException(String msg) {
-        super(msg);
-    }
+public sealed interface ClassFileCorruption
+        permits ConstantTableCorruption {
 }

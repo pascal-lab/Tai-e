@@ -87,7 +87,7 @@ public class ImportExtractor extends ASTVisitor {
 
     private void extractBinding(IBinding binding) {
         if (binding == null) {
-            throw new FrontendException(
+            throw new RuntimeException(
                     "Binding resolving failure, following the JDT error message to fix it");
         }
         if (binding instanceof ITypeBinding typeBinding) {

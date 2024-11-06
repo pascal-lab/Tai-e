@@ -22,16 +22,17 @@
 
 package pascal.taie.frontend.newfrontend.exception;
 
-/**
- * Represents the errors raised during constructing program information from bytecode in ASM form.
- */
-public class AsmFrontendException extends FrontendException {
-
-    AsmFrontendException(String msg) {
-        super(msg);
+public final class ConstantTableCorruption implements ClassFileCorruption {
+    private final int pos;
+    private final String reason;
+    public ConstantTableCorruption(int pos, String reason) {
+        this.pos = pos;
+        this.reason = reason;
     }
 
-    public AsmFrontendException(String msg, Throwable cause) {
-        super(msg, cause);
+    public String toString() {
+        return String.format("""
+                Constant table is corrupted at position %d,
+                Reason: %s""", pos, reason);
     }
 }

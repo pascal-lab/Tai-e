@@ -22,21 +22,15 @@
 
 package pascal.taie.frontend.newfrontend.exception;
 
+
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 
-/**
- * Represents the errors raised during constructing program information using new frontend.
- */
-public abstract sealed class FrontendException extends Exception
-        permits ClassNotFoundException, CorruptClassFileException, JavacException, UnknownException {
-    protected FrontendException(TaiePhase phase, String message) {
-        this(String.format("""
-                !!! ERROR in FRONTEND DURING %s !!!
-                %s
-                """, phase, message));
-    }
-
-    private FrontendException(String msg) {
-        super(msg);
+public final class ClassNotFoundException extends FrontendException {
+    public ClassNotFoundException(String binaryName) {
+        super(TaiePhase.CLOSED_WORLD_ANALYSIS,
+                String.format("""
+                        %s NOT FOUND in your classpath, possible fix:
+                            If it's intended, try to add (--allow-phantom) to args"""
+                        , binaryName));
     }
 }

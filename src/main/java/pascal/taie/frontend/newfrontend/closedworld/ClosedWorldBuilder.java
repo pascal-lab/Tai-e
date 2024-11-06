@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.closedworld;
 
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.project.Project;
 
@@ -43,5 +44,5 @@ public interface ClosedWorldBuilder {
     /**
      * make the closed-world
      */
-    void build(Project p);
+    void build(Project p) throws FrontendException;
 }

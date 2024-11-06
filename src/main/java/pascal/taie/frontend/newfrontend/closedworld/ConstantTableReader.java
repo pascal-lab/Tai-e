@@ -22,7 +22,9 @@
 
 package pascal.taie.frontend.newfrontend.closedworld;
 
-import pascal.taie.frontend.newfrontend.exception.FrontendException;
+import pascal.taie.frontend.newfrontend.exception.ConstantTableCorruption;
+import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
+import pascal.taie.frontend.newfrontend.main.TaiePhase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,11 +75,17 @@ public class ConstantTableReader {
 
     private int offset = 0;
 
-    public ConstantTableReader(byte[] content) {
+    /**
+     * binaryName of the target class
+     */
+    private final String binaryName;
+
+    public ConstantTableReader(String binaryName, byte[] content) {
+        this.binaryName = binaryName;
         classFileBuffer = content;
     }
 
-    public List<String> read() {
+    public List<String> read() throws CorruptClassFileException {
         parse();
         return binaryNames;
     }
@@ -112,7 +120,7 @@ public class ConstantTableReader {
         return true;
     }
 
-    private void parse() {
+    private void parse() throws CorruptClassFileException {
         binaryNames = new ArrayList<>();
         // head
         offset += 4;
@@ -129,7 +137,9 @@ public class ConstantTableReader {
             int index1, index2;
             byte tag = classFileBuffer[offset++];
             switch (tag) {
-                default -> throw new FrontendException("unknown pool item type");
+                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
+                        binaryName, new ConstantTableCorruption(offset,
+                        String.format("invalid constant table tag: 0x%02X", tag)));
                 case CONSTANT_Utf8 -> {
                     constantsOffset[ix] = offset;
                     int len = readUnsignedShort();
@@ -193,7 +203,7 @@ public class ConstantTableReader {
         }
     }
 
-    private void readFieldOrMethod(boolean[] descriptors) {
+    private void readFieldOrMethod(boolean[] descriptors) throws CorruptClassFileException {
         int methodCount = readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
             offset += 4;
@@ -202,7 +212,7 @@ public class ConstantTableReader {
         }
     }
 
-    private void parseAttributes() {
+    private void parseAttributes() throws CorruptClassFileException {
         int attributesCount = readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
             int nameIndex = readUnsignedShort();
@@ -222,14 +232,14 @@ public class ConstantTableReader {
      * <p>Precondition</p>
      * <code>offset</code> points to the <code>num_annotations;</code> of annotation attribute
      */
-    private void parseAnnotationContent() {
+    private void parseAnnotationContent() throws CorruptClassFileException {
         int numAnnotations = readUnsignedShort();
         for (int i = 0; i < numAnnotations; i++) {
             parseAnnotation();
         }
     }
 
-    private void parseAnnotation() {
+    private void parseAnnotation() throws CorruptClassFileException {
         int typeIndex = readUnsignedShort();  // Class descriptor
         descriptorsLoad[typeIndex] = true;
 
@@ -240,7 +250,7 @@ public class ConstantTableReader {
         }
     }
 
-    private void parseElementValue() {
+    private void parseElementValue() throws CorruptClassFileException {
         byte tag = classFileBuffer[offset++];
         switch (tag) {
             case 'B': case 'C': case 'D': case 'F': case 'I': case 'J': case 'S': case 'Z':
@@ -266,7 +276,9 @@ public class ConstantTableReader {
                 }
                 break;
             default:
-                throw new FrontendException("Unknown element value tag: " + tag);
+                throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
+                        binaryName, new ConstantTableCorruption(offset,
+                        String.format("invalid annotation element tag: 0x%02X", tag)));
         }
     }
 

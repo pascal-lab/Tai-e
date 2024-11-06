@@ -32,6 +32,7 @@ import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.asyncir.IRBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
@@ -57,10 +58,15 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
 
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
-        build(options);
+        try {
+            build(options);
+        } catch (FrontendException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
-    private void build(Options options) {
+    private void build(Options options) throws FrontendException {
         World.reset();
         World world = new World();
         World.set(world);

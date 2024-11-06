@@ -1,7 +1,7 @@
 package pascal.taie.frontend.newfrontend.javac;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.exception.FrontendException;
+import pascal.taie.frontend.newfrontend.exception.JavacException;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.PathUtils;
@@ -36,9 +36,10 @@ public class JavacSourceHandler {
     private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir")).resolve("taie");
     private final Pattern writePattern = getWritePattern();
 
-    public List<ClassFile> compile(String cp, String javaSourceFile, int javaVersion) throws IOException {
+    public List<ClassFile> compile(String cp, String javaSourceFile, int javaVersion)
+            throws JavacException, IOException {
         if (compiler == null) {
-            throw new FrontendException("No compiler available");
+            throw new JavacException();
         }
         StringWriter output = new StringWriter();
         File javaFile = new File(javaSourceFile);
@@ -66,7 +67,7 @@ public class JavacSourceHandler {
                         sourceInfo));
                 errors.append(String.format("Message: %s%n", diagnostic.getMessage(null)));
             });
-            throw new FrontendException(
+            throw new JavacException(
                     "Javac compilation failed for " + javaSourceFile + ":\n" + errors);
         }
 
@@ -113,9 +114,10 @@ public class JavacSourceHandler {
         } else if (lang.equals("zh") && country.equals("CN")) {
             return Pattern.compile("\\[已写入(.*\\.class)]");
         } else {
-            logger.warn("Unknown language: {}, country: {}\n" +
-                    "The Java source code frontend may not work properly\n" +
-                    "Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]", lang, country);
+            logger.warn("""
+                    Unknown language: {}, country: {}
+                    The Java source code frontend may not work properly
+                    Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]""", lang, country);
             return Pattern.compile("\\[wrote (.*\\.class)]");
         }
     }

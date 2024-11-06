@@ -25,18 +25,24 @@ package pascal.taie.frontend.newfrontend.exception;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 
 /**
- * Represents the errors raised during constructing program information using new frontend.
+ * Custom exception class for Javac-related errors.
  */
-public abstract sealed class FrontendException extends Exception
-        permits ClassNotFoundException, CorruptClassFileException, JavacException, UnknownException {
-    protected FrontendException(TaiePhase phase, String message) {
-        this(String.format("""
-                !!! ERROR in FRONTEND DURING %s !!!
-                %s
-                """, phase, message));
+public final class JavacException extends FrontendException {
+
+    /**
+     * Constructs a JavacException with a default error message.
+     * This exception is typically thrown when the Java Development Kit (JDK) is not installed.
+     */
+    public JavacException() {
+        super(TaiePhase.CLOSED_WORLD_ANALYSIS, "Failed to obtain Javac instance. Please ensure the Java Development Kit (JDK) is installed.");
     }
 
-    private FrontendException(String msg) {
-        super(msg);
+    /**
+     * Constructs a JavacException with a custom compile error message.
+     *
+     * @param compileError the error message from the Javac compiler
+     */
+    public JavacException(String compileError) {
+        super(TaiePhase.CLOSED_WORLD_ANALYSIS, String.format("Javac compile error:\n%s", compileError));
     }
 }

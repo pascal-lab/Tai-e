@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
-import pascal.taie.frontend.newfrontend.exception.AsmFrontendException;
+import pascal.taie.frontend.newfrontend.exception.ClassNotFoundException;
+import pascal.taie.frontend.newfrontend.exception.UnknownException;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
+import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
@@ -109,7 +111,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
     }
 
     @Override
-    public void build(Project p) {
+    public void build(Project p) throws FrontendException {
         Timer timer = new Timer("closed-world");
         timer.start();
         String entry = p.getMainClass();
@@ -129,16 +131,23 @@ public class DependencyCWBuilder extends NewFrontendComponent
             }
             timer.stop();
             StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
-        } catch (IOException e) {
-            // TODO: fail info
-            throw new FrontendException(e.getMessage());
+        } catch (InterruptedException | IOException ex) {
+            throw new UnknownException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
+        } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof FrontendException fex) {
+                throw fex;
+            } else {
+                throw new UnknownException(TaiePhase.CLOSED_WORLD_ANALYSIS, cause);
+            }
         } finally {
             // call it explicitly, or the program will not exit after main() returns
             executorService.shutdown();
         }
     }
 
-    private void buildClosure(Collection<String> binaryNames) throws IOException {
+    private void buildClosure(Collection<String> binaryNames)
+            throws ExecutionException, InterruptedException {
         Queue<String> workList = new LinkedList<>(binaryNames);
         Set<String> founded = Sets.newHybridSet();
 
@@ -170,20 +179,17 @@ public class DependencyCWBuilder extends NewFrontendComponent
             // wait them for build completed
             if (deltaCount >= THREAD_POOL_SIZE || tempDeltaCount == 0) {
                 while (deltaCount > 0) {
-                    try {
-                        Future<ResolveResult> future = completionService.take();
-                        ResolveResult r = future.get();
-                        updateIteration(founded, workList, r);
-                        deltaCount--;
-                    } catch (ExecutionException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Future<ResolveResult> future = completionService.take();
+                    ResolveResult r = future.get();
+                    updateIteration(founded, workList, r);
+                    deltaCount--;
                 }
             }
         }
     }
 
-    private void buildClosureNonParallel(List<String> binaryNames) {
+    private void buildClosureNonParallel(List<String> binaryNames)
+            throws IOException, FrontendException {
         Queue<String> workList = new LinkedList<>(binaryNames);
         Set<String> founded = Sets.newHybridSet();
 
@@ -191,12 +197,8 @@ public class DependencyCWBuilder extends NewFrontendComponent
             String now = workList.poll();
             if (! founded.contains(now)) {
                 founded.add(now);
-                try {
-                    ResolveResult r = buildDeps(now);
-                    updateIteration(founded, workList, r);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                ResolveResult r = buildDeps(now);
+                updateIteration(founded, workList, r);
             }
         }
     }
@@ -212,7 +214,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
         }
     }
 
-    private ResolveResult buildDeps(String binaryName) throws IOException {
+    private ResolveResult buildDeps(String binaryName) throws IOException, FrontendException {
         AnalysisFile f = index.locate(binaryName);
         if (f == null) {
             if (basicClassesList.contains(binaryName.replace('/', '.'))) {
@@ -224,7 +226,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
             if (World.get().getOptions().isAllowPhantom()) {
                 return null;
             }
-            throw new FileNotFoundException(binaryName);
+            throw new ClassNotFoundException(binaryName);
         } else {
              ResolveResult depAndSources =
                     DependencyResolver.resolve(project, binaryName, f);
@@ -253,7 +255,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
                     .getResourceAsStream(BASIC_CLASSES);
             return mapper.readValue(content, type);
         } catch (IOException e) {
-            throw new AsmFrontendException("Failed to read newfrontend basic classes", e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -23,6 +23,8 @@
 package pascal.taie.frontend.newfrontend.closedworld;
 
 import org.objectweb.asm.ClassReader;
+import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
@@ -40,7 +42,8 @@ import java.util.List;
 
 class DependencyResolver {
     static ResolveResult
-    resolve(Project project, String binaryName, AnalysisFile file) throws IOException {
+    resolve(Project project, String binaryName, AnalysisFile file)
+            throws IOException, FrontendException {
         if (file instanceof JavaSourceFile javaSourceFile) {
             // return getJavaDependenciesWithJDT(project, binaryName, javaSourceFile);
             return resolveWithJavac(project, binaryName, javaSourceFile);
@@ -65,7 +68,8 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveWithJavac(Project project, String binaryName, JavaSourceFile javaSourceFile) throws IOException {
+    resolveWithJavac(Project project, String binaryName, JavaSourceFile javaSourceFile)
+            throws IOException, FrontendException {
         List<ClassFile> classFiles =
                 new JavacSourceHandler().compile(project.getClassPath(),
                         javaSourceFile.resource().getPath().toString(),
@@ -83,19 +87,21 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveClassFile(Project project, String binaryName, ClassFile cFile, boolean isApplication) throws IOException {
+    resolveClassFile(Project project, String binaryName, ClassFile cFile, boolean isApplication)
+            throws IOException, CorruptClassFileException {
         byte[] content = cFile.resource().getContent();
         cFile.resource().release();
         assert content != null;
         ClassReader reader = new ClassReader(content);
         int version = reader.readShort(6);
-        List<String> deps = new ConstantTableReader(content).read();
+        List<String> deps = new ConstantTableReader(binaryName, content).read();
         return new ResolveResult(deps, List.of(
                 new Pair<>(binaryName, new AsmSource(reader, isApplication, version, null))));
     }
 
     private static ResolveResult
-    resolveClassFile(Project project, String binaryName, ClassFile cFile) throws IOException {
+    resolveClassFile(Project project, String binaryName, ClassFile cFile)
+            throws IOException, CorruptClassFileException {
         return resolveClassFile(project, binaryName, cFile, project.isApp(cFile));
     }
 }
