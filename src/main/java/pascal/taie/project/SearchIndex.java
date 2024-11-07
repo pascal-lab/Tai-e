@@ -56,12 +56,12 @@ public class SearchIndex {
         }
     }
 
-    public AnalysisFile locate(String binaryName) {
-        AnalysisFile klass = index.get(binaryName + ".class");
+    public AnalysisFile locate(String internalName) {
+        AnalysisFile klass = index.get(internalName + ".class");
         if (klass != null) {
             return klass;
         } else {
-            return index.get(binaryName + ".java");
+            return index.get(internalName + ".java");
         }
     }
 }

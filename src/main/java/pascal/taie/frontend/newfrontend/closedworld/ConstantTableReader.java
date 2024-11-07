@@ -64,7 +64,7 @@ public class ConstantTableReader {
             (byte) 0x73
     };
 
-    private List<String> binaryNames;
+    private List<String> internalNames;
 
     private int[] constantsOffset;
     private boolean[] internalsLoad;
@@ -76,18 +76,18 @@ public class ConstantTableReader {
     private int offset = 0;
 
     /**
-     * binaryName of the target class
+     * internal name of the target class
      */
-    private final String binaryName;
+    private final String internalName;
 
-    public ConstantTableReader(String binaryName, byte[] content) {
-        this.binaryName = binaryName;
+    public ConstantTableReader(String internalName, byte[] content) {
+        this.internalName = internalName;
         classFileBuffer = content;
     }
 
     public List<String> read() throws CorruptClassFileException {
         parse();
-        return binaryNames;
+        return internalNames;
     }
 
     private int readUnsignedShort() {
@@ -121,7 +121,7 @@ public class ConstantTableReader {
     }
 
     private void parse() throws CorruptClassFileException {
-        binaryNames = new ArrayList<>();
+        internalNames = new ArrayList<>();
         // head
         offset += 4;
         // minor
@@ -138,7 +138,7 @@ public class ConstantTableReader {
             byte tag = classFileBuffer[offset++];
             switch (tag) {
                 default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        binaryName, new ConstantTableCorruption(offset,
+                        internalName, new ConstantTableCorruption(offset,
                         String.format("invalid constant table tag: 0x%02X", tag)));
                 case CONSTANT_Utf8 -> {
                     constantsOffset[ix] = offset;
@@ -196,9 +196,9 @@ public class ConstantTableReader {
         // Now parse descriptors and internal names
         for (int i = 1; i < count; ++i) {
             if (internalsLoad[i]) {
-                visitInternalName(constantsOffset[i], binaryNames);
+                visitInternalName(constantsOffset[i], internalNames);
             } else if (descriptorsLoad[i]) {
-                visitDescriptor(constantsOffset[i], binaryNames);
+                visitDescriptor(constantsOffset[i], internalNames);
             }
         }
     }
@@ -277,7 +277,7 @@ public class ConstantTableReader {
                 break;
             default:
                 throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        binaryName, new ConstantTableCorruption(offset,
+                        internalName, new ConstantTableCorruption(offset,
                         String.format("invalid annotation element tag: 0x%02X", tag)));
         }
     }

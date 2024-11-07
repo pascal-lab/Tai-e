@@ -146,9 +146,9 @@ public class DependencyCWBuilder extends NewFrontendComponent
         }
     }
 
-    private void buildClosure(Collection<String> binaryNames)
+    private void buildClosure(Collection<String> internalNames)
             throws ExecutionException, InterruptedException {
-        Queue<String> workList = new LinkedList<>(binaryNames);
+        Queue<String> workList = new LinkedList<>(internalNames);
         Set<String> founded = Sets.newHybridSet();
 
         // deltaCount means (founded, not completed) - completed, a.k.a "on the fly"
@@ -164,10 +164,10 @@ public class DependencyCWBuilder extends NewFrontendComponent
             // They will be built in parallel
             int tempDeltaCount = 0;
             while (! workList.isEmpty()) {
-                String binaryName = workList.poll();
-                if (!founded.contains(binaryName)) {
-                    founded.add(binaryName);
-                    completionService.submit(() -> buildDeps(binaryName));
+                String internalName = workList.poll();
+                if (!founded.contains(internalName)) {
+                    founded.add(internalName);
+                    completionService.submit(() -> buildDeps(internalName));
                     tempDeltaCount++;
                 }
             }
@@ -188,9 +188,9 @@ public class DependencyCWBuilder extends NewFrontendComponent
         }
     }
 
-    private void buildClosureNonParallel(List<String> binaryNames)
+    private void buildClosureNonParallel(List<String> internalNames)
             throws IOException, FrontendException {
-        Queue<String> workList = new LinkedList<>(binaryNames);
+        Queue<String> workList = new LinkedList<>(internalNames);
         Set<String> founded = Sets.newHybridSet();
 
         while (! workList.isEmpty()) {
@@ -214,10 +214,10 @@ public class DependencyCWBuilder extends NewFrontendComponent
         }
     }
 
-    private ResolveResult buildDeps(String binaryName) throws IOException, FrontendException {
-        AnalysisFile f = index.locate(binaryName);
+    private ResolveResult buildDeps(String internalName) throws IOException, FrontendException {
+        AnalysisFile f = index.locate(internalName);
         if (f == null) {
-            if (basicClassesList.contains(binaryName.replace('/', '.'))) {
+            if (basicClassesList.contains(internalName.replace('/', '.'))) {
                 // if some classes in basicClassesList are not found, then just ignore them
                 // for that we use try-catch style here to load them.
                 // E.g. you usually only load one of the three concrete FileSystem s.
@@ -226,10 +226,10 @@ public class DependencyCWBuilder extends NewFrontendComponent
             if (World.get().getOptions().isAllowPhantom()) {
                 return null;
             }
-            throw new ClassNotFoundException(binaryName);
+            throw new ClassNotFoundException(internalName);
         } else {
              ResolveResult depAndSources =
-                    DependencyResolver.resolve(project, binaryName, f);
+                    DependencyResolver.resolve(project, internalName, f);
             for (Pair<String, ClassSource> source : depAndSources.resolvedSource()) {
                 sourceMap.put(source.first(), source.second());
             }
