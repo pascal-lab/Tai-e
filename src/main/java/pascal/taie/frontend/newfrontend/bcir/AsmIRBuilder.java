@@ -352,7 +352,6 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             makeStmts(true);
             makeExceptionTable();
             stageTimer.endTypelessIR();
-            verify();
             this.ir = getIR();
             reportMergeStats();
         }
