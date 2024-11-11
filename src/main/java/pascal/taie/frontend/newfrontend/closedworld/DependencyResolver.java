@@ -94,7 +94,7 @@ class DependencyResolver {
         assert content != null;
         ClassReader reader = new ClassReader(content);
         int version = reader.readShort(6);
-        List<String> deps = new ConstantTableReader(binaryName, content).read();
+        List<String> deps = new ConstantTableReader(binaryName, cFile, content).read();
         return new ResolveResult(deps, List.of(
                 new Pair<>(binaryName, new AsmSource(reader, isApplication, version, null))));
     }

@@ -33,17 +33,16 @@ public final class CorruptClassFileException extends FrontendException {
      * Constructs a new instance of CorruptClassFileException with the specified phase, binary name, and corruption details.
      *
      * @param phase the phase of the taie where the corruption was detected
-     * @param binaryName the binary name of the corrupt .class file
      * @param corruption the details of the corruption found in the .class file
      */
-    public CorruptClassFileException(TaiePhase phase, String binaryName, ClassFileCorruption corruption) {
+    public CorruptClassFileException(TaiePhase phase, ClassFileInfo info, ClassFileCorruption corruption) {
         super(phase, String.format("""
-                %s (a .class file) is corrupt.
+                %s is corrupt.
                 Corruption details:
                 %s
                 This might be a bug in the tai-e frontend. To troubleshoot, try loading the class with a JVM.
                 If the JVM can load the class or you believe the class is not corrupt, please submit a bug report at:
                 %s""",
-                binaryName, corruption.toString(), FrontendException.TAIE_ISSUES));
+                info.toString(), corruption.toString(), FrontendException.TAIE_ISSUES));
     }
 }

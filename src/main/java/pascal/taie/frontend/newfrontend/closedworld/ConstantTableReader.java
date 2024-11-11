@@ -22,9 +22,11 @@
 
 package pascal.taie.frontend.newfrontend.closedworld;
 
+import pascal.taie.frontend.newfrontend.exception.ClassFileInfo;
 import pascal.taie.frontend.newfrontend.exception.ConstantTableCorruption;
 import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
+import pascal.taie.project.ClassFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,8 +82,11 @@ public class ConstantTableReader {
      */
     private final String internalName;
 
-    public ConstantTableReader(String internalName, byte[] content) {
+    private final ClassFile file;
+
+    public ConstantTableReader(String internalName, ClassFile file, byte[] content) {
         this.internalName = internalName;
+        this.file = file;
         classFileBuffer = content;
     }
 
@@ -137,9 +142,6 @@ public class ConstantTableReader {
             int index1, index2;
             byte tag = classFileBuffer[offset++];
             switch (tag) {
-                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        internalName, new ConstantTableCorruption(offset,
-                        String.format("invalid constant table tag: 0x%02X", tag)));
                 case CONSTANT_Utf8 -> {
                     constantsOffset[ix] = offset;
                     int len = readUnsignedShort();
@@ -182,6 +184,10 @@ public class ConstantTableReader {
                 }
                 case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
                 case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
+
+                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
+                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
+                        String.format("invalid constant table tag: 0x%02X", tag)));
             }
         }
 
@@ -277,7 +283,7 @@ public class ConstantTableReader {
                 break;
             default:
                 throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        internalName, new ConstantTableCorruption(offset,
+                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
                         String.format("invalid annotation element tag: 0x%02X", tag)));
         }
     }
