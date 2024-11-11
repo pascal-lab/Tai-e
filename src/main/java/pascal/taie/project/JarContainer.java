@@ -49,4 +49,9 @@ public class JarContainer extends ZipContainer {
     public String fileName() {
         return this.name + ".jar";
     }
+
+    @Override
+    public String toString() {
+        return fileName();
+    }
 }
