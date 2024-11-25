@@ -26,7 +26,7 @@ import pascal.taie.config.Options;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -77,10 +77,10 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                     getJavaVersion(),
                     getInputClasses(),
                     FileLoader.get().loadRootContainers(
-                            appClassPaths.stream().distinct().map(Paths::get).toList()),
+                            appClassPaths.stream().distinct().map(Path::of).toList()),
                     FileLoader.get().loadRootContainers(
                             Stream.concat(
-                                libClassPaths.stream().distinct().map(Paths::get),
+                                libClassPaths.stream().distinct().map(Path::of),
                                 listJrtModule(options)).toList()),
                     String.join(File.pathSeparator,
                             Stream.concat(

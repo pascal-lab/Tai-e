@@ -33,12 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 public class SearchIndex {
     private record DuplicateClass(String internalName, Pair<FileContainer, FileContainer> jars) {}
 
-    private final Map<String, AnalysisFile> index = new TreeMap<>();
+    private final Map<String, AnalysisFile> index = Maps.newMap();
     private final List<DuplicateClass> duplicateClasses = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger(SearchIndex.class);
 

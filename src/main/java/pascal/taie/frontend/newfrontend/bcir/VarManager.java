@@ -39,11 +39,11 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -118,7 +118,7 @@ public class VarManager implements IVarManager {
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>(maxLocal * 6);
-        this.retVars = new HashSet<>();
+        this.retVars = Sets.newSet();
         this.info = info;
 
         if (existsLocalVariableTable) {

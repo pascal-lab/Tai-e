@@ -160,7 +160,7 @@ public class FileLoader {
                         try (Stream<Path> pathStream = Files.list(libsPath)) {
                             for (Path path1 : pathStream.toList()) {
                                 loadFile(parent, path1, null, (f) -> null, (d) -> null);
-                            };
+                            }
                         }
                     }
                 } else {

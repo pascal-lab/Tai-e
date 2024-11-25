@@ -80,8 +80,7 @@ class PhantomClassBuilder extends NewFrontendComponent
     public JClass getSuperClass() {
         if (name.equals("java.lang.Object")) {
             return null;
-        }
-        else {
+        } else {
             // Object for phantom class. However, is it better to fake a "ILL" supertype?
             return tCtx().object().getJClass();
         }

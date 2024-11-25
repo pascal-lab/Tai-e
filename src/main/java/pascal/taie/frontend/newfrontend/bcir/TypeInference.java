@@ -62,13 +62,13 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.frontend.newfrontend.Utils.isIntAssignable;
+import static pascal.taie.frontend.newfrontend.Utils.isPrimitiveArrayType;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -629,7 +629,7 @@ public class TypeInference extends NewFrontendIRComponent {
 
         public void addNewUseConstrain(ReferenceType type) {
             if (useValidConstrains.isEmpty()) {
-                useValidConstrains = new HashSet<>();
+                useValidConstrains = Sets.newSet();
             }
             useValidConstrains.add(type);
         }

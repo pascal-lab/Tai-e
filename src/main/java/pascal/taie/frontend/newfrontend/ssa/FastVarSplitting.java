@@ -132,7 +132,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     // duReachDef[i] = j, j def dom i
 
-    private final static int UNDEFINED = -1;
+    private static final int UNDEFINED = -1;
 
     private final int varSize;
 
@@ -362,7 +362,9 @@ public class FastVarSplitting<Block extends IBasicBlock> {
             info.visit(current, varDUVisitor);
             for (int i = 0; i < graph.getMergedOutEdgesCount(node); i++) {
                 int succIndex = graph.getMergedOutEdge(node, i);
-                if (!phis.has(succIndex)) continue;
+                if (!phis.has(succIndex)) {
+                    continue;
+                }
                 for (SemiPhi phi : phis.get(succIndex)) {
                     int varIndex = phi.var;
                     updateReachingDefForBlockEnd(varIndex, varReachDef, current);

@@ -29,7 +29,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class JClassObject {
 
     public JClassObject(ClassType type) {
         this.type = type;
-        staticFields = new HashMap<>();
+        staticFields = Maps.newMap();
     }
 
     @Override

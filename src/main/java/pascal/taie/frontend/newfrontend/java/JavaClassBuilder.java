@@ -58,12 +58,12 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -145,7 +145,7 @@ public class JavaClassBuilder implements JClassBuilder  {
             public boolean visit(MethodDeclaration node) {
                 IMethodBinding methodBinding = node.resolveBinding();
                 Set<Modifier> sourceModifier = TypeUtils.fromJDTModifier(methodBinding.getModifiers());
-                Set<Modifier> current = new HashSet<>(sourceModifier);
+                Set<Modifier> current = Sets.newSet(sourceModifier);
                 if (node.getBody() == null) {
                     // abstract method
                     current.add(Modifier.ABSTRACT);
@@ -159,9 +159,9 @@ public class JavaClassBuilder implements JClassBuilder  {
                     name = methodBinding.getName();
                 }
                 MethodType methodType = TypeUtils.getMethodType(methodBinding);
-                List<SingleVariableDeclaration> svd_s = node.parameters();
+                List<SingleVariableDeclaration> svds = node.parameters();
                 List<String> paraNames = new ArrayList<>();
-                for (SingleVariableDeclaration svd : svd_s) {
+                for (SingleVariableDeclaration svd : svds) {
                     String paraName = svd.getName().getIdentifier();
                     paraNames.add(paraName);
                 }

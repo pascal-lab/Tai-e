@@ -61,9 +61,8 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 public class CastingInsert extends NewFrontendIRComponent {
 
@@ -290,7 +289,7 @@ public class CastingInsert extends NewFrontendIRComponent {
                                     ExpModifier.setType(v, t);
                                     newStmts.add(getNewCast(v, arg, t));
                                     if (m == null) {
-                                        m = new HashMap<>();
+                                        m = Maps.newMap();
                                     }
                                     m.put(arg, v);
                                 }

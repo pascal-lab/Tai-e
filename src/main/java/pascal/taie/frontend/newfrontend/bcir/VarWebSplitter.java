@@ -98,7 +98,8 @@ public class VarWebSplitter {
     private final Map
             <
                     BytecodeBlock,
-                    List<List<Integer>> // slot -> [Defs]
+                    // slot -> [Defs]
+                    List<List<Integer>>
                     > mayFlowToCatchOfBlocks; // contains all the defs. Used in exception handling.
 
     private final List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
@@ -391,7 +392,7 @@ public class VarWebSplitter {
                 throw new UnsupportedOperationException();
             }
 
-            if (stmt instanceof AssignStmt<?,?> assignStmt) {
+            if (stmt instanceof AssignStmt<?, ?> assignStmt) {
                 LValue l = assignStmt.getLValue();
                 if (l instanceof Var v) {
                     visitDef(block, v, i, currentDefs, isInTry, mayFlowToCatch);

@@ -38,10 +38,9 @@ import pascal.taie.ir.IR;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Maps;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,15 +56,15 @@ public class IRService extends NewFrontendComponent  {
         private final Map<String, Map<String, AsmMethodSource>> slowMap;
 
         public LoadingKV() {
-            fastMap = new HashMap<>();
-            slowMap = new HashMap<>();
+            fastMap = Maps.newMap();
+            slowMap = Maps.newMap();
         }
 
         public void put(String name, String descriptor, AsmMethodSource value) {
             if (slowMap.containsKey(name)) {
                 slowMap.get(name).put(descriptor, value);
             } else if (fastMap.containsKey(name)) {
-                slowMap.put(name, new HashMap<>());
+                slowMap.put(name, Maps.newMap());
                 AsmMethodSource oldValue = fastMap.remove(name);
                 slowMap.get(name).put(oldValue.adapter().desc, oldValue);
                 slowMap.get(name).put(descriptor, value);
@@ -81,13 +80,13 @@ public class IRService extends NewFrontendComponent  {
 
 //    ExecutorService executorService = Executors.newFixedThreadPool(8);
 
-    private final ConcurrentHashMap<JMethod, AtomicBoolean> methodStatusMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<JMethod, AtomicBoolean> methodStatusMap = Maps.newConcurrentMap();
 
-    private final ConcurrentHashMap<JClass, AtomicInteger> classStatusMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<JClass, AtomicInteger> classStatusMap = Maps.newConcurrentMap();
 
-    private final ConcurrentMap<JClass, AsmSource> class2Node = new ConcurrentHashMap<>();
+    private final ConcurrentMap<JClass, AsmSource> class2Node = Maps.newConcurrentMap();
 
-    private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = new ConcurrentHashMap<>();
+    private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
 
     public void getIRAsync(JMethod method) {
         AtomicBoolean status = methodStatusMap.computeIfAbsent(method, k -> new AtomicBoolean(false));

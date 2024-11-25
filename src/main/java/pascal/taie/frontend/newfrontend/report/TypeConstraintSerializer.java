@@ -20,14 +20,31 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.newfrontend.report;
 
-public interface ClassLike {
-    String getClassName();
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-    default String getBinaryName() {
-        return getInternalName().replace('/', '.');
+import java.io.IOException;
+
+class TypeConstraintSerializer extends StdSerializer<TaieCastingReporter.TypeConstraint> {
+
+    public TypeConstraintSerializer() {
+        this(null);
     }
 
-    String getInternalName();
+    public TypeConstraintSerializer(Class<TaieCastingReporter.TypeConstraint> t) {
+        super(t);
+    }
+
+    @Override
+    public void serialize(
+            TaieCastingReporter.TypeConstraint value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException {
+
+        gen.writeStartObject();
+        gen.writeStringField("stmt", value.stmt().toString());
+        gen.writeEndObject();
+    }
 }

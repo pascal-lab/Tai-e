@@ -73,14 +73,15 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.SetQueue;
+import pascal.taie.util.collection.Sets;
+
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -229,7 +230,7 @@ public final class TypeUtils {
 
     public static Set<Modifier> computeModifier(ITypeBinding binding) {
         binding = binding.getErasure();
-        Set<Modifier> res = new HashSet<>(fromJDTModifier(binding.getModifiers()));
+        Set<Modifier> res = Sets.newSet(fromJDTModifier(binding.getModifiers()));
 
         if (binding.isInterface()) {
             res.add(Modifier.INTERFACE);
@@ -771,7 +772,7 @@ public final class TypeUtils {
      */
     public static Annotation fromJDTAnnotation(IAnnotationBinding annotation) {
         String type = annotation.getName();
-        Map<String, Element> kvs = new HashMap<>();
+        Map<String, Element> kvs = Maps.newMap();
         for (IMemberValuePairBinding kv : annotation.getAllMemberValuePairs()) {
             String key = kv.getName();
             Object value = kv.getValue();

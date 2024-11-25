@@ -30,7 +30,6 @@ public final class ClassNotFoundException extends FrontendException {
         super(TaiePhase.CLOSED_WORLD_ANALYSIS,
                 String.format("""
                         %s NOT FOUND in your classpath, possible fix:
-                            If it's intended, try to add (--allow-phantom) to args"""
-                        , binaryName));
+                            If it's intended, try to add (--allow-phantom) to args""", binaryName));
     }
 }

@@ -45,9 +45,9 @@ import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeAnnotationNode;
 import org.objectweb.asm.tree.TypeInsnNode;
+import pascal.taie.util.collection.Sets;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -314,7 +314,7 @@ public class DepClassVisitor extends ClassVisitor {
         }
 
         @Override
-        public void	visitTryCatchBlock(
+        public void visitTryCatchBlock(
                 Label start, Label end, Label handler,
                 String type) {
             addInternalName(type);
@@ -345,7 +345,7 @@ public class DepClassVisitor extends ClassVisitor {
 
     public DepClassVisitor() {
         super(Opcodes.ASM9);
-        binaryNames = new HashSet<>();
+        binaryNames = Sets.newSet();
     }
 
     @Override

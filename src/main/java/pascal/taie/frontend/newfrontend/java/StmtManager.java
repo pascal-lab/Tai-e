@@ -135,8 +135,8 @@ public class StmtManager {
         gotoMap.forEach((i, l) -> {
             if (i instanceof Goto g) {
                 g.setTarget(blockMap.get(l));
-            } else if (i instanceof If _if)  {
-                _if.setTarget(blockMap.get(l));
+            } else if (i instanceof If ifStmt)  {
+                ifStmt.setTarget(blockMap.get(l));
             }
         });
 

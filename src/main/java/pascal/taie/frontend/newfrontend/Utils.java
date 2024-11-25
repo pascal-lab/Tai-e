@@ -94,7 +94,6 @@ import pascal.taie.util.collection.Sets;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -179,7 +178,7 @@ public class Utils {
                 return proFinal;
         }
 
-        Set<Modifier> res = new HashSet<>();
+        Set<Modifier> res = Sets.newSet();
         if (hasAsmModifier(opcodes, Opcodes.ACC_PUBLIC)) {
             res.add(Modifier.PUBLIC);
         }
@@ -405,8 +404,7 @@ public class Utils {
                 return new LoadArray(v, access);
             } else if (e instanceof InstanceOfExp instanceOfExp) {
                 return new InstanceOf(v, instanceOfExp);
-            }
-            else {
+            } else {
                 throw new UnsupportedOperationException();
             }
         } else if (left instanceof ArrayAccess arrayAccess) {
@@ -528,7 +526,7 @@ public class Utils {
                 if (t instanceof NullType) {
                     continue;
                 } else if (t instanceof ArrayType at) {
-                    current = new HashSet<>(getArraySupers(tCtx));
+                    current = Sets.newSet(getArraySupers(tCtx));
                 } else {
                     current = upperClosure((ClassType) t);
                 }
@@ -709,7 +707,7 @@ public class Utils {
     }
 
     static PrimitiveType numericPromotion(PrimitiveType t1, PrimitiveType t2) {
-        return toIntType( Math.max( fromIntTypeIndex(t1),  fromIntTypeIndex(t2) ) );
+        return toIntType(Math.max(fromIntTypeIndex(t1),  fromIntTypeIndex(t2)));
     }
 
     static int fromIntTypeIndex(PrimitiveType t) {

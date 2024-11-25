@@ -142,7 +142,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 
-import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmHandle;
+import static pascal.taie.frontend.newfrontend.Utils.fromObject;
+import static pascal.taie.frontend.newfrontend.Utils.isCFEdge;
+import static pascal.taie.frontend.newfrontend.Utils.isVarStore;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -742,7 +745,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
         List<Var> params = manager.getParams();
         List<Var> vars = manager.getVars();
         Set<Var> retVars = manager.getRetVars();
-        return new DefaultIR(method, thisVar, params, retVars , vars, stmts, exceptionEntries);
+        return new DefaultIR(method, thisVar, params, retVars, vars, stmts, exceptionEntries);
     }
 
     private Stmt getFirstStmt(LabelNode label) {

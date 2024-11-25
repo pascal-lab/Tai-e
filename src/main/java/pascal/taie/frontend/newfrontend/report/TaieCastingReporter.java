@@ -22,10 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
@@ -39,91 +36,19 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Sets;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-class TaieCastingInfoSerializer extends StdSerializer<TaieCastingReporter.TaieCastingInfo> {
-
-    public TaieCastingInfoSerializer() {
-        this(null);
-    }
-
-    public TaieCastingInfoSerializer(Class<TaieCastingReporter.TaieCastingInfo> t) {
-        super(t);
-    }
-
-    @Override
-    public void serialize(
-            TaieCastingReporter.TaieCastingInfo value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
-        gen.writeStartObject();
-        gen.writeStringField("method", value.method().toString());
-        gen.writeStringField("stmt", value.stmt().toString());
-        gen.writeStringField("leftType", value.leftType().toString());
-        gen.writeStringField("var", value.var().toString());
-        gen.writeStringField("rightType", value.rightType().toString());
-        gen.writeEndObject();
-    }
-}
-
-class TypeDefsSerializer extends StdSerializer<TaieCastingReporter.TypeDefs> {
-
-    public TypeDefsSerializer() {
-        this(null);
-    }
-
-    public TypeDefsSerializer(Class<TaieCastingReporter.TypeDefs> t) {
-        super(t);
-    }
-
-    @Override
-    public void serialize(
-            TaieCastingReporter.TypeDefs value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
-        gen.writeStartObject();
-        gen.writeStringField("stmt", value.stmt().toString());
-        gen.writeStringField("type", value.type().toString());
-        gen.writeEndObject();
-    }
-}
-
-class TypeConstraintSerializer extends StdSerializer<TaieCastingReporter.TypeConstraint> {
-
-    public TypeConstraintSerializer() {
-        this(null);
-    }
-
-    public TypeConstraintSerializer(Class<TaieCastingReporter.TypeConstraint> t) {
-        super(t);
-    }
-
-    @Override
-    public void serialize(
-            TaieCastingReporter.TypeConstraint value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
-        gen.writeStartObject();
-        gen.writeStringField("stmt", value.stmt().toString());
-        gen.writeEndObject();
-    }
-}
 
 
 public class TaieCastingReporter {
@@ -165,7 +90,7 @@ public class TaieCastingReporter {
     }
 
     public boolean isPhantomRelated(TaieCastingInfo info) {
-        Set<ClassType> typeSet = new HashSet<>();
+        Set<ClassType> typeSet = Sets.newSet();
         for (TypeDefs def : getTaieCastingContext(info).defs()) {
             getJClass(def.type()).ifPresent((c) -> {
                 Set<ClassType> upperClosure = Utils.upperClosure(c.getType());
@@ -215,7 +140,7 @@ public class TaieCastingReporter {
         MultiMap<Var, Stmt> varDefs = Maps.newMultiMap();
         MultiMap<Catch, Type> catchTypes = Maps.newMultiMap();
         for (Stmt stmt : ir.getStmts()) {
-            if (stmt instanceof DefinitionStmt<?,?> def) {
+            if (stmt instanceof DefinitionStmt<?, ?> def) {
                 if (def.getLValue() instanceof Var var) {
                     varDefs.put(var, stmt);
                 }
@@ -231,7 +156,7 @@ public class TaieCastingReporter {
         }
         Queue<Var> queue = new LinkedList<>();
         queue.add(info.var);
-        Set<Var> visited = new HashSet<>();
+        Set<Var> visited = Sets.newSet();
         while (!queue.isEmpty()) {
             Var var = queue.poll();
             if (visited.contains(var)) {
@@ -240,19 +165,19 @@ public class TaieCastingReporter {
             visited.add(var);
             Set<Stmt> def = varDefs.get(var);
             for (Stmt stmt : def) {
-                if (stmt instanceof DefinitionStmt<?,?> defStmt) {
+                if (stmt instanceof DefinitionStmt<?, ?> defStmt) {
                     if (stmt instanceof PhiStmt phiStmt) {
                         for (RValue v : phiStmt.getRValue().getUses()) {
-                            if (v instanceof Var _v) {
-                                queue.add(_v);
+                            if (v instanceof Var var1) {
+                                queue.add(var1);
                             }
                         }
                     } else {
                         defs.add(new TypeDefs(stmt, defStmt.getRValue().getType()));
                     }
                 }
-                if (stmt instanceof Catch _catch) {
-                    for (Type type : catchTypes.get(_catch)) {
+                if (stmt instanceof Catch catchStmt) {
+                    for (Type type : catchTypes.get(catchStmt)) {
                         defs.add(new TypeDefs(stmt, type));
                     }
                 }
@@ -263,7 +188,7 @@ public class TaieCastingReporter {
     }
 
     public void writeCastingToDot() {
-        writeCastingToDot(Paths.get("output/casting"));
+        writeCastingToDot(Path.of("output/casting"));
     }
 
     public static Optional<JClass> getJClass(Type t) {

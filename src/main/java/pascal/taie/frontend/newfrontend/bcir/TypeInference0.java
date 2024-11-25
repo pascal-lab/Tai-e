@@ -71,12 +71,15 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.frontend.newfrontend.Utils.canHoldsInt;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmFrameType;
+import static pascal.taie.frontend.newfrontend.Utils.isAssignable;
+import static pascal.taie.frontend.newfrontend.Utils.lca;
+import static pascal.taie.frontend.newfrontend.Utils.wrap1;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -525,7 +528,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
                 assert exceptionTypes != null;
                 // calculate lca here
-                Set<ReferenceType> res = lca(tCtx(), new HashSet<>(exceptionTypes));
+                Set<ReferenceType> res = lca(tCtx(), Sets.newSet(exceptionTypes));
                 ReferenceType type = res.isEmpty() ? tCtx().throwable() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return StmtVisitor.super.visit(stmt);

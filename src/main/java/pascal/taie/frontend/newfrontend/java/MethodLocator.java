@@ -86,23 +86,3 @@ public class MethodLocator {
     }
 }
 
-class LocateVisitor extends ASTVisitor {
-    private final String signature;
-    public MethodDeclaration res;
-
-    public LocateVisitor(String signature) {
-        this.signature = signature;
-    }
-
-    @Override
-    public boolean visit(MethodDeclaration node) {
-        if (TypeUtils.isSubSignature(signature, node.resolveBinding())) {
-            res = node;
-        }
-        return false;
-    }
-
-    public boolean success() {
-        return ! (res == null);
-    }
-}

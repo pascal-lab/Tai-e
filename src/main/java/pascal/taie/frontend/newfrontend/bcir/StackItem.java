@@ -100,7 +100,9 @@ final class StackItem {
         if (obj == this) {
             return true;
         }
-        if (obj == null || obj.getClass() != this.getClass()) return false;
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
         var that = (StackItem) obj;
         return Objects.equals(this.e, that.e) &&
                 Objects.equals(this.origin, that.origin);

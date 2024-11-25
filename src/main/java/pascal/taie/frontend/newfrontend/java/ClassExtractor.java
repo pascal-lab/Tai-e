@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.newfrontend.java;
 
-import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -46,12 +45,10 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +60,7 @@ public class ClassExtractor extends ASTVisitor {
 
     List<ASTNode> typeDeclarations = new ArrayList<>();
 
-    Map<ASTNode, ASTNode> outerClassMap = new HashMap<>();
+    Map<ASTNode, ASTNode> outerClassMap = Maps.newMap();
 
     /**
      * JLS 8. chap. 8.1.3 <br>

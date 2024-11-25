@@ -64,7 +64,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static pascal.taie.frontend.newfrontend.Utils.*;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
+import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;
+import static pascal.taie.frontend.newfrontend.Utils.toElement;
 
 public class AsmClassBuilder extends NewFrontendComponent
         implements JClassBuilder {

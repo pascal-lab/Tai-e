@@ -20,14 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.newfrontend.java;
 
-public interface ClassLike {
-    String getClassName();
-
-    default String getBinaryName() {
-        return getInternalName().replace('/', '.');
-    }
-
-    String getInternalName();
+enum InnerClassCategory {
+    ANONYMOUS,
+    LOCAL,
+    MEMBER
 }

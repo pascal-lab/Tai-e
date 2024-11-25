@@ -32,118 +32,8 @@ import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-enum InnerClassCategory {
-    ANONYMOUS,
-    LOCAL,
-    MEMBER
-}
-
-
-final class InnerClassDescriptor {
-    private final ITypeBinding type;
-    private List<String> synParaNames;
-    private List<ITypeBinding> synParaTypes;
-    private final boolean isStatic;
-    private final InnerClassCategory category;
-    private final Map<String, IVariableBinding> varBindingMap;
-    private final Set<IVariableBinding> capturedVars;
-    private final ITypeBinding outerClass;
-
-    /**
-     * Only used for anonymous class
-     */
-    private final ITypeBinding explicitEnclosedInstance;
-
-    InnerClassDescriptor(
-            ITypeBinding type,
-            boolean isStatic,
-            InnerClassCategory category,
-            // key is origin name, not field/captured name
-            Map<String, IVariableBinding> varBindingMap,
-            ITypeBinding outerClass,
-            ITypeBinding explicitEnclosedInstance) {
-        this.type = type;
-        this.isStatic = isStatic;
-        this.category = category;
-        this.varBindingMap = varBindingMap;
-        this.capturedVars = Sets.newSet();
-        this.outerClass = outerClass;
-        this.explicitEnclosedInstance = explicitEnclosedInstance;
-    }
-
-    public ITypeBinding type() {
-        return type;
-    }
-
-    public List<String> synParaNames() {
-        return synParaNames;
-    }
-
-    public List<ITypeBinding> synParaTypes() {
-        return synParaTypes;
-    }
-
-    public boolean isStatic() {
-        return isStatic;
-    }
-
-    public InnerClassCategory category() {
-        return category;
-    }
-
-    public Map<String, IVariableBinding> varBindingMap() {
-        return varBindingMap;
-    }
-
-    public void addNewCapture(IVariableBinding v) {
-        capturedVars.add(v);
-    }
-
-    public Set<IVariableBinding> capturedVars() {
-        return capturedVars;
-    }
-
-    public void resolveSynPara(Set<IVariableBinding> directCaptures) {
-        // should always be null, or it must be a bug
-        // (we should not call this method twice)
-        assert synParaNames == null && synParaTypes == null;
-        synParaNames = new ArrayList<>();
-        synParaTypes = new ArrayList<>();
-        if (!isStatic) {
-            // add `this` as the first parameter
-            synParaNames.add(InnerClassManager.OUTER_THIS);
-            synParaTypes.add(outerClass);
-        }
-        for (IVariableBinding v : directCaptures) {
-            String name = InnerClassManager.getCaptureName(v.getName());
-            synParaNames.add(name);
-            synParaTypes.add(v.getType());
-            varBindingMap().put(v.getName(), v);
-        }
-    }
-
-    boolean isDirectlyCaptured(IVariableBinding v) {
-        return varBindingMap().containsValue(v);
-    }
-
-    public ITypeBinding getExplicitEnclosedInstance() {
-        return explicitEnclosedInstance;
-    }
-
-    public ITypeBinding getOuterClass() {
-        return outerClass;
-    }
-
-}
-
 
 /**
  * JLS 8. chap. 8.1.3,
@@ -236,7 +126,7 @@ public class InnerClassManager {
            }
        }
 
-       Map<String, IVariableBinding> variableBindingMap = new HashMap<>();
+       Map<String, IVariableBinding> variableBindingMap = Maps.newMap();
 
        innerBindingMap.put(JDTStringReps.getBinaryName(binding),
                new InnerClassDescriptor(binding, !needSynThis, category,

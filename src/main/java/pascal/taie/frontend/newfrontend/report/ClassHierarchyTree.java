@@ -23,8 +23,8 @@
 package pascal.taie.frontend.newfrontend.report;
 
 import pascal.taie.language.classes.JClass;
+import pascal.taie.util.collection.Sets;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -34,14 +34,14 @@ public class ClassHierarchyTree {
     private final Set<JClass> classes;
 
     public ClassHierarchyTree(List<JClass> classes) {
-        this.classes = new HashSet<>(classes);
+        this.classes = Sets.newSet();
     }
 
     private Set<JClass> hasDrawn;
 
     public String toDotFile() {
-        hasDrawn = new HashSet<>();
-        Set<JClass> hasDrawnEdge = new HashSet<>();
+        hasDrawn = Sets.newSet();
+        Set<JClass> hasDrawnEdge = Sets.newSet();
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G {\n");
         sb.append("rankdir=BT;\n");

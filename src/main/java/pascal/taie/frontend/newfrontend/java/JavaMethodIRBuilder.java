@@ -185,8 +185,42 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static pascal.taie.frontend.newfrontend.java.JDTStringReps.getBinaryName;
-import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.*;
-import static pascal.taie.frontend.newfrontend.java.TypeUtils.*;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getEnumInitRef;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getInitRef;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getMethodRef;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.getNonArgInitRef;
+import static pascal.taie.frontend.newfrontend.java.MethodCallBuilder.resolveSuperInitForAnonymous;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ENUM;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ENUM_METHOD_VALUES;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ENUM_METHOD_VALUE_OF;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ENUM_VALUES;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.HAS_NEXT;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.ITERATOR;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.JDTTypeToTaieType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.JDT_INT;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.addList;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.computeIntWiden;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getAnonymousSynCtorArgName;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getArrayClone;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getClassByName;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getEnumCtorType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getEnumMethodValueOf;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getIndexOfPrimitive;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getIterableInner;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getJREMethod;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getLiteral;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getPrimitiveByIndex;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getPrimitiveByRef;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getRightPrimitiveLiteral;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getSimpleJREMethod;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getTaieClass;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.getWidenType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.isEnumType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.isSameMethod;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.isSubType;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.isSubTypeOf;
+import static pascal.taie.frontend.newfrontend.java.TypeUtils.searchMethod;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.DoubleType.DOUBLE;
 import static pascal.taie.language.type.FloatType.FLOAT;
@@ -477,8 +511,8 @@ public class JavaMethodIRBuilder {
             if (targetMethod != null) {
                 List<SingleVariableDeclaration> paraTree = targetMethod.parameters();
                 for (int i = 0; i < paraTree.size(); ++i) {
-                    SingleVariableDeclaration svd_i = paraTree.get(i);
-                    context.putBinding((IVariableBinding) svd_i.getName().resolveBinding(),
+                    SingleVariableDeclaration svdi = paraTree.get(i);
+                    context.putBinding((IVariableBinding) svdi.getName().resolveBinding(),
                             params.get(i + synParaNames.size()));
                 }
             }
@@ -1446,11 +1480,10 @@ public class JavaMethodIRBuilder {
             if (expType instanceof ReferenceType r1 &&
                     type instanceof ReferenceType r2) {
                 return convertReferenceType(exp, r1, r2);
-            }
-            // 2. if [type] is reference, and [expType] is primitive,
-            //    then try to perform boxing conversion
-            else if (expType instanceof PrimitiveType p
+            } else if (expType instanceof PrimitiveType p
                     && type instanceof ReferenceType r) {
+                // 2. if [type] is reference, and [expType] is primitive,
+                //    then try to perform boxing conversion
                 return boxingConversion(exp, p, r);
             } else {
                 // 3. if [type] is primitive, and [expType] is reference,
@@ -2021,14 +2054,12 @@ public class JavaMethodIRBuilder {
             // TODO: check [ArrayType::clone, ArrayType::length]
             if (checkInterface) {
                 exp = listCompute(args, paramsType, l -> new InvokeInterface(ref, o, l));
-            }
-            // 3. if this method is [private]
-            //    then use [InvokeSpecial]
-            else if (Modifier.isPrivate(modifier) || isSuper) {
+            } else if (Modifier.isPrivate(modifier) || isSuper) {
+                // 3. if this method is [private]
+                //    then use [InvokeSpecial]
                 exp = listCompute(args, paramsType, l -> new InvokeSpecial(ref, o, l));
-            }
-            // 4. otherwise, use [InvokeVirtual]
-            else {
+            } else {
+                // 4. otherwise, use [InvokeVirtual]
                 exp = listCompute(args, paramsType, l -> new InvokeVirtual(ref, o, l));
             }
             return exp;
@@ -2901,16 +2932,20 @@ public class JavaMethodIRBuilder {
                                 switch (opStr) {
                                     case ">":
                                         cmpOp = ComparisonExp.Op.CMPL;
-                                        condOp = ConditionExp.Op.GT; break;
+                                        condOp = ConditionExp.Op.GT;
+                                        break;
                                     case ">=":
                                         cmpOp = ComparisonExp.Op.CMPL;
-                                        condOp = ConditionExp.Op.GE; break;
+                                        condOp = ConditionExp.Op.GE;
+                                        break;
                                     case "<":
                                         cmpOp = ComparisonExp.Op.CMPG;
-                                        condOp = ConditionExp.Op.LT; break;
+                                        condOp = ConditionExp.Op.LT;
+                                        break;
                                     case "<=":
                                         cmpOp = ComparisonExp.Op.CMPG;
-                                        condOp = ConditionExp.Op.LE; break;
+                                        condOp = ConditionExp.Op.LE;
+                                        break;
                                     default: throw new UnsupportedOperationException();
                                 }
                                 context.pushStack(new ComparisonExp(cmpOp, l, r));

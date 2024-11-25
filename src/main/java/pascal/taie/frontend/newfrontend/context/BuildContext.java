@@ -102,7 +102,9 @@ public class BuildContext {
         return typeContext;
     }
 
-    public FrontendOptions getFrontendOptions() { return frontendOptions; }
+    public FrontendOptions getFrontendOptions() {
+        return frontendOptions;
+    }
 
     public JClass getClassByName(String name) {
         JClass klass = defaultClassLoader.loadClass(name);

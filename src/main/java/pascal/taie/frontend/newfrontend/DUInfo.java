@@ -23,9 +23,9 @@
 package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.ir.exp.Var;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,14 +38,14 @@ public class DUInfo {
     public DUInfo(int varCount) {
         defBlocks = new ArrayList<>(varCount);
         for (int i = 0; i < varCount; i++) {
-            defBlocks.add(new HashSet<>());
+            defBlocks.add(Sets.newSet());
         }
     }
 
     public void addDefBlock(Var v, IBasicBlock b) {
         int i = v.getIndex();
         while (i >= defBlocks.size()) {
-            defBlocks.add(new HashSet<>());
+            defBlocks.add(Sets.newSet());
         }
         defBlocks.get(i).add(b);
     }
@@ -54,7 +54,7 @@ public class DUInfo {
         int i = v.getIndex();
         while (i >= defBlocks.size()) {
             // Maybe we can directly return an empty list?
-            defBlocks.add(new HashSet<>());
+            defBlocks.add(Sets.newSet());
         }
         return defBlocks.get(i);
     }

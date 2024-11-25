@@ -65,7 +65,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     private final int[] exceptionInEdgesCount;
 
-    private final static int DEFAULT_EDGE_SIZE = 4;
+    private static final int DEFAULT_EDGE_SIZE = 4;
 
     BytecodeBlock entry;
 

@@ -40,15 +40,14 @@ import pascal.taie.project.FileResource;
 import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.Resource;
+import pascal.taie.util.collection.Maps;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,8 +86,8 @@ public class JavaClassManager {
     }
 
     private JavaClassManager() {
-        class2Source = new HashMap<>();
-        sourceFileMap = new HashMap<>();
+        class2Source = Maps.newMap();
+        sourceFileMap = Maps.newMap();
         parsed = false;
     }
 
@@ -225,7 +224,7 @@ public class JavaClassManager {
                 .toList();
         if (! errors.isEmpty()) {
             String fileName = new String(errors.get(0).getOriginatingFileName());
-            Path p = Paths.get(fileName);
+            Path p = Path.of(fileName);
             try {
                 String sourceCode = Files.readString(p);
                 for (IProblem error : errors) {

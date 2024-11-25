@@ -225,10 +225,10 @@ public class BytecodeEmitter {
         Set<Modifier> classModifiers = modifiers.stream()
                 .filter(classPermittedModifiers::contains)
                 .collect(Collectors.toSet());
-        int _access = Utils.toAsmModifier(classModifiers);
+        int accessModifiers = Utils.toAsmModifier(classModifiers);
         int access = classModifiers.contains(Modifier.INTERFACE)
-                ? _access
-                : _access | Opcodes.ACC_SUPER;
+                ? accessModifiers
+                : accessModifiers | Opcodes.ACC_SUPER;
         // TODO: this should be an parameter
         //       some class need to use V1_8
         writer.visit(Opcodes.V1_8, access,
@@ -402,8 +402,8 @@ public class BytecodeEmitter {
                         }
                     }
                 }
-            } else if (stmt instanceof New _new) {
-                NewExp newExp = _new.getRValue();
+            } else if (stmt instanceof New newStmt) {
+                NewExp newExp = newStmt.getRValue();
                 ReferenceType type = newExp.getType();
                 if (type instanceof ClassType classType) {
                     nodeList.add(new TypeInsnNode(Opcodes.NEW, getInternalName(classType.getJClass())));
@@ -436,7 +436,7 @@ public class BytecodeEmitter {
                 } else {
                     throw new IllegalArgumentException("Unknown reference type: " + type);
                 }
-                nodeList.add(emitStore(_new.getLValue()));
+                nodeList.add(emitStore(newStmt.getLValue()));
             } else if (stmt instanceof Cast cast) {
                 Var v = cast.getRValue().getValue();
                 if (cast.getRValue().getType() instanceof PrimitiveType p) {
@@ -528,12 +528,12 @@ public class BytecodeEmitter {
             Var ret = r.getValue();
             emitReturn(ret, nodeList);
         } else if (stmt instanceof JumpStmt) {
-            if (stmt instanceof If _if) {
-                ConditionExp cond = _if.getCondition();
-                LabelNode target = createLabel(_if.getTarget(), labelMap, insnMap);
+            if (stmt instanceof If ifStmt) {
+                ConditionExp cond = ifStmt.getCondition();
+                LabelNode target = createLabel(ifStmt.getTarget(), labelMap, insnMap);
                 emitCond(cond, target, nodeList);
-            } else if (stmt instanceof Goto _goto) {
-                LabelNode target = createLabel(_goto.getTarget(), labelMap, insnMap);
+            } else if (stmt instanceof Goto gotoStmt) {
+                LabelNode target = createLabel(gotoStmt.getTarget(), labelMap, insnMap);
                 nodeList.add(new JumpInsnNode(Opcodes.GOTO, target));
             } else if (stmt instanceof SwitchStmt switchStmt) {
                 nodeList.add(emitLoad(switchStmt.getVar()));
@@ -561,8 +561,8 @@ public class BytecodeEmitter {
             } else {
                 throw new IllegalArgumentException("Unknown jump statement: " + stmt);
             }
-        } else if (stmt instanceof Catch _catch) {
-            nodeList.add(emitStore(_catch.getExceptionRef()));
+        } else if (stmt instanceof Catch catchStmt) {
+            nodeList.add(emitStore(catchStmt.getExceptionRef()));
         } else if (stmt instanceof Monitor monitor) {
             int op = monitor.isEnter() ? Opcodes.MONITORENTER : Opcodes.MONITOREXIT;
             nodeList.add(emitLoad(monitor.getObjectRef()));
