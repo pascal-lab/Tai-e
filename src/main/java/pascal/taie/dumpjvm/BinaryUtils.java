@@ -31,7 +31,17 @@ import pascal.taie.language.type.VoidType;
 
 import java.util.Optional;
 
+/**
+ * Utility class for computing Java method descriptors.
+ */
 public class BinaryUtils {
+
+    /**
+     * Computes the Java method descriptor for the given type.
+     *
+     * @param type the type to compute the descriptor for
+     * @return the Java method descriptor as a string
+     */
     public static String computeDescriptor(Type type) {
         if (type instanceof ClassType) {
             return "L" + type.getName().replace('.', '/') + ";";
@@ -46,6 +56,12 @@ public class BinaryUtils {
         }
     }
 
+    /**
+     * Computes the Java primitive type descriptor for the given primitive type name.
+     *
+     * @param type the primitive type name
+     * @return the Java primitive type descriptor as an optional string.
+     */
     public static Optional<String> computePrimitive(String type) {
         return switch (type) {
             case "int"     -> Optional.of("I");
@@ -60,6 +76,12 @@ public class BinaryUtils {
         };
     }
 
+    /**
+     * Computes the Java method descriptor for the given method.
+     *
+     * @param method the method to compute the descriptor for
+     * @return the Java method descriptor as a string
+     */
     public static String computeDescriptor(JMethod method) {
         StringBuilder sb = new StringBuilder("(");
         for (int i = 0; i < method.getParamCount(); ++i) {

@@ -22,10 +22,11 @@
 
 package pascal.taie.dumpjvm;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.MethodTooLargeException;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.analysis.misc.IRDumper;
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.language.classes.JClass;
 
 import java.io.FileNotFoundException;
@@ -42,21 +43,38 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * A utility class for dumping the contents of a JAR file into a new JAR file.
+ * This class can be used to extract specific classes from a JAR file and pack them into a new JAR file.
+ */
 public class JarDumper {
+    private static final Logger logger = LogManager.getLogger(JarDumper.class);
+
+    /**
+     * The main entry point for the JarDumper class.
+     * This method takes two command-line arguments: the input JAR file path and the output JAR file path.
+     *
+     * @param args the command-line arguments (input JAR file path and output JAR file path)
+     */
     public static void main(String[] args) {
-        Path p = Path.of(args[0]);
-        Path newJar = Path.of(args[1]);
-        if (!Files.exists(p)) {
-            throw new RuntimeException("Error: The file " + p + " does not exist.");
+        if (args.length != 2) {
+            System.out.println("Usage: java JarDumper <input-jar-file> <output-jar-file>");
+            return;
         }
-        Main.buildWorld("-pp", "-acp", p.toString(),
-                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
+
+        Path inputJar = Path.of(args[0]);
+        Path outputJar = Path.of(args[1]);
+
+        if (!Files.exists(inputJar)) {
+            throw new RuntimeException("Error: The file " + inputJar + " does not exist.");
+        }
+
+        Main.buildWorld("-pp", "-acp", inputJar.toString(),
                 "--allow-phantom");
-        // convert each class in this file
+
+        // Convert each class in this file
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();
-        IRDumper dumper = new IRDumper(AnalysisConfig.of(IRDumper.ID));
-        JClass klass = World.get().getClassHierarchy().getClass("clojure.lang.WarnBoxedMath");
-        dumper.analyze(klass);
+
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");
             for (JClass jClass : classes) {
@@ -69,29 +87,38 @@ public class JarDumper {
                             BytecodeEmitter.computeInternalName(jClass) + ".class");
                     Files.createDirectories(classfilePath.getParent());
                     Files.write(classfilePath, classfileBuffer);
-                } catch (Exception e) {
-                    System.out.println("Exception while write " + jClass);
+                } catch (MethodTooLargeException e) {
+                    logger.warn("Skip {}, the output method (name: {}) too large. " +
+                                    "It's not an error, current implementation may encounter such case",
+                            jClass, e.getMethodName());
                 }
             }
-            packJar(p, tempDir, newJar);
+            packJar(inputJar, tempDir, outputJar);
             deleteDir(tempDir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
-    private static void packJar(Path oldJar, Path outputDir, Path newJar) throws IOException {
+    /**
+     * Packs the extracted classes into the output JAR file.
+     *
+     * @param inputJar  the input JAR file
+     * @param tempDir   the temporary directory containing the extracted classes
+     * @param outputJar the output JAR file
+     * @throws IOException if an I/O error occurs
+     */
+    private static void packJar(Path inputJar, Path tempDir, Path outputJar) throws IOException {
         // Copy the original JAR to the new JAR
-        Files.copy(oldJar, newJar, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(inputJar, outputJar, StandardCopyOption.REPLACE_EXISTING);
 
         // Create a file system for the new JAR
-        try (FileSystem jarFs = FileSystems.newFileSystem(newJar)) {
+        try (FileSystem jarFs = FileSystems.newFileSystem(outputJar)) {
             // Copy the files from the output directory to the JAR file system
-            Files.walkFileTree(outputDir, new SimpleFileVisitor<>() {
+            Files.walkFileTree(tempDir, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Path dest = jarFs.getPath(outputDir.relativize(file).toString());
+                    Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {
                         throw new FileNotFoundException("File " + dest + " does not exist in the JAR file");
                     }
@@ -102,6 +129,12 @@ public class JarDumper {
         }
     }
 
+    /**
+     * Deletes the temporary directory and its contents.
+     *
+     * @param dir the temporary directory to delete
+     * @throws IOException if an I/O error occurs
+     */
     private static void deleteDir(Path dir) throws IOException {
         try (Stream<Path> walk = Files.walk(dir)) {
             walk.sorted(Comparator.reverseOrder())
@@ -115,3 +148,4 @@ public class JarDumper {
         }
     }
 }
+

@@ -47,6 +47,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.frontend.newfrontend.Utils;
+import pascal.taie.frontend.newfrontend.context.TypeContext;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -120,6 +121,7 @@ import pascal.taie.language.annotation.FloatElement;
 import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -143,6 +145,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A class responsible for emitting the .class file for a given Java class.
+ */
 public class BytecodeEmitter {
     private final int classWriterOptions;
     private final ClassWriter writer;
@@ -150,7 +155,52 @@ public class BytecodeEmitter {
     private final Map<JClass, InnerClassNode> innerClassMap = Maps.newMap();
 
     public BytecodeEmitter(int classWriterOptions) {
-        writer = new ClassWriter(classWriterOptions);
+        writer = new ClassWriter(classWriterOptions) {
+            /**
+             * <p>Use Tai-e api to compute the lca (the least common ancestor) of
+             * two class types</p>
+             * <p>The default implementation provide by {@link ClassWriter}
+             * need to load computed class to the running JVM,
+             * which is not suitable for our use case.</p>
+             * <p>Our implementation is similar to asm. Though we may directly use
+             * {@link Utils#lca(TypeContext, ReferenceType, ReferenceType)}, such implementation
+             * is enough to compute the {@link org.objectweb.asm.tree.FrameNode}</p>
+             * @see ClassWriter#getCommonSuperClass(String, String)
+             */
+            @Override
+            protected String getCommonSuperClass(String type1, String type2) {
+                String t1 = type1.replace('/', '.');
+                String t2 = type2.replace('/', '.');
+
+                ClassHierarchy ch = World.get().getClassHierarchy();
+                JClass c1 = ch.getClass(t1);
+                JClass c2 = ch.getClass(t2);
+                if (c1 == null || c2 == null) {
+                    throw new UnsupportedOperationException();
+                }
+                JClass r = lca(c1, c2);
+                return r.getName().replace('.', '/');
+            }
+
+            private JClass lca(JClass c1, JClass c2) {
+                TypeContext tCtx = new TypeContext(World.get().getTypeSystem());
+                if (Utils.isAssignable(tCtx, c1.getType(), c2.getType())) {
+                    return c1;
+                } else if (Utils.isAssignable(tCtx, c2.getType(), c1.getType())) {
+                    return c2;
+                } else if (c1.isInterface() || c2.isInterface()) {
+                    return tCtx.object().getJClass();
+                } else {
+                    do {
+                        c1 = c1.getSuperClass();
+                        if (c1 == null) {
+                            throw new UnsupportedOperationException();
+                        }
+                    } while (!Utils.isAssignable(tCtx, c1.getType(), c2.getType()));
+                    return c1;
+                }
+            }
+        };
         this.classWriterOptions = classWriterOptions;
     }
 
@@ -158,6 +208,12 @@ public class BytecodeEmitter {
         this(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
     }
 
+    /**
+     * Emits the bytecode for the specified Java class.
+     *
+     * @param jClass the Java class to emit bytecode for
+     * @return the emitted classfile as a byte array
+     */
     public byte[] emit(JClass jClass) {
         if (jClass.getSuperClass() == null) {
             throw new IllegalArgumentException("Never dump java.lang.Class to bytecode");
@@ -198,7 +254,6 @@ public class BytecodeEmitter {
         }
 
         for (Annotation annotation : jClass.getAnnotations()) {
-            // TODO: it is correct?
             AnnotationVisitor annotationVisitor = writer.visitAnnotation(
                     getDescriptorByDesc(annotation.getType()), true);
             emitAnnotation(annotationVisitor, annotation);
