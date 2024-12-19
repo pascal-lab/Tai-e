@@ -141,11 +141,6 @@ The available methods are:
 * `ClassHierarchy.getMethod(String)`: Retrieves a method (`JMethod`) by its signature.
 * `ClassHierarchy.getField(String)`: Retrieves a field (`JField`) by its signature.
 
-== Signature Pattern
-Sometimes, the user need to specify multiple relevant classes or members in the configuration, e.g., <<taint-analysis#configuring-taint-analysis,taint analysis>>.
-To ease such configuration, we design and implement _signature pattern_ mechanism (akin to regular expression, tailored for class or member), which allows the user to specify multiple relevant classes or members with a single signature pattern.
-In this section, we introduce the formats of signature patterns and how to use it in analysis development.
-
 == Signature Patterns
 Sometimes, users need to specify multiple related classes or members in a configuration, such as in <<taint-analysis#configuring-taint-analysis,taint analysis>>.
 To simplify this process, we have designed and implemented the _signature pattern_ mechanism, similar to regular expressions but specifically tailored for classes and members.
@@ -155,11 +150,11 @@ In this section, we will introduce the formats of signature patterns and explain
 
 === Name Wildcards
 Signatures are composed of various names, including class names, method names, field names, and type names within method and field signatures.
-To simplify specifying these names, we introduce the concept of *name wildcards*, which are the core of signature patterns.
+To simplify specifying these names, we introduce the concept of *name wildcards*, which form the foundation of signature patterns.
 
-A name wildcard is simply a name that includes one or more `\*` characters, where each `\*` can match zero or more characters within the name.
-For example, `java.util.\*` can match the names of all classes in the `java.util` package and its sub-packages, such as `java.util.regex`.
-Similarly, `get*` can match all method names that start with `get`, like `getName` or `getKey`.
+A name wildcard is simply a name that includes one or more `\*` characters, where each `\*` can match zero or more characters in the name.
+For example, `java.util.\*` matches the names of all classes in the `java.util` package and its sub-packages, such as `java.util.regex`.
+Similarly, the wildcard `get*` matches all method names starting with `get`, such as `getName` and `getKey`.
 
 === Class Signature Pattern
 * subclass wildcard
