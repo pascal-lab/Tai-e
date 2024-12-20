@@ -264,9 +264,30 @@ public class Utils {
             }
             return new ArrayElement(elements);
         } else if (ele instanceof Type c) {
-            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
+            return toClassElement(c);
         } else {
             throw new IllegalArgumentException();
+        }
+    }
+
+    private static Element toClassElement(Type c) {
+        if (c.getDescriptor().equals("V")) {
+            // This is due to the abuse of notations in the classfile format.
+            // According to the JVM specification section 4.3, "V" is an invalid descriptor.
+            // You cannot define a value with type void; void can only be used as the return type in method descriptors.
+            // However, in the "class_info_index" defined in JVM spec 4.7.16, "V" is permitted.
+            // For example:
+            //     @MyAnnotation(type = void.class)
+            // This will be compiled to:
+            //    RuntimeVisibleAnnotations:
+            //        MyAnnotation(
+            //          type=class V
+            //        )
+            // Therefore, we need to handle this case specially, as "V" is not a valid descriptor
+            // and cannot be passed to StringReps#toTaieTypeDesc.
+            return new ClassElement("void");
+        } else {
+            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
         }
     }
 
