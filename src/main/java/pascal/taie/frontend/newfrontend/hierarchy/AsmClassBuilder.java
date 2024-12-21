@@ -64,7 +64,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static pascal.taie.frontend.newfrontend.Utils.fromAsmModifier;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmClassModifier;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmFieldModifier;
+import static pascal.taie.frontend.newfrontend.Utils.fromAsmMethodModifier;
 import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;
 import static pascal.taie.frontend.newfrontend.Utils.toElement;
 
@@ -218,7 +220,7 @@ public class AsmClassBuilder extends NewFrontendComponent
                     .map(AsmClassBuilder.this::getClassByName)
                     .toList();
 
-            modifiers = fromAsmModifier(access);
+            modifiers = fromAsmClassModifier(access);
             if (signature != null) {
                 klassGSig = GSignatures.toClassSig(modifiers.contains(Modifier.INTERFACE), signature);
             }
@@ -234,7 +236,7 @@ public class AsmClassBuilder extends NewFrontendComponent
             if (outerName != null && Objects.equals(name, currentInternalName)) {
                 outerClass = getClassByName(outerName);
                 // also, fix modifiers
-                modifiers.addAll(fromAsmModifier(access));
+                modifiers.addAll(fromAsmClassModifier(access));
             }
         }
 
@@ -263,7 +265,7 @@ public class AsmClassBuilder extends NewFrontendComponent
                 gSignature = null;
             }
             return new FVisitor(annotations -> fields.add(
-                    new JField(jClass, name, fromAsmModifier(access), type, gSignature,
+                    new JField(jClass, name, fromAsmFieldModifier(access), type, gSignature,
                             AnnotationHolder.make(annotations),
                             value == null ? null : Utils.fromObject(ctx(), value))));
         }
@@ -321,7 +323,7 @@ public class AsmClassBuilder extends NewFrontendComponent
 
         public MVisitor(int access, String name, String descriptor, String[] exceptions, MethodGSignature sig) {
             super(Opcodes.ASM9);
-            this.modifiers = fromAsmModifier(access);
+            this.modifiers = fromAsmMethodModifier(access);
             this.methodName = name;
             this.exceptions = new ArrayList<>();
             if (exceptions != null) {

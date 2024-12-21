@@ -94,6 +94,7 @@ import pascal.taie.util.collection.Sets;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -150,17 +151,37 @@ public class Utils {
         return res;
     }
 
-    static final Set<Modifier> pub = Set.of(Modifier.PUBLIC);
-    static final Set<Modifier> pri = Set.of(Modifier.PRIVATE);
-    static final Set<Modifier> pro = Set.of(Modifier.PROTECTED);
-    static final Set<Modifier> sta = Set.of(Modifier.STATIC);
-    static final Set<Modifier> pubFinal = Set.of(Modifier.PUBLIC, Modifier.FINAL);
-    static final Set<Modifier> priFinal = Set.of(Modifier.PRIVATE, Modifier.FINAL);
-    static final Set<Modifier> proFinal = Set.of(Modifier.PROTECTED, Modifier.FINAL);
+    static final Set<Modifier> pub = EnumSet.of(Modifier.PUBLIC);
+    static final Set<Modifier> pri = EnumSet.of(Modifier.PRIVATE);
+    static final Set<Modifier> pro = EnumSet.of(Modifier.PROTECTED);
+    static final Set<Modifier> sta = EnumSet.of(Modifier.STATIC);
+    static final Set<Modifier> pubFinal = EnumSet.of(Modifier.PUBLIC, Modifier.FINAL);
+    static final Set<Modifier> priFinal = EnumSet.of(Modifier.PRIVATE, Modifier.FINAL);
+    static final Set<Modifier> proFinal = EnumSet.of(Modifier.PROTECTED, Modifier.FINAL);
+
+    static final List<Modifier> classModifiers = List.of(
+            Modifier.PUBLIC,    Modifier.FINAL,      Modifier.INTERFACE, Modifier.ABSTRACT,
+            Modifier.SYNTHETIC, Modifier.ANNOTATION, Modifier.ENUM);
+    static final int[] classAsmModifiers =
+            classModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
+
+    static final List<Modifier> fieldModifiers = List.of(
+            Modifier.PUBLIC, Modifier.PRIVATE,  Modifier.PROTECTED, Modifier.STATIC,
+            Modifier.FINAL,  Modifier.VOLATILE, Modifier.TRANSIENT, Modifier.SYNTHETIC,
+            Modifier.ENUM);
+    static final int[] fieldAsmModifiers =
+            fieldModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
+
+    static final List<Modifier> methodModifiers = List.of(
+            Modifier.PUBLIC, Modifier.PRIVATE,      Modifier.PROTECTED, Modifier.STATIC,
+            Modifier.FINAL,  Modifier.SYNCHRONIZED, Modifier.BRIDGE,    Modifier.VARARGS,
+            Modifier.NATIVE, Modifier.ABSTRACT,     Modifier.STRICTFP,  Modifier.SYNTHETIC);
+    static final int[] methodAsmModifiers =
+            methodModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
 
 
-    public static Set<Modifier> fromAsmModifier(int opcodes) {
-        // shortcuts
+    public static Set<Modifier> fromAsmModifiers(int opcodes, int[] asmModifiers,
+                                                 List<Modifier> taieModifiers) {
         switch (opcodes) {
             case Opcodes.ACC_PUBLIC:
                 return pub;
@@ -177,63 +198,25 @@ public class Utils {
             case Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL:
                 return proFinal;
         }
-
-        Set<Modifier> res = Sets.newSet();
-        if (hasAsmModifier(opcodes, Opcodes.ACC_PUBLIC)) {
-            res.add(Modifier.PUBLIC);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_PRIVATE)) {
-            res.add(Modifier.PRIVATE);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_PROTECTED)) {
-            res.add(Modifier.PROTECTED);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_STATIC)) {
-            res.add(Modifier.STATIC);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_FINAL)) {
-            res.add(Modifier.FINAL);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_SYNCHRONIZED)) {
-            res.add(Modifier.SYNCHRONIZED);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_VOLATILE)) {
-            res.add(Modifier.VOLATILE);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_TRANSIENT)) {
-            res.add(Modifier.TRANSIENT);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_NATIVE)) {
-            res.add(Modifier.NATIVE);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_INTERFACE)) {
-            res.add(Modifier.INTERFACE);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_ABSTRACT)) {
-            res.add(Modifier.ABSTRACT);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_STRICT)) {
-            res.add(Modifier.STRICTFP);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_BRIDGE)) {
-            res.add(Modifier.BRIDGE);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_VARARGS)) {
-            res.add(Modifier.VARARGS);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_SYNTHETIC)) {
-            res.add(Modifier.SYNTHETIC);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_ANNOTATION)) {
-            res.add(Modifier.ANNOTATION);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_ENUM)) {
-            res.add(Modifier.ENUM);
-        }
-        if (hasAsmModifier(opcodes, Opcodes.ACC_MANDATED)) {
-            res.add(Modifier.MANDATED);
+        Set<Modifier> res = EnumSet.noneOf(Modifier.class);
+        for (int i = 0; i < taieModifiers.size(); i++) {
+            if ((opcodes & asmModifiers[i]) != 0) {
+                res.add(taieModifiers.get(i));
+            }
         }
         return res;
+    }
+
+    public static Set<Modifier> fromAsmClassModifier(int opcodes) {
+        return fromAsmModifiers(opcodes, classAsmModifiers, classModifiers);
+    }
+
+    public static Set<Modifier> fromAsmFieldModifier(int opcodes) {
+        return fromAsmModifiers(opcodes, fieldAsmModifiers, fieldModifiers);
+    }
+
+    public static Set<Modifier> fromAsmMethodModifier(int opcodes) {
+        return fromAsmModifiers(opcodes, methodAsmModifiers, methodModifiers);
     }
 
     /**
