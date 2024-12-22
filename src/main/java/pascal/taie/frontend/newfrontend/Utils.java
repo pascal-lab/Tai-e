@@ -637,12 +637,6 @@ public class Utils {
     }
 
     private static boolean isSubclass(ClassType supertype, ClassType subtype) {
-        // disable type checking for phantom
-        if (World.get().getOptions().isAllowPhantom()) {
-            if (supertype.getJClass().isPhantom() || subtype.getJClass().isPhantom()) {
-                return true;
-            }
-        }
         JClass subClass = subtype.getJClass();
         assert subClass != null;
         JClass superClass = supertype.getJClass();
