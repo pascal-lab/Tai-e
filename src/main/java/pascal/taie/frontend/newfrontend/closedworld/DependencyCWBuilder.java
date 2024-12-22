@@ -223,16 +223,22 @@ public class DependencyCWBuilder extends NewFrontendComponent
                 return null;
             }
             if (World.get().getOptions().isAllowPhantom()) {
-                return null;
+                ResolveResult res = DependencyResolver.resolvePhantom(internalName);
+                noticeSource(res);
+                return res;
             }
             throw new ClassNotFoundException(internalName);
         } else {
              ResolveResult depAndSources =
                     DependencyResolver.resolve(project, internalName, f);
-            for (Pair<String, ClassSource> source : depAndSources.resolvedSource()) {
-                sourceMap.put(source.first(), source.second());
-            }
-            return depAndSources;
+             noticeSource(depAndSources);
+             return depAndSources;
+        }
+    }
+
+    private void noticeSource(ResolveResult result) {
+        for (Pair<String, ClassSource> source : result.resolvedSource()) {
+            sourceMap.put(source.first(), source.second());
         }
     }
 

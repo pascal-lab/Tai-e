@@ -30,6 +30,7 @@ import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.frontend.newfrontend.javac.JavacSourceHandler;
+import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
 import pascal.taie.project.AnalysisFile;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.JavaSourceFile;
@@ -52,6 +53,12 @@ class DependencyResolver {
         } else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    static ResolveResult
+    resolvePhantom(String binaryName) {
+        return new ResolveResult(List.of(), List.of(new Pair<>(binaryName,
+                new PhantomClassSource(binaryName.replace('/', '.'), false))));
     }
 
     private static ResolveResult

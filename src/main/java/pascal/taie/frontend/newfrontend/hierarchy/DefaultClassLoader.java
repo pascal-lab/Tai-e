@@ -56,24 +56,31 @@ public class DefaultClassLoader extends NewFrontendComponent
     @Override
     public JClass loadClass(String name, boolean allowPhantom) {
         JClass jclass = mapping.get(name);
-        if (jclass == null && this.allowPhantom && allowPhantom) {
-            synchronized (phantomLock) {
-                jclass = mapping.get(name);
-                if (jclass == null) {
-                    // phantom class
-                    // what should a moduleName for a phantom class be?
-                    jclass = new JClass(this, name, null);
-                    mapping.put(name, jclass); // mapping itself is a concurrent map
-                    new PhantomClassBuilder(ctx(), name).build(jclass);
-                    // Here is the only point where hierarchy could be concurrently added
-                    // if there is no mutex.
-                    hierarchy.addClass(jclass);
-                }
-            }
-        }
+        // Disable phantom class creating with this function
+//        if (jclass == null && this.allowPhantom && allowPhantom
+//            && !getTaiePhase().equals(TaiePhase.RUNNING)) {
+//            return loadPhantomClass(name);
+//        }
 
         // TODO: add warning for missing classes
         return jclass;
+    }
+
+    public JClass loadPhantomClass(String name) {
+        synchronized (phantomLock) {
+            JClass jclass = mapping.get(name);
+            if (jclass == null) {
+                // phantom class
+                // what should a moduleName for a phantom class be?
+                jclass = new JClass(this, name, null);
+                mapping.put(name, jclass); // mapping itself is a concurrent map
+                new PhantomClassBuilder(ctx(), name).build(jclass);
+                // Here is the only point where hierarchy could be concurrently added
+                // if there is no mutex.
+                hierarchy.addClass(jclass);
+            }
+            return jclass;
+        }
     }
 
     public void setMapping(Map<String, JClass> mapping) {
