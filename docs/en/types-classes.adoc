@@ -173,17 +173,100 @@ Class signature patterns come in two forms:
 The subclass pattern is particularly useful when you need to capture an entire class hierarchy without listing each class individually.
 
 === Method Signature Pattern
-* type signature pattern
-* parameter wildcard (repetition)
+
+Method signature patterns follow a format similar to method signatures but with added flexibility to match multiple methods. The general format is:
+
+[source]
+----
+<CLASS_PATTERN: RETURN_TYPE_PATTERN METHOD_NAME_PATTERN(PARAMETER_TYPE_PATTERNS)>
+----
+
+Each component of the method signature pattern supports different matching mechanisms:
+
+* `CLASS_PATTERN`: Can be a class signature pattern (basic or subclass pattern).
+* `RETURN_TYPE_PATTERN`: A type signature pattern.
+* `METHOD_NAME_PATTERN`: Can be a name wildcard.
+* `PARAMETER_TYPE_PATTERNS`: A `,`-separated list of type signature patterns (no spaces around `,`), which also supports parameter wildcards.
+
+**Type Signature Patterns**:
+
+- For class types, they are equivalent to class patterns.
+- For other types, they use simple name wildcard matching.
+
+**Parameter Wildcards**:
+Method signature patterns support parameter wildcards, allowing you to specify repetition of type signature patterns.
+There are three types of repetition:
+
+1. Repeat exactly N times: `TYPE_PATTERN{N}`
+2. Repeat at least N times: `TYPE_PATTERN{N+}`
+3. Repeat between M and N times: `TYPE_PATTERN{M-N}`
+
+Here are some examples of method signature patterns:
+
+[source]
+----
+<java.util.List^: * get*(*)>
+----
+This pattern matches all methods in `List` and its implementations that start with `get` and have one parameter of any type.
+
+[source]
+----
+<java.lang.*: void set*(java.lang.String,*)>
+----
+This pattern matches all methods in classes directly under the `java.lang` package that start with `set`, return `void`, and have two parameters: a `String` and any other type.
+
+[source]
+----
+<*: java.lang.String toString()>
+----
+This pattern matches `toString` methods that return `String` and have no parameters, in any class.
+
+[source]
+----
+<java.util.Map^: * *(java.lang.Object^,*)>
+----
+This pattern matches all methods in `Map` and its implementations that have two parameters: the first being `Object` or any of its subclasses, and the second being any type.
+
+[source]
+----
+<java.lang.String: * format(java.lang.String,java.lang.Object^{0+})>
+----
+This pattern matches `format` methods in the `String` class that take a `String` parameter followed by zero or more `Object` (or subclass) parameters.
+
+[source]
+----
+<java.util.Arrays: * asList(java.lang.Object{1-5})>
+----
+This pattern matches `asList` methods in the `Arrays` class that take between 1 and 5 `Object` parameters.
+
+Method signature patterns provide a powerful way to specify groups of related methods across multiple classes, greatly simplifying configuration in various analyses.
+The addition of parameter wildcards further enhances this flexibility, allowing for precise matching of methods with varying numbers of parameters.
 
 === Field Signature Pattern
-The format of field signature pattern is simpler than method signature pattern, since a field signature is essentially a method signature without parameter list.
+
+Field signature patterns follow a format similar to field signatures but with added flexibility to match multiple fields.
+The format of a field signature pattern is:
+
+[source]
+----
+<CLASS_PATTERN: FIELD_TYPE_PATTERN FIELD_NAME_PATTERN>
+----
+
+This format is simpler than the method signature pattern, as field signatures do not include a parameter list.
+Each component (`CLASS_PATTERN`, `FIELD_TYPE_PATTERN`, and `FIELD_NAME_PATTERN`) supports the same matching mechanisms as in method signature patterns.
+
+Example:
+[source]
+----
+<java.util.List^: * size>
+----
+This pattern matches the `size` field in `java.util.List` and its subclasses, regardless of the field's type.
 
 === Programmatically Accessing Multiple Classes or Members via Signature Pattern
 Tai-e provides convenient APIs for analysis developers to retrieve multiple classes or members using signature patterns.
 To use these, developers first create a `pascal.taie.language.classes.SignatureMatcher` object, passing a `ClassHierarchy` as an argument.
 They can then use the following APIs:
 
-* `SignatureMatcher.getClasses(String)`: Retrieves classes (`JClass`) based on the specified signature pattern.
-* `SignatureMatcher.getMethods(String)`: Retrieves methods (`JMethod`) based on the specified signature pattern.
-* `SignatureMatcher.getFields(String)`: Retrieves fields (`JField`) based on the specified signature pattern.
+* `SignatureMatcher.getClasses(String)`: Retrieves classes (`JClass`) based on the specified class signature pattern.
+* `SignatureMatcher.getMethods(String)`: Retrieves methods (`JMethod`) based on the specified method signature pattern.
+* `SignatureMatcher.getFields(String)`: Retrieves fields (`JField`) based on the specified field signature pattern.
