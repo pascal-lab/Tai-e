@@ -43,10 +43,10 @@ Here are some examples:
 * `char[]`
 
 === Void Type
-The signature for the void type is simply void. This appears in <<Method Signature,Method Signature>> for methods that do not return a value.
+The signature for the void type is simply `void`. This appears in <<Method Signature,Method Signature>> for methods that do not return a value.
 
 === Programmatically Accessing a Type via Signature
-For analysis developers, Tai-e provides convenient APIs to access various types. All the classes related to types, mentioned below, are located in the `pascal.taie.language.type package`.
+For analysis developers, Tai-e provides convenient APIs to access various types. All the classes related to types, mentioned below, are located in the `pascal.taie.language.type` package.
 
 In Tai-e, the `TypeSystem` class (accessible via `World.get().getTypeSystem()`) offers APIs to retrieve all types (except `void`, which is discussed later):
 
@@ -59,7 +59,7 @@ Additionally, primitive types and the `void` type are implemented as enums in Ta
 
 == Class and Class Member Signatures
 In this section, we introduce the signatures for classes and their members, specifically methods and fields.
-While constructors are typically considered class members, in Tai-e, they are treated as methods with a special name, as explained in <<Method Signatures,Method Signatures>>.
+While constructors are typically considered class members, in Tai-e, they are treated as methods with a special name `<init>`, as explained in <<Method Signatures,Method Signatures>>.
 
 === Class Signatures
 Unsurprisingly, the format for class signatures is identical to that of <<Class Types (Including Interfaces and Enums),class types>>, so we won’t repeat the details here.
@@ -144,20 +144,33 @@ The available methods are:
 == Signature Patterns
 Sometimes, users need to specify multiple related classes or members in a configuration, such as in <<taint-analysis#configuring-taint-analysis,taint analysis>>.
 To simplify this process, we have designed and implemented the _signature pattern_ mechanism, similar to regular expressions but specifically tailored for classes and members.
-This allows users to specify multiple related classes or members using a single signature pattern.
+This allows users to conveniently specify multiple related classes or members using a single signature pattern.
 
 In this section, we will introduce the formats of signature patterns and explain how to use them in analysis development.
 
 === Name Wildcards
 Signatures are composed of various names, including class names, method names, field names, and type names within method and field signatures.
 To simplify specifying these names, we introduce the concept of *name wildcards*, which form the foundation of signature patterns.
+A name wildcard is any name that contains zero or more `\*` characters, where each `\*` can match any sequence of characters.
 
-A name wildcard is simply a name that includes one or more `\*` characters, where each `\*` can match zero or more characters in the name.
-For example, `java.util.\*` matches the names of all classes in the `java.util` package and its sub-packages, such as `java.util.regex`.
-Similarly, the wildcard `get*` matches all method names starting with `get`, such as `getName` and `getKey`.
+Here are some examples:
+
+* `java.util.\*` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
+* `get*` matches all method names that start with `get` (like `getName` or `getKey`)
+* Names without any `\*` characters match exactly (like `toString` only matches the `toString` methods)
 
 === Class Signature Pattern
-* subclass wildcard
+Class signature patterns come in two forms:
+
+1. **Basic Pattern**: A name wildcard that directly matches class names.
+* Example: `java.util.*` matches all classes in the `java.util` package
+* Example: `java.util.HashMap` matches exactly that class
+
+2. **Subclass Pattern**: A name wildcard followed by `^` that matches both the specified classes and all their subclasses.
+* Example: `java.util.List^` matches `List` and all classes that extend or implement it
+* Example: `java.lang.*Exception^` matches all exception classes in the `java.lang` package and their subclasses, including classes like `RuntimeException`, `IllegalArgumentException`, and any custom exceptions that extend these classes
+
+The subclass pattern is particularly useful when you need to capture an entire class hierarchy without listing each class individually.
 
 === Method Signature Pattern
 * type signature pattern
