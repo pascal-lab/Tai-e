@@ -1,0 +1,27 @@
+sources:
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.Set getFieldNamesCollection()>", index: result, type: "java.util.Set" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.Enumeration getFieldNames()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.lang.String getStringField(org.eclipse.jetty.http.HttpHeader)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.lang.String get(org.eclipse.jetty.http.HttpHeader)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.lang.String getStringField(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.lang.String get(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.List getCSV(org.eclipse.jetty.http.HttpHeader,boolean)>", index: result, type: "java.util.List" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.List getCSV(java.lang.String,boolean)>", index: result, type: "java.util.List" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.List getQualityCSV(org.eclipse.jetty.http.HttpHeader)>", index: result, type: "java.util.List" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.List getQualityCSV(java.lang.String)>", index: result, type: "java.util.List" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.Enumeration getValues(java.lang.String)>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.util.Enumeration getValues(java.lang.String,java.lang.String)>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpFields: java.lang.String valueParameters(java.lang.String,java.util.Map)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpField: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpField: java.lang.String getValue()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpField: java.lang.String[] getValues()>", index: result, type: "java.lang.String[]" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpField: java.lang.String toString()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getValue()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String asString()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpURI: java.lang.String getParam()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpURI: java.lang.String getQuery()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpURI: java.lang.String getHost()>", index: result, type: "java.lang.String" }

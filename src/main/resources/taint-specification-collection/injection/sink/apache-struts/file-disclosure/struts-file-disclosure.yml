@@ -1,0 +1,6 @@
+sinks:
+  - { method: "<org.apache.struts.action.ActionForward: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts.action.ActionForward: void <init>(java.lang.String,boolean)>", index: 1 }
+  - { method: "<org.apache.struts.action.ActionForward: void <init>(java.lang.String,java.lang.String,boolean)>", index: 1 }
+  - { method: "<org.apache.struts.action.ActionForward: void <init>(java.lang.String,java.lang.String,boolean,boolean)>", index: 2 }
+  - { method: "<org.apache.struts.action.ActionForward: void setPath(java.lang.String)>", index: 0 }

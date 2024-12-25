@@ -1,0 +1,13 @@
+sinks:
+  - { method: "<org.apache.commons.logging.Log: void debug(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void debug(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.commons.logging.Log: void error(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void error(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.commons.logging.Log: void fatal(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void fatal(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.commons.logging.Log: void info(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void info(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.commons.logging.Log: void trace(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void trace(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.commons.logging.Log: void warn(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.logging.Log: void warn(java.lang.Object,java.lang.Throwable)>", index: 1 }

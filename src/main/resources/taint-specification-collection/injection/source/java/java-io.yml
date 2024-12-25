@@ -1,0 +1,8 @@
+sources:
+  - { kind: call, method: "<java.io.BufferedReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.Console: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.Console: java.lang.String readLine(java.lang.String,java.lang.Object[])>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.DataInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF(java.io.DataInput)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.LineNumberReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }

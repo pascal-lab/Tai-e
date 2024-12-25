@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The APIs in this directory provide various ways to execute SQL queries and return results. These methods are used for interacting with databases by executing SQL queries to retrieve data.
+
+- **Common Use Cases**:
+    These APIs are commonly used for handling user input for data queries and SQL query execution, where users typically have some control over the parameters.
+
+- **Security Risks**:
+    SQL Injection: Attackers can craft malicious inputs to insert SQL commands, allowing them to manipulate the database.

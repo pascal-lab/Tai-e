@@ -1,0 +1,4 @@
+sources:
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getSelectedText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.swing.text.JTextComponent: java.lang.String getText(int,int)>", index: result, type: "java.lang.String" }

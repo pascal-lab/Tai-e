@@ -1,0 +1,8 @@
+= Description
+
+The Sources recorded in this directory primarily come from the Java standard library. The source methods that can cause taint include:
+- Methods that retrieve properties from the incoming request (e.g., getContent, getRemoteSocketAddress)
+- Methods that take external input (e.g., getSelectedText, readLine)
+- ...
+
+These inputs are provided externally and can be spoofed.

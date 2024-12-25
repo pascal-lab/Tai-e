@@ -1,0 +1,13 @@
+sinks:
+  - { method: "<javax.servlet.http.Cookie: void <init>(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.Cookie: void <init>(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<javax.servlet.http.Cookie: void setValue(java.lang.String)>", index: 0 }
+
+  - { method: "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponse: void addHeader(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponse: void setHeader(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void addHeader(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void addHeader(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void setHeader(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void setHeader(java.lang.String,java.lang.String)>", index: 1 }

@@ -1,0 +1,8 @@
+= Description
+
+The Sources recorded in this directory primarily come from Jetty. The source methods that can cause taint include:
+- Methods that take the incoming request as a parameter (e.g., handle)
+- Methods that retrieve properties from the incoming request (e.g., getParam, getQuery)
+- ...
+
+These inputs are provided externally and can be spoofed.

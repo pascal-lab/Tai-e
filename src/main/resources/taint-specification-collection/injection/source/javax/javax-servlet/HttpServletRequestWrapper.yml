@@ -1,0 +1,20 @@
+sources:
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getContentType()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: javax.servlet.http.Cookie[] getCookies()>", index: result, type: "javax.servlet.http.Cookie[]" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getHeader(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.util.Enumeration getHeaderNames()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.util.Enumeration getHeaders(java.lang.String)>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getLocalName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getParameter(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.util.Map getParameterMap()>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.util.Enumeration getParameterNames()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String[] getParameterValues(java.lang.String)>", index: result, type: "java.lang.String[]" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getPathInfo()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getPathTranslated()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getQueryString()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getRemoteHost()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getRemoteUser()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getRequestURI()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.StringBuffer getRequestURL()>", index: result, type: "java.lang.StringBuffer" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getServerName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.HttpServletRequestWrapper: java.lang.String getServletPath()>", index: result, type: "java.lang.String" }

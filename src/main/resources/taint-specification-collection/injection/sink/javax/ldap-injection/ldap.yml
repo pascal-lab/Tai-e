@@ -1,0 +1,54 @@
+sinks:
+  - { method: "<javax.naming.ldap.LdapName: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.Context: java.lang.Object lookup(java.lang.String)>", index: 0 }
+
+  - { method: "<javax.naming.directory.DirContext: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.DirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<javax.naming.directory.InitialDirContext: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.directory.InitialDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<javax.naming.ldap.LdapContext: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.LdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<javax.naming.ldap.InitialLdapContext: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.ldap.InitialLdapContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<javax.naming.event.EventDirContext: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<javax.naming.event.EventDirContext: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<com.sun.jndi.ldap.LdapCtx: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(javax.naming.Name,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 1 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
+  - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
+
+  - { method: "<com.unboundid.ldap.sdk.LDAPConnection: com.unboundid.ldap.sdk.SearchResult search(java.lang.String,com.unboundid.ldap.sdk.SearchScope,java.lang.String,java.lang.String[])>", index: 1 } # the size of para?
+  - { method: "<com.unboundid.ldap.sdk.LDAPConnection: com.unboundid.ldap.sdk.SearchResult search(java.lang.String,com.unboundid.ldap.sdk.SearchScope,java.lang.String,java.lang.String[])>", index: 3 }

@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The Java standard library provides a set of formatting and output APIs that are used to format data into specific string forms and output these strings to various targets.
+
+- **Common Use Cases**:
+    These APIs are commonly used to format strings, write text to output streams, and other similar tasks.
+
+- **Security Risks**:
+    XSS (Cross-Site Scripting) Attacks: If the formatted string or parameters include user input data and are not properly encoded, it may lead to XSS vulnerabilities. For example, if user input contains a `<script>` tag, it may be rendered and executed.

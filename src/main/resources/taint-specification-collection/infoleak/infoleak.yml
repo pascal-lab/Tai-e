@@ -1,0 +1,5 @@
+- bugType: io_leak
+  severity: CRITICAL
+  description: Find potential io_leak
+  configPath: src/main/resources/security/taint/infoleak/config/sink/io.yml
+

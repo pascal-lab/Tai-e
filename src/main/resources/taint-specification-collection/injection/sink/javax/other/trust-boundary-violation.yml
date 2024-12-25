@@ -1,0 +1,6 @@
+sinks:
+  - { method: "<javax.servlet.http.HttpSession: void setAttribute(java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<javax.servlet.http.HttpSession: void putValue(java.lang.String,java.lang.Object)>", index: 1 }
+
+  - { method: "<javax.servlet.http.HttpSession: void setAttribute(java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpSession: void putValue(java.lang.String,java.lang.Object)>", index: 0 }

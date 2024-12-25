@@ -1,0 +1,11 @@
+= Description
+
+- **Overview**: 
+    These APIs are methods from the Apache Struts framework, used for creating and manipulating `ActionForward` objects. `ActionForward` is a class in Apache Struts used to specify the forwarding path for a request.
+
+- **Common Use Cases**:
+    These APIs are commonly used to create and manipulate `ActionForward` objects, specifying forwarding paths and determining whether a redirect is needed.
+
+- **Security Risks**:
+    File Disclosure: Once an attacker can control the creation of `ActionForward` objects, they can craft malicious requests to modify the forwarding path, potentially gaining access to sensitive files such as configuration files, application class files, or JAR files.
+

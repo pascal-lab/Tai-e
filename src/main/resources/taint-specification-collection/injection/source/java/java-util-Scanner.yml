@@ -1,0 +1,12 @@
+sources:
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.File)>", index: 0, type: "java.io.File" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.File,java.lang.String)>", index: 0, type: "java.io.File" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.InputStream)>", index: 0, type: "java.io.InputStream" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.io.InputStream,java.lang.String)>", index: 0, type: "java.io.InputStream" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.file.Path)>", index: 0, type: "java.nio.file.Path" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.file.Path,java.lang.String)>", index: 0, type: "java.nio.file.Path" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.lang.Readable)>", index: 0, type: "java.lang.Readable" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.channels.ReadableByteChannel)>", index: 0, type: "java.nio.channels.ReadableByteChannel" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.nio.channels.ReadableByteChannel,java.lang.String)>", index: 0, type: "java.nio.channels.ReadableByteChannel" }
+  - { kind: call, method: "<java.util.Scanner: void <init>(java.lang.String)>", index: 0, type: "java.lang.String" }
+

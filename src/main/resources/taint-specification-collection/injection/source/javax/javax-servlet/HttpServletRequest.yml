@@ -1,0 +1,44 @@
+sources:
+  # interface
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getParameter(java.lang.String)>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getHeader(java.lang.String)>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.util.Enumeration getHeaders(java.lang.String)>", index: result, type: "java.util.Enumeration" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.util.Enumeration getHeaderNames()>", index: result, type: "java.util.Enumeration" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getContextPath()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: javax.servlet.http.Cookie[] getCookies()>", index: result, type: "javax.servlet.http.Cookie[]" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getPathInfo()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getPathTranslated()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRemoteUser()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestedSessionId()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestURI()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRequestURL()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletPath()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getAuthType()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getMethod()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRemoteAddr()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRemoteHost()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getLocalAddr()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getLocalName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getProtocol()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getScheme()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServerName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getContentType()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getCharacterEncoding()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getLocalPort()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRemotePort()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServerPort()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getRealPath(java.lang.String)>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletContext()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletInfo()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletContext()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletInfo()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletContext()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletInfo()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletContext()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletInfo()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.http.HttpServletRequest: java.lang.String getServletContext()>", index: result, type: "java.lang.String" }
+

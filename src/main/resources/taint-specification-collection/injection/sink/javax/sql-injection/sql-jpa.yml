@@ -1,0 +1,7 @@
+sinks:
+  # interface
+  # - { method: "<javax.persistence.EntityManager: javax.persistence.Query createQuery(java.lang.String)>", index: 0 }
+  # - { method: "<javax.persistence.EntityManager: javax.persistence.TypedQuery createQuery(java.lang.String,java.lang.Class)>", index: 1 }
+  # - { method: "<javax.persistence.EntityManager: javax.persistence.Query createNativeQuery(java.lang.String)>", index: 0 }
+  # - { method: "<javax.persistence.EntityManager: javax.persistence.Query createNativeQuery(java.lang.String,java.lang.String)>", index: 1 }
+  # - { method: "<javax.persistence.EntityManager: javax.persistence.Query createNativeQuery(java.lang.String,java.lang.Class)>", index: 1 }

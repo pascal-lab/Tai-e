@@ -1,0 +1,11 @@
+sources:
+  # interface
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getContentType()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getLocalAddr()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getLocalName()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getParameter(java.lang.String)>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.util.Map getParameterMap()>", index: result, type: "java.util.Map" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.util.Enumeration getParameterNames()>", index: result, type: "java.util.Enumeration" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String[] getParameterValues(java.lang.String)>", index: result, type: "java.lang.String[]" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getRemoteHost()>", index: result, type: "java.lang.String" }
+  # - { kind: call, method: "<javax.servlet.ServletRequest: java.lang.String getServerName()>", index: result, type: "java.lang.String" }

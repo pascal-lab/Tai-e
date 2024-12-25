@@ -1,0 +1,14 @@
+sources:
+  - { kind: call, method: "<javax.portlet.ActionRequest: java.io.BufferedReader getReader()>", index: result, type: "java.io.BufferedReader" }
+  - { kind: call, method: "<javax.portlet.ActionRequest: java.lang.String getCharacterEncoding()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.ActionRequest: java.lang.String getContentType()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<javax.portlet.ClientDataRequest: java.io.InputStream getPortletInputStream()>", index: result, type: "java.io.InputStream" }
+  - { kind: call, method: "<javax.portlet.ClientDataRequest: java.io.BufferedReader getReader()>", index: result, type: "java.io.BufferedReader" }
+  - { kind: call, method: "<javax.portlet.ClientDataRequest: java.lang.String getContentType()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<javax.portlet.RenderRequest: java.lang.String getETag()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<javax.portlet.ResourceRequest: java.lang.String getETag()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.ResourceRequest: java.lang.String getResourceID()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.ResourceRequest: java.util.Map getPrivateRenderParameterMap()>", index: result, type: "java.util.Map" }

@@ -1,0 +1,28 @@
+sources:
+  - { kind: call, method: "<org.apache.wicket.protocol.http.request.WebClientInfo: java.lang.String getUserAgent()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.request.WebClientInfo: java.lang.String getUserAgentStringLc()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.request.WebClientInfo: java.lang.String getRemoteAddr(org.apache.wicket.request.cycle.RequestCycle)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.apache.wicket.request.http.WebRequest: java.util.List getHeaders(java.lang.String)>", index: result, type: "java.util.List" }
+  - { kind: call, method: "<org.apache.wicket.request.http.WebRequest: java.lang.String getHeader(java.lang.String)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorAppCodeName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorAppName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorAppVersion()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorLanguage()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorPlatform()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getNavigatorUserAgent()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getRemoteAddress()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.ClientProperties: java.lang.String getHostname()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.apache.wicket.request.IRequestParameters: java.util.Set getParameterNames()>", index: result, type: "java.util.Set" }
+  - { kind: call, method: "<org.apache.wicket.request.IRequestParameters: org.apache.wicket.util.string.StringValue getParameterValue(java.lang.String)>", index: result, type: "org.apache.wicket.util.string.StringValue" }
+  - { kind: call, method: "<org.apache.wicket.request.IRequestParameters: java.util.List getParameterValues(java.lang.String)>", index: result, type: "java.util.List" }
+
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: java.lang.String getFileName(javax.servlet.http.Part)>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: byte[] get()>", index: result, type: "byte[]" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: java.lang.String getString(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: java.lang.String getString()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.apache.wicket.protocol.http.servlet.ServletPartFileItem: java.io.InputStream getInputStream()>", index: result, type: "java.io.InputStream" }

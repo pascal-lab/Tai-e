@@ -1,0 +1,7 @@
+sinks:
+  # interface
+  # - { method: "<javax.xml.xpath.XPath: javax.xml.xpath.XPathExpression compile(java.lang.String)>", index: 0 }
+  # - { method: "<javax.xml.xpath.XPath: java.lang.String evaluate(java.lang.String,java.lang.Object)>", index: 1 }
+  # - { method: "<javax.xml.xpath.XPath: java.lang.Object evaluate(java.lang.String,java.lang.Object,javax.xml.namespace.QName)>", index: 2 }
+  # - { method: "<javax.xml.xpath.XPath: java.lang.String evaluate(java.lang.String,org.xml.sax.InputSource)>", index: 1 }
+  # - { method: "<javax.xml.xpath.XPath: java.lang.Object evaluate(java.lang.String,org.xml.sax.InputSource,javax.xml.namespace.QName)>", index: 2 }

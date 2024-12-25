@@ -1,0 +1,26 @@
+sources:
+  - { kind: call, method: "<java.net.URL: java.lang.Object getContent()>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.net.URL: java.lang.Object getContent(java.lang.Class[])>", index: result, type: "java.lang.Object" }
+
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getComment()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getCommentURL()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getDiscard()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getDomain()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getMaxAge()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getPath()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getPortlist()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getSecure()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getValue()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getVersion()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.net.HttpCookie: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  
+  - { kind: call, method: "<java.net.CookieHandler: java.util.Map get(java.net.URI,java.util.Map)>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<java.net.CookieManager: java.util.Map get(java.net.URI,java.util.Map)>", index: result, type: "java.util.Map" }
+  
+  - { kind: call, method: "<java.net.DatagramPacket: java.net.InetAddress getAddress()>", index: result, type: "java.net.InetAddress" }
+  - { kind: call, method: "<java.net.DatagramPacket: byte[] getData()>", index: result, type: "byte[]" }
+  - { kind: call, method: "<java.net.DatagramPacket: java.net.SocketAddress getSocketAddress()>", index: result, type: "java.net.SocketAddress" }
+  - { kind: call, method: "<java.net.DatagramPacket: int getPort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.net.DatagramSocket: java.net.SocketAddress getRemoteSocketAddress()>", index: result, type: "java.net.SocketAddress" }
+  - { kind: call, method: "<java.net.DatagramSocket: java.net.InetAddress getInetAddress()>", index: result, type: "java.net.InetAddress" }
+  - { kind: call, method: "<java.net.DatagramSocket: int getPort()>", index: result, type: "int" }

@@ -1,0 +1,5 @@
+sinks:
+  - { method: "<android.content.ContentProvider: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String[],java.lang.String,java.lang.String)>", index: 2 }
+  - { method: "<android.content.ContentProvider: android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String[],java.lang.String,java.lang.String,android.os.CancellationSignal)>", index: 3 }
+  - { method: "<android.content.ContentProvider: int delete(android.net.Uri,java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<android.content.ContentProvider: int update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[])>", index: 1 }
