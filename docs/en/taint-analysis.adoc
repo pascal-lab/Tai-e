@@ -35,88 +35,38 @@ To ensure these values are correctly interpreted by the YAML parser, please make
 
 We first present several basic concepts employed in the configuration.
 
-==== Type
+==== Type, Method, and Field Signatures
 
-You may write following types in configuration:
+In taint configuration, you'll need to specify types, methods, and fields within the program.
+This is done using their signatures, as detailed in <<types-classes#,How to Specify and Access Types, Classes, and Class Members (Methods and Fields)>>.
 
-[cols="1,2,2"]
-|===
-| Type | Format | Examples
+To simplify the configuration process, our taint analysis also supports <<types-classes#signature-patterns,Signature Patterns>>.
+These patterns provide a more flexible way to specify program elements.
+For example, instead of listing every method in a class, you might use a pattern to match all methods with a certain return type or parameter list.
 
-| Class type
-| Fully-qualified class name.
-| `java.lang.String`, `org.example.MyClass`
+This approach reduces the amount of configuration needed and makes it easier to maintain and update your taint analysis settings.
 
-| Array type
-| A type following by one or more `[]`, where the number of `[]` equals the number of the array dimension.
-| `java.lang.String[]`, `org.example.MyClass[][]`, `char[]`
+==== Index Reference
 
-| Primitive type
-| Primitive type names in Java.
-| `int`, `char`, etc.
-|===
+In taint analysis configuration, it's often necessary to specify:
 
-==== Method Signature
+* A variable
+* A field of an object referenced by a variable
+* Elements of an array referenced by a variable
 
-In the configuration, we employ a method signature to provide a unique identifier for a method in the analyzed program.
-The format of a method signature is given below:
+These specifications may be required at a call site or within a method.
+To facilitate this, we introduce the concept of **index reference**.
 
-[source]
-----
-<CLASS_TYPE: RETURN_TYPE METHOD_NAME(PARAMETER_TYPES)>
-----
+An index reference consists of two parts:
 
-* `CLASS_TYPE`: The class in which the method is declared.
-* `RETURN_TYPE`: The return type of the method.
-* `METHOD_NAME`: The name of the method.
-* `PARAMETER_TYPES`: The list of parameters types of the method.
-Multiple parameter types are separated by `,` (Do not insert spaces around `,`!).
-If the method has no parameters, just write `()`.
+1. **Index**: This refers to the specified variable (also called the _variable index_).
+2. **Reference**: This indicates whether we're referring to:
+- The variable itself
+- A field of the object referenced by the variable
+- Elements of the array referenced by the variable
 
-For example, the signatures of methods `equals` and `toString` of `Object` are:
-
-[source]
-----
-<java.lang.Object: boolean equals(java.lang.Object)>
-<java.lang.Object: java.lang.String toString()>
-----
-
-==== Field Signature
-
-Just like methods, field signatures serve the purpose of uniquely identifying fields within the analyzed program.
-The format of a field signature is given below:
-
-[source]
-----
-<CLASS_TYPE: FIELD_TYPE FIELD_NAME>
-----
-
-* `CLASS_TYPE`: The class in which the field is declared.
-* `FIELD_TYPE`: The type of the field.
-* `FIELD_NAME`: The name of the field.
-
-For example, the signature of the field `info` below
-
-[source,java]
-----
-package org.example;
-
-class MyClass {
-    String info;
-}
-----
-
-is
-
-[source]
-----
-<org.example.MyClass: java.lang.String info>
-----
-
-==== Variable Index
-
-When setting up taint analysis, it's typically necessary to indicate a variable at a call site or within a method.
-This can be accomplished using _variable index_.
+This combination of variable indexes and references provides a flexible way to pinpoint exactly which program element you want to include in your taint analysis configuration.
+Let's break this down.
 
 ===== Variable Index of A Call Site
 
@@ -127,15 +77,15 @@ We classify variables at a call site into several kinds, and provide their corre
 | Kind | Description | Index
 
 | Result variable
-| The variable that receives the result of the method call, also known as the left-hand side (LHS) variable of the call site.
+| The variable receiving the method call result (i.e., the left-hand side or LHS variable)
 | `result`
 
 | Base variable
-| The variable that points to the receiver object of the method call. Note that this variable is absent in the cases of static method calls.
+| The variable pointing to the receiver object of the method call (absent in static method calls)
 | `base`
 
 | Arguments
-| The arguments of the call site, indexed starting from 0.
+| The arguments of the call site, indexed starting from 0
 | `0`, `1`, `2`, ...
 |===
 
@@ -152,8 +102,8 @@ r = o.foo(p, q);
 
 ===== Variable Index of A Method
 
-Currently, we support specifying parameters of a method using indexes.
-Similar to arguments of a call site, the parameters are indexed starting from 0.
+Within a method, we currently support indexing for method parameters.
+Similar to call site arguments, the parameters are indexed starting from 0.
 For example, the indexes of parameters `t`, `s`, and `o` of method `foo` below are `0`, `1`, and `2`.
 
 [source,java]
@@ -166,6 +116,17 @@ class MyClass {
     }
 }
 ----
+
+===== Reference
+
+The reference part is optional and specifies which aspect of the indexed variable we're interested in:
+
+1. **No reference**: Refers to the variable itself as specified by the index.
+2. **Field reference**: Append `.<field name>` to the index (e.g., `0.f` refers to field `f` of the object pointed to by the variable with index `0`).
+3. **Array element reference**: Append `[\*]` to the index (e.g., `result[*]` refers to all elements of the array pointed to by the result variable).
+
+This flexible system allows for precise specification of variables, object fields, and array elements in various contexts within your taint analysis configuration.
+
 
 === Sources
 Taint objects are generated by sources.
@@ -403,7 +364,7 @@ Users can simply place all relevant configuration files within a designated dire
 TIP: The taint analysis will traverse the directory iteratively during the configuration loading process.
 Therefore, you have the flexibility to organize the configuration files as you see fit, including placing them in multiple subdirectories if desired.
 
-=== Programmatical Taint Configuration Provider
+=== Programmatic Taint Configuration Provider
 
 In addition to the YAML configuration file, Tai-e also supports programmatical taint configuration.
 
