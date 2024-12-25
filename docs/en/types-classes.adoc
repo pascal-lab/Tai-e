@@ -155,9 +155,9 @@ A name wildcard is any name that contains zero or more `\*` characters, where ea
 
 Here are some examples:
 
-* `java.util.\*` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
+* `java.util.*` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
 * `get*` matches all method names that start with `get` (like `getName` or `getKey`)
-* Names without any `\*` characters match exactly (like `toString` only matches the `toString` methods)
+* Names without any `*` characters match exactly (like `toString` only matches the `toString` methods)
 
 === Class Signature Pattern
 Class signature patterns come in two forms:
