@@ -43,7 +43,7 @@ Here are some examples:
 * `char[]`
 
 === Void Type
-The signature for the void type is simply `void`. This appears in <<Method Signature,Method Signature>> for methods that do not return a value.
+The signature for the void type is simply `void`. This appears in <<Method Signatures,Method Signatures>> for methods that do not return a value.
 
 === Programmatically Accessing a Type via Signature
 For analysis developers, Tai-e provides convenient APIs to access various types. All the classes related to types, mentioned below, are located in the `pascal.taie.language.type` package.
