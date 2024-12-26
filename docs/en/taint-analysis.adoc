@@ -370,7 +370,7 @@ Therefore, you have the flexibility to organize the configuration files as you s
 
 === Programmatic Taint Configuration Provider
 
-In addition to the YAML configuration file, Tai-e also supports programmatical taint configuration.
+In addition to the YAML configuration file, Tai-e also supports programmatic taint configuration.
 
 To enable it, start pointer analysis with option `taint-config-provider`, for example:
 
