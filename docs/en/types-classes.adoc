@@ -151,19 +151,19 @@ In this section, we will introduce the formats of signature patterns and explain
 === Name Wildcards
 Signatures are composed of various names, including class names, method names, field names, and type names within method and field signatures.
 To simplify specifying these names, we introduce the concept of *name wildcards*, which form the foundation of signature patterns.
-A name wildcard is any name that contains zero or more `\*` characters, where each `\*` can match any sequence of characters.
+A name wildcard is any name that contains zero or more `+*+` characters, where each `+*+` can match any sequence of characters.
 
 Here are some examples:
 
-* `java.util.*` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
-* `get*` matches all method names that start with `get` (like `getName` or `getKey`)
-* Names without any `*` characters match exactly (like `toString` only matches the `toString` methods)
+* `+java.util.*+` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
+* `+get*+` matches all method names that start with `get` (like `getName` or `getKey`)
+* Names without any `+*+` characters match exactly (like `toString` only matches the `toString` methods)
 
 === Class Signature Pattern
 Class signature patterns come in two forms:
 
 1. **Basic Pattern**: A name wildcard that directly matches class names.
-* Example: `java.util.*` matches all classes in the `java.util` package
+* Example: `+java.util.*+` matches all classes in the `java.util` package
 * Example: `java.util.HashMap` matches exactly that class
 
 2. **Subclass Pattern**: A name wildcard followed by `^` that matches both the specified classes and all their subclasses.
@@ -197,9 +197,9 @@ Each component of the method signature pattern supports different matching mecha
 Method signature patterns support parameter wildcards, allowing you to specify repetition of type signature patterns.
 There are three types of repetition:
 
-1. Repeat exactly N times: `TYPE_PATTERN{N}`
+1. Repeat exactly N times: `TYPE_PATTERN\{N\}`
 2. Repeat at least N times: `TYPE_PATTERN{N+}`
-3. Repeat between M and N times: `TYPE_PATTERN{M-N}`
+3. Repeat between M and N times: `TYPE_PATTERN\{M-N\}`
 
 Here are some examples of method signature patterns:
 
