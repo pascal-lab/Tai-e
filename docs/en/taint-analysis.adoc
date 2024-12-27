@@ -372,14 +372,14 @@ Therefore, you have the flexibility to organize the configuration files as you s
 
 In addition to the YAML configuration file, Tai-e also supports programmatic taint configuration.
 
-To enable it, start pointer analysis with option `taint-config-provider`, for example:
+To enable it, start pointer analysis with option `taint-config-providers`, for example:
 
 [source]
 ----
--a pta=...;taint-config-provider:[my.example.MyTaintConfigProvider];...
+-a pta=...;taint-config-providers:[my.example.MyTaintConfigProvider];...
 ----
 
-The class `my.example.MyTaintConfigProvider` should extends the interface `pascal.taie.analysis.pta.plugin.taint.TaintConfigProvider`.
+The class `my.example.MyTaintConfigProvider` should extend the interface `pascal.taie.analysis.pta.plugin.taint.TaintConfigProvider`.
 
 [source,java,subs="verbatim"]
 ----
