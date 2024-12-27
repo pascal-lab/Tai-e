@@ -1,0 +1,99 @@
+= Taint Configuration for Common Vulnerabilities
+
+`Taint Configuration for Common Vulnerabilities` is a collection of configuration files for `taint analysis`. 
+This collection includes taint specifications (`source`, `sink`, and `transfer`) for various common vulnerability types. 
+To facilitate user lookup and selection, the taint specifications are organized by packages and related vulnerability types, offering a comprehensive configuration scheme for taint analysis.
+Currently, this collection contains 327 `source` configurations, 920 `sink` configurations, and 138 `transfer` configurations, enabling users to adapt and extend them based on their specific needs.
+
+== How to Use Taint Configuration for Common Vulnerabilities?
+
+Users can directly integrate the configuration files from this collection into the `taint-config.yml` for the `Tai-e` taint analysis tool, 
+or modify and extend them as needed to better meet specific analysis requirements. 
+For information on properly configuring `Tai-e` taint analysis, please refer to the link:https://tai-e.pascal-lab.net/docs/0.2.2/reference/en/taint-analysis.html#configuring-taint-analysis[Configuring Taint Analysis].
+
+== Project Structure
+
+The file organization structure of this project is as follows:
+
+[source]
+----
+taint-configuration
+|
+├─ infoleak     
+│   ├─ sink                 contains 141 sinks
+│   │   └─ java-io
+|   |
+│   └─ source               contains 158 sources
+│   |   └─ java
+|
+├─ injection                contains 779 sinks
+│   ├─ sink
+│   │   ├─ android
+│   │   │   └─ sql-injection
+│   |   |
+│   │   ├─ java
+│   │   │   ├─ crlf
+│   │   │   ├─ path-traversal
+│   │   │   ├─ rce
+│   │   │   └─ ...
+|   |   |
+│   │   └─ ...
+|   |
+│   └─ source               contains 169 sources
+│   |   ├─ apache-struts2
+|   |   |
+│   |   ├─ javax
+|   |   |   ├─ javax-portlet
+|   |   |   ├─ javax-servlet
+|   |   |   └─ javax-swing
+|   |   |
+│   |   └─ ...    
+|
+└─transfer                  contains 138 transfers about String
+----
+
+This project first categorizes the configuration files into three main categories: `infoleak`, `injection`, and `transfer`.
+
+* `infoleak` category: Contains configurations related to information leakage vulnerabilities, further subdivided into two subdirectories:
+  ** `source`: Categorized by package name.
+  ** `sink`: Categorized by package name.
+  
+* `injection` category: Contains configurations related to injection vulnerabilities, also subdivided into two subdirectories:
+  ** `source`: Categorized by package name.
+  ** `sink`: Categorized by vulnerability type.
+
+* `transfer` category: Contains commonly used `transfer` configurations.
+
+Due to the large number of `source` and `sink` configurations, we have classified them to help users quickly locate the required ones. Additionally, each subdirectory contains a corresponding README file for reference.
+
+
+== An example
+
+Here is an example of how to use the configuration files from this collection. If the user needs to detect an `RCE (Remote Code Execution)` injection vulnerability in a program using the `Jetty` software library, the following steps can be taken to modify the `taint-config.yml` file:
+
+1. Add the `source` configuration related to the *Jetty software library* from the file `taint-configuration/injection/source/jetty/jetty-http/jetty-http.yml` to the `taint-config.yml`.
+2. Add the `sink` configuration related to the *RCE type injection vulnerability* from the file `taint-configuration/injection/sink/java/rce/command.yml` to the `taint-config.yml`.
+3. Add the `transfer` configuration related to *String type* from the file `taint-configuration/transfer/string-transfers.yml` to the `taint-config.yml`.
+
+Example `taint-config.yml` configuration:
+
+```YAML
+source:
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getValue()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String asString()>", index: result, type: "java.lang.String" }
+#...
+
+sinks:
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String)>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String, java.lang.String[])>", index: 0 }
+#...
+
+transfer:
+  - { method: "<java.lang.String: java.lang.String substring(int)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String substring(int,int)>", from: base, to: result }
+#...
+```
+
+Once the configuration is completed, the user can use the `Tai-e` tool to perform taint analysis on the program under test to detect `RCE` type vulnerabilities triggered by the `Jetty` software library as a taint entry point. 

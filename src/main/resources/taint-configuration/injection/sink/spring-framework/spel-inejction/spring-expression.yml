@@ -1,10 +1,6 @@
 sinks:
-  # interface
-  # - { method: "<org.springframework.expression.ExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String)>", index: 0 }
   - { method: "<org.springframework.expression.spel.standard.SpelExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String)>", index: 0 }
   - { method: "<org.springframework.expression.common.TemplateAwareExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String)>", index: 0 }
 
-  # interface
-  # - { method: "<org.springframework.expression.ExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String,org.springframework.expression.ParserContext)>", index: 1 }
   - { method: "<org.springframework.expression.spel.standard.SpelExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String,org.springframework.expression.ParserContext)>", index: 1 }
   - { method: "<org.springframework.expression.common.TemplateAwareExpressionParser: org.springframework.expression.Expression parseExpression(java.lang.String,org.springframework.expression.ParserContext)>", index: 1 }

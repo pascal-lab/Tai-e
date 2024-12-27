@@ -1,22 +1,11 @@
 sources:
-  # interface
-  # - { kind: call, method: "<org.sonarqube.ws.client.Parameters: java.lang.String getValue(java.lang.String)>", index: result, type: "java.lang.String" }
-  # - { kind: call, method: "<org.sonarqube.ws.client.Parameters: java.util.List getValues(java.lang.String)>", index: result, type: "java.util.List" }
-  # - { kind: call, method: "<org.sonarqube.ws.client.Parameters: java.util.Set getKeys()>", index: result, type: "java.util.Set" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest$DefaultParameters: java.lang.String getValue(java.lang.String)>", index: result, type: "java.lang.String" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest$DefaultParameters: java.util.List getValues(java.lang.String)>", index: result, type: "java.util.List" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest$DefaultParameters: java.util.Set getKeys()>", index: result, type: "java.util.Set" }
   
-  # interface
-  # - { kind: call, method: "<org.sonarqube.ws.client.Headers: java.util.Optional getValue(java.lang.String)>", index: result, type: "java.util.Optional" }
-  # - { kind: call, method: "<org.sonarqube.ws.client.Headers: java.util.Set getNames()>", index: result, type: "java.util.Set" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest$DefaultHeaders: java.util.Optional getValue(java.lang.String)>", index: result, type: "java.util.Optional" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest$DefaultHeaders: java.util.Set getNames()>", index: result, type: "java.util.Set" }
 
-  # interface
-  # - { kind: call, method: "<org.sonarqube.ws.client.WsRequest: java.lang.String getPath()>", index: result, type: "java.lang.String" }
-  # - { kind: call, method: "<org.sonarqube.ws.client.WsRequest: java.lang.String getMediaType()>", index: result, type: "java.lang.String" }
-  # - { kind: call, method: "<org.sonarqube.ws.client.WsRequest: java.util.Map getParams()>", index: result, type: "java.util.Map" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest: java.lang.String getPath()>", index: result, type: "java.lang.String" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest: java.lang.String getMediaType()>", index: result, type: "java.lang.String" }
   - { kind: call, method: "<org.sonarqube.ws.client.BaseRequest: java.util.Map getParams()>", index: result, type: "java.util.Map" }

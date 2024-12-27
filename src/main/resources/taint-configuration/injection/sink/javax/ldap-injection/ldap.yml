@@ -49,6 +49,5 @@ sinks:
   - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls)>", index: 2 }
   - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 2 }
   - { method: "<com.sun.jndi.ldap.LdapCtx: javax.naming.NamingEnumeration search(java.lang.String,java.lang.String,java.lang.Object[],javax.naming.directory.SearchControls)>", index: 3 }
-
-  - { method: "<com.unboundid.ldap.sdk.LDAPConnection: com.unboundid.ldap.sdk.SearchResult search(java.lang.String,com.unboundid.ldap.sdk.SearchScope,java.lang.String,java.lang.String[])>", index: 1 } # the size of para?
+  - { method: "<com.unboundid.ldap.sdk.LDAPConnection: com.unboundid.ldap.sdk.SearchResult search(java.lang.String,com.unboundid.ldap.sdk.SearchScope,java.lang.String,java.lang.String[])>", index: 1 } 
   - { method: "<com.unboundid.ldap.sdk.LDAPConnection: com.unboundid.ldap.sdk.SearchResult search(java.lang.String,com.unboundid.ldap.sdk.SearchScope,java.lang.String,java.lang.String[])>", index: 3 }
