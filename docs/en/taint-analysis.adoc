@@ -399,6 +399,24 @@ public class MyTaintConfigProvider extends TaintConfigProvider {
 }
 ----
 
+=== Interactive Mode
+
+Interactive mode enables users to modify the taint configuration file(s) and re-run taint analysis without needing to re-run the whole program analysis.
+
+This feature significantly speeds up both taint configuration development/debugging and production scenarios that running multiple configuration sets.
+
+To enable interactive mode, append additional `taint-interactive-mode:true` option when starting the taint analysis, for example:
+
+[source]
+----
+-a pta=...;taint-config:<path/to/config>;taint-interactive-mode:true;...
+----
+
+Once the taint analysis completes, Tai-e will enter an interactive state where you can:
+
+1. Modify the taint configuration file(s) and press `r` in the console to re-run the taint analysis with your updated configuration.
+2. Press `e` in the console to exit interactive mode.
+
 
 == Output of Taint Analysis
 Currently, the output of the taint analysis consists of two parts: console output and taint flow graph.
