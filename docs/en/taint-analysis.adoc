@@ -9,8 +9,16 @@ This documentation is dedicated to providing guidance on using our taint analysi
 
 == Enabling Taint Analysis
 
+Taint analysis can be enabled in one of two ways, or both approaches together:
+
+* using the YAML configuration file.
+
+* using the programmatic configuration provider.
+
+=== YAML Configuration File
+
 In Tai-e, taint analysis is designed and implemented as a plugin of pointer analysis framework.
-To enable taint analysis, simply start pointer analysis with option `taint-config`, for example:
+To enable taint analysis with the YAML configuration file, simply start pointer analysis with option `taint-config`, for example:
 
 [source]
 ----
@@ -22,6 +30,58 @@ In the upcoming section, we will provide a comprehensive guide on crafting a con
 
 TIP: You could use various pointer analysis techniques to obtain different precision/efficiency tradeoffs.
 For additional details, please refer to <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
+
+
+==== Interactive Mode
+
+Interactive mode enables users to modify the taint configuration file(s) and re-run taint analysis without needing to re-run the whole program analysis.
+
+This feature significantly speeds up both taint configuration development/debugging and production scenarios that running multiple configuration sets.
+
+To enable interactive mode, append additional `taint-interactive-mode:true` option when starting the taint analysis, for example:
+
+[source]
+----
+-a pta=...;taint-config:<path/to/config>;taint-interactive-mode:true;...
+----
+
+Once the taint analysis completes, Tai-e will enter an interactive state where you can:
+
+1. Modify the taint configuration file(s) and press `r` in the console to re-run the taint analysis with your updated configuration.
+2. Press `e` in the console to exit interactive mode.
+
+
+=== Programmatic Taint Configuration Provider
+
+In addition to the YAML configuration file, Tai-e also supports programmatic taint configuration.
+
+To enable it, start pointer analysis with option `taint-config-providers`, for example:
+
+[source]
+----
+-a pta=...;taint-config-providers:[my.example.MyTaintConfigProvider];...
+----
+
+The class `my.example.MyTaintConfigProvider` should extend the interface `pascal.taie.analysis.pta.plugin.taint.TaintConfigProvider`.
+
+[source,java,subs="verbatim"]
+----
+package my.example;
+
+public class MyTaintConfigProvider extends TaintConfigProvider {
+    public MyTaintConfigProvider(ClassHierarchy hierarchy, TypeSystem typeSystem) {
+        super(hierarchy, typeSystem);
+    }
+
+    @Override
+    protected List<Source> sources() { return List.of(); }
+
+    @Override
+    protected List<Sink> sinks() { return List.of(); }
+// ...
+}
+----
+
 
 == Configuring Taint Analysis
 
@@ -367,56 +427,6 @@ Users can simply place all relevant configuration files within a designated dire
 
 TIP: The taint analysis will traverse the directory iteratively during the configuration loading process.
 Therefore, you have the flexibility to organize the configuration files as you see fit, including placing them in multiple subdirectories if desired.
-
-=== Programmatic Taint Configuration Provider
-
-In addition to the YAML configuration file, Tai-e also supports programmatic taint configuration.
-
-To enable it, start pointer analysis with option `taint-config-providers`, for example:
-
-[source]
-----
--a pta=...;taint-config-providers:[my.example.MyTaintConfigProvider];...
-----
-
-The class `my.example.MyTaintConfigProvider` should extend the interface `pascal.taie.analysis.pta.plugin.taint.TaintConfigProvider`.
-
-[source,java,subs="verbatim"]
-----
-package my.example;
-
-public class MyTaintConfigProvider extends TaintConfigProvider {
-    public MyTaintConfigProvider(ClassHierarchy hierarchy, TypeSystem typeSystem) {
-        super(hierarchy, typeSystem);
-    }
-
-    @Override
-    protected List<Source> sources() { return List.of(); }
-
-    @Override
-    protected List<Sink> sinks() { return List.of(); }
-// ...
-}
-----
-
-=== Interactive Mode
-
-Interactive mode enables users to modify the taint configuration file(s) and re-run taint analysis without needing to re-run the whole program analysis.
-
-This feature significantly speeds up both taint configuration development/debugging and production scenarios that running multiple configuration sets.
-
-To enable interactive mode, append additional `taint-interactive-mode:true` option when starting the taint analysis, for example:
-
-[source]
-----
--a pta=...;taint-config:<path/to/config>;taint-interactive-mode:true;...
-----
-
-Once the taint analysis completes, Tai-e will enter an interactive state where you can:
-
-1. Modify the taint configuration file(s) and press `r` in the console to re-run the taint analysis with your updated configuration.
-2. Press `e` in the console to exit interactive mode.
-
 
 == Output of Taint Analysis
 Currently, the output of the taint analysis consists of two parts: console output and taint flow graph.
