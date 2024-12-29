@@ -52,7 +52,7 @@ Exp -> Var | Literal | FieldAccess | ArrayAccess
 | StringLiteral | ClassLiteral | NullLiteral
 | MethodHandle | MethodType
 
-** FieldAccess -> InstanceFieldAccess | StaticFieldAccess
+* FieldAccess -> InstanceFieldAccess | StaticFieldAccess
 ** InstanceFieldAccess -> Var.FieldRef
 ** StaticFieldAccess -> FieldRef
 ** FieldRef -> <ClassType: Type FieldName>
@@ -60,7 +60,7 @@ Exp -> Var | Literal | FieldAccess | ArrayAccess
 
 * ArrayAccess -> Var[Var]
 
-** NewExp -> NewInstance | NewArray | NewMultiArray
+* NewExp -> NewInstance | NewArray | NewMultiArray
 ** NewInstance -> _new_ ClassType
 ** NewArray -> _new_ Type[Var]
 ** NewMultiArray -> _new_ Type LengthList EmptyList
