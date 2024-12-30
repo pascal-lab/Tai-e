@@ -32,7 +32,6 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.context.TypeContext;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -75,6 +74,7 @@ import pascal.taie.language.annotation.BooleanElement;
 import pascal.taie.language.annotation.ClassElement;
 import pascal.taie.language.annotation.DoubleElement;
 import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.FloatElement;
 import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
@@ -151,52 +151,51 @@ public class Utils {
         return res;
     }
 
-    static final Set<Modifier> pub = EnumSet.of(Modifier.PUBLIC);
-    static final Set<Modifier> pri = EnumSet.of(Modifier.PRIVATE);
-    static final Set<Modifier> pro = EnumSet.of(Modifier.PROTECTED);
-    static final Set<Modifier> sta = EnumSet.of(Modifier.STATIC);
-    static final Set<Modifier> pubFinal = EnumSet.of(Modifier.PUBLIC, Modifier.FINAL);
-    static final Set<Modifier> priFinal = EnumSet.of(Modifier.PRIVATE, Modifier.FINAL);
-    static final Set<Modifier> proFinal = EnumSet.of(Modifier.PROTECTED, Modifier.FINAL);
+    static final Set<Modifier> PUB = EnumSet.of(Modifier.PUBLIC);
+    static final Set<Modifier> PRI = EnumSet.of(Modifier.PRIVATE);
+    static final Set<Modifier> PRO = EnumSet.of(Modifier.PROTECTED);
+    static final Set<Modifier> STA = EnumSet.of(Modifier.STATIC);
+    static final Set<Modifier> PUB_FINAL = EnumSet.of(Modifier.PUBLIC, Modifier.FINAL);
+    static final Set<Modifier> PRI_FINAL = EnumSet.of(Modifier.PRIVATE, Modifier.FINAL);
+    static final Set<Modifier> PRO_FINAL = EnumSet.of(Modifier.PROTECTED, Modifier.FINAL);
 
-    static final List<Modifier> classModifiers = List.of(
+    static final List<Modifier> CLASS_MODIFIERS = List.of(
             Modifier.PUBLIC,    Modifier.FINAL,      Modifier.INTERFACE, Modifier.ABSTRACT,
             Modifier.SYNTHETIC, Modifier.ANNOTATION, Modifier.ENUM);
-    static final int[] classAsmModifiers =
-            classModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
+    static final int[] CLASS_ASM_MODIFIERS =
+            CLASS_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
 
-    static final List<Modifier> fieldModifiers = List.of(
+    static final List<Modifier> FIELD_MODIFIERS = List.of(
             Modifier.PUBLIC, Modifier.PRIVATE,  Modifier.PROTECTED, Modifier.STATIC,
             Modifier.FINAL,  Modifier.VOLATILE, Modifier.TRANSIENT, Modifier.SYNTHETIC,
             Modifier.ENUM);
-    static final int[] fieldAsmModifiers =
-            fieldModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
+    static final int[] FIELD_ASM_MODIFIERS =
+            FIELD_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
 
-    static final List<Modifier> methodModifiers = List.of(
+    static final List<Modifier> METHOD_MODIFIERS = List.of(
             Modifier.PUBLIC, Modifier.PRIVATE,      Modifier.PROTECTED, Modifier.STATIC,
             Modifier.FINAL,  Modifier.SYNCHRONIZED, Modifier.BRIDGE,    Modifier.VARARGS,
             Modifier.NATIVE, Modifier.ABSTRACT,     Modifier.STRICTFP,  Modifier.SYNTHETIC);
-    static final int[] methodAsmModifiers =
-            methodModifiers.stream().mapToInt(Utils::toAsmModifier).toArray();
-
+    static final int[] METHOD_ASM_MODIFIERS =
+            METHOD_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
 
     public static Set<Modifier> fromAsmModifiers(int opcodes, int[] asmModifiers,
                                                  List<Modifier> taieModifiers) {
         switch (opcodes) {
             case Opcodes.ACC_PUBLIC:
-                return pub;
+                return PUB;
             case Opcodes.ACC_PRIVATE:
-                return pri;
+                return PRI;
             case Opcodes.ACC_PROTECTED:
-                return pro;
+                return PRO;
             case Opcodes.ACC_STATIC:
-                return sta;
+                return STA;
             case Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL:
-                return pubFinal;
+                return PUB_FINAL;
             case Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL:
-                return priFinal;
+                return PRI_FINAL;
             case Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL:
-                return proFinal;
+                return PRO_FINAL;
         }
         Set<Modifier> res = EnumSet.noneOf(Modifier.class);
         for (int i = 0; i < taieModifiers.size(); i++) {
@@ -208,15 +207,15 @@ public class Utils {
     }
 
     public static Set<Modifier> fromAsmClassModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, classAsmModifiers, classModifiers);
+        return fromAsmModifiers(opcodes, CLASS_ASM_MODIFIERS, CLASS_MODIFIERS);
     }
 
     public static Set<Modifier> fromAsmFieldModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, fieldAsmModifiers, fieldModifiers);
+        return fromAsmModifiers(opcodes, FIELD_ASM_MODIFIERS, FIELD_MODIFIERS);
     }
 
     public static Set<Modifier> fromAsmMethodModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, methodAsmModifiers, methodModifiers);
+        return fromAsmModifiers(opcodes, METHOD_ASM_MODIFIERS, METHOD_MODIFIERS);
     }
 
     /**
@@ -235,7 +234,7 @@ public class Utils {
         } else if (ele instanceof Long l) {
             return new LongElement(l);
         } else if (ele instanceof Float f) {
-            return new DoubleElement(f);
+            return new FloatElement(f);
         } else if (ele instanceof Double d) {
             return new DoubleElement(d);
         } else if (ele instanceof String s) {
