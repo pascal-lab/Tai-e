@@ -16,7 +16,7 @@
   - Support specifying IndexRef in sinks.
   - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
   - Enhance TFG dumping by adding taint configuration and call site info to Source/Sink node and TaintTransfer edge.
-  - Support programmatical taint config provider.
+  - Support programmatic taint config provider.
 - Class hierarchy analysis (CHA)
   - Support ignoring call sites that call methods declared in `java.lang.Object`.
   - Support ignoring call sites whose callees exceed given limit.

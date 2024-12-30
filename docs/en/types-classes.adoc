@@ -1,0 +1,272 @@
+include::attributes.adoc[]
+
+= How to Specify and Access Types, Classes, and Class Members (Methods and Fields)
+
+Java programs are built using types and classes, which consist of class members such as methods and fields.
+Tai-e assigns a unique identifier, known as a signature, to each type, class, and class member.
+These signatures enable users to easily configure and specify the behavior of program analyzers for specific elements, such as in taint configuration (see <<taint-analysis#configuring-taint-analysis,How to Use Taint Analysis?>>).
+Additionally, they allow analysis developers to easily retrieve and manipulate program elements through Tai-e's convenient APIs.
+
+In some cases, it may be necessary to specify _a large number_ of related classes or class members within a configuration or when implementing a particular program analysis.
+To streamline this process, we have designed and implemented various signature patterns and matchers for classes, methods, and fields, enabling you to specify and retrieve multiple elements using a single signature pattern.
+
+This documentation will guide you through the format of signatures for types, classes, and class members, as well as the APIs for accessing these program elements via their signatures.
+
+NOTE: Since generic types are erased in Java, type signatures, along with class and class member signatures, *do not include type parameters*.
+
+== Type Signatures
+In this section, we introduce the signatures for various Java types, including primitive types, reference types, and the `void` type.
+
+=== Primitive Types
+The signatures for the eight Java primitive types are simply their names: `byte`, `short`, `int`, `long`, `float`, `double`, `char`, and `boolean`.
+
+=== Reference Types
+Java reference types include class types (encompassing interfaces and enums) and array types.
+The signature formats for these types are outlined below.
+
+==== Class Types (Including Interfaces and Enums)
+The signature for a class type is its fully-qualified class name, which includes the package name.
+For an inner class, insert a `$` between the outer class name and the inner class name.
+Here are some examples:
+
+* `java.lang.String`
+* `pascal.taie.Main`
+* `org.example.MyClass`
+* `java.util.Map$Entry`
+
+==== Array Types
+An array type signature consists of its base type followed by one or more `[]`, with the number of `[]` indicating the array's dimensions.
+Here are some examples:
+
+* `java.lang.String[]`
+* `org.example.MyClass[][]`
+* `char[]`
+
+=== Void Type
+The signature for the void type is simply `void`. This appears in <<Method Signatures,Method Signatures>> for methods that do not return a value.
+
+=== Programmatically Accessing a Type via Signature
+For analysis developers, Tai-e provides convenient APIs to access various types. All the classes related to types, mentioned below, are located in the `pascal.taie.language.type` package.
+
+In Tai-e, the `TypeSystem` class (accessible via `World.get().getTypeSystem()`) offers APIs to retrieve all types (except `void`, which is discussed later):
+
+* `TypeSystem.getPrimitiveType(String)`: Retrieves a primitive type by its signature.
+* `TypeSystem.getClassType(String)`: Retrieves a class type by its signature.
+* `TypeSystem.getArrayType(Type,int)`: Retrieves an array type by its base type and the number of dimensions.
+* `TypeSystem.getType(String)`: Retrieves a primitive type, class type, or array type by its signature.
+
+Additionally, primitive types and the `void` type are implemented as enums in Tai-e, and can be directly accessed through their respective classes, such as `IntType.INT` and `VoidType.VOID`.
+
+== Class and Class Member Signatures
+In this section, we introduce the signatures for classes and their members, specifically methods and fields.
+While constructors are typically considered class members, in Tai-e, they are treated as methods with a special name `<init>`, as explained in <<Method Signatures,Method Signatures>>.
+
+=== Class Signatures
+Unsurprisingly, the format for class signatures is identical to that of <<Class Types (Including Interfaces and Enums),class types>>, so we won’t repeat the details here.
+
+=== Method Signatures
+The format of a method signature is as follows:
+
+[source]
+----
+<CLASS_TYPE: RETURN_TYPE METHOD_NAME(PARAMETER_TYPES)>
+----
+
+* `CLASS_TYPE`: The signature of the class in which the method is declared.
+* `RETURN_TYPE`: The signature of the method's return type.
+* `METHOD_NAME`: The name of the method.
+* `PARAMETER_TYPES`: A `,`-separated list of parameter type signatures (Do not insert spaces around the `,`!).
+If the method has no parameters, use `()`.
+
+Here are some examples of method signatures:
+
+[source]
+----
+<java.lang.Object: java.lang.String toString()>
+<java.lang.Object: boolean equals(java.lang.Object)>
+<java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
+----
+
+As mentioned earlier, *constructors* are treated as methods in Tai-e.
+Each constructor has the name `<init>`, and its return type is always `void`.
+For example, the constructor signatures for `ArrayList` are:
+
+[source]
+----
+<java.util.ArrayList: void <init>()>
+<java.util.ArrayList: void <init>(int)>
+<java.util.ArrayList: void <init>(java.util.Collection)>
+----
+
+Another special class member is the *static initializer* (also known as the class initializer), which is treated as a method with no arguments and no return value in Tai-e.
+The method name for a static initializer is `<clinit>`.
+For example, the signature of static initializer for `Object` is `<java.lang.Object: void <clinit>()>`.
+
+=== Field Signatures
+Like methods, field signatures uniquely identify fields within a Java program.
+The format of a field signature is as follows:
+
+[source]
+----
+<CLASS_TYPE: FIELD_TYPE FIELD_NAME>
+----
+
+* `CLASS_TYPE`: The signature of the class where the field is declared.
+* `FIELD_TYPE`: The signature of the field's type.
+* `FIELD_NAME`: The name of the field.
+
+For example, the signature for the field `info` in the following code:
+
+[source,java]
+----
+package org.example;
+
+class MyClass {
+    String info;
+}
+----
+
+is:
+
+[source]
+----
+<org.example.MyClass: java.lang.String info>
+----
+
+=== Programmatically Accessing a Class or Member via Signature
+Tai-e offers convenient APIs through the `pascal.taie.language.classes.ClassHierarchy` class, allowing analysis developers to access a class or member by its signature.
+The available methods are:
+
+* `ClassHierarchy.getClass(String)`: Retrieves a class (`JClass`) by its signature.
+* `ClassHierarchy.getMethod(String)`: Retrieves a method (`JMethod`) by its signature.
+* `ClassHierarchy.getField(String)`: Retrieves a field (`JField`) by its signature.
+
+== Signature Patterns
+Sometimes, users need to specify multiple related classes or members in a configuration, such as in <<taint-analysis#configuring-taint-analysis,taint analysis>>.
+To simplify this process, we have designed and implemented the _signature pattern_ mechanism, similar to regular expressions but specifically tailored for classes and members.
+This allows users to conveniently specify multiple related classes or members using a single signature pattern.
+
+In this section, we will introduce the formats of signature patterns and explain how to use them in analysis development.
+
+=== Name Wildcards
+Signatures are composed of various names, including class names, method names, field names, and type names within method and field signatures.
+To simplify specifying these names, we introduce the concept of *name wildcards*, which form the foundation of signature patterns.
+A name wildcard is any name that contains zero or more `+*+` characters, where each `+*+` can match any sequence of characters.
+
+Here are some examples:
+
+* `+java.util.*+` matches all classes in the `java.util` package and its sub-packages (like `java.util.regex`)
+* `+get*+` matches all method names that start with `get` (like `getName` or `getKey`)
+* Names without any `+*+` characters match exactly (like `toString` only matches the `toString` methods)
+
+=== Class Signature Pattern
+Class signature patterns come in two forms:
+
+1. **Basic Pattern**: A name wildcard that directly matches class names.
+* Example: `+java.util.*+` matches all classes in the `java.util` package
+* Example: `java.util.HashMap` matches exactly that class
+
+2. **Subclass Pattern**: A name wildcard followed by `^` that matches both the specified classes and all their subclasses.
+* Example: `java.util.List^` matches `List` and all classes that extend or implement it
+* Example: `java.lang.*Exception^` matches all exception classes in the `java.lang` package and their subclasses, including classes like `RuntimeException`, `IllegalArgumentException`, and any custom exceptions that extend these classes
+
+The subclass pattern is particularly useful when you need to capture an entire class hierarchy without listing each class individually.
+
+=== Method Signature Pattern
+
+Method signature patterns follow a format similar to method signatures but with added flexibility to match multiple methods. The general format is:
+
+[source]
+----
+<CLASS_PATTERN: RETURN_TYPE_PATTERN METHOD_NAME_PATTERN(PARAMETER_TYPE_PATTERNS)>
+----
+
+Each component of the method signature pattern supports different matching mechanisms:
+
+* `CLASS_PATTERN`: Can be a class signature pattern (basic or subclass pattern).
+* `RETURN_TYPE_PATTERN`: A type signature pattern.
+* `METHOD_NAME_PATTERN`: Can be a name wildcard.
+* `PARAMETER_TYPE_PATTERNS`: A `,`-separated list of type signature patterns (no spaces around `,`), which also supports parameter wildcards.
+
+**Type Signature Patterns**:
+
+- For class types, they are equivalent to class patterns.
+- For other types, they use simple name wildcard matching.
+
+**Parameter Wildcards**:
+Method signature patterns support parameter wildcards, allowing you to specify repetition of type signature patterns.
+There are three types of repetition:
+
+1. Repeat exactly N times: `TYPE_PATTERN\{N\}`
+2. Repeat at least N times: `TYPE_PATTERN{N+}`
+3. Repeat between M and N times: `TYPE_PATTERN\{M-N\}`
+
+Here are some examples of method signature patterns:
+
+[source]
+----
+<java.util.List^: * get*(*)>
+----
+This pattern matches all methods in `List` and its implementations that start with `get` and have one parameter of any type.
+
+[source]
+----
+<java.lang.*: void set*(java.lang.String,*)>
+----
+This pattern matches all methods in classes directly under the `java.lang` package that start with `set`, return `void`, and have two parameters: a `String` and any other type.
+
+[source]
+----
+<*: java.lang.String toString()>
+----
+This pattern matches `toString` methods that return `String` and have no parameters, in any class.
+
+[source]
+----
+<java.util.Map^: * *(java.lang.Object^,*)>
+----
+This pattern matches all methods in `Map` and its implementations that have two parameters: the first being `Object` or any of its subclasses, and the second being any type.
+
+[source]
+----
+<java.lang.String: * format(java.lang.String,java.lang.Object^{0+})>
+----
+This pattern matches `format` methods in the `String` class that take a `String` parameter followed by zero or more `Object` (or subclass) parameters.
+
+[source]
+----
+<java.util.Arrays: * asList(java.lang.Object{1-5})>
+----
+This pattern matches `asList` methods in the `Arrays` class that take between 1 and 5 `Object` parameters.
+
+Method signature patterns provide a powerful way to specify groups of related methods across multiple classes, greatly simplifying configuration in various analyses.
+The addition of parameter wildcards further enhances this flexibility, allowing for precise matching of methods with varying numbers of parameters.
+
+=== Field Signature Pattern
+
+Field signature patterns follow a format similar to field signatures but with added flexibility to match multiple fields.
+The format of a field signature pattern is:
+
+[source]
+----
+<CLASS_PATTERN: FIELD_TYPE_PATTERN FIELD_NAME_PATTERN>
+----
+
+This format is simpler than the method signature pattern, as field signatures do not include a parameter list.
+Each component (`CLASS_PATTERN`, `FIELD_TYPE_PATTERN`, and `FIELD_NAME_PATTERN`) supports the same matching mechanisms as in method signature patterns.
+
+Example:
+[source]
+----
+<java.util.List^: * size>
+----
+This pattern matches the `size` field in `java.util.List` and its subclasses, regardless of the field's type.
+
+=== Programmatically Accessing Multiple Classes or Members via Signature Pattern
+Tai-e provides convenient APIs for analysis developers to retrieve multiple classes or members using signature patterns.
+To use these, developers first create a `pascal.taie.language.classes.SignatureMatcher` object, passing a `ClassHierarchy` as an argument.
+They can then use the following APIs:
+
+* `SignatureMatcher.getClasses(String)`: Retrieves classes (`JClass`) based on the specified class signature pattern.
+* `SignatureMatcher.getMethods(String)`: Retrieves methods (`JMethod`) based on the specified method signature pattern.
+* `SignatureMatcher.getFields(String)`: Retrieves fields (`JField`) based on the specified field signature pattern.
