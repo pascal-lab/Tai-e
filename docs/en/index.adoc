@@ -11,6 +11,7 @@ The reference documentation consists of the following sections:
 * <<command-line-options#,How to Run Tai-e (command-line options)?>>
 * <<types-classes#,How to Specify and Access Types, Classes, and Class Members (Methods and Fields)?>>
 * <<taint-analysis#,How to Use Taint Analysis?>>
+** <<commonly-used-taint-config#,Commonly Used Taint Configuration>>
 * <<develop-new-analysis#,How to Develop A New Analysis on Tai-e?>>
 * <<program-abstraction#,Program Abstraction in Tai-e (core classes and IR)>>
 * <<analysis-management#,Analysis Management>>
