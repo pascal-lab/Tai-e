@@ -15,6 +15,7 @@ Taint analysis can be enabled in one of two ways, or both approaches together:
 
 * using the programmatic configuration provider.
 
+[[yaml-configuration-file]]
 === YAML Configuration File
 
 In Tai-e, taint analysis is designed and implemented as a plugin of pointer analysis framework.
@@ -513,3 +514,90 @@ then you can open the TFG with your web browser and examine it.
 NOTE: We plan to develop more user-friendly mechanisms for examining taint analysis results in the future.
 
 // TODO: == Troubleshooting
+
+== Pre-prepared Commonly Used Taint Configuration
+
+_Commonly Used Taint Configuration_ is a collection of _source_, _sink_, and _transfer_ rules tailored for various common vulnerability types.
+Currently, this collection contains 327 source, 920 sink, and 138 transfer rules, enabling users to adapt and extend them to detect 13 types of vulnerabilities.
+
+
+=== Organizational structure
+
+We have classified the rules by packages and vulnerability types to help users quickly locate the required ones.
+The structure of this project is as follows:
+
+[source]
+----
+Tai-e/src/main/resources/commonly-used-taint-config
+├── sink
+│   ├── infoleak              # contains 141 sinks
+│   │   └── java-io
+│   └── injection             # contains 779 sinks
+│       ├── android
+│       │   └── sql-injection
+│       ├── java
+│       │   ├── crlf
+│       │   ├── path-traversal
+│       │   ├── rce
+│       │   └── ...
+│       └── ...
+├── source
+│   ├── infoleak              # contains 158 sources
+│   │   └── java
+│   └── injection             # contains 169 sources
+│       ├── apache-struts2
+│       ├── javax
+│       │   ├── javax-portlet
+│       │   ├── javax-servlet
+│       │   └── javax-swing
+│       └── ...
+└── transfer                  # contains 138 transfers about String
+----
+
+Specifically, this project firstly categorizes the configuration files into three main categories: sink, source, and transfer.
+
+* `sink` category: Contains sinks configurations files related to information leakage and injection vulnerabilities, further subdivided into two subdirectories:
+** `infoleak`: Categorized by package name.
+** `injection`: Categorized by vulnerability type.
+
+* `source` category: Contains sources configurations related to information leakage and injection vulnerabilities, further subdivided into two subdirectories:
+** `infoleak`: Categorized by package name.
+** `injection`: Categorized by package name.
+
+* `transfer` category: Contains transfers.
+
+Additionally, each subdirectory contains a corresponding `README` file that provides a brief overview of the relevant vulnerability types.
+
+=== How to Use it? (An Example)
+
+Users can directly integrate the configuration files from this collection into the <<yaml-configuration-file,Configuration File for the Tai-e taint analysis>>,
+or modify and extend them as needed to better meet specific analysis requirements.
+
+Here is an example of how to use the configuration files from this collection.
+If the user needs to detect an RCE (Remote Code Execution) injection vulnerability in a Java project using the *Jetty software library*, the following steps can be taken to modify the taint configuration file:
+
+1. Add the source rules related to the *Jetty software library* from the file `source/injection/jetty/jetty-http/jetty-http.yml`.
+2. Add the sink rules related to the *RCE type injection vulnerability* from the file `sink/injection/java/rce/command.yml`.
+3. Add the transfer rules related to *String type* from the file `transfer/string-transfers.yml`.
+
+After these steps, the taint configuration file will be as follows:
+
+```YAML
+source:
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String getValue()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<org.eclipse.jetty.http.HttpCookie: java.lang.String asString()>", index: result, type: "java.lang.String" }
+#...
+
+sinks:
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String)>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>", index: 0 }
+  - { method: "<java.lang.Runtime: java.lang.Process exec(java.lang.String, java.lang.String[])>", index: 0 }
+#...
+
+transfer:
+  - { method: "<java.lang.String: java.lang.String substring(int)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String substring(int,int)>", from: base, to: result }
+#...
+```
+

@@ -18,8 +18,6 @@ include::types-classes.adoc[leveloffset=+1]
 
 include::taint-analysis.adoc[leveloffset=+1]
 
-include::commonly-used-taint-config.adoc[leveloffset=+1]
-
 include::develop-new-analysis.adoc[leveloffset=+1]
 
 include::program-abstraction.adoc[leveloffset=+1]
