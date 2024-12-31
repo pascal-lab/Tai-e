@@ -517,13 +517,17 @@ NOTE: We plan to develop more user-friendly mechanisms for examining taint analy
 
 == Pre-prepared Commonly Used Taint Configuration
 
-_Commonly Used Taint Configuration_ is a collection of _source_, _sink_, and _transfer_ rules tailored for various common vulnerability types.
-Currently, this collection contains 327 source, 920 sink, and 138 transfer rules, enabling users to adapt and extend them to detect 13 types of vulnerabilities.
+Manually collecting and writing taint analysis configurations for different vulnerability types can be time-consuming and challenging, especially for developers and security researchers with limited experience.
+To help users streamline this process and improve the efficiency and accuracy of vulnerability detection, we have curated _Commonly Used Taint Configuration_. 
+
+Commonly Used Taint Configuration is a comprehensive collection of source, sink, and transfer rules tailored for various common vulnerability types.
+Currently, this collection contains 327 source rules, 920 sink rules, and 138 transfer rules, enabling users to adapt and extend them to detect 13 types of vulnerabilities.
+
+To further enhance the user experience, we have also carefully organized the project structure by packages and vulnerability types to ensure clarity and ease of understanding of the rules, allowing users to quickly locate and apply the relevant rules.
 
 
 === Organizational structure
 
-We have classified the rules by packages and vulnerability types to help users quickly locate the required ones.
 The structure of this project is as follows:
 
 [source]
