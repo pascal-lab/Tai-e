@@ -1,0 +1,10 @@
+sources:
+  - { kind: call, method: "<io.dropwizard.servlets.Servlets: java.lang.String getFullUrl(jakarta.servlet.http.HttpServletRequest)>", index: result, type: "java.lang.String" }
+  - { kind: param, method: "<io.dropwizard.servlets.CacheBustingFilter: void doFilter(jakarta.servlet.ServletRequest,jakarta.servlet.ServletResponse,jakarta.servlet.FilterChain)>", index: 0, type: "jakarta.servlet.ServletRequest" }
+  - { kind: param, method: "<io.dropwizard.servlets.ThreadNameFilter: void doFilter(jakarta.servlet.ServletRequest,jakarta.servlet.ServletResponse,jakarta.servlet.FilterChain)>", index: 0, type: "jakarta.servlet.ServletRequest" }
+  - { kind: param, method: "<io.dropwizard.servlets.SlowRequestFilter: void doFilter(jakarta.servlet.ServletRequest,jakarta.servlet.ServletResponse,jakarta.servlet.FilterChain)>", index: 0, type: "jakarta.servlet.ServletRequest" }
+  
+  - { kind: param, method: "<io.dropwizard.servlets.tasks.TaskServlet: void doGet(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)>", index: 0, type: "jakarta.servlet.http.HttpServletRequest" }
+  - { kind: param, method: "<io.dropwizard.servlets.tasks.TaskServlet: void doPost(jakarta.servlet.http.HttpServletRequest,jakarta.servlet.http.HttpServletResponse)>", index: 0, type: "jakarta.servlet.http.HttpServletRequest" }
+  - { kind: call, method: "<io.dropwizard.servlets.tasks.TaskServlet: java.util.Map getParams(jakarta.servlet.http.HttpServletRequest)>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<io.dropwizard.servlets.tasks.TaskServlet: java.lang.String getBody(jakarta.servlet.http.HttpServletRequest)>", index: result, type: "java.lang.String" }

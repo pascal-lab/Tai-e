@@ -1,0 +1,3 @@
+sources:
+  - { kind: call, method: "<java.awt.TextComponent: java.lang.String getSelectedText()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.awt.TextComponent: java.lang.String getText()>", index: result, type: "java.lang.String" }

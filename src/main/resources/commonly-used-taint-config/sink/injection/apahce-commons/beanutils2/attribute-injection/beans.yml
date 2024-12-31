@@ -1,0 +1,14 @@
+sinks:
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void copyProperties(java.lang.Object,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void copyProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void copyProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void populate(java.lang.Object,java.util.Map)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void setProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtils: void setProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 1 }
+
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void copyProperties(java.lang.Object,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void copyProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void copyProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void populate(java.lang.Object,java.util.Map)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void setProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.commons.beanutils2.BeanUtilsBean: void setProperty(java.lang.Object,java.lang.String,java.lang.Object)>", index: 1 }

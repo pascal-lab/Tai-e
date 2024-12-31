@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The Spring Framework beans provide a set of utility methods for manipulating Java Beans. The APIs in this directory can be used for common tasks, such as property copying.
+
+- **Common Use Cases**:
+    These APIs are commonly used for copying Java Bean objects.
+
+- **Security Risks**:
+    Property Injection: If attackers gain control over the objects being populated or the property names being set, they can inject unexpected and malicious property values, leading to property injection vulnerabilities.

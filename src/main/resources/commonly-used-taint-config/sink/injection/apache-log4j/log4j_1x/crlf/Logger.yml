@@ -1,0 +1,20 @@
+sinks:
+  - { method: "<org.apache.log4j.Logger: void debug(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void debug(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void error(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void error(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void fatal(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void fatal(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void info(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void info(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Object[],java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Object[],java.lang.Throwable)>", index: 2 }
+  - { method: "<org.apache.log4j.Logger: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void log(org.apache.log4j.Priority,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void log(org.apache.log4j.Priority,java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void log(java.lang.String,org.apache.log4j.Priority,java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void log(java.lang.String,org.apache.log4j.Priority,java.lang.Object,java.lang.Throwable)>", index: 3 }
+  - { method: "<org.apache.log4j.Logger: void warn(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void warn(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Logger: void trace(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Logger: void trace(java.lang.Object,java.lang.Throwable)>", index: 1 }

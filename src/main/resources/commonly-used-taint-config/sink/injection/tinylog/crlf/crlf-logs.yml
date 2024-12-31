@@ -1,0 +1,21 @@
+sinks:
+  - { method: "<org.pmw.tinylog.Logger: void debug(java.lang.Object)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void debug(java.lang.String)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void debug(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void debug(java.lang.Throwable,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void error(java.lang.Object)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void error(java.lang.String)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void error(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void error(java.lang.Throwable,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void info(java.lang.Object)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void info(java.lang.String)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void info(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void info(java.lang.Throwable,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void trace(java.lang.Object)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void trace(java.lang.String)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void trace(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void trace(java.lang.Throwable,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void warn(java.lang.Object)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void warn(java.lang.String)>", index: 0 }
+  - { method: "<org.pmw.tinylog.Logger: void warn(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<org.pmw.tinylog.Logger: void warn(java.lang.Throwable,java.lang.String,java.lang.Object[])>", index: 1 }

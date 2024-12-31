@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The APIs in this directory are from the Java standard library's logging utilities, used to generate, record, and manage application logs. They provide various methods to log messages at different levels, support formatting log content, record exception information, and output logs to various targets.
+
+- **Common Use Cases**:
+    These APIs are commonly used for logging various types of information, such as recording errors and exceptions, tracking runtime information, issuing warnings, and integrating with log auditing systems.
+
+- **Security Risks**:
+    CRLF Injection: Attackers can exploit these APIs by crafting malicious input containing CRLF (Carriage Return and Line Feed) sequences to forge log entries, mislead monitoring personnel, and even affect auditing systems. Additionally, attackers can flood logs with excessive errors or irrelevant information, potentially corrupting the log data.

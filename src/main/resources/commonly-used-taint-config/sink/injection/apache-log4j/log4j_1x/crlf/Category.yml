@@ -1,0 +1,18 @@
+sinks:
+  - { method: "<org.apache.log4j.Category: void debug(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void debug(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void error(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void error(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void fatal(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void fatal(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void info(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void info(java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Object[],java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Object[],java.lang.Throwable)>", index: 2 }
+  - { method: "<org.apache.log4j.Category: void l7dlog(org.apache.log4j.Priority,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void log(org.apache.log4j.Priority,java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void log(org.apache.log4j.Priority,java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void log(java.lang.String,org.apache.log4j.Priority,java.lang.Object,java.lang.Throwable)>", index: 1 }
+  - { method: "<org.apache.log4j.Category: void log(java.lang.String,org.apache.log4j.Priority,java.lang.Object java.lang.Throwable)>", index: 3 }
+  - { method: "<org.apache.log4j.Category: void warn(java.lang.Object)>", index: 0 }
+  - { method: "<org.apache.log4j.Category: void warn(java.lang.Object,java.lang.Throwable)>", index: 1 }

@@ -1,0 +1,89 @@
+sinks:
+  - { method: "<java.util.logging.Logger: void config(java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.logging.Logger: void entering(java.lang.String,java.lang.String,java.lang.Object[])>", index: 2 }
+  - { method: "<java.util.logging.Logger: void exiting(java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void exiting(java.lang.String,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void exiting(java.lang.String,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void exiting(java.lang.String,java.lang.String,java.lang.Object)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void fine(java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void finer(java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void finest(java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void info(java.lang.String)>", index: 0 }
+
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.logging.Logger: void log(java.util.logging.Level,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.util.function.Supplier)>", index: 1 } # no <java.lang.String> in Supplier?
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.util.function.Supplier)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.Throwable,java.util.function.Supplier)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logp(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.Throwable,java.util.function.Supplier)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Object[])>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Object[])>", index: 4 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Throwable)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.util.ResourceBundle,java.lang.String,java.lang.Throwable)>", index: 4 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object)>", index: 4 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Object[])>", index: 4 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 3 }
+  - { method: "<java.util.logging.Logger: void logrb(java.util.logging.Level,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.Throwable)>", index: 4 }
+
+  - { method: "<java.util.logging.Logger: void severe(java.lang.String)>", index: 0 }
+  - { method: "<java.util.logging.Logger: void throwing(java.lang.String,java.lang.String,java.lang.Throwable)>", index: 1 }
+  - { method: "<java.util.logging.Logger: void throwing(java.lang.String,java.lang.String,java.lang.Throwable)>", index: 2 }
+  - { method: "<java.util.logging.Logger: void warning(java.lang.String)>", index: 0 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The APIs in this directory involve operations for creating and managing processes in Java. They are used to start and control external processes, suitable for various scenarios such as executing system commands and launching external applications. If their parameters are subject to unlimited external input, attackers can execute arbitrary commands on the local machine.
+
+- **Common Use Cases**:
+    These APIs are commonly used to create and manage processes, and to execute system commands.
+
+- **Security Risks**:
+    Command Injection: Attackers can exploit these methods to execute arbitrary commands on the local machine, potentially compromising the system and accessing confidential information.

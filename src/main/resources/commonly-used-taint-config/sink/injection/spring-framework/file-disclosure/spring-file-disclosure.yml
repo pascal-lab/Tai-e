@@ -1,0 +1,5 @@
+sinks:
+  - { method: "<org.springframework.web.servlet.ModelAndView: void <init>(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.web.servlet.ModelAndView: void <init>(java.lang.String,java.lang.String,java.lang.Object)>", index: 2 }
+  - { method: "<org.springframework.web.servlet.ModelAndView: void <init>(java.lang.String,java.util.Map)>", index: 1 }
+  - { method: "<org.springframework.web.servlet.ModelAndView: void setViewName(java.lang.String)>", index: 0 }

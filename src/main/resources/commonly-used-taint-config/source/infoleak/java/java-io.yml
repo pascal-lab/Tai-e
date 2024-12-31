@@ -1,0 +1,137 @@
+sources:
+  - { kind: call, method: "<java.io.BufferedInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.BufferedInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.BufferedReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.BufferedReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.BufferedReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+  - { kind: call, method: "<java.io.ByteArrayInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ByteArrayInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.CharArrayReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.CharArrayReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+  - { kind: call, method: "<java.io.DataInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.DataInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.DataInputStream: void readFully(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.DataInputStream: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.DataInputStream: boolean readBoolean()>", index: result, type: "boolean" }
+  - { kind: call, method: "<java.io.DataInputStream: byte readByte()>", index: result, type: "byte" }
+  - { kind: call, method: "<java.io.DataInputStream: int readUnsignedByte()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.DataInputStream: short readShort()>", index: result, type: "short" }
+  - { kind: call, method: "<java.io.DataInputStream: int readUnsignedShort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.DataInputStream: char readChar()>", index: result, type: "char" }
+  - { kind: call, method: "<java.io.DataInputStream: int readInt()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.DataInputStream: long readLong()>", index: result, type: "long" }
+  - { kind: call, method: "<java.io.DataInputStream: float readFloat()>", index: result, type: "float" }
+  - { kind: call, method: "<java.io.DataInputStream: double readDouble()>", index: result, type: "double" }
+  - { kind: call, method: "<java.io.DataInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.DataInputStream: int readUnsignedByte()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.DataInputStream: int readUnsignedShort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.DataInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.io.FileInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.FileInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.FileInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.FilterInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.FilterInputStream: int read(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.FilterInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.FilterReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.FilterReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+  - { kind: call, method: "<java.io.InputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.InputStream: int read(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.InputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.InputStreamReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.InputStreamReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+  - { kind: call, method: "<java.io.LineNumberInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.LineNumberInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+
+  - { kind: call, method: "<java.io.LineNumberReader: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.LineNumberReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.LineNumberReader: int read(char[],int,int)>", index: 0, type: "char[]" }
+
+
+  - { kind: call, method: "<java.io.ObjectInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ObjectInputStream: int read(byte[],int,int)>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.ObjectInputStream: boolean readBoolean()>", index: result, type: "boolean" }
+  - { kind: call, method: "<java.io.ObjectInputStream: byte readByte()>", index: result, type: "byte" }
+  - { kind: call, method: "<java.io.ObjectInputStream: char readChar()>", index: result, type: "char" }
+  - { kind: call, method: "<java.io.ObjectInputStream: double readDouble()>", index: result, type: "double" }
+  - { kind: call, method: "<java.io.ObjectInputStream: float readFloat()>", index: result, type: "float" }
+  - { kind: call, method: "<java.io.ObjectInputStream: void readFully(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.ObjectInputStream: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.ObjectInputStream: int readInt()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.ObjectInputStream: long readLong()>", index: result, type: "long" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readObject()>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readObjectOverride()>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.lang.Object readUnshared()>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.io.ObjectInputStream: short readShort()>", index: result, type: "short" }
+  - { kind: call, method: "<java.io.ObjectInputStream: int readUnsignedByte()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ObjectInputStream: int readUnsignedShort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.ObjectInputStream: java.io.ObjectInputStream$GetField readFields()>", index: result, type: "java.io.ObjectInputStream$GetField" }
+
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: boolean defaulted(java.lang.String)>", index: result, type: "boolean" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: boolean get(java.lang.String,boolean)>", index: result, type: "boolean" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: byte get(java.lang.String,byte)>", index: result, type: "byte" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: char get(java.lang.String,char)>", index: result, type: "char" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: double get(java.lang.String,double)>", index: result, type: "double" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: float get(java.lang.String,float)>", index: result, type: "float" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: int get(java.lang.String,int)>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: java.lang.Object get(java.lang.String,java.lang.Object)>", index: result, type: "java.lang.Object" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: long get(java.lang.String,long)>", index: result, type: "long" }
+  - { kind: call, method: "<java.io.ObjectInputStream$GetField: short get(java.lang.String,short)>", index: result, type: "short" }
+
+
+  - { kind: call, method: "<java.io.PipedInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.PipedInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.PipedReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.PipedReader: int read(char[], int, int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.PushbackInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.PushbackInputStream: int read(byte[], int, int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.PushbackReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.PushbackReader: int read(char[], int, int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.RandomAccessFile: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int read(byte[], int, int)>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int read(byte[])>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: void readFully(byte[])>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.RandomAccessFile: void readFully(byte[],int,int)>", index: 0, type: "byte[]" }
+  - { kind: call, method: "<java.io.RandomAccessFile: boolean readBoolean()>", index: result, type: "boolean" }
+  - { kind: call, method: "<java.io.RandomAccessFile: byte readByte()>", index: result, type: "byte" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int readUnsignedByte()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: short readShort()>", index: result, type: "short" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int readUnsignedShort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: char readChar()>", index: result, type: "char" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int readInt()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: long readLong()>", index: result, type: "long" }
+  - { kind: call, method: "<java.io.RandomAccessFile: float readFloat()>", index: result, type: "float" }
+  - { kind: call, method: "<java.io.RandomAccessFile: double readDouble()>", index: result, type: "double" }
+  - { kind: call, method: "<java.io.RandomAccessFile: java.lang.String readLine()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int readUnsignedByte()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: int readUnsignedShort()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.RandomAccessFile: java.lang.String readUTF()>", index: result, type: "java.lang.String" }
+
+  - { kind: call, method: "<java.io.Reader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.Reader: int read(char[], int, int)>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.Reader: int read(char[])>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.Reader: int read(java.nio.CharBuffer)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.SequenceInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.SequenceInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.StringBufferInputStream: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.StringBufferInputStream: int read(byte[],int,int)>", index: result, type: "int" }
+
+  - { kind: call, method: "<java.io.StringReader: int read()>", index: result, type: "int" }
+  - { kind: call, method: "<java.io.StringReader: int read(char[],int,int)>", index: result, type: "int" }

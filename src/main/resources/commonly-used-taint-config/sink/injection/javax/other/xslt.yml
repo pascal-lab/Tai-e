@@ -1,0 +1,2 @@
+sinks:
+  - { method: "<javax.xml.transform.TransformerFactory: javax.xml.transform.Transformer newTransformer(javax.xml.transform.Source)>", index: 0 }

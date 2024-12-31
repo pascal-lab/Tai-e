@@ -1,0 +1,6 @@
+sinks:
+  - { method: "<android.database.DatabaseUtils: long longForQuery(android.database.sqlite.SQLiteDatabase,java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<android.database.DatabaseUtils: java.lang.String stringForQuery(android.database.sqlite.SQLiteDatabase,java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<android.database.DatabaseUtils: android.os.ParcelFileDescriptor blobFileDescriptorForQuery(android.database.sqlite.SQLiteDatabase,java.lang.String,java.lang.String[])>", index: 1 }
+  - { method: "<android.database.DatabaseUtils: void createDbFromSqlStatements(android.content.Context,java.lang.String,int,java.lang.String)>", index: 0 }
+

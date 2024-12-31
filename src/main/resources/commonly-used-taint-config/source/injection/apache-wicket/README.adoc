@@ -1,0 +1,7 @@
+= Description
+
+The Sources recorded in this directory primarily come from the Apache Wicket framework, a Java web application development framework. The source methods that can cause taint include:
+- Methods that retrieve properties from the incoming request (e.g., getHeader, getParameterValue)
+- Methods that obtain input streams for uploaded files (e.g., getInputStream)
+
+These inputs are provided externally and can be spoofed.

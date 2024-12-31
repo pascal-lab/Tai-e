@@ -1,0 +1,23 @@
+sinks:
+  - { method: "<java.io.PrintWriter: void write(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(java.lang.String,int,int)>", index: 2 }
+  - { method: "<java.io.PrintWriter: void write(char[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: void write(char[],int,int)>", index: 2 }
+
+  - { method: "<java.io.PrintWriter: void print(char[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(java.lang.Object)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void print(char)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(char[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(java.lang.String)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(java.lang.Object)>", index: 0 }
+  - { method: "<java.io.PrintWriter: void println(char)>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter printf(java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter printf(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(java.lang.CharSequence,int,int)>", index: 2 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter append(char)>", index: 0 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream printf(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream printf(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }

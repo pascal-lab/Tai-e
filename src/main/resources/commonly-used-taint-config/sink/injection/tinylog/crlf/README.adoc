@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The APIs in this directory are part of tinylog, used for logging purposes. They provide various methods for logging information at different levels, including debug, info, warning, and error.
+
+- **Common Use Cases**:
+    These APIs are commonly used to log various types of information, such as recording errors and exceptions, tracking runtime information, issuing warnings, and integrating with log auditing systems.
+
+- **Security Risks**:
+    CRLF Injection: Attackers can craft malicious input containing CRLF (Carriage Return and Line Feed) sequences to forge log entries, mislead monitoring personnel, and even affect auditing systems. Additionally, attackers can flood logs with excessive errors or irrelevant information, potentially corrupting the log data.

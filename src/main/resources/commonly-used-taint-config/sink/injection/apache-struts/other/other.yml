@@ -1,0 +1,25 @@
+sinks:
+  - { method: "<org.apache.struts2.util.VelocityStrutsUtil: java.lang.String evaluate(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object bean(org.apache.struts2.util.Object)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: boolean isTrue(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object findString(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String include(org.apache.struts2.util.Object)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String urlEncode(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.Object findValue(java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String getText(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: java.lang.String translateVariables(java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 1 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 2 }
+  - { method: "<org.apache.struts2.util.StrutsUtil: org.apache.struts2.util.List makeSelectList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>", index: 3 }
+  - { method: "<org.apache.struts2.views.jsp.ui.OgnlTool: org.apache.struts2.views.jsp.ui.Object findValue(java.lang.String,org.apache.struts2.views.jsp.ui.Object)>", index: 1 }
+
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.String findString(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.String findString(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,java.lang.Class)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: java.lang.Object findValue(java.lang.String,java.lang.Class,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setValue(java.lang.String,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setValue(java.lang.String,java.lang.Object,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.ValueStack: void setParameter(java.lang.String,java.lang.Object)>", index: 1 }

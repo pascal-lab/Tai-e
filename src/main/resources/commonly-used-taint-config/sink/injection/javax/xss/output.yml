@@ -1,0 +1,24 @@
+sinks:
+  - { method: "<javax.servlet.http.HttpServletResponse: void sendError(int,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponse: void setStatus(int,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void sendError(int,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.http.HttpServletResponseWrapper: void setStatus(int,java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.ServletOutputStream: void print(java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.ServletOutputStream: void println(java.lang.String)>", index: 0 }
+
+  - { method: "<javax.servlet.jsp.JspWriter: void write(java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void write(java.lang.String,int,int)>", index: 2 }
+  - { method: "<javax.servlet.jsp.JspWriter: void write(char[])>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void write(char[],int,int)>", index: 2 }
+  - { method: "<javax.servlet.jsp.JspWriter: java.io.PrintWriter append(java.lang.CharSequence)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: java.io.PrintWriter append(java.lang.CharSequence,int,int)>", index: 2 }
+  - { method: "<javax.servlet.jsp.JspWriter: java.io.PrintWriter append(char)>", index: 0 }
+
+  - { method: "<javax.servlet.jsp.JspWriter: void print(char[])>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void print(java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void print(java.lang.Object)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void print(char)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void println(char[])>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void println(java.lang.String)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void println(java.lang.Object)>", index: 0 }
+  - { method: "<javax.servlet.jsp.JspWriter: void println(char)>", index: 0 }

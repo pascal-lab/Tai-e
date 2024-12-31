@@ -1,0 +1,11 @@
+= Description
+
+- **Overview**: 
+    OGNL (Object-Graph Navigation Language) is a language designed to provide a higher-level syntax for navigating Java object graphs. 
+    OGNL can access static methods, properties, and object methods, including classes such as `java.lang.Runtime` that can perform malicious actions like command execution. When OGNL expressions are externally controllable, attackers can craft malicious OGNL expressions to make the program perform malicious operations, which is the basis of the OGNL injection vulnerability.
+
+- **Common Use Cases**:
+    These APIs are commonly used to parse and execute OGNL expressions, replace variables in text, and set class member variables and methods.
+
+- **Security Risks**:
+    Remote Command Execution: When OGNL expressions are externally controllable, attackers can craft OGNL expressions to trigger reverse shells, execute system commands, and perform other malicious actions.
