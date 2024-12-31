@@ -518,7 +518,7 @@ NOTE: We plan to develop more user-friendly mechanisms for examining taint analy
 == Pre-prepared Commonly Used Taint Configuration
 
 Manually collecting and writing taint analysis configurations for different vulnerability types can be time-consuming and challenging, especially for developers and security researchers with limited experience.
-To help users streamline this process and improve the efficiency and accuracy of vulnerability detection, we have curated `Commonly Used Taint Configuration`. 
+To help users streamline this process and improve the efficiency and accuracy of vulnerability detection, we have curated _Commonly Used Taint Configuration_. 
 When creating or modifying your own taint analysis configuration, you can refer to this configuration for guidance in your process.
 
 Commonly Used Taint Configuration is a comprehensive collection of source, sink, and transfer rules tailored for various common vulnerability types.
