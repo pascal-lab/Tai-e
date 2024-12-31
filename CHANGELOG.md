@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased] - 2024-08-18
+## [Unreleased] - 2024-12-31
+
+## [0.5.1] - 2024-12-31
 
 ### New Features
 - Add side-effect analysis.
@@ -17,6 +19,7 @@
   - Support interactive mode, allowing users to modify the taint configuration file and re-run taint analysis without needing to re-run the whole program analysis.
   - Enhance TFG dumping by adding taint configuration and call site info to Source/Sink node and TaintTransfer edge.
   - Support programmatic taint config provider.
+  - Add commonly used taint configurations.
 - Class hierarchy analysis (CHA)
   - Support ignoring call sites that call methods declared in `java.lang.Object`.
   - Support ignoring call sites whose callees exceed given limit.
@@ -35,6 +38,10 @@
 - Fix mismatch between number of parameter names and number of actual parameters in JMethod for inner class.
 - Fix option parser, now treat only the first colon as delimiter between a key and a value (before each colon is treated as delimiter).
 - Fix empty log file when running via JAR.
+
+### Contributors
+
+We would like to thank the following community members for their contributions to the releases (v0.5.1, v0.2.2) of Tai-e: [Wangxiz](https://github.com/Wangxiz), [Chenghang Shi](https://github.com/enochii), [YaphetsH](https://github.com/YaphetsH), [GnSight](https://github.com/ftyghome), [Zhaohui Wang](https://github.com/chaos-warzh), [cs-cat](https://github.com/cs-cat), [Yinning Xiao](https://github.com/ningninger), [Zhiwei Zhang](https://github.com/auroraberry), [Hengbin Zheng](https://github.com/Isla-top), [Chenxi Zhang](https://github.com/penguinfirst).
 
 ## [0.2.2] - 2023-09-23
 
@@ -83,6 +90,7 @@
 - First release.
 
 
-[Unreleased]: https://github.com/pascal-lab/Tai-e/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/pascal-lab/Tai-e/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/pascal-lab/Tai-e/compare/v0.2.2...v0.5.1
 [0.2.2]: https://github.com/pascal-lab/Tai-e/compare/v0.0.3...v0.2.2
 [0.0.3]: https://github.com/pascal-lab/Tai-e/releases/tag/v0.0.3
