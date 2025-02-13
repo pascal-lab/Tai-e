@@ -2,6 +2,10 @@
 
 ## [Unreleased] - 2024-12-31
 
+### New Features
+- Pointer analysis
+  - Add special handling for zero-length arrays to enhance PTA precision.
+
 ## [0.5.1] - 2024-12-31
 
 ### New Features

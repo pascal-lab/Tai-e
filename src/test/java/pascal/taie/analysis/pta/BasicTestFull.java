@@ -50,6 +50,7 @@ public class BasicTestFull extends BasicTest {
     @MultiStringsSource({"NativeModel", "distinguish-string-constants:all"})
     @MultiStringsSource({"Annotations", "cs:1-call",
             "distinguish-string-constants:all"})
+    @MultiStringsSource({"ZeroLengthArray", "cs:1-obj-1h"})
     void testFull(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
     }

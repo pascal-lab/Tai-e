@@ -25,6 +25,9 @@ package pascal.taie.analysis.pta.core.heap;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NumberLiteral;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.stmt.New;
@@ -92,6 +95,10 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<MockObj, MockObj> mockObjs = Maps.newMap();
 
+    private final Map<Type, Obj> zeroLengthArrays = Maps.newMap();
+
+    private static final Descriptor zeroLengthArrayDesc = () -> "ZeroLengthArray";
+
     /**
      * Counter for indexing Objs.
      */
@@ -152,7 +159,22 @@ public abstract class AbstractHeapModel implements HeapModel {
         if (isMergeExceptionObjects && typeSystem.isSubtype(throwable, type)) {
             return getMergedObj(allocSite);
         }
+
+        if (isZeroLengthArrayAlloc(allocSite)) {
+            return getZeroLengthArrayObj(type);
+        }
+
         return doGetObj(allocSite);
+    }
+
+    private boolean isZeroLengthArrayAlloc(New allocSite) {
+        if (!(allocSite.getRValue() instanceof NewArray newArr)) {
+            return false;
+        }
+        Var length = newArr.getLength();
+        return length.isConst()
+                && length.getConstValue() instanceof NumberLiteral numLit
+                && numLit.getNumber().longValue() == 0;
     }
 
     /**
@@ -172,6 +194,18 @@ public abstract class AbstractHeapModel implements HeapModel {
     protected NewObj getNewObj(New allocSite) {
         return newObjs.computeIfAbsent(allocSite,
                 site -> add(new NewObj(site)));
+    }
+
+    /**
+     * Get the mock object for a zero-length array.
+     * Arrays with the same type share one mocked representation
+     *
+     * @param type the type of allocated zero-length array (e.g. String[])
+     * @return mock object for the zero-length array
+     */
+    protected Obj getZeroLengthArrayObj(Type type) {
+        return zeroLengthArrays.computeIfAbsent(type,
+                ty -> getMockObj(zeroLengthArrayDesc, "<Merged zero-length " + type + ">", type, false));
     }
 
     /**
