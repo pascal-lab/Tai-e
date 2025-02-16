@@ -159,7 +159,6 @@ public abstract class AbstractHeapModel implements HeapModel {
         if (isMergeExceptionObjects && typeSystem.isSubtype(throwable, type)) {
             return getMergedObj(allocSite);
         }
-
         if (isZeroLengthArrayAlloc(allocSite)) {
             return getZeroLengthArrayObj(type);
         }
@@ -205,7 +204,8 @@ public abstract class AbstractHeapModel implements HeapModel {
      */
     protected Obj getZeroLengthArrayObj(Type type) {
         return zeroLengthArrays.computeIfAbsent(type,
-                ty -> getMockObj(zeroLengthArrayDesc, "<Merged zero-length " + type + ">", type, false));
+                t -> getMockObj(zeroLengthArrayDesc,
+                        "<Merged zero-length " + t + ">", t, false));
     }
 
     /**
