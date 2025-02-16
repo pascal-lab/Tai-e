@@ -3,7 +3,7 @@ Points-to sets of all variables
 []:<GetMember: void testConstructor()>/$r1 -> [[]:NewObj{<GetMember: void testConstructor()>[4@L14] newarray java.lang.Class[%intconst0]}]
 []:<GetMember: void testConstructor()>/$r2 -> [[]:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}]
 []:<GetMember: void testConstructor()>/$r3 -> [[]:NewObj{<GetMember: void testConstructor()>[9@L15] newarray java.lang.Object[%intconst0]}]
-[]:<GetMember: void testConstructor()>/$r4 -> [[]:NewObj{<GetMember: void testConstructor()>[12@L16] newarray java.lang.Class[%intconst1]}]
+[]:<GetMember: void testConstructor()>/$r4 -> [[]:ZeroLengthArray{alloc=<Merged zero-length java.lang.Class[]>,type=java.lang.Class[]}]
 []:<GetMember: void testConstructor()>/$r5 -> [[]:ReflectionMetaObj{alloc=<U: void <init>()>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(V)>,type=java.lang.reflect.Constructor}, []:ReflectionMetaObj{alloc=<U: void <init>(java.lang.Object)>,type=java.lang.reflect.Constructor}]
 []:<GetMember: void testConstructor()>/$r6 -> [[]:NewObj{<GetMember: void testConstructor()>[14@L17] newarray java.lang.Object[%intconst0]}]
 []:<GetMember: void testConstructor()>/%classconst2 -> [[]:ConstantObj{java.lang.Class: V.class}]
