@@ -403,3 +403,5 @@
 - android.view.View$OnTouchListener
 - android.view.SurfaceHolder$Callback2
 - com.google.android.gms.tasks.OnSuccessListener
+- androidx.car.app.model.OnClickListener
+- androidx.car.app.model.TabTemplate$TabCallback
