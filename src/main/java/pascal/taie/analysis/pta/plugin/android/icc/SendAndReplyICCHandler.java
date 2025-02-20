@@ -33,7 +33,6 @@ import pascal.taie.android.info.TransferDataInfo;
 import pascal.taie.android.info.TransferFilterInfo;
 import pascal.taie.android.info.UriData;
 import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -231,8 +230,18 @@ public class SendAndReplyICCHandler extends ICCHandler {
     private void addICCCallEdge(JClass targetComponent, ICCInfo sourceICCInfo, JMethod callee) {
         CSObj recvObj = csManager.getCSObj(emptyContext, handlerContext.androidObjManager().getComponentObj(targetComponent));
         Context calleeCtx = selector.selectContext(sourceICCInfo.iccCSCallSite(), recvObj, callee);
+        addICCInit(sourceICCInfo, calleeCtx, recvObj);
         CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
         addICCCallEdge(sourceICCInfo, csCallee, recvObj);
+    }
+
+    private void addICCInit(ICCInfo sourceICCInfo, Context calleeCtx, CSObj recvObj) {
+        if (recvObj.getObject().getType() instanceof ClassType classType) {
+            JMethod init = classType.getJClass().getDeclaredMethod(Subsignature.getNoArgInit());
+            if (init != null) {
+                addICCCallEdge(sourceICCInfo, csManager.getCSMethod(calleeCtx, init), recvObj);
+            }
+        }
     }
 
     private void addICCCallEdge(ICCInfo sourceICCInfo, CSMethod callee, CSObj recvObj) {
@@ -264,10 +273,13 @@ public class SendAndReplyICCHandler extends ICCHandler {
 
     private void sendMessage(ICCInfo source, ICCInfo target) {
         CSObj recvObj = target.handlerObj();
-        JMethod callee = target.info().getVar().getMethod();
-        Context calleeCtx = selector.selectContext(source.iccCSCallSite(), recvObj, callee);
-        CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
-        addICCCallEdge(source, csCallee, recvObj);
+        if (recvObj != null) {
+            JMethod callee = target.info().getVar().getMethod();
+            Context calleeCtx = selector.selectContext(source.iccCSCallSite(), recvObj, callee);
+            addICCInit(source, calleeCtx, recvObj);
+            CSMethod csCallee = csManager.getCSMethod(calleeCtx, callee);
+            addICCCallEdge(source, csCallee, recvObj);
+        }
     }
 
     private Set<JClass> getTargetComponents(CSObj csObj, boolean isStartActivity) {
@@ -352,9 +364,13 @@ public class SendAndReplyICCHandler extends ICCHandler {
                                 transferData(info.csVar().get(1), IntentInfoKind.NORMALIZE_MIME_TYPE)));
             }
         }
+        // Final strategy has not yet been determined
         if (isStartActivity) {
             categories.add(DEFAULT_CATEGORY);
         }
+//        if (isStartActivity && (!actions.isEmpty() || !categories.isEmpty() || !data.isEmpty())) {
+//            categories.add(DEFAULT_CATEGORY);
+//        }
         return new TransferFilterInfo(classNames, actions, categories, data);
     }
 
