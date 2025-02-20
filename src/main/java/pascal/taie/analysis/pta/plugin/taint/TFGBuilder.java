@@ -141,6 +141,7 @@ class TFGBuilder {
                         sourceNode2SourcePoint.put(sourceNode, p);
                     }
                 }
+            }
         }
         logger.info("Source nodes:");
         sourceNode2SourcePoint.keySet().forEach(logger::info);
