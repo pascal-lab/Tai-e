@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    These APIs are methods from the Spring Framework used to parse expression strings and generate corresponding expression objects. SPEL (Spring Expression Language) is a more powerful expression language than JSP's EL, offering capabilities such as method calls and basic string templating.
+
+- **Common Use Cases**:
+    These APIs are commonly used to parse expression strings and generate corresponding expression objects, which may later be evaluated within a specific context.
+
+- **Security Risks**:
+    RCE (Remote Code Execution): If attackers can manipulate the input SpEL expressions without restrictions, evaluating the expression in the default context may lead to remote code execution vulnerabilities.

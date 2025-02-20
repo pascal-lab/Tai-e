@@ -24,15 +24,19 @@ package pascal.taie.analysis.graph.flowgraph;
 
 import pascal.taie.util.Canonicalizer;
 
-record OtherFlowEdge(String info, Node source, Node target)
+/**
+ * @param rawEdge the raw edge is for storing the original edge information
+ */
+public record OtherFlowEdge(String info, Node source, Node target, Object rawEdge)
         implements FlowEdge {
 
     private static final Canonicalizer<String> canonicalizer = new Canonicalizer<>();
 
-    OtherFlowEdge(String info, Node source, Node target) {
+    public OtherFlowEdge(String info, Node source, Node target, Object rawEdge) {
         this.info = canonicalizer.get(info);
         this.source = source;
         this.target = target;
+        this.rawEdge = rawEdge;
     }
 
     @Override

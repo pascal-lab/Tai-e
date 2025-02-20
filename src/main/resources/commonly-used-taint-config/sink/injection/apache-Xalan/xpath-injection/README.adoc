@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    Apache Xalan provides a set of methods for evaluating XPath expressions and selecting nodes within XML documents. These methods enable developers to easily locate, filter, and process specific nodes and data within XML documents.
+
+- **Common Use Cases**:
+    These APIs are commonly used to parse and execute XPath expressions, returning corresponding results based on the content of XML documents.
+
+- **Security Risks**:
+    XPath Injection: Similar to SQL injection attacks, attackers can craft malicious XPath expressions to reveal the structure of XML data or access data that would normally be restricted. If the XML data is used for user authentication, attackers could even escalate their privileges.

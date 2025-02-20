@@ -1,0 +1,13 @@
+sinks:
+  - { method: "<java.util.Formatter: java.util.Formatter format(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.util.Formatter: java.util.Formatter format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }
+
+  - { method: "<java.io.PrintStream: java.io.PrintStream format(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintStream: java.io.PrintStream format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.lang.String: java.lang.String format(java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.lang.String: java.lang.String format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }
+
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter format(java.util.Locale,java.lang.String,java.lang.Object[])>", index: 1 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter format(java.lang.String,java.lang.Object[])>", index: 0 }
+  - { method: "<java.io.PrintWriter: java.io.PrintWriter format(java.lang.String,java.lang.Object[])>", index: 1 }

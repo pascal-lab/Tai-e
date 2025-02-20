@@ -1,0 +1,2 @@
+sources:
+  - { kind: param, method: "<io.dropwizard.jersey.filter.AllowedMethodsFilter: void doFilter(jakarta.servlet.ServletRequest,jakarta.servlet.ServletResponse,jakarta.servlet.FilterChain)>", index: 0, type: "jakarta.servlet.ServletRequest" }

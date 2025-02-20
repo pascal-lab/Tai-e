@@ -127,7 +127,7 @@ class TransferHandler extends OnFlyHandler {
                 case VAR -> {
                     Transfer tf = getTransferFunction(transfer.type());
                     solver.addPFGEdge(
-                            new TaintTransferEdge(csFrom, csTo),
+                            new TaintTransferEdge(csFrom, csTo, transfer),
                             tf);
                     yield null;
                 }
@@ -178,7 +178,7 @@ class TransferHandler extends OnFlyHandler {
                         .map(csManager::getArrayIndex)
                         .forEach(arrayIndex ->
                                 solver.addPFGEdge(
-                                        new TaintTransferEdge(csVar, arrayIndex),
+                                        new TaintTransferEdge(csVar, arrayIndex, info.transfer()),
                                         tf));
             }
             case VAR_TO_FIELD -> {
@@ -187,7 +187,7 @@ class TransferHandler extends OnFlyHandler {
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
                                 solver.addPFGEdge(
-                                        new TaintTransferEdge(csVar, oDotF),
+                                        new TaintTransferEdge(csVar, oDotF, info.transfer()),
                                         tf));
             }
             case ARRAY_TO_VAR -> {
@@ -195,7 +195,7 @@ class TransferHandler extends OnFlyHandler {
                         .map(csManager::getArrayIndex)
                         .forEach(arrayIndex ->
                                 solver.addPFGEdge(
-                                        new TaintTransferEdge(arrayIndex, csVar),
+                                        new TaintTransferEdge(arrayIndex, csVar, info.transfer()),
                                         tf));
             }
             case FIELD_TO_VAR -> {
@@ -204,7 +204,7 @@ class TransferHandler extends OnFlyHandler {
                         .map(o -> csManager.getInstanceField(o, f))
                         .forEach(oDotF ->
                                 solver.addPFGEdge(
-                                        new TaintTransferEdge(oDotF, csVar),
+                                        new TaintTransferEdge(oDotF, csVar, info.transfer()),
                                         tf));
             }
         }

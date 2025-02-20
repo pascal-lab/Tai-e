@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    LDAP (Lightweight Directory Access Protocol) is a protocol used to access and maintain distributed directory information services. Web applications often use LDAP to manage users and permissions.
+
+- **Common Use Cases**:
+    These APIs are commonly used to search, query, and list entries in an LDAP directory.
+
+- **Security Risks**:
+    Unauthorized Access: When applications construct LDAP queries based on user input, attackers can exploit insufficient input validation to craft malicious inputs that modify the LDAP query, leading to unauthorized access or data manipulation.

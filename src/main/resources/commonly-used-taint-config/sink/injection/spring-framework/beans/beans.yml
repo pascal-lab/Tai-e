@@ -1,0 +1,5 @@
+sinks:
+  - { method: "<org.springframework.beans.BeanUtils: void copyProperties(java.lang.Object,java.lang.Object)>", index: 1 }
+  - { method: "<org.springframework.beans.BeanUtils: void copyProperties(java.lang.Object,java.lang.Object,java.lang.Class)>", index: 1 }
+  - { method: "<org.springframework.beans.BeanUtils: void copyProperties(java.lang.Object,java.lang.Object,java.lang.String[])>", index: 1 }
+  - { method: "<org.springframework.beans.BeanUtils: void copyProperties(java.lang.Object,java.lang.Object,java.lang.Class,java.lang.String[])>", index: 1 }

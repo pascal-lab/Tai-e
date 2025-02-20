@@ -1,0 +1,18 @@
+sources:
+  - { kind: call, method: "<javax.portlet.PortletRequest: javax.portlet.PortletMode getPortletMode()>", index: result, type: "javax.portlet.PortletMode" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: javax.portlet.WindowState getWindowState()>", index: result, type: "javax.portlet.WindowState" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String getRemoteUser()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.security.Principal getUserPrincipal()>", index: result, type: "java.security.Principal" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String getParameter(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Map getParameterMap()>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Enumeration getParameterNames()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String[] getParameterValues(java.lang.String)>", index: result, type: "java.lang.String[]" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String getRequestedSessionId()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Enumeration getResponseContentType()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Enumeration getResponseContentTypes()>", index: result, type: "java.util.Enumeration" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Locale getLocale()>", index: result, type: "java.util.Locale" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String getServerName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.lang.String getWindowID()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: javax.portlet.http.Cookie[] getCookies()>", index: result, type: "javax.portlet.http.Cookie[]" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Map getPrivateParameterMap()>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<javax.portlet.PortletRequest: java.util.Map getPublicParameterMap()>", index: result, type: "java.util.Map" }

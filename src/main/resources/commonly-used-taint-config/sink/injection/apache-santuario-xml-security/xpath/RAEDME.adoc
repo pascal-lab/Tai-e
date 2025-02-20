@@ -1,0 +1,11 @@
+= Description
+
+- **Overview**: 
+    The Apache XML Security API provides functionality for processing XPath expressions within XML documents. This primarily involves two classes: `XPathAPI` and `JDKXPathAPI`, which are used to evaluate XPath expressions and select node lists within XML documents.
+
+- **Common Use Cases**:
+    These APIs are commonly used to parse and execute XPath expressions, returning corresponding results based on the content of XML documents.
+
+- **Security Risks**:
+    XPath Injection: Similar to SQL injection attacks, attackers can craft malicious XPath expressions to gain insights into the structure of XML data or access data that is normally restricted. If the XML data is used for user authentication, attackers could even escalate their privileges.
+

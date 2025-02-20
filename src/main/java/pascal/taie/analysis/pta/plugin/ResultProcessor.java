@@ -106,7 +106,8 @@ public class ResultProcessor implements Plugin {
                                PointerAnalysisResult result) {
         logStatistics(result);
 
-        boolean taintEnabled = options.getString("taint-config") != null;
+        boolean taintEnabled = options.getString("taint-config") != null
+                || !((List<String>) options.get("taint-config-providers")).isEmpty();
         if (options.getBoolean("dump")) {
             dumpPointsToSet(result, taintEnabled);
         }

@@ -1,0 +1,13 @@
+sink:
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(java.lang.String,com.opensymphony.xwork2.util.ValueStack)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(java.lang.String,com.opensymphony.xwork2.util.ValueStack,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.String translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char,java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: java.lang.Object translateVariables(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,java.lang.Class,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Collection translateVariablesCollection(java.lang.String,com.opensymphony.xwork2.util.ValueStack,boolean,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Collection translateVariablesCollection(char[],java.lang.String,com.opensymphony.xwork2.util.ValueStack,boolean,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: boolean shallBeIncluded(java.lang.String,boolean)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.util.TextParseUtil: com.opensymphony.xwork2.util.Set commaDelimitedStringToSet(java.lang.String)>", index: 0 }

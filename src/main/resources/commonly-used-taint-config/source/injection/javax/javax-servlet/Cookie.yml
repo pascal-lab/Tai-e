@@ -1,0 +1,6 @@
+sources:
+  - { kind: call, method: "<javax.servlet.http.Cookie: java.lang.String getComment()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.Cookie: java.lang.String getDomain()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.Cookie: java.lang.String getName()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.Cookie: java.lang.String getPath()>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<javax.servlet.http.Cookie: java.lang.String getValue()>", index: result, type: "java.lang.String" }

@@ -1,0 +1,2 @@
+sinks:
+  - { method: "<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>", index: 0 }

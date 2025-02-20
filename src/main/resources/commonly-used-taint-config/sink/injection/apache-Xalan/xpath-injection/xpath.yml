@@ -1,0 +1,10 @@
+sinks:
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.apache.xpath.objects.XObject eval(org.w3c.dom.Node,java.lang.String,org.apache.xml.utils.PrefixResolver)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.traversal.NodeIterator selectNodeIterator(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String)>", index: 0 }
+  - { method: "<org.apache.xpath.XPathAPI: org.w3c.dom.Node selectSingleNode(org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }

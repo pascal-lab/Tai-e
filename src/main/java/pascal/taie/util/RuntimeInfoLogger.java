@@ -148,7 +148,19 @@ public class RuntimeInfoLogger {
         try {
             String gitHead = Files.readString(Path.of(".git", "HEAD"));
             if (gitHead.startsWith("ref: ")) {
-                return Files.readString(Path.of(".git", gitHead.substring(5).trim())).trim();
+                String ref = gitHead.substring(5).trim();
+                // path '.git/refs/heads/branchName'
+                Path p = Path.of(".git", ref);
+                if (p.toFile().exists()) {
+                    return Files.readString(p).trim();
+                } else {
+                    // read from '.git/info/refs' line by line
+                    return Files.lines(Path.of(".git", "info", "refs"))
+                            .filter(line -> line.endsWith(ref))
+                            .map(line -> line.split("\t")[0])
+                            .findFirst()
+                            .orElse(UNKNOWN);
+                }
             } else {
                 return gitHead.trim();
             }

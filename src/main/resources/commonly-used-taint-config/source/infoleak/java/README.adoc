@@ -1,0 +1,15 @@
+= Description
+
+The sources recorded in this directory mainly come from the Java standard library. The source methods that can generate taints include:
+
+- Methods that retrieve stored data from databases (e.g., `getString` and `getNString` methods in `java.sql`).
+- Methods that retrieve data from users that need to be validated (e.g., `get` methods and `requestPasswordAuthentication` method in `java.net.Authenticator`).
+- Methods that retrieve information from connected clients (e.g., `get` methods in `java.net.ContentHandler`, `CookieHandler`, and `CookieManager`).
+- Methods that retrieve information from `DatagramSocket`/`HttpCookie` (e.g., `get` methods in `java.net.DatagramSocket`/`HttpCookie`).
+- Methods that retrieve system information from `System` (e.g., `get` methods in `java.lang.System`).
+- Methods that retrieve information from input streams (e.g., `read` methods in various `InputStream` and `Reader` classes in `java.io`).
+- Methods that retrieve specified values from persistent fields (e.g., `get` methods in `java.io.ObjectInputStream$GetField`).
+- Methods that read information from files (e.g., `read` method in `java.io.RandomAccessFile`).
+- ...
+
+*Note*: The methods referred to as `get` or `read` are those that start with "get" or "read".

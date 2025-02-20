@@ -1,0 +1,74 @@
+sinks:
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List list(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List list(java.lang.String,org.springframework.ldap.core.NameClassPairMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void list(java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 1 }
+
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.lang.Object lookup(java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.lang.Object lookup(java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 1 }
+
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,int,boolean,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,int,boolean,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: void search(java.lang.String,java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.AttributesMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.AttributesMapper)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.AttributesMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.ContextMapper)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapTemplate: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper)>", index: 3 }
+
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List list(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List list(java.lang.String,org.springframework.ldap.core.NameClassPairMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void list(java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 1 }
+
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.lang.Object lookup(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.lang.Object lookup(java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.lang.Object lookup(java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 1 }
+
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler,org.springframework.ldap.core.DirContextProcessor)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.NameClassPairCallbackHandler,org.springframework.ldap.core.DirContextProcessor)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,int,boolean,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,int,boolean,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: void search(java.lang.String,java.lang.String,org.springframework.ldap.core.NameClassPairCallbackHandler)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.AttributesMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.AttributesMapper)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.AttributesMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,java.lang.String[],org.springframework.ldap.core.ContextMapper)>", index: 4 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,int,org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 1 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.ContextMapper)>", index: 3 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper)>", index: 2 }
+  - { method: "<org.springframework.ldap.core.LdapOperations: java.util.List search(java.lang.String,java.lang.String,javax.naming.directory.SearchControls,org.springframework.ldap.core.AttributesMapper)>", index: 3 }

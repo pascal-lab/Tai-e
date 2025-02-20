@@ -1,0 +1,2 @@
+sources:
+  - { kind: call, method: "<org.apache.struts2.dispatcher.Parameter: java.lang.String getValue()>", index: result, type: "java.lang.String" }

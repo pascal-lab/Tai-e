@@ -1,0 +1,30 @@
+sinks:
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String)>", index: 0 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,java.lang.Object[],int[])>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,java.lang.Object[],int[])>", index: 2 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,org.springframework.jdbc.core.PreparedStatementSetter)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,java.lang.Object[],int[])>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,java.lang.Object[],int[])>", index: 2 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: int update(java.lang.String,java.lang.Object[])>", index: 1 }
+
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,org.springframework.jdbc.core.ResultSetExtractor)>", index: 0 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,org.springframework.jdbc.core.RowCallbackHandler)>", index: 0 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,org.springframework.jdbc.core.RowMapper)>", index: 0 }
+  
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,org.springframework.jdbc.core.PreparedStatementSetter,org.springframework.jdbc.core.ResultSetExtractor)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.ResultSetExtractor)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.ResultSetExtractor)>", index: 2 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,java.lang.Object[],org.springframework.jdbc.core.ResultSetExtractor)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.lang.Object query(java.lang.String,org.springframework.jdbc.core.ResultSetExtractor,java.lang.Object[])>", index: 2 }
+  
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,org.springframework.jdbc.core.PreparedStatementSetter,org.springframework.jdbc.core.RowCallbackHandler)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.RowCallbackHandler)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.RowCallbackHandler)>", index: 2 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,java.lang.Object[],org.springframework.jdbc.core.RowCallbackHandler)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: void query(java.lang.String,org.springframework.jdbc.core.RowCallbackHandler,java.lang.Object[])>", index: 2 }
+  
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,org.springframework.jdbc.core.PreparedStatementSetter,org.springframework.jdbc.core.RowMapper)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.RowMapper)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,java.lang.Object[],int[],org.springframework.jdbc.core.RowMapper)>", index: 2 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,java.lang.Object[],org.springframework.jdbc.core.RowMapper)>", index: 1 }
+  - { method: "<org.springframework.jdbc.core.JdbcTemplate: java.util.List query(java.lang.String,org.springframework.jdbc.core.RowMapper,java.lang.Object[])>", index: 2 }

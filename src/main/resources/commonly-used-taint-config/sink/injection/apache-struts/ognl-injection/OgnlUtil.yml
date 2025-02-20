@@ -1,0 +1,20 @@
+sink:
+  - { method: "<com.opensymphony.xwork2.util.TextParser: java.lang.Object evaluate(char[],java.lang.String,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.util.OgnlTextParser: java.lang.Object evaluate(char[],java.lang.String,com.opensymphony.xwork2.util.TextParseUtil$ParsedValueEvaluator,int)>", index: 2 }
+
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,java.util.Map)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,java.util.Map,boolean)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object)>", index: 1 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperties(java.util.Map,java.lang.Object,boolean)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setProperty(java.lang.String,java.lang.Object,java.lang.Object,java.util.Map,boolean)>", index: 4 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: void setValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Object)>", index: 3 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object callMethod(java.lang.String,java.util.Map,java.lang.Object)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object getValue(java.lang.String,java.util.Map,java.lang.Object,java.lang.Class)>", index: 3 }
+
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compile(java.lang.String)>", index: 0 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compileAndExecute(java.lang.String,java.util.Map,com.opensymphony.xwork2.ognl.OgnlTask)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compileAndExecuteMethod(java.lang.String,java.util.Map,com.opensymphony.xwork2.ognl.OgnlTask)>", index: 2 }
+  - { method: "<com.opensymphony.xwork2.ognl.OgnlUtil: java.lang.Object compile(java.lang.String,java.util.Map)>", index: 1 }
+

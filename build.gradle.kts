@@ -10,12 +10,12 @@ version = projectVersion
 
 dependencies {
     // Process options
-    implementation("info.picocli:picocli:4.7.3")
+    implementation("info.picocli:picocli:4.7.6")
     // Logger
-    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
     // Process YAML configuration files
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
@@ -30,14 +30,14 @@ dependencies {
     // Use ASM to read Java class files
     implementation("org.ow2.asm:asm:9.4")
     // Eliminate SLF4J warning
-    implementation("org.slf4j:slf4j-nop:2.0.7")
+    implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use FlowDroid to parse apk
     implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.10.0")
 //    implementation("io.github.yaphetsh:soot-infoflow-android:2.14.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
 }

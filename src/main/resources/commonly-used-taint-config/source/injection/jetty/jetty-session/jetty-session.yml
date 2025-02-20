@@ -1,0 +1,2 @@
+sources:
+  - { kind: param, method: "<org.eclipse.jetty.session.SessionHandler: boolean handle(org.eclipse.jetty.server.Request,org.eclipse.jetty.server.Response,org.eclipse.jetty.util.Callback)>", index: 0, type: "org.eclipse.jetty.server.Request" }

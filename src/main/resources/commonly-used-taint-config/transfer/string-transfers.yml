@@ -1,0 +1,179 @@
+transfers:
+  - { method: "<java.lang.String: void <init>(byte[])>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],int)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],int,int)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],int,int,int)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],int,int,java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],int,int,java.nio.charset.Charset)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(byte[],java.nio.charset.Charset)>", from: 0, to: base }
+
+  - { method: "<java.lang.String: void <init>(char[])>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(char[],int,int)>", from: 0, to: base }
+
+  - { method: "<java.lang.String: void <init>(int[],int,int)>", from: 0, to: base }
+
+  - { method: "<java.lang.String: void <init>(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(java.lang.StringBuilder)>", from: 0, to: base }
+  - { method: "<java.lang.String: void <init>(java.lang.StringBuffer)>", from: 0, to: base }
+
+  - { method: "<java.lang.String: char charAt(int)>", from: base, to: result }
+  - { method: "<java.lang.String: int codePointAt(int)>", from: base, to: result }
+  - { method: "<java.lang.String: int codePointBefore(int)>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String concat(java.lang.String)>", from: 0, to: result }
+
+  - { method: "<java.lang.String: java.lang.String copyValueOf(char[])>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String copyValueOf(char[],int,int)>", from: 0, to: result }
+
+  - { method: "<java.lang.String: java.lang.String format(java.util.Locale,java.lang.String,java.lang.Object[])>", from: 1, to: result }
+  - { method: "<java.lang.String: java.lang.String format(java.util.Locale,java.lang.String,java.lang.Object[])>", from: "2[*]", to: result }
+  - { method: "<java.lang.String: java.lang.String format(java.lang.String,java.lang.Object[])>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String format(java.lang.String,java.lang.Object[])>", from: "1[*]", to: result }
+
+  - { method: "<java.lang.String: byte[] getBytes()>", from: base, to: result }
+  - { method: "<java.lang.String: byte[] getBytes(java.nio.charset.Charset)>", from: base, to: result }
+  - { method: "<java.lang.String: void getBytes(int,int,byte[],int)>", from: base, to: 2 }
+  - { method: "<java.lang.String: byte[] getBytes(java.lang.String)>", from: base, to: result }
+  - { method: "<java.lang.String: void getChars(int,int,char[],int)>", from: base, to: 2 }
+
+  - { method: "<java.lang.String: java.lang.String intern()>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String join(java.lang.CharSequence,java.lang.CharSequence[])>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String join(java.lang.CharSequence,java.lang.CharSequence[])>", from: "1[*]", to: result }
+  - { method: "<java.lang.String: java.lang.String join(java.lang.CharSequence,java.lang.Iterable)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String join(java.lang.CharSequence,java.lang.Iterable)>", from: 1, to: result }
+
+  - { method: "<java.lang.String: java.lang.String replace(char,char)>", from: 1, to: result }
+  - { method: "<java.lang.String: java.lang.String replace(char,char)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)>", from: 1, to: result }
+  - { method: "<java.lang.String: java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String replaceAll(java.lang.String,java.lang.String)>", from: 1, to: result }
+  - { method: "<java.lang.String: java.lang.String replaceAll(java.lang.String,java.lang.String)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String replaceFirst(java.lang.String,java.lang.String)>", from: 1, to: result }
+  - { method: "<java.lang.String: java.lang.String replaceFirst(java.lang.String,java.lang.String)>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String[] split(java.lang.String)>", from: base, to: "result[*]" }
+  - { method: "<java.lang.String: java.lang.String[] split(java.lang.String,int)>", from: base, to: "result[*]" }
+
+  - { method: "<java.lang.String: java.lang.CharSequence subSequence(int,int)>", from: base, to: result, type: "java.lang.String" }
+
+  - { method: "<java.lang.String: java.lang.String substring(int)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String substring(int,int)>", from: base, to: result }
+
+  - { method: "<java.lang.String: char[] toCharArray()>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String toLowerCase()>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String toLowerCase(java.util.Locale)>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String toUpperCase()>", from: base, to: result }
+  - { method: "<java.lang.String: java.lang.String toUpperCase(java.util.Locale)>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String trim()>", from: base, to: result }
+
+  - { method: "<java.lang.String: java.lang.String valueOf(boolean)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(char)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(char[])>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(char[],int,int)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(double)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(float)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(int)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(long)>", from: 0, to: result }
+  - { method: "<java.lang.String: java.lang.String valueOf(java.lang.Object)>", from: 0, to: result }
+
+  - { method: "<java.lang.StringBuffer: void <init>(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: void <init>(java.lang.CharSequence)>", from: 0, to: base }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(boolean)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(long)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char[])>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(char[],int,int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(double)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(float)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence,int,int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.StringBuffer)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer appendCodePoint(int)>", from: 0, to: base }
+
+  - { method: "<java.lang.StringBuffer: char charAt(int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuffer: void getChars(int,int,char[],int)>", from: base, to: 2 }
+
+  - { method: "<java.lang.StringBuffer: int codePointAt(int)>", from: base, to: result }
+  - { method: "<java.lang.StringBuffer: int codePointBefore(int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,boolean)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[])>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[],int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,double)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,float)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,long)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence,int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.Object)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.String)>", from: 1, to: base }
+
+  - { method: "<java.lang.StringBuffer: java.lang.StringBuffer replace(int,int,java.lang.String)>", from: 2, to: base }
+
+  - { method: "<java.lang.StringBuffer: void setCharAt(int,char)>", from: 1, to: base }
+
+  - { method: "<java.lang.StringBuffer: java.lang.CharSequence subSequence(int,int)>", from: base, to: result, type: "java.lang.String" }
+
+  - { method: "<java.lang.StringBuffer: java.lang.String substring(int)>", from: base, to: result }
+  - { method: "<java.lang.StringBuffer: java.lang.String substring(int,int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuffer: java.lang.String toString()>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuilder: void <init>(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: void <init>(java.lang.CharSequence)>", from: 0, to: base }
+
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(boolean)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(char)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(long)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(char[])>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(char[],int,int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(double)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(float)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.CharSequence)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.CharSequence,int,int)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.StringBuffer)>", from: 0, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder appendCodePoint(int)>", from: 0, to: base }
+
+  - { method: "<java.lang.StringBuilder: char charAt(int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuilder: void getChars(int,int,char[],int)>", from: base, to: 2 }
+
+  - { method: "<java.lang.StringBuilder: int codePointAt(int)>", from: base, to: result }
+  - { method: "<java.lang.StringBuilder: int codePointBefore(int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,boolean)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char[])>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char[],int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,double)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,float)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,long)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.CharSequence)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.CharSequence,int,int)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.Object)>", from: 1, to: base }
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.String)>", from: 1, to: base }
+
+  - { method: "<java.lang.StringBuilder: java.lang.StringBuilder replace(int,int,java.lang.String)>", from: 2, to: base }
+
+  - { method: "<java.lang.StringBuilder: void setCharAt(int,char)>", from: 1, to: base }
+
+  - { method: "<java.lang.StringBuilder: java.lang.CharSequence subSequence(int,int)>", from: base, to: result, type: "java.lang.String" }
+
+  - { method: "<java.lang.StringBuilder: java.lang.String substring(int)>", from: base, to: result }
+  - { method: "<java.lang.StringBuilder: java.lang.String substring(int,int)>", from: base, to: result }
+
+  - { method: "<java.lang.StringBuilder: java.lang.String toString()>", from: base, to: result }

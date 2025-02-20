@@ -4,3 +4,8 @@ include(
     ":", // root project
     "docs",
 )
+
+// Auto detect and provision JVM
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+}

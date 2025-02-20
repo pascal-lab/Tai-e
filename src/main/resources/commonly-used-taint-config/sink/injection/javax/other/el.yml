@@ -1,0 +1,3 @@
+sinks:
+  - { method: "<javax.el.ExpressionFactory: javax.el.ValueExpression createValueExpression(javax.el.ELContext,java.lang.String,java.lang.Class)>", index: 1 }
+  - { method: "<javax.el.ExpressionFactory: javax.el.MethodExpression createMethodExpression(javax.el.ELContext,java.lang.String,java.lang.Class,java.lang.Class[])>", index: 2 }

@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The sinks in this directory consist of Android database SQL-related APIs, including but not limited to `query`, `update`, `delete`, and other methods. Their main functionality is to perform database queries and update operations.
+
+- **Common Use Cases**:
+    These APIs are commonly used for handling user-inputted data for queries, data insertion, data updates, data deletion, and SQL statement execution. Users typically have some level of control over the parameters.
+
+- **Security Risks**:
+    SQL Injection: Attackers can exploit these APIs by constructing malicious input to inject SQL commands, thereby gaining control over the database.

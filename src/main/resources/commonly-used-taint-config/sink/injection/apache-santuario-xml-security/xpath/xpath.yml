@@ -1,0 +1,5 @@
+sinks:
+  - { method: "<org.apache.xml.security.utils.XPathAPI: boolean evaluate(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.XPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.JDKXPathAPI: boolean evaluate(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }
+  - { method: "<org.apache.xml.security.utils.JDKXPathAPI: org.w3c.dom.NodeList selectNodeList(org.w3c.dom.Node,org.w3c.dom.Node,java.lang.String,org.w3c.dom.Node)>", index: 1 }

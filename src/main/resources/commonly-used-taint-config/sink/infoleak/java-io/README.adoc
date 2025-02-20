@@ -1,0 +1,10 @@
+= Description
+
+- **Overview**: 
+    The sinks in this directory are composed of output-related APIs from the Java standard library's `io` package, primarily including the `write` functions in various output component classes.
+
+- **Common Use Cases**:
+    These APIs are commonly used to output data carried by parameters to specified locations, such as files or command lines.
+
+- **Security Risks**:
+    Information Disclosure: Attackers can use these APIs to output sensitive information to a specified location, allowing them to exploit the acquired data for illegal activities such as extortion.

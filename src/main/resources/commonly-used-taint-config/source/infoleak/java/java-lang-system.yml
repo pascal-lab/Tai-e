@@ -1,0 +1,6 @@
+sources:
+  - { kind: call, method: "<java.lang.System: java.lang.String clearProperty(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.lang.System: java.util.Map getenv()>", index: result, type: "java.util.Map" }
+  - { kind: call, method: "<java.lang.System: java.lang.String getenv(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.lang.System: java.lang.String getProperty(java.lang.String)>", index: result, type: "java.lang.String" }
+  - { kind: call, method: "<java.lang.System: java.lang.String getProperty(java.lang.String,java.lang.String)>", index: result, type: "java.lang.String" }

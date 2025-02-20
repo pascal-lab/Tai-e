@@ -95,7 +95,7 @@ public final class Configs {
                     // Check each individual value, if one match,
                     // then this condition can be satisfied.
                     for (String v : value.split("\\|")) {
-                        if (options.get(key).toString().equals(v)) {
+                        if (Objects.toString(options.get(key)).equals(v)) {
                             continue outer;
                         }
                     }

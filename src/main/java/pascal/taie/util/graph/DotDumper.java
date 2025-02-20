@@ -132,11 +132,20 @@ public class DotDumper<N> {
             graph.forEach(this::dumpNode);
             // dump edges
             graph.forEach(n -> graph.getOutEdgesOf(n).forEach(this::dumpEdge));
+            // dump other information
+            dumpOthers();
             // dump ends
             out.println("}");
         } catch (FileNotFoundException e) {
             logger.warn("Failed to dump graph to {}", output.getAbsolutePath(), e);
         }
+    }
+
+    /**
+     * Subclasses can override this method to dump other information
+     * other than type parameter <code>&lt;N&gt;</code>.
+     */
+    protected void dumpOthers() {
     }
 
     private void dumpNode(N node) {
@@ -164,10 +173,12 @@ public class DotDumper<N> {
      * @param attributer function that returns attributes of {@code elem}
      * @param <T>        type of the element
      */
-    private <T> void dumpElement(T elem,
-                                 Function<T, String> toString,
-                                 Function<T, String> labeler,
-                                 Function<T, DotAttributes> attributer) {
+    protected <T> void dumpElement(
+            T elem,
+            Function<T, String> toString,
+            Function<T, String> labeler,
+            Function<T, DotAttributes> attributer
+    ) {
         out.print(INDENT);
         out.print(toString.apply(elem));
         String label = labeler.apply(elem);

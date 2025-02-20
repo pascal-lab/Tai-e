@@ -3,6 +3,13 @@ name: Release
 on:
   workflow_dispatch: # add manual trigger button
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -14,18 +21,37 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Extract PROJECT_VERSION from gradle.properties
+        run: |
+          echo "PROJECT_VERSION=$(grep 'projectVersion=' gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
       - name: Publish
         run: |
-          ./gradlew docs:all publish
+          ./gradlew docs:all publish fatJar
         env:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_signingKeyId }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralUsername }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralPassword }}
+
+      - name: Release to GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git tag "v$PROJECT_VERSION" --force
+          git push origin "v$PROJECT_VERSION" --force
+          gh release delete "v$PROJECT_VERSION" --yes || true
+          gh release create "v$PROJECT_VERSION" \
+            --title "v$PROJECT_VERSION" \
+            --prerelease \
+            --notes "This is the latest pre-release for version $PROJECT_VERSION. Details of the changes can be found in the [CHANGELOG.md](https://github.com/pascal-lab/Tai-e/blob/master/CHANGELOG.md). Please note that this pre-release will be removed once the stable version is officially released, and it may be overridden by newer snapshot versions as they are published."
+          gh release upload "v$PROJECT_VERSION" ./build/tai-e-all-*.jar
 
       - uses: manyuanrong/setup-ossutil@v2.0
         with:

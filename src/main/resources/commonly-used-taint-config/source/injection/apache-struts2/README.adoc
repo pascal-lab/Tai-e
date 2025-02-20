@@ -1,0 +1,7 @@
+= Description
+
+The Sources recorded in this directory primarily come from Apache Struts2. The source methods that can cause taint include:
+- Methods that take input from external sources (e.g., getValue)
+- ...
+
+These inputs are provided externally and can be spoofed.

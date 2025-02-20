@@ -1,0 +1,12 @@
+= Description
+
+- **Overview**: 
+    Apache Log4j is a logging library for Java applications. The APIs in this directory provide various methods to log different levels of log information, including debug, info, warning, error, and fatal errors.
+
+- **Common Use Cases**:
+    These APIs are typically used to log various types of information, such as recording errors and exceptions, tracking runtime information, issuing warnings, and integrating with log auditing systems.
+
+- **Security Risks**:
+    CRLF Injection: Attackers can exploit these APIs by constructing malicious input with CRLF (Carriage Return and Line Feed) sequences to forge log messages, mislead monitoring personnel, or even affect the auditing system. Attackers can also flood logs with errors or irrelevant information, potentially damaging the log integrity.
+
+*Note*: Apache Log4j version 1.x is no longer maintained.

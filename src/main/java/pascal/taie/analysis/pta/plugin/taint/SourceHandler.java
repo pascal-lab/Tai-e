@@ -38,7 +38,6 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
@@ -78,9 +77,9 @@ class SourceHandler extends OnFlyHandler {
     private final boolean handleFieldSources;
 
     /**
-     * Map from a source field taint objects generated from it.
+     * Map from a source field to its field source.
      */
-    private final Map<JField, Type> fieldSources = Maps.newMap();
+    private final Map<JField, FieldSource> fieldSources = Maps.newMap();
 
     /**
      * Maps from a method to {@link LoadField} statements in the method
@@ -96,7 +95,7 @@ class SourceHandler extends OnFlyHandler {
             } else if (src instanceof ParamSource paramSrc) {
                 paramSources.put(paramSrc.method(), paramSrc);
             } else if (src instanceof FieldSource fieldSrc) {
-                fieldSources.put(fieldSrc.field(), fieldSrc.type());
+                fieldSources.put(fieldSrc.field(), fieldSrc);
             }
         });
         handleFieldSources = !fieldSources.isEmpty();
@@ -129,7 +128,7 @@ class SourceHandler extends OnFlyHandler {
             return;
         }
         Var var = InvokeUtils.getVar(callSite, index);
-        SourcePoint sourcePoint = new CallSourcePoint(callSite, indexRef);
+        SourcePoint sourcePoint = new CallSourcePoint(callSite, indexRef, source);
         Obj taint = manager.makeTaint(sourcePoint, source.type());
         switch (indexRef.kind()) {
             case VAR -> solver.addVarPointsTo(context, var, taint);
@@ -208,7 +207,7 @@ class SourceHandler extends OnFlyHandler {
             paramSources.get(method).forEach(source -> {
                 IndexRef indexRef = source.indexRef();
                 Var param = ir.getParam(indexRef.index());
-                SourcePoint sourcePoint = new ParamSourcePoint(method, indexRef);
+                SourcePoint sourcePoint = new ParamSourcePoint(method, indexRef, source);
                 Obj taint = manager.makeTaint(sourcePoint, source.type());
                 switch (indexRef.kind()) {
                     case VAR -> solver.addVarPointsTo(context, param, taint);
@@ -230,10 +229,10 @@ class SourceHandler extends OnFlyHandler {
             Context context = csMethod.getContext();
             loads.forEach(load -> {
                 Var lhs = load.getLValue();
-                SourcePoint sourcePoint = new FieldSourcePoint(method, load);
                 JField field = load.getFieldRef().resolve();
-                Type type = fieldSources.get(field);
-                Obj taint = manager.makeTaint(sourcePoint, type);
+                FieldSource fieldSrc = fieldSources.get(field);
+                SourcePoint sourcePoint = new FieldSourcePoint(method, load, fieldSrc);
+                Obj taint = manager.makeTaint(sourcePoint, fieldSrc.type());
                 solver.addVarPointsTo(context, lhs, taint);
             });
         }

@@ -7,13 +7,10 @@ body:
       value: |
         ❤️ Thank you for contributing to the using of Tai-e.
 
-        **❗ Please note:**
-        To expedite our response to your report and ensure it receives appropriate priority, please **include a reproducible test case** or script if possible ([see an example of how to write a reproducible case](https://github.com/pascal-lab/Tai-e/compare/how-to-write-a-reproducible-case)).
-
   - type: textarea
     id: overall-description
     attributes:
-      label: Overall Description
+      label: 📝 Overall Description
       description: Give a concise overview of the issue.
       placeholder: "Brief overview of the issue"
     validations:
@@ -22,7 +19,7 @@ body:
   - type: textarea
     id: expected-behavior
     attributes:
-      label: Expected Behavior
+      label: 🎯 Expected Behavior
       description: Describe what you expected to happen.
       placeholder: "What you expected to happen"
     validations:
@@ -31,22 +28,33 @@ body:
   - type: textarea
     id: current-behavior
     attributes:
-      label: Current Behavior
+      label: 🐛 Current Behavior
       description: Describe what is actually happening.
       placeholder: "What is actually happening"
     validations:
       required: true
 
   - type: textarea
+    id: reproducible-example
+    attributes:
+      label: 🔄 Reproducible Example
+      description: |
+        Please provide a reproducible example to demonstrate the issue, via File Upload or GitHub Repository.
+        - ❤️ If you can provide a minimal reproducible example like [MinimalReproducibleExample-0069](https://github.com/Tai-e/Tai-e-Examples/tree/master/MinimalReproducibleExample-0069), it would be highly appreciated.
+        - 👍 Alternatively, you can package and upload the entire Tai-e project in the text box below.
+    validations:
+      required: false
+
+  - type: textarea
     id: tai-e-arguments
     attributes:
-      label: Tai-e Arguments
+      label: ⚙️ Tai-e Arguments
       description: |
         Please provide the running arguments of Tai-e.
         _Note:_ You can paste the `output/options.yml` and `output/tai-e-plan.yml` files into the placeholders below.
       value: |
         <details>
-          <summary>Click here to see Tai-e Options</summary>
+          <summary>🔍 Click here to see Tai-e Options</summary>
           <!-- Please leave one blank line below for enabling the code block rendering. -->
 
           ```yaml
@@ -54,7 +62,7 @@ body:
           ```
         </details>
         <details>
-          <summary>Click here to see Tai-e Analysis Plan</summary>
+          <summary>🔍 Click here to see Tai-e Analysis Plan</summary>
           <!-- Please leave one blank line below for enabling the code block rendering. -->
 
           ```yaml
@@ -62,18 +70,18 @@ body:
           ```
         </details>
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: tai-e-log
     attributes:
-      label: Tai-e Log
+      label: 📜 Tai-e Log
       description: |
         Provide the Tai-e log output which contains important information, such as JVM/OS, Tai-e version (git commit).
         _Note:_ You can paste the `output/tai-e.log` file into the placeholder below. If it is too long, you can attach it as a file.
       value: |
         <details>
-          <summary>Click here to see Tai-e Log</summary>
+          <summary>🔍 Click here to see Tai-e Log</summary>
           <!-- Please leave one blank line below for enabling the code block rendering. -->
 
           ```
@@ -81,12 +89,12 @@ body:
           ```
         </details>
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: additional-info
     attributes:
-      label: Additional Information
+      label: ℹ️ Additional Information
       description: |
         Provide any additional information or context about the bug.
         Such as the complete analyzed program (and/or its `.tir`), the taint configuration (`taint-config.yml`), etc.
