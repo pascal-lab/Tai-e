@@ -83,7 +83,7 @@ public class AndroidBenchTest {
                         .stream()
                         .map(e -> e.getKey() + ":" + e.getValue())
                         .collect(Collectors.joining(";"))
-                ,"-a", "cg=" + cgArgs.entrySet()
+                , "-a", "cg=" + cgArgs.entrySet()
                         .stream()
                         .map(e -> e.getKey() + ":" + e.getValue())
                         .collect(Collectors.joining(";"))
