@@ -140,6 +140,7 @@ public class LayoutModel extends LifecycleHandler {
     private void processButton(JClass decl, PointsToSet pts, String layoutFileName) {
         handlerContext.apkInfo().layoutCallbacks().get(layoutFileName).forEach(callbackSubSig -> {
             JMethod callbackMethod = decl.getDeclaredMethod(callbackSubSig);
+            // TODO: transfer getDeclaredMethod to dispatch
             if (callbackMethod != null){
                 pts.forEach(thisObj ->  addEntryPoint(callbackMethod, thisObj.getObject()));
             }
