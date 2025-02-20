@@ -39,29 +39,39 @@ import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.android.AndroidClassNames;
 import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Sets;
 
-import java.util.Set;
+import java.util.List;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 public class OtherMiscModel extends AndroidMiscHandler {
 
-    private final Set<CSCallSite> subStringInvokes = Sets.newSet();
+    private final static List<String> CAST_TYPE = List.of(
+            AndroidClassNames.VIEW,
+            AndroidClassNames.TEXT_VIEW,
+            AndroidClassNames.URL_CONNECTION
+    );
 
-    private final MultiMap<CSObj, CSVar> hintMap = Maps.newMultiMap();
+    private final JMethod RUNNABLE_RUN = hierarchy.getJREMethod("<java.lang.Runnable: void run()>");
 
-    private final MultiMap<CSObj, CSVar> viewObj2GetHintRes = Maps.newMultiMap();
+    private final String GET_ACCOUNTS = "<android.accounts.AccountManager: android.accounts.Account[] getAccounts()>";
+
+    private final MultiMap<CSObj, CSVar> singleMap = Maps.newMultiMap();
+
+    private final MultiMap<CSObj, CSVar> getSingleMap = Maps.newMultiMap();
 
     private final MultiMap<CSVar, CSVar> castMap = Maps.newMultiMap();
 
@@ -72,14 +82,47 @@ public class OtherMiscModel extends AndroidMiscHandler {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         Context context = csMethod.getContext();
-        // propagate cast in android system class type
-        csMethod.getMethod().getIR().getStmts().stream().filter(stmt -> stmt instanceof Cast)
-                .map(stmt -> (Cast) stmt).forEach(stmt -> {
-                    CastExp cast = stmt.getRValue();
-                    if (cast.getValue().getType().getName().equals(AndroidClassNames.VIEW)) {
-                        CSVar from = csManager.getCSVar(context, cast.getValue());
-                        CSVar to = csManager.getCSVar(context, stmt.getLValue());
-                        castMap.put(from, to);
+        // propagate cast in some android system class type
+        csMethod.getMethod().getIR().getStmts().forEach(stmt -> {
+            if (stmt instanceof Cast c) {
+                CastExp cast = c.getRValue();
+                String valueType = cast.getValue().getType().getName();
+                if (CAST_TYPE.contains(valueType)) {
+                    CSVar from = csManager.getCSVar(context, cast.getValue());
+                    CSVar to = csManager.getCSVar(context, c.getLValue());
+                    castMap.put(from, to);
+                }
+            }
+            if (stmt instanceof LoadField lf && lf.getFieldAccess() instanceof InstanceFieldAccess access) {
+                JField jField = lf.getFieldRef().resolveNullable();
+                if (jField != null && jField.getDeclaringClass().getName().equals(AndroidClassNames.ACCOUNT)) {
+                    Var result = lf.getLValue();
+                    solver.addPFGEdge(new AndroidTransferEdge(
+                            csManager.getCSVar(context, access.getBase()),
+                            csManager.getCSVar(context, result))
+                    );
+                }
+            }
+            if (stmt instanceof Invoke i && !i.isDynamic()) {
+                JMethod jMethod = i.getMethodRef().resolveNullable();
+                if (jMethod != null && jMethod.getSignature().equals(GET_ACCOUNTS)) {
+                    generateInvokeResultObj(context, i);
+                }
+            }
+        });
+
+        // transfer account field
+        csMethod.getMethod().getIR().getStmts().stream().filter(stmt -> stmt instanceof LoadField)
+                .map(stmt -> (LoadField) stmt).forEach(stmt -> {
+                    if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
+                        JField jField = stmt.getFieldRef().resolveNullable();
+                        if (jField != null && jField.getDeclaringClass().getName().equals(AndroidClassNames.ACCOUNT)) {
+                            Var result = stmt.getLValue();
+                            solver.addPFGEdge(new AndroidTransferEdge(
+                                    csManager.getCSVar(context, access.getBase()),
+                                    csManager.getCSVar(context, result))
+                            );
+                        }
                     }
                 });
     }
@@ -92,7 +135,7 @@ public class OtherMiscModel extends AndroidMiscHandler {
 
     @Override
     public void onPhaseFinish() {
-        processGetHint();
+        processGetSingleMap();
     }
 
     @InvokeHandler(signature = "<java.lang.Class: java.lang.String getName()>", argIndexes = {BASE})
@@ -123,42 +166,6 @@ public class OtherMiscModel extends AndroidMiscHandler {
         stringObjs.forEach(csObj -> solver.addPointsTo(csVar, csObj));
     }
 
-//    @InvokeHandler(signature = "<java.lang.String: java.lang.String substring(int)>", argIndexes = {BASE})
-//    public void subString(Context context, Invoke invoke, PointsToSet baseObjs) {
-//        Var result = invoke.getResult();
-//        Var index = invoke.getInvokeExp().getArg(0);
-//        if (result == null || subStringInvokes.contains(csManager.getCSCallSite(context, invoke))) {
-//            return;
-//        }
-//
-//        baseObjs.forEach(baseObj -> {
-//            if (baseObj.getObject() instanceof ConstantObj constantObj && constantObj.getAllocation() instanceof StringLiteral stringLiteral && index.isConst() && index.getConstValue() instanceof IntLiteral intLiteral) {
-//                subStringInvokes.add(csManager.getCSCallSite(context, invoke));
-//                try {
-//                    Obj subString = handlerContext.androidObjManager().getAndroidStringObj(StringLiteral.get(stringLiteral.getString().substring(intLiteral.getValue())), result);
-//                    solver.addVarPointsTo(context, result, subString);
-//                } catch (Exception ignored) {
-//                }
-//            }
-//        });
-//    }
-
-    @InvokeHandler(signature = "<java.util.List: java.lang.Object[] toArray(java.lang.Object[])>", argIndexes = {BASE, 0})
-    public void toArray(Context context, Invoke invoke, PointsToSet baseObjs, PointsToSet arrayObjs) {
-        Var result = invoke.getResult();
-        if (result == null) {
-            return;
-        }
-        baseObjs.forEach(baseObj -> {
-            arrayObjs.getObjects().forEach(arrayObj -> {
-                if (baseObj.getObject() instanceof MockObj mockObj) {
-                    Obj newMockObj = heapModel.getMockObj(mockObj.getDescriptor(), mockObj.getAllocation(), arrayObj.getObject().getType(), mockObj.isFunctional());
-                    solver.addVarPointsTo(context, result, newMockObj);
-                }
-            });
-        });
-    }
-
     @InvokeHandler(signature = {
             "<android.webkit.WebView: void addJavascriptInterface(java.lang.Object,java.lang.String)>"
     }, argIndexes = {0})
@@ -187,30 +194,44 @@ public class OtherMiscModel extends AndroidMiscHandler {
     }
 
     @InvokeHandler(signature = {
-            "<android.widget.TextView: java.lang.CharSequence getHint()>"
+            "<android.widget.TextView: java.lang.CharSequence getHint()>",
+            "<android.content.Intent: android.os.Bundle getExtras()>"
     }, argIndexes = {BASE})
-    public void viewGetHint(Context context, Invoke invoke, PointsToSet viewObjs) {
+    public void getSingleMap(Context context, Invoke invoke, PointsToSet baseObjs) {
         Var result = invoke.getResult();
         if (result == null) {
             return;
         }
-        viewObjs.forEach(viewObj -> {
-            CSVar csResult = csManager.getCSVar(context, result);
-            viewObj2GetHintRes.put(viewObj, csResult);
-        });
+        CSVar csResult = csManager.getCSVar(context, result);
+        baseObjs.forEach(baseObj -> getSingleMap.put(baseObj, csResult));
     }
 
     @InvokeHandler(signature = {
-            "<android.widget.TextView: void setHint(java.lang.CharSequence)>"
+            "<android.widget.TextView: void setHint(java.lang.CharSequence)>",
+            "<android.content.Intent: android.content.Intent putExtras(android.os.Bundle)>"
     }, argIndexes = {BASE})
-    public void viewSetHint(Context context, Invoke invoke, PointsToSet viewObjs) {
-        viewObjs.forEach(viewObj -> hintMap.put(viewObj, csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0))));
+    public void putSingleMap(Context context, Invoke invoke, PointsToSet baseObjs) {
+        CSVar value = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
+        baseObjs.forEach(baseObj -> singleMap.put(baseObj, value));
     }
 
-    private void processGetHint() {
-        viewObj2GetHintRes.forEach((viewObj, csResult) ->
-                hintMap.get(viewObj).forEach(hintVar -> solver.addPFGEdge(new AndroidTransferEdge(hintVar, csResult)))
+    private void processGetSingleMap() {
+        getSingleMap.forEach((baseObj, csResult) ->
+                singleMap.get(baseObj).forEach(v -> solver.addPFGEdge(new AndroidTransferEdge(v, csResult)))
         );
+    }
+
+    @InvokeHandler(signature = {
+            "<android.os.Handler: boolean postDelayed(java.lang.Runnable,long)>",
+            "<android.os.Handler: boolean post(java.lang.Runnable)>"
+    }, argIndexes = {0})
+    public void handlerPostDelayed(Context context, Invoke invoke, PointsToSet runnableObjs) {
+        runnableObjs.forEach(csObj -> {
+            JMethod dispatch = hierarchy.dispatch(csObj.getObject().getType(), RUNNABLE_RUN.getRef());
+            if (dispatch != null) {
+                addEntryPoint(dispatch, csObj.getObject());
+            }
+        });
     }
 
 }
