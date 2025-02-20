@@ -165,6 +165,18 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
+    @Option(names = {"-ajs", "--android-jars"},
+            description = "Specifies the path to Android platforms required for analysis." +
+                    " This path is used to locate the necessary Android JAR files for analysis purposes." +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "android-benchmarks/android-platforms")
+    private String androidJars;
+
+    public String getAndroidJars() {
+        return androidJars;
+    }
+
+    @JsonProperty
     @Option(names = "-java",
             description = "Java version used by the program being analyzed" +
                     " (default: ${DEFAULT-VALUE})",
@@ -553,6 +565,7 @@ public class Options implements Serializable {
                 ", appClassPath=" + appClassPath +
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
+                ", androidJars=" + androidJars +
                 ", javaVersion=" + javaVersion +
                 ", prependJVM=" + prependJVM +
                 ", allowPhantom=" + allowPhantom +

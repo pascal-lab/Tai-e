@@ -73,8 +73,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      */
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
-    private static final String ANDROID_PLATFORMS = "android-benchmarks/android-platforms";
-
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
         initSoot(options, analyses, this);
@@ -341,7 +339,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 : getAndroidJDKPath(options);
         Collections.addAll(args, "-cp", androidJDKPath);
         // set android platforms path
-        Collections.addAll(args, "-android-jars", ANDROID_PLATFORMS);
+        Collections.addAll(args, "-android-jars", options.getAndroidJars());
         // set apk path
         Collections.addAll(args, "-process-dir", apkPath);
         try {
