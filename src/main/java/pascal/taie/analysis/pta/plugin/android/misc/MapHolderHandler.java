@@ -167,7 +167,7 @@ public class MapHolderHandler extends AndroidMiscHandler {
     @InvokeHandler(signature = {
             "<android.content.Intent: android.os.Bundle getExtras()>"},
             argIndexes = {BASE})
-    public void mapHolderSpecialGet(Context context, Invoke invoke, PointsToSet mapObjs) {
+    public void intentGetExtras(Context context, Invoke invoke, PointsToSet mapObjs) {
         Var result = invoke.getResult();
         if (result != null) {
             mapObjs.forEach(mapObj -> solver.addVarPointsTo(context, result, mapObj));
@@ -283,7 +283,7 @@ public class MapHolderHandler extends AndroidMiscHandler {
     protected void processUnresolvedMapGetInvoke() {
         map2GetInvoke.forEach((map, csCallSite) -> {
             CSVar key = csManager.getCSVar(csCallSite.getContext(), csCallSite.getCallSite().getInvokeExp().getArg(0));
-            processResult(key, map, csCallSite);
+            processResult(solver.getPointsToSetOf(key), map, csCallSite);
         });
 
         unresolvedMapGetInvoke.forEach((map, csCallSite) -> {
@@ -298,7 +298,7 @@ public class MapHolderHandler extends AndroidMiscHandler {
         });
     }
 
-    protected void processResult(CSVar key, CSObj map, CSCallSite csCallSite) {
+    protected void processResult(PointsToSet keyObjs, CSObj map, CSCallSite csCallSite) {
         Context context = csCallSite.getContext();
         Invoke callSite = csCallSite.getCallSite();
         Var result = callSite.getResult();
@@ -307,7 +307,7 @@ public class MapHolderHandler extends AndroidMiscHandler {
         }
 
         Set<MapHolder> extras = mapHolder.get(map);
-        for (CSObj keyObj : solver.getPointsToSetOf(key)) {
+        for (CSObj keyObj : keyObjs) {
             boolean isConstantObj = keyObj.getObject() instanceof ConstantObj;
             List<MapHolder> filterExtras = extras
                     .stream()
@@ -318,7 +318,7 @@ public class MapHolderHandler extends AndroidMiscHandler {
             if (filterExtras.isEmpty()) {
                 unresolvedMapGetInvoke.put(map, csCallSite);
             } else {
-                filterExtras.forEach(extra -> solver.addPFGEdge(new AndroidTransferEdge(extra.value(), csManager.getCSVar(context, result)), result.getType()));
+                filterExtras.forEach(extra -> {solver.addPFGEdge(new AndroidTransferEdge(extra.value(), csManager.getCSVar(context, result)), result.getType());});
                 if (isConstantObj) {
                     unresolvedMapGetInvoke.remove(map, csCallSite);
                 }
