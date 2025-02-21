@@ -55,8 +55,10 @@ task("fatJar", type = Jar::class) {
     }
     archiveBaseName.set("tai-e-all")
     from(
-        configurations.runtimeClasspath.get().map {
-            if (it.isDirectory) it else zipTree(it)
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file).matching {
+                exclude("META-INF/**/*.RSA")
+            }
         }
     )
     from("COPYING", "COPYING.LESSER")
