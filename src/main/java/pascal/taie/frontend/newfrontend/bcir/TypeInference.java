@@ -34,6 +34,7 @@ import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Binary;
@@ -59,7 +60,6 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import static pascal.taie.frontend.newfrontend.Utils.isIntAssignable;
@@ -71,7 +71,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -91,10 +90,13 @@ public class TypeInference extends NewFrontendIRComponent {
 
     final TypingFlowGraph graph;
 
+    private boolean needCasting;
+
     public TypeInference(AsmIRBuilder builder, BuildContext context) {
         super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
-        graph = new TypingFlowGraph();
+        graph = new TypingFlowGraph(builder.manager.getVars().size());
+        this.needCasting = false;
     }
 
     public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
@@ -134,7 +136,13 @@ public class TypeInference extends NewFrontendIRComponent {
 
         @Override
         public Void visit(AssignLiteral stmt) {
-            graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
+            Type t;
+            if (stmt.getRValue() instanceof StringLiteral) {
+                t = tCtx().string();
+            } else {
+                t = stmt.getRValue().getType();
+            }
+            graph.addConstantEdge(t, stmt.getLValue());
             return null;
         }
 
@@ -177,7 +185,7 @@ public class TypeInference extends NewFrontendIRComponent {
             if (stmt.getLValue().getType() instanceof ReferenceType r) {
                 graph.addUseConstrain(stmt.getRValue(), r);
             }
-            return StmtVisitor.super.visit(stmt);
+            return null;
         }
 
         @Override
@@ -217,9 +225,12 @@ public class TypeInference extends NewFrontendIRComponent {
             }
 
             if (rValue instanceof InvokeInstanceExp invokeInstanceExp) {
+                Var base = invokeInstanceExp.getBase();
+                ReferenceType decl = invokeInstanceExp.getMethodRef().getDeclaringClass().getType();
                 if (!stmt.getMethodRef().getName().equals(MethodNames.INIT)) {
-                    graph.addUseConstrain(invokeInstanceExp.getBase(),
-                            invokeInstanceExp.getMethodRef().getDeclaringClass().getType());
+                    graph.addUseConstrain(base, decl);
+                } else {
+                    graph.getNode(base).addInitConstraint(decl);
                 }
             }
 
@@ -283,26 +294,34 @@ public class TypeInference extends NewFrontendIRComponent {
 
         graph.inferTypes();
         setTypes(graph);
-        CastingInsert insert = new CastingInsert(builder, ctx());
-        insert.build();
+        if (needCasting) {
+            CastingInsert insert = new CastingInsert(builder, ctx());
+            insert.build();
+        }
     }
 
     private void setTypes(TypingFlowGraph graph) {
-        graph.nodes.forEach((k, v) -> {
-            if (k.getType() != null) {
-                return;
+        for (TypingFlowNode node : graph.nodes) {
+            if (node == null) {
+                continue;
             }
-            if (v.primitiveType != null) {
-                ExpModifier.setType(k, v.primitiveType);
+            Var v = node.var;
+            if (v.getType() != null) {
+                continue;
+            }
+            if (node.primitiveType != null) {
+                ExpModifier.setType(v, node.primitiveType);
             } else {
-                if (v.referenceType != null) {
-                    ExpModifier.setType(k, v.referenceType);
-                } else {
-                    // TODO: add warning here
-                    ExpModifier.setType(k, NullType.NULL);
+                ReferenceType target = node.referenceType;
+                if (target == null) {
+                    target = NullType.NULL;
                 }
+                if (!node.isUseValid(target)) {
+                    this.needCasting = true;
+                }
+                ExpModifier.setType(v, target);
             }
-        });
+        }
     }
 
     private void addThisParam() {
@@ -320,31 +339,33 @@ public class TypeInference extends NewFrontendIRComponent {
     }
 
     class TypingFlowGraph {
-        Map<Var, TypingFlowNode> nodes = Maps.newHybridMap();
+        private final TypingFlowNode[] nodes;
+
+        TypingFlowGraph(int varSize) {
+            this.nodes = new TypingFlowNode[varSize];
+        }
+
+        private TypingFlowNode getNode(Var var) {
+            if (nodes[var.getIndex()] == null) {
+                nodes[var.getIndex()] = new TypingFlowNode(var);
+            }
+            return nodes[var.getIndex()];
+        }
 
         public void addConstantEdge(Type t, Var v) {
             assert v != null;
-            if (v.getType() != null) {
-                return;
-            } else if (builder.varSSAInfo.isSSAVar(v)) {
-                ExpModifier.setType(v, t);
-                return;
-            }
-            TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
+            TypingFlowNode node = getNode(v);
             node.setNewType(t);
         }
 
         public void addVarEdge(Var from, Var to, EdgeKind kind) {
-            if (to.getType() != null && from.getType() != null) {
-                return;
-            }
             if (from.getType() != null && kind != EdgeKind.VAR_ARRAY) {
                 computeFlowOutType(from.getType(), kind).ifPresent((t) -> {
                     addConstantEdge(t, to);
                 });
             } else {
-                TypingFlowNode n1 = nodes.computeIfAbsent(from, TypingFlowNode::new);
-                TypingFlowNode n2 = nodes.computeIfAbsent(to, TypingFlowNode::new);
+                TypingFlowNode n1 = getNode(from);
+                TypingFlowNode n2 = getNode(to);
                 TypingFlowEdge edge = new TypingFlowEdge(kind, n1, n2);
                 n2.addNewInEdge(edge);
                 n1.addNewOutEdge(edge);
@@ -352,10 +373,7 @@ public class TypeInference extends NewFrontendIRComponent {
         }
 
         public void addUseConstrain(Var v, ReferenceType constrain) {
-            if (v.getType() != null) {
-                return;
-            }
-            TypingFlowNode node = nodes.computeIfAbsent(v, TypingFlowNode::new);
+            TypingFlowNode node = getNode(v);
             node.addNewUseConstrain(constrain);
         }
 
@@ -363,7 +381,10 @@ public class TypeInference extends NewFrontendIRComponent {
             inferUseConstrains();
 
             Queue<FlowType> queue = new LinkedList<>();
-            for (TypingFlowNode node : nodes.values()) {
+            for (TypingFlowNode node : nodes) {
+                if (node == null) {
+                    continue;
+                }
                 if (node.primitiveType != null) {
                     PrimitiveType t = node.primitiveType;
                     flowOutType(queue, node, t);
@@ -381,7 +402,10 @@ public class TypeInference extends NewFrontendIRComponent {
 
         public void inferUseConstrains() {
             Queue<FlowType> queue = new LinkedList<>();
-            for (TypingFlowNode node : nodes.values()) {
+            for (TypingFlowNode node : nodes) {
+                if (node == null) {
+                    continue;
+                }
                 if (node.useValidConstrains != null) {
                     for (ReferenceType t : node.useValidConstrains) {
                         flowOutConstrains(queue, node, t);
@@ -403,7 +427,7 @@ public class TypeInference extends NewFrontendIRComponent {
             }
             Type t = optionalType.get();
             if (t instanceof ReferenceType t1) {
-                if (now.useValidConstrains.add(t1)) {
+                if (now.addNewUseConstrain(t1)) {
                     flowOutConstrains(queue, now, t1);
                 }
             }
@@ -434,18 +458,27 @@ public class TypeInference extends NewFrontendIRComponent {
         }
 
         private void flowOutType(Queue<FlowType> queue, TypingFlowNode node, PrimitiveType pType) {
+            if (node.outEdges == null) {
+                return;
+            }
             for (TypingFlowEdge e : node.outEdges) {
                 queue.add(new FlowType(e, pType));
             }
         }
 
         private void flowOutType(Queue<FlowType> queue, TypingFlowNode node, ReferenceType type) {
+            if (node.outEdges == null) {
+                return;
+            }
             for (TypingFlowEdge e : node.outEdges) {
                 queue.add(new FlowType(e, type));
             }
         }
 
         private void flowOutConstrains(Queue<FlowType> queue, TypingFlowNode node, ReferenceType type) {
+            if (node.inEdges == null) {
+                return;
+            }
             for (TypingFlowEdge e : node.inEdges) {
                 queue.add(new FlowType(e, type));
             }
@@ -502,15 +535,17 @@ public class TypeInference extends NewFrontendIRComponent {
 
         private Set<ReferenceType> useValidConstrains;
 
+        private List<ReferenceType> initConstraints;
+
         private List<TypingFlowEdge> inEdges;
 
         private List<TypingFlowEdge> outEdges;
 
         TypingFlowNode(Var var) {
             this.var = var;
-            useValidConstrains = Sets.newHybridSet();
-            inEdges = List.of();
-            outEdges = List.of();
+            useValidConstrains = null;
+            inEdges = null;
+            outEdges = null;
         }
 
         public void setNewType(Type t) {
@@ -554,7 +589,7 @@ public class TypeInference extends NewFrontendIRComponent {
         }
 
         public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
-            if (isPrimitiveArrayType(t) && kind == EdgeKind.VAR_ARRAY) {
+            if (kind == EdgeKind.VAR_ARRAY && isPrimitiveArrayType(t)) {
                 // example for that:
                 // 1. a = new int[10]
                 // 2. a[1] = 1
@@ -584,25 +619,37 @@ public class TypeInference extends NewFrontendIRComponent {
         }
 
         private boolean isUseValid(ReferenceType t) {
-            return useValidConstrains.stream()
-                    .allMatch(c -> Utils.isAssignable(tCtx(), c, t));
+            if (useValidConstrains == null) {
+                return true;
+            }
+            boolean ret = true;
+            for (ReferenceType c : useValidConstrains) {
+                ret &= Utils.isAssignable(tCtx(), c, t);
+            }
+            return ret;
         }
 
         private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
             if (current == t) {
                 return t;
             }
-            Set<ReferenceType> newType = lca(current, t);
-            List<ReferenceType> types = newType.stream().filter(this::isUseValid).toList();
-            if (!types.isEmpty()) {
+            Set<ReferenceType> lcas = lca(current, t);
+            ReferenceType target = null;
+            for (ReferenceType lca : lcas) {
+                if (isUseValid(lca)) {
+                    target = lca;
+                    break;
+                }
+            }
+            if (target != null) {
                 // any type in types is use valid
-                return types.get(0);
+                return target;
             } else {
-                if (newType.isEmpty()) {
+                if (lcas.isEmpty()) {
                     // normally impossible, but possible for phantom
                     return tCtx().object();
                 }
-                ReferenceType t1 = newType.iterator().next();
+                ReferenceType t1 = lcas.iterator().next();
                 if (t1 instanceof ClassType) {
                     return tCtx().object();
                 } else if (t1 instanceof ArrayType arrayType) {
@@ -614,26 +661,32 @@ public class TypeInference extends NewFrontendIRComponent {
         }
 
         public void addNewOutEdge(TypingFlowEdge edge) {
-            if (outEdges.isEmpty()) {
+            if (outEdges == null) {
                 outEdges = new ArrayList<>();
             }
             outEdges.add(edge);
         }
 
         public void addNewInEdge(TypingFlowEdge edge) {
-            if (inEdges.isEmpty()) {
+            if (inEdges == null) {
                 inEdges = new ArrayList<>();
             }
             inEdges.add(edge);
         }
 
-        public void addNewUseConstrain(ReferenceType type) {
-            if (useValidConstrains.isEmpty()) {
-                useValidConstrains = Sets.newSet();
+        public boolean addNewUseConstrain(ReferenceType type) {
+            if (useValidConstrains == null) {
+                useValidConstrains = Sets.newHybridSet();
             }
-            useValidConstrains.add(type);
+            return useValidConstrains.add(type);
         }
 
+        public void addInitConstraint(ReferenceType type) {
+            if (initConstraints == null) {
+                initConstraints = new ArrayList<>();
+            }
+            initConstraints.add(type);
+        }
 
         public Var var() {
             return var;

@@ -462,41 +462,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     }
 
     private Stmt getAssignStmt(LValue lValue, Exp e) {
-//        if (lValue instanceof Var v && !EXPERIMENTAL) {
-//            duInfo.addDefBlock(v, currentBlock);
-//        }
-        tryInferType(lValue, e);
         return Utils.getAssignStmt(method, lValue, e);
-    }
-
-    private void tryInferType(LValue l, Exp e) {
-        if (l instanceof Var left && left.getType() == null) {
-            Type right;
-
-            if (e instanceof Var r) {
-                right = r.getType() == null ? null : r.getType();
-            } else if (e instanceof ArrayAccess ac) {
-                right = ac.getBase().getType() == null ? null :
-                        ac.getBase().getType() == NullType.NULL ? NullType.NULL :
-                                ac.getType();
-            } else if (e instanceof BinaryExp binary) {
-                if (binary instanceof ComparisonExp) {
-                    right = INT;
-                } else {
-                    right = binary.getOperand1().getType() == null ? null : binary.getType();
-                }
-            } else if (e instanceof NegExp neg) {
-                right = neg.getOperand().getType() == null ? null : neg.getType();
-            } else {
-                right = e.getType();
-            }
-
-            if (right instanceof PrimitiveType) {
-                ExpModifier.setType(left, right);
-            } else if (right != null && varSSAInfo.isSSAVar(left)) {
-                ExpModifier.setType(left, right);
-            }
-        }
     }
 
     private boolean isDword(AbstractInsnNode node, Exp e) {
