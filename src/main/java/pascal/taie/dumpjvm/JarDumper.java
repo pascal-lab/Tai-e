@@ -25,6 +25,7 @@ package pascal.taie.dumpjvm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.MethodTooLargeException;
+import org.objectweb.asm.Opcodes;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
@@ -57,13 +58,15 @@ public class JarDumper {
      * @param args the command-line arguments (input JAR file path and output JAR file path)
      */
     public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Usage: java JarDumper <input-jar-file> <output-jar-file>");
+        if (args.length != 3) {
+            System.out.println("Usage: java JarDumper <input-jar-file> <output-jar-file> <java-version>");
             return;
         }
 
         Path inputJar = Path.of(args[0]);
         Path outputJar = Path.of(args[1]);
+        String javaVersion = args[2];
+        int classFileVersion = getJavaVersion(javaVersion);
 
         if (!Files.exists(inputJar)) {
             throw new RuntimeException("Error: The file " + inputJar + " does not exist.");
@@ -82,7 +85,7 @@ public class JarDumper {
                     continue;
                 }
                 try {
-                    byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
+                    byte[] classfileBuffer = new BytecodeEmitter().emit(jClass, classFileVersion);
                     Path classfilePath = tempDir.resolve(
                             BytecodeEmitter.computeInternalName(jClass) + ".class");
                     Files.createDirectories(classfilePath.getParent());
@@ -120,9 +123,10 @@ public class JarDumper {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {
-                        throw new FileNotFoundException("File " + dest + " does not exist in the JAR file");
+                        // throw new FileNotFoundException("File " + dest + " does not exist in the JAR file");
+                    } else {
+                        Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     }
-                    Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -145,6 +149,16 @@ public class JarDumper {
                             throw new RuntimeException(e);
                         }
                     });
+        }
+    }
+
+    private static int getJavaVersion(String versionString) {
+        if (versionString.equals("1.8")) {
+            return Opcodes.V1_8;
+        } else if (versionString.equals("17")) {
+            return Opcodes.V17;
+        } else {
+            throw new IllegalArgumentException("Unsupported version: " + versionString);
         }
     }
 }
