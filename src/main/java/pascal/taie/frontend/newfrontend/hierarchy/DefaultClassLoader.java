@@ -57,10 +57,9 @@ public class DefaultClassLoader extends NewFrontendComponent
     public JClass loadClass(String name, boolean allowPhantom) {
         JClass jclass = mapping.get(name);
         // Disable phantom class creating with this function
-//        if (jclass == null && this.allowPhantom && allowPhantom
-//            && !getTaiePhase().equals(TaiePhase.RUNNING)) {
-//            return loadPhantomClass(name);
-//        }
+        if (jclass == null && this.allowPhantom && allowPhantom) {
+            return loadPhantomClass(name);
+        }
 
         // TODO: add warning for missing classes
         return jclass;
