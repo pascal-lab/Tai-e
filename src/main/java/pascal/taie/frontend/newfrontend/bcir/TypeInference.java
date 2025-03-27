@@ -191,7 +191,12 @@ public class TypeInference extends NewFrontendIRComponent {
 
         @Override
         public Void visit(Binary stmt) {
-            graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
+            Type t = stmt.getRValue().getType();
+            if (t != null) {
+                graph.addConstantEdge(t, stmt.getLValue());
+            } else {
+                graph.addVarEdge(stmt.getRValue().getOperand1(), stmt.getLValue(), EdgeKind.VAR_VAR);
+            }
             return null;
         }
 
