@@ -24,12 +24,15 @@ package pascal.taie.frontend.newfrontend.context;
 
 import pascal.taie.frontend.newfrontend.TempTypeSystem;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
+import pascal.taie.frontend.newfrontend.dbg.DbgInfo;
+import pascal.taie.frontend.newfrontend.hierarchy.DefaultClassLoader;
 import pascal.taie.frontend.newfrontend.main.FrontendOptions;
+import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JClassLoader;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -56,7 +59,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class BuildContext {
 
-    private JClassLoader defaultClassLoader;
+    private DefaultClassLoader defaultClassLoader;
 
     private TempTypeSystem typeSystem;
 
@@ -70,6 +73,10 @@ public class BuildContext {
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
+    private TaiePhase phase;
+
+    private final Map<JMethod, DbgInfo> dbgInfoMap = Maps.newConcurrentMap();
+
     public BuildContext(FrontendOptions frontendOptions) {
         this.frontendOptions = frontendOptions;
     }
@@ -80,7 +87,7 @@ public class BuildContext {
         throw new UnsupportedOperationException();
     }
 
-    public void initClassloaderAndTypeSystem(JClassLoader loader) {
+    public void initClassloaderAndTypeSystem(DefaultClassLoader loader) {
         this.defaultClassLoader = loader;
         this.typeSystem = new TempTypeSystem(this, defaultClassLoader);
         this.typeContext = new TypeContext(typeSystem);
@@ -213,4 +220,15 @@ public class BuildContext {
         return hierarchy;
     }
 
+    public void setPhase(TaiePhase phase) {
+        this.phase = phase;
+    }
+
+    public TaiePhase getPhase() {
+        return phase;
+    }
+
+    public Map<JMethod, DbgInfo> getDbgInfoMap() {
+        return dbgInfoMap;
+    }
 }
