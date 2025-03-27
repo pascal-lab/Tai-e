@@ -32,6 +32,7 @@ import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.asyncir.IRBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
+import pascal.taie.frontend.newfrontend.dbg.DbgInfoDumper;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
@@ -48,6 +49,9 @@ import pascal.taie.project.ProjectBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The world builder for new frontend. This class is the entry point of the frontend processing.
@@ -76,13 +80,16 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         world.setOptions(options);
 
         // initialize build context
-        BuildContext ctx = new BuildContext(FrontendOptions.parse(options.getFrontendOptions()));
+        BuildContext ctx = new BuildContext(options.getFrontendOptions());
+        ctx.setPhase(TaiePhase.PROJECT_LOADING);
         // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
+        ctx.setPhase(TaiePhase.CLOSED_WORLD_ANALYSIS);
         ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(ctx); // Configurable
         closedWorldBuilder.build(project);
         Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
+        ctx.setPhase(TaiePhase.CLASS_HIERARCHY_ANALYSIS);
         ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder(ctx);
         ClassHierarchy hierarchy = hierarchyBuilder.build(closedWorld);
         world.setClassHierarchy(hierarchy);
@@ -124,7 +131,28 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         IRBuilder irBuilder = new IRBuilder(ctx);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
+            ctx.setPhase(TaiePhase.PREBUILDING_IR);
             irBuilder.buildAll(hierarchy);
         }
+        if (!options.getFrontendOptions().getDebugOn().isEmpty()) {
+            ctx.setPhase(TaiePhase.PREBUILDING_IR);
+            Set<JMethod> debugMethods = options.getFrontendOptions().getDebugOn().stream()
+                    .map(sig -> {
+                        JMethod mtd = hierarchy.getMethod(sig);
+                        if (mtd == null) {
+                            logger.warn("Warning: request debugging method '{}' does not exist!", sig);
+                        }
+                        return Optional.ofNullable(hierarchy.getMethod(sig));
+                    })
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
+            for (JMethod method : debugMethods) {
+                method.getIR();
+            }
+        }
+        DbgInfoDumper dbgInfoDumper = new DbgInfoDumper(ctx);
+        dbgInfoDumper.dump();
+        ctx.setPhase(TaiePhase.RUNNING);
     }
 }
