@@ -37,6 +37,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -325,13 +326,10 @@ public class Options implements Serializable {
         return useNonParallelCWAlgorithm;
     }
 
-    @JsonProperty
-    @Option(names = {"--frontend"},
-            description = "Options for frontend",
-            split = ",", paramLabel = "<key=value>")
-    private Map<String, String> frontendOptions = Map.of();
+    @CommandLine.Mixin
+    private FrontendOptions frontendOptions;
 
-    public Map<String, String> getFrontendOptions() {
+    public FrontendOptions getFrontendOptions() {
         return frontendOptions;
     }
 
