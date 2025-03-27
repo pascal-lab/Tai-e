@@ -32,7 +32,6 @@ import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.asyncir.IRBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
-import pascal.taie.frontend.newfrontend.dbg.DbgInfoDumper;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
@@ -151,8 +150,6 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
                 method.getIR();
             }
         }
-        DbgInfoDumper dbgInfoDumper = new DbgInfoDumper(ctx);
-        dbgInfoDumper.dump();
         ctx.setPhase(TaiePhase.RUNNING);
     }
 }
