@@ -208,13 +208,17 @@ public class BytecodeEmitter {
         this(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
     }
 
+    public byte[] emit(JClass jClass) {
+        return emit(jClass, Opcodes.V17);
+    }
+
     /**
      * Emits the bytecode for the specified Java class.
      *
      * @param jClass the Java class to emit bytecode for
      * @return the emitted classfile as a byte array
      */
-    public byte[] emit(JClass jClass) {
+    public byte[] emit(JClass jClass, int classFileVersion) {
         if (jClass.getSuperClass() == null) {
             throw new IllegalArgumentException("Never dump java.lang.Class to bytecode");
         }
@@ -229,9 +233,7 @@ public class BytecodeEmitter {
         int access = classModifiers.contains(Modifier.INTERFACE)
                 ? accessModifiers
                 : accessModifiers | Opcodes.ACC_SUPER;
-        // TODO: this should be an parameter
-        //       some class need to use V1_8
-        writer.visit(Opcodes.V1_8, access,
+        writer.visit(classFileVersion, access,
                 getInternalName(jClass), null, getInternalName(jClass.getSuperClass()),
                 jClass.getInterfaces()
                         .stream()
