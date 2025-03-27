@@ -22,35 +22,42 @@
 
 package pascal.taie.frontend.newfrontend.main;
 
-import pascal.taie.World;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.Sets;
+import picocli.CommandLine;
 
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Additional Options for frontend
  */
+
+@CommandLine.Command
 public class FrontendOptions {
 
-    private final boolean isSSA;
+    @CommandLine.Option(names = {"--ssa"},
+            description = "Enable SSA (Static Single Assignment)",
+            defaultValue = "false",
+            negatable = true)
+    private boolean isSSA;
 
-    private final boolean useTypingAlgo2;
+    @CommandLine.Option(names = {"--useTypingAlgo2"},
+            description = "Use Typing Algorithm 2",
+            defaultValue = "true",
+            negatable = true)
+    private boolean useTypingAlgo2;
 
-    private final boolean useParallelHierarchy;
+    @CommandLine.Option(names = {"--useParallelHierarchy"},
+            description = "Use Parallel Hierarchy",
+            defaultValue = "true",
+            negatable = true)
+    private boolean useParallelHierarchy;
 
-    private FrontendOptions(boolean isSSA, boolean useTypingAlgo2, boolean useParallelHierarchy) {
-        this.isSSA = isSSA;
-        this.useTypingAlgo2 = useTypingAlgo2;
-        this.useParallelHierarchy = useParallelHierarchy;
-    }
+    @CommandLine.Option(names = {"--debugOn"},
+            description = "Methods to debug", split = ",")
+    private Set<String> debugOn = Sets.newSet();
 
-    public static FrontendOptions parse(Map<String, String> raw) {
-        boolean isSSA = Boolean.parseBoolean(raw.getOrDefault("ssa", "false"));
-        boolean useTypingAlgo2 = Boolean.parseBoolean(raw.getOrDefault("useTypingAlgo2", "true"));
-        boolean useParallelHierarchy = Boolean.parseBoolean(
-                raw.getOrDefault("useParallelHierarchy", "true"));
-        return new FrontendOptions(isSSA, useTypingAlgo2, useParallelHierarchy);
-    }
-
+    // Getters and methods
     public boolean isSSA() {
         return isSSA;
     }
@@ -61,5 +68,14 @@ public class FrontendOptions {
 
     public boolean isUseParallelHierarchy() {
         return useParallelHierarchy;
+    }
+
+    public boolean debugOn(JMethod method) {
+        String sig = method.getSignature();
+        return debugOn != null && debugOn.contains(sig);
+    }
+
+    public Set<String> getDebugOn() {
+        return debugOn;
     }
 }
