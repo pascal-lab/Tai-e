@@ -64,6 +64,7 @@ import pascal.taie.util.collection.Sets;
 
 import static pascal.taie.frontend.newfrontend.Utils.isIntAssignable;
 import static pascal.taie.frontend.newfrontend.Utils.isPrimitiveArrayType;
+import static pascal.taie.frontend.newfrontend.Utils.isAssignable;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
 
@@ -318,6 +319,13 @@ public class TypeInference extends NewFrontendIRComponent {
                 }
                 if (!node.isUseValid(target)) {
                     this.needCasting = true;
+                }
+                if (node.initConstraints != null) {
+                    for (Type t : node.initConstraints) {
+                        if (!isAssignable(tCtx(), t, target)) {
+                            this.needCasting = true;
+                        }
+                    }
                 }
                 ExpModifier.setType(v, target);
             }
