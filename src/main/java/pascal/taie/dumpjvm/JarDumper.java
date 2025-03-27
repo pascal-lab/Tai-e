@@ -123,7 +123,7 @@ public class JarDumper {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {
-                        // throw new FileNotFoundException("File " + dest + " does not exist in the JAR file");
+                        throw new FileNotFoundException("File " + dest + " does not exist in the original JAR file, may be dues to phantom classes");
                     } else {
                         Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     }
