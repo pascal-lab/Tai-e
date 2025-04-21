@@ -83,14 +83,14 @@ public class Project {
         return libRootContainers;
     }
 
-    public boolean isApp(AnalysisFile file) {
+    public boolean isApp(ProgramFile file) {
         return appRootContainers.contains(file.rootContainer()) ||
                 isMainOrInputClass(file);
     }
 
-    private boolean isMainOrInputClass(AnalysisFile file) {
-        if (file instanceof ClassLike classLike) {
-            String className = classLike.getBinaryName();
+    private boolean isMainOrInputClass(ProgramFile file) {
+        if (file instanceof ClassFile classFile) {
+            String className = classFile.getBinaryName();
             return inputClassesSet.contains(className) || className.equals(mainClass);
         } else {
             return false;
@@ -106,7 +106,7 @@ public class Project {
      * @return the first file (with the same fully qualified name) found in the containerLists.
      * (QUESTION: how to define priority between different rootContainers?)
      */
-    public AnalysisFile locate(String className) {
+    public ProgramFile locate(String className) {
         List<List<FileContainer>> rootContainersList =
                 List.of(appRootContainers, libRootContainers);
 
@@ -115,7 +115,7 @@ public class Project {
                 // make sure to keep the order.
                 ClassLocation classLocation = new ClassLocation(className);
                 assert classLocation.hasNext();
-                AnalysisFile result = container.locate(classLocation);
+                ProgramFile result = container.locate(classLocation);
                 if (result != null) {
                     return result;
                 }
@@ -129,13 +129,13 @@ public class Project {
      * @param className the fully qualified name to the analysis file.
      * @return all the files with the full path.
      */
-    public List<AnalysisFile> locateFiles(String className) {
-        List<AnalysisFile> results = new ArrayList<>();
+    public List<ProgramFile> locateFiles(String className) {
+        List<ProgramFile> results = new ArrayList<>();
 
         Consumer<FileContainer> get = c -> {
             ClassLocation classLocation = new ClassLocation(className);
             assert classLocation.hasNext();
-            AnalysisFile result = c.locate(classLocation);
+            ProgramFile result = c.locate(classLocation);
             if (result != null) {
                 results.add(result);
             }

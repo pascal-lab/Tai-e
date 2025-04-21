@@ -22,28 +22,12 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
+public interface ClassFile {
+    String getClassName();
 
-public record ClassFile(
-        String className,
-        String internalName,
-        FileTime timeStamp,
-        Resource resource,
-        FileContainer rootContainer
-) implements AnalysisFile, ClassLike {
-
-    @Override
-    public String fileName() {
-        return className + ".class";
+    default String getBinaryName() {
+        return getInternalName().replace('/', '.');
     }
 
-    @Override
-    public String getClassName() {
-        return className;
-    }
-
-    @Override
-    public String getInternalName() {
-        return internalName;
-    }
+    String getInternalName();
 }

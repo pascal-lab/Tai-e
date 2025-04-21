@@ -29,6 +29,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+/**
+ * A <em>FileResource</em> is a file that can be read from the file system.
+ *
+ * @see Resource
+ */
 public class FileResource implements Resource {
 
     private final Path path;

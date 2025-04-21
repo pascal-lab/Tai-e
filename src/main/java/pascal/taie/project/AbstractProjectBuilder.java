@@ -132,7 +132,7 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
                 // TODO: produce error, JRE may not loaded
                 return Stream.empty();
             }
-            fs = FSManager.get().getJrtFs(jreDir);
+            fs = FileSystemManager.get().getJrtFs(jreDir);
         } else {
             fs = FileSystems.getFileSystem(URI.create("jrt:/"));
         }

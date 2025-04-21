@@ -1,7 +1,6 @@
 package pascal.taie.project;
 
 import org.junit.jupiter.api.Test;
-import pascal.taie.config.Options;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,7 +48,7 @@ public class TestLocate {
         Project project = createProject(classPath);
         assertNotNull(project);
 
-        AnalysisFile f = project.locate(className);
+        ProgramFile f = project.locate(className);
         assertNotNull(f);
         try (InputStream in = new FileInputStream(javaFileToFind)) {
             assertArrayEquals(in.readAllBytes(), f.resource().getContent());
@@ -62,7 +61,7 @@ public class TestLocate {
         Project project = createProject(classPath);
         assertNotNull(project);
 
-        AnalysisFile f = project.locate(className);
+        ProgramFile f = project.locate(className);
         assertNotNull(f);
         try (InputStream in = new FileInputStream(javaFileToFind)) {
             assertArrayEquals(in.readAllBytes(), f.resource().getContent());
@@ -75,8 +74,8 @@ public class TestLocate {
         Project project = createProject(classPath);
         assertNotNull(project);
 
-        List<AnalysisFile> f = project.locateFiles(className);
-        assertEquals(f.size(), 2);
+        List<ProgramFile> f = project.locateFiles(className);
+        assertEquals(2, f.size());
         try (InputStream in = new FileInputStream(javaFileToFind)) {
             byte[] expected = in.readAllBytes();
             assertArrayEquals(expected, f.get(0).resource().getContent());

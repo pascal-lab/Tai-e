@@ -118,7 +118,7 @@ public class FileLoader {
     private void loadChildren(Parent parent,
                               Path path,
                               FileContainer rootContainer,
-                              List<AnalysisFile> files,
+                              List<ProgramFile> files,
                               List<FileContainer> containers) throws IOException {
         try (var s = Files.list(path)) {
             for (var i : s.toList()) {
@@ -130,7 +130,7 @@ public class FileLoader {
     public <T> void loadFile(
             Path path,
             FileContainer rootContainer,
-            Function<AnalysisFile, T> fileWorker,
+            Function<ProgramFile, T> fileWorker,
             Function<FileContainer, T> containerWorker) throws IOException {
         loadFile(new Parent(FileSystems.getDefault(), path), path, rootContainer, fileWorker, containerWorker);
     }
@@ -138,14 +138,14 @@ public class FileLoader {
     public <T> void loadFile(Parent parent,
                              Path path,
                              FileContainer rootContainer,
-                             Function<AnalysisFile, T> fileWorker,
+                             Function<ProgramFile, T> fileWorker,
                              Function<FileContainer, T> containerWorker) throws IOException {
         if (!Files.exists(path)) {
             logger.warn(path + " is not exist");
         } else {
             if (Files.isDirectory(path)) {
                 List<FileContainer> fileContainers = new ArrayList<>();
-                List<AnalysisFile> files = new ArrayList<>();
+                List<ProgramFile> files = new ArrayList<>();
                 FileTime time = Files.getLastModifiedTime(path);
                 String name = path.getFileName().toString();
                 if (name.equals("BOOT-INF") && parent.fs() != FileSystems.getDefault()) {
@@ -176,7 +176,7 @@ public class FileLoader {
             }  else if (isZipFile(path)) {
                 FileSystem fs;
                 try {
-                    fs = FSManager.get().newZipFS(path);
+                    fs = FileSystemManager.get().newZipFS(path);
                 } catch (ZipException e) {
                     // Some error occur (maybe empty file, ...)
                     // skip this zip file
@@ -184,7 +184,7 @@ public class FileLoader {
                 }
                 List<FileContainer> fileContainers = new ArrayList<>();
                 Parent newParent = new Parent(fs, path);
-                List<AnalysisFile> files = new ArrayList<>();
+                List<ProgramFile> files = new ArrayList<>();
                 FileTime time = Files.getLastModifiedTime(path);
                 String name = PathUtils.getClassName(path);
 
@@ -213,9 +213,9 @@ public class FileLoader {
                 Path relativePath = getRelativePath(parent, path);
                 String internalName = PathUtils.getInternalName(relativePath);
                 if (isClassFile(path)) {
-                    fileWorker.apply(new ClassFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
+                    fileWorker.apply(new DotClassFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
                 } else if (isJavaSourceFile(path)) {
-                    fileWorker.apply(new JavaSourceFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
+                    fileWorker.apply(new DotJavaFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
                 } else {
                     fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r, rootContainer));
                 }

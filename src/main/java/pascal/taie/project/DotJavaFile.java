@@ -23,50 +23,36 @@
 package pascal.taie.project;
 
 import java.nio.file.attribute.FileTime;
-import java.util.List;
 
-public class DirContainer extends AbstractFileContainer {
-
-    private final List<FileContainer> containers;
-
-    private final List<ProgramFile> files;
-
-    private final FileTime time;
-
-    private final String name;
-
-    public DirContainer(List<FileContainer> childContainers,
-                        List<ProgramFile> childFiles,
-                        FileTime time,
-                        String name) {
-        this.containers = childContainers;
-        this.files = childFiles;
-        this.time = time;
-        this.name = name;
-    }
-
-    @Override
-    public List<ProgramFile> files() {
-        return files;
-    }
-
-    @Override
-    public List<FileContainer> containers() {
-        return containers;
-    }
-
-    @Override
-    public FileTime timeStamp() {
-        return time;
-    }
+/**
+ * Represents a `.java` file in the project to be analyzed.
+ *
+ * @param className     The name of the class defined in this file (e.g., <code>String</code>).
+ * @param internalName  The internal name of the class (e.g., <code>java/lang/String</code>).
+ * @param timeStamp     The last modified time of the file.
+ * @param resource      The resource from which this file originates.
+ * @param rootContainer The container where the file is located.
+ */
+public record DotJavaFile(
+        String className,
+        String internalName,
+        FileTime timeStamp,
+        Resource resource,
+        FileContainer rootContainer
+) implements ProgramFile, ClassFile {
 
     @Override
     public String fileName() {
-        return name;
+        return className + ".java";
     }
 
     @Override
-    public String className() {
-        return name;
+    public String getClassName() {
+        return className;
+    }
+
+    @Override
+    public String getInternalName() {
+        return internalName;
     }
 }

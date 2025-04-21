@@ -26,7 +26,7 @@ import pascal.taie.frontend.newfrontend.exception.ClassFileInfo;
 import pascal.taie.frontend.newfrontend.exception.ConstantTableCorruption;
 import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
-import pascal.taie.project.ClassFile;
+import pascal.taie.project.DotClassFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,9 +82,9 @@ public class ConstantTableReader {
      */
     private final String internalName;
 
-    private final ClassFile file;
+    private final DotClassFile file;
 
-    public ConstantTableReader(String internalName, ClassFile file, byte[] content) {
+    public ConstantTableReader(String internalName, DotClassFile file, byte[] content) {
         this.internalName = internalName;
         this.file = file;
         classFileBuffer = content;

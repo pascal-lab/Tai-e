@@ -22,11 +22,11 @@
 
 package pascal.taie.frontend.newfrontend.exception;
 
-import pascal.taie.project.ClassFile;
+import pascal.taie.project.DotClassFile;
 
 import java.nio.file.Path;
 
-public record ClassFileInfo(ClassFile file) {
+public record ClassFileInfo(DotClassFile file) {
     public String toString() {
         Path p = file.resource().getPath();
         return String.format("%s (%s in %s)",

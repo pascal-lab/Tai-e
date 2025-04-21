@@ -35,11 +35,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-// TODO: close all fileSystem at right time
-public class FSManager {
+/**
+ * Singleton class for managing file systems.
+ * It provides methods to create and retrieve
+ * file systems for zip files and the jrt file system.
+ *
+ * @see <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jlink/spec/jrtfs.html">JRT File System</a>
+ */
+public class FileSystemManager {
     Map<Path, FileSystem> fsMap;
 
-    private FSManager() {
+    private FileSystemManager() {
         fsMap = Maps.newMap();
     }
 
@@ -70,10 +76,10 @@ public class FSManager {
         }
     }
 
-    static FSManager manager;
-    public static FSManager get() {
+    static FileSystemManager manager;
+    public static FileSystemManager get() {
         if (manager == null) {
-            manager = new FSManager();
+            manager = new FileSystemManager();
         }
         return manager;
     }

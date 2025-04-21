@@ -34,10 +34,10 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
-import pascal.taie.project.AnalysisFile;
+import pascal.taie.project.ProgramFile;
 import pascal.taie.project.FileContainer;
 import pascal.taie.project.FileResource;
-import pascal.taie.project.JavaSourceFile;
+import pascal.taie.project.DotJavaFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.Resource;
 import pascal.taie.util.collection.Maps;
@@ -56,9 +56,9 @@ import java.util.stream.Stream;
 
 public class JavaClassManager {
 
-    private final Map<JavaSourceFile, CompilationUnit> class2Source;
+    private final Map<DotJavaFile, CompilationUnit> class2Source;
 
-    private final Map<String, JavaSourceFile> sourceFileMap;
+    private final Map<String, DotJavaFile> sourceFileMap;
 
     private ASTParser parser;
 
@@ -91,7 +91,7 @@ public class JavaClassManager {
         parsed = false;
     }
 
-    public List<String> getImports(Project p, JavaSourceFile file) {
+    public List<String> getImports(Project p, DotJavaFile file) {
         if (project == null) {
             project = p;
         }
@@ -102,7 +102,7 @@ public class JavaClassManager {
         return extractor.getDependencies();
     }
 
-    public JavaSource[] getJavaSources(JavaSourceFile file) {
+    public JavaSource[] getJavaSources(DotJavaFile file) {
         CompilationUnit unit = parseSourceCode(file);
         ClassExtractor extractor = new ClassExtractor();
         unit.accept(extractor);
@@ -112,7 +112,7 @@ public class JavaClassManager {
                 .toArray(JavaSource[]::new);
     }
 
-    private CompilationUnit parseSourceCode(JavaSourceFile file) {
+    private CompilationUnit parseSourceCode(DotJavaFile file) {
         if (parsed) {
             return class2Source.get(file);
         } else {
@@ -132,7 +132,7 @@ public class JavaClassManager {
         parser.createASTs(sourceFiles, null, new String[0], new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-                JavaSourceFile file = sourceFileMap.get(sourceFilePath);
+                DotJavaFile file = sourceFileMap.get(sourceFilePath);
                 assert file != null;
                 class2Source.put(file, ast);
                 logJDTError(ast);
@@ -154,11 +154,11 @@ public class JavaClassManager {
     }
 
     private String[] getAllJavaSources() {
-        List<JavaSourceFile> files = outputAll(project.getAppRootContainers());
+        List<DotJavaFile> files = outputAll(project.getAppRootContainers());
         files.addAll(outputAll(project.getLibRootContainers()));
 
         List<String> paths = new ArrayList<>();
-        for (JavaSourceFile file : files) {
+        for (DotJavaFile file : files) {
             getSourcePath(file).ifPresent(p -> {
                 sourceFileMap.put(p, file);
                 paths.add(p);
@@ -189,10 +189,10 @@ public class JavaClassManager {
         return res.toArray(new String[0]);
     }
 
-    private List<JavaSourceFile> outputAll(FileContainer container) {
-        List<JavaSourceFile> res = new ArrayList<>();
-        for (AnalysisFile file : container.files()) {
-            if (file instanceof JavaSourceFile sourceFile) {
+    private List<DotJavaFile> outputAll(FileContainer container) {
+        List<DotJavaFile> res = new ArrayList<>();
+        for (ProgramFile file : container.files()) {
+            if (file instanceof DotJavaFile sourceFile) {
                 res.add(sourceFile);
             }
         }
@@ -200,15 +200,15 @@ public class JavaClassManager {
         return res;
     }
 
-    private List<JavaSourceFile> outputAll(List<FileContainer> containers) {
-        List<JavaSourceFile> res = new ArrayList<>();
+    private List<DotJavaFile> outputAll(List<FileContainer> containers) {
+        List<DotJavaFile> res = new ArrayList<>();
         for (FileContainer container1 : containers) {
             res.addAll(outputAll(container1));
         }
         return res;
     }
 
-    private Optional<String> getSourcePath(JavaSourceFile file) {
+    private Optional<String> getSourcePath(DotJavaFile file) {
         Resource r = file.resource();
         if (r instanceof FileResource) {
             return Optional.of(r.getPath().toString());

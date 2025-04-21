@@ -28,5 +28,5 @@ public record OtherFile(String fileName,
                         FileTime timeStamp,
                         Resource resource,
                         FileContainer rootContainer
-) implements AnalysisFile {
+) implements ProgramFile {
 }

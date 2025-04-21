@@ -22,12 +22,25 @@
 
 package pascal.taie.project;
 
-public interface ClassLike {
-    String getClassName();
+import java.nio.file.attribute.FileTime;
 
-    default String getBinaryName() {
-        return getInternalName().replace('/', '.');
-    }
+/**
+ * Represents a program file in the project to be analyzed.
+ */
+public interface ProgramFile {
 
-    String getInternalName();
+    FileTime timeStamp();
+
+    /**
+     * @return the resource from which this file originates
+     */
+    Resource resource();
+
+    /**
+     * @return file name of this file (with extension name)
+     */
+    String fileName();
+
+    FileContainer rootContainer();
+
 }

@@ -31,9 +31,9 @@ import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.frontend.newfrontend.javac.JavacSourceHandler;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
-import pascal.taie.project.AnalysisFile;
-import pascal.taie.project.ClassFile;
-import pascal.taie.project.JavaSourceFile;
+import pascal.taie.project.ProgramFile;
+import pascal.taie.project.DotClassFile;
+import pascal.taie.project.DotJavaFile;
 import pascal.taie.project.Project;
 import pascal.taie.util.collection.Pair;
 
@@ -43,13 +43,13 @@ import java.util.List;
 
 class DependencyResolver {
     static ResolveResult
-    resolve(Project project, String binaryName, AnalysisFile file)
+    resolve(Project project, String binaryName, ProgramFile file)
             throws IOException, FrontendException {
-        if (file instanceof JavaSourceFile javaSourceFile) {
+        if (file instanceof DotJavaFile dotJavaFile) {
             // return getJavaDependenciesWithJDT(project, binaryName, javaSourceFile);
-            return resolveWithJavac(project, binaryName, javaSourceFile);
-        } else if (file instanceof ClassFile classFile) {
-            return resolveClassFile(project, binaryName, classFile);
+            return resolveWithJavac(project, binaryName, dotJavaFile);
+        } else if (file instanceof DotClassFile dotClassFile) {
+            return resolveClassFile(project, binaryName, dotClassFile);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -62,10 +62,10 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveWithJDT(Project project, String binaryName, JavaSourceFile javaSourceFile) {
+    resolveWithJDT(Project project, String binaryName, DotJavaFile dotJavaFile) {
         // DO NOT change the order of next 2 stmts
-        List<String> deps = JavaClassManager.get().getImports(project, javaSourceFile);
-        JavaSource[] javaSources = JavaClassManager.get().getJavaSources(javaSourceFile);
+        List<String> deps = JavaClassManager.get().getImports(project, dotJavaFile);
+        JavaSource[] javaSources = JavaClassManager.get().getJavaSources(dotJavaFile);
         List<Pair<String, ClassSource>> sources = new ArrayList<>();
         for (JavaSource s : javaSources) {
             String binaryNameOfFile = s.getClassName().replace('.', '/');
@@ -75,18 +75,18 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveWithJavac(Project project, String binaryName, JavaSourceFile javaSourceFile)
+    resolveWithJavac(Project project, String binaryName, DotJavaFile dotJavaFile)
             throws IOException, FrontendException {
-        List<ClassFile> classFiles =
+        List<DotClassFile> dotClassFiles =
                 new JavacSourceHandler().compile(project.getClassPath(),
-                        javaSourceFile.resource().getPath().toString(),
+                        dotJavaFile.resource().getPath().toString(),
                         project.getJavaVersion());
-        boolean isApplication = project.isApp(javaSourceFile);
+        boolean isApplication = project.isApp(dotJavaFile);
         List<String> deps = new ArrayList<>();
         List<Pair<String, ClassSource>> sources = new ArrayList<>();
-        for (ClassFile classFile : classFiles) {
+        for (DotClassFile dotClassFile : dotClassFiles) {
              ResolveResult r =
-                    resolveClassFile(project, classFile.getInternalName(), classFile, isApplication);
+                    resolveClassFile(project, dotClassFile.getInternalName(), dotClassFile, isApplication);
             deps.addAll(r.dependencies());
             sources.addAll(r.resolvedSource());
         }
@@ -94,7 +94,7 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveClassFile(Project project, String binaryName, ClassFile cFile, boolean isApplication)
+    resolveClassFile(Project project, String binaryName, DotClassFile cFile, boolean isApplication)
             throws IOException, CorruptClassFileException {
         byte[] content = cFile.resource().getContent();
         cFile.resource().release();
@@ -107,7 +107,7 @@ class DependencyResolver {
     }
 
     private static ResolveResult
-    resolveClassFile(Project project, String binaryName, ClassFile cFile)
+    resolveClassFile(Project project, String binaryName, DotClassFile cFile)
             throws IOException, CorruptClassFileException {
         return resolveClassFile(project, binaryName, cFile, project.isApp(cFile));
     }

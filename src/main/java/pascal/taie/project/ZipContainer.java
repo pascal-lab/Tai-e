@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ZipContainer extends AbstractFileContainer {
 
-    private final List<AnalysisFile> files;
+    private final List<ProgramFile> files;
 
     private final List<FileContainer> containers;
 
@@ -36,7 +36,7 @@ public class ZipContainer extends AbstractFileContainer {
     protected final String name;
 
 
-    public ZipContainer(List<AnalysisFile> files,
+    public ZipContainer(List<ProgramFile> files,
                         List<FileContainer> containers,
                         FileTime time,
                         String name) {
@@ -47,7 +47,7 @@ public class ZipContainer extends AbstractFileContainer {
     }
 
     @Override
-    public List<AnalysisFile> files() {
+    public List<ProgramFile> files() {
         return files;
     }
 

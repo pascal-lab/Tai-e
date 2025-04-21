@@ -107,10 +107,10 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
     private static List<String> outPutAll(String current, FileContainer container, boolean isRoot) {
         String currentNext = (isRoot) ? "" : current + container.className() + ".";
         List<String> res = new ArrayList<>(container.files().stream()
-                .filter(f -> f instanceof ClassFile)
+                .filter(f -> f instanceof DotClassFile)
                 .filter(f -> ! f.fileName().equals("module-info.class"))
                 .map(c -> {
-                    String fullClassName = currentNext + ((ClassFile) c).getClassName();
+                    String fullClassName = currentNext + ((DotClassFile) c).getClassName();
                     assert !fullClassName.contains("/");
                     return fullClassName;
                 })

@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.exception.JavacException;
-import pascal.taie.project.ClassFile;
+import pascal.taie.project.DotClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.PathUtils;
 import pascal.taie.project.Resource;
@@ -58,7 +58,7 @@ public class JavacSourceHandler {
     private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir")).resolve("taie");
     private final Pattern writePattern = getWritePattern();
 
-    public List<ClassFile> compile(String cp, String javaSourceFile, int javaVersion)
+    public List<DotClassFile> compile(String cp, String javaSourceFile, int javaVersion)
             throws JavacException, IOException {
         if (compiler == null) {
             throw new JavacException();
@@ -94,7 +94,7 @@ public class JavacSourceHandler {
         }
 
         fileManager.close();
-        List<ClassFile> compileResults = new ArrayList<>();
+        List<DotClassFile> compileResults = new ArrayList<>();
         for (String compileResult : getCompiledFiles(output.toString())) {
             compileResults.add(createPhantomClassFile(compileResult));
         }
@@ -123,14 +123,14 @@ public class JavacSourceHandler {
         return files;
     }
 
-    private ClassFile createPhantomClassFile(String outputPath) throws IOException {
+    private DotClassFile createPhantomClassFile(String outputPath) throws IOException {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
         String className = PathUtils.getClassName(relative);
         String internalName = PathUtils.getInternalName(relative);
         FileTime time = Files.getLastModifiedTime(output);
         Resource r = new FileResource(output);
-        return new ClassFile(className, internalName, time, r, null);
+        return new DotClassFile(className, internalName, time, r, null);
     }
 
     private Pattern getWritePattern() {

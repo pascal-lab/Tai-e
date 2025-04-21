@@ -22,12 +22,18 @@
 
 package pascal.taie.project;
 
+import javax.annotation.Nullable;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 
+/**
+ * Represents a container that can hold files and other containers.
+ * This interface provides methods to retrieve the files,
+ * sub-containers, and the timestamp of the container.
+ */
 public interface FileContainer {
 
-    List<AnalysisFile> files();
+    List<ProgramFile> files();
 
     List<FileContainer> containers();
 
@@ -45,5 +51,11 @@ public interface FileContainer {
      */
     String className();
 
-    AnalysisFile locate(ClassLocation restPath);
+    /**
+     * Find a class file in this container.
+     * @param relativePath the relative path to the class file
+     * @return the class file if found, otherwise null
+     */
+    @Nullable
+    ProgramFile locate(ClassLocation relativePath);
 }

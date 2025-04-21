@@ -34,7 +34,7 @@ import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.World;
-import pascal.taie.project.AnalysisFile;
+import pascal.taie.project.ProgramFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.SearchIndex;
 import pascal.taie.util.Timer;
@@ -214,7 +214,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
     }
 
     private ResolveResult buildDeps(String internalName) throws IOException, FrontendException {
-        AnalysisFile f = index.locate(internalName);
+        ProgramFile f = index.locate(internalName);
         if (f == null) {
             if (basicClassesList.contains(internalName.replace('/', '.'))) {
                 // if some classes in basicClassesList are not found, then just ignore them
