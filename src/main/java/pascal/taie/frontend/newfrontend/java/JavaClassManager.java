@@ -191,12 +191,12 @@ public class JavaClassManager {
 
     private List<DotJavaFile> outputAll(FileContainer container) {
         List<DotJavaFile> res = new ArrayList<>();
-        for (ProgramFile file : container.files()) {
+        for (ProgramFile file : container.getFiles()) {
             if (file instanceof DotJavaFile sourceFile) {
                 res.add(sourceFile);
             }
         }
-        res.addAll(outputAll(container.containers()));
+        res.addAll(outputAll(container.getContainers()));
         return res;
     }
 

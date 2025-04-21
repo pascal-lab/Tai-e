@@ -32,7 +32,7 @@ public class JarContainer extends ZipContainer {
     @Nullable
     private final Manifest manifest;
 
-    public JarContainer(List<ProgramFile> files,
+    JarContainer(List<ProgramFile> files,
                         List<FileContainer> containers,
                         FileTime time,
                         Manifest manifest,
@@ -46,12 +46,12 @@ public class JarContainer extends ZipContainer {
     }
 
     @Override
-    public String fileName() {
+    public String getFileName() {
         return this.name + ".jar";
     }
 
     @Override
     public String toString() {
-        return fileName();
+        return this.getFileName();
     }
 }

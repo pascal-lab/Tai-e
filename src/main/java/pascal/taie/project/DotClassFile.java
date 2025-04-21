@@ -42,8 +42,13 @@ public record DotClassFile(
 ) implements ProgramFile, ClassFile {
 
     @Override
-    public String fileName() {
+    public String getFileName() {
         return className + ".class";
+    }
+
+    @Override
+    public FileContainer getRootContainer() {
+        return rootContainer;
     }
 
     @Override
@@ -54,5 +59,15 @@ public record DotClassFile(
     @Override
     public String getInternalName() {
         return internalName;
+    }
+
+    @Override
+    public FileTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public Resource getResource() {
+        return resource;
     }
 }

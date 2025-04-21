@@ -29,18 +29,18 @@ import java.nio.file.attribute.FileTime;
  */
 public interface ProgramFile {
 
-    FileTime timeStamp();
+    FileTime getTimeStamp();
 
     /**
      * @return the resource from which this file originates
      */
-    Resource resource();
+    Resource getResource();
 
     /**
      * @return file name of this file (with extension name)
      */
-    String fileName();
+    String getFileName();
 
-    FileContainer rootContainer();
+    FileContainer getRootContainer();
 
 }

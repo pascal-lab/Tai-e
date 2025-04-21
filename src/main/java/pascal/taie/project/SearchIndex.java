@@ -71,7 +71,7 @@ public class SearchIndex {
                 && !cl.getInternalName().contains("module-info")) {
             ProgramFile file1 = index.get(internalName);
             Pair<FileContainer, FileContainer> jars = new Pair<>(
-                    file1.rootContainer(), file.rootContainer());
+                    file1.getRootContainer(), file.getRootContainer());
             duplicateClasses.add(new DuplicateClass(internalName, jars));
             return;
         }
@@ -160,11 +160,11 @@ public class SearchIndex {
      * @param container the file container to traverse
      */
     private void trav(String currentName, FileContainer container) {
-        for (ProgramFile file : container.files()) {
-            add(currentName + file.fileName(), file);
+        for (ProgramFile file : container.getFiles()) {
+            add(currentName + file.getFileName(), file);
         }
-        for (FileContainer subContainer : container.containers()) {
-            trav(currentName + subContainer.fileName() + "/", subContainer);
+        for (FileContainer subContainer : container.getContainers()) {
+            trav(currentName + subContainer.getFileName() + "/", subContainer);
         }
     }
 

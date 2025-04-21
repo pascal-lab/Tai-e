@@ -22,8 +22,6 @@
 
 package pascal.taie.project;
 
-import pascal.taie.World;
-
 /**
  * Abstract class for file containers.
  * This class provides a default implementation for the {@link #locate(ClassLocation)} method.
@@ -38,14 +36,14 @@ public abstract class AbstractFileContainer implements FileContainer {
         if (relativePath.hasNext()) {
             // If classPath.hasNext() then current is a package name.
             // There should exist at most 1 container with the same name.
-            var fileContainer = containers().stream()
-                    .filter(c -> c.className().equals(current))
+            var fileContainer = getContainers().stream()
+                    .filter(c -> c.getClassName().equals(current))
                     .findAny();
             return fileContainer.map(c -> c.locate(relativePath)).orElse(null);
         } else {
             // else then current is a class name.
             // There should exist at most 1 file with the same name.
-            var file = files().stream()
+            var file = getFiles().stream()
                     .filter(f -> isTarget(f, current))
                     .findAny();
             return file.orElse(null);
@@ -53,12 +51,7 @@ public abstract class AbstractFileContainer implements FileContainer {
     }
 
     protected static boolean isTarget(ProgramFile file, String className) {
-        if (!(file instanceof DotClassFile) && ! (!World.get().getOptions().getNoAppendJava()
-            && file instanceof DotJavaFile)) {
-            return false;
-        }
-
-        int endIndex = file.fileName().indexOf('.');
-        return file.fileName().substring(0, endIndex).equals(className);
+        int endIndex = file.getFileName().indexOf('.');
+        return file.getFileName().substring(0, endIndex).equals(className);
     }
 }

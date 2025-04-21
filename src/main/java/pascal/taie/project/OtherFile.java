@@ -29,4 +29,23 @@ public record OtherFile(String fileName,
                         Resource resource,
                         FileContainer rootContainer
 ) implements ProgramFile {
+    @Override
+    public FileTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
+
+    @Override
+    public String getFileName() {
+        return fileName;
+    }
+
+    @Override
+    public FileContainer getRootContainer() {
+        return rootContainer;
+    }
 }

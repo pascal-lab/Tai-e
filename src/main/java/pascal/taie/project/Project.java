@@ -84,7 +84,7 @@ public class Project {
     }
 
     public boolean isApp(ProgramFile file) {
-        return appRootContainers.contains(file.rootContainer()) ||
+        return appRootContainers.contains(file.getRootContainer()) ||
                 isMainOrInputClass(file);
     }
 

@@ -33,23 +33,23 @@ import java.util.List;
  */
 public interface FileContainer {
 
-    List<ProgramFile> files();
+    List<ProgramFile> getFiles();
 
-    List<FileContainer> containers();
+    List<FileContainer> getContainers();
 
-    FileTime timeStamp();
+    FileTime getTimeStamp();
 
     /**
      * Return FileName (with extension name)
      * e.g. a.jar --> a.jar
      */
-    String fileName();
+    String getFileName();
 
     /**
      * Return name (without extension name)
      * e.g. a.jar --> a
      */
-    String className();
+    String getClassName();
 
     /**
      * Find a class file in this container.

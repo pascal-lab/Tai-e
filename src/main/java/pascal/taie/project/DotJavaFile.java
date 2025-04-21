@@ -42,7 +42,7 @@ public record DotJavaFile(
 ) implements ProgramFile, ClassFile {
 
     @Override
-    public String fileName() {
+    public String getFileName() {
         return className + ".java";
     }
 
@@ -54,5 +54,20 @@ public record DotJavaFile(
     @Override
     public String getInternalName() {
         return internalName;
+    }
+
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
+
+    @Override
+    public FileContainer getRootContainer() {
+        return rootContainer;
+    }
+
+    @Override
+    public FileTime getTimeStamp() {
+        return timeStamp;
     }
 }

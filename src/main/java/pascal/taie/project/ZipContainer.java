@@ -47,27 +47,27 @@ public class ZipContainer extends AbstractFileContainer {
     }
 
     @Override
-    public List<ProgramFile> files() {
+    public List<ProgramFile> getFiles() {
         return files;
     }
 
     @Override
-    public List<FileContainer> containers() {
+    public List<FileContainer> getContainers() {
         return containers;
     }
 
     @Override
-    public FileTime timeStamp() {
+    public FileTime getTimeStamp() {
         return time;
     }
 
     @Override
-    public String fileName() {
+    public String getFileName() {
         return name + ".zip";
     }
 
     @Override
-    public String className() {
+    public String getClassName() {
         return name;
     }
 }
