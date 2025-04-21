@@ -56,11 +56,13 @@ public class MayAliasPairTest {
                 // for loading class PTAAssert
                 "-cp", ptaTestRoot,
                 // for loading main class
-                "-cp", classPath, "-m", mainClass, "-a", "may-alias-pair");
+                "-cp", classPath, "-m", mainClass,
+                "-a", "may-alias-pair"
+        );
         Main.main(args.toArray(new String[0]));
         MayAliasPair.MayAliasPairResult resultByAnalysis = World.get().getResult(MayAliasPair.ID);
         long appResultByDefinition = computeByDefinition();
-        assertEquals(appResultByDefinition, resultByAnalysis.numberOfAppAliasPairs());
+        assertEquals(appResultByDefinition, resultByAnalysis.appAliasPairs());
     }
 
     private static long computeByDefinition() {

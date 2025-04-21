@@ -70,9 +70,9 @@ public class MayAliasPair extends ProgramAnalysis<MayAliasPair.MayAliasPairResul
 
         // Log statistics
         logger.info("#{}: found {} in {} variable pairs",
-                getDescription(), nAliasPairs, (nVars - 1) * nVars / 2);
+                ID, nAliasPairs, (nVars - 1) * nVars / 2);
         logger.info("#{}: found {} in {} variable pairs (app)",
-                getDescription(), nAppAliasPairs, (nAppVars - 1) * nAppVars / 2);
+                ID, nAppAliasPairs, (nAppVars - 1) * nAppVars / 2);
 
         return new MayAliasPairResult(nAliasPairs, nAppAliasPairs);
     }
@@ -88,7 +88,7 @@ public class MayAliasPair extends ProgramAnalysis<MayAliasPair.MayAliasPairResul
         });
 
         // mayAlias(u, v) if
-        //   exists o s.t. o in pts(u) and o in pts(v)
+        //   exists o, s.t. in(o, pts(u)) and in(o, pts(v))
         long nAliasPairs = vars.parallelStream()
                 .mapToLong(v -> {
                     Set<Var> aliasVars = indexer.makeIndexerBitSet();
@@ -107,11 +107,7 @@ public class MayAliasPair extends ProgramAnalysis<MayAliasPair.MayAliasPairResul
         return v.getMethod().isApplication();
     }
 
-    String getDescription() {
-        return ID;
-    }
-
-    public record MayAliasPairResult(long numberOfAliasPairs, long numberOfAppAliasPairs) {
+    public record MayAliasPairResult(long aliasPairs, long appAliasPairs) {
     }
 
     // A global indexer for Vars
