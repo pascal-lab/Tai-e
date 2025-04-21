@@ -35,7 +35,7 @@ public class DirContainer extends AbstractFileContainer {
 
     private final String name;
 
-    public DirContainer(List<FileContainer> childContainers,
+    DirContainer(List<FileContainer> childContainers,
                         List<ProgramFile> childFiles,
                         FileTime time,
                         String name) {

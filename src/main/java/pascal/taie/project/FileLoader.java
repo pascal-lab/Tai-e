@@ -39,7 +39,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
-public class FileLoader {
+class FileLoader {
 
     private static final Logger logger = LogManager.getLogger(FileLoader.class);
 
@@ -127,7 +127,7 @@ public class FileLoader {
         }
     }
 
-    public <T> void loadFile(
+    <T> void loadFile(
             Path path,
             FileContainer rootContainer,
             Function<ProgramFile, T> fileWorker,
@@ -135,11 +135,11 @@ public class FileLoader {
         loadFile(new Parent(FileSystems.getDefault(), path), path, rootContainer, fileWorker, containerWorker);
     }
 
-    public <T> void loadFile(Parent parent,
-                             Path path,
-                             FileContainer rootContainer,
-                             Function<ProgramFile, T> fileWorker,
-                             Function<FileContainer, T> containerWorker) throws IOException {
+    private <T> void loadFile(Parent parent,
+                              Path path,
+                              FileContainer rootContainer,
+                              Function<ProgramFile, T> fileWorker,
+                              Function<FileContainer, T> containerWorker) throws IOException {
         if (!Files.exists(path)) {
             logger.warn(path + " is not exist");
         } else {
@@ -223,7 +223,7 @@ public class FileLoader {
         }
     }
 
-    public List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
+    List<FileContainer> loadRootContainers(List<Path> paths) throws IOException {
         this.auxContainers = new ArrayList<>();
         List<FileContainer> containers = new ArrayList<>();
         for (var p : paths) {

@@ -24,10 +24,11 @@ package pascal.taie.frontend.newfrontend.exception;
 
 import pascal.taie.project.DotClassFile;
 
+import javax.annotation.Nonnull;
 import java.nio.file.Path;
 
 public record ClassFileInfo(DotClassFile file) {
-    public String toString() {
+    public @Nonnull String toString() {
         Path p = file.resource().getPath();
         return String.format("%s (%s in %s)",
                 file.internalName(), p, file.rootContainer().fileName());

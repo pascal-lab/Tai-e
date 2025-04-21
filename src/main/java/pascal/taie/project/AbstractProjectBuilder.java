@@ -35,7 +35,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -138,27 +137,5 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
         }
         Path modulePath = fs.getPath("/modules");
         return Files.list(modulePath);
-    }
-
-    private static void setUpBenchmarkJRE(Path jreDir) throws IOException {
-        Path lib = jreDir.resolve("lib");
-        Path modules = lib.resolve("modules");
-        if (Files.isRegularFile(modules)) {
-            return;
-        }
-        Path modulesZip = lib.resolve("modules.zip");
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(modulesZip)) {
-            Path root = zipFileSystem.getRootDirectories().iterator().next();
-            try (Stream<Path> pathStream = Files.list(root)) {
-                pathStream.forEach(path -> {
-                    Path outputPath = lib.resolve(path.getFileName().toString());
-                    try {
-                        Files.copy(path, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            }
-        }
     }
 }

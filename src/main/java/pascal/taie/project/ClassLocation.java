@@ -22,12 +22,22 @@
 
 package pascal.taie.project;
 
-class ClassLocation {
+/**
+ * A <em>ClassLocation</em> is a class location in the form of
+ * <code>package1.package2.ClassName</code>.
+ * It is used to represent the location of a class in the project.
+ */
+public class ClassLocation {
 
     private final String fullClassLocation;
 
     private int index;
 
+    /**
+     * Constructor for ClassLocation.
+     * @param fullClassLocation the full class location in the form of
+     *                          <code>package1.package2.ClassName</code>.
+     */
     public ClassLocation(String fullClassLocation) {
         this.fullClassLocation = fullClassLocation;
         index = 0;
@@ -40,7 +50,7 @@ class ClassLocation {
      * <br/>     "ClassLocation": true
      * <br/>     "": false
      */
-    public boolean hasNext() {
+    boolean hasNext() {
         return index < fullClassLocation.length();
     }
 
@@ -50,7 +60,7 @@ class ClassLocation {
      * <br/>e.g. "pascal.taie.project.ClassLocation": "pascal"
      * <br/>     "ClassLocation": "ClassLocation"
      */
-    public String next() throws IndexOutOfBoundsException {
+    String next() throws IndexOutOfBoundsException {
         if (index >= fullClassLocation.length()) {
             throw new IndexOutOfBoundsException();
         }
@@ -64,12 +74,5 @@ class ClassLocation {
             index = fullClassLocation.length();
         }
         return result;
-    }
-
-    /**
-     * set the index to 0
-     */
-    public void clear() {
-        this.index = 0;
     }
 }
