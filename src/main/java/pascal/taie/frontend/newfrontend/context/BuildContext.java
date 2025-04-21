@@ -24,7 +24,6 @@ package pascal.taie.frontend.newfrontend.context;
 
 import pascal.taie.frontend.newfrontend.TempTypeSystem;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
-import pascal.taie.frontend.newfrontend.dbg.DbgInfo;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultClassLoader;
 import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
@@ -74,8 +73,6 @@ public class BuildContext {
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
     private TaiePhase phase;
-
-    private final Map<JMethod, DbgInfo> dbgInfoMap = Maps.newConcurrentMap();
 
     public BuildContext(FrontendOptions frontendOptions) {
         this.frontendOptions = frontendOptions;
@@ -226,9 +223,5 @@ public class BuildContext {
 
     public TaiePhase getPhase() {
         return phase;
-    }
-
-    public Map<JMethod, DbgInfo> getDbgInfoMap() {
-        return dbgInfoMap;
     }
 }
