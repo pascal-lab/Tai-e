@@ -22,17 +22,32 @@
 
 package pascal.taie.project;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pascal.taie.config.Options;
+import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Streams;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class OptionsProjectBuilder extends AbstractProjectBuilder {
+public class OptionsProjectBuilder implements ProjectBuilder {
 
+    private static final String JREs = "java-benchmarks/JREs";
+    private static final Logger logger = LogManager.getLogger(OptionsProjectBuilder.class);
+    private static final String JRE_FIND_FAILED = """
+            Failed to locate Java library.
+            Please clone submodule 'java-benchmarks' by command:
+            git submodule update --init --recursive
+            and put it in Tai-e's working directory.""";
     private final Options options;
 
     private Project project;
@@ -41,22 +56,99 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
         this.options = options;
     }
 
-    @Override
+    /**
+     * return value excludes app-class-path
+     */
+    protected static List<String> getClassPath(Options options) {
+        if (options.isPrependJVM()) {
+            return options.getClassPath();
+        } else if (options.getJreDir() != null) {
+            // use another method for jre path
+            return options.getClassPath();
+        } else { // when prependJVM is not set, we manually specify JRE jars
+            // check existence of JREs
+            File jreDir = new File(JREs);
+            if (!jreDir.exists()) {
+                throw new RuntimeException(JRE_FIND_FAILED);
+            }
+            int javaVersion = options.getJavaVersion();
+            String jrePath = String.format("%s/jre" + ((javaVersion <= 8) ? "1.%d" : "%d"),
+                    JREs, javaVersion);
+            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+                return Streams.concat(
+                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
+                                options.getClassPath().stream())
+                        .toList();
+            } catch (IOException e) {
+                throw new RuntimeException("Analysis on Java " +
+                        options.getJavaVersion() + " library is not supported yet", e);
+            }
+        }
+    }
+
+    /**
+     * Obtains all input classes specified in {@code options}.
+     */
+    protected static List<String> getInputClasses(Options options) {
+        List<String> classes = new ArrayList<>();
+        // process --input-classes
+        options.getInputClasses().forEach(value -> {
+            if (value.endsWith(".txt")) {
+                // value is a path to a file that contains class names
+                try (Stream<String> lines = Files.lines(Path.of(value))) {
+                    lines.forEach(classes::add);
+                } catch (IOException e) {
+                    logger.warn("Failed to read input class file {} due to {}",
+                            value, e);
+                }
+            } else {
+                // value is a class name
+                classes.add(value);
+            }
+        });
+        // process --app-class-path
+        List<String> appClassPath = options.getAppClassPath();
+        for (String path : appClassPath) {
+            classes.addAll(ClassNameExtractor.extract(path));
+        }
+        return classes;
+    }
+
+    protected static Stream<Path> listJrtModule(Options options) throws IOException {
+        int javaVersion = options.getJavaVersion();
+        if (javaVersion <= 8) {
+            return Stream.empty();
+        }
+
+        FileSystem fs;
+        if (!options.isPrependJVM()) {
+            Path jreDir;
+            if (options.getJreDir() != null) {
+                jreDir = Path.of(options.getJreDir());
+            } else {
+                // TODO: produce error, JRE may not loaded
+                return Stream.empty();
+            }
+            fs = FileSystemManager.get().getJrtFs(jreDir);
+        } else {
+            fs = FileSystems.getFileSystem(URI.create("jrt:/"));
+        }
+        Path modulePath = fs.getPath("/modules");
+        return Files.list(modulePath);
+    }
+
     protected String getMainClass() {
         return options.getMainClass();
     }
 
-    @Override
     protected int getJavaVersion() {
         return options.getJavaVersion();
     }
 
-    @Override
     protected List<String> getInputClasses() {
         return getInputClasses(options);
     }
 
-    @Override
     protected List<FileContainer> getRootContainers() {
         return Stream.concat(
                 project.getAppRootContainers().stream(),
