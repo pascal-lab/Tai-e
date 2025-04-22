@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.dumpjvm;
+package pascal.taie.backend.bytecode;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +30,7 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 
+import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -120,7 +121,7 @@ public class JarDumper {
             // Copy the files from the output directory to the JAR file system
             Files.walkFileTree(tempDir, new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @Nonnull FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {
                         throw new FileNotFoundException("File " + dest + " does not exist in the original JAR file, may be dues to phantom classes");

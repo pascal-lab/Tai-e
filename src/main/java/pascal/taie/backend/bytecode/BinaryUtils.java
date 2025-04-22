@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.dumpjvm;
+package pascal.taie.backend.bytecode;
 
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
@@ -42,7 +42,7 @@ public class BinaryUtils {
      * @param type the type to compute the descriptor for
      * @return the Java method descriptor as a string
      */
-    public static String computeDescriptor(Type type) {
+    static String computeDescriptor(Type type) {
         if (type instanceof ClassType) {
             return "L" + type.getName().replace('.', '/') + ";";
         } else if (type instanceof PrimitiveType) {
@@ -62,7 +62,7 @@ public class BinaryUtils {
      * @param type the primitive type name
      * @return the Java primitive type descriptor as an optional string.
      */
-    public static Optional<String> computePrimitive(String type) {
+    private static Optional<String> computePrimitive(String type) {
         return switch (type) {
             case "int"     -> Optional.of("I");
             case "long"    -> Optional.of("J");

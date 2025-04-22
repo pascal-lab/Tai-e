@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.dumpjvm;
+package pascal.taie.backend.bytecode;
 
 import pascal.taie.language.classes.JClass;
 
@@ -28,7 +28,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * A utility class to dump a classfile to the file system.
+ */
 public class ClassfileDumper {
+    /**
+     * Dump a classfile to the file system.
+     * @param cp the classpath to dump the classfile to
+     * @param jClass the class to dump
+     */
     public static void dump(Path cp, JClass jClass) {
         byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
         Path classfilePath = cp.resolve(

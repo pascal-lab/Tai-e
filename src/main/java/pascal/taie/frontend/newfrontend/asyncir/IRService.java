@@ -27,7 +27,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.dumpjvm.BinaryUtils;
+import pascal.taie.backend.bytecode.BinaryUtils;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;

@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.dumpjvm;
+package pascal.taie.backend.bytecode;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -147,6 +147,17 @@ import java.util.stream.Collectors;
 
 /**
  * A class responsible for emitting the .class file for a given Java class.
+ * <p>
+ * Usage example:
+ * <pre>
+ * {@code
+ * BytecodeEmitter emitter = new BytecodeEmitter();
+ * JClass jClass = ...; // Obtain a JClass instance
+ * byte[] classFile = emitter.emit(jClass);
+ * }
+ * </pre>
+ * The emitted class file ({@code classFile}) can then be written to a file or loaded into a JVM.
+ * </p>
  */
 public class BytecodeEmitter {
     private final int classWriterOptions;
@@ -154,7 +165,7 @@ public class BytecodeEmitter {
 
     private final Map<JClass, InnerClassNode> innerClassMap = Maps.newMap();
 
-    public BytecodeEmitter(int classWriterOptions) {
+    private BytecodeEmitter(int classWriterOptions) {
         writer = new ClassWriter(classWriterOptions) {
             /**
              * <p>Use Tai-e api to compute the lca (the least common ancestor) of
@@ -294,7 +305,7 @@ public class BytecodeEmitter {
 
     private JMethod method;
 
-    void emitMethod(JMethod method) {
+    private void emitMethod(JMethod method) {
         this.method = method;
         MethodVisitor mv = writer.visitMethod(
                 Utils.toAsmModifier(method.getModifiers()), method.getName(),
@@ -319,7 +330,7 @@ public class BytecodeEmitter {
         mv.visitEnd();
     }
 
-    void emitAnnotation(AnnotationVisitor annotationVisitor, Annotation annotation) {
+    private void emitAnnotation(AnnotationVisitor annotationVisitor, Annotation annotation) {
         for (Annotation.Entry entry : annotation.getElementEntries()) {
             String name = entry.name();
             Element ele = entry.element();
@@ -328,7 +339,7 @@ public class BytecodeEmitter {
         annotationVisitor.visitEnd();
     }
 
-    void emitElement(AnnotationVisitor annotationVisitor, String name, Element ele) {
+    private void emitElement(AnnotationVisitor annotationVisitor, String name, Element ele) {
         if (ele instanceof AnnotationElement ae) {
             AnnotationVisitor av = annotationVisitor.visitAnnotation(
                     name, getDescriptorByDesc(ae.annotation().getType()));
@@ -347,7 +358,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void emitIR(IR ir, MethodVisitor mv) {
+    private void emitIR(IR ir, MethodVisitor mv) {
         Map<Stmt, LabelNode> labelMap = Maps.newMap();
         Map<Stmt, List<AbstractInsnNode>> insnMap = Maps.newMap();
         List<ExceptionEntry> exceptionEntries = ir.getExceptionEntries();
@@ -381,7 +392,7 @@ public class BytecodeEmitter {
         mv.visitMaxs(0, 0);
     }
 
-    void emitStmt(Stmt stmt, Map<Stmt, LabelNode> labelMap, Map<Stmt, List<AbstractInsnNode>> insnMap) {
+    private void emitStmt(Stmt stmt, Map<Stmt, LabelNode> labelMap, Map<Stmt, List<AbstractInsnNode>> insnMap) {
         List<AbstractInsnNode> nodeList = insnMap.computeIfAbsent(stmt, (stmt1) -> new ArrayList<>());
         if (stmt instanceof DefinitionStmt<?, ?>) {
             if (stmt instanceof Invoke invoke) {
@@ -577,8 +588,8 @@ public class BytecodeEmitter {
         }
     }
 
-    LabelNode createLabel(Stmt stmt, Map<Stmt, LabelNode> labelMap,
-                          Map<Stmt, List<AbstractInsnNode>> insnMap) {
+    private LabelNode createLabel(Stmt stmt, Map<Stmt, LabelNode> labelMap,
+                                  Map<Stmt, List<AbstractInsnNode>> insnMap) {
         if (!labelMap.containsKey(stmt)) {
             labelMap.put(stmt, new LabelNode());
             List<AbstractInsnNode> insnList = insnMap.computeIfAbsent(stmt, __ -> new ArrayList<>());
@@ -589,7 +600,7 @@ public class BytecodeEmitter {
         return labelMap.get(stmt);
     }
 
-    void emitInvoke(InvokeExp invokeExp, List<AbstractInsnNode> nodeList) {
+    private void emitInvoke(InvokeExp invokeExp, List<AbstractInsnNode> nodeList) {
         if (invokeExp instanceof InvokeDynamic invokeDynamic) {
             Handle handle = getHandle(invokeDynamic.getHandle());
             Object[] bootstrapArgs = invokeDynamic.getBootstrapArgs()
@@ -624,7 +635,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void emitBinaryExp(BinaryExp binaryExp, List<AbstractInsnNode> nodeList) {
+    private void emitBinaryExp(BinaryExp binaryExp, List<AbstractInsnNode> nodeList) {
         Var op1 = binaryExp.getOperand1();
         Var op2 = binaryExp.getOperand2();
         emitMayConstLoad(op1, nodeList);
@@ -668,7 +679,7 @@ public class BytecodeEmitter {
         }
     }
 
-    static int selectArithmeticOp(int what, int size) {
+    private static int selectArithmeticOp(int what, int size) {
         int[][] table = {
                 {Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD},
                 {Opcodes.ISUB, Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB},
@@ -678,7 +689,7 @@ public class BytecodeEmitter {
         return table[what][size];
     }
 
-    static int selectBitwiseOp(int what, int size) {
+    private static int selectBitwiseOp(int what, int size) {
         int[][] table = {
                 {Opcodes.IAND, Opcodes.LAND},
                 {Opcodes.IOR, Opcodes.LOR},
@@ -689,7 +700,7 @@ public class BytecodeEmitter {
         return table[what][size];
     }
 
-    static int selectComparsionOp(int what, int size) {
+    private static int selectComparsionOp(int what, int size) {
         int[][] table = {
                 {-1, Opcodes.LCMP},
                 {-1, -1, Opcodes.FCMPL, Opcodes.DCMPL},
@@ -697,7 +708,7 @@ public class BytecodeEmitter {
         return table[what][size];
     }
 
-    static int getSize(Type type) {
+    private static int getSize(Type type) {
         if (type instanceof PrimitiveType primitiveType) {
             return switch (primitiveType.getName()) {
                 case "int", "short", "byte", "boolean", "char" -> 0;
@@ -728,7 +739,7 @@ public class BytecodeEmitter {
         return op;
     }
 
-    void emitReturn(Var ret, List<AbstractInsnNode> nodeList) {
+    private void emitReturn(Var ret, List<AbstractInsnNode> nodeList) {
         if (ret == null) {
             nodeList.add(new InsnNode(Opcodes.RETURN));
         } else {
@@ -754,7 +765,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void emitConst(Literal literal, List<AbstractInsnNode> insnNodes) {
+    private void emitConst(Literal literal, List<AbstractInsnNode> insnNodes) {
         if (literal instanceof IntLiteral intLiteral) {
             int val = intLiteral.getValue();
             if (val == -1) {
@@ -775,7 +786,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void emitMayConstLoad(Var var, List<AbstractInsnNode> insnNodes) {
+    private void emitMayConstLoad(Var var, List<AbstractInsnNode> insnNodes) {
         if (var.isConst()) {
             emitConst(var.getConstValue(), insnNodes);
         } else {
@@ -783,7 +794,7 @@ public class BytecodeEmitter {
         }
     }
 
-    AbstractInsnNode emitLoad(Var var) {
+    private AbstractInsnNode emitLoad(Var var) {
         Type type = var.getType();
         int index = computeIndex(var);
         if (type instanceof PrimitiveType primitiveType) {
@@ -807,7 +818,7 @@ public class BytecodeEmitter {
         }
     }
 
-    AbstractInsnNode emitStore(Var var) {
+    private AbstractInsnNode emitStore(Var var) {
         Type type = var.getType();
         int index = computeIndex(var);
         if (type instanceof PrimitiveType primitiveType) {
@@ -827,7 +838,7 @@ public class BytecodeEmitter {
         }
     }
 
-    AbstractInsnNode emitArrayInsn(Stmt stmt) {
+    private AbstractInsnNode emitArrayInsn(Stmt stmt) {
         ArrayType arrayType;
         boolean isLoad;
         if (stmt instanceof LoadArray loadArray) {
@@ -871,7 +882,7 @@ public class BytecodeEmitter {
         return fineSize;
     }
 
-    FieldInsnNode emitField(int op, FieldRef ref) {
+    private FieldInsnNode emitField(int op, FieldRef ref) {
         JClass jClass = ref.getDeclaringClass();
         String owner = getInternalName(jClass);
         String name = ref.getName();
@@ -879,7 +890,7 @@ public class BytecodeEmitter {
         return new FieldInsnNode(op, owner, name, desc);
     }
 
-    int computeIndex(Var var) {
+    private int computeIndex(Var var) {
         if (method.getIR().isParam(var)) {
             return var.getIndex();
         } else {
@@ -887,7 +898,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void emitCond(ConditionExp cond, LabelNode target, List<AbstractInsnNode> nodeList) {
+    private void emitCond(ConditionExp cond, LabelNode target, List<AbstractInsnNode> nodeList) {
         Var op1 = cond.getOperand1();
         Var op2 = cond.getOperand2();
         emitMayConstLoad(op1, nodeList);
@@ -935,14 +946,14 @@ public class BytecodeEmitter {
         return sb.toString();
     }
 
-    String getDescriptor(Type type) {
+    private String getDescriptor(Type type) {
         if (type instanceof ClassType ct) {
             noticeInnerClass(ct.getJClass());
         }
         return BinaryUtils.computeDescriptor(type);
     }
 
-    String getDescriptorByDesc(String taieDesc) {
+    private String getDescriptorByDesc(String taieDesc) {
         Type t = World.get().getTypeSystem().getType(taieDesc);
         return getDescriptor(t);
     }
@@ -957,7 +968,7 @@ public class BytecodeEmitter {
         }
     }
 
-    String getInternalName(JClass jClass) {
+    private String getInternalName(JClass jClass) {
         noticeInnerClass(jClass);
         return computeInternalName(jClass);
     }
@@ -966,12 +977,12 @@ public class BytecodeEmitter {
         return jClass.getName().replace('.', '/');
     }
 
-    static String computeRealSimpleName(JClass jClass) {
+    private static String computeRealSimpleName(JClass jClass) {
         String name = jClass.getSimpleName();
         return name.substring(name.lastIndexOf('$') + 1);
     }
 
-    String getInternalName(Type type) {
+    private String getInternalName(Type type) {
         if (type instanceof ClassType classType) {
             return getInternalName(classType.getJClass());
         } else if (type instanceof ArrayType arrayType) {
@@ -981,7 +992,7 @@ public class BytecodeEmitter {
         }
     }
 
-    Handle getHandle(MethodHandle handle) {
+    private Handle getHandle(MethodHandle handle) {
         MethodHandle.Kind kind = handle.getKind();
         int tag = switch (kind) {
             case REF_getField -> Opcodes.H_GETFIELD;
@@ -1012,7 +1023,7 @@ public class BytecodeEmitter {
         return new Handle(tag, owner, name, desc, isInterface);
     }
 
-    Object toObject(Literal literal) {
+    private Object toObject(Literal literal) {
         if (literal instanceof NullLiteral) {
             return null;
         } else if (literal instanceof IntLiteral intLiteral) {
@@ -1036,7 +1047,7 @@ public class BytecodeEmitter {
         }
     }
 
-    Object toObject(Element element) {
+    private Object toObject(Element element) {
         if (element instanceof BooleanElement b) {
             return b.value();
         } else if (element instanceof IntElement i) {
@@ -1056,7 +1067,7 @@ public class BytecodeEmitter {
         }
     }
 
-    void dumpDebugInfo() {
+    private void dumpDebugInfo() {
         IRDumper dumper = new IRDumper(AnalysisConfig.of(IRDumper.ID));
         dumper.analyze(method.getDeclaringClass());
         if ((this.classWriterOptions & ClassWriter.COMPUTE_FRAMES) != 0) {
