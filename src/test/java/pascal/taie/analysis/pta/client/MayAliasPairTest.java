@@ -57,7 +57,7 @@ public class MayAliasPairTest {
                 "-cp", ptaTestRoot,
                 // for loading main class
                 "-cp", classPath, "-m", mainClass,
-                "-a", "may-alias-pair"
+                "-a", MayAliasPair.ID
         );
         Main.main(args.toArray(new String[0]));
         MayAliasPair.MayAliasPairResult resultByAnalysis = World.get().getResult(MayAliasPair.ID);
