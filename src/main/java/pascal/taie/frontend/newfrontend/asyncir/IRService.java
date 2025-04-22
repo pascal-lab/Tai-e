@@ -151,7 +151,6 @@ public class IRService extends NewFrontendComponent  {
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
         int version = source.getClassFileVersion();
-        boolean discardFrame = ctx().getFrontendOptions().isUseTypingAlgo2();
         LoadingKV kv = new LoadingKV();
         source.r().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
@@ -160,7 +159,7 @@ public class IRService extends NewFrontendComponent  {
                 kv.put(name, descriptor, new AsmMethodSource(adapter, version));
                 return adapter;
             }
-        }, discardFrame ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES);
+        }, ClassReader.SKIP_FRAMES);
         paringMethodSource(kv, clazz);
     }
 

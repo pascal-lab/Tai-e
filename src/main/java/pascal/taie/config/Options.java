@@ -37,7 +37,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
-import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -299,38 +298,12 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
-    @Option(names = {"--extract-all"},
-            description = "Extract all classes of lib/app container, " +
-            "these classes will be added to --input-classes")
-    private boolean extractAllClasses;
+    @Option(names = { "--ssa"},
+            description = "Enable SSA (Static Single Assignment) Generation for frontend")
+    private boolean ssa;
 
-    public boolean getExtractAllClasses() {
-        return extractAllClasses;
-    }
-
-    @JsonProperty
-    @Option(names = {"--no-append-java"},
-            description = "Do not load jre from java-benchmark")
-    private boolean noAppendJava;
-
-    public boolean getNoAppendJava() {
-        return noAppendJava;
-    }
-
-    @JsonProperty
-    @Option(names = {"--no-parallel-cw"},
-            defaultValue = "false")
-    private boolean useNonParallelCWAlgorithm;
-
-    public boolean getUseNonParallelCWAlgorithm() {
-        return useNonParallelCWAlgorithm;
-    }
-
-    @CommandLine.Mixin
-    private FrontendOptions frontendOptions;
-
-    public FrontendOptions getFrontendOptions() {
-        return frontendOptions;
+    public boolean isSSA() {
+        return ssa;
     }
 
     /**

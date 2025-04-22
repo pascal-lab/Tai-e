@@ -79,7 +79,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         world.setOptions(options);
 
         // initialize build context
-        BuildContext ctx = new BuildContext(options.getFrontendOptions());
+        BuildContext ctx = new BuildContext(options.isSSA());
         ctx.setPhase(TaiePhase.PROJECT_LOADING);
         // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
@@ -132,23 +132,6 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         if (options.isPreBuildIR()) {
             ctx.setPhase(TaiePhase.PREBUILDING_IR);
             irBuilder.buildAll(hierarchy);
-        }
-        if (!options.getFrontendOptions().getDebugOn().isEmpty()) {
-            ctx.setPhase(TaiePhase.PREBUILDING_IR);
-            Set<JMethod> debugMethods = options.getFrontendOptions().getDebugOn().stream()
-                    .map(sig -> {
-                        JMethod mtd = hierarchy.getMethod(sig);
-                        if (mtd == null) {
-                            logger.warn("Warning: request debugging method '{}' does not exist!", sig);
-                        }
-                        return Optional.ofNullable(hierarchy.getMethod(sig));
-                    })
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toSet());
-            for (JMethod method : debugMethods) {
-                method.getIR();
-            }
         }
         ctx.setPhase(TaiePhase.RUNNING);
     }

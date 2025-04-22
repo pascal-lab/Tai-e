@@ -63,9 +63,7 @@ public class DefaultCHBuilder extends NewFrontendComponent
         ch.setBootstrapClassLoader(dcl);
         ctx().initClassloaderAndTypeSystem(dcl);
 
-        Stream<ClassSource> classToBuild = ctx().getFrontendOptions().isUseParallelHierarchy()
-                ? sources.parallelStream()
-                : sources.stream();
+        Stream<ClassSource> classToBuild = sources.parallelStream();
         classToBuild.forEach(i -> {
             JClass klass = m.getOrDefault(i.getClassName(), null);
             if (klass == null) {

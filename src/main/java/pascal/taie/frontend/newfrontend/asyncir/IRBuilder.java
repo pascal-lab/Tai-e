@@ -101,20 +101,7 @@ public class IRBuilder extends NewFrontendComponent
         Timer timer = new Timer("Build IR for all methods");
         timer.start();
         List<JClass> classes;
-        Options options = World.get().getOptions();
-        if (options.getNoAppendJava()) {
-            // Here only for benchmark testing. The whole implementation of getting
-            // input classes please refer to AbstractProjectBuilder.getInputClasses().
-            List<String> classesStr = options.getInputClasses();
-            classesStr.add(options.getMainClass());
-            classes = classesStr.stream()
-                    .filter(s -> s != null && !s.isEmpty())
-                    .map(hierarchy::getClass)
-                    .distinct()
-                    .toList();
-        } else {
-            classes = hierarchy.allClasses().toList();
-        }
+        classes = hierarchy.allClasses().toList();
         classes.parallelStream().forEach(c -> {
             for (JMethod m : c.getDeclaredMethods()) {
                 if (! m.isAbstract() && ! m.isNative()) {
@@ -122,27 +109,6 @@ public class IRBuilder extends NewFrontendComponent
                 }
             }
         });
-//        ExecutorService executor = Executors.newFixedThreadPool(
-//                Runtime.getRuntime().availableProcessors());
-
-//        List<Callable<Void>> tasks = classes.stream()
-//                .map(c -> (Callable<Void>) () -> {
-//                    for (JMethod m : c.getDeclaredMethods()) {
-//                        if (!m.isAbstract() && !m.isNative()) {
-//                            m.getIR();
-//                        }
-//                    }
-//                    return null;
-//                })
-//                .collect(Collectors.toList());
-
-//        try {
-//            executor.invokeAll(tasks);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-
-//        executor.shutdown();
         timer.stop();
         logger.info(timer);
         StageTimer.getInstance().reportIRTime((long)

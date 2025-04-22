@@ -25,13 +25,11 @@ package pascal.taie.frontend.newfrontend.context;
 import pascal.taie.frontend.newfrontend.TempTypeSystem;
 import pascal.taie.frontend.newfrontend.asyncir.IRService;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultClassLoader;
-import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -66,7 +64,7 @@ public class BuildContext {
 
     private TypeContext typeContext;
 
-    private final FrontendOptions frontendOptions;
+    private boolean useSSA;
 
     final IRService irService = new IRService(this);
 
@@ -74,8 +72,8 @@ public class BuildContext {
 
     private TaiePhase phase;
 
-    public BuildContext(FrontendOptions frontendOptions) {
-        this.frontendOptions = frontendOptions;
+    public BuildContext(boolean useSSA) {
+        this.useSSA = useSSA;
     }
 
     public static BuildContext get() {
@@ -104,10 +102,6 @@ public class BuildContext {
 
     public TypeContext getTypeContext() {
         return typeContext;
-    }
-
-    public FrontendOptions getFrontendOptions() {
-        return frontendOptions;
     }
 
     public JClass getClassByName(String name) {
@@ -223,5 +217,9 @@ public class BuildContext {
 
     public TaiePhase getPhase() {
         return phase;
+    }
+
+    public boolean isUseSSA() {
+        return useSSA;
     }
 }

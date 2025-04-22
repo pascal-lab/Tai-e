@@ -62,7 +62,7 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
      * return value excludes app-class-path
      */
     protected static List<String> getClassPath(Options options) {
-        if (options.isPrependJVM() || options.getNoAppendJava()) {
+        if (options.isPrependJVM()) {
             return options.getClassPath();
         } else if (options.getJreDir() != null) {
             // use another method for jre path

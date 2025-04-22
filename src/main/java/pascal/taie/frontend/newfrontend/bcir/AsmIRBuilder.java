@@ -46,7 +46,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.DUInfo;
-import pascal.taie.frontend.newfrontend.main.FrontendOptions;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.Top;
@@ -123,7 +122,6 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -271,20 +269,9 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     private int currentLineNumber;
 
     /**
-     * If we build SSA IR. Read from {@link FrontendOptions}
+     * If we build SSA IR. Read from {@link pascal.taie.config.Options}
      */
     private final boolean USE_SSA;
-
-    /**
-     * There are two typing algorithm to use
-     * <ol>
-     *     <li>Algo 0 ({@link TypeInference0})</li>
-     *     <li>Algo 2 ({@link TypeInference})</li>
-     * </ol>
-     * If this flag is true, we use Algo 2, else use Algo 0
-     * <p>Read from {@link FrontendOptions}</p>
-     */
-    private final boolean USE_TYPING_ALGO2;
 
     /**
      * Currently only used for test.
@@ -306,8 +293,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
-        this.USE_SSA = ctx().getFrontendOptions().isSSA();
-        this.USE_TYPING_ALGO2 = ctx().getFrontendOptions().isUseTypingAlgo2();
+        this.USE_SSA = ctx().isUseSSA();
         if (!isEmpty) {
             this.manager = new VarManager(method,
                     source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
@@ -339,11 +325,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             traverseBlocks();
             stageTimer.endTypelessIR();
             this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
-            if (isFrameUsable() && !USE_TYPING_ALGO2) {
-                inferTypeWithFrame();
-            } else {
-                inferTypeWithoutFrame();
-            }
+            inferTypeWithoutFrame();
 //            if (USE_SSA && !EXPERIMENTAL) {
 //                makeStmts(false);
 //                makeExceptionTable();

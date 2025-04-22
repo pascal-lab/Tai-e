@@ -86,12 +86,6 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
                             Stream.concat(
                                     options.getClassPath().stream(),
                                     options.getAppClassPath().stream()).toList()));
-            if (options.getExtractAllClasses()) {
-                List<String> inputClasses = project.getInputClasses();
-                for (FileContainer path : project.getLibRootContainers()) {
-                    inputClasses.addAll(outPutAll(path));
-                }
-            }
             return project;
         } catch (IOException e) {
             // TODO: more info

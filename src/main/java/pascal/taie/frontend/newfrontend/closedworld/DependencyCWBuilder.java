@@ -83,11 +83,8 @@ public class DependencyCWBuilder extends NewFrontendComponent
 
     public DependencyCWBuilder(BuildContext context) {
         super(context);
-        int threadPoolSize = ctx().getFrontendOptions().isUseParallelHierarchy()
-                ? THREAD_POOL_SIZE
-                : 1;
         sourceMap = Maps.newConcurrentMap();
-        executorService = Executors.newFixedThreadPool(threadPoolSize);
+        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         completionService = new ExecutorCompletionService<>(executorService);
     }
 
@@ -123,14 +120,10 @@ public class DependencyCWBuilder extends NewFrontendComponent
             }
             addTargets(target, p.getInputClasses());
             addTargets(target, loadNecessaryClasses());
-            if (World.get().getOptions().getUseNonParallelCWAlgorithm()) {
-                buildClosureNonParallel(target);
-            } else {
-                buildClosure(target);
-            }
+            buildClosure(target);
             timer.stop();
             StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
-        } catch (InterruptedException | IOException ex) {
+        } catch (InterruptedException ex) {
             throw new UnknownException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
         } catch (ExecutionException ex) {
             Throwable cause = ex.getCause();
