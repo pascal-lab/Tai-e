@@ -59,21 +59,16 @@ public class FileSystemManager {
         }
     }
 
-    public FileSystem getJrtFs(Path path) throws IOException {
-        if (fsMap.containsKey(path)) {
-            return fsMap.get(path);
+    public FileSystem getJrtFs(Path modules, Path jrtfs) throws IOException {
+        if (fsMap.containsKey(modules)) {
+            return fsMap.get(modules);
         }
 
-        Path p = path.resolve("lib/jrt-fs.jar");
-        if (Files.exists(p)) {
-            URLClassLoader loader = new URLClassLoader(new URL[] { p.toUri().toURL() });
-            FileSystem fs = FileSystems.newFileSystem(URI.create("jrt:/"),
-                    Map.of("java.home", path.toString()), loader);
-            fsMap.put(path, fs);
-            return fs;
-        } else {
-            throw new FileNotFoundException("jrt-fs.jar not found in your jre dir");
-        }
+        URLClassLoader loader = new URLClassLoader(new URL[] { jrtfs.toUri().toURL() });
+        FileSystem fs = FileSystems.newFileSystem(URI.create("jrt:/"),
+                Map.of("java.home", modules.toString()), loader);
+        fsMap.put(modules, fs);
+        return fs;
     }
 
     static FileSystemManager manager;

@@ -287,10 +287,15 @@ public class Options implements Serializable {
         return keepResult;
     }
 
+    // TODO: the relationship between (--jre-dir, --java, --prepend-JVM) need to be clarified
+    //       Currently, --prepend-JVM has max priority, then --jre-dir, and finally --java.
     @JsonProperty
     @Option(names = {"--jre-dir"},
-            description = "JRE root directory for java 9 and upper," +
-            "should contain jrt-fs.jar and modules JIMAGE file in its lib/ folder")
+            description = "Specify a JRE directory to be used for analysis," +
+                    "accepts one of the following:" +
+                    "(1) a JAVA_HOME like dir, which contains lib/ dir or jre/lib/ dir" +
+                    "(2) a dir contain rt.jar and related files (Java 1.6-8)" +
+                    "(3) a dir contain jrt-fs.jar and modules (JIMAGE) file (Java 9+)")
     private String jreDir;
 
     public String getJreDir() {

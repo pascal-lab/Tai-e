@@ -28,6 +28,7 @@ import pascal.taie.config.Options;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Streams;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -57,39 +58,9 @@ public class OptionsProjectBuilder implements ProjectBuilder {
     }
 
     /**
-     * return value excludes app-class-path
-     */
-    protected static List<String> getClassPath(Options options) {
-        if (options.isPrependJVM()) {
-            return options.getClassPath();
-        } else if (options.getJreDir() != null) {
-            // use another method for jre path
-            return options.getClassPath();
-        } else { // when prependJVM is not set, we manually specify JRE jars
-            // check existence of JREs
-            File jreDir = new File(JREs);
-            if (!jreDir.exists()) {
-                throw new RuntimeException(JRE_FIND_FAILED);
-            }
-            int javaVersion = options.getJavaVersion();
-            String jrePath = String.format("%s/jre" + ((javaVersion <= 8) ? "1.%d" : "%d"),
-                    JREs, javaVersion);
-            try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
-                return Streams.concat(
-                                paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                options.getClassPath().stream())
-                        .toList();
-            } catch (IOException e) {
-                throw new RuntimeException("Analysis on Java " +
-                        options.getJavaVersion() + " library is not supported yet", e);
-            }
-        }
-    }
-
-    /**
      * Obtains all input classes specified in {@code options}.
      */
-    protected static List<String> getInputClasses(Options options) {
+    private static List<String> getInputClasses(Options options) {
         List<String> classes = new ArrayList<>();
         // process --input-classes
         options.getInputClasses().forEach(value -> {
@@ -114,46 +85,129 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         return classes;
     }
 
-    protected static Stream<Path> listJrtModule(Options options) throws IOException {
-        int javaVersion = options.getJavaVersion();
-        if (javaVersion <= 8) {
-            return Stream.empty();
-        }
-
-        FileSystem fs;
-        if (!options.isPrependJVM()) {
-            Path jreDir;
-            if (options.getJreDir() != null) {
-                jreDir = Path.of(options.getJreDir());
-            } else {
-                // TODO: produce error, JRE may not loaded
-                return Stream.empty();
-            }
-            fs = FileSystemManager.get().getJrtFs(jreDir);
-        } else {
-            fs = FileSystems.getFileSystem(URI.create("jrt:/"));
-        }
-        Path modulePath = fs.getPath("/modules");
-        return Files.list(modulePath);
-    }
-
-    protected String getMainClass() {
+    private String getMainClass() {
         return options.getMainClass();
     }
 
-    protected int getJavaVersion() {
+    private int getJavaVersion() {
         return options.getJavaVersion();
     }
 
-    protected List<String> getInputClasses() {
+    private List<String> getInputClasses() {
         return getInputClasses(options);
     }
 
-    protected List<FileContainer> getRootContainers() {
-        return Stream.concat(
-                project.getAppRootContainers().stream(),
-                project.getLibRootContainers().stream()
-        ).toList();
+    private List<FileContainer> getAppContainers(List<String> appClassPaths) throws IOException {
+        return FileLoader.get().loadRootContainers(
+                appClassPaths.stream().distinct().map(Path::of).toList());
+    }
+
+    private List<FileContainer> getLibContainers(List<String> libClassPaths,
+                                                 @Nullable String jrePath,
+                                                 boolean isPrependJVM,
+                                                 int javaVersion) throws IOException {
+        List<FileContainer> libs = FileLoader.get().loadRootContainers(
+                libClassPaths.stream().distinct().map(Path::of).toList());
+        // add jre
+        List<FileContainer> jre = getJREContainers(jrePath, isPrependJVM, javaVersion);
+        return Streams.concat(libs.stream(), jre.stream()).toList();
+    }
+
+    private List<FileContainer> getJREContainers(@Nullable String jrePath, boolean isPrependJVM, int javaVersion) throws IOException {
+        if (isPrependJVM) {
+            // if prependJVM is set, we use jrt:/ to load JRE
+            FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
+            return processModulesFile(fs.getPath("/modules"));
+        } else if (jrePath == null) {
+            // if jrePath is not set, we use java-benchmarks to load JRE
+            return getJREFromJavaBenchmarks(javaVersion);
+        } else {
+            // otherwise, load jre from the specified path
+            return parseJREPath(jrePath);
+        }
+    }
+
+    /**
+     * Parse the given JRE path and return a list of FileContainer.
+     * <p>
+     * The JRE path should be one of the following:
+     * <ul>
+     *     <li>A {@code JAVA_HOME} like directory. For java 9 and above,
+     *     it should contain a {@code lib/modules} and {@code lib/jrt-fs.jar} file. For java 8 and below,
+     *     it should contain a {@code jre/lib} directory.</li>
+     *     <li>A directory with {@code rt.jar} and related jars.</li>
+     *     <li>A directory with {@code modules} file and {@code jrt-fs.jar} file.</li>
+     * </ul>
+     * </p>
+     * @throws IOException when the JRE path is invalid or cannot be read.
+     */
+    private List<FileContainer> parseJREPath(String jrePath) throws IOException {
+        Path p = Path.of(jrePath);
+        if (!Files.exists(p) || !Files.isDirectory(p)) {
+            throw new IOException(String.format("%s (--jre-dir) not found or not a directory", jrePath));
+        }
+        if (Files.exists(p.resolve("modules")) && Files.exists(p.resolve("jrt-fs.jar"))) {
+            // try to parse with modules file
+            return processModulesFile(p.resolve("modules"), p.resolve("jrt-fs.jar"));
+        } else if (Files.exists(p.resolve("rt.jar"))) {
+            // try to parse with rt.jar
+            return processJarDirectory(p);
+        } else if (Files.exists(p.resolve("jre/lib"))) {
+            // try to parse with jre/lib
+            return processJarDirectory(p.resolve("jre/lib"));
+        } else if (Files.exists(p.resolve("lib/modules"))
+                && Files.exists(p.resolve("lib/jrt-fs.jar"))) {
+            // try to parse with lib/modules
+            return processModulesFile(p.resolve("lib/modules"), p.resolve("lib/jrt-fs.jar"));
+        } else {
+            throw new IOException(String.format(
+                    """
+                    We don't know how to read %s (--jre-dir)
+                    It must be a directory with one of the following:
+                    1. A JAVA_HOME like directory. For java 9 and above,
+                       it should contain a lib/modules and lib/jrt-fs.jar file.
+                       For java 8 and below, it should contain a jre/lib directory.
+                    2. A directory with rt.jar and related jars.
+                    3. A directory with modules file.
+                    """, jrePath));
+        }
+    }
+
+    private List<FileContainer> processModulesFile(Path modules, Path jrtfs) throws IOException {
+        FileSystem fs = FileSystemManager.get().getJrtFs(modules, jrtfs);
+        return processModulesFile(fs.getPath("modules"));
+    }
+
+    private List<FileContainer> processModulesFile(Path modules) throws IOException {
+        try (Stream<Path> paths = Files.list(modules)) {
+            return FileLoader.get().loadRootContainers(paths.toList());
+        }
+    }
+
+    private List<FileContainer> processJarDirectory(Path jarDir) throws IOException {
+        try (Stream<Path> paths = Files.list(jarDir)) {
+            return FileLoader.get().loadRootContainers(
+                    paths.filter(p -> p.toString().endsWith(".jar"))
+                            .distinct()
+                            .toList());
+        }
+    }
+
+    private List<FileContainer> getJREFromJavaBenchmarks(int javaVersion) throws IOException {
+        File jreDir = new File(JREs);
+        if (!jreDir.exists()) {
+            throw new IOException(JRE_FIND_FAILED);
+        }
+        String jrePath = String.format("%s/jre" + ((javaVersion <= 8) ? "1.%d" : "%d"),
+                JREs, javaVersion);
+        Path jarDir = Path.of(jrePath);
+        if (!Files.exists(jarDir)) {
+            throw new IOException("JRE not found: " + jrePath + "\n" +
+                    "If you have not fully clone the submodule 'java-benchmarks', please clone it first.\n" +
+                    "Otherwise, we do not include JRE of java " + javaVersion + " in 'java-benchmarks'\n" +
+                    "Please specify the path to your JRE by option --jre-dir");
+        }
+        return processJarDirectory(jarDir);
     }
 
     @Override
@@ -161,54 +215,23 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         try {
             List<String> appClassPaths = options.getAppClassPath();
 
-            List<String> libClassPaths = new ArrayList<>(getClassPath(options));
+            List<String> libClassPaths = new ArrayList<>(options.getClassPath());
             libClassPaths.removeAll(appClassPaths);
 
             project = new Project(
                     getMainClass(),
                     getJavaVersion(),
                     getInputClasses(),
-                    FileLoader.get().loadRootContainers(
-                            appClassPaths.stream().distinct().map(Path::of).toList()),
-                    FileLoader.get().loadRootContainers(
-                            Stream.concat(
-                                libClassPaths.stream().distinct().map(Path::of),
-                                listJrtModule(options)).toList()),
+                    getAppContainers(appClassPaths),
+                    getLibContainers(libClassPaths, options.getJreDir(),
+                            options.isPrependJVM(), options.getJavaVersion()),
                     String.join(File.pathSeparator,
                             Stream.concat(
                                     options.getClassPath().stream(),
                                     options.getAppClassPath().stream()).toList()));
             return project;
         } catch (IOException e) {
-            // TODO: more info
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-
-    public static List<String> outPutAll(FileContainer root) {
-        return outPutAll("", root, true);
-    }
-
-    private static List<String> outPutAll(String current, FileContainer container, boolean isRoot) {
-        String currentNext = (isRoot) ? "" : current + container.getClassName() + ".";
-        List<String> res = new ArrayList<>(container.getFiles().stream()
-                .filter(f -> f instanceof DotClassFile)
-                .filter(f -> ! f.getFileName().equals("module-info.class"))
-                .map(c -> {
-                    String fullClassName = currentNext + ((DotClassFile) c).getClassName();
-                    assert !fullClassName.contains("/");
-                    return fullClassName;
-                })
-                .toList());
-        res.addAll(outPutAll(currentNext, container.getContainers()));
-        return res;
-    }
-
-    private static List<String> outPutAll(String current, List<FileContainer> containers) {
-        return containers.stream()
-                .flatMap(c -> outPutAll(current, c, false).stream())
-                .toList();
-    }
-
 }
