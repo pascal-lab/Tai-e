@@ -28,28 +28,23 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuildProjectTest {
 
     @Test
     void loadZip() throws IOException {
-        FileContainer[] c = new FileContainer[1];
         FileLoader loader = FileLoader.get();
         String classes = "src/test/resources/world/classes.jar";
-        loader.loadFile(Path.of(classes), null, (a) -> null, a -> {
-            c[0] = a;
-            return null;
-        });
+        List<FileContainer> cs = loader.loadRootContainers(List.of(Path.of(classes)));
+        assertEquals(1, cs.size());
 
-        assertNotNull(c[0]);
-        for (var i : c[0].getFiles()) {
+        FileContainer c = cs.get(0);
+        for (var i : c.getFiles()) {
             if (i.getFileName().equals("Cards.class")) {
-                assertSame(i.getRootContainer(), c[0]);
+                assertSame(i.getRootContainer(), c);
                 String cards = "src/test/resources/world/Cards.class";
                 assertArrayEquals(i.getResource().getContent(),
                         Files.readAllBytes(Path.of(cards)));

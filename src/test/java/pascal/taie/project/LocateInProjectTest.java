@@ -53,7 +53,9 @@ public class LocateInProjectTest {
         className = configs[2];
     }
 
-    private String[] testAll = {"src/test/java", "src/test/java/pascal/taie/project/TestAll.java", "pascal.taie.project.TestAll"};
+    private final String[] testAll = {"src/test/java",
+            "src/test/java/pascal/taie/project/LocateInProjectTest.java",
+            "pascal.taie.project.LocateInProjectTest"};
 
     @Test
     void testLocate1() throws IOException {
