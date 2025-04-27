@@ -48,7 +48,7 @@ import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.frontend.newfrontend.Top;
+import pascal.taie.frontend.newfrontend.TOP;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
@@ -258,9 +258,9 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     /**
      * The top element, used as a placeholder two word stack value (e.g. long and double)
-     * @see Top
+     * @see TOP
      */
-    private static final StackItem TOP = new StackItem(Top.Top, null);
+    private static final StackItem TOP = new StackItem(pascal.taie.frontend.newfrontend.TOP.Top, null);
 
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
@@ -477,9 +477,9 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     private StackItem popExp(Stack<StackItem> stack) {
         StackItem e = popStack(stack);
-        if (e.e() instanceof Top) {
+        if (e.e() instanceof TOP) {
             StackItem e1 = popStack(stack);
-            assert ! (e1.e() instanceof Top);
+            assert ! (e1.e() instanceof TOP);
             return e1;
         } else {
             return e;
@@ -532,7 +532,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
      * @param item the item to be lifted
      */
     private void liftToVar(StackItem item) {
-        if (item.e() instanceof Top) {
+        if (item.e() instanceof TOP) {
             return;
         } else if (item.e() instanceof Var v) {
             item.lift(v);
@@ -611,7 +611,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
         // normally, this should only be used to pop a InvokeExp
         StackItem item = popStack(stack);
         Exp e = item.e();
-        if (e instanceof Top) {
+        if (e instanceof TOP) {
             return;
         } else {
             expToEffect(item);
@@ -653,7 +653,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     private void ensureStackSafety(Stack<StackItem> stack, Function<Exp, Boolean> predicate) {
         for (StackItem item : stack) {
             Exp e = item.e();
-            if (e instanceof Top || e instanceof StackPhi) {
+            if (e instanceof TOP || e instanceof StackPhi) {
                 continue;
             }
             if (predicate.apply(e)) {
@@ -667,7 +667,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     }
 
     private void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp e) {
-        assert ! (e instanceof Top);
+        assert ! (e instanceof TOP);
         if (maySideEffect(e)) {
             ensureStackSafety(stack, this::maySideEffect);
         }
@@ -1196,7 +1196,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             case Opcodes.DUP -> {
                 StackItem item = popStack(stack);
                 Exp e = item.e();
-                assert ! (e instanceof Top);
+                assert ! (e instanceof TOP);
                 liftToVar(item);
                 stack.push(item);
                 stack.push(item);
@@ -1211,7 +1211,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
                 int top = stack.size() - 1;
                 StackItem e1 = popStack(stack);
                 StackItem e2 = popStack(stack);
-                assert ! (e1.e() instanceof Top) && ! (e2.e() instanceof Top);
+                assert ! (e1.e() instanceof TOP) && ! (e2.e() instanceof TOP);
                 stack.push(e1);
                 stack.push(e2);
             }
@@ -1402,7 +1402,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             for (int i = 0; i < inStack.size(); ++i) {
                 StackItem item = inStack.get(i);
                 Exp e = item.e();
-                if (e instanceof Top) {
+                if (e instanceof TOP) {
                     continue;
                 }
                 // ignore, add inExps during phi resolving
@@ -1428,13 +1428,13 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             Exp e = item.e();
             StackItem item1 = currentStack.get(j);
             Exp e1 = item1.e();
-            if (e instanceof Top) {
-                assert e1 instanceof Top;
+            if (e instanceof TOP) {
+                assert e1 instanceof TOP;
                 continue;
             }
             List<StackItem> inExp = inExps.get(j);
             inExp.add(item1);
-            assert !(e1 instanceof Top);
+            assert !(e1 instanceof TOP);
             needPhi[j] = needPhi[j] || e != e1;
         }
     }
@@ -1617,7 +1617,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
                 }
                 for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
                     Exp currentExp = inStack.get(j).originalExp();
-                    if (currentExp instanceof Top) {
+                    if (currentExp instanceof TOP) {
                         continue;
                     }
                     StackPhi phi = (StackPhi) currentExp;
@@ -2386,7 +2386,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
                 pessimisticBlocks++;
                 pessimisticPhis += bb.getInStack().size();
                 for (StackItem item : bb.getInStack()) {
-                    if (item.originalExp() instanceof Top) {
+                    if (item.originalExp() instanceof TOP) {
                         continue;
                     }
                     StackPhi exp = (StackPhi) item.originalExp();

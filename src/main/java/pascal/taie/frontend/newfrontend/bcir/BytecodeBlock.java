@@ -28,7 +28,7 @@ import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.frontend.newfrontend.Top;
+import pascal.taie.frontend.newfrontend.TOP;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
@@ -174,7 +174,7 @@ public final class BytecodeBlock implements IBasicBlock {
                 Exp e = inStack.get(n).e();
                 Exp original = inStack.get(n).originalExp();
                 Var v;
-                if (e instanceof Top) {
+                if (e instanceof TOP) {
                     n++;
                     e = inStack.get(n).e();
                 }

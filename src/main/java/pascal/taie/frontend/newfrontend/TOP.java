@@ -27,7 +27,6 @@ import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.language.type.Type;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -35,7 +34,7 @@ import java.util.Set;
  * when push a double / long to stack, first push a Top. <br>
  * [top, double, ...]
  */
-public enum Top implements Exp, Type {
+public enum TOP implements Exp, Type {
 
     Top;
 

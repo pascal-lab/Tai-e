@@ -101,7 +101,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.newfrontend.Top.Top;
+import static pascal.taie.frontend.newfrontend.TOP.Top;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
