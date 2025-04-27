@@ -20,8 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.asyncir;
+package pascal.taie.frontend.newfrontend.main;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -30,37 +32,81 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.backend.bytecode.BinaryUtils;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
-import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
+import pascal.taie.frontend.newfrontend.report.StageTimer;
+import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
-import pascal.taie.frontend.newfrontend.report.StageTimer;
+import pascal.taie.frontend.newfrontend.source.JavaMethodSource;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.IRBuildHelper;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IRService extends NewFrontendComponent  {
+/**
+ * This class implements the IRBuilder interface and is responsible for
+ * building Intermediate Representations (IR) for Java methods.
+ * It supports building IR for JVM Bytecode ({@link AsmMethodSource})
+ * and Java ({@link JavaMethodSource}) method sources.
+ */
+public class DefaultIRBuilder extends NewFrontendComponent
+        implements pascal.taie.ir.IRBuilder {
 
-    public IRService(BuildContext context) {
+    private static final Logger logger = LogManager.getLogger(DefaultIRBuilder.class);
+
+    // Magic numbers for class loading status
+    private static final int NOT_LOADED = 0;
+
+    private static final int LOADING_START = 1;
+
+    private static final int LOADING_DONE = 2;
+
+    /**
+     * A map to track the loading status of methods.
+     */
+    private final ConcurrentMap<JMethod, AtomicBoolean> methodStatusMap = Maps.newConcurrentMap();
+
+    /**
+     * A map to track the loading status of classes.
+     */
+    private final ConcurrentMap<JClass, AtomicInteger> classStatusMap = Maps.newConcurrentMap();
+
+    /**
+     * A map to store the class source for each class.
+     */
+    private final ConcurrentMap<JClass, AsmSource> class2Node = Maps.newConcurrentMap();
+
+    /**
+     * A map to store the method source for each method.
+     */
+    private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
+
+
+    public DefaultIRBuilder(BuildContext context) {
         super(context);
     }
 
+    /**
+     * A helper class to load method sources concurrently.
+     */
     private static class LoadingKV {
         private final Map<String, AsmMethodSource> fastMap;
         private final Map<String, Map<String, AsmMethodSource>> slowMap;
 
-        public LoadingKV() {
+        private LoadingKV() {
             fastMap = Maps.newMap();
             slowMap = Maps.newMap();
         }
 
-        public void put(String name, String descriptor, AsmMethodSource value) {
+        void put(String name, String descriptor, AsmMethodSource value) {
             if (slowMap.containsKey(name)) {
                 slowMap.get(name).put(descriptor, value);
             } else if (fastMap.containsKey(name)) {
@@ -74,30 +120,62 @@ public class IRService extends NewFrontendComponent  {
         }
     }
 
-    private static final int NOT_LOADED = 0;
-    private static final int LOADING_START = 1;
-    private static final int LOADING_DONE = 2;
-
-//    ExecutorService executorService = Executors.newFixedThreadPool(8);
-
-    private final ConcurrentMap<JMethod, AtomicBoolean> methodStatusMap = Maps.newConcurrentMap();
-
-    private final ConcurrentMap<JClass, AtomicInteger> classStatusMap = Maps.newConcurrentMap();
-
-    private final ConcurrentMap<JClass, AsmSource> class2Node = Maps.newConcurrentMap();
-
-    private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
-
-    public void getIRAsync(JMethod method) {
-        AtomicBoolean status = methodStatusMap.computeIfAbsent(method, k -> new AtomicBoolean(false));
-        if (status.compareAndSet(false, true)) {
-//            executorService.submit(() -> {
-//                method.getIR();
-//            });
+    /**
+     * Builds the Intermediate Representation (IR) for the given Java method.
+     *
+     * @param method the Java method for which to build the IR
+     * @return the built IR
+     */
+    @Override
+    public IR buildIR(JMethod method) {
+        try {
+            Object source = method.getMethodSource();
+            if (source instanceof AsmMethodSource asmMethodSource) {
+                AsmIRBuilder builder = new AsmIRBuilder(ctx(), method, asmMethodSource);
+                builder.build();
+                return builder.getIr();
+            } else if (source == null) {
+                return loadingAndGetIR(method);
+            } else if (source instanceof JavaMethodSource javaMethodSource) {
+                JavaMethodIRBuilder builder = new JavaMethodIRBuilder(javaMethodSource, method);
+                return builder.build();
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } catch (RuntimeException e) {
+            if (e.getStackTrace()[0].getClassName().startsWith("Asm")) {
+                logger.warn("ASM bytecode front failed to build method body for {}," +
+                        " constructs an empty IR instead", method);
+                return new IRBuildHelper(method).buildEmpty();
+            } else {
+                throw e;
+            }
         }
     }
 
-    public IR loadingAndGetIR(JMethod method) {
+    /**
+     * Builds IR for all methods in given class hierarchy.
+     */
+    @Override
+    public void buildAll(ClassHierarchy hierarchy) {
+        Timer timer = new Timer("Build IR for all methods");
+        timer.start();
+        List<JClass> classes;
+        classes = hierarchy.allClasses().toList();
+        classes.parallelStream().forEach(c -> {
+            for (JMethod m : c.getDeclaredMethods()) {
+                if (!m.isAbstract() && !m.isNative()) {
+                    m.getIR();
+                }
+            }
+        });
+        timer.stop();
+        logger.info(timer);
+        StageTimer.getInstance().reportIRTime((long)
+                (timer.inSecond() * 1000));
+    }
+
+    private IR loadingAndGetIR(JMethod method) {
         loadClassSourceSync(method.getDeclaringClass());
         AsmMethodSource source = method2Source.remove(method);
         if (source == null) {
@@ -115,7 +193,7 @@ public class IRService extends NewFrontendComponent  {
         return ir;
     }
 
-    public void loadClassSourceSync(JClass clazz) {
+    private void loadClassSourceSync(JClass clazz) {
         // TODO: current sync method is correct, but may need some optimization
         StageTimer.getInstance().startBytecodeParsing();
         AtomicInteger status = classStatusMap.computeIfAbsent(clazz, k -> new AtomicInteger(NOT_LOADED));
@@ -146,7 +224,7 @@ public class IRService extends NewFrontendComponent  {
         StageTimer.getInstance().endBytecodeParsing();
     }
 
-    public void loadClassSourceImpl(JClass clazz) {
+    private void loadClassSourceImpl(JClass clazz) {
         // use remove to release memory
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
@@ -174,10 +252,6 @@ public class IRService extends NewFrontendComponent  {
             }
             method2Source.put(method, source);
         }
-    }
-
-    public void noticeMethodCall(MethodRef ref) {
-        getIRAsync(ref.resolve());
     }
 
     public void putClassSource(JClass clazz, AsmSource source) {

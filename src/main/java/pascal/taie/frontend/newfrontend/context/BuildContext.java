@@ -23,7 +23,7 @@
 package pascal.taie.frontend.newfrontend.context;
 
 import pascal.taie.frontend.newfrontend.TempTypeSystem;
-import pascal.taie.frontend.newfrontend.asyncir.IRService;
+import pascal.taie.frontend.newfrontend.main.DefaultIRBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultClassLoader;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
@@ -64,9 +64,9 @@ public class BuildContext {
 
     private TypeContext typeContext;
 
-    private boolean useSSA;
+    private final boolean useSSA;
 
-    final IRService irService = new IRService(this);
+    private final DefaultIRBuilder irBuilder;
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
@@ -74,6 +74,7 @@ public class BuildContext {
 
     public BuildContext(boolean useSSA) {
         this.useSSA = useSSA;
+        this.irBuilder = new DefaultIRBuilder(this);
     }
 
     public static BuildContext get() {
@@ -96,8 +97,8 @@ public class BuildContext {
         return typeSystem;
     }
 
-    public IRService getIrService() {
-        return irService;
+    public DefaultIRBuilder getIRBuilder() {
+        return irBuilder;
     }
 
     public TypeContext getTypeContext() {
@@ -200,11 +201,7 @@ public class BuildContext {
     }
 
     public void noticeClassSource(JClass clazz, AsmSource source) {
-        irService.putClassSource(clazz, source);
-    }
-
-    public IRService getIRService() {
-        return irService;
+        irBuilder.putClassSource(clazz, source);
     }
 
     public ClassHierarchy getClassHierarchy() {

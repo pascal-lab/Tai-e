@@ -29,7 +29,6 @@ import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.newfrontend.context.BuildContext;
-import pascal.taie.frontend.newfrontend.asyncir.IRBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
@@ -48,9 +47,6 @@ import pascal.taie.project.ProjectBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The world builder for new frontend. This class is the entry point of the frontend processing.
@@ -127,11 +123,10 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        IRBuilder irBuilder = new IRBuilder(ctx);
-        world.setIRBuilder(irBuilder);
+        world.setIRBuilder(ctx.getIRBuilder());
         if (options.isPreBuildIR()) {
             ctx.setPhase(TaiePhase.PREBUILDING_IR);
-            irBuilder.buildAll(hierarchy);
+            ctx.getIRBuilder().buildAll(hierarchy);
         }
         ctx.setPhase(TaiePhase.RUNNING);
     }
