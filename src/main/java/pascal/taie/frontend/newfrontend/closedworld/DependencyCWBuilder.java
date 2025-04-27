@@ -89,11 +89,6 @@ public class DependencyCWBuilder extends NewFrontendComponent
     }
 
     @Override
-    public int getTotalClasses() {
-        return sourceMap.size();
-    }
-
-    @Override
     public Collection<ClassSource> getClosedWorld() {
         var v = sourceMap.values();
         sourceMap = null;
@@ -119,7 +114,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
                 addTargets(target, List.of(entry));
             }
             addTargets(target, p.getInputClasses());
-            addTargets(target, loadNecessaryClasses());
+            addTargets(target, loadAuxiliaryClasses());
             buildClosure(target);
             timer.stop();
             StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
@@ -236,7 +231,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
     }
 
 
-    private List<String> loadNecessaryClasses() {
+    private List<String> loadAuxiliaryClasses() {
         return List.of("java.lang.ref.Finalizer");
     }
 
