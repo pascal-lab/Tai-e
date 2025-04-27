@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.javac;
+package pascal.taie.frontend.newfrontend;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
@@ -48,14 +48,32 @@ import java.util.regex.Pattern;
 
 
 // TODO: check concurrent behavior, note compile may be called concurrently
+
+/**
+ * This class handles the compilation of Java source files using the Java Compiler API.
+ * It provides methods to compile Java files, collect diagnostics, and manage temporary output directories.
+ */
 public class JavacSourceHandler {
 
     private final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
+
+    // ---------------- JAVA COMPILER RELATED (starts) ----------------
     private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
     private final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+
     private final StandardJavaFileManager fileManager =
             compiler.getStandardFileManager(diagnostics, null, null);
+    // ---------------- JAVA COMPILER RELATED (ends) ----------------
+
+    /**
+     * Temporary output directory for compiled class files.
+     */
     private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir")).resolve("taie");
+
+    /**
+     * Regex pattern to extract the name of the compiled class file from the compiler output.
+     */
     private final Pattern writePattern = getWritePattern();
 
     public List<DotClassFile> compile(String cp, String javaSourceFile, int javaVersion)

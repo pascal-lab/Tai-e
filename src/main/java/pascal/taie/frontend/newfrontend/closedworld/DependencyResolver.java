@@ -29,7 +29,7 @@ import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassManager;
-import pascal.taie.frontend.newfrontend.javac.JavacSourceHandler;
+import pascal.taie.frontend.newfrontend.JavacSourceHandler;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
 import pascal.taie.project.ProgramFile;
 import pascal.taie.project.DotClassFile;
