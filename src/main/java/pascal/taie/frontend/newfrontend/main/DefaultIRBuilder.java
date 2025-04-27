@@ -193,6 +193,31 @@ public class DefaultIRBuilder extends NewFrontendComponent
         return ir;
     }
 
+    /**
+     * Loads the class source synchronously.
+     * <p>
+     * The method needs explicit synchronization dues to the {@link DefaultIRBuilder#buildAll(ClassHierarchy)}
+     * called this method in parallel.
+     * </p>
+     * <p>
+     * Consider the following scenario:
+     * <ul>
+     * <li>Thread A calls {@link DefaultIRBuilder#buildIR(JMethod)} for {@code A.f}</li>
+     * <li>Thread B calls {@link DefaultIRBuilder#buildIR(JMethod)} for {@code A.g}</li>
+     * </ul>
+     * Then Thread A will call {@link DefaultIRBuilder#loadingAndGetIR(JMethod)} for {@code A.f},
+     * which will call {@link DefaultIRBuilder#loadClassSourceSync(JClass)} for {@code A},
+     * and similarly for Thread B.
+     * </p>
+     * <p>
+     * Thus A and B will call this method for the same class {@code A}.
+     * </p>
+     * <p>
+     * In this case, the current implementation will urge the second thread (let's say Thread B)
+     * to wait for the first thread (Thread A) to finish loading the class.
+     * </p>
+     * @param clazz the class to load
+     */
     private void loadClassSourceSync(JClass clazz) {
         // TODO: current sync method is correct, but may need some optimization
         StageTimer.getInstance().startBytecodeParsing();
