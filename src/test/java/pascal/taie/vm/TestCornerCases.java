@@ -16,9 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestCornerCases {
 
     static void init(String mainClass) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/interp", "--main-class", mainClass
-               ,"--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder"
-        );
+        Main.buildWorld("-pp", "-cp", "src/test/resources/interp", "--main-class", mainClass);
         IRDumper dumper = new IRDumper(AnalysisConfig.of(IRDumper.ID));
         dumper.analyze(World.get().getMainMethod().getDeclaringClass());
     }
