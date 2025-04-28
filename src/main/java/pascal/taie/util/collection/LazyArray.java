@@ -20,47 +20,39 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.data;
+package pascal.taie.util.collection;
 
 /**
- * Similar to {@link java.util.ArrayList}, but optimized for primitive type <code>int</code>
+ * <p>A lazy initialization array.</p>
+ * <p>A typical use case is to store sparse data.</p>
+ * @param <T> The type of element
  */
-public class IntList {
-    private int[] items;
-    private int size;
+public abstract class LazyArray<T> {
+    private final Object[] items;
 
-    public IntList(int initialCapacity) {
-        items = new int[initialCapacity];
-        size = 0;
+    public LazyArray(int initialCapacity) {
+        items = new Object[initialCapacity];
     }
 
-    public void add(int item) {
-        ensureCapacity();
-        items[size] = item;
-        size++;
-    }
-
-    public int get(int index) {
-        if (index < 0 || index >= size) {
+    @SuppressWarnings("unchecked")
+    public T get(int index) {
+        if (index < 0 || index >= items.length) {
             throw new IndexOutOfBoundsException();
         }
-        return items[index];
-    }
-
-    public int size() {
-        return size;
-    }
-
-    public int[] getItems() {
-        return items;
-    }
-
-    private void ensureCapacity() {
-        if (size == items.length) {
-            int[] newItems = new int[items.length * 2];
-            System.arraycopy(items, 0, newItems, 0, items.length);
-            items = newItems;
+        if (items[index] == null) {
+            items[index] = createInstance();
         }
+        return (T) items[index];
+    }
+
+    public boolean has(int index) {
+        return index >= 0 && index < items.length && items[index] != null;
+    }
+
+    protected abstract T createInstance();
+
+    public Object[] getItems() {
+        return items;
     }
 }
 

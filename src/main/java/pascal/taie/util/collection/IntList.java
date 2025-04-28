@@ -20,39 +20,48 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.data;
+package pascal.taie.util.collection;
 
 /**
- * <p>A lazy initialization array.</p>
- * <p>A typical use case is to store sparse data.</p>
- * @param <T> The type of element
+ * Similar to {@link java.util.ArrayList}, but optimized for primitive type <code>int</code>
+ * Current implementation is quite naive, but is enough for our main purpose: used in frontend
  */
-public abstract class SparseArray<T> {
-    private final Object[] items;
+public class IntList {
+    private int[] items;
+    private int size;
 
-    public SparseArray(int initialCapacity) {
-        items = new Object[initialCapacity];
+    public IntList(int initialCapacity) {
+        items = new int[initialCapacity];
+        size = 0;
     }
 
-    @SuppressWarnings("unchecked")
-    public T get(int index) {
-        if (index < 0 || index >= items.length) {
+    public void add(int item) {
+        ensureCapacity();
+        items[size] = item;
+        size++;
+    }
+
+    public int get(int index) {
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        if (items[index] == null) {
-            items[index] = createInstance();
-        }
-        return (T) items[index];
+        return items[index];
     }
 
-    public boolean has(int index) {
-        return index >= 0 && index < items.length && items[index] != null;
+    public int size() {
+        return size;
     }
 
-    protected abstract T createInstance();
-
-    public Object[] getItems() {
+    public int[] getItems() {
         return items;
+    }
+
+    private void ensureCapacity() {
+        if (size == items.length) {
+            int[] newItems = new int[items.length * 2];
+            System.arraycopy(items, 0, newItems, 0, items.length);
+            items = newItems;
+        }
     }
 }
 

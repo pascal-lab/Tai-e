@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.data;
+package pascal.taie.util.collection;
 
 
 import javax.annotation.Nonnull;

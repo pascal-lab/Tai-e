@@ -50,7 +50,7 @@ import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.TOP;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.frontend.newfrontend.data.SparseArray;
+import pascal.taie.util.collection.LazyArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
@@ -1506,7 +1506,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     private void resolveStackPhi() {
         if (!USE_SSA) {
-            stackMergeStmts = new SparseArray<>(blockSortedList.size()) {
+            stackMergeStmts = new LazyArray<>(blockSortedList.size()) {
                 @Override
                 protected List<Stmt> createInstance() {
                     return new ArrayList<>();
@@ -1578,7 +1578,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
         assocStmt(first, stmt);
     }
 
-    private SparseArray<List<Stmt>> stackMergeStmts;
+    private LazyArray<List<Stmt>> stackMergeStmts;
 
     private void resolveStackPhi(StackPhi phi) {
         assert !phi.resolved;
@@ -1939,7 +1939,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
         end = new int[graph.size()];
 
         int maxLocal = source.maxLocals;
-        SparseArray<List<BytecodeBlock>> defBlocks = new SparseArray<>(maxLocal) {
+        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(maxLocal) {
             @Override
             protected List<BytecodeBlock> createInstance() {
                 return new ArrayList<>();

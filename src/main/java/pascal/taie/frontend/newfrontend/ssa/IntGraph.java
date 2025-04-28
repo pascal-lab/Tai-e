@@ -20,9 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.data;
+package pascal.taie.frontend.newfrontend.ssa;
 
-public class IntGraph extends SparseArray<IntList> {
+import pascal.taie.util.collection.IntList;
+import pascal.taie.util.collection.LazyArray;
+
+/**
+ * A graph represented as an adjacency list.
+ * The graph is directed and unweighted.
+ */
+public class IntGraph extends LazyArray<IntList> {
     public IntGraph(int initialCapacity) {
         super(initialCapacity);
     }
@@ -32,6 +39,9 @@ public class IntGraph extends SparseArray<IntList> {
         return new IntList(4);
     }
 
+    /**
+     * Add an edge from {@code from} to {@code to}.
+     */
     public void addEdge(int from, int to) {
         get(from).add(to);
     }

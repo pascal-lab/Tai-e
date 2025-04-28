@@ -24,8 +24,8 @@ package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.frontend.newfrontend.data.IntList;
-import pascal.taie.frontend.newfrontend.data.SparseArray;
+import pascal.taie.util.collection.IntList;
+import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
 
 import java.util.ArrayDeque;
@@ -124,7 +124,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     private final Dominator<Block> dom;
 
-    private final SparseArray<List<SemiPhi>> phis;
+    private final LazyArray<List<SemiPhi>> phis;
 
     private final GenericDUInfo<Block> info;
 
@@ -160,7 +160,7 @@ public class FastVarSplitting<Block extends IBasicBlock> {
         this.dom = dom;
         this.df = dom.getDF();
         this.info = info;
-        this.phis = new SparseArray<>(graph.size()) {
+        this.phis = new LazyArray<>(graph.size()) {
             @Override
             protected List<SemiPhi> createInstance() {
                 return new ArrayList<>();

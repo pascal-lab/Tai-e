@@ -22,10 +22,9 @@
 
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.frontend.newfrontend.data.SparseSet;
-import pascal.taie.frontend.newfrontend.data.IntGraph;
-import pascal.taie.frontend.newfrontend.data.IntList;
-import pascal.taie.frontend.newfrontend.data.SparseArray;
+import pascal.taie.util.collection.SparseSet;
+import pascal.taie.util.collection.IntList;
+import pascal.taie.util.collection.LazyArray;
 
 import java.util.Arrays;
 
@@ -79,7 +78,7 @@ public class Dominator<N> {
         dfsTrav();
     }
 
-    public record DominatorFrontiers(SparseArray<SparseSet> res) {
+    public record DominatorFrontiers(LazyArray<SparseSet> res) {
         public SparseSet get(int index) {
             return res.get(index);
         }
@@ -120,7 +119,7 @@ public class Dominator<N> {
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
         int gSize = graph.size();
-        SparseArray<SparseSet> df = new SparseArray<>(gSize) {
+        LazyArray<SparseSet> df = new LazyArray<>(gSize) {
             @Override
             protected SparseSet createInstance() {
                 return new SparseSet(gSize, gSize);
