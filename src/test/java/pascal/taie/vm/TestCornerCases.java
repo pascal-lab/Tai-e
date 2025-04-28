@@ -26,7 +26,7 @@ public class TestCornerCases {
         init("SwapExample");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        VM vm = new VM();
+        VM vm = new VM(World.get());
         vm.exec();
         assertEquals("0\n1\n", outputStream.toString());
     }
@@ -36,7 +36,7 @@ public class TestCornerCases {
         init("SwapExample2");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        VM vm = new VM();
+        VM vm = new VM(World.get());
         vm.exec();
         assertEquals("0\n1\n", outputStream.toString());
     }
@@ -46,7 +46,7 @@ public class TestCornerCases {
         init("SwapExample3");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
-        VM vm = new VM();
+        VM vm = new VM(World.get());
         vm.exec();
         assertEquals("0\n1\n", outputStream.toString());
     }
@@ -57,7 +57,7 @@ public class TestCornerCases {
         System.setOut(new PrintStream(outputStream));
         try {
             init("CornerCaseMayBeNotRunnable");
-            VM vm = new VM();
+            VM vm = new VM(World.get());
             vm.exec();
         } catch (Exception ignored) {
         }

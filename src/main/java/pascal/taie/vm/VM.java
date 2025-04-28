@@ -85,6 +85,7 @@ import pascal.taie.util.collection.Pair;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -95,15 +96,15 @@ import java.util.Optional;
 import java.util.Stack;
 
 public class VM {
-    final World world;
+    private final World world;
 
-    final Stack<Frame> frames;
+    private final ArrayDeque<Frame> frames;
 
-    final Map<ClassType, JClassObject> classObjs;
+    private final Map<ClassType, JClassObject> classObjs;
 
-    public VM() {
-        world = World.get();
-        frames = new Stack<>();
+    public VM(World world) {
+        this.world = world;
+        frames = new ArrayDeque<>();
         classObjs = Maps.newMap();
     }
 
@@ -112,7 +113,7 @@ public class VM {
         execIR(main.getIR(), Frame.mkNewFrame());
     }
 
-    public JValue execIR(IR ir, Frame f) {
+    JValue execIR(IR ir, Frame f) {
         frames.push(f);
         while (f.getPc() >= 0) {
             int pc = f.getPc();
@@ -166,7 +167,7 @@ public class VM {
         return f.getRets();
     }
 
-    public JVMClassObject loadJVMClass(Class<?> klass) {
+    JVMClassObject loadJVMClass(Class<?> klass) {
         ClassType ct = Utils.fromJVMClass(klass);
         assert ct != null;
         if (classObjs.containsKey(ct)) {
@@ -208,7 +209,7 @@ public class VM {
         }
     }
 
-    public void execStmt(Stmt stmt, IR ir, Frame f) {
+    private void execStmt(Stmt stmt, IR ir, Frame f) {
         if (stmt instanceof Nop || stmt instanceof Catch || stmt instanceof Monitor) {
             // do nothing
         } else if (stmt instanceof Return r) {
@@ -382,7 +383,7 @@ public class VM {
         }
     }
 
-    public JValue evalExp(Exp e, IR ir, Frame f) {
+    private JValue evalExp(Exp e, IR ir, Frame f) {
         if (e instanceof Literal l) {
             if (l instanceof IntLiteral intLiteral) {
                 return JPrimitive.get(intLiteral.getValue());
@@ -565,7 +566,7 @@ public class VM {
         throw new VMException();
     }
 
-    public JVMClassObject getSpecialClass(String name) {
+    JVMClassObject getSpecialClass(String name) {
         ClassType type = World.get().getTypeSystem().getClassType(name);
         return (JVMClassObject) loadClass(type);
     }

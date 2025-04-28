@@ -2,6 +2,7 @@ package pascal.taie.vm;
 
 import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
+import pascal.taie.World;
 
 public class Simple {
 
@@ -12,7 +13,7 @@ public class Simple {
     @Test
     public void test() {
         init("OnePlusOne");
-        VM vm = new VM();
+        VM vm = new VM(World.get());
         vm.exec();
     }
 }
