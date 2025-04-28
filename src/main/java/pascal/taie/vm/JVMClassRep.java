@@ -31,10 +31,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class JVMClassObject extends JClassObject {
+/**
+ * This class wraps a JVM class.
+ *
+ * @see JVMObject
+ * @see JClassRep
+ */
+public class JVMClassRep extends JClassRep {
     final Class<?> klass;
 
-    public JVMClassObject(ClassType type) {
+    public JVMClassRep(ClassType type) {
         super(type);
         try {
             klass = Class.forName(type.getName());
@@ -43,7 +49,7 @@ public class JVMClassObject extends JClassObject {
         }
     }
 
-    public JVMClassObject(ClassType ct, Class<?> klass) {
+    public JVMClassRep(ClassType ct, Class<?> klass) {
         super(ct);
         this.klass = klass;
     }

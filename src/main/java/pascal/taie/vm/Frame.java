@@ -27,6 +27,9 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 
+/**
+ * A JVM stack frame
+ */
 class Frame {
     private int pc;
 

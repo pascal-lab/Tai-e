@@ -99,12 +99,34 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * The virtual machine for executing the IR.
+ * <p>
+ * A normal usage will be
+ * <pre>
+ * {@code
+ * VM vm = new VM(World.get());
+ * vm.exec();
+ * }
+ * </pre>
+ * </p>
+ * <p>
+ * Currently, the VM has many limitations:
+ * <ul>
+ *     <li>Only support a single thread</li>
+ *     <li>We cannot handle quite a lot language features, e.g.,
+ *         lambda expressions, method references, native methods, etc.</li>
+ * </ul>
+ * </p>
+ *
+ * @see JVMObject
+ */
 public class VM {
     private final World world;
 
     private final ArrayDeque<Frame> frames;
 
-    private final Map<ClassType, JClassObject> classObjs;
+    private final Map<ClassType, JClassRep> classObjs;
 
     public VM(World world) {
         this.world = world;
@@ -112,6 +134,10 @@ public class VM {
         classObjs = Maps.newMap();
     }
 
+    // ------------------- Execution (starts) -------------------
+    /**
+     * Execute the main method of the program.
+     */
     public void exec() {
         JMethod main = world.getMainMethod();
         execIR(main.getIR(), Frame.makeNewFrame());
@@ -135,7 +161,7 @@ public class VM {
                 } else {
                     exception = e;
                 }
-                int currentPc = f.getPC();
+                int currentPC = f.getPC();
                 ClassType t;
                 JObject aCatchObj;
                 if (exception instanceof ClientDefinedException cde) {
@@ -143,12 +169,12 @@ public class VM {
                     aCatchObj = cde.inner;
                 } else {
                     t = Utils.fromJVMClass(exception.getClass());
-                    aCatchObj = new JVMObject((JVMClassObject) loadClass(t), exception);
+                    aCatchObj = new JVMObject((JVMClassRep) loadClass(t), exception);
                 }
                 Optional<ExceptionEntry> exceptionEntry = ir.getExceptionEntries().stream()
                         .filter(entry -> World.get().getTypeSystem().isSubtype(entry.catchType(), t) &&
-                                currentPc >= entry.start().getIndex() &&
-                                currentPc < entry.end().getIndex())
+                                currentPC >= entry.start().getIndex() &&
+                                currentPC < entry.end().getIndex())
                         .findAny();
                 if (exceptionEntry.isPresent()) {
                     Catch aCatch = exceptionEntry.get().handler();
@@ -169,48 +195,6 @@ public class VM {
         }
         frames.pop();
         return f.getRets();
-    }
-
-    JVMClassObject loadJVMClass(Class<?> klass) {
-        ClassType ct = Utils.fromJVMClass(klass);
-        assert ct != null;
-        if (classObjs.containsKey(ct)) {
-            return (JVMClassObject) classObjs.get(ct);
-        } else {
-            JVMClassObject obj = new JVMClassObject(ct, klass);
-            classObjs.put(ct, obj);
-            return obj;
-        }
-    }
-
-    public JClassObject loadClass(ClassType t) {
-        if (classObjs.containsKey(t)) {
-            return classObjs.get(t);
-        } else {
-            JClassObject obj;
-            if (Utils.isJVMClass(t)) {
-                obj = new JVMClassObject(t);
-                classObjs.put(t, obj);
-            } else {
-                for (var i : t.getJClass().getInterfaces()) {
-                    if (!classObjs.containsKey(i.getType())) {
-                        loadClass(i.getType());
-                    }
-                }
-                JClass superClass = t.getJClass().getSuperClass();
-                assert superClass != null; // java.lang.Object should not be loaded here
-                if (!classObjs.containsKey(superClass.getType())) {
-                    loadClass(superClass.getType());
-                }
-                JMethod clinit = t.getJClass().getClinit();
-                obj = new JClassObject(t);
-                classObjs.put(t, obj);
-                if (clinit != null) {
-                    execIR(clinit.getIR(), Frame.makeNewFrame());
-                }
-            }
-            return obj;
-        }
     }
 
     private void execStmt(Stmt stmt, IR ir, Frame f) {
@@ -234,7 +218,7 @@ public class VM {
                     JObject obj  = JValue.getObject(f.getRegs().get(fa.getBase()));
                     obj.setField(this, ref, rValue);
                 } else if (l instanceof StaticFieldAccess sfa) {
-                    JClassObject obj = loadClass(sfa.getFieldRef().resolve()
+                    JClassRep obj = loadClass(sfa.getFieldRef().resolve()
                             .getDeclaringClass().getType());
                     obj.setStaticField(this, sfa.getFieldRef(), rValue);
                 } else if (l instanceof ArrayAccess aa) {
@@ -282,99 +266,10 @@ public class VM {
             f.markEnd();
         }
     }
+    // ------------------- Execution (ends) -------------------
 
-    private JValue invokeStatic(InvokeStatic is, IR ir, Frame f) {
-        List<JValue> args = is.getArgs().stream()
-                .map(e -> evalExp(e, ir, f))
-                .toList();
-        JMethod mtd = is.getMethodRef().resolve();
-        return loadClass(mtd.getDeclaringClass().getType())
-                .invokeStatic(this, mtd, args);
-    }
 
-    private JValue invokeInstance(InvokeInstanceExp ii, IR ir, Frame f) {
-        List<JValue> args = ii.getArgs().stream()
-                .map(e -> evalExp(e, ir, f))
-                .toList();
-        JValue v = evalExp(ii.getBase(), ir, f);
-        if (v instanceof JObject obj) {
-            JMethod method;
-            if (! (ii instanceof InvokeSpecial) && ! (obj instanceof JVMObject)) {
-                method = World.get().getClassHierarchy()
-                        .dispatch(obj.getType(), ii.getMethodRef());
-            } else {
-                // TODO: check default calls
-                method = ii.getMethodRef().resolve();
-            }
-            assert method != null;
-            if (obj instanceof JVMObject jvmObject && method.getName().equals(MethodNames.INIT)) {
-                jvmObject.init(method, args);
-                return null;
-            }
-            return obj.invokeInstance(this, method, args);
-        } else if (v instanceof JArray arr) {
-            if (Utils.isGetClass(ii.getMethodRef())) {
-                return arr.mockGetClass(this);
-            } else if (Utils.isClone(ii.getMethodRef())) {
-                return new JArray(arr);
-            } else if (Utils.isEquals(ii.getMethodRef())) {
-                JValue value = evalExp(ii.getArg(0), ir, f);
-                JValue base = evalExp(ii.getBase(), ir, f);
-                return JPrimitive.getBoolean(base.equals(value));
-            } else {
-                throw new VMException();
-            }
-        } else if (v instanceof JNull) {
-            throw new ClientException(new NullPointerException());
-        } else {
-            throw new VMException();
-        }
-    }
-
-    private JValue invokeDynamic(InvokeDynamic id, IR ir, Frame f) {
-        MethodRef bootStrap = id.getBootstrapMethodRef();
-        JMethod bootMtd = bootStrap.resolve();
-        assert bootMtd.isStatic();
-        Method m = Utils.toJVMMethod(bootMtd);
-        assert m.getParameterCount() == bootMtd.getParamCount();
-        MethodHandles.Lookup k = MethodHandles.lookup();
-        MethodType methodType = id.getMethodType();
-        java.lang.invoke.MethodType methodType1 = Utils.toJVMMethodType(methodType);
-        List<JValue> bootstrapMtdArgs = id.getBootstrapArgs()
-                .stream().map(l -> evalExp(l, ir, f)).toList();
-        List<Object> args = new ArrayList<>();
-        args.add(k);
-        args.add(id.getMethodName());
-        args.add(methodType1);
-        for (int i = 3, j = 0; i < m.getParameterCount(); ++i, ++j) {
-            if (i == m.getParameterCount() - 1 && bootMtd.getParamType(i) instanceof ArrayType at) {
-                assert at.dimensions() == 1; // need not worry, only constants can reach here
-                int size = bootstrapMtdArgs.size() - j;
-                Object[] varargs = new Object[size];
-                args.add(varargs);
-                for (; j < bootstrapMtdArgs.size(); ++j) {
-                    varargs[bootstrapMtdArgs.size() - j] = Utils.typedToJVMObj(
-                            bootstrapMtdArgs.get(i), at.baseType());
-                }
-                break;
-            }
-            JValue now = bootstrapMtdArgs.get(j);
-            Type t = bootMtd.getParamType(i);
-            args.add(Utils.typedToJVMObj(now, t));
-        }
-        try {
-            CallSite callSite = (CallSite)
-                    m.invoke(null, args.toArray());
-            java.lang.invoke.MethodHandle handle = callSite.getTarget();
-            List<JValue> realArgs = id.getArgs().stream().map(e -> evalExp(e, ir, f)).toList();
-            Object[] realJVMArgs = Utils.toJVMObjects(realArgs, methodType.getParamTypes());
-            Object o = handle.invokeWithArguments(realJVMArgs);
-            return Utils.fromJVMObject(this, o, methodType.getReturnType());
-        } catch (Throwable e) {
-            throw new VMException(e);
-        }
-    }
-
+    // ------------------- Evaluation (starts) -------------------
     private JValue evalInvoke(InvokeExp ie, IR ir, Frame f) {
         if (ie instanceof InvokeStatic is) {
             return invokeStatic(is, ir, f);
@@ -406,8 +301,8 @@ public class VM {
                 if (v1 instanceof JObject o1 && v2 instanceof JObject o2) {
                     if (v1 instanceof JVMObject vmo1 && v2 instanceof JVMObject vmo2) {
                         res = vmo1.toJVMObj() == vmo2.toJVMObj();
-                    } else if (v1 instanceof JMockClassObject mockClassObject1
-                            && v2 instanceof JMockClassObject mockClassObject2) {
+                    } else if (v1 instanceof JClassLiteralObject mockClassObject1
+                            && v2 instanceof JClassLiteralObject mockClassObject2) {
                         res = mockClassObject1.klass == mockClassObject2.klass &&
                                 mockClassObject1.dimensions == mockClassObject2.dimensions;
                     } else {
@@ -600,8 +495,8 @@ public class VM {
         } else if (e instanceof NewExp n) {
             if (n instanceof NewInstance ni) {
                 ClassType ct = ni.getType();
-                JClassObject klass = loadClass(ct);
-                if (klass instanceof JVMClassObject jvmClassObject) {
+                JClassRep klass = loadClass(ct);
+                if (klass instanceof JVMClassRep jvmClassObject) {
                     return new JVMObject(jvmClassObject);
                 } else {
                     return createJObject(ct);
@@ -627,7 +522,7 @@ public class VM {
             JObject obj = JValue.getObject(evalExp(ifa.getBase(), ir, f));
             return obj.getField(this, ifa.getFieldRef());
         } else if (e instanceof StaticFieldAccess sfa) {
-            JClassObject classObj = loadClass(sfa.getFieldRef().resolve()
+            JClassRep classObj = loadClass(sfa.getFieldRef().resolve()
                     .getDeclaringClass().getType());
             return classObj.getStaticField(this, sfa.getFieldRef());
         } else if (e instanceof InvokeExp ie) {
@@ -662,12 +557,12 @@ public class VM {
             JArray array = JValue.getJArray(v);
             return JPrimitive.get(array.length());
         } else if (e instanceof PhiExp phi) {
-            int lastPc = f.getLastPC();
-            // The lastPc is not always the end of a block because of the exception mechanism.
+            int lastPC = f.getLastPC();
+            // The lastPC is not always the end of a block because of the exception mechanism.
             // For that, we find the closest def.
             var sourceAndVar = phi.getSourceAndVar();
             Comparator<Pair<Integer, Var>> c = Comparator.comparing(Pair::first);
-            int pos = Collections.binarySearch(sourceAndVar, new Pair<>(lastPc, null), c);
+            int pos = Collections.binarySearch(sourceAndVar, new Pair<>(lastPC, null), c);
             if (pos < 0) {
                 // exception happens and not at a block exit.
                 pos = -(pos + 1);
@@ -679,25 +574,175 @@ public class VM {
             throw new VMException(e + " is not implemented");
         }
     }
+    // ------------------- Evaluation (ends) -------------------
 
+
+    // ------------------- Method invocation (starts) -------------------
+    private JValue invokeStatic(InvokeStatic is, IR ir, Frame f) {
+        List<JValue> args = is.getArgs().stream()
+                .map(e -> evalExp(e, ir, f))
+                .toList();
+        JMethod mtd = is.getMethodRef().resolve();
+        return loadClass(mtd.getDeclaringClass().getType())
+                .invokeStatic(this, mtd, args);
+    }
+
+    private JValue invokeInstance(InvokeInstanceExp ii, IR ir, Frame f) {
+        List<JValue> args = ii.getArgs().stream()
+                .map(e -> evalExp(e, ir, f))
+                .toList();
+        JValue v = evalExp(ii.getBase(), ir, f);
+        if (v instanceof JObject obj) {
+            JMethod method;
+            if (! (ii instanceof InvokeSpecial) && ! (obj instanceof JVMObject)) {
+                method = World.get().getClassHierarchy()
+                        .dispatch(obj.getType(), ii.getMethodRef());
+            } else {
+                // TODO: check default calls
+                method = ii.getMethodRef().resolve();
+            }
+            assert method != null;
+            if (obj instanceof JVMObject jvmObject && method.getName().equals(MethodNames.INIT)) {
+                jvmObject.init(method, args);
+                return null;
+            }
+            return obj.invokeInstance(this, method, args);
+        } else if (v instanceof JArray arr) {
+            if (Utils.isGetClass(ii.getMethodRef())) {
+                return getArrayClass(arr);
+            } else if (Utils.isClone(ii.getMethodRef())) {
+                return new JArray(arr);
+            } else if (Utils.isEquals(ii.getMethodRef())) {
+                JValue value = evalExp(ii.getArg(0), ir, f);
+                JValue base = evalExp(ii.getBase(), ir, f);
+                return JPrimitive.getBoolean(base.equals(value));
+            } else {
+                throw new VMException();
+            }
+        } else if (v instanceof JNull) {
+            throw new ClientException(new NullPointerException());
+        } else {
+            throw new VMException();
+        }
+    }
+
+    /**
+     * Handle invokedynamic invocation.
+     * <p>
+     * The Current implementation cannot handle lambda expressions.
+     * But it can handle method references.
+     * </p>
+     */
+    private JValue invokeDynamic(InvokeDynamic id, IR ir, Frame f) {
+        MethodRef bootStrap = id.getBootstrapMethodRef();
+        JMethod bootMtd = bootStrap.resolve();
+        assert bootMtd.isStatic();
+        Method m = Utils.toJVMMethod(bootMtd);
+        assert m.getParameterCount() == bootMtd.getParamCount();
+        MethodHandles.Lookup k = MethodHandles.lookup();
+        MethodType methodType = id.getMethodType();
+        java.lang.invoke.MethodType methodType1 = Utils.toJVMMethodType(methodType);
+        List<JValue> bootstrapMtdArgs = id.getBootstrapArgs()
+                .stream().map(l -> evalExp(l, ir, f)).toList();
+        List<Object> args = new ArrayList<>();
+        args.add(k);
+        args.add(id.getMethodName());
+        args.add(methodType1);
+        for (int i = 3, j = 0; i < m.getParameterCount(); ++i, ++j) {
+            if (i == m.getParameterCount() - 1 && bootMtd.getParamType(i) instanceof ArrayType at) {
+                assert at.dimensions() == 1; // need not worry, only constants can reach here
+                int size = bootstrapMtdArgs.size() - j;
+                Object[] varargs = new Object[size];
+                args.add(varargs);
+                for (; j < bootstrapMtdArgs.size(); ++j) {
+                    varargs[bootstrapMtdArgs.size() - j] = Utils.typedToJVMObj(
+                            bootstrapMtdArgs.get(i), at.baseType());
+                }
+                break;
+            }
+            JValue now = bootstrapMtdArgs.get(j);
+            Type t = bootMtd.getParamType(i);
+            args.add(Utils.typedToJVMObj(now, t));
+        }
+        try {
+            CallSite callSite = (CallSite)
+                    m.invoke(null, args.toArray());
+            java.lang.invoke.MethodHandle handle = callSite.getTarget();
+            List<JValue> realArgs = id.getArgs().stream().map(e -> evalExp(e, ir, f)).toList();
+            Object[] realJVMArgs = Utils.toJVMObjects(realArgs, methodType.getParamTypes());
+            Object o = handle.invokeWithArguments(realJVMArgs);
+            return Utils.fromJVMObject(this, o, methodType.getReturnType());
+        } catch (Throwable e) {
+            throw new VMException(e);
+        }
+    }
+    // ------------------- Method invocation (ends) -------------------
+
+
+    // ------------------- Class loading (starts) -------------------
+    JVMClassRep loadJVMClass(Class<?> klass) {
+        ClassType ct = Utils.fromJVMClass(klass);
+        assert ct != null;
+        if (classObjs.containsKey(ct)) {
+            return (JVMClassRep) classObjs.get(ct);
+        } else {
+            JVMClassRep obj = new JVMClassRep(ct, klass);
+            classObjs.put(ct, obj);
+            return obj;
+        }
+    }
+
+    public JClassRep loadClass(ClassType t) {
+        if (classObjs.containsKey(t)) {
+            return classObjs.get(t);
+        } else {
+            JClassRep obj;
+            if (Utils.isJVMClass(t)) {
+                obj = new JVMClassRep(t);
+                classObjs.put(t, obj);
+            } else {
+                for (var i : t.getJClass().getInterfaces()) {
+                    if (!classObjs.containsKey(i.getType())) {
+                        loadClass(i.getType());
+                    }
+                }
+                JClass superClass = t.getJClass().getSuperClass();
+                assert superClass != null; // java.lang.Object should not be loaded here
+                if (!classObjs.containsKey(superClass.getType())) {
+                    loadClass(superClass.getType());
+                }
+                JMethod clinit = t.getJClass().getClinit();
+                obj = new JClassRep(t);
+                classObjs.put(t, obj);
+                if (clinit != null) {
+                    execIR(clinit.getIR(), Frame.makeNewFrame());
+                }
+            }
+            return obj;
+        }
+    }
+    // ------------------- Class loading (ends) -------------------
+
+
+    // ------------------- Helper functions (starts) -------------------
     private JObject getClassLiteral(ClassLiteral classLiteral) throws ClassNotFoundException {
         Type t = classLiteral.getTypeValue();
         if (Utils.isJVMClass(t)) {
             return getClassLiteral(Utils.toJVMType(t));
         } else {
             if (t instanceof ClassType ct) {
-                return new JMockClassObject(this, ct.getJClass());
+                return new JClassLiteralObject(this, ct.getJClass());
             } else if (t instanceof ArrayType at) {
                 assert at.baseType() instanceof ClassType;
                 JClass klass = ((ClassType) at.baseType()).getJClass();
-                return new JMockClassObject(this, klass, at.dimensions());
+                return new JClassLiteralObject(this, klass, at.dimensions());
             } else {
                 throw new VMException();
             }
         }
     }
 
-    JVMObject getClassLiteral(Class<?> klass) {
+    private JVMObject getClassLiteral(Class<?> klass) {
         return new JVMObject(getSpecialClass(ClassNames.CLASS), klass);
     }
 
@@ -743,19 +788,29 @@ public class VM {
         throw new VMException();
     }
 
-    JVMClassObject getSpecialClass(String name) {
+    JVMClassRep getSpecialClass(String name) {
         ClassType type = World.get().getTypeSystem().getClassType(name);
-        return (JVMClassObject) loadClass(type);
+        return (JVMClassRep) loadClass(type);
     }
 
     private JObject createJObject(ClassType ct) {
         ClassType superType = Objects.requireNonNull(ct.getJClass().getSuperClass()).getType();
-        JClassObject klass = loadClass(ct);
+        JClassRep klass = loadClass(ct);
         if (Utils.isJVMClass(superType)) {
             return new JObject(this, klass);
         } else {
             return new JObject(this, klass, createJObject(superType));
         }
     }
+
+    private JObject getArrayClass(JArray jArray) {
+        if (Utils.isJVMClass(jArray.type)) {
+            return getClassLiteral(Utils.toJVMType(jArray.type));
+        } else {
+            assert jArray.type.elementType() instanceof ClassType;
+            return new JClassLiteralObject(this, ((ClassType) jArray.type.baseType()).getJClass());
+        }
+    }
+    // ------------------- Helper functions (ends) -------------------
 }
 

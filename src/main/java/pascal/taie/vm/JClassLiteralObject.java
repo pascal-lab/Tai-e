@@ -30,17 +30,31 @@ import pascal.taie.language.classes.Subsignature;
 
 import java.util.List;
 
-public final class JMockClassObject extends JObject {
+/**
+ * This class represents a class literal object in the Tai-e VM.
+ * For example, {@code String.class} or {@code int[].class}.
+ * Note we only use this class for {@link JObject}.
+ * For {@link JVMObject}, we directly use the real {@code .class} value.
+ * See {@code getClassLiteral(Class)} and {@code getClassLiteral(ClassLiteral)} of {@link VM} class
+ * to see how it is created.
+ * <p>
+ * This class represents {@code .class} value, which is a real {@link JValue},
+ * while {@link JClassRep} represents the class itself, contains the static fields and etc.
+ * {@link JClassRep} is not a {@link JValue}, like real JVM class, its only used internal JVM.
+ * Do not confuse them.
+ * </p>
+ */
+public final class JClassLiteralObject extends JObject {
 
     final JClass klass;
 
     final int dimensions;
 
-    public JMockClassObject(VM vm, JClass klass) {
+    public JClassLiteralObject(VM vm, JClass klass) {
         this(vm, klass, 0);
     }
 
-    public JMockClassObject(VM vm, JClass klass, int dimensions) {
+    public JClassLiteralObject(VM vm, JClass klass, int dimensions) {
         super(vm, vm.loadClass(Utils.fromJVMClass(Class.class)));
         this.klass = klass;
         this.dimensions = dimensions;
@@ -78,7 +92,7 @@ public final class JMockClassObject extends JObject {
             if (outer == null) {
                 return JNull.NULL;
             } else {
-                return new JMockClassObject(vm, outer);
+                return new JClassLiteralObject(vm, outer);
             }
         } else if (method.getName().equals("desiredAssertionStatus")) {
             return JPrimitive.getBoolean(true);

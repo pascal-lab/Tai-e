@@ -30,6 +30,9 @@ import static pascal.taie.language.type.FloatType.FLOAT;
 import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 
+/**
+ * This class represents a primitive value in the VM.
+ */
 public class JPrimitive implements JValue {
 
     final Object value;

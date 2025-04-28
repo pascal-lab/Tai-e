@@ -24,7 +24,6 @@ package pascal.taie.vm;
 
 import pascal.taie.World;
 import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
@@ -32,10 +31,13 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class represents a Java array.
+ */
 public class JArray implements JValue {
-    private JValue[] arr;
+    JValue[] arr;
 
-    private final ArrayType type;
+    final ArrayType type;
 
     public JArray(JValue[] arr, Type baseType, int dims) {
         this.type = World.get().getTypeSystem().getArrayType(baseType, dims);
@@ -108,12 +110,4 @@ public class JArray implements JValue {
         this.arr = another.arr;
     }
 
-    public JObject mockGetClass(VM vm) {
-        if (Utils.isJVMClass(type)) {
-            return vm.getClassLiteral(Utils.toJVMType(type));
-        } else {
-            assert type.elementType() instanceof ClassType;
-            return new JMockClassObject(vm, ((ClassType) type.baseType()).getJClass());
-        }
-    }
 }

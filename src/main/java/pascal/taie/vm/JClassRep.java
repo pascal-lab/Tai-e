@@ -32,13 +32,24 @@ import pascal.taie.util.collection.Maps;
 import java.util.List;
 import java.util.Map;
 
-public class JClassObject {
+/**
+ * This class represents a class in the Tai-e VM.
+ * This class is similar to the class in JVM.
+ * A class contains a list of static fields that can be accessed;
+ * a class can be loaded, when a class is loaded, the static initializer
+ * needs to be executed.
+ * <p>
+ * We need to correctly handle the class loading and static initializer,
+ * see {@link VM#loadClass(ClassType)} for details.
+ * </p>
+ */
+public class JClassRep {
 
     ClassType type;
 
     private final Map<String, JValue> staticFields;
 
-    public JClassObject(ClassType type) {
+    public JClassRep(ClassType type) {
         this.type = type;
         staticFields = Maps.newMap();
     }

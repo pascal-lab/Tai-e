@@ -36,23 +36,50 @@ import pascal.taie.util.collection.Maps;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A Java object.
+ * <p>
+ * This class is used to represent a Java object in the Tai-e VM.
+ * It contains the fields of the object and a reference to its class.
+ * </p>
+ *
+ * @see JVMObject
+ * @see JClassLiteralObject
+ */
 public class JObject implements JValue {
 
+    /**
+     * The VM that this object belongs to.
+     * It may look weird to have a back reference to the VM,
+     * see {@link JObject#toString()} for the reason.
+     */
     private final VM vm;
 
+    /**
+     * The class type of this object.
+     */
     private final ClassType type;
 
+    /**
+     * Instance fields of the object.
+     */
     private final Map<String, JValue> fields;
 
-    private final JClassObject klass;
+    /**
+     * The class representation of this object.
+     */
+    private final JClassRep klass;
 
+    /**
+     * The super object of this object.
+     */
     private JObject superObj;
 
-    public JObject(VM vm, JClassObject jClassObj) {
+    JObject(VM vm, JClassRep jClassObj) {
         this(vm, jClassObj, null);
     }
 
-    public JObject(VM vm, JClassObject jClassObj, JObject superObj) {
+    JObject(VM vm, JClassRep jClassObj, JObject superObj) {
         this.vm = vm;
         this.klass = jClassObj;
         this.type = klass.type;
@@ -60,12 +87,15 @@ public class JObject implements JValue {
         this.superObj = superObj;
     }
 
-    public JObject(JObject obj) {
+    private JObject(JObject obj) {
         // TODO: use correct, deep copy semantic
         this(obj.vm, obj.klass, obj.superObj == null ? null : new JObject(obj.superObj));
         fields.putAll(obj.fields);
     }
 
+    /**
+     * Set the field of the object.
+     */
     public void setField(VM vm, FieldRef ref, JValue value) {
         if (ref.resolve().getDeclaringClass().getType() != type) {
             superObj.setField(vm, ref, value);
@@ -80,6 +110,9 @@ public class JObject implements JValue {
         return type;
     }
 
+    /**
+     * Get the field of the object.
+     */
     public JValue getField(VM vm, FieldRef field) {
         String name = field.getName();
         if (field.resolve().getDeclaringClass().getType() != type) {
@@ -104,18 +137,26 @@ public class JObject implements JValue {
         return type.getJClass().getDeclaredMethod(subsignature);
     }
 
+    /**
+     * Invoke a instance method.
+     * <p>
+     * We're modeling the {@code clone} and {@code getClass} methods here.
+     * For {@code clone}, we create a new instance of the object.
+     * For {@code getClass}, we return a {@link JClassLiteralObject} object.
+     * </p>
+     */
     public JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
         ClassType declType = method.getDeclaringClass().getType();
         if (Utils.isClone(method.getRef())) {
             return new JObject(this);
         } else if (Utils.isGetClass(method.getRef())) {
-            return new JMockClassObject(vm, type.getJClass());
+            return new JClassLiteralObject(vm, type.getJClass());
         }
         if (declType != type) {
             if (Utils.isJVMClass(declType) && method.getName().equals(MethodNames.INIT)) {
                 // create an instance here
                 assert superObj == null;
-                superObj = new JVMObject((JVMClassObject) vm.loadClass(declType), method, args);
+                superObj = new JVMObject((JVMClassRep) vm.loadClass(declType), method, args);
                 // must be null, void return value
                 return null;
             } else {
@@ -134,6 +175,10 @@ public class JObject implements JValue {
         }
     }
 
+    /**
+     * Override the {@code toString} method.
+     * See {@link JVMObject} for why we need to override this method.
+     */
     @Override
     public String toString() {
         assert vm != null;

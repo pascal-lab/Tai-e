@@ -270,7 +270,7 @@ class Utils {
                 return JPrimitive.get(d);
             }
         } else if (t instanceof ClassType) {
-            return new JVMObject((JVMClassObject)
+            return new JVMObject((JVMClassRep)
                     vm.loadClass(fromJVMClass(o.getClass())), o);
         }
         throw new VMException();
@@ -299,13 +299,13 @@ class Utils {
             // TODO: fix this, check if jvm class
             // TODO: use correct type
             JClass jClass = World.get().getClassHierarchy().getClass(klass.getName());
-            JClassObject klassObj;
+            JClassRep klassObj;
             if (jClass != null) {
                 klassObj = vm.loadJVMClass(klass);
             } else {
                 klassObj = vm.loadClass(ct);
             }
-            return new JVMObject((JVMClassObject) klassObj, o);
+            return new JVMObject((JVMClassRep) klassObj, o);
         }  else {
             throw new VMException();
         }
