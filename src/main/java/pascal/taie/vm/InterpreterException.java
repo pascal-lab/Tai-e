@@ -20,17 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.interp;
+package pascal.taie.vm;
 
-public class ClientException extends RuntimeException {
-    final Exception internal;
-
-    public ClientException(Exception e) {
-        this.internal = e;
+public class InterpreterException extends UnsupportedOperationException {
+    public InterpreterException(String info) {
+        super(info);
     }
 
-    @Override
-    public String toString() {
-        return "Client code throw uncaught exception: " + internal;
+    public InterpreterException() {}
+
+    public InterpreterException(Throwable e) {
+        super(e);
     }
 }

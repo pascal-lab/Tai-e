@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.interp;
+package pascal.taie.vm;
 
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;

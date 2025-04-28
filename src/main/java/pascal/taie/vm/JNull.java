@@ -20,12 +20,21 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.interp;
+package pascal.taie.vm;
 
-public class ClientDefinedException extends RuntimeException {
-    JObject inner;
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.language.type.Type;
 
-    ClientDefinedException(JObject inner) {
-        this.inner = inner;
+public enum JNull implements JValue {
+    NULL;
+
+    @Override
+    public Type getType() {
+        return NullLiteral.get().getType();
+    }
+
+    @Override
+    public Object toJVMObj() {
+        return null;
     }
 }

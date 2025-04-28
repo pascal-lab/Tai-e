@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.interp;
+package pascal.taie.vm;
 
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
@@ -31,10 +31,8 @@ import pascal.taie.language.classes.MethodNames;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 

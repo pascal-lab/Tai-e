@@ -1,4 +1,4 @@
-package pascal.taie.interp;
+package pascal.taie.vm;
 
 import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
