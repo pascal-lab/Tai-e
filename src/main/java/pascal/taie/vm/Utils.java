@@ -90,13 +90,13 @@ public class Utils {
                 case 5 -> long.class;
                 case 6 -> float.class;
                 case 7 -> double.class;
-                default -> throw new InterpreterException();
+                default -> throw new VMException();
             };
         } else if (t instanceof ClassType classType) {
             try {
                 return Class.forName(classType.getName());
             } catch (ClassNotFoundException e) {
-                throw new InterpreterException(e);
+                throw new VMException(e);
             }
         } else if (t instanceof ArrayType arrayType) {
             Class<?> res = toJVMType(arrayType.baseType());
@@ -107,7 +107,7 @@ public class Utils {
         } else if (t == VoidType.VOID) {
             return void.class;
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -144,7 +144,7 @@ public class Utils {
             case 2 -> (char) i.intValue();
             case 3 -> i.shortValue();
             case 4 -> i;
-            default -> throw new InterpreterException();
+            default -> throw new VMException();
         };
     }
 
@@ -160,7 +160,7 @@ public class Utils {
         } else if (o instanceof Integer i) {
             return i;
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -171,7 +171,7 @@ public class Utils {
             mtd.setAccessible(true);
             return mtd;
         } catch (NoSuchMethodException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -182,7 +182,7 @@ public class Utils {
             f.setAccessible(true);
             return f;
         } catch (NoSuchFieldException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -269,7 +269,7 @@ public class Utils {
             return new JVMObject((JVMClassObject)
                     vm.loadClass(fromJVMClass(o.getClass())), o);
         }
-        throw new InterpreterException();
+        throw new VMException();
     }
 
     public static JValue fromJVMObject(VM vm, Object o, Type t) {
@@ -303,7 +303,7 @@ public class Utils {
             }
             return new JVMObject((JVMClassObject) klassObj, o);
         }  else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 

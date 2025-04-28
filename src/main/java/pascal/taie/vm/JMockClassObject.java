@@ -49,12 +49,12 @@ public final class JMockClassObject extends JObject {
 
     @Override
     public void setField(VM vm, FieldRef ref, JValue value) {
-        throw new InterpreterException();
+        throw new VMException();
     }
 
     @Override
     public JValue getField(VM vm, FieldRef field) {
-        throw new InterpreterException();
+        throw new VMException();
     }
 
     @Override
@@ -83,7 +83,7 @@ public final class JMockClassObject extends JObject {
         } else if (method.getName().equals("desiredAssertionStatus")) {
             return JPrimitive.getBoolean(true);
         }
-        throw new InterpreterException();
+        throw new VMException();
     }
 
     @Override
@@ -93,6 +93,6 @@ public final class JMockClassObject extends JObject {
 
     @Override
     public Object toJVMObj() {
-        throw new InterpreterException();
+        throw new VMException();
     }
 }

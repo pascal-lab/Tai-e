@@ -120,7 +120,7 @@ public class VM {
             boolean exceptionTriggered = false;
             try {
                 execStmt(stmt, ir, f);
-            } catch (InterpreterException | NewFrontendException e) {
+            } catch (VMException | NewFrontendException e) {
                 throw e;
             } catch (Exception e) {
                 exceptionTriggered = true;
@@ -237,7 +237,7 @@ public class VM {
                     int idx = JValue.getInt(evalExp(aa.getIndex(), ir, f));
                     array.setIdx(idx, rValue);
                 } else {
-                    throw new InterpreterException();
+                    throw new VMException();
                 }
             }
         } else if (stmt instanceof Goto g) {
@@ -268,7 +268,7 @@ public class VM {
             f.setPc(target.getIndex());
             return;
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
 
         if (f.getPc() < ir.getStmts().size()) {
@@ -317,12 +317,12 @@ public class VM {
                 JValue base = evalExp(ii.getBase(), ir, f);
                 return JPrimitive.getBoolean(base.equals(value));
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         } else if (v instanceof JNull) {
             throw new ClientException(new NullPointerException());
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -366,7 +366,7 @@ public class VM {
             Object o = handle.invokeWithArguments(realJVMArgs);
             return Utils.fromJVMObject(this, o, methodType.getReturnType());
         } catch (Throwable e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -378,7 +378,7 @@ public class VM {
         } else if (ie instanceof InvokeDynamic id) {
             return invokeDynamic(id, ir, f);
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -399,7 +399,7 @@ public class VM {
                 try {
                     return getClassLiteral(classLiteral);
                 } catch (ClassNotFoundException ex) {
-                    throw new InterpreterException(ex);
+                    throw new VMException(ex);
                 }
             } else if (l instanceof NullLiteral) {
                 return JNull.NULL;
@@ -407,7 +407,7 @@ public class VM {
                 return new JVMObject(getSpecialClass(ClassNames.METHOD_TYPE),
                         Utils.toJVMMethodType(methodType));
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         } else if (e instanceof Var v) {
             if (v.isConst()) {
@@ -439,7 +439,7 @@ public class VM {
                 }
                 return JArray.createMultiArray(nma.getType(), dims, 0);
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         } else if (e instanceof ArrayAccess aa) {
             JArray b = JValue.getJArray(evalExp(aa.getBase(), ir, f));
@@ -466,7 +466,7 @@ public class VM {
                     throw new ClientException(new ClassCastException());
                 }
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         } else if (e instanceof NegExp neg) {
             JValue value = evalExp(neg.getValue(), ir, f);
@@ -498,7 +498,7 @@ public class VM {
             assert v != null;
             return evalExp(v, ir, f);
         } else {
-            throw new InterpreterException(e + " is not implemented");
+            throw new VMException(e + " is not implemented");
         }
     }
 
@@ -514,7 +514,7 @@ public class VM {
                 JClass klass = ((ClassType) at.baseType()).getJClass();
                 return new JMockClassObject(this, klass, at.dimensions());
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         }
     }
@@ -535,7 +535,7 @@ public class VM {
                 case 5 -> i.longValue();
                 case 6 -> i.floatValue();
                 case 7 -> i.doubleValue();
-                default -> throw new InterpreterException();
+                default -> throw new VMException();
             };
         } else if (o instanceof Long l) {
             return switch (index) {
@@ -543,7 +543,7 @@ public class VM {
                 case 5 -> l;
                 case 6 -> l.floatValue();
                 case 7 -> l.doubleValue();
-                default -> throw new InterpreterException();
+                default -> throw new VMException();
             };
         } else if (o instanceof Float f) {
             return switch (index) {
@@ -551,7 +551,7 @@ public class VM {
                 case 5 -> f.longValue();
                 case 6 -> f;
                 case 7 -> f.doubleValue();
-                default -> throw new InterpreterException();
+                default -> throw new VMException();
             };
         } else if (o instanceof Double d) {
             return switch (index) {
@@ -559,10 +559,10 @@ public class VM {
                 case 5 -> d.longValue();
                 case 6 -> d.floatValue();
                 case 7 -> d;
-                default -> throw new InterpreterException();
+                default -> throw new VMException();
             };
         }
-        throw new InterpreterException();
+        throw new VMException();
     }
 
     public JVMClassObject getSpecialClass(String name) {

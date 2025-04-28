@@ -69,7 +69,7 @@ public class JPrimitive implements JValue {
         } else if (value instanceof Double d) {
             return get(-d);
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -84,7 +84,7 @@ public class JPrimitive implements JValue {
             case 5 -> JPrimitive.get(0L);
             case 6 -> JPrimitive.get(0f);
             case 7 -> JPrimitive.get(0d);
-            default -> throw new InterpreterException();
+            default -> throw new VMException();
         };
     }
 

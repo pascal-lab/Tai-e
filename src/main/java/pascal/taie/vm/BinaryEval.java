@@ -61,7 +61,7 @@ public class BinaryEval {
                 } else if (v1 instanceof JNull || v2 instanceof JNull) {
                     res = v1 instanceof JNull && v2 instanceof JNull;
                 } else {
-                    throw new InterpreterException();
+                    throw new VMException();
                 }
 
                 if (op == ConditionExp.Op.NE) {
@@ -96,7 +96,7 @@ public class BinaryEval {
                     return switch (op1) {
                         case CMPG -> JPrimitive.get(1);
                         case CMPL -> JPrimitive.get(-1);
-                        case CMP -> throw new InterpreterException();
+                        case CMP -> throw new VMException();
                     };
                 }
             } else if (pv1 instanceof Double d1 && pv2 instanceof Double d2) {
@@ -110,11 +110,11 @@ public class BinaryEval {
                     return switch (op1) {
                         case CMPG -> JPrimitive.get(1);
                         case CMPL -> JPrimitive.get(-1);
-                        case CMP -> throw new InterpreterException();
+                        case CMP -> throw new VMException();
                     };
                 }
             } else {
-                throw new InterpreterException();
+                throw new VMException();
             }
         } else if (op instanceof ShiftExp.Op op1) {
             if (pv1 instanceof Long) {
@@ -157,7 +157,7 @@ public class BinaryEval {
                         });
             }
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 
@@ -199,7 +199,7 @@ public class BinaryEval {
                         case REM -> f1 % f2;
                     });
         } else {
-            throw new InterpreterException();
+            throw new VMException();
         }
     }
 }

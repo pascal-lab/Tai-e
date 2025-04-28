@@ -60,7 +60,7 @@ public class JVMObject extends JObject {
             Field f = Utils.toJVMField(ref.resolve());
             f.set(object, value.toJVMObj());
         } catch (IllegalAccessException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -70,7 +70,7 @@ public class JVMObject extends JObject {
         try {
             return Utils.fromJVMObject(vm, field.get(object), ref.getType());
         } catch (IllegalAccessException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -81,7 +81,7 @@ public class JVMObject extends JObject {
             Object res = mtd.invoke(object, Utils.toJVMObjects(args, method.getParamTypes()));
             return Utils.fromJVMObject(vm, res, method.getReturnType());
         } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -94,7 +94,7 @@ public class JVMObject extends JObject {
         } catch (NoSuchMethodException |
                  InstantiationException |
                  IllegalAccessException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         } catch (InvocationTargetException e) {
             throw new ClientException(e);
         }

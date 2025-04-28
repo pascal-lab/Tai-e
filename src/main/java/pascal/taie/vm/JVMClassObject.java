@@ -39,7 +39,7 @@ public class JVMClassObject extends JClassObject {
         try {
             klass = Class.forName(type.getName());
         } catch (ClassNotFoundException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -64,7 +64,7 @@ public class JVMClassObject extends JClassObject {
             }
             return res;
         } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         } catch (InvocationTargetException e) {
             throw new ClientException(e);
         }
@@ -77,7 +77,7 @@ public class JVMClassObject extends JClassObject {
             field.setAccessible(true);
             return Utils.fromJVMObject(vm, field.get(null), ref.getType());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 
@@ -88,7 +88,7 @@ public class JVMClassObject extends JClassObject {
             field.setAccessible(true);
             field.set(null, value.toJVMObj());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new InterpreterException(e);
+            throw new VMException(e);
         }
     }
 }

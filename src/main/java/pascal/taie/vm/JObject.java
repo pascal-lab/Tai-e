@@ -89,7 +89,7 @@ public class JObject implements JValue {
         return fields.computeIfAbsent(name, n -> {
             JField f = type.getJClass().getDeclaredField(n);
             if (f == null) {
-                throw new InterpreterException();
+                throw new VMException();
             } else {
                 if (f.getType() instanceof PrimitiveType t) {
                     return JPrimitive.getDefault(t);

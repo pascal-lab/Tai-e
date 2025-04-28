@@ -35,7 +35,7 @@ public interface JValue {
             l.value instanceof Integer i) {
             return i;
         } else {
-            throw new InterpreterException(v + " is not int value");
+            throw new VMException(v + " is not int value");
         }
     }
 
@@ -44,7 +44,7 @@ public interface JValue {
                 l.value instanceof Long i) {
             return i;
         } else {
-            throw new InterpreterException(v + " is not long value");
+            throw new VMException(v + " is not long value");
         }
     }
 
@@ -52,7 +52,7 @@ public interface JValue {
         if (v instanceof JArray j) {
             return j;
         } else {
-            throw new InterpreterException(v + " is not array value");
+            throw new VMException(v + " is not array value");
         }
     }
 
@@ -60,7 +60,7 @@ public interface JValue {
         if (v instanceof JObject j) {
             return j;
         } else {
-            throw new InterpreterException(v + " is not Object value");
+            throw new VMException(v + " is not Object value");
         }
     }
 }
