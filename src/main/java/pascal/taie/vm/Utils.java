@@ -49,36 +49,40 @@ import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
-public class Utils {
+/**
+ * Utility class for the vm.
+ * Mainly used to convert between JVM types/values and Tai-e types/values.
+ */
+class Utils {
 
-    public static int INT_TRUE = 1;
+    static final int INT_TRUE = 1;
 
-    public static int INT_FALSE = 0;
+    private static final int INT_FALSE = 0;
 
-    public static String GET_CLASS = "getClass";
+    private static final String GET_CLASS = "getClass";
 
-    public static String CLONE = "clone";
+    private static final String CLONE = "clone";
 
-    public static String EQUALS = "equals";
+    private static final String EQUALS = "equals";
 
-    public static List<String> PRIMITIVE_TYPES = List.of(
+    private static final List<String> PRIMITIVE_TYPES = List.of(
             ClassNames.BOOLEAN, ClassNames.BYTE, ClassNames.CHARACTER,
             ClassNames.SHORT, ClassNames.INTEGER, ClassNames.FLOAT,
             ClassNames.LONG, ClassNames.DOUBLE);
 
-    public static boolean isGetClass(MethodRef ref) {
+    static boolean isGetClass(MethodRef ref) {
         return ref.getName().equals(GET_CLASS) && ref.getParameterTypes().isEmpty();
     }
 
-    public static boolean isClone(MethodRef ref) {
+    static boolean isClone(MethodRef ref) {
         return ref.getName().equals(CLONE) && ref.getParameterTypes().isEmpty();
     }
 
-    public static boolean isEquals(MethodRef ref) {
+    static boolean isEquals(MethodRef ref) {
         return ref.getName().equals(EQUALS);
     }
 
-    public static Class<?> toJVMType(Type t) {
+    static Class<?> toJVMType(Type t) {
         if (t instanceof PrimitiveType primitiveType) {
             int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(primitiveType);
             return switch (index) {
@@ -111,12 +115,12 @@ public class Utils {
         }
     }
 
-    public static Class<?>[] toJVMTypeList(List<Type> typeList) {
+    static Class<?>[] toJVMTypeList(List<Type> typeList) {
         return typeList.stream().map(Utils::toJVMType)
                 .toArray(Class[]::new);
     }
 
-    public static Object[] toJVMObjects(List<JValue> values, List<Type> targetType) {
+    static Object[] toJVMObjects(List<JValue> values, List<Type> targetType) {
         Object[] res = new Object[values.size()];
         for (int i = 0; i < values.size(); ++i) {
             res[i] = typedToJVMObj(values.get(i), targetType.get(i));
@@ -124,7 +128,7 @@ public class Utils {
         return res;
     }
 
-    public static Object typedToJVMObj(JValue value, Type type) {
+    static Object typedToJVMObj(JValue value, Type type) {
         assert value != null;
         if (value instanceof JPrimitive primitive) {
             if (primitive.toJVMObj() instanceof Integer i) {
@@ -136,7 +140,7 @@ public class Utils {
         return value.toJVMObj();
     }
 
-    public static Object downCastInt(Integer i, PrimitiveType p) {
+    static Object downCastInt(Integer i, PrimitiveType p) {
         int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(p);
         return switch (index) {
             case 0 -> toBoolean(i.byteValue());
@@ -148,7 +152,7 @@ public class Utils {
         };
     }
 
-    public static int getIntValue(Object o) {
+    static int getIntValue(Object o) {
         if (o instanceof Boolean b) {
             return toInt(b);
         } else if (o instanceof Character c) {
@@ -164,7 +168,7 @@ public class Utils {
         }
     }
 
-    public static Method toJVMMethod(JMethod method) {
+    static Method toJVMMethod(JMethod method) {
         try {
             Method mtd = toJVMType(method.getDeclaringClass().getType())
                     .getDeclaredMethod(method.getName(), Utils.toJVMTypeList(method.getParamTypes()));
@@ -175,7 +179,7 @@ public class Utils {
         }
     }
 
-    public static Field toJVMField(JField field) {
+    static Field toJVMField(JField field) {
         Class<?> klass = Utils.toJVMType(field.getDeclaringClass().getType());
         try {
             Field f = klass.getDeclaredField(field.getName());
@@ -192,7 +196,7 @@ public class Utils {
                 .toArray(Class[]::new);
     }
 
-    public static boolean isJVMClass(Type t) {
+    static boolean isJVMClass(Type t) {
         if (t instanceof ClassType ct) {
             JClass klass = ct.getJClass();
             assert klass != null;
@@ -207,15 +211,15 @@ public class Utils {
         }
     }
 
-    public static boolean isBoxedType(ClassType t) {
+    private static boolean isBoxedType(ClassType t) {
         return PRIMITIVE_TYPES.contains(t.getName());
     }
 
-    public static ClassType fromJVMClass(Class<?> klass) {
+    static ClassType fromJVMClass(Class<?> klass) {
         return World.get().getTypeSystem().getClassType(klass.getName());
     }
 
-    public static Type fromJVMType(Class<?> klass) {
+    private static Type fromJVMType(Class<?> klass) {
         assert klass != null;
         if (klass == boolean.class) {
             return BOOLEAN;
@@ -246,7 +250,7 @@ public class Utils {
         }
     }
 
-    public static JValue fromPrimitiveJVMObject(VM vm, Object o, Type t) {
+    private static JValue fromPrimitiveJVMObject(VM vm, Object o, Type t) {
         if (t instanceof PrimitiveType) {
             if (o instanceof Boolean b) {
                 return JPrimitive.get(toInt(b));
@@ -272,7 +276,7 @@ public class Utils {
         throw new VMException();
     }
 
-    public static JValue fromJVMObject(VM vm, Object o, Type t) {
+    static JValue fromJVMObject(VM vm, Object o, Type t) {
         if (o == null) {
             return JNull.NULL;
         } else if (PRIMITIVE_TYPES.contains(o.getClass().getName())) {
@@ -307,17 +311,17 @@ public class Utils {
         }
     }
 
-    public static MethodType toJVMMethodType(pascal.taie.ir.exp.MethodType methodType) {
+    static MethodType toJVMMethodType(pascal.taie.ir.exp.MethodType methodType) {
         return java.lang.invoke.MethodType.methodType(
                 Utils.toJVMType(methodType.getReturnType()),
                 Utils.toJVMTypeList(methodType.getParamTypes()));
     }
 
-    public static boolean toBoolean(byte b) {
+    private static boolean toBoolean(byte b) {
         return (b & INT_TRUE) == INT_TRUE;
     }
 
-    public static int toInt(Boolean b) {
+    static int toInt(Boolean b) {
         return b ? INT_TRUE : INT_FALSE;
     }
 }
