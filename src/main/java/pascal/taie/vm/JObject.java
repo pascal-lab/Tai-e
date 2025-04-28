@@ -129,7 +129,7 @@ public class JObject implements JValue {
             for (int i = 0; i < method.getParamCount(); ++i) {
                 argMap.put(newIr.getParam(i), args.get(i));
             }
-            Frame newFrame = Frame.mkNewFrame(argMap);
+            Frame newFrame = Frame.makeNewFrame(argMap);
             return vm.execIR(newIr, newFrame);
         }
     }

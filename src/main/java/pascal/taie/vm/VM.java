@@ -27,11 +27,15 @@ import pascal.taie.frontend.newfrontend.java.NewFrontendException;
 import pascal.taie.frontend.newfrontend.ssa.PhiExp;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
+import pascal.taie.ir.exp.BitwiseExp;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ClassLiteral;
+import pascal.taie.ir.exp.ComparisonExp;
+import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FloatLiteral;
@@ -54,6 +58,7 @@ import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.RValue;
+import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
@@ -93,7 +98,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Stack;
 
 public class VM {
     private final World world;
@@ -110,13 +114,13 @@ public class VM {
 
     public void exec() {
         JMethod main = world.getMainMethod();
-        execIR(main.getIR(), Frame.mkNewFrame());
+        execIR(main.getIR(), Frame.makeNewFrame());
     }
 
     JValue execIR(IR ir, Frame f) {
         frames.push(f);
-        while (f.getPc() >= 0) {
-            int pc = f.getPc();
+        while (f.getPC() >= 0) {
+            int pc = f.getPC();
             Stmt stmt = ir.getStmt(pc);
             boolean exceptionTriggered = false;
             try {
@@ -131,7 +135,7 @@ public class VM {
                 } else {
                     exception = e;
                 }
-                int currentPc = f.getPc();
+                int currentPc = f.getPC();
                 ClassType t;
                 JObject aCatchObj;
                 if (exception instanceof ClientDefinedException cde) {
@@ -149,7 +153,7 @@ public class VM {
                 if (exceptionEntry.isPresent()) {
                     Catch aCatch = exceptionEntry.get().handler();
                     f.getRegs().put(aCatch.getExceptionRef(), aCatchObj);
-                    f.setPc(aCatch.getIndex());
+                    f.setPC(aCatch.getIndex());
                 } else {
                     // TODO: this approach will cause client code catch some internal exception
                     //       correct this by explicitly throw all jvm exceptions
@@ -160,7 +164,7 @@ public class VM {
                 }
             }
             if (!(exceptionTriggered || stmt instanceof PhiStmt || stmt instanceof Catch)) {
-                f.setLastPc(pc);
+                f.setLastPC(pc);
             }
         }
         frames.pop();
@@ -202,7 +206,7 @@ public class VM {
                 obj = new JClassObject(t);
                 classObjs.put(t, obj);
                 if (clinit != null) {
-                    execIR(clinit.getIR(), Frame.mkNewFrame());
+                    execIR(clinit.getIR(), Frame.makeNewFrame());
                 }
             }
             return obj;
@@ -242,11 +246,11 @@ public class VM {
                 }
             }
         } else if (stmt instanceof Goto g) {
-            f.setPc(g.getTarget().getIndex());
+            f.setPC(g.getTarget().getIndex());
             return;
         } else if (stmt instanceof If i) {
             if (JValue.getInt(evalExp(i.getCondition(), ir, f)) == Utils.INT_TRUE) {
-                f.setPc(i.getTarget().getIndex());
+                f.setPC(i.getTarget().getIndex());
                 return;
             }
         } else if (stmt instanceof Throw t) {
@@ -266,14 +270,14 @@ public class VM {
                     .findAny()
                     .orElse(new Pair<>(i, s.getDefaultTarget()))
                     .second();
-            f.setPc(target.getIndex());
+            f.setPC(target.getIndex());
             return;
         } else {
             throw new VMException();
         }
 
-        if (f.getPc() < ir.getStmts().size()) {
-            f.setPc(f.getPc() + 1);
+        if (f.getPC() < ir.getStmts().size()) {
+            f.setPC(f.getPC() + 1);
         } else {
             f.markEnd();
         }
@@ -383,6 +387,179 @@ public class VM {
         }
     }
 
+    private static JValue evalBinary(BinaryExp.Op op, JValue v1, JValue v2) {
+        if (op instanceof ConditionExp.Op op1) {
+            if (v1 instanceof JPrimitive && v2 instanceof JPrimitive) {
+                Integer i1 = JValue.getInt(v1);
+                Integer i2 = JValue.getInt(v2);
+                return JPrimitive.getBoolean(
+                        switch (op1) {
+                            case EQ -> i1.equals(i2);
+                            case GE -> i1 >= i2;
+                            case GT -> i1 > i2;
+                            case LE -> i1 <= i2;
+                            case LT -> i1 < i2;
+                            case NE -> ! i1.equals(i2);
+                        });
+            } else {
+                boolean res;
+                if (v1 instanceof JObject o1 && v2 instanceof JObject o2) {
+                    if (v1 instanceof JVMObject vmo1 && v2 instanceof JVMObject vmo2) {
+                        res = vmo1.toJVMObj() == vmo2.toJVMObj();
+                    } else if (v1 instanceof JMockClassObject mockClassObject1
+                            && v2 instanceof JMockClassObject mockClassObject2) {
+                        res = mockClassObject1.klass == mockClassObject2.klass &&
+                                mockClassObject1.dimensions == mockClassObject2.dimensions;
+                    } else {
+                        res = o1 == o2;
+                    }
+                } else if (v1 instanceof JArray arr1 && v2 instanceof JArray arr2) {
+                    res = arr1 == arr2;
+                } else if (v1 instanceof JNull || v2 instanceof JNull) {
+                    res = v1 instanceof JNull && v2 instanceof JNull;
+                } else {
+                    throw new VMException();
+                }
+
+                if (op == ConditionExp.Op.NE) {
+                    res = ! res;
+                }
+                return JPrimitive.getBoolean(res);
+            }
+        }
+
+        JPrimitive primitive1 = (JPrimitive) v1;
+        JPrimitive primitive2 = (JPrimitive) v2;
+        Object pv1 = primitive1.value;
+        Object pv2 = primitive2.value;
+        if (op instanceof ArithmeticExp.Op op1) {
+            return evalArithmetic(op1, pv1, primitive2.value);
+        } else if (op instanceof ComparisonExp.Op op1) {
+            if (pv1 instanceof Long l1 && pv2 instanceof Long l2) {
+                return JPrimitive.get(l1.compareTo(l2));
+            } else if (pv1 instanceof Float f1 && pv2 instanceof Float f2) {
+                if (f1.floatValue() == f2.floatValue()) {
+                    return JPrimitive.get(0);
+                } else if (f1 > f2) {
+                    return JPrimitive.get(1);
+                } else if (f1 < f2) {
+                    // IDEA may report a false positive warning.
+                    // Law of trichotomy does not hold for `float` or `double` type
+                    // E.g. NaN >  NaN ==> false
+                    //      NaN == NaN ==> false
+                    //      NaN <  NaN ==> false
+                    return JPrimitive.get(-1);
+                } else {
+                    return switch (op1) {
+                        case CMPG -> JPrimitive.get(1);
+                        case CMPL -> JPrimitive.get(-1);
+                        case CMP -> throw new VMException();
+                    };
+                }
+            } else if (pv1 instanceof Double d1 && pv2 instanceof Double d2) {
+                if (d1.doubleValue() == d2.doubleValue()) {
+                    return JPrimitive.get(0);
+                } else if (d1 > d2) {
+                    return JPrimitive.get(1);
+                } else if (d1 < d2) {
+                    return JPrimitive.get(-1);
+                } else {
+                    return switch (op1) {
+                        case CMPG -> JPrimitive.get(1);
+                        case CMPL -> JPrimitive.get(-1);
+                        case CMP -> throw new VMException();
+                    };
+                }
+            } else {
+                throw new VMException();
+            }
+        } else if (op instanceof ShiftExp.Op op1) {
+            if (pv1 instanceof Long) {
+                long ll1 = JValue.getLong(v1);
+                int i2 = JValue.getInt(v2);
+                return JPrimitive.get(
+                        switch (op1) {
+                            case SHL -> ll1 << i2;
+                            case SHR -> ll1 >> i2;
+                            case USHR -> ll1 >>> i2;
+                        });
+            } else {
+                int i1 = JValue.getInt(v1);
+                int i2 = JValue.getInt(v2);
+                return JPrimitive.get(
+                        switch (op1) {
+                            case SHL -> i1 << i2;
+                            case SHR -> i1 >> i2;
+                            case USHR -> i1 >>> i2;
+                        });
+            }
+        } else if (op instanceof BitwiseExp.Op op1) {
+            if (pv1 instanceof Long) {
+                long ll1 = JValue.getLong(v1);
+                long ll2 = JValue.getLong(v2);
+                return JPrimitive.get(
+                        switch (op1) {
+                            case OR -> ll1 | ll2;
+                            case AND -> ll1 & ll2;
+                            case XOR -> ll1 ^ ll2;
+                        });
+            } else {
+                int i1 = JValue.getInt(v1);
+                int i2 = JValue.getInt(v2);
+                return JPrimitive.get(
+                        switch (op1) {
+                            case OR -> i1 | i2;
+                            case AND -> i1 & i2;
+                            case XOR -> i1 ^ i2;
+                        });
+            }
+        } else {
+            throw new VMException();
+        }
+    }
+
+    private static JValue evalArithmetic(ArithmeticExp.Op op, Object v1, Object v2) {
+        if (v1 instanceof Integer l1 && v2 instanceof Integer l2) {
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> l1 + l2;
+                        case DIV -> l1 / l2;
+                        case MUL -> l1 * l2;
+                        case REM -> l1 % l2;
+                        case SUB -> l1 - l2;
+                    });
+        } else if (v1 instanceof Long l1 && v2 instanceof Long l2) {
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> l1 + l2;
+                        case SUB -> l1 - l2;
+                        case MUL -> l1 * l2;
+                        case DIV -> l1 / l2;
+                        case REM -> l1 % l2;
+                    });
+        } else if (v1 instanceof Float f1 && v2 instanceof Float f2) {
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> f1 + f2;
+                        case SUB -> f1 - f2;
+                        case MUL -> f1 * f2;
+                        case DIV -> f1 / f2;
+                        case REM -> f1 % f2;
+                    });
+        } else if (v1 instanceof Double f1 && v2 instanceof Double f2) {
+            return new JPrimitive(
+                    switch (op) {
+                        case ADD -> f1 + f2;
+                        case SUB -> f1 - f2;
+                        case MUL -> f1 * f2;
+                        case DIV -> f1 / f2;
+                        case REM -> f1 % f2;
+                    });
+        } else {
+            throw new VMException();
+        }
+    }
+
     private JValue evalExp(Exp e, IR ir, Frame f) {
         if (e instanceof Literal l) {
             if (l instanceof IntLiteral intLiteral) {
@@ -419,7 +596,7 @@ public class VM {
         } else if (e instanceof BinaryExp b) {
             JValue v1 = evalExp(b.getOperand1(), ir, f);
             JValue v2 = evalExp(b.getOperand2(), ir, f);
-            return BinaryEval.evalBinary(b.getOperator(), v1, v2);
+            return evalBinary(b.getOperator(), v1, v2);
         } else if (e instanceof NewExp n) {
             if (n instanceof NewInstance ni) {
                 ClassType ct = ni.getType();
@@ -485,7 +662,7 @@ public class VM {
             JArray array = JValue.getJArray(v);
             return JPrimitive.get(array.length());
         } else if (e instanceof PhiExp phi) {
-            int lastPc = f.getLastPc();
+            int lastPc = f.getLastPC();
             // The lastPc is not always the end of a block because of the exception mechanism.
             // For that, we find the closest def.
             var sourceAndVar = phi.getSourceAndVar();

@@ -62,7 +62,7 @@ public class JClassObject {
         for (int i = 0; i < method.getParamCount(); ++i) {
             args.put(ir.getParam(i), values.get(i));
         }
-        Frame newFrame = Frame.mkNewFrame(args);
+        Frame newFrame = Frame.makeNewFrame(args);
         return vm.execIR(ir, newFrame);
     }
 }

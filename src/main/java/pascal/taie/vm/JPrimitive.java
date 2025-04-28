@@ -32,9 +32,9 @@ import static pascal.taie.language.type.LongType.LONG;
 
 public class JPrimitive implements JValue {
 
-    public final Object value;
+    final Object value;
 
-    public final PrimitiveType type;
+    final PrimitiveType type;
 
     public JPrimitive(Object v) {
         assert v instanceof Integer ||

@@ -27,60 +27,60 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 
-public class Frame {
+class Frame {
     private int pc;
 
-    private int lastPc; // Only used for phi selection.
+    private int lastPC; // Only used for phi selection.
 
     private final Map<Var, JValue> regs;
 
     private JValue rets;
 
-    public static final int METHOD_ENTRY = -1; // Should we define a uniform index for entry?
+    static final int METHOD_ENTRY = -1; // Should we define a uniform index for entry?
 
-    public Frame(int pc, Map<Var, JValue> regs) {
+    private Frame(int pc, Map<Var, JValue> regs) {
         this.pc = pc;
-        this.lastPc = METHOD_ENTRY;
+        this.lastPC = METHOD_ENTRY;
         this.regs = regs;
     }
 
-    public static Frame mkNewFrame() {
+    static Frame makeNewFrame() {
         return new Frame(0, Maps.newMap());
     }
 
-    public static Frame mkNewFrame(Map<Var, JValue> args) {
+    static Frame makeNewFrame(Map<Var, JValue> args) {
         return new Frame(0, args);
     }
 
-    public int getPc() {
+    int getPC() {
         return pc;
     }
 
-    public void setPc(int pc) {
+    void setPC(int pc) {
         this.pc = pc;
     }
 
-    public int getLastPc() {
-        return lastPc;
+    int getLastPC() {
+        return lastPC;
     }
 
-    public void setLastPc(int lastPc) {
-        this.lastPc = lastPc;
+    void setLastPC(int lastPC) {
+        this.lastPC = lastPC;
     }
 
-    public Map<Var, JValue> getRegs() {
+    Map<Var, JValue> getRegs() {
         return regs;
     }
 
-    public JValue getRets() {
+    JValue getRets() {
         return rets;
     }
 
-    public void setRets(JValue rets) {
+    void setRets(JValue rets) {
         this.rets = rets;
     }
 
-    public void markEnd() {
+    void markEnd() {
         this.pc = -1;
     }
 }

@@ -25,7 +25,7 @@ package pascal.taie.vm;
 public class ClientException extends RuntimeException {
     final Exception internal;
 
-    public ClientException(Exception e) {
+    ClientException(Exception e) {
         this.internal = e;
     }
 
