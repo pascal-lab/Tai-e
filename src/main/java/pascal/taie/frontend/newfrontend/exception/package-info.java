@@ -20,25 +20,8 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.exception;
-
-import pascal.taie.frontend.newfrontend.main.TaiePhase;
-
 /**
- * Represents the errors raised during constructing program information using new frontend.
+ * Provides exception types for errors encountered during the new frontend phase
+ * of class file processing in Tai-e.
  */
-public abstract sealed class FrontendException extends Exception
-        permits ClassNotFoundException, CorruptClassFileException, JavacException, UnknownFrontendException {
-    protected FrontendException(TaiePhase phase, String message) {
-        this(String.format("""
-                !!! ERROR in FRONTEND DURING %s !!!
-                %s
-                """, phase, message));
-    }
-
-    private FrontendException(String msg) {
-        super(msg);
-    }
-
-    public static String TAIE_ISSUES = "https://github.com/pascal-lab/Tai-e/issues";
-}
+package pascal.taie.frontend.newfrontend.exception;

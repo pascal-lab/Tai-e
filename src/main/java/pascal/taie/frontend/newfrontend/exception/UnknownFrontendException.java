@@ -31,14 +31,14 @@ import java.io.StringWriter;
  * Represents an unknown exception that occurred during the execution of the frontend.
  * This exception is thrown when an unexpected error occurs and is not handled by the frontend.
  */
-public final class UnknownException extends FrontendException {
+public final class UnknownFrontendException extends FrontendException {
     /**
      * Constructs a new UnknownException with the given phase and the underlying cause.
      *
      * @param phase the phase at which the exception occurred
      * @param e     the underlying cause of the exception
      */
-    public UnknownException(TaiePhase phase, Throwable e) {
+    public UnknownFrontendException(TaiePhase phase, Throwable e) {
         super(phase, String.format("""
                 Unexpected error occurred
                 %s
