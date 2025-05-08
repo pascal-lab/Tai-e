@@ -2,6 +2,14 @@ include::attributes.adoc[]
 
 = Publications
 
+* Yufei Liang, Teng Zhang, Ganlin Li, Tian Tan, Chang Xu, Chun Cao, Xiaoxing Ma, and Yue Li. _Pointer Analysis for Database-Backed Applications_. In Proceedings of the 46th ACM SIGPLAN Conference on Programming Language Design and Implementation, Seoul, South Korea, June 16--20 2025 (PLDI'25).
+
+* Menglong Chen, Tian Tan, Minxue Pan, and Yue Li. _PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps_. In Proceedings of the 47th IEEE/ACM International Conference on Software Engineering, Ottawa, Canada, April 27--May 3 2025 (ICSE'25).
+
+* Chenxi Zhang, Yufei Liang, Tian Tan, Chang Xu, Shuangxiang Kan, Yulei Sui, and Yue Li. _Interactive Cross-Language Pointer Analysis for Resolving Native Code in Java Programs_. In Proceedings of the 47th IEEE/ACM International Conference on Software Engineering, Ottawa, Canada, April 27--May 3 2025 (ICSE'25).
+
+* Teng Zhang, Yufei Liang, Ganlin Li, Tian Tan, Chang Xu, and Yue Li. _Bridge the Islands: Pointer Analysis for Microservice Systems_. In Proceedings of the 34th ACM SIGSOFT International Symposium on Software Testing and Analysis, Trondheim, Norway, June 25--28 2025 (ISSTA'25).
+
 * Tian Tan and Yue Li. *Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics*. In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis, Seattle, WA, USA. July 17--21, 2023 (ISSTA'23).
 
 * Wenjie Ma, Shengyuan Yang, Tian Tan, Xiaoxing Ma, Chang Xu and Yue Li. _Context Sensitivity without Context: A Cut-Shortcut Approach to Fast and Precise Pointer Analysis_. In Proceedings of the ACM on Programming Languages, 2023 (PLDI'23).

@@ -10,6 +10,16 @@
 [![DOI](https://img.shields.io/badge/DOI-10.1145/3597926.3598120-blue)](https://doi.org/10.1145/3597926.3598120)
 </div>
 
+## ✨News
+
+- Our paper _"Pointer Analysis for Database-Backed Applications"_ has been accepted by <ins>PLDI'25</ins>. This paper describes an end–to–end pointer analysis for Java database–backed application developed on top of Tai-e.
+- Our paper _"PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps"_ has been accepted by <ins>ICSE'25</ins>. This work demonstrates Tai-e's new capability in Android analysis, providing a simple yet effective approach for security analysis of Apps. This work earned the **Best Artifact Award**🏅.
+- Our paper _"Bridge the Islands: Pointer Analysis for Microservice Systems"_ has been accepted by <ins>ISSTA'25</ins>. This paper describes the first pointer analysis for Java Microservice systems developed on top of Tai-e.
+- Our paper _"Interactive Cross-Language Pointer Analysis for Resolving Native Code in Java Programs"_ has been accepted by <ins>ICSE'25</ins>. This is the first cross-language pointer analysis between Java and C. This work won the **Distinguished Paper Award**🏅.
+- Our paper _"Context Sensitivity without Context: A Cut-Shortcut Approach to Fast and Precise Pointer Analysis"_ has been accepted by <ins>PLDI'23</ins>. This is the first published research work developed on top of Tai-e.
+- Our paper _"Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics"_ has been accepted by <ins>ISSTA'23</ins>. This paper describes the designs for the major components of Tai-e.
+
+
 ## Table of Contents
 
 - [What is Tai-e?](#what-is-tai-e)
