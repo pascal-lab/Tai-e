@@ -25,10 +25,12 @@ package pascal.taie.ir.exp;
 import pascal.taie.language.type.Type;
 
 /**
- * Attribute modifier only for frontend. Clients should not use this modifier unless
+ * Attribute mutator only for frontend.
+ * <p>
+ * Clients should not use this modifier unless
  * they fully understand the consequence.
  */
-public class ExpModifier {
+public class ExpMutator {
 
     /**
      * For Var.

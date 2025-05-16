@@ -35,7 +35,7 @@ import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
-import pascal.taie.ir.exp.ExpModifier;
+import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -141,7 +141,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
             }
             Type now = computeLocalType(v);
             assert ! (now instanceof Uninitialized);
-            ExpModifier.setType(v, now);
+            ExpMutator.setType(v, now);
         }
     }
 
@@ -229,9 +229,9 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 return;
             }
             if (t == Uninitialized.UNINITIALIZED) {
-                ExpModifier.setType(var, tCtx().object());
+                ExpMutator.setType(var, tCtx().object());
             } else {
-                ExpModifier.setType(var, t);
+                ExpMutator.setType(var, t);
             }
         }
     }

@@ -30,7 +30,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
-import pascal.taie.ir.exp.ExpModifier;
+import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
@@ -144,7 +144,7 @@ public class VarManager implements IVarManager {
                             .stream()
                             .findAny()
                             .map(k -> localVarTableForSlot.get(k).name)
-                            .ifPresent((name) -> ExpModifier.setName(v, tryUseName(name)));
+                            .ifPresent((name) -> ExpMutator.setName(v, tryUseName(name)));
                 }
             }
             params.add(v);
@@ -310,7 +310,7 @@ public class VarManager implements IVarManager {
 //        assert var.getName().startsWith(LOCAL_PREFIX);
         String sub = var.getName().substring(1);
         String[] counter = sub.split("#");
-        ExpModifier.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
+        ExpMutator.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
     }
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
@@ -330,7 +330,7 @@ public class VarManager implements IVarManager {
             String finalName = name.orElse(old.getName());
 
             if (count == 1) {
-                ExpModifier.setName(old, finalName);
+                ExpMutator.setName(old, finalName);
                 return old;
             } else {
                 Var splitLocal = getSplitVar(getDefaultSplitName(finalName, count), slot);
@@ -384,7 +384,7 @@ public class VarManager implements IVarManager {
     public Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
-            ExpModifier.setType(nullLiteral, NullType.NULL);
+            ExpMutator.setType(nullLiteral, NullType.NULL);
         }
         return nullLiteral;
     }
@@ -495,7 +495,7 @@ public class VarManager implements IVarManager {
     public void removeAndReindexVars(Predicate<Var> p) {
         vars.removeIf(p);
         for (int i = 0; i < vars.size(); i++) {
-            ExpModifier.setIndex(vars.get(i), i);
+            ExpMutator.setIndex(vars.get(i), i);
         }
     }
 

@@ -33,7 +33,7 @@ import pascal.taie.frontend.newfrontend.report.TaieCastingReporter;
 import pascal.taie.frontend.newfrontend.ssa.Dominator;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
-import pascal.taie.ir.exp.ExpModifier;
+import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -127,7 +127,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                 return lenses.subSt(stmt);
             } else {
                 Var v1 = builder.manager.getTempVar();
-                ExpModifier.setType(v1, t);
+                ExpMutator.setType(v1, t);
                 Cast c = getNewCast(v1, access.getBase(), t);
                 c.setLineNumber(stmt.getLineNumber());
                 newStmts.add(c);
@@ -151,7 +151,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                     return lenses.subSt(stmt);
                 } else {
                     v1 = builder.manager.getTempVar();
-                    ExpModifier.setType(v1, t);
+                    ExpMutator.setType(v1, t);
                     Cast c = getNewCast(base, v1, t);
                     c.setLineNumber(stmt.getLineNumber());
                     newStmts.add(c);
@@ -201,7 +201,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
-                            ExpModifier.setType(v, stmt.getRValue().getType());
+                            ExpMutator.setType(v, stmt.getRValue().getType());
                             stmt.getRValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(new LoadArray(v, stmt.getRValue()));
                             Cast c = getNewCast(stmt.getLValue(), v, t);
@@ -238,7 +238,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = builder.manager.getTempVar();
-                            ExpModifier.setType(v, t);
+                            ExpMutator.setType(v, t);
                             if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
                                 access.getBase().removeRelevantStmt(stmt);
                             }
@@ -281,7 +281,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                                 }
 
                                 Var v = builder.manager.getTempVar();
-                                ExpModifier.setType(v, t);
+                                ExpMutator.setType(v, t);
                                 Cast c = getNewCast(v, invokeInstanceExp.getBase(), t);
                                 c.setLineNumber(stmt.getLineNumber());
                                 newStmts.add(c);
@@ -302,7 +302,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                                     prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
                                 } else {
                                     v = builder.manager.getTempVar();
-                                    ExpModifier.setType(v, t);
+                                    ExpMutator.setType(v, t);
                                     Cast c = getNewCast(v, arg, t);
                                     c.setLineNumber(stmt.getLineNumber());
                                     newStmts.add(c);
@@ -331,7 +331,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                             newStmts.add(c);
                             builder.manager.getRetVars().remove(stmt.getValue());
                             builder.manager.getRetVars().add(v);
-                            ExpModifier.setType(v, t);
+                            ExpMutator.setType(v, t);
                             return new Return(v);
                         } else {
                             return stmt;
@@ -460,7 +460,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                 return copy.getRValue();
             }
             Var v1 = builder.manager.getTempVar();
-            ExpModifier.setType(v1, def.getRValue().getType());
+            ExpMutator.setType(v1, def.getRValue().getType());
             Lenses lenses = new Lenses(builder.method, Map.of(), Map.of(globalVar, v1));
             List<Stmt> stmts = block.getStmts();
             stmts.set(newInBlock.second(), lenses.subSt(def));

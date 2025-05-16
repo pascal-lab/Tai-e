@@ -44,7 +44,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static soot.SootClass.HIERARCHY;
 
-public class TestAsmIRBuilder {
+public class TestBytecodeIRBuilder {
 
     ClassHierarchy getCh(String mainClass, List<String> otherClasses, int javaVersion) {
         String worldPath = "src/test/resources/world";

@@ -29,7 +29,7 @@ import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
-import pascal.taie.ir.exp.ExpModifier;
+import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
@@ -49,7 +49,6 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
@@ -317,7 +316,7 @@ public class TypeInference extends NewFrontendIRComponent {
                 continue;
             }
             if (node.primitiveType != null) {
-                ExpModifier.setType(v, node.primitiveType);
+                ExpMutator.setType(v, node.primitiveType);
             } else {
                 ReferenceType target = node.referenceType;
                 if (target == null) {
@@ -333,7 +332,7 @@ public class TypeInference extends NewFrontendIRComponent {
                         }
                     }
                 }
-                ExpModifier.setType(v, target);
+                ExpMutator.setType(v, target);
             }
         }
     }

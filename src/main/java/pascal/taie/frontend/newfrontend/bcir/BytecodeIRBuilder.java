@@ -76,7 +76,7 @@ import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.ExpModifier;
+import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -1063,7 +1063,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             Optional<String> name = manager.getName(slot, node);
             name.ifPresent((n) -> {
                 String realName = manager.tryUseName(n);
-                ExpModifier.setName(v, realName);
+                ExpMutator.setName(v, realName);
             });
         }
     }
@@ -1308,7 +1308,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 }
                 List<ClassType> handlerTypes = Objects.requireNonNull(block.getExceptionHandlerTypes());
                 if (handlerTypes.size() == 1) {
-                    ExpModifier.setType(catchVar, handlerTypes.get(0));
+                    ExpMutator.setType(catchVar, handlerTypes.get(0));
                 } else {
                     // let type inference decide the type
                     varSSAInfo.setNonSSA(catchVar);
