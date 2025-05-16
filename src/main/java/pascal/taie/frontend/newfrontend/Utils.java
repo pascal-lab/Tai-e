@@ -32,8 +32,6 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
-import pascal.taie.frontend.newfrontend.context.TypeContext;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -111,6 +109,9 @@ import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
+/**
+ * Utility functions for frontend
+ */
 public class Utils {
     public static String getBinaryName(String internalName) {
         return Type.getObjectType(internalName).getClassName();
@@ -319,7 +320,7 @@ public class Utils {
         return false;
     }
 
-    public static Literal fromObject(BuildContext context, Object o) {
+    public static Literal fromObject(FrontendContext context, Object o) {
         // TODO: handle MethodType / ConstantDynamic
         if (o instanceof Integer i) {
             return IntLiteral.get(i);
@@ -344,7 +345,7 @@ public class Utils {
         }
     }
 
-    public static MethodHandle fromAsmHandle(BuildContext ctx, Handle handle) {
+    public static MethodHandle fromAsmHandle(FrontendContext ctx, Handle handle) {
         MethodHandle.Kind kind = toMethodHandleKind(handle.getTag());
         MemberRef ref;
         JClass jClass = ctx.toJClass(handle.getOwner());
@@ -433,7 +434,7 @@ public class Utils {
                 default -> throw new UnsupportedOperationException();
             };
         } else if (o instanceof String s) {
-            return BuildContext.get().fromAsmInternalName(s);
+            return FrontendContext.get().fromAsmInternalName(s);
         } else if (o instanceof LabelNode) {
             return Uninitialized.UNINITIALIZED;
         } else {

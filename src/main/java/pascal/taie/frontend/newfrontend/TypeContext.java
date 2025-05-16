@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.context;
+package pascal.taie.frontend.newfrontend;
 
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.type.ClassType;

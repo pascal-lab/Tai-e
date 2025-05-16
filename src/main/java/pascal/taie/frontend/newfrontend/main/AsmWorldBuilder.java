@@ -28,7 +28,7 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
@@ -75,7 +75,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
         world.setOptions(options);
 
         // initialize build context
-        BuildContext ctx = new BuildContext(options.isSSA());
+        FrontendContext ctx = new FrontendContext(options.isSSA());
         ctx.setPhase(TaiePhase.PROJECT_LOADING);
         // initialize class hierarchy
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
@@ -128,6 +128,6 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
             ctx.setPhase(TaiePhase.PREBUILDING_IR);
             ctx.getIRBuilder().buildAll(hierarchy);
         }
-        ctx.setPhase(TaiePhase.RUNNING);
+        ctx.setPhase(TaiePhase.ANALYSIS);
     }
 }

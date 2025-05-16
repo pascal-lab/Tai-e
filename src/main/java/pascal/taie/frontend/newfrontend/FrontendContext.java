@@ -20,9 +20,8 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.context;
+package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.frontend.newfrontend.TempTypeSystem;
 import pascal.taie.frontend.newfrontend.main.DefaultIRBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultClassLoader;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
@@ -54,7 +53,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
  * The context for frontend processing. Can be viewed as global state of
  * the new frontend.
  */
-public class BuildContext {
+public class FrontendContext {
 
     private DefaultClassLoader defaultClassLoader;
 
@@ -72,12 +71,12 @@ public class BuildContext {
 
     private TaiePhase phase;
 
-    public BuildContext(boolean useSSA) {
+    public FrontendContext(boolean useSSA) {
         this.useSSA = useSSA;
         this.irBuilder = new DefaultIRBuilder(this);
     }
 
-    public static BuildContext get() {
+    public static FrontendContext get() {
 //        assert buildContext != null;
 //        return buildContext;
         throw new UnsupportedOperationException();

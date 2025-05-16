@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.bcir;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
@@ -87,13 +87,13 @@ import java.util.Set;
  */
 public class TypeInference extends NewFrontendIRComponent {
 
-    final AsmIRBuilder builder;
+    final BytecodeIRBuilder builder;
 
     final TypingFlowGraph graph;
 
     private boolean needCasting;
 
-    public TypeInference(AsmIRBuilder builder, BuildContext context) {
+    public TypeInference(BytecodeIRBuilder builder, FrontendContext context) {
         super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         graph = new TypingFlowGraph(builder.manager.getVars().size());

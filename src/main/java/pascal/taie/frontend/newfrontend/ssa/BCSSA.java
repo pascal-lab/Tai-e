@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-public class FastVarSplitting<Block extends IBasicBlock> {
+public class BCSSA<Block extends IBasicBlock> {
 
     public class SemiPhi {
         final int var;
@@ -150,11 +150,11 @@ public class FastVarSplitting<Block extends IBasicBlock> {
 
     private final boolean[] used;
 
-    public FastVarSplitting(IndexedGraph<Block> graph,
-                            int varSize,
-                            GenericDUInfo<Block> info,
-                            boolean useSSA,
-                            Dominator<Block> dom) {
+    public BCSSA(IndexedGraph<Block> graph,
+                 int varSize,
+                 GenericDUInfo<Block> info,
+                 boolean useSSA,
+                 Dominator<Block> dom) {
         this.graph = graph;
         this.varSize = varSize;
         this.dom = dom;

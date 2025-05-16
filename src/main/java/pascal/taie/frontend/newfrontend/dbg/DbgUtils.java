@@ -25,7 +25,7 @@ package pascal.taie.frontend.newfrontend.dbg;
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.frontend.newfrontend.bcir.AsmIRBuilder;
+import pascal.taie.frontend.newfrontend.bcir.BytecodeIRBuilder;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class DbgUtils {
-    public static List<Stmt> findDef(AsmIRBuilder builder, Var v) {
+    public static List<Stmt> findDef(BytecodeIRBuilder builder, Var v) {
         return builder.getAllStmts().stream()
                 .map(stmt -> filterDef(stmt, v))
                 .filter(Optional::isPresent)

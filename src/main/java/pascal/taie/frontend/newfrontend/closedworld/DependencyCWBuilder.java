@@ -25,9 +25,9 @@ package pascal.taie.frontend.newfrontend.closedworld;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.exception.ClassNotFoundException;
-import pascal.taie.frontend.newfrontend.exception.UnknownException;
+import pascal.taie.frontend.newfrontend.exception.UnknownFrontendException;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
@@ -81,7 +81,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
 
     private SearchIndex index;
 
-    public DependencyCWBuilder(BuildContext context) {
+    public DependencyCWBuilder(FrontendContext context) {
         super(context);
         sourceMap = Maps.newConcurrentMap();
         executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -119,13 +119,13 @@ public class DependencyCWBuilder extends NewFrontendComponent
             timer.stop();
             StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
         } catch (InterruptedException ex) {
-            throw new UnknownException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
+            throw new UnknownFrontendException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
         } catch (ExecutionException ex) {
             Throwable cause = ex.getCause();
             if (cause instanceof FrontendException fex) {
                 throw fex;
             } else {
-                throw new UnknownException(TaiePhase.CLOSED_WORLD_ANALYSIS, cause);
+                throw new UnknownFrontendException(TaiePhase.CLOSED_WORLD_ANALYSIS, cause);
             }
         } finally {
             // call it explicitly, or the program will not exit after main() returns

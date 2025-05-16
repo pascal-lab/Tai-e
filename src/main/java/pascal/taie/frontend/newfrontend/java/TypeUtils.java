@@ -34,7 +34,7 @@ import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.BitwiseExp;
@@ -131,7 +131,7 @@ public final class TypeUtils {
      * @return if {@code t1 <: t2}
      */
     public static boolean isSubType(ClassType t1, ClassType t2) {
-        return BuildContext.get().getTypeSystem().isSubtype(t1, t2);
+        return FrontendContext.get().getTypeSystem().isSubtype(t1, t2);
     }
 
     public static boolean hasModifier(int modifier, int target) {
@@ -220,7 +220,7 @@ public final class TypeUtils {
         if (superTypeBinding != null) {
             return getTaieClass(superTypeBinding);
         } else {
-            return BuildContext.get().getClassByName(ClassNames.OBJECT);
+            return FrontendContext.get().getClassByName(ClassNames.OBJECT);
         }
     }
 
@@ -346,7 +346,7 @@ public final class TypeUtils {
             return NullType.NULL;
         } else {
             ITypeBinding erased = typeBinding.getErasure();
-            TypeSystem tm = BuildContext.get().getTypeSystem();
+            TypeSystem tm = FrontendContext.get().getTypeSystem();
             if (erased.isClass() || erased.isInterface() || erased.isEnum()) {
                 return tm.getType(getBinaryName(erased));
             } else if (erased.isArray()) {
@@ -357,7 +357,7 @@ public final class TypeUtils {
     }
 
     public static @Nullable JClass getTaieClass(ITypeBinding binding) {
-        return BuildContext.get().getClassByName(getBinaryName(binding));
+        return FrontendContext.get().getClassByName(getBinaryName(binding));
     }
 
     public static Literal getRightPrimitiveLiteral(Expression e) {
@@ -442,11 +442,11 @@ public final class TypeUtils {
     }
 
     public static ClassType getClassByName(String name) {
-       return (ClassType) BuildContext.get().fromAsmInternalName(name);
+       return (ClassType) FrontendContext.get().fromAsmInternalName(name);
     }
 
     public static JClass getJClass(ITypeBinding binding) {
-        return BuildContext.get().getClassByName(getBinaryName(binding));
+        return FrontendContext.get().getClassByName(getBinaryName(binding));
     }
 
     public static Type anyException() {

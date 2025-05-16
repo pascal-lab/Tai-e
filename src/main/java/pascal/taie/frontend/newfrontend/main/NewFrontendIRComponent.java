@@ -22,13 +22,13 @@
 
 package pascal.taie.frontend.newfrontend.main;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 
 public abstract class NewFrontendIRComponent extends NewFrontendComponent {
 
     private final IRBuildingPhase irBuildingPhase;
 
-    protected NewFrontendIRComponent(BuildContext context, IRBuildingPhase irBuildingPhase) {
+    protected NewFrontendIRComponent(FrontendContext context, IRBuildingPhase irBuildingPhase) {
         super(context);
         this.irBuildingPhase = irBuildingPhase;
     }

@@ -44,7 +44,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
@@ -58,12 +58,12 @@ import pascal.taie.frontend.newfrontend.report.StackMergeReporter;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.ssa.Dominator;
-import pascal.taie.frontend.newfrontend.ssa.FastVarSplitting;
+import pascal.taie.frontend.newfrontend.ssa.BCSSA;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import pascal.taie.frontend.newfrontend.ssa.PhiExp;
 import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
-import pascal.taie.frontend.newfrontend.ssa.SSATransform;
+import pascal.taie.frontend.newfrontend.ssa.IRSSATransform;
 import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -156,7 +156,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * <p>The main class for IR building of bytecode frontend</p>
  */
-public class AsmIRBuilder extends NewFrontendIRComponent {
+public class BytecodeIRBuilder extends NewFrontendIRComponent {
 
     /**
      * Taie IR output
@@ -195,12 +195,12 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     final VarManager manager;
 
     /**
-     * A mapping from bytecode instruction index (use {@link AsmIRBuilder#getIndex} to obtain) to generated Taie IR stmt
+     * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Taie IR stmt
      */
     final Stmt[] asm2Stmt;
 
     /**
-     * Similar to {@link AsmIRBuilder#asm2Stmt}, when a bytecode instruction generate more than
+     * Similar to {@link BytecodeIRBuilder#asm2Stmt}, when a bytecode instruction generate more than
      * one Taie IR stmt, use this mapping to store the rest
      */
     final List<List<Stmt>> auxiliaryStmts;
@@ -254,7 +254,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     @Deprecated
     private List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
 
-    private static final Logger logger = LogManager.getLogger(AsmIRBuilder.class);
+    private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
 
     /**
      * The top element, used as a placeholder two word stack value (e.g. long and double)
@@ -264,7 +264,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
-     * during {@link AsmIRBuilder#traverseBlocks} method
+     * during {@link BytecodeIRBuilder#traverseBlocks} method
      */
     private int currentLineNumber;
 
@@ -283,7 +283,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
      */
     private Dominator<BytecodeBlock> dom;
 
-    public AsmIRBuilder(BuildContext context, JMethod method, AsmMethodSource methodSource) {
+    public BytecodeIRBuilder(FrontendContext context, JMethod method, AsmMethodSource methodSource) {
         super(context, IRBuildingPhase.BYTECODE_UNTYPED_IR_BUILDING);
         StageTimer.getInstance().startTypelessIR();
         this.method = method;
@@ -371,7 +371,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
     }
 
     void ssa() {
-        SSATransform<BytecodeBlock> ssa = new SSATransform<>(method, g, manager, duInfo);
+        IRSSATransform<BytecodeBlock> ssa = new IRSSATransform<>(method, g, manager, duInfo);
         ssa.build();
     }
 
@@ -384,7 +384,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
                 new Indexer<>() {
                     @Override
                     public int getIndex(AbstractInsnNode o) {
-                        return AsmIRBuilder.this.getIndex(o);
+                        return BytecodeIRBuilder.this.getIndex(o);
                     }
 
                     @Override
@@ -1333,7 +1333,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     private void ensureBlockNotEmpty(BytecodeBlock block) {
         boolean blockEmpty = true;
-        AsmListSlice instr = block.instr();
+        BytecodeListSlice instr = block.instr();
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
             int current = start + i;
@@ -1630,7 +1630,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     private void outputIR(BytecodeBlock block) {
         List<Stmt> blockStmt = block.getStmts();
-        AsmListSlice instr = block.instr();
+        BytecodeListSlice instr = block.instr();
         int counter = 0;
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
@@ -1886,7 +1886,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
 
     private int rwCount;
     private int[] rwTable;
-    private FastVarSplitting<BytecodeBlock> splitting;
+    private BCSSA<BytecodeBlock> splitting;
     private Var[] reachVars;
     private void writeRwTable(int[] table, int index, int var, boolean read) {
         rwCount++;
@@ -2026,7 +2026,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             }
         };
 
-        splitting = new FastVarSplitting<>(graph, maxLocal, genericDUInfo, USE_SSA, dom);
+        splitting = new BCSSA<>(graph, maxLocal, genericDUInfo, USE_SSA, dom);
         splitting.build();
         reachVars = new Var[splitting.getMaxDUCount()];
         if (!USE_SSA) {
@@ -2186,7 +2186,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
                     current.setIndex(counter);
                     edgeInsn[counter] = edge;
                     blockSortedList.add(current);
-                    current.setInstr(new AsmListSlice(source.instructions, start, end));
+                    current.setInstr(new BytecodeListSlice(source.instructions, start, end));
                     // update and post-processing
                     boolean fallThrough = fallThroughTable[end - 1];
                     BytecodeBlock prev = current;
@@ -2208,7 +2208,7 @@ public class AsmIRBuilder extends NewFrontendIRComponent {
             current.setIndex(counter);
             edgeInsn[counter] = source.instructions.getLast();
             blockSortedList.add(current);
-            current.setInstr(new AsmListSlice(source.instructions, start, size));
+            current.setInstr(new BytecodeListSlice(source.instructions, start, size));
         }
         for (int i = 0; i < blockSortedList.size(); ++i) {
             AbstractInsnNode insn = edgeInsn[i];

@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
@@ -79,7 +78,7 @@ public class TempTypeSystem extends NewFrontendComponent
 
     private final Map<String, PrimitiveType> primitiveTypes;
 
-    public TempTypeSystem(BuildContext ctx, JClassLoader loader) {
+    public TempTypeSystem(FrontendContext ctx, JClassLoader loader) {
         super(ctx);
         defaultClassLoader = loader;
         boxedMap = Map.of(

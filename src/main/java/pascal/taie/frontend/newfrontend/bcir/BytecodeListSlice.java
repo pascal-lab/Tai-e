@@ -36,7 +36,7 @@ import java.util.ListIterator;
 /**
  * A slice of {@link InsnList}
  */
-public class AsmListSlice implements List<AbstractInsnNode> {
+public class BytecodeListSlice implements List<AbstractInsnNode> {
 
     private final InsnList list;
 
@@ -54,7 +54,7 @@ public class AsmListSlice implements List<AbstractInsnNode> {
      */
     private final int end;
 
-    public AsmListSlice(InsnList list, int start, int end) {
+    public BytecodeListSlice(InsnList list, int start, int end) {
         this.list = list;
         this.start = start;
         this.end = end;

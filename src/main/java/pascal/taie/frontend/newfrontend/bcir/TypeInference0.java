@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.bcir;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Uninitialized;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
@@ -93,7 +93,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class TypeInference0 extends NewFrontendIRComponent {
 
-    private final AsmIRBuilder builder;
+    private final BytecodeIRBuilder builder;
 
     private final List<Set<Type>> localTypeConstrains;
 
@@ -105,7 +105,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
 
     private final ClassType stringType;
 
-    public TypeInference0(AsmIRBuilder builder, BuildContext context) {
+    public TypeInference0(BytecodeIRBuilder builder, FrontendContext context) {
         super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         varSize = builder.manager.getVars().size();

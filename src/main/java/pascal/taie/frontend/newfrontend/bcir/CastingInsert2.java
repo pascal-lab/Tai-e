@@ -24,7 +24,7 @@ package pascal.taie.frontend.newfrontend.bcir;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
@@ -67,7 +67,7 @@ import java.util.Map;
 
 public class CastingInsert2 extends NewFrontendIRComponent {
 
-    private final AsmIRBuilder builder;
+    private final BytecodeIRBuilder builder;
 
     private static final Logger logger = LogManager.getLogger("Casting");
 
@@ -79,7 +79,7 @@ public class CastingInsert2 extends NewFrontendIRComponent {
 
     private final BytecodeGraph graph;
 
-    public CastingInsert2(AsmIRBuilder builder, BuildContext context) {
+    public CastingInsert2(BytecodeIRBuilder builder, FrontendContext context) {
         super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         this.dom = builder.getDom();

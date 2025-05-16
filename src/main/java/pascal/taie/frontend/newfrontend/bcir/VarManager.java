@@ -56,10 +56,10 @@ import static pascal.taie.language.type.IntType.INT;
 
 public class VarManager implements IVarManager {
 
-    public static final String LOCAL_PREFIX = "%";
+    public static final String LOCAL_PREFIX = "$";
 
     // TODO: use another method to avoid local var has same prefix
-    public static final String TEMP_PREFIX = "$-";
+    public static final String TEMP_PREFIX = "%";
 
     public static final String THIS = "this";
 

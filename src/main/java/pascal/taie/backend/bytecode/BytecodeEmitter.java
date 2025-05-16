@@ -47,7 +47,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.frontend.newfrontend.context.TypeContext;
+import pascal.taie.frontend.newfrontend.TypeContext;
 import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;

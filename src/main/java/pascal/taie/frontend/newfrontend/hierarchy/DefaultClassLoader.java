@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.newfrontend.hierarchy;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -42,7 +42,7 @@ public class DefaultClassLoader extends NewFrontendComponent
 
     private final Object phantomLock = new Object();
 
-    DefaultClassLoader(BuildContext context, ClassHierarchy hierarchy, boolean allowPhantom) {
+    DefaultClassLoader(FrontendContext context, ClassHierarchy hierarchy, boolean allowPhantom) {
         super(context);
         this.hierarchy = hierarchy;
         this.allowPhantom = allowPhantom;

@@ -24,7 +24,7 @@ package pascal.taie.frontend.newfrontend.bcir;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
@@ -66,7 +66,7 @@ import java.util.List;
 
 public class CastingInsert extends NewFrontendIRComponent {
 
-    private final AsmIRBuilder builder;
+    private final BytecodeIRBuilder builder;
 
     private static final Logger logger = LogManager.getLogger(CastingInsert.class);
 
@@ -74,7 +74,7 @@ public class CastingInsert extends NewFrontendIRComponent {
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    public CastingInsert(AsmIRBuilder builder, BuildContext context) {
+    public CastingInsert(BytecodeIRBuilder builder, FrontendContext context) {
         super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();

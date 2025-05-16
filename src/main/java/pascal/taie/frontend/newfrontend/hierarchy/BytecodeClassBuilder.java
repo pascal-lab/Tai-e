@@ -29,7 +29,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
@@ -70,7 +70,7 @@ import static pascal.taie.frontend.newfrontend.Utils.fromAsmMethodModifier;
 import static pascal.taie.frontend.newfrontend.Utils.getBinaryName;
 import static pascal.taie.frontend.newfrontend.Utils.toElement;
 
-public class AsmClassBuilder extends NewFrontendComponent
+public class BytecodeClassBuilder extends NewFrontendComponent
         implements JClassBuilder {
 
     private final AsmSource source;
@@ -98,7 +98,7 @@ public class AsmClassBuilder extends NewFrontendComponent
 
     private final int version;
 
-    public AsmClassBuilder(BuildContext context, AsmSource source, JClass jClass) {
+    public BytecodeClassBuilder(FrontendContext context, AsmSource source, JClass jClass) {
         super(context);
         this.source = source;
         this.jClass = jClass;
@@ -216,8 +216,8 @@ public class AsmClassBuilder extends NewFrontendComponent
                 superClass = getClassByName(superName);
             }
             currentInternalName = name;
-            AsmClassBuilder.this.interfaces = Arrays.stream(interfaces)
-                    .map(AsmClassBuilder.this::getClassByName)
+            BytecodeClassBuilder.this.interfaces = Arrays.stream(interfaces)
+                    .map(BytecodeClassBuilder.this::getClassByName)
                     .toList();
 
             modifiers = fromAsmClassModifier(access);
@@ -228,7 +228,7 @@ public class AsmClassBuilder extends NewFrontendComponent
 
         @Override
         public void visitOuterClass(String owner, String name, String descriptor) {
-            AsmClassBuilder.this.outerClass = getClassByName(owner);
+            BytecodeClassBuilder.this.outerClass = getClassByName(owner);
         }
 
         @Override
@@ -377,7 +377,7 @@ public class AsmClassBuilder extends NewFrontendComponent
                     AnnotationHolder.make(annotations), null,
                     paramName,
                     null);
-            AsmClassBuilder.this.methods.add(method);
+            BytecodeClassBuilder.this.methods.add(method);
         }
     }
 

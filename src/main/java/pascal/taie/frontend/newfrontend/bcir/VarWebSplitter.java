@@ -23,6 +23,7 @@
 package pascal.taie.frontend.newfrontend.bcir;
 
 import pascal.taie.frontend.newfrontend.Lenses;
+import pascal.taie.frontend.newfrontend.ssa.BCSSA;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -81,13 +82,13 @@ import java.util.Set;
  *     a2 = 20
  * </pre>
  *
- * <p>Now we use the faster, {@link pascal.taie.frontend.newfrontend.ssa.FastVarSplitting}
+ * <p>Now we use the faster, {@link BCSSA}
  * class to implement the splitting, so this class is deprecated</p>
  */
 @Deprecated
 public class VarWebSplitter {
 
-    private final AsmIRBuilder builder;
+    private final BytecodeIRBuilder builder;
 
     private final VarManager varManager;
 
@@ -110,7 +111,7 @@ public class VarWebSplitter {
 
     private final BytecodeBlock entry;
 
-    public VarWebSplitter(AsmIRBuilder builder) {
+    public VarWebSplitter(BytecodeIRBuilder builder) {
         this.builder = builder;
         this.varManager = builder.manager;
         int blockSize = builder.blockSortedList.size();

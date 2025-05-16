@@ -24,7 +24,7 @@ package pascal.taie.frontend.newfrontend.hierarchy;
 
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
-import pascal.taie.frontend.newfrontend.context.BuildContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.source.JavaSource;
 import pascal.taie.frontend.newfrontend.java.JavaClassBuilder;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 public class DefaultCHBuilder extends NewFrontendComponent
         implements ClassHierarchyBuilder {
 
-    public DefaultCHBuilder(BuildContext context) {
+    public DefaultCHBuilder(FrontendContext context) {
         super(context);
     }
 
@@ -88,7 +88,7 @@ public class DefaultCHBuilder extends NewFrontendComponent
     private JClassBuilder getClassBuilder(
             ClassSource source, JClass jClass) {
         if (source instanceof AsmSource i) {
-            return new AsmClassBuilder(ctx(), i, jClass);
+            return new BytecodeClassBuilder(ctx(), i, jClass);
         } else if (source instanceof JavaSource j) {
             return new JavaClassBuilder(j, jClass);
         } else if (source instanceof PhantomClassSource p) {

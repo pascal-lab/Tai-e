@@ -25,13 +25,13 @@ package pascal.taie.frontend.newfrontend.report;
 import pascal.taie.World;
 
 public class StackMergeReporter {
-    long totalBlocks;
+    private long totalBlocks;
 
-    long pessimisticBlocks;
+    private long pessimisticBlocks;
 
-    long pessimisticPhis;
+    private long pessimisticPhis;
 
-    long pessimisticLivePhis;
+    private long pessimisticLivePhis;
 
     private static StackMergeReporter instance;
 

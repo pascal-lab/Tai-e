@@ -22,8 +22,8 @@
 
 package pascal.taie.frontend.newfrontend.main;
 
-import pascal.taie.frontend.newfrontend.context.BuildContext;
-import pascal.taie.frontend.newfrontend.context.TypeContext;
+import pascal.taie.frontend.newfrontend.FrontendContext;
+import pascal.taie.frontend.newfrontend.TypeContext;
 import pascal.taie.language.type.TypeSystem;
 
 /**
@@ -33,21 +33,21 @@ import pascal.taie.language.type.TypeSystem;
  * such as building a closed world, class hierarchy, or intermediate representation (IR).
  * This class provides a common interface for accessing the build context and related services.</p>
  *
- * @see BuildContext
+ * @see FrontendContext
  */
 public abstract class NewFrontendComponent {
 
     /**
      * The build context instance, which provides access to various services and data structures.
      */
-    private final BuildContext context;
+    private final FrontendContext context;
 
     /**
      * Constructs a new instance of this component with the given build context.
      *
      * @param context the build context instance
      */
-    protected NewFrontendComponent(BuildContext context) {
+    protected NewFrontendComponent(FrontendContext context) {
         this.context = context;
     }
 
@@ -56,7 +56,7 @@ public abstract class NewFrontendComponent {
      *
      * @return the build context instance
      */
-    protected BuildContext ctx() {
+    protected FrontendContext ctx() {
         return context;
     }
 
