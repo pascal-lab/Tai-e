@@ -23,11 +23,12 @@
 package pascal.taie.frontend.newfrontend.bcir;
 
 import pascal.taie.frontend.newfrontend.FrontendContext;
+import pascal.taie.frontend.newfrontend.FrontendStmtVisitor;
 import pascal.taie.frontend.newfrontend.Uninitialized;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
+import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
@@ -389,11 +390,11 @@ public class TypeInference0 extends NewFrontendIRComponent {
     }
 
     private void inferTypesForBlock(BytecodeBlock block, Typing typing) {
-        StmtVisitor<Void> visitor = new StmtVisitor<>() {
+        StmtVisitor<Void> visitor = new FrontendStmtVisitor<>() {
             @Override
             public Void visit(New stmt) {
                 newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -408,19 +409,19 @@ public class TypeInference0 extends NewFrontendIRComponent {
                     t = l.getType();
                 }
                 newTypeAssign(stmt.getLValue(), t, typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(Copy stmt) {
                 newTypeAssign(stmt.getLValue(), List.of(stmt.getRValue()), typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(LoadArray stmt) {
                 newTypeArrayLoad(stmt.getLValue(), stmt.getRValue(), typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -434,21 +435,21 @@ public class TypeInference0 extends NewFrontendIRComponent {
                         putMultiSet(localTypeAssigns, base, wrap1(tCtx(), referenceType));
                     }
                 }
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(LoadField stmt) {
                 newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
                 addConstrainsForFieldAccess(stmt.getFieldAccess());
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(StoreField stmt) {
                 addConstrainsForFieldAccess(stmt.getFieldAccess());
                 addTypeConstrain(stmt.getRValue(), stmt.getFieldAccess().getFieldRef().getType());
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -463,7 +464,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
                     newTypeAssign(stmt.getLValue(), List.of(stmt.getRValue().getOperand1(),
                             stmt.getRValue().getOperand2()), typing);
                 }
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -473,19 +474,19 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 } else {
                     newTypeAssign(stmt.getLValue(), List.of(stmt.getRValue().getOperand()), typing);
                 }
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(InstanceOf stmt) {
                 newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
             public Void visit(Cast stmt) {
                 newTypeAssign(stmt.getLValue(), stmt.getRValue().getType(), typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -512,7 +513,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
                         addTypeConstrain(v, t);
                     }
                 }
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -520,7 +521,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 if (stmt.getValue() != null) {
                     addTypeConstrain(stmt.getValue(), builder.method.getReturnType());
                 }
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
@@ -531,11 +532,11 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 Set<ReferenceType> res = lca(tCtx(), Sets.newSet(exceptionTypes));
                 ReferenceType type = res.isEmpty() ? tCtx().throwable() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
-                return StmtVisitor.super.visit(stmt);
+                return null;
             }
 
             @Override
-            public Void visit(PhiStmt stmt) {
+            public Void visit(FrontendPhiStmt stmt) {
                 Var base = stmt.getBase();
                 int slot = localCells[base.getIndex()];
                 if (slot != -1) {
@@ -566,12 +567,12 @@ public class TypeInference0 extends NewFrontendIRComponent {
                 if (stmt instanceof Catch) {
                     continue;
                 }
-                if (stmt instanceof PhiStmt phiStmt) {
-                    Var v = phiStmt.getLValue();
+                if (stmt instanceof FrontendPhiStmt frontendPhiStmt) {
+                    Var v = frontendPhiStmt.getLValue();
                     if (v.getType() != null) {
                         continue;
                     }
-                    Var var = phiStmt.getRValue().findVar(block);
+                    Var var = frontendPhiStmt.getRValue().findVar(block);
                     Set<Type> assigns = localTypeAssigns.get(var.getIndex());
                     if (assigns != null) {
                         for (Type t : assigns) {

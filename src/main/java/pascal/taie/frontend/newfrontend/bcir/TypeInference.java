@@ -23,10 +23,11 @@
 package pascal.taie.frontend.newfrontend.bcir;
 
 import pascal.taie.frontend.newfrontend.FrontendContext;
+import pascal.taie.frontend.newfrontend.FrontendStmtVisitor;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
+import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.ExpModifier;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -128,7 +129,7 @@ public class TypeInference extends NewFrontendIRComponent {
         }
     }
 
-    class ConstraintVisitor implements StmtVisitor<Void> {
+    class ConstraintVisitor implements FrontendStmtVisitor<Void> {
         @Override
         public Void visit(New stmt) {
             graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
@@ -262,16 +263,16 @@ public class TypeInference extends NewFrontendIRComponent {
                 assert stmt.getValue() != null;
                 graph.addUseConstrain(stmt.getValue(), r);
             }
-            return StmtVisitor.super.visit(stmt);
+            return null;
         }
 
         @Override
-        public Void visit(PhiStmt stmt) {
+        public Void visit(FrontendPhiStmt stmt) {
             Var lValue = stmt.getLValue();
             for (RValue v : stmt.getRValue().getUses()) {
                 graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
             }
-            return StmtVisitor.super.visit(stmt);
+            return null;
         }
     }
 

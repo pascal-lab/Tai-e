@@ -24,8 +24,6 @@ package pascal.taie.vm;
 
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.java.NewFrontendException;
-import pascal.taie.frontend.newfrontend.ssa.PhiExp;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -57,6 +55,7 @@ import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
@@ -71,6 +70,7 @@ import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
@@ -558,11 +558,12 @@ public class VM {
             return JPrimitive.get(array.length());
         } else if (e instanceof PhiExp phi) {
             int lastPC = f.getLastPC();
+            Stmt lastInstr = ir.getStmt(lastPC);
             // The lastPC is not always the end of a block because of the exception mechanism.
             // For that, we find the closest def.
             var sourceAndVar = phi.getSourceAndVar();
-            Comparator<Pair<Integer, Var>> c = Comparator.comparing(Pair::first);
-            int pos = Collections.binarySearch(sourceAndVar, new Pair<>(lastPC, null), c);
+            Comparator<Pair<Stmt, Var>> c = Comparator.comparing(p -> p.first().getIndex());
+            int pos = Collections.binarySearch(sourceAndVar, new Pair<>(lastInstr, null), c);
             if (pos < 0) {
                 // exception happens and not at a block exit.
                 pos = -(pos + 1);

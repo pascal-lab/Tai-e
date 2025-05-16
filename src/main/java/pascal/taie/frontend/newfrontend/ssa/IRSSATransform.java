@@ -123,7 +123,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
             // testify pruning.
             for (int i = 0; i < graph.size(); i++) {
                 for (Stmt stmt : graph.getNode(i).getStmts()) {
-                    if (stmt instanceof PhiStmt p) {
+                    if (stmt instanceof FrontendPhiStmt p) {
                         boolean useless = isUseless.has(p.getLValue().getIndex());
                         boolean renamed = p.getBase() != p.getLValue();
                         boolean undead = p.getRValue().getUsesAndInBlocks().size() > 1;
@@ -197,7 +197,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
                     }
                     if (!isInserted.get(node).contains(v)) {
                         isInserted.get(node).add(v);
-                        phis.get(node).add(new PhiStmt(v, v, new PhiExp()));
+                        phis.get(node).add(new FrontendPhiStmt(v, v, new FrontendPhiExp()));
                         current.add(node);
                     }
                 }
@@ -215,7 +215,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
 
     private int safeEstimationForPhiVars;
 
-    private PhiStmt[] correspondingPhiStmts;
+    private FrontendPhiStmt[] correspondingFrontendPhiStmts;
 
     private SparseSet isPhiDefiningVar; // only for debugging
 
@@ -238,7 +238,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
         safeEstimationForPhiVars =
                 currentVarCount + currentVarCount * graph.size() + stmtCount;
 
-        correspondingPhiStmts = new PhiStmt[safeEstimationForPhiVars];
+        correspondingFrontendPhiStmts = new FrontendPhiStmt[safeEstimationForPhiVars];
         isPhiDefiningVar = DEBUG ?
                 new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars) : null;
         isUseless = new SparseSet(safeEstimationForPhiVars, safeEstimationForPhiVars);
@@ -369,18 +369,18 @@ public class IRSSATransform<Block extends IBasicBlock> {
                  *   |    F    |       F       |                 T                  |   F   |
                  *   |    F    |       F       |                 F                  |   T   |
                  */
-                if (stmt instanceof PhiStmt phiStmt) {
+                if (stmt instanceof FrontendPhiStmt frontendPhiStmt) {
                     // only update uses for non-phi stmts.
                     Pair<Stmt, Var> p =
-                            replaceStmtAndUpdateDefs.apply(phiStmt, phiStmt.getBase(), Map.of());
-                    PhiStmt newStmt = (PhiStmt) p.first();
+                            replaceStmtAndUpdateDefs.apply(frontendPhiStmt, frontendPhiStmt.getBase(), Map.of());
+                    FrontendPhiStmt newStmt = (FrontendPhiStmt) p.first();
                     Var freshVar = p.second();
                     // place initial marking phase for pruning step for performance
                     if (DEBUG) {
                         isPhiDefiningVar.add(freshVar.getIndex());
                     }
                     isUseless.add(freshVar.getIndex()); // Collect for pruning.
-                    correspondingPhiStmts[freshVar.getIndex()] = newStmt;
+                    correspondingFrontendPhiStmts[freshVar.getIndex()] = newStmt;
                 } else if (
                         stmt instanceof DefinitionStmt<?, ?> defStmt
                                 && defStmt.getLValue() instanceof Var base
@@ -449,7 +449,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
             return;
         }
         for (Stmt p : phis.get(succNode)) {
-            PhiStmt phi = (PhiStmt) p;
+            FrontendPhiStmt phi = (FrontendPhiStmt) p;
             Var base = phi.getBase();
             Var reachingDef = reachingDefs[base.getIndex()];
             if (reachingDef != null) {
@@ -511,15 +511,15 @@ public class IRSSATransform<Block extends IBasicBlock> {
         // usefulness propagation phase
         while (!stack.isEmpty()) {
             Var a = vars.get(stack.removeLast());
-            PhiStmt phiStmt = correspondingPhiStmts[a.getIndex()];
-            phiStmt.getRValue().getUsesAndInBlocks().forEach(p -> markUseful(p.first()));
+            FrontendPhiStmt frontendPhiStmt = correspondingFrontendPhiStmts[a.getIndex()];
+            frontendPhiStmt.getRValue().getUsesAndInBlocks().forEach(p -> markUseful(p.first()));
         }
 
         // final pruning phase
         for (int i = 0; i < graph.size(); i++) {
             IBasicBlock node = graph.getNode(i);
             node.getStmts().removeIf(
-                    s -> s instanceof PhiStmt p && isUseless.has(p.getLValue().getIndex()));
+                    s -> s instanceof FrontendPhiStmt p && isUseless.has(p.getLValue().getIndex()));
         }
     }
 
@@ -537,7 +537,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
                 if (stmt instanceof DefinitionStmt<?, ?> definitionStmt
                         && definitionStmt.getLValue() instanceof Var def) {
                     int queryIndex;
-                    if (definitionStmt instanceof PhiStmt) {
+                    if (definitionStmt instanceof FrontendPhiStmt) {
                         phiBias++;
                         queryIndex = 0;
                     } else {

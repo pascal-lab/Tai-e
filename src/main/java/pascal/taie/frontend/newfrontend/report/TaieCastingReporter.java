@@ -25,7 +25,6 @@ package pascal.taie.frontend.newfrontend.report;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
@@ -33,6 +32,7 @@ import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -166,8 +166,8 @@ public class TaieCastingReporter {
             Set<Stmt> def = varDefs.get(var);
             for (Stmt stmt : def) {
                 if (stmt instanceof DefinitionStmt<?, ?> defStmt) {
-                    if (stmt instanceof PhiStmt phiStmt) {
-                        for (RValue v : phiStmt.getRValue().getUses()) {
+                    if (stmt instanceof PhiStmt frontendPhiStmt) {
+                        for (RValue v : frontendPhiStmt.getRValue().getUses()) {
                             if (v instanceof Var var1) {
                                 queue.add(var1);
                             }

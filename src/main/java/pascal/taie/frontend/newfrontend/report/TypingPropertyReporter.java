@@ -22,10 +22,10 @@
 
 package pascal.taie.frontend.newfrontend.report;
 
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;

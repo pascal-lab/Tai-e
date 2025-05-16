@@ -44,26 +44,25 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.DUInfo;
+import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.TOP;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.util.collection.LazyArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
 import pascal.taie.frontend.newfrontend.report.StackMergeReporter;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
-import pascal.taie.frontend.newfrontend.ssa.Dominator;
 import pascal.taie.frontend.newfrontend.ssa.BCSSA;
-import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
-import pascal.taie.frontend.newfrontend.ssa.PhiExp;
-import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
+import pascal.taie.frontend.newfrontend.ssa.Dominator;
+import pascal.taie.frontend.newfrontend.ssa.FrontendPhiExp;
+import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.IRSSATransform;
+import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
+import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
 import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -99,6 +98,7 @@ import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
@@ -113,6 +113,7 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
@@ -127,6 +128,7 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.Indexer;
+import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
@@ -746,7 +748,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
     private void makeStmts(boolean isLastTime) {
         this.stmts = new ArrayList<>(source.instructions.size());
         // Add trigger whether we process phiStmts.
-        List<PhiStmt> phiStmts = isLastTime ? new ArrayList<>() : null;
+        List<FrontendPhiStmt> frontendPhiStmts = isLastTime ? new ArrayList<>() : null;
         int now = 0;
         for (Var v : manager.intConstVarCache) {
             if (v != null) {
@@ -759,8 +761,8 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
-                    if (isLastTime && t instanceof PhiStmt p) {
-                        phiStmts.add(p);
+                    if (isLastTime && t instanceof FrontendPhiStmt p) {
+                        frontendPhiStmts.add(p);
                     }
                     t.setIndex(now++);
                     stmts.add(t);
@@ -772,8 +774,14 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
         if (isLastTime) {
             PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
             // Make PhiStmts using stmt.index as the value source.
-            for (PhiStmt p : phiStmts) {
-                p.getRValue().indexValueAndSource(resolver);
+            for (FrontendPhiStmt p : frontendPhiStmts) {
+                int index = p.getIndex();
+                Type type = p.getLValue().getType();
+                PhiExp exp = new PhiExp(resolver.resolvePhi(p.getRValue()), type);
+                Stmt phiStmt = new PhiStmt(p.getLValue(), exp);
+                phiStmt.setIndex(index);
+                phiStmt.setLineNumber(p.getLineNumber());
+                stmts.set(index, phiStmt);
             }
         }
     }
@@ -1226,12 +1234,12 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
         splitting.visitLivePhis(block, (phi) -> {
             Var phiVar = manager.getTempVar();
             Var origin = manager.getLocal(phi.getVar());
-            PhiExp phiExp = new PhiExp();
+            FrontendPhiExp phiExp = new FrontendPhiExp();
             reachVars[phi.getDUIndex()] = phiVar;
-            PhiStmt phiStmt = new PhiStmt(origin, phiVar, phiExp);
+            FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
             varSSAInfo.setNonSSA(phiVar);
-            assocStmt(first, phiStmt);
-            phi.setRealPhi(phiStmt);
+            assocStmt(first, frontendPhiStmt);
+            phi.setRealPhi(frontendPhiStmt);
             manager.aliasLocal(phiVar, manager.getSlot(origin));
         });
     }
@@ -1449,9 +1457,9 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
 
     private void addLocalPhiInDefs(BytecodeBlock bb) {
         splitting.visitLivePhis(bb, (phi) ->  {
-            PhiStmt realPhi = (PhiStmt) phi.getRealPhi();
+            FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
             assert realPhi != null;
-            PhiExp phiExp = realPhi.getRValue();
+            FrontendPhiExp phiExp = realPhi.getRValue();
             for (int i = 0; i < phi.getInDefs().size(); ++i) {
                 int defIndex = phi.getInDefs().get(i);
                 Var v = reachVars[defIndex];
@@ -1554,7 +1562,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             for (StackPhi phi : phiList) {
                 BytecodeBlock block = phi.createPos;
                 // insert phi node in the first instruction
-                PhiExp phiExp = new PhiExp();
+                FrontendPhiExp phiExp = new FrontendPhiExp();
                 int unreachableOffset = 0;
                 for (int i = 0; i < getInEdgeCount(block); ++i) {
                     if (getInEdge(block, i).getOutStack() == null) {
@@ -1565,9 +1573,9 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                     liftToVar(item);
                     phiExp.addUseAndCorrespondingBlocks(item.var(), getInEdge(block, i));
                 }
-                PhiStmt phiStmt = new PhiStmt(phi.getVar(), phi.getVar(), phiExp);
+                FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
                 phi.setWriteOutVar(phi.getVar());
-                addToBlockHead(block, phiStmt);
+                addToBlockHead(block, frontendPhiStmt);
                 phi.resolved = true;
             }
         }

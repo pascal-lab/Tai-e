@@ -23,7 +23,6 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.IBasicBlock;
-import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
@@ -35,13 +34,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PhiExp implements Exp, RValue {
-
-    private List<Pair<Var, IBasicBlock>> usesAndInBlocks = new ArrayList<>();
-
-    private List<Pair<Integer, Var>> sourceAndVar;
-
-    public static final int METHOD_ENTRY = -1;
+/**
+ * Representation of phi expression, e.g., φ(a, b).
+ * Different from {@link pascal.taie.ir.exp.PhiExp}, this class is used
+ * to represent the phi expression in the frontend.
+ *
+ * <p>
+ * The main difference is that this class use {@link IBasicBlock} as the
+ * corresponding block, while {@link pascal.taie.ir.exp.PhiExp}
+ * uses {@link pascal.taie.ir.stmt.Stmt} as the corresponding
+ * block.
+ * </p>
+ */
+public class FrontendPhiExp implements RValue {
+    private final List<Pair<Var, IBasicBlock>> usesAndInBlocks = new ArrayList<>();
 
     public void addUseAndCorrespondingBlocks(Var v, IBasicBlock block) {
         usesAndInBlocks.add(new Pair<>(v, block));
@@ -51,52 +57,12 @@ public class PhiExp implements Exp, RValue {
         return usesAndInBlocks;
     }
 
-    public void indexValueAndSource(PhiResolver<? extends IBasicBlock> resolver) {
-        sourceAndVar = resolver.resolvePhi(this);
-        usesAndInBlocks = null;
-    }
-
-    public List<Pair<Integer, Var>> getSourceAndVar() {
-        return sourceAndVar;
-    }
-
-    @Override
-    public Type getType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<RValue> getUses() {
-        if (sourceAndVar != null) {
-            return sourceAndVar
-                    .stream()
-                    .map(Pair::second)
-                    .collect(Collectors.toSet());
-        } else {
-            return usesAndInBlocks
-                    .stream()
-                    .map(Pair::first)
-                    .collect(Collectors.toSet());
-        }
-    }
-
-    @Override
-    public <T> T accept(ExpVisitor<T> visitor) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public String toString() {
         String repr;
-        if (usesAndInBlocks == null) {
-            repr = sourceAndVar.stream()
-                    .map(p -> p.first() + ":" + p.second().toString())
-                    .collect(Collectors.joining(", "));
-        } else {
-            repr = usesAndInBlocks.stream()
-                    .map(p -> p.first().toString())
-                    .collect(Collectors.joining(", "));
-        }
+        repr = usesAndInBlocks.stream()
+                .map(p -> p.first().toString())
+                .collect(Collectors.joining(", "));
         return "Φ(" + repr + ")";
     }
 
@@ -107,5 +73,23 @@ public class PhiExp implements Exp, RValue {
             }
         }
         throw new IllegalArgumentException("No such block");
+    }
+
+    @Override
+    public Type getType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<RValue> getUses() {
+        return usesAndInBlocks
+                .stream()
+                .map(Pair::first)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.newfrontend;
 
-import pascal.taie.frontend.newfrontend.ssa.PhiStmt;
+import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ConditionExp;
@@ -125,8 +125,8 @@ public class StmtVarVisitor {
                 | stmt instanceof Nop) {
             // Do nothing
             return;
-        } else if (stmt instanceof PhiStmt phiStmt) {
-            for (RValue v : phiStmt.getRValue().getUses()) {
+        } else if (stmt instanceof FrontendPhiStmt frontendPhiStmt) {
+            for (RValue v : frontendPhiStmt.getRValue().getUses()) {
                 if (v instanceof Var var) {
                     consumer.accept(var);
                 }
