@@ -143,7 +143,7 @@ public class SearchIndex {
      */
     public static SearchIndex makeIndex(Project project) {
         SearchIndex index = new SearchIndex();
-        Set<FileContainer> roots = Sets.newSet();
+        Set<FileContainer> roots = Sets.newLinkedSet();
         roots.addAll(project.getAppRootContainers());
         roots.addAll(project.getLibRootContainers());
         for (FileContainer root : roots) {
