@@ -24,7 +24,6 @@ package pascal.taie.frontend.newfrontend.bcir;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

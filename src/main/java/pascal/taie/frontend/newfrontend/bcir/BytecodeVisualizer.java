@@ -20,13 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.dbg;
+package pascal.taie.frontend.newfrontend.bcir;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import pascal.taie.frontend.newfrontend.bcir.BytecodeBlock;
-import pascal.taie.frontend.newfrontend.bcir.BytecodeGraph;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.util.Indexer;
 
@@ -39,6 +37,10 @@ import java.util.List;
 import static pascal.taie.language.type.DoubleType.DOUBLE;
 import static pascal.taie.language.type.LongType.LONG;
 
+/**
+ * A utility class to visualize the bytecode graph in DOT format.
+ * Currently only triggered by {@link BytecodeIRBuilder#dump()}.
+ */
 public class BytecodeVisualizer {
 
     public static String printDot(BytecodeGraph graph, Indexer<AbstractInsnNode> insnIndex) {

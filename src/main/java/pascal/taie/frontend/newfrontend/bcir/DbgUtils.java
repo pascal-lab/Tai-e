@@ -20,12 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.dbg;
+package pascal.taie.frontend.newfrontend.bcir;
 
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.frontend.newfrontend.bcir.BytecodeIRBuilder;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -34,6 +33,11 @@ import pascal.taie.language.classes.JClass;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Some debugging utilities for BCIR.
+ * Basically used for interactive debugging.
+ * E.g., evaluate expression in IDE.
+ */
 public class DbgUtils {
     public static List<Stmt> findDef(BytecodeIRBuilder builder, Var v) {
         return builder.getAllStmts().stream()
