@@ -32,8 +32,8 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.backend.bytecode.BinaryUtils;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.bcir.BytecodeIRBuilder;
-import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
+import pascal.taie.frontend.newfrontend.report.FrontendTimer;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.JavaMethodSource;
@@ -42,11 +42,11 @@ import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,6 +89,10 @@ public class DefaultIRBuilder extends NewFrontendComponent
      */
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
 
+    /**
+     * A timer to measure the time taken for bytecode parsing.
+     */
+    private final FrontendTimer bytecodeParsingTimer = new FrontendTimer();
 
     public DefaultIRBuilder(FrontendContext context) {
         super(context);
@@ -158,8 +162,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
-        Timer timer = new Timer("Build IR for all methods");
-        timer.start();
         List<JClass> classes;
         classes = hierarchy.allClasses().toList();
         classes.parallelStream().forEach(c -> {
@@ -169,10 +171,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
                 }
             }
         });
-        timer.stop();
-        logger.info(timer);
-        StageTimer.getInstance().reportIRTime((long)
-                (timer.inSecond() * 1000));
     }
 
     private IR loadingAndGetIR(JMethod method) {
@@ -220,7 +218,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
      */
     private void loadClassSourceSync(JClass clazz) {
         // TODO: current sync method is correct, but may need some optimization
-        StageTimer.getInstance().startBytecodeParsing();
         AtomicInteger status = classStatusMap.computeIfAbsent(clazz, k -> new AtomicInteger(NOT_LOADED));
         if (status.get() == LOADING_DONE) {
             return;
@@ -246,10 +243,10 @@ public class DefaultIRBuilder extends NewFrontendComponent
                 }
             }
         }
-        StageTimer.getInstance().endBytecodeParsing();
     }
 
     private void loadClassSourceImpl(JClass clazz) {
+        bytecodeParsingTimer.start();
         // use remove to release memory
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
@@ -264,6 +261,9 @@ public class DefaultIRBuilder extends NewFrontendComponent
             }
         }, ClassReader.SKIP_FRAMES);
         paringMethodSource(kv, clazz);
+        bytecodeParsingTimer.stop();
+        ctx().getFrontendStats().bytecodeParsingTime().put(clazz,
+                bytecodeParsingTimer.inMircoSeconds());
     }
 
     private void paringMethodSource(LoadingKV kv, JClass clazz) {

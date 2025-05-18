@@ -34,6 +34,9 @@ import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
+import pascal.taie.frontend.newfrontend.report.FrontendStats;
+import pascal.taie.frontend.newfrontend.report.FrontendStatsResult;
+import pascal.taie.frontend.newfrontend.report.FrontendTimer;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -43,6 +46,7 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
 import pascal.taie.project.ProjectBuilder;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.List;
@@ -76,18 +80,43 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
 
         // initialize build context
         FrontendContext ctx = new FrontendContext(options.isSSA());
+
         ctx.setPhase(TaiePhase.PROJECT_LOADING);
         // initialize class hierarchy
+        FrontendTimer timer = new FrontendTimer();
+        timer.start();
         ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
         Project project = projectBuilder.build();
+        timer.stop();
+        long projectBuildingTime = timer.inMilliseconds();
+
         ctx.setPhase(TaiePhase.CLOSED_WORLD_ANALYSIS);
+        timer.start();
         ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(ctx); // Configurable
         closedWorldBuilder.build(project);
         Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
+        timer.stop();
+        long closedWorldBuildingTime = timer.inMilliseconds();
+
         ctx.setPhase(TaiePhase.CLASS_HIERARCHY_ANALYSIS);
+        timer.start();
         ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder(ctx);
         ClassHierarchy hierarchy = hierarchyBuilder.build(closedWorld);
+        timer.stop();
+        long classHierarchyBuildingTime = timer.inMilliseconds();
         world.setClassHierarchy(hierarchy);
+
+        FrontendStats stats = new FrontendStats(
+                projectBuildingTime,
+                closedWorldBuildingTime,
+                classHierarchyBuildingTime,
+                Maps.newConcurrentMap(),
+                Maps.newConcurrentMap(),
+                Maps.newConcurrentMap(),
+                Maps.newConcurrentMap());
+        ctx.setStats(stats);
+
+
         TypeSystem typeSystem = ctx.getTypeSystem(); // the singleton context was built in hierarchyBuilder.build
         world.setTypeSystem(typeSystem);
 
@@ -128,6 +157,9 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
             ctx.setPhase(TaiePhase.PREBUILDING_IR);
             ctx.getIRBuilder().buildAll(hierarchy);
         }
+
+        FrontendStatsResult.setStats(stats);
+
         ctx.setPhase(TaiePhase.ANALYSIS);
     }
 }

@@ -12,7 +12,6 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.LoggerConfigs;
 import pascal.taie.config.Options;
-import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRPrinter;
@@ -171,7 +170,6 @@ public class TestBytecodeIRBuilder {
         Main.buildWorld(
                 "-java", Integer.toString(javaVersion),
                 "-acp", jrePaths(javaVersion),
-                "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                 "--pre-build-ir"
         );
     }
@@ -203,7 +201,6 @@ public class TestBytecodeIRBuilder {
 
         Printer.printTestRes(false);
 
-        System.out.println(StageTimer.getInstance().message());
     }
 
     @Test
@@ -248,11 +245,6 @@ public class TestBytecodeIRBuilder {
 
         System.out.println("Count of all the stmts: " + stmtCount.get());
         System.out.println("Count of all the vars: " + varCount.get());
-
-        StageTimer timer = StageTimer.getInstance();
-        System.out.println("Typeless IR: " + (double) timer.getTotalTypelessIRTime() / 1000 + "s.");
-        System.out.println("Splitting: " + (double) timer.getTotalSplittingTime() / 1000 + "s.");
-        System.out.println("Typing: " + (double) timer.getTotalTypingTime() / 1000 + "s.");
     }
 
     @Test
@@ -260,7 +252,6 @@ public class TestBytecodeIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-pp",
-                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
                     "--extract-all"
             );
 

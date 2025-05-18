@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.newfrontend.report;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.RValue;
@@ -34,7 +32,6 @@ import pascal.taie.ir.stmt.DefinitionStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
@@ -51,45 +48,9 @@ import java.util.Queue;
 import java.util.Set;
 
 
-public class TaieCastingReporter {
-    @JsonSerialize(using = TaieCastingInfoSerializer.class)
-    public record TaieCastingInfo(JMethod method, Stmt stmt,
-                                         Type leftType, Var var, Type rightType) {
-    }
+public class TaieCastingHierarchyDumper {
 
-    @JsonSerialize(using = TypeDefsSerializer.class)
-    public record TypeDefs(Stmt stmt, Type type) {
-    }
-
-    @JsonSerialize(using = TypeConstraintSerializer.class)
-    public record TypeConstraint(Stmt stmt, Type type) {
-    }
-
-    @JsonSerialize
-    public record TaieCastingContext(TaieCastingInfo info, List<TypeDefs> defs, List<TypeConstraint> uses) {
-    }
-
-    static {
-        World.registerResetCallback(() -> get().castingInfos.clear());
-    }
-
-    private static final TaieCastingReporter instance = new TaieCastingReporter();
-
-    private final List<TaieCastingInfo> castingInfos = new ArrayList<>();
-
-    public static TaieCastingReporter get() {
-        return instance;
-    }
-
-    public void reportCasting(TaieCastingInfo info) {
-        castingInfos.add(info);
-    }
-
-    public List<TaieCastingInfo> getCastingInfos() {
-        return castingInfos;
-    }
-
-    public boolean isPhantomRelated(TaieCastingInfo info) {
+    public static boolean isPhantomRelated(TaieCastingInfo info) {
         Set<ClassType> typeSet = Sets.newSet();
         for (TypeDefs def : getTaieCastingContext(info).defs()) {
             getJClass(def.type()).ifPresent((c) -> {
@@ -101,11 +62,11 @@ public class TaieCastingReporter {
         return typeSet.stream().anyMatch((t) -> t.getJClass().isPhantom());
     }
 
-    public static String getClassHierarchyForCasting(TaieCastingInfo info) {
+    private static String getClassHierarchyForCasting(TaieCastingInfo info) {
         List<JClass> classes = new ArrayList<>();
-        getJClass(info.leftType).ifPresent((l) -> {
+        getJClass(info.leftType()).ifPresent((l) -> {
             classes.add(l);
-            getJClass(info.rightType).ifPresent(classes::add);
+            getJClass(info.rightType()).ifPresent(classes::add);
         });
         TaieCastingContext context = getTaieCastingContext(info);
         for (TypeDefs def : context.defs()) {
@@ -114,15 +75,8 @@ public class TaieCastingReporter {
         return new ClassHierarchyTree(classes).toDotFile();
     }
 
-    public void writeCastingToDot(Path parent) {
-        for (TaieCastingInfo info : castingInfos) {
-            writeCastingToDot(parent, info);
-        }
-    }
-
-
     public static void writeCastingToDot(Path parent, TaieCastingInfo info) {
-        Path out = parent.resolve(info.method.getName() + ".dot");
+        Path out = parent.resolve(info.method().getName() + ".dot");
         // write to file
         try {
             Files.createDirectories(out.getParent());
@@ -133,10 +87,10 @@ public class TaieCastingReporter {
         }
     }
 
-    public static TaieCastingContext getTaieCastingContext(TaieCastingInfo info) {
+    private static TaieCastingContext getTaieCastingContext(TaieCastingInfo info) {
         List<TypeDefs> defs = new ArrayList<>();
         List<TypeConstraint> uses = new ArrayList<>();
-        IR ir = info.method.getIR();
+        IR ir = info.method().getIR();
         MultiMap<Var, Stmt> varDefs = Maps.newMultiMap();
         MultiMap<Catch, Type> catchTypes = Maps.newMultiMap();
         for (Stmt stmt : ir.getStmts()) {
@@ -145,7 +99,7 @@ public class TaieCastingReporter {
                     varDefs.put(var, stmt);
                 }
             }
-            if (stmt.getUses().contains(info.var)) {
+            if (stmt.getUses().contains(info.var())) {
                 uses.add(new TypeConstraint(stmt, null));
             }
         }
@@ -155,7 +109,7 @@ public class TaieCastingReporter {
             catchTypes.put(entry.handler(), entry.catchType());
         }
         Queue<Var> queue = new LinkedList<>();
-        queue.add(info.var);
+        queue.add(info.var());
         Set<Var> visited = Sets.newSet();
         while (!queue.isEmpty()) {
             Var var = queue.poll();
@@ -185,10 +139,6 @@ public class TaieCastingReporter {
         }
 
         return new TaieCastingContext(info, defs, uses);
-    }
-
-    public void writeCastingToDot() {
-        writeCastingToDot(Path.of("output/casting"));
     }
 
     public static Optional<JClass> getJClass(Type t) {

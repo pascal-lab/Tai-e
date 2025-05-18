@@ -22,32 +22,10 @@
 
 package pascal.taie.frontend.newfrontend.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.type.Type;
 
-import java.io.IOException;
-
-class TypeDefsSerializer extends StdSerializer<TaieCastingReporter.TypeDefs> {
-
-    public TypeDefsSerializer() {
-        this(null);
-    }
-
-    public TypeDefsSerializer(Class<TaieCastingReporter.TypeDefs> t) {
-        super(t);
-    }
-
-    @Override
-    public void serialize(
-            TaieCastingReporter.TypeDefs value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
-        gen.writeStartObject();
-        gen.writeStringField("stmt", value.stmt().toString());
-        gen.writeStringField("type", value.type().toString());
-        gen.writeEndObject();
-    }
+@JsonSerialize
+public record TypeConstraint(Stmt stmt, Type type) {
 }
-
-

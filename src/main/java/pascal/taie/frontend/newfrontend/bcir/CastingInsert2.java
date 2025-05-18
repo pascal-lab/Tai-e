@@ -29,7 +29,7 @@ import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
-import pascal.taie.frontend.newfrontend.report.TaieCastingReporter;
+import pascal.taie.frontend.newfrontend.report.TaieCastingInfo;
 import pascal.taie.frontend.newfrontend.ssa.Dominator;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
@@ -93,16 +93,17 @@ public class CastingInsert2 extends NewFrontendIRComponent {
 
     private Cast getNewCast(Var left, Var right, Type t) {
         logger.atTrace().log("[CASTING] Current stmt: " + currentStmt + "\n" +
-                            "          Var " + right + " With Type: " + right.getType() + "\n" +
-                            "          Excepted Type: " + t + "\n" +
-                            "          In method: " + builder.method);
-        TaieCastingReporter.get().reportCasting(new TaieCastingReporter.TaieCastingInfo(
+                "          Var " + right + " With Type: " + right.getType() + "\n" +
+                "          Excepted Type: " + t + "\n" +
+                "          In method: " + builder.method);
+        TaieCastingInfo info = new TaieCastingInfo(
                 builder.method,
                 currentStmt,
                 t,
                 right,
                 right.getType()
-        ));
+        );
+        ctx().getFrontendStats().castingInfos().put(builder.method, info);
         return new Cast(left, new CastExp(right, t));
     }
 

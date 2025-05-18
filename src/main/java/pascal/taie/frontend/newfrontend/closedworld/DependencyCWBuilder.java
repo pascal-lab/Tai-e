@@ -32,12 +32,10 @@ import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
-import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.World;
 import pascal.taie.project.ProgramFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.SearchIndex;
-import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -103,8 +101,6 @@ public class DependencyCWBuilder extends NewFrontendComponent
 
     @Override
     public void build(Project p) throws FrontendException {
-        Timer timer = new Timer("closed-world");
-        timer.start();
         String entry = p.getMainClass();
         this.project = p;
         List<String> target = new ArrayList<>();
@@ -116,8 +112,6 @@ public class DependencyCWBuilder extends NewFrontendComponent
             addTargets(target, p.getInputClasses());
             addTargets(target, loadAuxiliaryClasses());
             buildClosure(target);
-            timer.stop();
-            StageTimer.getInstance().reportCWTime((long) (timer.inSecond() * 1000));
         } catch (InterruptedException ex) {
             throw new UnknownFrontendException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
         } catch (ExecutionException ex) {

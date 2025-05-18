@@ -53,8 +53,9 @@ import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
 import pascal.taie.frontend.newfrontend.main.NewFrontendIRComponent;
-import pascal.taie.frontend.newfrontend.report.StackMergeReporter;
-import pascal.taie.frontend.newfrontend.report.StageTimer;
+import pascal.taie.frontend.newfrontend.report.IRConstructionTime;
+import pascal.taie.frontend.newfrontend.report.IRConstructionTimeBuilder;
+import pascal.taie.frontend.newfrontend.report.StackMergeStats;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.ssa.BCSSA;
 import pascal.taie.frontend.newfrontend.ssa.Dominator;
@@ -285,9 +286,10 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
      */
     private Dominator<BytecodeBlock> dom;
 
+    private IRConstructionTimeBuilder irConstructionTimeBuilder;
+
     public BytecodeIRBuilder(FrontendContext context, JMethod method, AsmMethodSource methodSource) {
         super(context, IRBuildingPhase.BYTECODE_UNTYPED_IR_BUILDING);
-        StageTimer.getInstance().startTypelessIR();
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
@@ -307,6 +309,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             this.stmts = new ArrayList<>();
             this.phiList = new ArrayList<>();
             this.duInfo = new DUInfo(source.maxLocals);
+            this.irConstructionTimeBuilder = new IRConstructionTimeBuilder();
         } else {
             this.manager = null;
             this.asm2Stmt = null;
@@ -314,62 +317,56 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             this.stmts = null;
             this.phiList = null;
             this.duInfo = null;
+            ctx().getFrontendStats().irConstructionTime().put(method,
+                    new IRConstructionTime(0, 0, 0));
         }
-        StageTimer.getInstance().endTypelessIR();
     }
 
     public void build() {
         // a.analyze()
         if (!isEmpty) {
-            StageTimer stageTimer = StageTimer.getInstance();
-            stageTimer.startTypelessIR();
+            irConstructionTimeBuilder.startBCSSA();
             buildCFG();
+            irConstructionTimeBuilder.endBCSSA();
+
+            irConstructionTimeBuilder.startBC3AC();
             traverseBlocks();
-            stageTimer.endTypelessIR();
+            irConstructionTimeBuilder.endBC3AC();
+
+            irConstructionTimeBuilder.startTypeInference();
             this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
             inferTypeWithoutFrame();
-//            if (USE_SSA && !EXPERIMENTAL) {
-//                makeStmts(false);
-//                makeExceptionTable();
-//                stageTimer.startSplitting();
-//                ssa();
-//                stageTimer.endSplitting();
-//            }
-            stageTimer.startTypelessIR();
+            irConstructionTimeBuilder.endTypeInference();
+
             makeStmts(true);
             makeExceptionTable();
-            stageTimer.endTypelessIR();
             this.ir = getIR();
             reportMergeStats();
+            ctx().getFrontendStats().irConstructionTime().put(method,
+                    irConstructionTimeBuilder.build());
         }
     }
 
     void inferTypeWithFrame() {
-        StageTimer stageTimer = StageTimer.getInstance();
 //        if (!EXPERIMENTAL) {
 //            stageTimer.startSplitting();
 //            VarWebSplitter splitter = new VarWebSplitter(this);
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        stageTimer.startTyping();
         TypeInference0 inference = new TypeInference0(this, ctx());
         inference.build();
-        stageTimer.endTyping();
     }
 
     void inferTypeWithoutFrame() {
-        StageTimer stageTimer = StageTimer.getInstance();
 //        if (!EXPERIMENTAL) {
 //            stageTimer.startSplitting();
 //            VarWebSplitter splitter = new VarWebSplitter(this);
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        stageTimer.startTyping();
         TypeInference inference = new TypeInference(this, ctx());
         inference.build();
-        stageTimer.endTyping();
     }
 
     void ssa() {
@@ -2239,11 +2236,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
         g.setBlockSortedList(blockSortedList);
 
         dom = new Dominator<>(g);
-        StageTimer.getInstance().endTypelessIR();
-        StageTimer.getInstance().startSplitting();
         postProcess();
-        StageTimer.getInstance().endSplitting();
-        StageTimer.getInstance().startTypelessIR();
     }
 
     private void addExceptionEdges() {
@@ -2404,9 +2397,12 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 }
             }
         }
-
-        StackMergeReporter.get().reportStats(totalBlocks, pessimisticBlocks,
-                pessimisticPhis, pessimisticLivePhis);
+        StackMergeStats stackMergeStats = new StackMergeStats(
+                totalBlocks,
+                pessimisticBlocks,
+                pessimisticPhis,
+                pessimisticLivePhis);
+        ctx().getFrontendStats().stackMergeStats().put(this.method, stackMergeStats);
     }
 
     public IR getIr() {

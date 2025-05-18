@@ -28,21 +28,19 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 
-class TaieCastingInfoSerializer extends StdSerializer<TaieCastingReporter.TaieCastingInfo> {
+class TaieCastingInfoSerializer extends StdSerializer<TaieCastingInfo> {
 
     public TaieCastingInfoSerializer() {
         this(null);
     }
 
-    public TaieCastingInfoSerializer(Class<TaieCastingReporter.TaieCastingInfo> t) {
+    public TaieCastingInfoSerializer(Class<TaieCastingInfo> t) {
         super(t);
     }
 
     @Override
     public void serialize(
-            TaieCastingReporter.TaieCastingInfo value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
+            TaieCastingInfo value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
         gen.writeStringField("method", value.method().toString());
         gen.writeStringField("stmt", value.stmt().toString());

@@ -30,6 +30,10 @@ import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
 
+/**
+ * This class is used to report the typing property of the IR.
+ * It is used to check the number of join variables in the IR.
+ */
 public class TypingPropertyReporter {
     public static long getJoinVars(IR ir) {
         Set<Var> joinVars = Sets.newSet();
