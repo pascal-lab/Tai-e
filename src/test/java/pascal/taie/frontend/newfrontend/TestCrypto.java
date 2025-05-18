@@ -167,7 +167,7 @@ public class TestCrypto {
         } else {
             Collections.addAll(args, "-cp", testPath + "/out.jar");
         }
-        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder");
+        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder");
         String[] argsArr = args.toArray(new String[0]);
 
         Timer.runAndCount(() -> {

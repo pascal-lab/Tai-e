@@ -55,9 +55,9 @@ import java.util.Objects;
 /**
  * The world builder for new frontend. This class is the entry point of the frontend processing.
  */
-public class AsmWorldBuilder extends AbstractWorldBuilder {
+public class JavaWorldBuilder extends AbstractWorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(AsmWorldBuilder.class);
+    private static final Logger logger = LogManager.getLogger(JavaWorldBuilder.class);
 
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {

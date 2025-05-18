@@ -81,7 +81,7 @@ public class TestDacapo {
             Main.buildWorld(
                     "-java", Integer.toString(6),
                     "-cp", sb.toString(),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.main.AsmWorldBuilder",
+                    "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder",
                     "--input-classes", inputClass,
                     "--main-class", mainClass
             );
