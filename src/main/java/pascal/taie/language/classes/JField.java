@@ -40,6 +40,28 @@ public class JField extends ClassMember {
 
     private final Type type;
 
+    /**
+     * In class file, a field can be associated with a constant value attribute if
+     * it is static final.
+     * If a (static final) field is associated with a constant value, in
+     * {@code <cinit>} method, there will be no initialization for this field.
+     * E.g.,
+     * <pre>
+     * {@code
+     * class A {
+     *     static final int i = 1;
+     * }
+     * }
+     * </pre>
+     * where {@code i} is a static final field, associated with a constant value
+     * attribute in class file.
+     * In the {@code <cinit>} method, there will be no
+     * initialization for {@code i}.
+     * <p>
+     * Thus, to avoid losing the constant value, we need to store it in the {@code
+     * constantValue } field.
+     */
+    @Nullable
     private final Literal constantValue;
 
     @Nullable
