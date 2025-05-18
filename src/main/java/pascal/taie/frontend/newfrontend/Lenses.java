@@ -61,7 +61,6 @@ import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.TableSwitch;
@@ -164,7 +163,7 @@ public class Lenses {
 
             @Override
             public Exp visit(InvokeDynamic invoke) {
-                return new InvokeDynamic(invoke.getHandle(), invoke.getBootstrapMethodRef(),
+                return new InvokeDynamic(invoke.getBootstrapMethodHandle(), invoke.getBootstrapMethodRef(),
                         invoke.getMethodName(), invoke.getMethodType(), invoke.getBootstrapArgs(),
                         subSt(invoke.getArgs()));
             }

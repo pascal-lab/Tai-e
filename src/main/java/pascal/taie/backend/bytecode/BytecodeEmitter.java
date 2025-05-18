@@ -602,7 +602,7 @@ public class BytecodeEmitter {
 
     private void emitInvoke(InvokeExp invokeExp, List<AbstractInsnNode> nodeList) {
         if (invokeExp instanceof InvokeDynamic invokeDynamic) {
-            Handle handle = getHandle(invokeDynamic.getHandle());
+            Handle handle = getHandle(invokeDynamic.getBootstrapMethodHandle());
             Object[] bootstrapArgs = invokeDynamic.getBootstrapArgs()
                     .stream()
                     .map(this::toObject)
