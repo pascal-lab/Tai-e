@@ -91,7 +91,7 @@ public class JMethod extends ClassMember {
         this.returnType = returnType;
         this.exceptions = List.copyOf(exceptions);
         String subSig = StringReps.toSubsignature(name, paramTypes, returnType);
-        this.signature = StringReps.getSignatureOf1(this, subSig);
+        this.signature = StringReps.getSignatureOf(this, subSig);
         this.subsignature = Subsignature.get(subSig);
         this.gSignature = gSignature;
         this.paramAnnotations = paramAnnotations;

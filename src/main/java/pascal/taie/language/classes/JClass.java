@@ -29,6 +29,7 @@ import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Experimental;
 import pascal.taie.util.Indexable;
@@ -41,6 +42,7 @@ import pascal.taie.util.collection.Triple;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -107,6 +109,7 @@ public class JClass extends AbstractResultHolder
         this.name = name;
         this.moduleName = moduleName;
     }
+
 
     /**
      * This method should be called after creating this instance.
@@ -389,6 +392,28 @@ public class JClass extends AbstractResultHolder
 
     /**
      *
+     * @param subsignature the subsignature to parse
+     * @return (name, parameterTypes, returnType)
+     */
+    private static Triple<String, List<Type>, Type> parseSubsignature(Subsignature subsignature) {
+        TypeSystem typeSystem = World.get().getTypeSystem();
+        String subsig = subsignature.toString();
+        int space = subsig.indexOf(' ');
+        int leftBracket = subsig.indexOf('(');
+        Type returnType = typeSystem.getType(subsig.substring(0, space));
+        String name = subsig.substring(space + 1, leftBracket);
+        String parameterTypesStr = subsig.substring(leftBracket + 1, subsig.length() - 1);
+        List<Type> parameterTypes;
+        if (parameterTypesStr.isEmpty()) {
+            parameterTypes = List.of();
+        } else {
+            parameterTypes = Arrays.stream(parameterTypesStr.split(",")).map(typeSystem::getType).toList();
+        }
+        return new Triple<>(name, parameterTypes, returnType);
+    }
+
+    /**
+     *
      * @param subsignature
      * @return the phantom method. If not exist yet, create one atomically.
      */
@@ -396,7 +421,7 @@ public class JClass extends AbstractResultHolder
     public JMethod getPhantomMethod(Subsignature subsignature) {
         assert isPhantom();
         return phantomMethods.computeIfAbsent(subsignature, k -> {
-            Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
+            Triple<String, List<Type>, Type> t = parseSubsignature(subsignature);
             return new JMethod(this, t.first(), EnumSet.noneOf(Modifier.class),
                     t.second(), t.third(), List.of(), null, AnnotationHolder.emptyHolder(),
                     null, null, null
