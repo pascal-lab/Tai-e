@@ -23,7 +23,6 @@
 package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.frontend.newfrontend.bcir.BytecodeBlock;
-import pascal.taie.frontend.newfrontend.DUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.frontend.newfrontend.bcir.IVarManager;
 import pascal.taie.frontend.newfrontend.Lenses;

@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.newfrontend.ssa;
 
-import pascal.taie.frontend.newfrontend.GenericDUInfo;
 import pascal.taie.frontend.newfrontend.IBasicBlock;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
