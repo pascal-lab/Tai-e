@@ -60,6 +60,8 @@ public class CallGraphBuilder extends ProgramAnalysis<CallGraph<Invoke, JMethod>
             builder = new PTABasedBuilder();
         } else if (algorithm.startsWith("cha")) {
             builder = new CHABuilder(algorithm);
+        } else if (algorithm.equals("llm")) {
+            builder = new PTALLMBuilder();
         } else {
             throw new ConfigException(
                     "Unknown call graph building algorithm: " + algorithm);
