@@ -39,7 +39,8 @@
   id: cg
   requires: [ pta(algorithm=pta) ]
   options:
-    algorithm: pta # | cha | cha=LIMIT | cha-full
+    algorithm: pta # | cha | cha=LIMIT | cha-full | llm
+    # llm is this version specified
     dump: false # whether dump call graph in dot file
     dump-methods: false # whether dump reachable methods
     dump-call-edges: false # whether dump call edges
