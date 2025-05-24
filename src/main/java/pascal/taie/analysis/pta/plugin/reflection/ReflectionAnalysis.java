@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.reflection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.ir.proginfo.MethodRef;
@@ -80,8 +81,11 @@ public class ReflectionAnalysis extends CompositePlugin {
         addPlugin(logBasedModel,
                 inferenceModel,
                 reflectiveActionModel,
-                new AnnotationModel(solver, helper),
                 new OthersModel(solver, helper));
+
+        if(World.get().getOptions().getJavaVersion() >= 5) {
+            addPlugin(new AnnotationModel(solver, helper));
+        }
     }
 
     @Override
