@@ -157,6 +157,7 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
                 });
                 // now choose ask answers in one go
 
+                // change to get and deal with result in inter const prop?
                 final Map<Invoke, List<ArgRange>> answers = LLMQuery(queries);
 
                 // update answers
@@ -164,10 +165,10 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
                     // !!!!IMPORTANT!!!! this function contains analysis in pta
                     // and it might be wrong
                     Set<JMethod> callees = resolveCalleesOf(invoke);
-                    // seems only-app way may got wrong. commented filter
                     if (callees != null) {
-                        callees.stream()
-                                // only analyse application methods
+                        // only analyse application methods
+                        // seems only-app way may got wrong. commented filter
+                        callees // .stream()
                                 // .filter(callee -> !isIgnored(callee))
                                 .forEach(callee -> {
                             if (!callGraph.contains(callee)) {
@@ -295,7 +296,7 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
     private Set<JMethod> resolveCalleesOf(Invoke callSite) {
         CallKind kind = CallGraphs.getCallKind(callSite);
         return switch (kind) {
-            case INTERFACE, VIRTUAL -> {
+            case INTERFACE, SPECIAL, VIRTUAL -> {
                 MethodRef methodRef = callSite.getMethodRef();
                 if (isObjectMethod(methodRef)) {
                     yield Set.of();
@@ -306,11 +307,15 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
                         .map(recvObj -> {
                             JMethod callee = CallGraphs.resolveCallee(
                                     recvObj.getType(), callSite);
-                            return callee == null ? dealLambda(callSite) : callee;
+                            return callee == null ? handleLambda(callSite) : callee;
                         })
                         .collect(Collectors.toSet());
             }
-            case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
+            case STATIC -> {
+                JMethod callee = CallGraphs.resolveCallee(null, callSite);
+                if (callee!= null) yield Set.of(callee);
+                else yield Set.of();
+            }
             case DYNAMIC -> {
                 Set<JMethod> callees = new HashSet<>();
                 if (isBSMInvoke(callSite)) {
@@ -353,18 +358,17 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
                             }));
                 }
                 else { // deal with lambda
-                    callees.add(dealLambda(callSite));
+                    callees.add(handleLambda(callSite));
                 }
                 yield callees;
             }
             default -> throw new AnalysisException(
                     "Failed to resolve call site: " + callSite);
-            // TODO: check cha log for cases of this exception, if a lot, change to logger
         };
     }
 
     @Nullable
-    private JMethod dealLambda(Invoke callSite) {
+    private JMethod handleLambda(Invoke callSite) {
         AtomicReference<JMethod> callee = new AtomicReference<>();
         Var base = ((InvokeInstanceExp) callSite.getInvokeExp()).getBase();
         Set<Obj> objsOfIndy = ptaResult.getPointsToSet(base);
@@ -412,9 +416,8 @@ public class PTALLMBuilder implements CGBuilder<Invoke, JMethod> {
                                 }
                             });
                         }
-                        case REF_invokeStatic -> { // targetRef is static method
-                            callee.set(targetRef.resolveNullable());
-                        }
+                        case REF_invokeStatic -> // targetRef is static method
+                                callee.set(targetRef.resolveNullable());
                         default -> {
                             logger.error("{} is not supported by Lambda handling",
                                     mh.getKind());
