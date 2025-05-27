@@ -58,7 +58,6 @@ import java.util.List;
  * any private fields in {@link VM} for a JVM object.</li>
  * <li>This approach introduces complex transformations between JVM objects and Tai-e objects.</li>
  * </ol>
- * </p>
  * <p>
  * For limitations 1,
  * we may need to implement a class loader to load classes from {@link pascal.taie.World}.
@@ -90,15 +89,11 @@ import java.util.List;
  * b.f(a);
  * }
  * </pre>
- * </p>
  * When we call the method {@code f} by reflection, an exception will be thrown by JVM as
  * the {@code a} in fact is a {@code JObject} instead of {@code A}. It will not type check.
- * </p>
  * <p>
  * Luckily, if the dividing of JVMObject and JObject is reasonable, this case will not occur
  * ({@code A} and {@code B} will be both JVMObject or both JObject).
- * </p>
- * </p>
  */
 public class JVMObject extends JObject {
 

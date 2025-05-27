@@ -109,7 +109,6 @@ import java.util.Optional;
  * vm.exec();
  * }
  * </pre>
- * </p>
  * <p>
  * Currently, the VM has many limitations:
  * <ul>
@@ -117,7 +116,6 @@ import java.util.Optional;
  *     <li>We cannot handle quite a lot language features, e.g.,
  *         lambda expressions, method references, native methods, etc.</li>
  * </ul>
- * </p>
  *
  * @see JVMObject
  */

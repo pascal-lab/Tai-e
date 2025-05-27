@@ -60,7 +60,6 @@ public class PhiExp implements RValue {
      * </pre>
      * {@code s1} will be the last statement of Block1, and {@code s2} will be the
      * last statement of Block2.
-     * </p>
      */
     public List<Pair<Stmt, Var>> getSourceAndVar() {
         return sourceAndVar;

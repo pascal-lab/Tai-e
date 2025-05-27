@@ -42,5 +42,6 @@
  * // dump the casting infos to the casting directory
  * FrontendStatsResult.dumpCastingInfo();
  * }
+ * </pre>
  */
 package pascal.taie.frontend.newfrontend.report;

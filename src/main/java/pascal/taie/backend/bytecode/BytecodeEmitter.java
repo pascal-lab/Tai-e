@@ -157,7 +157,6 @@ import java.util.stream.Collectors;
  * }
  * </pre>
  * The emitted class file ({@code classFile}) can then be written to a file or loaded into a JVM.
- * </p>
  */
 public class BytecodeEmitter {
     private final int classWriterOptions;

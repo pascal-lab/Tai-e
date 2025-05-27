@@ -39,7 +39,6 @@
  * <pre>
  * java -cp tai-e.jar pascal.taie.backend.bytecode.JarDumper <em>input-jar</em> <em>output-jar</em> <em>java-language-level</em>
  * </pre>
- * </p>
  * This package uses the ASM library for bytecode manipulation.
  *
  * @since TODO
