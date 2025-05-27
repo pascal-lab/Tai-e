@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,5 +90,10 @@ public record FrontendStats(
         return bytecodeParsingTime.values().stream()
                 .mapToLong(Long::longValue)
                 .sum() / 1000;
+    }
+
+    public List<TaieCastingInfo> totalCastingInfos() {
+        return castingInfos.values().stream()
+                .toList();
     }
 }

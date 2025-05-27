@@ -87,7 +87,7 @@ public class TaieCastingHierarchyDumper {
         }
     }
 
-    private static TaieCastingContext getTaieCastingContext(TaieCastingInfo info) {
+    public static TaieCastingContext getTaieCastingContext(TaieCastingInfo info) {
         List<TypeDefs> defs = new ArrayList<>();
         List<TypeConstraint> uses = new ArrayList<>();
         IR ir = info.method().getIR();
