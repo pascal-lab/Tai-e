@@ -61,6 +61,10 @@ For the reflective calls specified in the log file, pointer analysis will resolv
 *** Solar (option value: `solar`): introduced in our https://cs.nju.edu.cn/tiantan/papers/tosem2019.pdf[TOSEM'19 paper].
 *** No inference (option value: `null`): disable reflection inference.
 
+* Handling of `invokedynamic`: `handle-invokedynamic:[true|false]`
+** Default value: `false`.
+** Specify whether to handle `invokedynamic` instructions (useful for analyzing lambda-related behaviors).
+
 * Taint analysis: `taint-config:<path/to/config>`
 ** Default value: `null`
 ** Specify the path to configuration file for taint analysis, which defines sources, sinks, and taint transfers.
