@@ -83,6 +83,10 @@ See <<taint-analysis#taint-analysis,Taint Analysis>> for more details.
 ** Default value: `false`
 ** Specify whether to dump points-to results.
 
+* Dump points-to results (with context information) in YAML format: `dump-yaml:[true|false]`
+** Default value: `false`
+** Specify whether to dump points-to results in YAML format. This option is independent of `dump` and `dump-ci` output formats.
+
 * Time limit: `time-limit:<time-limit>`
 ** Default value: `-1`
 ** Specify a time limit for pointer analysis (unit: second).When it is `-1`, there is no time limit.
