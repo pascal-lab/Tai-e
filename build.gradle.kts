@@ -86,18 +86,19 @@ tasks.withType<Test> {
 }
 
 tasks.test {
-    // Excludes test suites from the default test task
-    // to avoid running some tests multiple times.
-    filter {
-        excludeTestsMatching("*TestSuite")
-    }
-}
-
-task("testTaieTestSuite", type = Test::class) {
-    group = "verification"
-    description = "Runs the Tai-e test suite"
-    filter {
-        includeTestsMatching("TaieTestSuite")
+    doFirst {
+        // Exclude TestSuite classes when running all tests to prevent duplicate execution
+        // Only apply this filter when no specific test patterns are specified via command line
+        val testFilter = filter as? org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter
+        val hasCommandLineIncludePatterns = testFilter
+            ?.commandLineIncludePatterns
+            ?.isNotEmpty()
+            ?: false
+        if (!hasCommandLineIncludePatterns) {
+            filter {
+                excludeTestsMatching("*TestSuite")
+            }
+        }
     }
 }
 
