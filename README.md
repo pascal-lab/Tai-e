@@ -108,7 +108,7 @@ For Gradle:
 ```kotlin
 repositories {
     mavenCentral()
-    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots/") }
 }
 
 dependencies {
@@ -123,7 +123,7 @@ For Maven:
     <repository>
         <id>snapshots</id>
         <name>Sonatype snapshot server</name>
-        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
 </repositories>
 
