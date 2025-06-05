@@ -164,7 +164,11 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 }
                 yield callees.size() <= calleeLimit ? callees : Set.of();
             }
-            case SPECIAL, STATIC -> Set.of(callSite.getMethodRef().resolve());
+            case SPECIAL, STATIC -> {
+                JMethod callee = CallGraphs.resolveCallee(null, callSite);
+                if (callee!= null) yield Set.of(callee);
+                else yield Set.of();
+            }
             case DYNAMIC -> {
                 logger.debug("CHA cannot resolve invokedynamic {}", callSite);
                 yield Set.of();
