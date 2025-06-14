@@ -6,6 +6,9 @@
 - Pointer analysis
   - Add special handling for zero-length arrays to enhance PTA precision.
 
+### Fixes
+- Fix NPE in Zipper-e pre-analysis.
+
 ## [0.5.1] - 2024-12-31
 
 ### New Features
