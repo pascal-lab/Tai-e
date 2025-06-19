@@ -25,6 +25,7 @@ package pascal.taie.frontend.newfrontend.bcir;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.newfrontend.FrontendContext;
+import pascal.taie.frontend.newfrontend.FrontendStmtVisitor;
 import pascal.taie.frontend.newfrontend.Lenses;
 import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.main.IRBuildingPhase;
@@ -162,7 +163,7 @@ public class CastingInsert extends NewFrontendIRComponent {
 
             for (Stmt stmt : getStmts(block)) {
                 currentStmt = stmt;
-                Stmt newStmt = stmt.accept(new StmtVisitor<>() {
+                Stmt newStmt = stmt.accept(new FrontendStmtVisitor<>() {
                     @Override
                     public Stmt visit(Copy stmt) {
                         Var right = stmt.getRValue();

@@ -31,6 +31,6 @@ import pascal.taie.ir.stmt.StmtVisitor;
  */
 public interface FrontendStmtVisitor<T> extends StmtVisitor<T> {
     default T visit(FrontendPhiStmt stmt) {
-        return stmt.accept(this);
+        return visitDefault(stmt);
     }
 }
