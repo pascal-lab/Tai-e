@@ -218,8 +218,7 @@ public class ExceptionAnalysis implements Plugin {
             Stmt currentStmt,
             Set<CSObj> newExceptions,
             CSMethod csMethod) {
-        if (!catchers.containsKey(csMethod.getMethod())) return newExceptions;
-        List<ExceptionEntry> entries = catchers.get(csMethod.getMethod())
+        List<ExceptionEntry> entries = catchers.getOrDefault(csMethod.getMethod(), Map.of())
                 .get(currentStmt);
         if (entries != null) {
             Context ctx = csMethod.getContext();
