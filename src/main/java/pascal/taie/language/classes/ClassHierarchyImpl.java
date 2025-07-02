@@ -266,16 +266,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Nullable
     public JField resolveField(FieldRef fieldRef) {
         return resolveField(fieldRef.getDeclaringClass(),
-                fieldRef.getName(), fieldRef.getType());
+                fieldRef.getName(), fieldRef.getType(), fieldRef.isStatic());
     }
 
-    private JField resolveField(JClass jclass, String name, Type type) {
+    private JField resolveField(JClass jclass, String name, Type type, boolean isStatic) {
         JField field;
         // 0. First, check and handle phantom fields
         if (jclass.isPhantom()) {
             field = jclass.getPhantomField(name, type);
             if (field == null) {
-                field = new JField(jclass, name, Set.of(),
+                Set<Modifier> modifiers;
+                if (isStatic) {
+                    modifiers = Set.of(Modifier.STATIC);
+                } else {
+                    modifiers = Set.of();
+                }
+                field = new JField(jclass, name, modifiers,
                         type, null, AnnotationHolder.emptyHolder());
                 jclass.addPhantomField(name, type, field);
             }
@@ -292,7 +298,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 2. Otherwise, field lookup is applied recursively to the
         // direct superinterfaces of the specified class or interface C.
         for (JClass iface : jclass.getInterfaces()) {
-            field = resolveField(iface, name, type);
+            field = resolveField(iface, name, type, isStatic);
             if (field != null) {
                 return field;
             }
@@ -300,7 +306,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 3. Otherwise, if C has a superclass S, field lookup is applied
         // recursively to S.
         if (jclass.getSuperClass() != null) {
-            return resolveField(jclass.getSuperClass(), name, type);
+            return resolveField(jclass.getSuperClass(), name, type, isStatic);
         }
         // 5. Otherwise, field lookup fails.
         return null;

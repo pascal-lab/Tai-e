@@ -69,6 +69,7 @@ public class UnsafeModel extends IRModelPlugin {
             if (xType instanceof ReferenceType) { // ignore primitive types
                 clazz.getDeclaredFields()
                         .stream()
+                        .filter(field -> !field.isStatic())
                         .filter(f -> f.getType().equals(xType))
                         .forEach(f -> stmts.add(new StoreField(
                                 new InstanceFieldAccess(f.getRef(), o), x)));

@@ -10,12 +10,12 @@ version = projectVersion
 
 dependencies {
     // Process options
-    implementation("info.picocli:picocli:4.7.6")
+    implementation("info.picocli:picocli:4.7.7")
     // Logger
-    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
     // Process YAML configuration files
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
@@ -31,7 +31,7 @@ dependencies {
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
 }
@@ -86,18 +86,19 @@ tasks.withType<Test> {
 }
 
 tasks.test {
-    // Excludes test suites from the default test task
-    // to avoid running some tests multiple times.
-    filter {
-        excludeTestsMatching("*TestSuite")
-    }
-}
-
-task("testTaieTestSuite", type = Test::class) {
-    group = "verification"
-    description = "Runs the Tai-e test suite"
-    filter {
-        includeTestsMatching("TaieTestSuite")
+    doFirst {
+        // Exclude TestSuite classes when running all tests to prevent duplicate execution
+        // Only apply this filter when no specific test patterns are specified via command line
+        val testFilter = filter as? org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter
+        val hasCommandLineIncludePatterns = testFilter
+            ?.commandLineIncludePatterns
+            ?.isNotEmpty()
+            ?: false
+        if (!hasCommandLineIncludePatterns) {
+            filter {
+                excludeTestsMatching("*TestSuite")
+            }
+        }
     }
 }
 
