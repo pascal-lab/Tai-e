@@ -24,9 +24,7 @@ package pascal.taie.analysis.pta.toolkit.mahjong;
 
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.stmt.LoadArray;
-import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.language.classes.JField;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -51,32 +49,30 @@ class FieldPointsToGraph {
 
     private void initialize(PointerAnalysisResult pta) {
         // build field points-to graph by examining points-to results
-        // now scan all loaded fields, shall we scan all fields of all objects?
+        // and scanning all the fields and array indices
         Field.Factory factory = new Field.Factory();
-        pta.getVars().parallelStream().forEach(var -> {
-            for (LoadField load : var.getLoadFields()) {
-                if (isConcerned(load.getRValue())) {
-                    for (Obj baseObj : pta.getPointsToSet(var)) {
-                        Field field = factory.get(load.getFieldRef().resolve());
-                        Set<Obj> pts = pta.getPointsToSet(load.getRValue());
-                        addFieldPointsTo(baseObj, field, pts);
+        pta.getInstanceFields().parallelStream()
+                .filter(instanceField -> isConcerned(instanceField.getType()))
+                .forEach(instanceField -> {
+                    Obj baseObj = instanceField.getBase().getObject();
+                    if (baseObj.isFunctional()) {
+                        JField jField = instanceField.getField();
+                        Set<Obj> pts = pta.getPointsToSet(baseObj, jField);
+                        addFieldPointsTo(baseObj, factory.get(jField), pts);
                     }
-                }
-            }
-            for (LoadArray load : var.getLoadArrays()) {
-                if (isConcerned(load.getRValue())) {
-                    for (Obj baseObj : pta.getPointsToSet(var)) {
-                        Field field = factory.getArrayIndex();
-                        Set<Obj> pts = pta.getPointsToSet(load.getRValue());
-                        addFieldPointsTo(baseObj, field, pts);
+                });
+        pta.getArrayIndexes().parallelStream()
+                .filter(arrayIndex -> isConcerned(arrayIndex.getType()))
+                .forEach(arrayIndex -> {
+                    Obj array = arrayIndex.getArray().getObject();
+                    if (array.isFunctional()) {
+                        Set<Obj> pts = pta.getPointsToSet(array);
+                        addFieldPointsTo(array, factory.getArrayIndex(), pts);
                     }
-                }
-            }
-        });
+                });
     }
 
-    private static boolean isConcerned(Exp exp) {
-        Type type = exp.getType();
+    private static boolean isConcerned(Type type) {
         return type instanceof ReferenceType && !(type instanceof NullType);
     }
 
