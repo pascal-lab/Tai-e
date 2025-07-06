@@ -12,6 +12,7 @@
 
 ## ✨News
 
+- Our paper _"Two Approaches to Fast Bytecode Frontend for Static Analysis"_ has been accepted by <ins>OOPSLA'25</ins>. This paper presents Tai-e's new bytecode frontend, which is significantly faster and more reliable than existing frontends.
 - Our paper _"Pointer Analysis for Database-Backed Applications"_ has been accepted by <ins>PLDI'25</ins>. This paper describes an end–to–end pointer analysis for Java database–backed application developed on top of Tai-e.
 - Our paper _"PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps"_ has been accepted by <ins>ICSE'25</ins>. This work demonstrates Tai-e's new capability in Android analysis, providing a simple yet effective approach for security analysis of Apps. This work earned the **Best Artifact Award**🏅.
 - Our paper _"Bridge the Islands: Pointer Analysis for Microservice Systems"_ has been accepted by <ins>ISSTA'25</ins>. This paper describes the first pointer analysis for Java Microservice systems developed on top of Tai-e.

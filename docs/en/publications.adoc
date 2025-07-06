@@ -2,6 +2,8 @@ include::attributes.adoc[]
 
 = Publications
 
+* Chenxi Li, Haoran Lin, Tian Tan, and Yue Li. _Two Approaches to Fast Bytecode Frontend for Static Analysis_. In Proceedings of the ACM on Programming Languages, Volume 8, Issue OOPSLA2, Singapore, October 12--18 2025. (OOPSLA'25)
+
 * Yufei Liang, Teng Zhang, Ganlin Li, Tian Tan, Chang Xu, Chun Cao, Xiaoxing Ma, and Yue Li. _Pointer Analysis for Database-Backed Applications_. In Proceedings of the 46th ACM SIGPLAN Conference on Programming Language Design and Implementation, Seoul, South Korea, June 16--20 2025 (PLDI'25).
 
 * Menglong Chen, Tian Tan, Minxue Pan, and Yue Li. _PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps_. In Proceedings of the 47th IEEE/ACM International Conference on Software Engineering, Ottawa, Canada, April 27--May 3 2025 (ICSE'25).
