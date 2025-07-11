@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.newfrontend.typing;
+package pascal.taie.frontend.newfrontend.ssa;
 
 import pascal.taie.ir.exp.Var;
 

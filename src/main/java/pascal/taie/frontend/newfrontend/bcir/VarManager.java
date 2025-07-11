@@ -29,7 +29,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import pascal.taie.frontend.newfrontend.Utils;
-import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
+import pascal.taie.frontend.newfrontend.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;

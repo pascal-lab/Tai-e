@@ -63,7 +63,7 @@ import pascal.taie.frontend.newfrontend.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.newfrontend.ssa.IRSSATransform;
 import pascal.taie.frontend.newfrontend.ssa.IndexedGraph;
 import pascal.taie.frontend.newfrontend.ssa.PhiResolver;
-import pascal.taie.frontend.newfrontend.typing.VarSSAInfo;
+import pascal.taie.frontend.newfrontend.ssa.VarSSAInfo;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
