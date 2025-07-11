@@ -23,7 +23,6 @@
 package pascal.taie.vm;
 
 import pascal.taie.World;
-import pascal.taie.frontend.newfrontend.java.NewFrontendException;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -149,7 +148,7 @@ public class VM {
             boolean exceptionTriggered = false;
             try {
                 execStmt(stmt, ir, f);
-            } catch (VMException | NewFrontendException e) {
+            } catch (VMException e) {
                 throw e;
             } catch (Exception e) {
                 exceptionTriggered = true;

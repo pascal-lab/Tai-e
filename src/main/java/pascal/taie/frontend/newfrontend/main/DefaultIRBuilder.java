@@ -32,11 +32,9 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.backend.bytecode.BinaryUtils;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.bcir.BytecodeIRBuilder;
-import pascal.taie.frontend.newfrontend.java.JavaMethodIRBuilder;
 import pascal.taie.frontend.newfrontend.report.FrontendTimer;
 import pascal.taie.frontend.newfrontend.source.AsmMethodSource;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
-import pascal.taie.frontend.newfrontend.source.JavaMethodSource;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -46,7 +44,6 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,8 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * This class implements the IRBuilder interface and is responsible for
  * building Intermediate Representations (IR) for Java methods.
- * It supports building IR for JVM Bytecode ({@link AsmMethodSource})
- * and Java ({@link JavaMethodSource}) method sources.
+ * It supports building IR for JVM Bytecode ({@link AsmMethodSource}) method sources.
  */
 public class DefaultIRBuilder extends NewFrontendComponent
         implements pascal.taie.ir.IRBuilder {
@@ -140,9 +136,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
                 return builder.getIr();
             } else if (source == null) {
                 return loadingAndGetIR(method);
-            } else if (source instanceof JavaMethodSource javaMethodSource) {
-                JavaMethodIRBuilder builder = new JavaMethodIRBuilder(javaMethodSource, method);
-                return builder.build();
             } else {
                 throw new UnsupportedOperationException();
             }

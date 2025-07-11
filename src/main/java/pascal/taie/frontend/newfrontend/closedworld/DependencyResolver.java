@@ -27,8 +27,6 @@ import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.frontend.newfrontend.source.JavaSource;
-import pascal.taie.frontend.newfrontend.java.JavaClassManager;
 import pascal.taie.frontend.newfrontend.JavacSourceHandler;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
 import pascal.taie.project.ProgramFile;
@@ -59,19 +57,6 @@ class DependencyResolver {
     resolvePhantom(String binaryName) {
         return new ResolveResult(List.of(), List.of(new Pair<>(binaryName,
                 new PhantomClassSource(binaryName.replace('/', '.'), false))));
-    }
-
-    private static ResolveResult
-    resolveWithJDT(Project project, String binaryName, DotJavaFile dotJavaFile) {
-        // DO NOT change the order of next 2 stmts
-        List<String> deps = JavaClassManager.get().getImports(project, dotJavaFile);
-        JavaSource[] javaSources = JavaClassManager.get().getJavaSources(dotJavaFile);
-        List<Pair<String, ClassSource>> sources = new ArrayList<>();
-        for (JavaSource s : javaSources) {
-            String binaryNameOfFile = s.getClassName().replace('.', '/');
-            sources.add(new Pair<>(binaryNameOfFile, s));
-        }
-        return new ResolveResult(deps, sources);
     }
 
     private static ResolveResult

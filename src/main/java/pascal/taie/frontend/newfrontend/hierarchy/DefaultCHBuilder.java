@@ -26,8 +26,6 @@ import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.frontend.newfrontend.source.JavaSource;
-import pascal.taie.frontend.newfrontend.java.JavaClassBuilder;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -89,8 +87,6 @@ public class DefaultCHBuilder extends NewFrontendComponent
             ClassSource source, JClass jClass) {
         if (source instanceof AsmSource i) {
             return new BytecodeClassBuilder(ctx(), i, jClass);
-        } else if (source instanceof JavaSource j) {
-            return new JavaClassBuilder(j, jClass);
         } else if (source instanceof PhantomClassSource p) {
             return new PhantomClassBuilder(ctx(), p.getClassName());
         } else {
