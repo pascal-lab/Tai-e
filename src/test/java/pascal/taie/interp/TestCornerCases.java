@@ -1,7 +1,6 @@
 package pascal.taie.interp;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
@@ -10,6 +9,9 @@ import pascal.taie.config.AnalysisConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestCornerCases {
 
@@ -28,7 +30,7 @@ public class TestCornerCases {
         System.setOut(new PrintStream(outputStream));
         VM vm = new VM();
         vm.exec();
-        Assert.assertEquals("0\n1\n", outputStream.toString());
+        assertEquals("0\n1\n", outputStream.toString());
     }
 
     @Test
@@ -38,7 +40,7 @@ public class TestCornerCases {
         System.setOut(new PrintStream(outputStream));
         VM vm = new VM();
         vm.exec();
-        Assert.assertEquals("0\n1\n", outputStream.toString());
+        assertEquals("0\n1\n", outputStream.toString());
     }
 
     @Test
@@ -48,7 +50,7 @@ public class TestCornerCases {
         System.setOut(new PrintStream(outputStream));
         VM vm = new VM();
         vm.exec();
-        Assert.assertEquals("0\n1\n", outputStream.toString());
+        assertEquals("0\n1\n", outputStream.toString());
     }
 
     @Test
@@ -64,6 +66,6 @@ public class TestCornerCases {
         String[] lines = outputStream.toString()
                 .split("\n");
         String[] last2lines = Arrays.copyOfRange(lines, lines.length - 2, lines.length);
-        Assert.assertArrayEquals(new String[] { "11", "6" }, last2lines);
+        assertArrayEquals(new String[] { "11", "6" }, last2lines);
     }
 }

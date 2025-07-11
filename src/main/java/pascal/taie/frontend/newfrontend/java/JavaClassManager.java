@@ -19,7 +19,6 @@ import pascal.taie.project.JavaSourceFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.Resource;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -152,14 +151,7 @@ public class JavaClassManager {
         // TODO: add real paths;
         String JREs = "java-benchmarks/JREs";
         int javaVersion = World.get().getOptions().getJavaVersion();
-        String classPath = World.get().getOptions().getClassPath();
-        String[] cps;
-        if (classPath != null) {
-            cps = classPath.split(File.pathSeparator);
-        } else {
-            cps = new String[0];
-        }
-        List<String> res = new ArrayList<>(List.of(cps));
+        List<String> res = World.get().getOptions().getClassPath();
         if (javaVersion <= 8) {
             String jrePath = String.format("%s/jre" + "1.%d",
                     JREs, javaVersion);

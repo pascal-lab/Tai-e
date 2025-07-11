@@ -6,9 +6,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.LoggerConfigs;
@@ -21,7 +20,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Streams;
 import soot.Body;
@@ -43,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static soot.SootClass.HIERARCHY;
 
 public class TestAsmIRBuilder {
@@ -77,8 +76,8 @@ public class TestAsmIRBuilder {
         return getCh(mainClass, List.of(worldPath + "/ " + mainClass), javaVersion);
     }
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
     }
 
@@ -162,7 +161,7 @@ public class TestAsmIRBuilder {
                             IR ir = m.getIR();
 //                            IRPrinter.print(ir, System.out);
                             for (Stmt s : ir) {
-                                Assert.assertEquals(s, ir.getObject(s.getIndex()));
+                                assertEquals(s, ir.getObject(s.getIndex()));
                             }
                         }
                     }
@@ -208,10 +207,7 @@ public class TestAsmIRBuilder {
 
         Printer.printTestRes(false);
 
-        StageTimer timer = StageTimer.getInstance();
-        System.out.println("Typeless IR: " + (double) timer.getTotalTypelessIRTime() / 1000 + "s.");
-        System.out.println("Splitting: " + (double) timer.getTotalSplittingTime() / 1000 + "s.");
-        System.out.println("Typing: " + (double) timer.getTotalTypingTime() / 1000 + "s.");
+        System.out.println(StageTimer.getInstance().message());
     }
 
     /**
@@ -518,7 +514,7 @@ public class TestAsmIRBuilder {
     protected static final String JREs = "java-benchmarks/JREs";
     protected static String getClassPath(Options options) {
         if (options.isPrependJVM()) {
-            return options.getClassPath();
+            return String.join(File.pathSeparator, options.getClassPath());
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
@@ -534,8 +530,8 @@ public class TestAsmIRBuilder {
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                Stream.ofNullable(options.getAppClassPath()),
-                                Stream.ofNullable(options.getClassPath()))
+                                options.getAppClassPath().stream(),
+                                options.getClassPath().stream())
                         .collect(Collectors.joining(File.pathSeparator));
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
@@ -560,12 +556,12 @@ public class TestAsmIRBuilder {
             }
         });
         // process --app-class-path
-        String appClassPath = options.getAppClassPath();
-        if (appClassPath != null) {
-            for (String path : appClassPath.split(File.pathSeparator)) {
-                classes.addAll(ClassNameExtractor.extract(path));
-            }
-        }
+//        String appClassPath = options.getAppClassPath();
+//        if (appClassPath != null) {
+//            for (String path : appClassPath.split(File.pathSeparator)) {
+//                classes.addAll(ClassNameExtractor.extract(path));
+//            }
+//        }
         return classes;
     }
 

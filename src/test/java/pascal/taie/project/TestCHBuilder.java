@@ -1,6 +1,6 @@
 package pascal.taie.project;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.ClosedWorldBuilder;

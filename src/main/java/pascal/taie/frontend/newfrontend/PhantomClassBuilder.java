@@ -6,8 +6,10 @@ import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -87,5 +89,12 @@ class PhantomClassBuilder implements JClassBuilder {
     @Override
     public boolean isPhantom() {
         return true;
+    }
+
+    @Nullable
+    @Override
+    public ClassGSignature getGSignature() {
+        // for phantom class, no generic signature should be provided.
+        return null;
     }
 }

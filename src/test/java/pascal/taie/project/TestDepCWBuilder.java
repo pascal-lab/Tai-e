@@ -1,7 +1,6 @@
 package pascal.taie.project;
 
-import org.junit.Test;
-import pascal.taie.frontend.newfrontend.ClassSource;
+import org.junit.jupiter.api.Test;
 import pascal.taie.frontend.newfrontend.DepCWBuilder;
 
 import java.util.List;

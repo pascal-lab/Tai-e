@@ -80,7 +80,7 @@ public class AsmWorldBuilder extends AbstractWorldBuilder {
                 .toList());
 
         // initialize IR builder
-        world.setNativeModel(getNativeModel(typeSystem, hierarchy));
+        world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
         IRBuilder irBuilder = new IRBuilder();
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {

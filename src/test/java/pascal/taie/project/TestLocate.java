@@ -1,13 +1,14 @@
 package pascal.taie.project;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pascal.taie.config.Options;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestLocate {
 
@@ -18,22 +19,8 @@ public class TestLocate {
 
     String className;
 
-    static class MockOptions extends Options {
-        String classPaths;
-
-        public MockOptions(String classPaths) {
-            this.classPaths = classPaths;
-        }
-
-        @Override
-        public String getClassPath() {
-            return classPaths;
-        }
-    }
-
     Project createProject(String classPath) {
-        Options options = new MockOptions(classPath);
-        ProjectBuilder builder = new OptionsProjectBuilder(options);
+        ProjectBuilder builder = new OptionsProjectBuilder(null);
         return builder.build();
     }
 
@@ -60,12 +47,12 @@ public class TestLocate {
     public void testLocate1() throws IOException {
         setupTest(testAll);
         Project project = createProject(classPath);
-        Assert.assertNotNull(project);
+        assertNotNull(project);
 
         AnalysisFile f = project.locate(className);
-        Assert.assertNotNull(f);
+        assertNotNull(f);
         try (InputStream in = new FileInputStream(javaFileToFind)) {
-            Assert.assertArrayEquals(in.readAllBytes(), f.resource().getContent());
+            assertArrayEquals(in.readAllBytes(), f.resource().getContent());
         }
     }
 
@@ -73,12 +60,12 @@ public class TestLocate {
     public void testLocateInZip() throws IOException {
         setupTest(testSrcSingle);
         Project project = createProject(classPath);
-        Assert.assertNotNull(project);
+        assertNotNull(project);
 
         AnalysisFile f = project.locate(className);
-        Assert.assertNotNull(f);
+        assertNotNull(f);
         try (InputStream in = new FileInputStream(javaFileToFind)) {
-            Assert.assertArrayEquals(in.readAllBytes(), f.resource().getContent());
+            assertArrayEquals(in.readAllBytes(), f.resource().getContent());
         }
     }
 
@@ -86,14 +73,14 @@ public class TestLocate {
     public void testLocateFiles() throws IOException {
         setupTest(testSrcMultiple);
         Project project = createProject(classPath);
-        Assert.assertNotNull(project);
+        assertNotNull(project);
 
         List<AnalysisFile> f = project.locateFiles(className);
-        Assert.assertEquals(f.size(), 2);
+        assertEquals(f.size(), 2);
         try (InputStream in = new FileInputStream(javaFileToFind)) {
             byte[] expected = in.readAllBytes();
-            Assert.assertArrayEquals(expected, f.get(0).resource().getContent());
-            Assert.assertArrayEquals(expected, f.get(1).resource().getContent());
+            assertArrayEquals(expected, f.get(0).resource().getContent());
+            assertArrayEquals(expected, f.get(1).resource().getContent());
         }
     }
 }

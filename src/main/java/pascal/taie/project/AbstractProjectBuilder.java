@@ -38,7 +38,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class AbstractProjectBuilder implements ProjectBuilder {
@@ -69,7 +68,7 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
     /**
      * return value excludes app-class-path
      */
-    protected static String getClassPath(Options options) {
+    protected static List<String> getClassPath(Options options) {
         if (options.isPrependJVM() || options.getNoAppendJava()) {
             return options.getClassPath();
         } else if (options.getJreDir() != null) {
@@ -87,8 +86,8 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),
-                                Stream.ofNullable(options.getClassPath()))
-                        .collect(Collectors.joining(File.pathSeparator));
+                                options.getClassPath().stream())
+                        .toList();
             } catch (IOException e) {
                 throw new RuntimeException("Analysis on Java " +
                         options.getJavaVersion() + " library is not supported yet", e);
@@ -117,11 +116,9 @@ public abstract class AbstractProjectBuilder implements ProjectBuilder {
             }
         });
         // process --app-class-path
-        String appClassPath = options.getAppClassPath();
-        if (appClassPath != null) {
-            for (String path : appClassPath.split(File.pathSeparator)) {
-                classes.addAll(ClassNameExtractor.extract(path));
-            }
+        List<String> appClassPath = options.getAppClassPath();
+        for (String path : appClassPath) {
+            classes.addAll(ClassNameExtractor.extract(path));
         }
         return classes;
     }

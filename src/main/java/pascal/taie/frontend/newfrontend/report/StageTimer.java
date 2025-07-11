@@ -35,12 +35,12 @@ public class StageTimer {
         });
     }
 
-    public static String message() {
-        return "[TIMER] Total Typeless IR Time: " + getInstance().getTotalTypelessIRTime() + "ms\n" +
-                "[TIMER] Total Splitting Time:   " + getInstance().getTotalSplittingTime() + "ms\n" +
-                "[TIMER] Total Typing Time:      " + getInstance().getTotalTypingTime() + "ms\n" +
-                "[TIMER] IR Time:                " + getInstance().getIRTime() + "ms\n" +
-                "[TIMER] CW Time:                " + getInstance().getCWTime() + "ms\n";
+    public String message() {
+        return "[TIMER] Total Typeless IR Time: " + getTotalTypelessIRTime() + "ms\n" +
+                "[TIMER] Total Splitting Time:   " + getTotalSplittingTime() + "ms\n" +
+                "[TIMER] Total Typing Time:      " + getTotalTypingTime() + "ms\n" +
+                "[TIMER] IR Time:                " + getIRTime() + "ms\n" +
+                "[TIMER] CW Time:                " + getCWTime() + "ms\n";
     }
 
     public static StageTimer getInstance() {

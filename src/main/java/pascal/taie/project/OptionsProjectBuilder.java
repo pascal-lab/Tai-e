@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class OptionsProjectBuilder extends AbstractProjectBuilder {
@@ -47,22 +48,10 @@ public class OptionsProjectBuilder extends AbstractProjectBuilder {
     @Override
     public Project build() {
         try {
-            List<String> appClassPaths;
-            String appClassPath = options.getAppClassPath();
-            if (appClassPath == null) {
-                appClassPaths = List.of();
-            } else {
-                appClassPaths = Arrays.asList(appClassPath.split(File.pathSeparator));
-            }
+            List<String> appClassPaths = options.getAppClassPath();
 
-            List<String> libClassPaths;
-            String classPath = getClassPath(options);
-            if (classPath == null) {
-                libClassPaths = List.of();
-            } else {
-                libClassPaths = new ArrayList<>(Arrays.asList(classPath.split(File.pathSeparator)));
-                libClassPaths.removeAll(appClassPaths);
-            }
+            List<String> libClassPaths = new ArrayList<>(getClassPath(options));
+            libClassPaths.removeAll(appClassPaths);
 
             project = new Project(
                     getMainClass(),

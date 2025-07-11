@@ -36,11 +36,6 @@ public class MockOptions extends Options {
     }
 
     @Override
-    public String getClassPath() {
-        return classpath;
-    }
-
-    @Override
     public String getMainClass() {
         return mainClass;
     }

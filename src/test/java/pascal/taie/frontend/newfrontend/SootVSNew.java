@@ -1,8 +1,7 @@
 package pascal.taie.frontend.newfrontend;
 
-import org.junit.Assert;
-import org.junit.Test;
 
+import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.ClassHierarchyBuilder;
