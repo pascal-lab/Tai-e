@@ -2,6 +2,8 @@ package pascal.taie.dumpjvm;
 
 import pascal.taie.Main;
 import pascal.taie.World;
+import pascal.taie.analysis.misc.IRDumper;
+import pascal.taie.config.AnalysisConfig;
 import pascal.taie.language.classes.JClass;
 
 import java.io.FileNotFoundException;
@@ -30,15 +32,22 @@ public class JarDumper {
                 "--allow-phantom");
         // convert each class in this file
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();
+        IRDumper dumper = new IRDumper(AnalysisConfig.of(IRDumper.ID));
+        JClass klass = World.get().getClassHierarchy().getClass("clojure.lang.WarnBoxedMath");
+        dumper.analyze(klass);
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");
             for (JClass jClass : classes) {
                 if (!jClass.isApplication()) continue;
-                byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
-                Path classfilePath = tempDir.resolve(
-                        BytecodeEmitter.computeInternalName(jClass) + ".class");
-                Files.createDirectories(classfilePath.getParent());
-                Files.write(classfilePath, classfileBuffer);
+                try {
+                    byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
+                    Path classfilePath = tempDir.resolve(
+                            BytecodeEmitter.computeInternalName(jClass) + ".class");
+                    Files.createDirectories(classfilePath.getParent());
+                    Files.write(classfilePath, classfileBuffer);
+                } catch (Exception e) {
+                    System.out.println("Exception while write " + jClass);
+                }
             }
             packJar(p, tempDir, newJar);
             deleteDir(tempDir);

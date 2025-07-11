@@ -151,7 +151,9 @@ public class BytecodeEmitter {
         int access = classModifiers.contains(Modifier.INTERFACE)
                 ? _access
                 : _access | Opcodes.ACC_SUPER;
-        writer.visit(Opcodes.V17, access,
+        // TODO: this should be an parameter
+        //       some class need to use V1_8
+        writer.visit(Opcodes.V1_8, access,
                 getInternalName(jClass), null, getInternalName(jClass.getSuperClass()),
                 jClass.getInterfaces()
                         .stream()
@@ -167,9 +169,19 @@ public class BytecodeEmitter {
             }
         }
         for (JField field : jClass.getDeclaredFields()) {
+            Literal constantValue = field.getConstantValue();
             writer.visitField(Utils.toAsmModifier(field.getModifiers()), field.getName(),
-                    getDescriptor(field.getType()), null, null);
+                    getDescriptor(field.getType()), null,
+                    constantValue == null ? null : toObject(constantValue));
         }
+
+        for (Annotation annotation : jClass.getAnnotations()) {
+            // TODO: it is correct?
+            AnnotationVisitor annotationVisitor = writer.visitAnnotation(
+                    getDescriptorByDesc(annotation.getType()), true);
+            emitAnnotation(annotationVisitor, annotation);
+        }
+
         computeNest(jClass);
         for (InnerClassNode innerClass : innerClassMap.values()) {
             innerClass.accept(writer);
@@ -222,9 +234,8 @@ public class BytecodeEmitter {
 
         for (Annotation annotation : method.getAnnotations()) {
             AnnotationVisitor annotationVisitor =
-                    mv.visitAnnotation(annotation.getType(), true);
+                    mv.visitAnnotation(getDescriptorByDesc(annotation.getType()), true);
             emitAnnotation(annotationVisitor, annotation);
-            annotationVisitor.visitEnd();
         }
         mv.visitEnd();
     }
@@ -240,7 +251,8 @@ public class BytecodeEmitter {
 
     void emitElement(AnnotationVisitor annotationVisitor, String name, Element ele) {
         if (ele instanceof AnnotationElement ae) {
-            AnnotationVisitor av = annotationVisitor.visitAnnotation(name, ae.annotation().getType());
+            AnnotationVisitor av = annotationVisitor.visitAnnotation(
+                    name, getDescriptorByDesc(ae.annotation().getType()));
             emitAnnotation(av, ae.annotation());
             av.visitEnd();
         } else if (ele instanceof ArrayElement arr) {
@@ -250,7 +262,7 @@ public class BytecodeEmitter {
             }
             av.visitEnd();
         } else if (ele instanceof EnumElement ee) {
-            annotationVisitor.visitEnum(name, ee.type(), ee.name());
+            annotationVisitor.visitEnum(name, getDescriptorByDesc(ee.type()), ee.name());
         } else {
             annotationVisitor.visit(name, toObject(ele));
         }
@@ -303,7 +315,8 @@ public class BytecodeEmitter {
                     if (invokeExp instanceof InvokeDynamic dyn) {
                         ret = dyn.getMethodType().getReturnType();
                     } else {
-                        ret = invokeExp.getMethodRef().resolve().getReturnType();
+                        // FIXME: some method cannot resolve(). What happen?
+                        ret = invokeExp.getMethodRef().getReturnType();
                     }
                     if (!(ret instanceof VoidType)) {
                         switch (ret.getName()) {
@@ -359,7 +372,7 @@ public class BytecodeEmitter {
                     // emit i2d, i2f ...
                     emitMayConstLoad(v, nodeList);
                     int[][] table = {
-                            {Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, -1, Opcodes.I2L, Opcodes.I2F, Opcodes.I2D},
+                            {Opcodes.I2B, Opcodes.I2S, Opcodes.I2C, -1, Opcodes.I2L, Opcodes.I2F, Opcodes.I2D},
                             {-1, -1, -1, Opcodes.L2I, -1, Opcodes.L2F, Opcodes.L2D},
                             {-1, -1, -1, Opcodes.F2I, Opcodes.F2L, -1, Opcodes.F2D},
                             {-1, -1, -1, Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, -1}};
@@ -843,6 +856,11 @@ public class BytecodeEmitter {
             noticeInnerClass(ct.getJClass());
         }
         return BinaryUtils.computeDescriptor(type);
+    }
+
+    String getDescriptorByDesc(String taieDesc) {
+        Type t = World.get().getTypeSystem().getType(taieDesc);
+        return getDescriptor(t);
     }
 
     private void noticeInnerClass(JClass jClass) {

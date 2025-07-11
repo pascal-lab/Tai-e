@@ -381,7 +381,7 @@ public class JClass extends AbstractResultHolder
                     Set.of(Modifier.STATIC) :
                     Set.of();
             JField field = new JField(this, name, modifiers,
-                    type, null, AnnotationHolder.emptyHolder());
+                    type, null, AnnotationHolder.emptyHolder(), null);
             phantomFields.put(fieldName, field);
             return field;
         }

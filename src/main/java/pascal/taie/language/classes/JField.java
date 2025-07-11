@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
@@ -39,17 +40,20 @@ public class JField extends ClassMember {
 
     private final Type type;
 
+    private final Literal constantValue;
+
     @Nullable
     @Experimental
     private final ReferenceTypeGSignature gSignature;
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
                   Type type, @Nullable ReferenceTypeGSignature gSignature,
-                  AnnotationHolder annotationHolder) {
+                  AnnotationHolder annotationHolder, Literal constantValue) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.type = type;
         this.gSignature = gSignature;
         this.signature = StringReps.getSignatureOf(this);
+        this.constantValue = constantValue;
     }
 
     public Type getType() {
@@ -74,5 +78,13 @@ public class JField extends ClassMember {
     @Override
     public String toString() {
         return StringReps.getSignatureOf(this);
+    }
+
+    /**
+     * See <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2">JVM Spec 4.7.2</a>
+     * @return constant value for static final fields, can be a primitive type or string value
+     */
+    public Literal getConstantValue() {
+        return constantValue;
     }
 }

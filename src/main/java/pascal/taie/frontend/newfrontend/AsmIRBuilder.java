@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.newfrontend.data.SparseArray;
 import pascal.taie.frontend.newfrontend.dbg.BytecodeVisualizer;
+import pascal.taie.frontend.newfrontend.report.StackMergeReporter;
 import pascal.taie.frontend.newfrontend.report.StageTimer;
 import pascal.taie.frontend.newfrontend.ssa.Dominator;
 import pascal.taie.frontend.newfrontend.ssa.FastVarSplitting;
@@ -223,10 +224,13 @@ public class AsmIRBuilder {
                 ssa();
                 stageTimer.endSplitting();
             }
+            stageTimer.startTypelessIR();
             makeStmts(true);
             makeExceptionTable();
+            stageTimer.endTypelessIR();
             verify();
             this.ir = getIR();
+            reportMergeStats();
         }
     }
 
@@ -369,7 +373,11 @@ public class AsmIRBuilder {
                         ac.getBase().getType() == NullType.NULL ? NullType.NULL :
                                 ac.getType();
             } else if (e instanceof BinaryExp binary) {
-                right = binary.getOperand1().getType() == null ? null : binary.getType();
+                if (binary instanceof ComparisonExp) {
+                    right = INT;
+                } else {
+                    right = binary.getOperand1().getType() == null ? null : binary.getType();
+                }
             } else if (e instanceof NegExp neg) {
                 right = neg.getOperand().getType() == null ? null : neg.getType();
             } else {
@@ -731,6 +739,14 @@ public class AsmIRBuilder {
             if (!(handler instanceof Catch)) {
                 // unreachable
                 continue;
+            } else if (start == end) {
+                // same position, maybe const store
+                // ----------- start
+                // aconst_null
+                // astore x       <----   x is ssa
+                // ----------- end
+                // then it should be automatically removed (or it will not be valid bytecode)
+                continue;
             }
             ClassType expType = fromExceptionType(node.type);
             res.add(new ExceptionEntry(start, end, (Catch) handler, expType));
@@ -1059,6 +1075,8 @@ public class AsmIRBuilder {
     }
 
     private void returnExp(Stack<StackItem> stack, InsnNode node) {
+        // now, empty the stack, ensure all expression with side-effect is generated
+        ensureStackSafety(stack, this::maySideEffect);
         int opcode = node.getOpcode();
         if (opcode == Opcodes.RETURN) {
             assocStmt(node, new Return());
@@ -1294,6 +1312,7 @@ public class AsmIRBuilder {
             inStack = null;
         } else if (inEdgeCount == 1) {
             BytecodeBlock inEdge = getInEdge(block, 0);
+            assert inEdge.getOutStack() != null;
             inStack = new Stack<>();
             inStack.addAll(inEdge.getOutStack());
         } else {
@@ -1452,20 +1471,20 @@ public class AsmIRBuilder {
             };
             for (StackPhi phi : phiList) {
                 if (phi.getWriteOutVar() != null) continue;
-                boolean hasCriticalInEdge = false;
                 BytecodeBlock block = phi.createPos;
-                for (int i = 0; i < getInEdgeCount(block); ++i) {
-                    int pred = g.getInEdge(block.getIndex(), i);
-                    if (g.getOutEdgesCount(pred) > 1) {
-                        hasCriticalInEdge = true;
-                        break;
-                    }
-                }
+                boolean hasCriticalInEdge = block.isLoopHeader();
+//                for (int i = 0; i < getInEdgeCount(block); ++i) {
+//                    int pred = g.getInEdge(block.getIndex(), i);
+//                    if (g.getOutEdgesCount(pred) > 1) {
+//                        hasCriticalInEdge = true;
+//                        break;
+//                    }
+//                }
                 for (StackItem item : block.getInStack()) {
                     Exp e = item.originalExp();
                     if (e instanceof StackPhi phi1) {
                         if (phi1.getWriteOutVar() != null) continue;
-                        boolean useWorseSolution = hasCriticalInEdge && getInEdgeCount(block) != 0 && phi1.used;
+                        boolean useWorseSolution = hasCriticalInEdge && phi1.used;
                         Var writeOut = useWorseSolution ? manager.getTempVar() : phi1.getVar();
                         varSSAInfo.setNonSSA(writeOut);
                         if (useWorseSolution) {
@@ -1723,12 +1742,14 @@ public class AsmIRBuilder {
                 case Opcodes.PUTSTATIC -> {
                     FieldAccess access = new StaticFieldAccess(ref);
                     Var v1 = popVar(nowStack);
+                    ensureStackSafety(nowStack, this::maySideEffect);
                     storeExp(node, access, v1);
                 }
                 case Opcodes.PUTFIELD -> {
                     Var value = popVar(nowStack);
                     Var base = popVar(nowStack);
                     FieldAccess access = new InstanceFieldAccess(ref, base);
+                    ensureStackSafety(nowStack, this::maySideEffect);
                     storeExp(node, access, value);
                 }
                 default -> throw new UnsupportedOperationException();
@@ -2126,9 +2147,8 @@ public class AsmIRBuilder {
                         break;
                     }
                 }
-                if (edge.getOpcode() == -1) {
+                if (edge.getOpcode() == -1 && current != entry) {
                     // empty block
-                    BytecodeBlock before = idx2Block[start];
                     idx2Block[start] = idx2Block[i];
                     current = idx2Block[i];
                 } else {
@@ -2341,6 +2361,29 @@ public class AsmIRBuilder {
         return this.tryAndHandlerBlocks;
     }
 
+    private void reportMergeStats() {
+        long totalBlocks = blockSortedList.size();
+        long pessimisticBlocks = 0;
+        long pessimisticPhis = 0;
+        long pessimisticLivePhis = 0;
+        for (BytecodeBlock bb : blockSortedList) {
+            if (bb.isLoopHeader() && !bb.getInStack().isEmpty()) {
+                pessimisticBlocks++;
+                pessimisticPhis += bb.getInStack().size();
+                for (StackItem item : bb.getInStack()) {
+                    if (item.originalExp() instanceof Top) continue;
+                    StackPhi exp = (StackPhi) item.originalExp();
+                    if (exp.used) {
+                        pessimisticLivePhis++;
+                    }
+                }
+            }
+        }
+
+        StackMergeReporter.get().reportStats(totalBlocks, pessimisticBlocks,
+                pessimisticPhis, pessimisticLivePhis);
+    }
+
 //    /**
 //     * Get the blocks that is in an arbitrary path from start to end.
 //     * WARNING: before calling this method, caller should have know that {@param start} and {@param end}
@@ -2408,7 +2451,8 @@ public class AsmIRBuilder {
     }
 
     boolean isInEdgeEmpty(BytecodeBlock block) {
-        return getInEdgeCount(block) == 0;
+        return block.isCatch()  // be careful that there might be a case, catch block has unreachable inEdge
+                || getInEdgeCount(block) == 0;
     }
 
     boolean isOutEdgeEmpty(BytecodeBlock block) {

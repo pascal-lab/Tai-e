@@ -188,7 +188,7 @@ public class JavaClassBuilder implements JClassBuilder  {
                     Type type = TypeUtils.JDTTypeToTaieType(binding.getType());
                     JField field = new JField(jClass, name.getIdentifier(),
                             current, type, null,
-                            TypeUtils.getAnnotations(binding));
+                            TypeUtils.getAnnotations(binding), null);
                     fields.add(field);
 
                     Expression init = fragment.getInitializer();
@@ -236,7 +236,8 @@ public class JavaClassBuilder implements JClassBuilder  {
                 Type type = synParaTypes.get(i);
                 String name = descriptor.synParaNames().get(i);
                 JField f = new JField(jClass, name,
-                            Set.of(Modifier.FINAL, Modifier.SYNTHETIC), type, null, AnnotationHolder.emptyHolder());
+                            Set.of(Modifier.FINAL, Modifier.SYNTHETIC), type,
+                        null, AnnotationHolder.emptyHolder(), null);
                 if (name.startsWith("this$")) {
                     InnerClassManager.get().noticeOuterClassRef(jClass, f);
                 }
@@ -252,7 +253,7 @@ public class JavaClassBuilder implements JClassBuilder  {
                     Type t = getClassType();
                     JField f = new JField(jClass, name,
                             Set.of(Modifier.STATIC, Modifier.PUBLIC, Modifier.FINAL, Modifier.ENUM),
-                            t, null, AnnotationHolder.emptyHolder());
+                            t, null, AnnotationHolder.emptyHolder(), null);
                     fields.add(f);
                 }
                 sourceFile.addNewCinit(new EnumInit(enumConstDecls));
@@ -260,7 +261,7 @@ public class JavaClassBuilder implements JClassBuilder  {
             ArrayType values = BuildContext.get().getTypeSystem().getArrayType(getClassType(), 1);
             fields.add(new JField(jClass, TypeUtils.ENUM_VALUES,
                     Set.of(Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL, Modifier.SYNTHETIC),
-                    values, null, AnnotationHolder.emptyHolder()));
+                    values, null, AnnotationHolder.emptyHolder(), null));
 
             methods.add(new JMethod(jClass, TypeUtils.ENUM_METHOD_VALUES,
                     Set.of(Modifier.PUBLIC, Modifier.STATIC),

@@ -176,7 +176,8 @@ class Converter {
                         Modifiers.convert(sootField.getModifiers()),
                         convertType(sootField.getType()),
                         convertGSignature(sootField),
-                        convertAnnotations(sootField)));
+                        convertAnnotations(sootField),
+                        null));
     }
 
     JMethod convertMethod(SootMethod sootMethod) {

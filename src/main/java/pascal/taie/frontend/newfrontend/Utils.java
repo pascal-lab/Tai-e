@@ -59,6 +59,7 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
@@ -241,8 +242,7 @@ public class Utils {
             }
             return new ArrayElement(elements);
         } else if (ele instanceof Type c) {
-            // TODO: Does ClassElement really hold asm descriptor ?
-            return new ClassElement(c.getDescriptor());
+            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
         } else {
             throw new IllegalArgumentException();
         }
@@ -437,7 +437,7 @@ public class Utils {
         });
     }
 
-    static synchronized ClassType getObject() {
+    public static synchronized ClassType getObject() {
         if (object == null) {
             object = getClassType(ClassNames.OBJECT);
         }
@@ -560,7 +560,7 @@ public class Utils {
     /**
      * @param types null and uninitialized type should be removed
      */
-    static Set<ReferenceType> lca(Set<ReferenceType> types) {
+    public static Set<ReferenceType> lca(Set<ReferenceType> types) {
         if (types.size() <= 1) {
             return types;
         } else {

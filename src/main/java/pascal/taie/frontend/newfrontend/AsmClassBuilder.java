@@ -177,8 +177,8 @@ public class AsmClassBuilder implements JClassBuilder {
                         fromAsmModifier(fieldNode.access),
                         BuildContext.get().fromAsmType(fieldNode.desc),
                         null,
-                        AnnotationHolder.make(new FVisitor(annotations -> {
-                        }).annotations)));
+                        AnnotationHolder.make(new FVisitor(annotations -> {}).annotations),
+                        fieldNode.value == null ? null : Utils.fromObject(fieldNode.value)));
             }
             if (node.visibleAnnotations != null) {
                 for (AnnotationNode annotationNode : node.visibleAnnotations) {
@@ -305,8 +305,10 @@ public class AsmClassBuilder implements JClassBuilder {
             } else {
                 gSignature = null;
             }
-            return new FVisitor(annotations -> fields.add(new JField(jClass, name,
-                fromAsmModifier(access), type, gSignature, AnnotationHolder.make(annotations))));
+            return new FVisitor(annotations -> fields.add(
+                    new JField(jClass, name, fromAsmModifier(access), type, gSignature,
+                            AnnotationHolder.make(annotations),
+                            value == null ? null : Utils.fromObject(value))));
         }
 
         @Override
@@ -433,7 +435,7 @@ public class AsmClassBuilder implements JClassBuilder {
 
         public AnnoVisitor(String descriptor, Consumer<Annotation> consumer) {
             super(Opcodes.ASM9);
-            this.type = descriptor;
+            this.type = StringReps.toTaieTypeDesc(descriptor);
             this.pairs = Maps.newHybridMap();
             this.consumer = consumer;
         }
@@ -448,7 +450,6 @@ public class AsmClassBuilder implements JClassBuilder {
 
         @Override
         public void visitEnum(String name, String descriptor, String value) {
-            // TODO: check string rep here
             pairs.put(name, new EnumElement(StringReps.toTaieTypeDesc(descriptor), value));
         }
 

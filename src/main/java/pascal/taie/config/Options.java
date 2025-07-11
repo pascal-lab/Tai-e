@@ -37,6 +37,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.frontend.newfrontend.AsmWorldBuilder;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -178,7 +179,7 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = "--world-builder",
             description = "Specify world builder class (default: ${DEFAULT-VALUE})",
-            defaultValue = "pascal.taie.frontend.soot.SootWorldBuilder")
+            defaultValue = "pascal.taie.fronend.newfrontend.AsmWorldBuilder")
     private Class<? extends WorldBuilder> worldBuilderClass;
 
     public Class<? extends WorldBuilder> getWorldBuilderClass() {

@@ -36,6 +36,8 @@ public class BuildContext {
 
     final IRService irService = new IRService();
 
+    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
+
     private BuildContext(JClassLoader defaultClassLoader, TypeSystem typeSystem) {
         this.defaultClassLoader = defaultClassLoader;
         this.typeSystem = (TempTypeSystem) typeSystem;
@@ -124,8 +126,6 @@ public class BuildContext {
             throw new IllegalArgumentException();
         }
     }
-
-    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
     public Pair<List<Type>, Type> fromAsmMethodType(String descriptor) {
         // normally we want to avoid using caching
