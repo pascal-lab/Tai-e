@@ -288,19 +288,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         JField field;
         // 0. First, check and handle phantom fields
         if (jclass.isPhantom()) {
-            field = jclass.getPhantomField(name, type);
-            if (field == null) {
-                Set<Modifier> modifiers;
-                if (isStatic) {
-                    modifiers = Set.of(Modifier.STATIC);
-                } else {
-                    modifiers = Set.of();
-                }
-                field = new JField(jclass, name, modifiers,
-                        type, null, AnnotationHolder.emptyHolder());
-                jclass.addPhantomField(name, type, field);
-            }
-            return field;
+            return jclass.getPhantomField(name, type, isStatic);
         }
         // JVM Spec. (11 Ed.), 5.4.3.2 Field Resolution
         // 1. If C declares a field with the name and descriptor (type) specified
@@ -376,16 +364,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         for (JClass c = jclass; c != null; c = c.getSuperClass()) {
             JMethod method;
             if (c.isPhantom()) {
-                method = c.getPhantomMethod(subsignature);
-                if (method == null) {
-                    Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
-                    method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
-                            t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
-                            null, null, null
-                    );
-                    jclass.addPhantomMethod(subsignature, method);
-                }
-                return method;
+                return c.getPhantomMethod(subsignature);
             }
             method = c.getDeclaredMethod(subsignature);
             if (method != null && (allowAbstract || !method.isAbstract())) {
@@ -414,16 +393,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
             JClass jclass, Subsignature subsignature, boolean allowAbstract) {
         JMethod method;
         if (jclass.isPhantom()) {
-            method = jclass.getPhantomMethod(subsignature);
-            if (method == null) {
-                Triple<String, List<Type>, Type> t = StringReps.parseSubsignature(subsignature);
-                method = new JMethod(jclass, t.first(), EnumSet.noneOf(Modifier.class),
-                        t.second(), t.third(), List.of(), AnnotationHolder.emptyHolder(),
-                        null, null, null
-                );
-                jclass.addPhantomMethod(subsignature, method);
-            }
-            return method;
+            return jclass.getPhantomMethod(subsignature);
         }
         method = jclass.getDeclaredMethod(subsignature);
         if (method != null && (allowAbstract || !method.isAbstract())) {

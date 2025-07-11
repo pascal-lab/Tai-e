@@ -15,6 +15,8 @@ public class DefaultClassLoader implements JClassLoader {
 
     Map<String, JClass> mapping;
 
+    private final Object phantomLock = new Object();
+
     DefaultClassLoader(ClassHierarchy hierarchy, boolean allowPhantom) {
         this.hierarchy = hierarchy;
         this.allowPhantom = allowPhantom;
@@ -28,15 +30,19 @@ public class DefaultClassLoader implements JClassLoader {
     @Override
     public JClass loadClass(String name, boolean allowPhantom) {
         JClass jclass = mapping.get(name);
-        if (jclass == null) {
-            if (this.allowPhantom && allowPhantom) {
-                // phantom class
-                jclass = new JClass(this, name, null); // what should a moduleName for a phantom class be?
-                mapping.put(name, jclass);
-                new PhantomClassBuilder(name).build(jclass);
-                hierarchy.addClass(jclass);
-            } else {
-                return null;
+        if (jclass == null && this.allowPhantom && allowPhantom) {
+            synchronized (phantomLock) {
+                jclass = mapping.get(name);
+                if (jclass == null) {
+                    // phantom class
+                    // what should a moduleName for a phantom class be?
+                    jclass = new JClass(this, name, null);
+                    mapping.put(name, jclass); // mapping itself is a concurrent map
+                    new PhantomClassBuilder(name).build(jclass);
+                    // Here is the only point where hierarchy could be concurrently added
+                    // if there is no mutex.
+                    hierarchy.addClass(jclass);
+                }
             }
         }
 
