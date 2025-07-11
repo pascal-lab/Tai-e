@@ -139,6 +139,10 @@ public class PlanConfig {
         for (String keyValue : optValue.split(";")) {
             if (!keyValue.isBlank()) {
                 int i = keyValue.indexOf(':'); // split keyValue
+                if (i == -1) {
+                    throw new IllegalArgumentException("Missing value for key '" + keyValue
+                    + "', Expected format is 'key:value'");
+                }
                 joiner.add(keyValue.substring(0, i) + ": "
                         + keyValue.substring(i + 1));
             }
