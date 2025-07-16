@@ -55,20 +55,16 @@ class FieldPointsToGraph {
                 .filter(instanceField -> isConcerned(instanceField.getType()))
                 .forEach(instanceField -> {
                     Obj baseObj = instanceField.getBase().getObject();
-                    if (baseObj.isFunctional()) {
-                        JField jField = instanceField.getField();
-                        Set<Obj> pts = pta.getPointsToSet(baseObj, jField);
-                        addFieldPointsTo(baseObj, factory.get(jField), pts);
-                    }
+                    JField jField = instanceField.getField();
+                    Set<Obj> pts = pta.getPointsToSet(baseObj, jField);
+                    addFieldPointsTo(baseObj, factory.get(jField), pts);
                 });
         pta.getArrayIndexes().parallelStream()
                 .filter(arrayIndex -> isConcerned(arrayIndex.getType()))
                 .forEach(arrayIndex -> {
                     Obj array = arrayIndex.getArray().getObject();
-                    if (array.isFunctional()) {
-                        Set<Obj> pts = pta.getPointsToSet(array);
-                        addFieldPointsTo(array, factory.getArrayIndex(), pts);
-                    }
+                    Set<Obj> pts = pta.getPointsToSet(array);
+                    addFieldPointsTo(array, factory.getArrayIndex(), pts);
                 });
     }
 

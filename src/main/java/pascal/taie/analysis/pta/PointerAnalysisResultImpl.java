@@ -210,6 +210,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
                 removeContexts(csManager.getCSVarsOf(base)
                         .stream()
                         .flatMap(Pointer::objects)
+                        .filter(obj -> obj.getObject().isFunctional())
                         .map(o -> csManager.getInstanceField(o, field))
                         .flatMap(InstanceField::objects)));
     }
@@ -226,6 +227,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         // TODO - properly handle non-exist base.field
         return removeContexts(csManager.getCSObjsOf(base)
                 .stream()
+                .filter(obj -> obj.getObject().isFunctional())
                 .map(o -> csManager.getInstanceField(o, field))
                 .flatMap(InstanceField::objects));
     }
@@ -274,6 +276,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
                 removeContexts(csManager.getCSVarsOf(b)
                         .stream()
                         .flatMap(Pointer::objects)
+                        .filter(obj -> obj.getObject().isFunctional())
                         .map(csManager::getArrayIndex)
                         .flatMap(ArrayIndex::objects)));
     }
@@ -290,6 +293,7 @@ public class PointerAnalysisResultImpl extends AbstractResultHolder
         }
         return removeContexts(csManager.getCSObjsOf(array)
                 .stream()
+                .filter(obj -> obj.getObject().isFunctional())
                 .map(csManager::getArrayIndex)
                 .flatMap(ArrayIndex::objects));
     }

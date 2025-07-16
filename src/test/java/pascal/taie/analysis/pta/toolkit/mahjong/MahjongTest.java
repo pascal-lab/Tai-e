@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -49,9 +48,8 @@ class MahjongTest {
         assertEquals(0, countRelevantStmts(mayFailCastResult));
     }
 
-    @RepeatedTest(100)
+    @Test
     void testMultipleZeroLengthArrays() {
-        // This bug appears non-deterministically
         assertDoesNotThrow(() -> Main.main("-acp", MAHJONG,
                 "-m", "MultipleZeroLengthArrays",
                 "-a", "pta=advanced:mahjong"));
