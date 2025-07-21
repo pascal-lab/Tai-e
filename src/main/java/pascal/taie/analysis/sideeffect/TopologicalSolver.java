@@ -112,10 +112,11 @@ class TopologicalSolver {
     }
 
     private boolean isRelevant(Obj obj) {
-        if (onlyApp && obj.getContainerMethod().isPresent()) {
-            return obj.getContainerMethod().get().isApplication();
+        if (onlyApp) {
+            return obj.getContainerMethod().isPresent()
+                    && obj.getContainerMethod().get().isApplication();
         }
-        return false;
+        return true;
     }
 
     private static Map<JMethod, Set<Obj>> computeSCCDirectMods(
