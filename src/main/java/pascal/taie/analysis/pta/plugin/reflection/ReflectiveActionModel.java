@@ -255,8 +255,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             Type baseType = CSObjs.toType(obj);
             if (baseType != null && !(baseType instanceof VoidType)) {
                 ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
-                CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
-                solver.addVarPointsTo(context, result, csNewArray);
+                newReflectiveObj(context, invoke, arrayType);
                 allTargets.put(invoke, arrayType);
             }
         });
