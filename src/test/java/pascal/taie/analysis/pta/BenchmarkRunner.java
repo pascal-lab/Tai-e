@@ -128,6 +128,6 @@ public class BenchmarkRunner {
     }
 
     private static boolean isJar(File file) {
-        return !file.isDirectory() && file.getName().endsWith(".jar");
+        return file.isFile() && file.getName().endsWith(".jar");
     }
 }
