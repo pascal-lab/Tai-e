@@ -1,3 +1,8 @@
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.util.Base64
+
 plugins {
     java
     `maven-publish`
@@ -102,24 +107,24 @@ tasks.named("publish") {
 
 fun uploadToPortal(username: String, password: String) {
     val baseUrl = "https://ossrh-staging-api.central.sonatype.com"
-    val credentials = `java.util`.Base64.getEncoder()
+    val credentials = Base64.getEncoder()
         .encodeToString("$username:$password".toByteArray())
-    val client = `java.net`.http.HttpClient.newHttpClient()
+    val client = HttpClient.newHttpClient()
 
     fun sendReq(
         url: String,
         method: String = "GET",
         body: String = ""
-    ): java.net.http.HttpResponse<String> {
-        val req = `java.net`.http.HttpRequest.newBuilder()
+    ): HttpResponse<String> {
+        val req = HttpRequest.newBuilder()
             .uri(`java.net`.URI(url))
             .header("Authorization", "Bearer $credentials")
             .header("Content-Type", "application/json")
             .method(method, if (body.isEmpty())
-                `java.net`.http.HttpRequest.BodyPublishers.noBody()
-            else `java.net`.http.HttpRequest.BodyPublishers.ofString(body))
+                HttpRequest.BodyPublishers.noBody()
+            else HttpRequest.BodyPublishers.ofString(body))
             .build()
-        val respBodyHandler = `java.net`.http.HttpResponse.BodyHandlers.ofString()
+        val respBodyHandler = HttpResponse.BodyHandlers.ofString()
         return client.send(req, respBodyHandler)
     }
 
