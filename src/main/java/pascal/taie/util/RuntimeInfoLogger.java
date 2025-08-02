@@ -85,12 +85,34 @@ public class RuntimeInfoLogger {
      */
     private static void logTaieInfo() {
         Manifest manifest = getManifest();
-        String version = manifest != null ? readVersionFromManifest(manifest)
-                : readVersionFromGradleProperties();
+        String version = getVersion(manifest);
         logger.info("Tai-e Version: {}", version);
-        String commit = manifest != null ? readCommitFromManifest(manifest)
-                : readCommitFromDotGit();
+        String commit = getCommit(manifest);
         logger.info("Tai-e Commit: {}", commit);
+    }
+
+    public static String getVersion() {
+        return getVersion(getManifest());
+    }
+
+    public static String getVersion(@Nullable Manifest manifest) {
+        if (manifest != null) {
+            return readVersionFromManifest(manifest);
+        } else {
+            return readVersionFromGradleProperties();
+        }
+    }
+
+    public static String getCommit() {
+        return getCommit(getManifest());
+    }
+
+    public static String getCommit(@Nullable Manifest manifest) {
+        if (manifest != null) {
+            return readCommitFromManifest(manifest);
+        } else {
+            return readCommitFromDotGit();
+        }
     }
 
     /**
