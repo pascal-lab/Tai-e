@@ -201,6 +201,17 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
+    @Option(names = "--performance-sampling",
+            description = "Record performance metrics (e.g., CPU and memory usage)"
+                    + " during execution (default: ${DEFAULT-VALUE})",
+            defaultValue = "true")
+    private boolean performanceSampling;
+
+    public boolean isPerformanceSampling() {
+        return performanceSampling;
+    }
+
+    @JsonProperty
     @Option(names = "--pre-build-ir",
             description = "Build IR for all available methods before" +
                     " starting any analysis (default: ${DEFAULT-VALUE})",
