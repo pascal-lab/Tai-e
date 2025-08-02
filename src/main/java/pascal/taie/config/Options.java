@@ -204,7 +204,7 @@ public class Options implements Serializable {
     @Option(names = "--performance-sampling",
             description = "Record performance metrics (e.g., CPU and memory usage)"
                     + " during execution (default: ${DEFAULT-VALUE})",
-            defaultValue = "true")
+            defaultValue = "false")
     private boolean performanceSampling;
 
     public boolean isPerformanceSampling() {
