@@ -101,9 +101,3 @@ tasks.test {
         }
     }
 }
-
-// Automatically agree the Gradle ToS when running gradle with '--scan' option
-extensions.findByName("buildScan")?.withGroovyBuilder {
-    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
-    setProperty("termsOfServiceAgree", "yes")
-}
