@@ -74,7 +74,7 @@ public class PerformanceSampler {
     public PerformanceSampler(File outputDir) {
         this.outputFile = new File(outputDir, OUTPUT_FILE);
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "PerformanceSampler");
+            Thread t = new Thread(r, this.getClass().getName());
             t.setDaemon(true);
             return t;
         });
@@ -154,23 +154,27 @@ public class PerformanceSampler {
     private void saveToFile() {
         logger.info("Saving performance report to: {}", outputFile);
         try {
-            PerformanceReport report = new PerformanceReport();
-            report.version = RuntimeInfoLogger.getVersion();
-            report.commit = RuntimeInfoLogger.getCommit();
-            report.operatingSystem = System.getProperty("os.name")
+            String version = RuntimeInfoLogger.getVersion();
+            String commit = RuntimeInfoLogger.getCommit();
+            String operatingSystem = System.getProperty("os.name")
                     + " (" + System.getProperty("os.arch") + ")";
-            report.javaRuntime = System.getProperty("java.vendor")
+            String javaRuntime = System.getProperty("java.vendor")
                     + " " + System.getProperty("java.runtime.name")
                     + " " + System.getProperty("java.runtime.version");
-            report.username = System.getProperty("user.name");
-            report.cpuCores = Runtime.getRuntime().availableProcessors();
-            report.totalMemoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
-            report.startTime = startTime;
-            report.finishTime = finishTime;
-
-            synchronized (samples) {
-                report.samples = new ArrayList<>(samples);
+            String username = System.getProperty("user.name");
+            int cpuCores = Runtime.getRuntime().availableProcessors();
+            long totalMemoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
+            long startTime = this.startTime;
+            long finishTime = this.finishTime;
+            List<Sample> samples;
+            synchronized (this.samples) {
+                samples = new ArrayList<>(this.samples);
             }
+
+            PerformanceReport report = new PerformanceReport(
+                version, commit, operatingSystem, javaRuntime,
+                username, cpuCores, totalMemoryMB, startTime,
+                finishTime, samples);
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -183,36 +187,17 @@ public class PerformanceSampler {
     /**
      * Main performance report structure for JSON serialization.
      */
-    private static class PerformanceReport {
-        @JsonProperty("version")
-        public String version;
-
-        @JsonProperty("commit")
-        public String commit;
-
-        @JsonProperty("operatingSystem")
-        public String operatingSystem;
-
-        @JsonProperty("javaRuntime")
-        public String javaRuntime;
-
-        @JsonProperty("username")
-        public String username;
-
-        @JsonProperty("cpuCores")
-        public int cpuCores;
-
-        @JsonProperty("totalMemoryMB")
-        public long totalMemoryMB;
-
-        @JsonProperty("startTime")
-        public long startTime;
-
-        @JsonProperty("finishTime")
-        public Long finishTime;
-
-        @JsonProperty("samples")
-        public List<Sample> samples;
+    private record PerformanceReport(
+            @JsonProperty("version") String version,
+            @JsonProperty("commit") String commit,
+            @JsonProperty("operatingSystem") String operatingSystem,
+            @JsonProperty("javaRuntime") String javaRuntime,
+            @JsonProperty("username") String username,
+            @JsonProperty("cpuCores") int cpuCores,
+            @JsonProperty("totalMemoryMB") long totalMemoryMB,
+            @JsonProperty("startTime") long startTime,
+            @JsonProperty("finishTime") Long finishTime,
+            @JsonProperty("samples") List<Sample> samples) {
     }
 
     /**
