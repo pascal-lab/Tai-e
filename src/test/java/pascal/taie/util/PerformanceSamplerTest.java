@@ -42,4 +42,15 @@ class PerformanceSamplerTest {
         assertTrue(outputFile.exists());
     }
 
+    @Test
+    void integrationTest() {
+        pascal.taie.Main.main(
+                "--performance-sampling",
+                "-pp",
+                "-cp", "src/test/resources/pta/basic",
+                "-m", "New",
+                "-a", "pta=implicit-entries:false;only-app:true;"
+        );
+    }
+
 }

@@ -64,9 +64,17 @@ public class PerformanceSampler {
 
     private final List<Sample> samples;
 
-    private long startTime;
+    /**
+     * Start time of the performance sampling.
+     * <code>-1</code> indicates that sampling has not started yet.
+     */
+    private long startTime = -1;
 
-    private long finishTime;
+    /**
+     * Finish time of the performance sampling.
+     * <code>-1</code> indicates that sampling has not finished yet.
+     */
+    private long finishTime = -1;
 
     /**
      * Creates a new PerformanceSampler instance.
@@ -87,6 +95,9 @@ public class PerformanceSampler {
      * Starts performance sampling. Records start time and begins periodic sampling.
      */
     public void start() {
+        if (startTime != -1) {
+            throw new IllegalStateException("Performance sampling has already started");
+        }
         this.startTime = System.currentTimeMillis();
         scheduler.scheduleAtFixedRate(this::collectSample,
                 0, INTERVAL, TimeUnit.SECONDS);
@@ -96,6 +107,12 @@ public class PerformanceSampler {
      * Stops performance sampling, records finish time, and saves results to JSON file.
      */
     public void stop() {
+        if (startTime == -1) {
+            throw new IllegalStateException("Performance sampling has not started yet");
+        }
+        if (finishTime != -1) {
+            throw new IllegalStateException("Performance sampling has already finished");
+        }
         this.finishTime = System.currentTimeMillis();
         scheduler.shutdown();
         try {
