@@ -121,9 +121,9 @@ public class PerformanceSampler {
             if (processCpuUsage < 0) {
                 processCpuUsage = 0.0;
             }
-            double totalProcessCpuUsage = osBean.getCpuLoad();
-            if (totalProcessCpuUsage < 0) {
-                totalProcessCpuUsage = 0.0;
+            double totalCpuUsage = osBean.getCpuLoad();
+            if (totalCpuUsage < 0) {
+                totalCpuUsage = 0.0;
             }
 
             // Get JVM process memory usage (heap + non-heap)
@@ -137,7 +137,7 @@ public class PerformanceSampler {
             long totalMemoryUsedMB = (totalMemory - freeMemory) / (1024 * 1024);
 
             Sample sample = new Sample(timestamp, processCpuUsage,
-                    totalProcessCpuUsage, processMemoryUsedMB, totalMemoryUsedMB);
+                    totalCpuUsage, processMemoryUsedMB, totalMemoryUsedMB);
 
             synchronized (samples) {
                 samples.add(sample);
@@ -221,7 +221,7 @@ public class PerformanceSampler {
     private record Sample(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("processCpuUsage") double processCpuUsage,
-            @JsonProperty("totalProcessCpuUsage") double totalProcessCpuUsage,
+            @JsonProperty("totalCpuUsage") double totalCpuUsage,
             @JsonProperty("processMemoryUsedMB") long processMemoryUsedMB,
             @JsonProperty("totalMemoryUsedMB") long totalMemoryUsedMB) {
     }
