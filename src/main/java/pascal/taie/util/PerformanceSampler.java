@@ -138,9 +138,9 @@ public class PerformanceSampler {
             if (processCpuUsage < 0) {
                 processCpuUsage = 0.0;
             }
-            double totalCpuUsage = osBean.getCpuLoad();
-            if (totalCpuUsage < 0) {
-                totalCpuUsage = 0.0;
+            double systemCpuUsage = osBean.getCpuLoad();
+            if (systemCpuUsage < 0) {
+                systemCpuUsage = 0.0;
             }
 
             // Get JVM process memory usage (heap + non-heap)
@@ -151,10 +151,10 @@ public class PerformanceSampler {
             // Get total system memory usage
             long totalMemory = osBean.getTotalMemorySize();
             long freeMemory = osBean.getFreeMemorySize();
-            long totalMemoryUsedMB = (totalMemory - freeMemory) / (1024 * 1024);
+            long systemMemoryUsedMB = (totalMemory - freeMemory) / (1024 * 1024);
 
             Sample sample = new Sample(timestamp, processCpuUsage,
-                    totalCpuUsage, processMemoryUsedMB, totalMemoryUsedMB);
+                    systemCpuUsage, processMemoryUsedMB, systemMemoryUsedMB);
 
             synchronized (samples) {
                 samples.add(sample);
@@ -180,7 +180,7 @@ public class PerformanceSampler {
                     + " " + System.getProperty("java.runtime.version");
             String username = System.getProperty("user.name");
             int cpuCores = Runtime.getRuntime().availableProcessors();
-            long totalMemoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
+            long memoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
             long startTime = this.startTime;
             long finishTime = this.finishTime;
             List<Sample> samples;
@@ -190,7 +190,7 @@ public class PerformanceSampler {
 
             PerformanceReport report = new PerformanceReport(
                 version, commit, operatingSystem, javaRuntime,
-                username, cpuCores, totalMemoryMB, startTime,
+                username, cpuCores, memoryMB, startTime,
                 finishTime, samples);
 
             ObjectMapper mapper = new ObjectMapper();
@@ -211,7 +211,7 @@ public class PerformanceSampler {
             @JsonProperty("javaRuntime") String javaRuntime,
             @JsonProperty("username") String username,
             @JsonProperty("cpuCores") int cpuCores,
-            @JsonProperty("totalMemoryMB") long totalMemoryMB,
+            @JsonProperty("memoryMB") long memoryMB,
             @JsonProperty("startTime") long startTime,
             @JsonProperty("finishTime") Long finishTime,
             @JsonProperty("samples") List<Sample> samples) {
@@ -223,9 +223,9 @@ public class PerformanceSampler {
     private record Sample(
             @JsonProperty("timestamp") long timestamp,
             @JsonProperty("processCpuUsage") double processCpuUsage,
-            @JsonProperty("totalCpuUsage") double totalCpuUsage,
+            @JsonProperty("systemCpuUsage") double systemCpuUsage,
             @JsonProperty("processMemoryUsedMB") long processMemoryUsedMB,
-            @JsonProperty("totalMemoryUsedMB") long totalMemoryUsedMB) {
+            @JsonProperty("systemMemoryUsedMB") long systemMemoryUsedMB) {
     }
 
 }
