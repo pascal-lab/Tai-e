@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PerformanceSamplerTest {
 
     @Test
-    void test() throws InterruptedException {
+    void unitTest() throws InterruptedException {
         File outputDir = new File("output");
         File outputFile = new File(outputDir, PerformanceSampler.OUTPUT_FILE);
         outputFile.delete();

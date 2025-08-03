@@ -213,7 +213,7 @@ public class PerformanceSampler {
             @JsonProperty("cpuCores") int cpuCores,
             @JsonProperty("memoryMB") long memoryMB,
             @JsonProperty("startTime") long startTime,
-            @JsonProperty("finishTime") Long finishTime,
+            @JsonProperty("finishTime") long finishTime,
             @JsonProperty("samples") List<Sample> samples) {
     }
 
