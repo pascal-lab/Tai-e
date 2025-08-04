@@ -40,7 +40,7 @@ application {
     mainClass.set("pascal.taie.Main")
 }
 
-tasks.register<Jar>("farJar", Jar::class) {
+tasks.register<Jar>("fatJar", Jar::class) {
     group = "build"
     description = "Creates a single jar file including Tai-e and all dependencies"
     manifest {
