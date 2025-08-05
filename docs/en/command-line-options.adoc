@@ -130,6 +130,11 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 * Specify output directory (--output-dir): `--output-dir <outputDir>`
 ** By default, Tai-e stores all outputs, such as logs, IR, and various analysis results, in the `output` folder within the current working directory. If you prefer to save outputs to a different directory, simply use this option.
 
+* Performance sampling (--performance-sampling)
+** Enable periodic sampling of CPU and memory usage during execution.
+** Results are saved as `tai-e-performance.json` in the output directory, containing system info, execution metadata, and time-series performance data. Useful for analyzing and comparing resource usage across runs.
+
+
 == A Usage Example of Command-Line Options
 
 We give an example of how to analyze a program by Tai-e. Suppose we want to analyze a program _P_ as described below:
