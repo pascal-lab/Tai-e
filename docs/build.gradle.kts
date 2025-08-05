@@ -16,6 +16,15 @@ dependencies {
 }
 
 tasks.withType(org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask::class) {
+    notCompatibleWithConfigurationCache("Filters configurations at execution time")
+    attributes(
+        mapOf(
+            // set revNumber to the current project version
+            "revnumber" to projectVersion,
+            // build reproducible byte-by-byte identical documentation
+            "reproducible" to "",
+        )
+    )
     // set source directory to docs/ instead of docs/src/docs/asciidoc/
     sourceDir(sourceDir.parentFile.parentFile.parentFile)
     // suppress the warning 'Native subprocess control requires open access to the JDK IO subsystem'
@@ -68,10 +77,6 @@ tasks.register<Zip>("all", Zip::class) {
     description = "Builds all documentation"
     archiveFileName.set("tai-e-docs.zip")
     destinationDirectory.set(layout.buildDirectory)
-    // The generated documentation contains timestamps, which prevents
-    // Gradle 9.0.0's default reproducible archive feature from working.
-    // We preserve these timestamps to maintain clarity about generation time.
-    isPreserveFileTimestamps = true
     dependsOn(":docs:asciidoctor", ":javadoc")
     from(layout.buildDirectory.dir("docs/asciidoc")) {
         into("$projectVersion/reference")
