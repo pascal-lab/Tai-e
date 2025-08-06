@@ -65,10 +65,11 @@ These options decide the analyses to be executed and their behaviors. We divided
 
 * Build IR in advance (--pre-build-ir)
 ** Build IRs for all available methods before starting any analyses.
+** Without this option, IRs are built on-demand as they are required by analyses, intermingling analysis and IR building times. To accurately measure analysis time excluding IR building overhead, enable this option to build all IRs before analysis begins.
 
 * Analysis scope (-scope): `-scope <scope>`
 ** _Default value_: `APP`
-** Specify the analysis scope for class and method analyses.There are three valid choices:
+** Specify the analysis scope for class and method analyses. There are three valid choices:
 *** `APP`: application classes only
 *** `ALL`: all classes
 *** `REACHABLE`: classes that are reachable in the call graph (this scope requires analysis `cg`, i.e., call graph construction)
