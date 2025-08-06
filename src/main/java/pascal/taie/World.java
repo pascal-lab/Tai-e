@@ -184,7 +184,7 @@ public final class World extends AbstractResultHolder
     @Serial
     private void writeObject(ObjectOutputStream s) throws IOException {
         s.defaultWriteObject();
-        s.writeObject(new CachedIRBuilder(irBuilder, classHierarchy));
+        s.writeObject(new CachedIRBuilder(classHierarchy));
     }
 
     @Serial

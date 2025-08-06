@@ -42,8 +42,7 @@ public class CachedIRBuilder implements IRBuilder {
 
     private final Map<String, IR> methodSig2IR;
 
-    public CachedIRBuilder(IRBuilder irBuilder, ClassHierarchy hierarchy) {
-        irBuilder.buildAll(hierarchy);
+    public CachedIRBuilder(ClassHierarchy hierarchy) {
         methodSig2IR = hierarchy.allClasses()
                 .map(JClass::getDeclaredMethods)
                 .flatMap(Collection::stream)

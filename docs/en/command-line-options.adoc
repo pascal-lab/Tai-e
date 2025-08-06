@@ -126,6 +126,7 @@ By default, Tai-e keeps results of all executed analyses in memory. If you run m
 * World cache mode (-wc, --world-cache-mode)
 ** Enable world cache mode to save build time by caching the completed built world to the disk.
 ** When enabled, it will attempt to load the cached world instead of rebuilding it from scratch, resulting in a substantial acceleration of world-building process. This applies as long as the analyzed program (i.e. classPath, mainClass and so on) remain unchanged. This option is particularly useful during analysis development, when the analyzed program remains the same, but the analyzer code is modified and run repeatedly, thus saving developers' valuable time.
+** When enabled, the `--pre-build-ir` option will be enabled automatically.
 
 * Specify output directory (--output-dir): `--output-dir <outputDir>`
 ** By default, Tai-e stores all outputs, such as logs, IR, and various analysis results, in the `output` folder within the current working directory. If you prefer to save outputs to a different directory, simply use this option.

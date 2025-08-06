@@ -214,7 +214,9 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = {"-wc", "--world-cache-mode"},
             description = "Enable world cache mode to save build time"
-                    + " by caching the completed built world to the disk.",
+                    + " by caching the completed built world to the disk."
+                    + " When enabled, the '--pre-build-ir' option will be"
+                    + " enabled automatically. (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean worldCacheMode;
 
@@ -308,6 +310,9 @@ public class Options implements Serializable {
         }
         if (options.prependJVM) {
             options.javaVersion = getCurrentJavaVersion();
+        }
+        if (options.worldCacheMode) {
+            options.preBuildIR = true;
         }
         if (!options.analyses.isEmpty() && options.planFile != null) {
             // The user should choose either options or plan file to
