@@ -1,6 +1,7 @@
 plugins {
     application
-    id("tai-e.conventions")
+    id("java.conventions")
+    id("checkstyle.conventions")
     id("maven-publish.conventions")
 }
 
