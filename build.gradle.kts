@@ -87,7 +87,7 @@ tasks.jar {
 tasks.processResources {
     // Generate a build information properties file in resources directory,
     // so that it can be included in the class path and JAR file.
-    dependsOn("generateBuildInfo")
+    finalizedBy("generateBuildInfo")
 }
 
 tasks.withType<Test> {
