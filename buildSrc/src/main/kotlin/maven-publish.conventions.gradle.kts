@@ -14,6 +14,37 @@ java {
     withSourcesJar()
 }
 
+tasks.withType<Javadoc> {
+    val javadocConfigDir = rootProject.rootDir.resolve(
+        "config/javadoc/")
+    fun String.escapeLineBreaking() = this.replace("\r", "")
+        .replace("\n", "")
+    options {
+        this as StandardJavadocDocletOptions
+        // style
+        title = "Tai-e $projectVersion API"
+        overview = javadocConfigDir.resolve("overview.html").path
+        addStringOption("-add-stylesheet",
+            javadocConfigDir.resolve("javadoc.css").path)
+        header = javadocConfigDir.resolve("header.html").readText().escapeLineBreaking()
+        bottom = javadocConfigDir.resolve("footer.html").readText().escapeLineBreaking()
+        // fix language and encoding
+        encoding = "UTF-8"
+        docEncoding = "UTF-8"
+        locale = "en"
+        jFlags("-Duser.language=en")
+        // suppress the warning(s)
+        addBooleanOption("Xdoclint:all,-missing", true)
+        // others
+        splitIndex(true)
+        use(true)
+        noTimestamp(true)
+        memberLevel = JavadocMemberLevel.PROTECTED
+        addBooleanOption("html5", true)
+        links("https://docs.oracle.com/en/java/javase/17/docs/api")
+    }
+}
+
 val signingKeyId: String? by project         // env.ORG_GRADLE_PROJECT_signingKeyId
 val signingKey: String? by project           // env.ORG_GRADLE_PROJECT_signingKey
 val signingPassword: String? by project      // env.ORG_GRADLE_PROJECT_signingPassword

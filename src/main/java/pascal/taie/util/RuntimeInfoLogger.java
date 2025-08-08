@@ -26,13 +26,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.FileReader;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Properties;
-import java.util.jar.Manifest;
+import java.util.jar.JarFile;
 
 /**
  * A utility class for logging runtime information about the environment and the Tai-e application.
@@ -53,11 +50,12 @@ public class RuntimeInfoLogger {
             "os.arch",
     };
 
-    private static final String VERSION_MANIFEST_KEY = "Tai-e-Version";
+    private static final String BUILD_PROPERTY_FILE_PATH =
+            "META-INF/tai-e-build.properties";
 
-    private static final String COMMIT_MANIFEST_KEY = "Tai-e-Commit";
+    private static final String VERSION_KEY = "version";
 
-    private static final String VERSION_PROPERTY_KEY = "projectVersion";
+    private static final String COMMIT_KEY = "commit";
 
     private static final String UNKNOWN = "Unknown";
 
@@ -80,134 +78,72 @@ public class RuntimeInfoLogger {
     }
 
     /**
-     * Logs Tai-e version and commit information by attempting to read from the manifest file
-     * or fallback methods if the manifest is not available.
+     * Logs Tai-e version and commit information by attempting to read from the build properties file
+     * or fallback methods if the build properties are not available.
      */
     private static void logTaieInfo() {
-        Manifest manifest = getManifest();
-        String version = getVersion(manifest);
+        Properties properties = getBuildProperties();
+        String version = getVersion(properties);
         logger.info("Tai-e Version: {}", version);
-        String commit = getCommit(manifest);
+        String commit = getCommit(properties);
         logger.info("Tai-e Commit: {}", commit);
     }
 
     public static String getVersion() {
-        return getVersion(getManifest());
+        return getVersion(getBuildProperties());
     }
 
-    public static String getVersion(@Nullable Manifest manifest) {
+    private static String getVersion(@Nullable Properties manifest) {
         if (manifest != null) {
-            return readVersionFromManifest(manifest);
-        } else {
-            return readVersionFromGradleProperties();
+            return manifest.getProperty(VERSION_KEY, UNKNOWN);
         }
+        return UNKNOWN;
     }
 
     public static String getCommit() {
-        return getCommit(getManifest());
+        return getCommit(getBuildProperties());
     }
 
-    public static String getCommit(@Nullable Manifest manifest) {
+    private static String getCommit(@Nullable Properties manifest) {
         if (manifest != null) {
-            return readCommitFromManifest(manifest);
-        } else {
-            return readCommitFromDotGit();
-        }
-    }
-
-    /**
-     * Reads the Tai-e version from the provided manifest.
-     *
-     * @param manifest the manifest to read from
-     * @return the Tai-e version, or {@code "Unknown"} if not found
-     */
-    private static String readVersionFromManifest(Manifest manifest) {
-        String version = manifest.getMainAttributes().getValue(VERSION_MANIFEST_KEY);
-        if (version == null) {
-            logger.warn("Manifest does not contain Tai-e version information");
-            return UNKNOWN;
-        }
-        return version;
-    }
-
-    /**
-     * Reads the Tai-e version from the gradle.properties file.
-     *
-     * @return the Tai-e version, or {@code "Unknown"} if an error occurs
-     */
-    private static String readVersionFromGradleProperties() {
-        try {
-            Properties properties = new Properties();
-            properties.load(new FileReader(Path.of("gradle.properties").toFile()));
-            return properties.getProperty(VERSION_PROPERTY_KEY);
-        } catch (Exception e) {
-            logger.warn("Failed to read version from 'gradle.properties': {}", e.toString());
+            return manifest.getProperty(COMMIT_KEY, UNKNOWN);
         }
         return UNKNOWN;
     }
 
     /**
-     * Reads the Tai-e commit hash from the provided manifest.
+     * Retrieves the build properties of the current JAR file, if available.
      *
-     * @param manifest the manifest to read from
-     * @return the Tai-e commit hash, or {@code "Unknown"} if not found
-     */
-    private static String readCommitFromManifest(Manifest manifest) {
-        String commit = manifest.getMainAttributes().getValue(COMMIT_MANIFEST_KEY);
-        if (commit == null) {
-            logger.warn("Manifest does not contain Tai-e commit information");
-            return UNKNOWN;
-        }
-        return commit;
-    }
-
-    /**
-     * Reads the current git commit hash from the .git directory.
-     *
-     * @return the current git commit hash, or {@code "Unknown"} if an error occurs
-     */
-    private static String readCommitFromDotGit() {
-        try {
-            String gitHead = Files.readString(Path.of(".git", "HEAD"));
-            if (gitHead.startsWith("ref: ")) {
-                String ref = gitHead.substring(5).trim();
-                // path '.git/refs/heads/branchName'
-                Path p = Path.of(".git", ref);
-                if (p.toFile().exists()) {
-                    return Files.readString(p).trim();
-                } else {
-                    // read from '.git/info/refs' line by line
-                    return Files.lines(Path.of(".git", "info", "refs"))
-                            .filter(line -> line.endsWith(ref))
-                            .map(line -> line.split("\t")[0])
-                            .findFirst()
-                            .orElse(UNKNOWN);
-                }
-            } else {
-                return gitHead.trim();
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to read Git commit hash: {}", e.toString());
-        }
-        return UNKNOWN;
-    }
-
-    /**
-     * Retrieves the manifest of the current JAR file, if available.
-     *
-     * @return the manifest, or {@code null} if an error occurs or the manifest is not found
+     * @return the build properties, or {@code null} if an error occurs or the build properties is not found
      */
     @Nullable
-    private static Manifest getManifest() {
+    private static Properties getBuildProperties() {
         try {
             URL url = RuntimeInfoLogger.class.getProtectionDomain().getCodeSource().getLocation();
             if (url.getPath().endsWith(".jar")) {
                 var jarConnection = (JarURLConnection) new URL("jar:" + url + "!/")
                         .openConnection();
-                return jarConnection.getManifest();
+                JarFile jarFile = jarConnection.getJarFile();
+                var buildPropsEntry = jarFile.getJarEntry(BUILD_PROPERTY_FILE_PATH);
+                if (buildPropsEntry != null) {
+                    try (var inputStream = jarFile.getInputStream(buildPropsEntry)) {
+                        Properties properties = new Properties();
+                        properties.load(inputStream);
+                        return properties;
+                    }
+                }
+            } else {
+                try (var inputStream = RuntimeInfoLogger.class
+                        .getClassLoader().getResourceAsStream(BUILD_PROPERTY_FILE_PATH)) {
+                    if (inputStream != null) {
+                        Properties properties = new Properties();
+                        properties.load(inputStream);
+                        return properties;
+                    }
+                }
             }
         } catch (Exception e) {
-            logger.warn("Failed to read manifest: {}", e.toString());
+            logger.warn("Failed to read build properties: {}", e.toString());
         }
         return null;
     }

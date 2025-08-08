@@ -38,7 +38,15 @@ fun summarizeStyleViolations(checkstyle: Checkstyle): String? {
         var id = 1
         violationGroup.forEach {
             it.forEach {
-                result.append("\n#${id++}: ${it.msg}\n  rule: ${it.source}\n  Please click to fix: ${it.path}")
+                result.append("\n#${id++}: ${it.msg} (corresponding rule is ${it.source})")
+                // use file protocol to help quick locating
+                val path = it.path.replace("\\", "/")
+                val pathWithFileProtocol = if (path.startsWith("/")) {
+                    "file://" + path
+                } else {
+                    "file:///" + path
+                }
+                result.append("\n  Please click to fix: ${pathWithFileProtocol}")
             }
         }
         return result.toString().removeHtmlTag()
