@@ -41,15 +41,31 @@ application {
     mainClass.set("pascal.taie.Main")
 }
 
+tasks.register("generateBuildInfo") {
+    group = "build"
+    description = "Generates build information properties file"
+    // write tai-e build information into META-INF/tai-e-build.properties
+    val buildPropsFile = rootProject.layout.buildDirectory.file(
+        "resources/main/META-INF/tai-e-build.properties").get().asFile
+    val versionProvider = projectVersionProvider
+    val commitProvider = projectCommitProvider
+    doFirst {
+        buildPropsFile.parentFile.mkdirs()
+        val buildProps = """
+            version=${versionProvider.get()}
+            commit=${commitProvider.get()}
+        """.trimIndent()
+        buildPropsFile.writeText(buildProps)
+    }
+}
+
 tasks.register<Jar>("fatJar", Jar::class) {
     group = "build"
     description = "Creates a single jar file including Tai-e and all dependencies"
     manifest {
         attributes["Main-Class"] = "pascal.taie.Main"
-        attributes["Tai-e-Version"] = projectVersion
-        attributes["Tai-e-Commit"] = projectCommit
     }
-    archiveBaseName.set("tai-e-all")
+    archiveBaseName.set("${projectArtifactId}-all")
     from(
         configurations.runtimeClasspath.get().map {
             if (it.isDirectory) it else zipTree(it)
@@ -65,10 +81,13 @@ tasks.jar {
     from("COPYING", "COPYING.LESSER")
     from(zipTree("lib/sootclasses-modified.jar"))
     destinationDirectory.set(rootProject.layout.buildDirectory)
-    manifest {
-        attributes["Tai-e-Version"] = projectVersion
-        attributes["Tai-e-Commit"] = projectCommit
-    }
+    archiveBaseName.set(projectArtifactId)
+}
+
+tasks.processResources {
+    // Generate a build information properties file in resources directory,
+    // so that it can be included in the class path and JAR file.
+    dependsOn("generateBuildInfo")
 }
 
 tasks.withType<Test> {

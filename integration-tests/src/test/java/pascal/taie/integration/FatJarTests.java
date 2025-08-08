@@ -97,6 +97,12 @@ class FatJarTests {
         // Check if the log file contains expected content
         assertTrue(logContent.contains("Writing log to"));
         assertTrue(result.stdout().contains("Writing log to"));
+        String version = logContent.split("Tai-e Version: ")[1].split("\n")[0].strip();
+        assertFalse(version.isEmpty(), "Tai-e version should not be empty");
+        assertFalse(version.toLowerCase().contains("unknown"), "Tai-e version should not be unknown");
+        String commit = logContent.split("Tai-e Commit: ")[1].split("\n")[0].strip();
+        assertFalse(commit.isEmpty(), "Tai-e commit should not be empty");
+        assertFalse(commit.toLowerCase().contains("unknown"), "Tai-e commit should not be unknown");
         // Check if the options.yml file is created
         File optionsFile = new File(tempDir, "output/options.yml");
         assertTrue(optionsFile.exists(), "Options file should be created");
