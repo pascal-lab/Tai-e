@@ -3,6 +3,7 @@
 ## [Unreleased] - 2025-02-16
 
 ### New Features
+- Add performance sampler to record CPU and memory usage during execution.
 - Add format check for command-line arguments.
 - Pointer analysis
   - Add special handling for zero-length arrays to enhance PTA precision.

@@ -83,14 +83,32 @@ public class RuntimeInfoLogger {
      */
     private static void logTaieInfo() {
         Properties properties = getBuildProperties();
-        String version = properties != null
-                ? properties.getProperty(VERSION_KEY)
-                : UNKNOWN;
+        String version = getVersion(properties);
         logger.info("Tai-e Version: {}", version);
-        String commit = properties != null
-                ? properties.getProperty(COMMIT_KEY)
-                : UNKNOWN;
+        String commit = getCommit(properties);
         logger.info("Tai-e Commit: {}", commit);
+    }
+
+    public static String getVersion() {
+        return getVersion(getBuildProperties());
+    }
+
+    private static String getVersion(@Nullable Properties manifest) {
+        if (manifest != null) {
+            return manifest.getProperty(VERSION_KEY, UNKNOWN);
+        }
+        return UNKNOWN;
+    }
+
+    public static String getCommit() {
+        return getCommit(getBuildProperties());
+    }
+
+    private static String getCommit(@Nullable Properties manifest) {
+        if (manifest != null) {
+            return manifest.getProperty(COMMIT_KEY, UNKNOWN);
+        }
+        return UNKNOWN;
     }
 
     /**
