@@ -22,16 +22,20 @@
 
 package pascal.taie.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PerformanceSamplerTest {
 
     @Test
-    void unitTest() throws InterruptedException {
+    void unitTest() throws Exception {
         File outputDir = new File("output");
         File outputFile = new File(outputDir, PerformanceSampler.OUTPUT_FILE);
         outputFile.delete();
@@ -39,7 +43,15 @@ class PerformanceSamplerTest {
         sampler.start();
         Thread.sleep(1000);
         sampler.stop();
+        // check the output file
         assertTrue(outputFile.exists());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode json = mapper.readTree(outputFile);
+        assertNotNull(json.get("startTime"));
+        assertNotNull(json.get("finishTime"));
+        assertFalse(json.get("version").asText().isBlank());
+        assertFalse(json.get("commit").asText().isBlank());
+        assertFalse(json.get("samples").isEmpty());
     }
 
     @Test
