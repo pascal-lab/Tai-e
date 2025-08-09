@@ -38,7 +38,7 @@ public interface Exp extends Serializable {
     Type getType();
 
     /**
-     * @return a list of expressions which are used by (contained in) this Exp.
+     * @return a set of expressions which are used by (contained in) this Exp.
      */
     default Set<RValue> getUses() {
         return Set.of();
