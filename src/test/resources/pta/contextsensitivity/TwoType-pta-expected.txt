@@ -51,11 +51,11 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[A]:NewObj{<List: Iterator iterator()>[0@L44] new List$ListIterator}.this$0 -> [[TwoType]:NewObj{<A: void a()>[0@L14] new List}, [TwoType]:NewObj{<A: void a()>[6@L16] new List}]
-[B]:NewObj{<List: Iterator iterator()>[0@L44] new List$ListIterator}.this$0 -> [[TwoType]:NewObj{<B: void b()>[0@L28] new List}]
-[TwoType]:NewObj{<A: void a()>[0@L14] new List}.element -> [[TwoType]:NewObj{<A: void a()>[3@L15] new java.lang.Object}, [TwoType]:NewObj{<A: void a()>[9@L17] new java.lang.Object}]
-[TwoType]:NewObj{<A: void a()>[6@L16] new List}.element -> [[TwoType]:NewObj{<A: void a()>[3@L15] new java.lang.Object}, [TwoType]:NewObj{<A: void a()>[9@L17] new java.lang.Object}]
-[TwoType]:NewObj{<B: void b()>[0@L28] new List}.element -> [[TwoType]:NewObj{<B: void b()>[3@L29] new java.lang.Object}]
+[A]:NewObj{<List: Iterator iterator()>[0@L44] new List$ListIterator}.<List$ListIterator: List this$0> -> [[TwoType]:NewObj{<A: void a()>[0@L14] new List}, [TwoType]:NewObj{<A: void a()>[6@L16] new List}]
+[B]:NewObj{<List: Iterator iterator()>[0@L44] new List$ListIterator}.<List$ListIterator: List this$0> -> [[TwoType]:NewObj{<B: void b()>[0@L28] new List}]
+[TwoType]:NewObj{<A: void a()>[0@L14] new List}.<List: java.lang.Object element> -> [[TwoType]:NewObj{<A: void a()>[3@L15] new java.lang.Object}, [TwoType]:NewObj{<A: void a()>[9@L17] new java.lang.Object}]
+[TwoType]:NewObj{<A: void a()>[6@L16] new List}.<List: java.lang.Object element> -> [[TwoType]:NewObj{<A: void a()>[3@L15] new java.lang.Object}, [TwoType]:NewObj{<A: void a()>[9@L17] new java.lang.Object}]
+[TwoType]:NewObj{<B: void b()>[0@L28] new List}.<List: java.lang.Object element> -> [[TwoType]:NewObj{<B: void b()>[3@L29] new java.lang.Object}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TwoType: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoType: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoType: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoType: void main(java.lang.String[])>}]

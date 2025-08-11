@@ -45,8 +45,8 @@ Points-to sets of all static fields
 <Container: A[] EMPTY> -> [[]:ZeroLengthArray{alloc=<Merged zero-length A[]>,type=A[]}]
 
 Points-to sets of all instance fields
-[]:NewObj{<ZeroLengthArray: void main(java.lang.String[])>[6@L5] new Container}.data -> [[NewObj{<ZeroLengthArray: void main(java.lang.String[])>[6@L5] new Container}]:NewObj{<Container: void setObj(int,A)>[6@L30] newarray A[temp$2]}, []:ZeroLengthArray{alloc=<Merged zero-length A[]>,type=A[]}]
-[]:NewObj{<ZeroLengthArray: void main(java.lang.String[])>[9@L6] new Container}.data -> [[NewObj{<ZeroLengthArray: void main(java.lang.String[])>[9@L6] new Container}]:NewObj{<Container: void setObj(int,A)>[6@L30] newarray A[temp$2]}, []:ZeroLengthArray{alloc=<Merged zero-length A[]>,type=A[]}]
+[]:NewObj{<ZeroLengthArray: void main(java.lang.String[])>[6@L5] new Container}.<Container: A[] data> -> [[NewObj{<ZeroLengthArray: void main(java.lang.String[])>[6@L5] new Container}]:NewObj{<Container: void setObj(int,A)>[6@L30] newarray A[temp$2]}, []:ZeroLengthArray{alloc=<Merged zero-length A[]>,type=A[]}]
+[]:NewObj{<ZeroLengthArray: void main(java.lang.String[])>[9@L6] new Container}.<Container: A[] data> -> [[NewObj{<ZeroLengthArray: void main(java.lang.String[])>[9@L6] new Container}]:NewObj{<Container: void setObj(int,A)>[6@L30] newarray A[temp$2]}, []:ZeroLengthArray{alloc=<Merged zero-length A[]>,type=A[]}]
 
 Points-to sets of all array indexes
 [NewObj{<ZeroLengthArray: void main(java.lang.String[])>[6@L5] new Container}]:NewObj{<Container: void setObj(int,A)>[6@L30] newarray A[temp$2]}[*] -> [[]:NewObj{<ZeroLengthArray: void main(java.lang.String[])>[0@L3] new A}]

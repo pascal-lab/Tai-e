@@ -19,7 +19,7 @@ Points-to sets of all static fields
 <A: java.lang.String sf> -> [[]:ConstantObj{java.lang.String: "ccc"}]
 
 Points-to sets of all instance fields
-[]:NewObj{<Strings: void main(java.lang.String[])>[3@L6] new A}.f -> [[]:ConstantObj{java.lang.String: "bbb"}]
+[]:NewObj{<Strings: void main(java.lang.String[])>[3@L6] new A}.<A: java.lang.String f> -> [[]:ConstantObj{java.lang.String: "bbb"}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<Strings: void main(java.lang.String[])>/0},type=java.lang.String[] in <Strings: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<Strings: void main(java.lang.String[])>/0}[*],type=java.lang.String in <Strings: void main(java.lang.String[])>}]

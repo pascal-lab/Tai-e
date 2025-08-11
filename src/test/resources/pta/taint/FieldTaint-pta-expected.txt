@@ -17,8 +17,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}.f -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
-[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}.g -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
+[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}.<FieldTaint$A: java.lang.String f> -> [[]:MergedObj{<Merged java.lang.String>}, []:TaintObj{alloc=<FieldTaint: void main(java.lang.String[])>[8@L7] temp$3 = invokestatic SourceSink.source()/result,type=java.lang.String}]
+[]:NewObj{<FieldTaint: void main(java.lang.String[])>[3@L5] new FieldTaint$B}.<FieldTaint$B: FieldTaint$A g> -> [[]:NewObj{<FieldTaint: void main(java.lang.String[])>[0@L4] new FieldTaint$A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<FieldTaint: void main(java.lang.String[])>/0},type=java.lang.String[] in <FieldTaint: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<FieldTaint: void main(java.lang.String[])>/0}[*],type=java.lang.String in <FieldTaint: void main(java.lang.String[])>}]

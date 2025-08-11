@@ -50,9 +50,9 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[0@L6] new CSBackPropagation}.buffer -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<CSBackPropagation: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=char[]}]
-[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[15@L16] new CSBackPropagation}.buffer -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<CSBackPropagation: void main(java.lang.String[])>[18@L17] temp$6 = invokestatic SourceSink.source()/result,type=char[]}]
-[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}.buffer -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
+[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[0@L6] new CSBackPropagation}.<CSBackPropagation: char[] buffer> -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<CSBackPropagation: void main(java.lang.String[])>[3@L7] temp$1 = invokestatic SourceSink.source()/result,type=char[]}]
+[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[15@L16] new CSBackPropagation}.<CSBackPropagation: char[] buffer> -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<CSBackPropagation: void main(java.lang.String[])>[18@L17] temp$6 = invokestatic SourceSink.source()/result,type=char[]}]
+[]:NewObj{<CSBackPropagation: void main(java.lang.String[])>[8@L11] new CSBackPropagation}.<CSBackPropagation: char[] buffer> -> [[]:NewObj{<CSBackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<CSBackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <CSBackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CSBackPropagation: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CSBackPropagation: void main(java.lang.String[])>}]

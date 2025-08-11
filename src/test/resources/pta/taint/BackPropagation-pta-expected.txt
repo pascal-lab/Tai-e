@@ -42,8 +42,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.buffer -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source()/result,type=char[]}]
-[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.sb -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.StringBuilder}]
+[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.<BackPropagation: char[] buffer> -> [[]:NewObj{<BackPropagation: void <init>()>[2@L1] newarray char[%intconst0]}, []:TaintObj{alloc=<BackPropagation: void taintCharArrayField()>[0@L24] temp$0 = invokestatic SourceSink.source()/result,type=char[]}]
+[]:NewObj{<BackPropagation: void main(java.lang.String[])>[0@L8] new BackPropagation}.<BackPropagation: java.lang.StringBuilder sb> -> [[]:MergedObj{<Merged java.lang.StringBuilder>}, []:TaintObj{alloc=<BackPropagation: void taintStringBuilderField()>[0@L39] temp$0 = invokestatic SourceSink.source()/result,type=java.lang.StringBuilder}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<BackPropagation: void main(java.lang.String[])>/0},type=java.lang.String[] in <BackPropagation: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<BackPropagation: void main(java.lang.String[])>/0}[*],type=java.lang.String in <BackPropagation: void main(java.lang.String[])>}]
