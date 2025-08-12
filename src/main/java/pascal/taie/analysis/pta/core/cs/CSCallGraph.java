@@ -129,8 +129,12 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     @Override
     public Stream<Edge<CSCallSite, CSMethod>> edges() {
         return reachableMethods.stream()
-                .flatMap(this::callSitesIn)
-                .flatMap(this::edgesOutOf);
+                .flatMap(this::edgesInTo);
+    }
+
+    @Override
+    public int getNumberOfEdges() {
+        return Math.toIntExact(edges().count());
     }
 
     @Override
