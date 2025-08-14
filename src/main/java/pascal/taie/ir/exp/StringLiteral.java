@@ -24,6 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.util.Strings;
 
 import static pascal.taie.language.classes.ClassNames.STRING;
 
@@ -75,6 +76,6 @@ public class StringLiteral implements ReferenceLiteral {
 
     @Override
     public String toString() {
-        return "\"" + value + "\"";
+        return "\"" + Strings.escape(value) + "\"";
     }
 }
