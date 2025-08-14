@@ -132,6 +132,9 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
                 .flatMap(this::edgesInTo);
     }
 
+    /**
+     * @implNote This implementation may be inefficient, please use with care
+     */
     @Override
     public int getNumberOfEdges() {
         return Math.toIntExact(edges().count());
