@@ -7,15 +7,10 @@ public class ZeroLengthArrayWithArraysCopyOf{
     }
 
     public static void testZeroLengthArrayPath() {
-
         String[] original = new String[0];
-
         String[] copy = Arrays.copyOf(original, original.length + 1);
-
         copy[copy.length - 1] = getSourceData();
-
         sink(copy[copy.length - 1]);
-
     }
 
     public static String getSourceData() {

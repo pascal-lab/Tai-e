@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin.natives;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.core.heap.AbstractHeapModel;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -39,7 +40,7 @@ import java.util.Set;
 
 public class ArrayCopyOfModel extends AnalysisModelPlugin {
 
-    private static final Descriptor generatedArrayDesc = () -> "ArrayGeneratedFromZeroLengthArray";
+    private static final Descriptor COPYOF_ARRAY_DESC = () -> "ArrayGeneratedByCopyOfModel";
 
     ArrayCopyOfModel(Solver solver) {
         super(solver);
@@ -53,8 +54,10 @@ public class ArrayCopyOfModel extends AnalysisModelPlugin {
             Set<CSObj> toObjs = Sets.newHybridSet();
             from.getObjects().forEach(csObj -> {
                 // handle the argument0's obj is zero-length-array obj
-                if(csObj.getObject() instanceof MockObj mockObj && mockObj.getDescriptor().string().equals("ZeroLengthArray")){
-                    toObjs.add(solver.getCSManager().getCSObj(context, solver.getHeapModel().getMockObj(generatedArrayDesc, invoke, mockObj.getType())));
+                if(csObj.getObject() instanceof MockObj mockObj
+                        && mockObj.getDescriptor().equals(AbstractHeapModel.zeroLengthArrayDesc)){
+                    toObjs.add(solver.getCSManager().getCSObj(context,
+                            heapModel.getMockObj(COPYOF_ARRAY_DESC, invoke, mockObj.getType())));
                 }
                 else {
                     toObjs.add(csObj);

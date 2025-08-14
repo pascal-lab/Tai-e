@@ -1,2 +1,2 @@
 Detected 1 taint flow(s):
-TaintFlow{<ZeroLengthArrayWithArraysCopyOf: void testZeroLengthArrayPath()>[10@L15] temp$8 = invokestatic ZeroLengthArrayWithArraysCopyOf.getSourceData()/result -> <ZeroLengthArrayWithArraysCopyOf: void testZeroLengthArrayPath()>[15@L17] invokestatic ZeroLengthArrayWithArraysCopyOf.sink(temp$13)/0}
+TaintFlow{<ZeroLengthArrayWithArraysCopyOf: void testZeroLengthArrayPath()>[10@L12] temp$8 = invokestatic ZeroLengthArrayWithArraysCopyOf.getSourceData()/result -> <ZeroLengthArrayWithArraysCopyOf: void testZeroLengthArrayPath()>[15@L13] invokestatic ZeroLengthArrayWithArraysCopyOf.sink(temp$13)/0}
