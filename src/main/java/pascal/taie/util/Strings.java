@@ -51,4 +51,33 @@ public final class Strings {
         return new String(chars);
     }
 
+    /**
+     * Escapes special characters in a given string by replacing them with
+     * their corresponding escape sequences.
+     * If the input string is null or empty, the method returns it unchanged.
+     *
+     * @param str the input string to be escaped
+     * @return a string with special characters replaced by their corresponding
+     *         escape sequences, or the original string if it is null or empty
+     */
+    public static String escape(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            switch (c) {
+                case '\\' -> buffer.append("\\\\");
+                case '\"' -> buffer.append("\\\"");
+                case '\b' -> buffer.append("\\b");
+                case '\t' -> buffer.append("\\t");
+                case '\n' -> buffer.append("\\n");
+                case '\f' -> buffer.append("\\f");
+                case '\r' -> buffer.append("\\r");
+                default -> buffer.append(c);
+            }
+        }
+        return buffer.toString();
+    }
 }
