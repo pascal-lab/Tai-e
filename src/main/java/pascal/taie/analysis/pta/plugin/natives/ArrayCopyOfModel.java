@@ -55,7 +55,7 @@ public class ArrayCopyOfModel extends AnalysisModelPlugin {
             from.getObjects().forEach(csObj -> {
                 // handle the argument0's obj is zero-length-array obj
                 if(csObj.getObject() instanceof MockObj mockObj
-                        && mockObj.getDescriptor().equals(AbstractHeapModel.zeroLengthArrayDesc)){
+                        && mockObj.getDescriptor().equals(AbstractHeapModel.ZERO_LENGTH_ARRAY_DESC)){
                     toObjs.add(solver.getCSManager().getCSObj(context,
                             heapModel.getMockObj(COPYOF_ARRAY_DESC, invoke, mockObj.getType())));
                 }
