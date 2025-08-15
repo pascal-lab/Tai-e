@@ -35,6 +35,7 @@ import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
+import pascal.taie.util.PerformanceSampler;
 import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Lists;
@@ -58,8 +59,16 @@ public class Main {
                 logger.info("No analyses are specified");
                 System.exit(0);
             }
+            PerformanceSampler sampler = null;
+            if (options.isPerformanceSampling()) {
+                sampler = new PerformanceSampler(options.getOutputDir());
+                sampler.start();
+            }
             buildWorld(options, plan.analyses());
             executePlan(plan);
+            if (sampler != null) {
+                sampler.stop();
+            }
         }, "Tai-e");
         LoggerConfigs.reconfigure();
     }
