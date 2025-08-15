@@ -187,10 +187,10 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.left -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
-[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.right -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
-[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.val -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[3@L413] new java.lang.Object}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[8@L415] new java.lang.Object}]
-[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}.root -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
+[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.<Node: Node left> -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
+[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.<Node: Node right> -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
+[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}.<Node: java.lang.Object val> -> [[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[3@L413] new java.lang.Object}, []:NewObj{<RedBlackBST: void main(java.lang.String[])>[8@L415] new java.lang.Object}]
+[]:NewObj{<RedBlackBST: void main(java.lang.String[])>[0@L412] new RedBlackBST}.<RedBlackBST: Node root> -> [[]:NewObj{<RedBlackBST: Node put(Node,int,java.lang.Object)>[3@L78] new Node}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<RedBlackBST: void main(java.lang.String[])>/0},type=java.lang.String[] in <RedBlackBST: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<RedBlackBST: void main(java.lang.String[])>/0}[*],type=java.lang.String in <RedBlackBST: void main(java.lang.String[])>}]

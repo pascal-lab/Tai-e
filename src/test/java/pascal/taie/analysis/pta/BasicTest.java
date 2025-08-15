@@ -58,6 +58,7 @@ public class BasicTest {
             "Recursion",
             "Cycle",
             "ComplexAssign",
+            "ShadowedFields",
     })
     void test(String mainClass) {
         Tests.testPTA(DIR, mainClass);

@@ -61,6 +61,6 @@ public class InstanceField extends AbstractPointer {
 
     @Override
     public String toString() {
-        return base + "." + field.getName();
+        return base + "." + field.getSignature();
     }
 }

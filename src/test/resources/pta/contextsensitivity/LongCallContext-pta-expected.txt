@@ -25,8 +25,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<LongCallContext: void main(java.lang.String[])>[0@L3] new A}.b -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
-[]:NewObj{<LongCallContext: void main(java.lang.String[])>[3@L4] new A}.b -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
+[]:NewObj{<LongCallContext: void main(java.lang.String[])>[0@L3] new A}.<A: B b> -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
+[]:NewObj{<LongCallContext: void main(java.lang.String[])>[3@L4] new A}.<A: B b> -> [[]:NewObj{<LongCallContext: void main(java.lang.String[])>[6@L5] new B}, []:NewObj{<LongCallContext: void main(java.lang.String[])>[9@L6] new B}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<LongCallContext: void main(java.lang.String[])>/0},type=java.lang.String[] in <LongCallContext: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LongCallContext: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LongCallContext: void main(java.lang.String[])>}]

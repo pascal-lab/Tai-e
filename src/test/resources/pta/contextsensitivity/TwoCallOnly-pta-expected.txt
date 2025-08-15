@@ -35,8 +35,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}.x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
-[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}.x -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
+[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[3@L4] new A}.<A: X x> -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[4@L4] new X}]
+[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[8@L5] new A}.<A: X x> -> [[]:NewObj{<TwoCallOnly: void main(java.lang.String[])>[9@L5] new X}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TwoCallOnly: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoCallOnly: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoCallOnly: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoCallOnly: void main(java.lang.String[])>}]

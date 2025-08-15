@@ -21,7 +21,7 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}.f -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}.<A: java.lang.String f> -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintParam: void main(java.lang.String[])>}]

@@ -25,7 +25,7 @@ Points-to sets of all static fields
 <W: java.lang.Object f> -> [[]:NewObj{<W: void <clinit>()>[0@L1] new java.lang.Object}]
 
 Points-to sets of all instance fields
-[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:ReflectiveObj{alloc=<LazyHeapModeling: void main(java.lang.String[])>[4@L6] temp$3 = invokevirtual c.newInstance(),type=U in <LazyHeapModeling: void main(java.lang.String[])>}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<LazyHeapModeling: void main(java.lang.String[])>/0},type=java.lang.String[] in <LazyHeapModeling: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<LazyHeapModeling: void main(java.lang.String[])>/0}[*],type=java.lang.String in <LazyHeapModeling: void main(java.lang.String[])>}]

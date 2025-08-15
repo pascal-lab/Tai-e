@@ -28,8 +28,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<A: void modifyParam()>[3@L21] new B}.c -> [[]:NewObj{<B: void setC(B)>[0@L40] new C}]
-[]:NewObj{<A: void setget()>[0@L14] new B}.c -> [[]:NewObj{<A: void setget()>[3@L15] new C}]
+[]:NewObj{<A: void modifyParam()>[3@L21] new B}.<B: C c> -> [[]:NewObj{<B: void setC(B)>[0@L40] new C}]
+[]:NewObj{<A: void setget()>[0@L14] new B}.<B: C c> -> [[]:NewObj{<A: void setget()>[3@L15] new C}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<CallField: void main(java.lang.String[])>/0},type=java.lang.String[] in <CallField: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<CallField: void main(java.lang.String[])>/0}[*],type=java.lang.String in <CallField: void main(java.lang.String[])>}]

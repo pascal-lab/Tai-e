@@ -46,7 +46,7 @@ Points-to sets of all static fields
 <java.lang.Integer: java.lang.Class TYPE> -> []
 
 Points-to sets of all instance fields
-[]:NewObj{<GetMember: void testGetClass()>[0@L29] new U}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:NewObj{<GetMember: void testGetClass()>[0@L29] new U}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<GetMember: void main(java.lang.String[])>/0},type=java.lang.String[] in <GetMember: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<GetMember: void main(java.lang.String[])>/0}[*],type=java.lang.String in <GetMember: void main(java.lang.String[])>}]

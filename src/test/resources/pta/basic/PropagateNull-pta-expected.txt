@@ -14,7 +14,7 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}.f -> [[]:NullObj{alloc=null,type=null-type}]
+[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}.<A: java.lang.Object f> -> [[]:NullObj{alloc=null,type=null-type}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<PropagateNull: void main(java.lang.String[])>/0},type=java.lang.String[] in <PropagateNull: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<PropagateNull: void main(java.lang.String[])>/0}[*],type=java.lang.String in <PropagateNull: void main(java.lang.String[])>}]

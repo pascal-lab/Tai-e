@@ -59,10 +59,10 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}.cmds -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}]
-[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}.a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
-[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}.a -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
-[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}.a -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
+[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[2@L35] new Expression}.<Expression: java.lang.Object[] cmds> -> [[]:NewObj{<ArrayFieldTransfer: void arrayToVar()>[4@L35] newarray java.lang.Object[%intconst0]}]
+[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[2@L41] new Expression}.<Expression: A a> -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:NewObj{<ArrayFieldTransfer: void fieldToVar()>[3@L41] new ABox}.<ABox: A a> -> [[]:NewObj{<ArrayFieldTransfer: A getSource()>[0@L11] new C}, []:TaintObj{alloc=<ArrayFieldTransfer: void fieldToVar()>[0@L40] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=C}]
+[]:NewObj{<ArrayFieldTransfer: void varToField()>[2@L59] new Expression}.<Expression: A a> -> [[]:TaintObj{alloc=<ArrayFieldTransfer: void varToField()>[0@L58] temp$0 = invokestatic ArrayFieldTransfer.getSource()/result,type=A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<ArrayFieldTransfer: void main(java.lang.String[])>/0},type=java.lang.String[] in <ArrayFieldTransfer: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ArrayFieldTransfer: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ArrayFieldTransfer: void main(java.lang.String[])>}]
