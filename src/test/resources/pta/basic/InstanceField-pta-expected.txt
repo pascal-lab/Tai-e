@@ -41,12 +41,12 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<A: void callField()>[0@L31] new A}.b -> [[]:NewObj{<A: void callField()>[3@L32] new B}]
-[]:NewObj{<A: void cycle()>[0@L23] new A}.b -> [[]:NewObj{<A: void cycle()>[3@L24] new B}]
-[]:NewObj{<A: void cycle()>[3@L24] new B}.a -> [[]:NewObj{<A: void cycle()>[0@L23] new A}]
-[]:NewObj{<A: void longAP()>[0@L15] new A}.b -> [[]:NewObj{<A: void longAP()>[3@L16] new B}]
-[]:NewObj{<A: void longAP()>[3@L16] new B}.c -> [[]:NewObj{<A: void longAP()>[7@L17] new C}]
-[]:NewObj{<A: void longAP()>[7@L17] new C}.d -> [[]:NewObj{<A: void longAP()>[12@L18] new D}]
+[]:NewObj{<A: void callField()>[0@L31] new A}.<A: B b> -> [[]:NewObj{<A: void callField()>[3@L32] new B}]
+[]:NewObj{<A: void cycle()>[0@L23] new A}.<A: B b> -> [[]:NewObj{<A: void cycle()>[3@L24] new B}]
+[]:NewObj{<A: void cycle()>[3@L24] new B}.<B: A a> -> [[]:NewObj{<A: void cycle()>[0@L23] new A}]
+[]:NewObj{<A: void longAP()>[0@L15] new A}.<A: B b> -> [[]:NewObj{<A: void longAP()>[3@L16] new B}]
+[]:NewObj{<A: void longAP()>[3@L16] new B}.<B: C c> -> [[]:NewObj{<A: void longAP()>[7@L17] new C}]
+[]:NewObj{<A: void longAP()>[7@L17] new C}.<C: D d> -> [[]:NewObj{<A: void longAP()>[12@L18] new D}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<InstanceField: void main(java.lang.String[])>/0},type=java.lang.String[] in <InstanceField: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<InstanceField: void main(java.lang.String[])>/0}[*],type=java.lang.String in <InstanceField: void main(java.lang.String[])>}]

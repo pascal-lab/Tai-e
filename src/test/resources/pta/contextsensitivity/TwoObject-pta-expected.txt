@@ -38,10 +38,10 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[NewObj{<TwoObject: void m()>[0@L11] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}.this$0 -> [[]:NewObj{<TwoObject: void m()>[0@L11] new List}]
-[NewObj{<TwoObject: void m()>[6@L13] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}.this$0 -> [[]:NewObj{<TwoObject: void m()>[6@L13] new List}]
-[]:NewObj{<TwoObject: void m()>[0@L11] new List}.element -> [[]:NewObj{<TwoObject: void m()>[3@L12] new java.lang.Object}]
-[]:NewObj{<TwoObject: void m()>[6@L13] new List}.element -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
+[NewObj{<TwoObject: void m()>[0@L11] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}.<List$ListIterator: List this$0> -> [[]:NewObj{<TwoObject: void m()>[0@L11] new List}]
+[NewObj{<TwoObject: void m()>[6@L13] new List}]:NewObj{<List: Iterator iterator()>[0@L31] new List$ListIterator}.<List$ListIterator: List this$0> -> [[]:NewObj{<TwoObject: void m()>[6@L13] new List}]
+[]:NewObj{<TwoObject: void m()>[0@L11] new List}.<List: java.lang.Object element> -> [[]:NewObj{<TwoObject: void m()>[3@L12] new java.lang.Object}]
+[]:NewObj{<TwoObject: void m()>[6@L13] new List}.<List: java.lang.Object element> -> [[]:NewObj{<TwoObject: void m()>[9@L14] new java.lang.Object}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TwoObject: void main(java.lang.String[])>/0},type=java.lang.String[] in <TwoObject: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TwoObject: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TwoObject: void main(java.lang.String[])>}]

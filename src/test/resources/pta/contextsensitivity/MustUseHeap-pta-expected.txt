@@ -17,8 +17,8 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.f -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
-[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.f -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[0@L3] temp$0 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.<A: B f> -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[2@L4] new B}]
+[<MustUseHeap: void main(java.lang.String[])>[5@L5] temp$2 = invokestatic MustUseHeap.createA()]:NewObj{<MustUseHeap: A createA()>[0@L10] new A}.<A: B f> -> [[]:NewObj{<MustUseHeap: void main(java.lang.String[])>[7@L6] new B}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<MustUseHeap: void main(java.lang.String[])>/0},type=java.lang.String[] in <MustUseHeap: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<MustUseHeap: void main(java.lang.String[])>/0}[*],type=java.lang.String in <MustUseHeap: void main(java.lang.String[])>}]

@@ -87,13 +87,13 @@ Points-to sets of all static fields
 <W: java.lang.Object f> -> [[]:NewObj{<W: void <clinit>()>[0@L1] new java.lang.Object}]
 
 Points-to sets of all instance fields
-[]:NewObj{<ReflectiveAction: void arraynew()>[6@L61] new U}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
-[]:NewObj{<ReflectiveAction: void get()>[8@L83] new U}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
-[]:NewObj{<ReflectiveAction: void invoke()>[20@L71] new U}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
-[]:NewObj{<ReflectiveAction: void set()>[9@L94] new U}.inst -> [[]:NewObj{<ReflectiveAction: void set()>[11@L94] new V}, []:NewObj{<U: void <init>()>[1@L10] new W}]
-[]:ReflectiveObj{alloc=<ReflectiveAction: void cnew()>[1@L47] $r1 = invokevirtual r0.newInstance(),type=U in <ReflectiveAction: void cnew()>}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
-[]:ReflectiveObj{alloc=<ReflectiveAction: void ctornew()>[11@L54] $r5 = invokevirtual $r2.newInstance($r3),type=U in <ReflectiveAction: void ctornew()>}.inst -> [[]:NewObj{<U: void <init>(V)>[1@L7] new W}]
-[]:ReflectiveObj{alloc=<ReflectiveAction: void forname(W)>[2@L31] $r1 = invokevirtual $r0.newInstance(),type=U in <ReflectiveAction: void forname(W)>}.inst -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:NewObj{<ReflectiveAction: void arraynew()>[6@L61] new U}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:NewObj{<ReflectiveAction: void get()>[8@L83] new U}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:NewObj{<ReflectiveAction: void invoke()>[20@L71] new U}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:NewObj{<ReflectiveAction: void set()>[9@L94] new U}.<U: java.lang.Object inst> -> [[]:NewObj{<ReflectiveAction: void set()>[11@L94] new V}, []:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:ReflectiveObj{alloc=<ReflectiveAction: void cnew()>[1@L47] $r1 = invokevirtual r0.newInstance(),type=U in <ReflectiveAction: void cnew()>}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
+[]:ReflectiveObj{alloc=<ReflectiveAction: void ctornew()>[11@L54] $r5 = invokevirtual $r2.newInstance($r3),type=U in <ReflectiveAction: void ctornew()>}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>(V)>[1@L7] new W}]
+[]:ReflectiveObj{alloc=<ReflectiveAction: void forname(W)>[2@L31] $r1 = invokevirtual $r0.newInstance(),type=U in <ReflectiveAction: void forname(W)>}.<U: java.lang.Object inst> -> [[]:NewObj{<U: void <init>()>[1@L10] new W}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<ReflectiveAction: void main(java.lang.String[])>/0},type=java.lang.String[] in <ReflectiveAction: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ReflectiveAction: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ReflectiveAction: void main(java.lang.String[])>}]

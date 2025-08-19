@@ -53,8 +53,8 @@ Points-to sets of all static fields
 <NativeModel: A staticA> -> [[]:NewObj{<NativeModel$1Anonymous0: A run()>[0@L33] new A}]
 
 Points-to sets of all instance fields
-[]:NewObj{<NativeModel: void compareAndSwapObject()>[16@L49] new A}.obj -> [[]:NewObj{<NativeModel: void compareAndSwapObject()>[19@L50] new java.lang.Object}]
-[]:NewObj{<NativeModel: void compareAndSwapObject()>[16@L49] new A}.str -> [[]:ConstantObj{java.lang.String: "x"}]
+[]:NewObj{<NativeModel: void compareAndSwapObject()>[16@L49] new A}.<A: java.lang.Object obj> -> [[]:NewObj{<NativeModel: void compareAndSwapObject()>[19@L50] new java.lang.Object}]
+[]:NewObj{<NativeModel: void compareAndSwapObject()>[16@L49] new A}.<A: java.lang.String str> -> [[]:ConstantObj{java.lang.String: "x"}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<NativeModel: void main(java.lang.String[])>/0},type=java.lang.String[] in <NativeModel: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<NativeModel: void main(java.lang.String[])>/0}[*],type=java.lang.String in <NativeModel: void main(java.lang.String[])>}]

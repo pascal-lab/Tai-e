@@ -12,7 +12,7 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<StoreLoad: void main(java.lang.String[])>[0@L4] new A}.f -> [[]:NewObj{<StoreLoad: void main(java.lang.String[])>[3@L5] new B}]
+[]:NewObj{<StoreLoad: void main(java.lang.String[])>[0@L4] new A}.<A: B f> -> [[]:NewObj{<StoreLoad: void main(java.lang.String[])>[3@L5] new B}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<StoreLoad: void main(java.lang.String[])>/0},type=java.lang.String[] in <StoreLoad: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<StoreLoad: void main(java.lang.String[])>/0}[*],type=java.lang.String in <StoreLoad: void main(java.lang.String[])>}]

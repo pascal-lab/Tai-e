@@ -60,12 +60,12 @@ Points-to sets of all variables
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[0@L3] new A}.f -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[6@L6] new B}]
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[12@L9] new C}.h -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[18@L12] new D}]
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[15@L10] new C}.h -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[21@L13] new D}]
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[3@L4] new A}.f -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[9@L7] new B}]
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[6@L6] new B}.g -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[12@L9] new C}]
-[]:NewObj{<ObjOnly: void main(java.lang.String[])>[9@L7] new B}.g -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[15@L10] new C}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[0@L3] new A}.<A: B f> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[6@L6] new B}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[12@L9] new C}.<C: D h> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[18@L12] new D}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[15@L10] new C}.<C: D h> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[21@L13] new D}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[3@L4] new A}.<A: B f> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[9@L7] new B}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[6@L6] new B}.<B: C g> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[12@L9] new C}]
+[]:NewObj{<ObjOnly: void main(java.lang.String[])>[9@L7] new B}.<B: C g> -> [[]:NewObj{<ObjOnly: void main(java.lang.String[])>[15@L10] new C}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<ObjOnly: void main(java.lang.String[])>/0},type=java.lang.String[] in <ObjOnly: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<ObjOnly: void main(java.lang.String[])>/0}[*],type=java.lang.String in <ObjOnly: void main(java.lang.String[])>}]
