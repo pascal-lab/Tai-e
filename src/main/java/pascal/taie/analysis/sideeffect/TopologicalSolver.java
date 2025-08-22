@@ -42,7 +42,6 @@ import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
-import pascal.taie.util.graph.TopologicalSorter;
 
 import java.util.Collection;
 import java.util.Set;
