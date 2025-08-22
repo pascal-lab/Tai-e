@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.sideeffect;
 
+import pascal.taie.analysis.graph.callgraph.CachedCallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -64,7 +65,7 @@ class TopologicalSolver {
     TopologicalSolver(boolean onlyApp, PointerAnalysisResult pta) {
         this.onlyApp = onlyApp;
         this.pta = pta;
-        this.callGraph = pta.getCSCallGraph();
+        this.callGraph = new CachedCallGraph<>(pta.getCSCallGraph());
         this.objIndexer = pta.getObjectIndexer();
     }
 
