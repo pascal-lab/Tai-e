@@ -46,6 +46,6 @@ public class SideEffectAnalysis extends ProgramAnalysis<SideEffect> {
     @Override
     public SideEffect analyze() {
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
-        return new TopologicalSolver(onlyApp).solve(pta);
+        return new TopologicalSolver(onlyApp, pta).solve();
     }
 }

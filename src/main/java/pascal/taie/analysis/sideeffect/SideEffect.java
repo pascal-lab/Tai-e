@@ -24,36 +24,38 @@ package pascal.taie.analysis.sideeffect;
 
 import pascal.taie.analysis.StmtResult;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.util.collection.TwoKeyMap;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Represents result of side-effect analysis.
+ * Represents result of side effect analysis.
  */
 public class SideEffect implements StmtResult<Set<Obj>> {
 
     /**
      * Maps from a method to all objects directly or indirectly modified by it.
      */
-    private final Map<JMethod, Set<Obj>> methodMods;
+    private final TwoKeyMap<JMethod, Context, Set<Obj>> methodMods;
 
     /**
      * Maps from a stmt to the objects directly modified by it.
      */
-    private final Map<Stmt, Set<Obj>> stmtDirectMods;
+    private final TwoKeyMap<Stmt, Context, Set<Obj>> stmtDirectMods;
 
     private final CallGraph<Invoke, JMethod> callGraph;
 
-    SideEffect(Map<JMethod, Set<Obj>> methodMods,
-               Map<Stmt, Set<Obj>> stmtDirectMods,
+    SideEffect(TwoKeyMap<JMethod, Context, Set<Obj>> methodMods,
+               TwoKeyMap<Stmt, Context, Set<Obj>> stmtDirectMods,
                CallGraph<Invoke, JMethod> callGraph) {
         this.methodMods = methodMods;
         this.stmtDirectMods = stmtDirectMods;
@@ -64,7 +66,8 @@ public class SideEffect implements StmtResult<Set<Obj>> {
      * @return set of objects that may be modified by given method.
      */
     public Set<Obj> getModifiedObjects(JMethod method) {
-        return methodMods.getOrDefault(method, Set.of());
+        return methodMods.getOrDefault(method, Map.of()).values().stream()
+                .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -80,7 +83,8 @@ public class SideEffect implements StmtResult<Set<Obj>> {
                     .flatMap(Set::stream)
                     .collect(Collectors.toUnmodifiableSet());
         }
-        return stmtDirectMods.getOrDefault(stmt, Set.of());
+        return stmtDirectMods.getOrDefault(stmt, Map.of()).values().stream()
+                .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
 
     /**

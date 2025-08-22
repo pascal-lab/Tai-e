@@ -21,7 +21,7 @@
  */
 
 /**
- * This package implements modification side-effect analysis (MOD) which
+ * This package implements modification side effect analysis (MOD) which
  * computes the objects that may be modified by each method and statement.
  * <p>
  * The analysis was defined in paper:
