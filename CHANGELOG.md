@@ -3,6 +3,7 @@
 ## [Unreleased] - 2025-02-16
 
 ### New Features
+- Add a simple virtual machine that could execute Tai-e IR.
 - Pointer analysis
   - Add special handling for zero-length arrays to enhance PTA precision.
 
