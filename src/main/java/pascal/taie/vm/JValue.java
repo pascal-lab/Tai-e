@@ -24,7 +24,7 @@ package pascal.taie.vm;
 
 import pascal.taie.language.type.Type;
 
-public interface JValue {
+interface JValue {
 
     Object toJVMObj();
 
@@ -48,7 +48,7 @@ public interface JValue {
         }
     }
 
-    static JArray getJArray(JValue v) {
+    static JArray getArray(JValue v) {
         if (v instanceof JArray j) {
             return j;
         } else {

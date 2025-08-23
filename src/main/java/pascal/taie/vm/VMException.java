@@ -22,14 +22,16 @@
 
 package pascal.taie.vm;
 
-public class VMException extends UnsupportedOperationException {
-    public VMException(String info) {
-        super(info);
+class VMException extends UnsupportedOperationException {
+
+    VMException() {
     }
 
-    public VMException() {}
+    VMException(String message) {
+        super(message);
+    }
 
-    public VMException(Throwable e) {
-        super(e);
+    VMException(Throwable cause) {
+        super(cause);
     }
 }

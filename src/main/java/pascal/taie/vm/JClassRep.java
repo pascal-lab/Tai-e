@@ -43,31 +43,29 @@ import java.util.Map;
  * see {@link VM#loadClass(ClassType)} for details.
  * </p>
  */
-public class JClassRep {
+class JClassRep {
 
-    ClassType type;
+    private final ClassType type;
 
-    private final Map<String, JValue> staticFields;
+    private final Map<String, JValue> staticFields = Maps.newMap();;
 
-    public JClassRep(ClassType type) {
+    JClassRep(ClassType type) {
         this.type = type;
-        staticFields = Maps.newMap();
     }
 
-    @Override
-    public String toString() {
-        return "JClassObj: [" + this.type + "]";
+    ClassType getType() {
+        return type;
     }
 
-    public JValue getStaticField(VM vm, FieldRef ref) {
+    JValue getStaticField(VM vm, FieldRef ref) {
         return staticFields.get(ref.getName());
     }
 
-    public void setStaticField(VM vm, FieldRef ref, JValue value) {
+    void setStaticField(VM vm, FieldRef ref, JValue value) {
         staticFields.put(ref.getName(), value);
     }
 
-    public JValue invokeStatic(VM vm, JMethod method, List<JValue> values) {
+    JValue invokeStatic(VM vm, JMethod method, List<JValue> values) {
         Map<Var, JValue> args = Maps.newMap();
         IR ir = method.getIR();
         for (int i = 0; i < method.getParamCount(); ++i) {
@@ -75,5 +73,10 @@ public class JClassRep {
         }
         Frame newFrame = Frame.makeNewFrame(args);
         return vm.execIR(ir, newFrame);
+    }
+
+    @Override
+    public String toString() {
+        return "JClassObj: [" + this.type + "]";
     }
 }

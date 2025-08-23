@@ -22,6 +22,9 @@
 
 package pascal.taie.vm;
 
+import pascal.taie.language.type.DoubleType;
+import pascal.taie.language.type.FloatType;
+import pascal.taie.language.type.LongType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
 
@@ -33,36 +36,32 @@ import static pascal.taie.language.type.LongType.LONG;
 /**
  * This class represents a primitive value in the VM.
  */
-public class JPrimitive implements JValue {
+class JPrimitive implements JValue {
 
     final Object value;
 
     final PrimitiveType type;
 
-    public JPrimitive(Object v) {
-        assert v instanceof Integer ||
-                v instanceof Long ||
-                v instanceof Float ||
-                v instanceof Double;
-
-        this.value = v;
-
-        if (value instanceof Integer) {
+    JPrimitive(Object v) {
+        if (v instanceof Integer) {
             type = INT;
-        } else if (value instanceof Long) {
+        } else if (v instanceof Long) {
             type = LONG;
-        } else if (value instanceof Float) {
+        } else if (v instanceof Float) {
             type = FLOAT;
-        } else {
+        } else if (v instanceof Double) {
             type = DOUBLE;
+        } else {
+            throw new VMException("Unexpected type: " + v.getClass());
         }
+        this.value = v;
     }
 
-    public static JPrimitive get(Object value) {
+    static JPrimitive get(Object value) {
         return new JPrimitive(value);
     }
 
-    public JPrimitive getNegValue() {
+    JPrimitive getNegValue() {
         if (value instanceof Integer i) {
             return get(-i);
         } else if (value instanceof Long l) {
@@ -76,24 +75,20 @@ public class JPrimitive implements JValue {
         }
     }
 
-    public static JPrimitive getBoolean(boolean b) {
+    static JPrimitive getBoolean(boolean b) {
         return new JPrimitive(Utils.toInt(b));
     }
 
-    public static JPrimitive getDefault(PrimitiveType t) {
-        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(t);
-        return switch (index) {
-            case 0, 1, 2, 3, 4 -> JPrimitive.get(0);
-            case 5 -> JPrimitive.get(0L);
-            case 6 -> JPrimitive.get(0f);
-            case 7 -> JPrimitive.get(0d);
-            default -> throw new VMException();
-        };
-    }
-
-    @Override
-    public String toString() {
-        return value.toString();
+    static JPrimitive getDefault(PrimitiveType type) {
+        if (type instanceof LongType) {
+            return JPrimitive.get(0L);
+        } else if (type instanceof FloatType) {
+            return JPrimitive.get(0f);
+        } else if (type instanceof DoubleType) {
+            return JPrimitive.get(0d);
+        } else {
+            return JPrimitive.get(0);
+        }
     }
 
     @Override
@@ -104,5 +99,10 @@ public class JPrimitive implements JValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }

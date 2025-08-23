@@ -28,9 +28,10 @@ import pascal.taie.util.collection.Maps;
 import java.util.Map;
 
 /**
- * A JVM stack frame
+ * Represents A JVM stack frame.
  */
 class Frame {
+
     private int pc;
 
     private int lastPC; // Only used for phi selection.
@@ -39,7 +40,8 @@ class Frame {
 
     private JValue rets;
 
-    static final int METHOD_ENTRY = -1; // Should we define a uniform index for entry?
+    // Shall we define a uniform index for entry?
+    static final int METHOD_ENTRY = -1;
 
     private Frame(int pc, Map<Var, JValue> regs) {
         this.pc = pc;

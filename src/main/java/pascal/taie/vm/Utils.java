@@ -82,33 +82,38 @@ class Utils {
         return ref.getName().equals(EQUALS);
     }
 
-    static Class<?> toJVMType(Type t) {
-        if (t instanceof PrimitiveType primitiveType) {
-            int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(primitiveType);
-            return switch (index) {
-                case 0 -> boolean.class;
-                case 1 -> byte.class;
-                case 2 -> char.class;
-                case 3 -> short.class;
-                case 4 -> int.class;
-                case 5 -> long.class;
-                case 6 -> float.class;
-                case 7 -> double.class;
-                default -> throw new VMException();
-            };
-        } else if (t instanceof ClassType classType) {
+    static Class<?> toJVMType(Type type) {
+        if (type instanceof PrimitiveType) {
+            if (type == BOOLEAN) {
+                return boolean.class;
+            } else if (type == BYTE) {
+                return byte.class;
+            } else if (type == CHAR) {
+                return char.class;
+            } else if (type == SHORT) {
+                return short.class;
+            } else if (type == INT) {
+                return int.class;
+            } else if (type == LONG) {
+                return long.class;
+            } else if (type == FLOAT) {
+                return float.class;
+            } else {
+                return double.class;
+            }
+        } else if (type instanceof ClassType classType) {
             try {
                 return Class.forName(classType.getName());
             } catch (ClassNotFoundException e) {
                 throw new VMException(e);
             }
-        } else if (t instanceof ArrayType arrayType) {
+        } else if (type instanceof ArrayType arrayType) {
             Class<?> res = toJVMType(arrayType.baseType());
             for (int i = 0; i < arrayType.dimensions(); ++i) {
                 res = res.arrayType();
             }
             return res;
-        } else if (t == VoidType.VOID) {
+        } else if (type == VoidType.VOID) {
             return void.class;
         } else {
             throw new VMException();
@@ -129,7 +134,6 @@ class Utils {
     }
 
     static Object typedToJVMObj(JValue value, Type type) {
-        assert value != null;
         if (value instanceof JPrimitive primitive) {
             if (primitive.toJVMObj() instanceof Integer i) {
                 assert type instanceof PrimitiveType;
@@ -140,16 +144,18 @@ class Utils {
         return value.toJVMObj();
     }
 
-    static Object downCastInt(Integer i, PrimitiveType p) {
-        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(p);
-        return switch (index) {
-            case 0 -> toBoolean(i.byteValue());
-            case 1 -> i.byteValue();
-            case 2 -> (char) i.intValue();
-            case 3 -> i.shortValue();
-            case 4 -> i;
-            default -> throw new VMException();
-        };
+    static Object downCastInt(Integer i, PrimitiveType type) {
+        if (type == BOOLEAN) {
+            return toBoolean(i.byteValue());
+        } else if (type == BYTE) {
+            return i.byteValue();
+        } else if (type == CHAR) {
+            return (char) i.intValue();
+        } else if (type == SHORT) {
+            return i.shortValue();
+        } else {
+            return i;
+        }
     }
 
     static int getIntValue(Object o) {
@@ -190,29 +196,23 @@ class Utils {
         }
     }
 
-    public static Class<?>[] toJVMTypeListFromValue(List<JValue> values) {
-        return values.stream().map(JValue::getType)
-                .map(Utils::toJVMType)
-                .toArray(Class[]::new);
-    }
-
-    static boolean isJVMClass(Type t) {
-        if (t instanceof ClassType ct) {
+    static boolean isJVMClass(Type type) {
+        if (type instanceof ClassType ct) {
             JClass klass = ct.getJClass();
             assert klass != null;
             return klass.getName().startsWith("java.") ||
                     klass.getName().startsWith("org.junit.") ||
-                    klass.getName().startsWith("org.gradle") ||
+                    klass.getName().startsWith("org.gradle.") ||
                     isBoxedType(ct);
-        } else if (t instanceof ArrayType at) {
+        } else if (type instanceof ArrayType at) {
             return isJVMClass(at.baseType());
         } else {
             return true;
         }
     }
 
-    private static boolean isBoxedType(ClassType t) {
-        return PRIMITIVE_TYPES.contains(t.getName());
+    private static boolean isBoxedType(ClassType type) {
+        return PRIMITIVE_TYPES.contains(type.getName());
     }
 
     static ClassType fromJVMClass(Class<?> klass) {
@@ -250,8 +250,8 @@ class Utils {
         }
     }
 
-    private static JValue fromPrimitiveJVMObject(VM vm, Object o, Type t) {
-        if (t instanceof PrimitiveType) {
+    private static JValue fromPrimitiveJVMObject(VM vm, Object o, Type type) {
+        if (type instanceof PrimitiveType) {
             if (o instanceof Boolean b) {
                 return JPrimitive.get(toInt(b));
             } else if (o instanceof Character c) {
@@ -269,18 +269,18 @@ class Utils {
             } else if (o instanceof Double d) {
                 return JPrimitive.get(d);
             }
-        } else if (t instanceof ClassType) {
+        } else if (type instanceof ClassType) {
             return new JVMObject((JVMClassRep)
                     vm.loadClass(fromJVMClass(o.getClass())), o);
         }
         throw new VMException();
     }
 
-    static JValue fromJVMObject(VM vm, Object o, Type t) {
+    static JValue fromJVMObject(VM vm, Object o, Type type) {
         if (o == null) {
             return JNull.NULL;
         } else if (PRIMITIVE_TYPES.contains(o.getClass().getName())) {
-            return fromPrimitiveJVMObject(vm, o, t);
+            return fromPrimitiveJVMObject(vm, o, type);
         } else if (o instanceof JObject jObject) {
             return jObject;
         } else if (o.getClass().isArray()) {
@@ -292,12 +292,11 @@ class Utils {
                 arr[i] = fromJVMObject(vm, oi, at.elementType());
             }
             return new JArray(arr, at.baseType(), at.dimensions());
-        } else if (t instanceof ClassType ct) {
+        } else if (type instanceof ClassType ct) {
             Class<?> klass = o.getClass();
             Class<?> klassDecl = toJVMType(ct);
             assert klassDecl.isAssignableFrom(klass);
-            // TODO: fix this, check if jvm class
-            // TODO: use correct type
+            // TODO: fix this, check if JVM class uses correct type
             JClass jClass = World.get().getClassHierarchy().getClass(klass.getName());
             JClassRep klassObj;
             if (jClass != null) {

@@ -46,7 +46,7 @@ import java.util.Map;
  * @see JVMObject
  * @see JClassLiteralObject
  */
-public class JObject implements JValue {
+class JObject implements JValue {
 
     /**
      * The VM that this object belongs to.
@@ -82,7 +82,7 @@ public class JObject implements JValue {
     JObject(VM vm, JClassRep jClassObj, JObject superObj) {
         this.vm = vm;
         this.klass = jClassObj;
-        this.type = klass.type;
+        this.type = klass.getType();
         fields = Maps.newMap();
         this.superObj = superObj;
     }
@@ -96,7 +96,7 @@ public class JObject implements JValue {
     /**
      * Set the field of the object.
      */
-    public void setField(VM vm, FieldRef ref, JValue value) {
+    void setField(VM vm, FieldRef ref, JValue value) {
         if (ref.resolve().getDeclaringClass().getType() != type) {
             superObj.setField(vm, ref, value);
         } else {
@@ -113,7 +113,7 @@ public class JObject implements JValue {
     /**
      * Get the field of the object.
      */
-    public JValue getField(VM vm, FieldRef field) {
+    JValue getField(VM vm, FieldRef field) {
         String name = field.getName();
         if (field.resolve().getDeclaringClass().getType() != type) {
             // super field
@@ -133,7 +133,7 @@ public class JObject implements JValue {
         });
     }
 
-    public JMethod getMethod(Subsignature subsignature) {
+    JMethod getMethod(Subsignature subsignature) {
         return type.getJClass().getDeclaredMethod(subsignature);
     }
 
@@ -145,7 +145,7 @@ public class JObject implements JValue {
      * For {@code getClass}, we return a {@link JClassLiteralObject} object.
      * </p>
      */
-    public JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
+    JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
         ClassType declType = method.getDeclaringClass().getType();
         if (Utils.isClone(method.getRef())) {
             return new JObject(this);
@@ -175,6 +175,11 @@ public class JObject implements JValue {
         }
     }
 
+    @Override
+    public Object toJVMObj() {
+        return this;
+    }
+
     /**
      * Override the {@code toString} method.
      * See {@link JVMObject} for why we need to override this method.
@@ -182,17 +187,12 @@ public class JObject implements JValue {
     @Override
     public String toString() {
         assert vm != null;
-        JMethod mtd = type.getJClass().getDeclaredMethod("toString");
-        assert mtd != null;
-        JValue v = invokeInstance(vm, mtd, List.of());
+        JMethod method = type.getJClass().getDeclaredMethod("toString");
+        assert method != null;
+        JValue v = invokeInstance(vm, method, List.of());
         assert v instanceof JVMObject;
         Object o = v.toJVMObj();
         assert o instanceof String;
         return (String) o;
-    }
-
-    @Override
-    public Object toJVMObj() {
-        return this;
     }
 }

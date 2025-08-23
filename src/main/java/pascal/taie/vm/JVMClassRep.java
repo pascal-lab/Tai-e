@@ -37,10 +37,10 @@ import java.util.List;
  * @see JVMObject
  * @see JClassRep
  */
-public class JVMClassRep extends JClassRep {
+class JVMClassRep extends JClassRep {
     final Class<?> klass;
 
-    public JVMClassRep(ClassType type) {
+    JVMClassRep(ClassType type) {
         super(type);
         try {
             klass = Class.forName(type.getName());
@@ -49,13 +49,13 @@ public class JVMClassRep extends JClassRep {
         }
     }
 
-    public JVMClassRep(ClassType ct, Class<?> klass) {
+    JVMClassRep(ClassType ct, Class<?> klass) {
         super(ct);
         this.klass = klass;
     }
 
     @Override
-    public JValue invokeStatic(VM vm, JMethod method, List<JValue> args)  {
+    JValue invokeStatic(VM vm, JMethod method, List<JValue> args)  {
         try {
             Method mtd = Utils.toJVMMethod(method);
             Object[] arr = Utils.toJVMObjects(args, method.getParamTypes());
@@ -72,12 +72,12 @@ public class JVMClassRep extends JClassRep {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new VMException(e);
         } catch (InvocationTargetException e) {
-            throw new ClientException(e);
+            throw new AppException(e);
         }
     }
 
     @Override
-    public JValue getStaticField(VM vm, FieldRef ref) {
+    JValue getStaticField(VM vm, FieldRef ref) {
         try {
             Field field = klass.getDeclaredField(ref.getName());
             field.setAccessible(true);
@@ -88,7 +88,7 @@ public class JVMClassRep extends JClassRep {
     }
 
     @Override
-    public void setStaticField(VM vm, FieldRef ref, JValue value) {
+    void setStaticField(VM vm, FieldRef ref, JValue value) {
         try {
             Field field = klass.getDeclaredField(ref.getName());
             field.setAccessible(true);

@@ -95,7 +95,7 @@ import java.util.List;
  * Luckily, if the dividing of JVMObject and JObject is reasonable, this case will not occur
  * ({@code A} and {@code B} will be both JVMObject or both JObject).
  */
-public class JVMObject extends JObject {
+class JVMObject extends JObject {
 
     /**
      * Real object in JVM.
@@ -107,25 +107,25 @@ public class JVMObject extends JObject {
      */
     private final JVMClassRep classObject;
 
-    public JVMObject(JVMClassRep jClassObj, JMethod ctor, List<JValue> valueList) {
+    JVMObject(JVMClassRep jClassObj, JMethod ctor, List<JValue> valueList) {
         super(null, jClassObj);
         classObject = jClassObj;
         init(ctor, valueList);
     }
 
-    public JVMObject(JVMClassRep jClassObj, Object object) {
+    JVMObject(JVMClassRep jClassObj, Object object) {
         super(null, jClassObj);
         this.classObject = jClassObj;
         this.object = object;
     }
 
-    public JVMObject(JVMClassRep jClassObj) {
+    JVMObject(JVMClassRep jClassObj) {
         super(null, jClassObj);
         this.classObject = jClassObj;
     }
 
     @Override
-    public void setField(VM vm, FieldRef ref, JValue value) {
+    void setField(VM vm, FieldRef ref, JValue value) {
         try {
             Field f = Utils.toJVMField(ref.resolve());
             f.set(object, value.toJVMObj());
@@ -135,7 +135,7 @@ public class JVMObject extends JObject {
     }
 
     @Override
-    public JValue getField(VM vm, FieldRef ref) {
+    JValue getField(VM vm, FieldRef ref) {
         Field field = Utils.toJVMField(ref.resolve());
         try {
             return Utils.fromJVMObject(vm, field.get(object), ref.getType());
@@ -145,7 +145,7 @@ public class JVMObject extends JObject {
     }
 
     @Override
-    public JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
+    JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
         Method mtd = Utils.toJVMMethod(method);
         try {
             Object res = mtd.invoke(object, Utils.toJVMObjects(args, method.getParamTypes()));
@@ -160,7 +160,7 @@ public class JVMObject extends JObject {
      * @param ctor {@code <init>} method
      * @param args arguments of the constructor
      */
-    public void init(JMethod ctor, List<JValue> args) {
+    void init(JMethod ctor, List<JValue> args) {
         try {
             Class<?> klass = this.classObject.klass;
             Constructor<?> ctor1 = klass.getConstructor(Utils.toJVMTypeList(ctor.getParamTypes()));
@@ -171,7 +171,7 @@ public class JVMObject extends JObject {
                  IllegalAccessException e) {
             throw new VMException(e);
         } catch (InvocationTargetException e) {
-            throw new ClientException(e);
+            throw new AppException(e);
         }
     }
 
@@ -184,5 +184,4 @@ public class JVMObject extends JObject {
     public String toString() {
         return object.toString();
     }
-
 }

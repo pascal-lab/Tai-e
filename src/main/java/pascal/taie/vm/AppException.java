@@ -22,10 +22,17 @@
 
 package pascal.taie.vm;
 
-public class ClientDefinedException extends RuntimeException {
-    JObject inner;
+/**
+ * Represents the exception (defined in JDK) thrown by the application.
+ */
+class AppException extends RuntimeException {
 
-    ClientDefinedException(JObject inner) {
-        this.inner = inner;
+    AppException(Throwable cause) {
+        super(cause);
+    }
+
+    @Override
+    public String toString() {
+        return "Client code throw uncaught exception: " + getCause();
     }
 }

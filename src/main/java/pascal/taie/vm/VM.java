@@ -93,10 +93,16 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
 
 /**
  * The virtual machine for executing the IR.
@@ -119,16 +125,15 @@ import java.util.Optional;
  * @see JVMObject
  */
 public class VM {
+
     private final World world;
 
-    private final ArrayDeque<Frame> frames;
+    private final Deque<Frame> frames = new ArrayDeque<>();
 
-    private final Map<ClassType, JClassRep> classObjs;
+    private final Map<ClassType, JClassRep> classObjs = Maps.newMap();
 
     public VM(World world) {
         this.world = world;
-        frames = new ArrayDeque<>();
-        classObjs = Maps.newMap();
     }
 
     // ------------------- Execution (starts) -------------------
@@ -140,110 +145,112 @@ public class VM {
         execIR(main.getIR(), Frame.makeNewFrame());
     }
 
-    JValue execIR(IR ir, Frame f) {
-        frames.push(f);
-        while (f.getPC() >= 0) {
-            int pc = f.getPC();
+    JValue execIR(IR ir, Frame frame) {
+        frames.push(frame);
+        while (frame.getPC() >= 0) {
+            int pc = frame.getPC();
             Stmt stmt = ir.getStmt(pc);
             boolean exceptionTriggered = false;
             try {
-                execStmt(stmt, ir, f);
+                execStmt(stmt, ir, frame);
             } catch (VMException e) {
                 throw e;
             } catch (Exception e) {
                 exceptionTriggered = true;
-                Exception exception;
-                if (e instanceof ClientException e1) {
-                    exception = e1.internal;
+                Throwable exception;
+                if (e instanceof AppException ae) {
+                    exception = ae.getCause();
                 } else {
                     exception = e;
                 }
-                int currentPC = f.getPC();
-                ClassType t;
+                int currentPC = frame.getPC();
+                ClassType type;
                 JObject aCatchObj;
-                if (exception instanceof ClientDefinedException cde) {
-                    t = (ClassType) cde.inner.getType();
-                    aCatchObj = cde.inner;
+                if (exception instanceof AppDefinedException ade) {
+                    type = ade.getInternal().getType();
+                    aCatchObj = ade.getInternal();
                 } else {
-                    t = Utils.fromJVMClass(exception.getClass());
-                    aCatchObj = new JVMObject((JVMClassRep) loadClass(t), exception);
+                    type = Utils.fromJVMClass(exception.getClass());
+                    aCatchObj = new JVMObject((JVMClassRep) loadClass(type), exception);
                 }
-                Optional<ExceptionEntry> exceptionEntry = ir.getExceptionEntries().stream()
-                        .filter(entry -> World.get().getTypeSystem().isSubtype(entry.catchType(), t) &&
+                Optional<ExceptionEntry> exceptionEntry = ir.getExceptionEntries()
+                        .stream()
+                        .filter(entry -> World.get()
+                                .getTypeSystem()
+                                .isSubtype(entry.catchType(), type) &&
                                 currentPC >= entry.start().getIndex() &&
                                 currentPC < entry.end().getIndex())
                         .findAny();
                 if (exceptionEntry.isPresent()) {
                     Catch aCatch = exceptionEntry.get().handler();
-                    f.getRegs().put(aCatch.getExceptionRef(), aCatchObj);
-                    f.setPC(aCatch.getIndex());
+                    frame.getRegs().put(aCatch.getExceptionRef(), aCatchObj);
+                    frame.setPC(aCatch.getIndex());
                 } else {
                     // TODO: this approach will cause client code catch some internal exception
-                    //       correct this by explicitly throw all jvm exceptions
-
+                    //       correct this by explicitly throw all JVM exceptions
                     // throw to outer frame
                     frames.pop();
-                    throw new ClientException(exception);
+                    throw new AppException(exception);
                 }
             }
             if (!(exceptionTriggered || stmt instanceof PhiStmt || stmt instanceof Catch)) {
-                f.setLastPC(pc);
+                frame.setLastPC(pc);
             }
         }
         frames.pop();
-        return f.getRets();
+        return frame.getRets();
     }
 
-    private void execStmt(Stmt stmt, IR ir, Frame f) {
+    private void execStmt(Stmt stmt, IR ir, Frame frame) {
         if (stmt instanceof Nop || stmt instanceof Catch || stmt instanceof Monitor) {
             // do nothing
-        } else if (stmt instanceof Return r) {
-            f.markEnd();
-            if (r.getValue() != null) {
-                f.setRets(evalExp(r.getValue(), ir, f));
+        } else if (stmt instanceof Return ret) {
+            frame.markEnd();
+            if (ret.getValue() != null) {
+                frame.setRets(evalExp(ret.getValue(), ir, frame));
             }
             return;
-        } else if (stmt instanceof DefinitionStmt<?, ?> a) {
-            LValue l = a.getLValue();
-            RValue r = a.getRValue();
-            JValue rValue = evalExp(r, ir, f);
-            if (l != null) {
-                if (l instanceof Var v) {
-                    f.getRegs().put(v, rValue);
-                } else if (l instanceof InstanceFieldAccess fa) {
+        } else if (stmt instanceof DefinitionStmt<?, ?> define) {
+            LValue left = define.getLValue();
+            RValue right = define.getRValue();
+            JValue rValue = evalExp(right, ir, frame);
+            if (left != null) {
+                if (left instanceof Var var) {
+                    frame.getRegs().put(var, rValue);
+                } else if (left instanceof InstanceFieldAccess fa) {
                     FieldRef ref = fa.getFieldRef();
-                    JObject obj  = JValue.getObject(f.getRegs().get(fa.getBase()));
+                    JObject obj  = JValue.getObject(frame.getRegs().get(fa.getBase()));
                     obj.setField(this, ref, rValue);
-                } else if (l instanceof StaticFieldAccess sfa) {
+                } else if (left instanceof StaticFieldAccess sfa) {
                     JClassRep obj = loadClass(sfa.getFieldRef().resolve()
                             .getDeclaringClass().getType());
                     obj.setStaticField(this, sfa.getFieldRef(), rValue);
-                } else if (l instanceof ArrayAccess aa) {
-                    JArray array = JValue.getJArray(evalExp(aa.getBase(), ir, f));
-                    int idx = JValue.getInt(evalExp(aa.getIndex(), ir, f));
-                    array.setIdx(idx, rValue);
+                } else if (left instanceof ArrayAccess aa) {
+                    JArray array = JValue.getArray(evalExp(aa.getBase(), ir, frame));
+                    int idx = JValue.getInt(evalExp(aa.getIndex(), ir, frame));
+                    array.set(idx, rValue);
                 } else {
                     throw new VMException();
                 }
             }
         } else if (stmt instanceof Goto g) {
-            f.setPC(g.getTarget().getIndex());
+            frame.setPC(g.getTarget().getIndex());
             return;
         } else if (stmt instanceof If i) {
-            if (JValue.getInt(evalExp(i.getCondition(), ir, f)) == Utils.INT_TRUE) {
-                f.setPC(i.getTarget().getIndex());
+            if (JValue.getInt(evalExp(i.getCondition(), ir, frame)) == Utils.INT_TRUE) {
+                frame.setPC(i.getTarget().getIndex());
                 return;
             }
         } else if (stmt instanceof Throw t) {
             Var v = t.getExceptionRef();
-            JObject value = JValue.getObject(evalExp(v, ir, f));
+            JObject value = JValue.getObject(evalExp(v, ir, frame));
             if (value instanceof JVMObject) {
-                throw new ClientException((Exception) value.toJVMObj());
+                throw new AppException((Exception) value.toJVMObj());
             } else {
-                throw new ClientException(new ClientDefinedException(value));
+                throw new AppException(new AppDefinedException(value));
             }
         } else if (stmt instanceof SwitchStmt s) {
-            JValue v = evalExp(s.getVar(), ir, f);
+            JValue v = evalExp(s.getVar(), ir, frame);
             int i = JValue.getInt(v);
             Stmt target = s.getCaseTargets()
                     .stream()
@@ -251,16 +258,16 @@ public class VM {
                     .findAny()
                     .orElse(new Pair<>(i, s.getDefaultTarget()))
                     .second();
-            f.setPC(target.getIndex());
+            frame.setPC(target.getIndex());
             return;
         } else {
             throw new VMException();
         }
 
-        if (f.getPC() < ir.getStmts().size()) {
-            f.setPC(f.getPC() + 1);
+        if (frame.getPC() < ir.getStmts().size()) {
+            frame.setPC(frame.getPC() + 1);
         } else {
-            f.markEnd();
+            frame.markEnd();
         }
     }
     // ------------------- Execution (ends) -------------------
@@ -314,7 +321,7 @@ public class VM {
                 }
 
                 if (op == ConditionExp.Op.NE) {
-                    res = ! res;
+                    res = !res;
                 }
                 return JPrimitive.getBoolean(res);
             }
@@ -512,9 +519,9 @@ public class VM {
                 throw new VMException();
             }
         } else if (e instanceof ArrayAccess aa) {
-            JArray b = JValue.getJArray(evalExp(aa.getBase(), ir, f));
+            JArray b = JValue.getArray(evalExp(aa.getBase(), ir, f));
             int idx = JValue.getInt(evalExp(aa.getIndex(), ir, f));
-            return b.getIdx(idx);
+            return b.get(idx);
         } else if (e instanceof InstanceFieldAccess ifa) {
             JObject obj = JValue.getObject(evalExp(ifa.getBase(), ir, f));
             return obj.getField(this, ifa.getFieldRef());
@@ -533,7 +540,7 @@ public class VM {
                 if (world.getTypeSystem().isSubtype(r, v.getType())) {
                     return v;
                 } else {
-                    throw new ClientException(new ClassCastException());
+                    throw new AppException(new ClassCastException());
                 }
             } else {
                 throw new VMException();
@@ -551,7 +558,7 @@ public class VM {
                     .isSubtype(instanceOf.getCheckedType(), value.getType()));
         } else if (e instanceof ArrayLengthExp arrayLengthExp) {
             JValue v = evalExp(arrayLengthExp.getOperand(), ir, f);
-            JArray array = JValue.getJArray(v);
+            JArray array = JValue.getArray(v);
             return JPrimitive.get(array.length());
         } else if (e instanceof PhiExp phi) {
             int lastPC = f.getLastPC();
@@ -618,7 +625,7 @@ public class VM {
                 throw new VMException();
             }
         } else if (v instanceof JNull) {
-            throw new ClientException(new NullPointerException());
+            throw new AppException(new NullPointerException());
         } else {
             throw new VMException();
         }
@@ -690,7 +697,7 @@ public class VM {
         }
     }
 
-    public JClassRep loadClass(ClassType t) {
+    JClassRep loadClass(ClassType t) {
         if (classObjs.containsKey(t)) {
             return classObjs.get(t);
         } else {
@@ -745,43 +752,54 @@ public class VM {
     }
 
     private Object performPrimitiveConv(JValue v, PrimitiveType type) {
-        assert v instanceof JPrimitive;
         JPrimitive p = (JPrimitive) v;
         Object o = p.value;
-        int index = pascal.taie.frontend.newfrontend.Utils.getPrimitiveTypeIndex(type);
         if (o instanceof Integer i) {
-            return switch (index) {
-                case 0, 1, 2, 3 -> Utils.getIntValue(Utils.downCastInt(i, type));
-                case 4 -> i;
-                case 5 -> i.longValue();
-                case 6 -> i.floatValue();
-                case 7 -> i.doubleValue();
-                default -> throw new VMException();
-            };
+            if (type == LONG) {
+                return i.longValue();
+            } else if (type == FLOAT) {
+                return i.floatValue();
+            } else if (type == DOUBLE) {
+                return i.doubleValue();
+            } else {
+                return Utils.getIntValue(Utils.downCastInt(i, type));
+            }
         } else if (o instanceof Long l) {
-            return switch (index) {
-                case 4 -> l.intValue();
-                case 5 -> l;
-                case 6 -> l.floatValue();
-                case 7 -> l.doubleValue();
-                default -> throw new VMException();
-            };
+            if (type == INT) {
+                return l.intValue();
+            } else if (type == LONG) {
+                return l;
+            } else if (type == FLOAT) {
+                return l.floatValue();
+            } else if (type == DOUBLE) {
+                return l.doubleValue();
+            } else {
+                throw new VMException();
+            }
         } else if (o instanceof Float f) {
-            return switch (index) {
-                case 4 -> f.intValue();
-                case 5 -> f.longValue();
-                case 6 -> f;
-                case 7 -> f.doubleValue();
-                default -> throw new VMException();
-            };
+            if (type == INT) {
+                return f.intValue();
+            } else if (type == LONG) {
+                return f.longValue();
+            } else if (type == FLOAT) {
+                return f;
+            } else if (type == DOUBLE) {
+                return f.doubleValue();
+            } else {
+                throw new VMException();
+            }
         } else if (o instanceof Double d) {
-            return switch (index) {
-                case 4 -> d.intValue();
-                case 5 -> d.longValue();
-                case 6 -> d.floatValue();
-                case 7 -> d;
-                default -> throw new VMException();
-            };
+            if (type == INT) {
+                return d.intValue();
+            } else if (type == LONG) {
+                return d.longValue();
+            } else if (type == FLOAT) {
+                return d.floatValue();
+            } else if (type == DOUBLE) {
+                return d;
+            } else {
+                throw new VMException();
+            }
         }
         throw new VMException();
     }
@@ -791,9 +809,9 @@ public class VM {
         return (JVMClassRep) loadClass(type);
     }
 
-    private JObject createJObject(ClassType ct) {
-        ClassType superType = Objects.requireNonNull(ct.getJClass().getSuperClass()).getType();
-        JClassRep klass = loadClass(ct);
+    private JObject createJObject(ClassType type) {
+        ClassType superType = Objects.requireNonNull(type.getJClass().getSuperClass()).getType();
+        JClassRep klass = loadClass(type);
         if (Utils.isJVMClass(superType)) {
             return new JObject(this, klass);
         } else {
@@ -802,13 +820,13 @@ public class VM {
     }
 
     private JObject getArrayClass(JArray jArray) {
-        if (Utils.isJVMClass(jArray.type)) {
-            return getClassLiteral(Utils.toJVMType(jArray.type));
+        if (Utils.isJVMClass(jArray.getType())) {
+            return getClassLiteral(Utils.toJVMType(jArray.getType()));
         } else {
-            assert jArray.type.elementType() instanceof ClassType;
-            return new JClassLiteralObject(this, ((ClassType) jArray.type.baseType()).getJClass());
+            assert jArray.getType().elementType() instanceof ClassType;
+            return new JClassLiteralObject(this,
+                    ((ClassType) jArray.getType().baseType()).getJClass());
         }
     }
     // ------------------- Helper functions (ends) -------------------
 }
-

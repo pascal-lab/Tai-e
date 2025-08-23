@@ -22,15 +22,19 @@
 
 package pascal.taie.vm;
 
-public class ClientException extends RuntimeException {
-    final Exception internal;
+/**
+ * Represents the exception (defined in the application) thrown
+ * by the application.
+ */
+class AppDefinedException extends RuntimeException {
 
-    ClientException(Exception e) {
-        this.internal = e;
+    private final JObject internal;
+
+    AppDefinedException(JObject internal) {
+        this.internal = internal;
     }
 
-    @Override
-    public String toString() {
-        return "Client code throw uncaught exception: " + internal;
+    JObject getInternal() {
+        return internal;
     }
 }

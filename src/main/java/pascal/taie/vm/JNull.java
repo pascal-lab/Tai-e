@@ -25,7 +25,8 @@ package pascal.taie.vm;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.language.type.Type;
 
-public enum JNull implements JValue {
+enum JNull implements JValue {
+
     NULL;
 
     @Override

@@ -44,7 +44,7 @@ import java.util.List;
  * Do not confuse them.
  * </p>
  */
-public final class JClassLiteralObject extends JObject {
+final class JClassLiteralObject extends JObject {
 
     final JClass klass;
 
@@ -59,7 +59,6 @@ public final class JClassLiteralObject extends JObject {
         this.klass = klass;
         this.dimensions = dimensions;
     }
-
 
     @Override
     public void setField(VM vm, FieldRef ref, JValue value) {
@@ -78,35 +77,33 @@ public final class JClassLiteralObject extends JObject {
 
     @Override
     public JValue invokeInstance(VM vm, JMethod method, List<JValue> args) {
-        if (method.getName().equals("getName")) {
-            StringBuilder sb = new StringBuilder();
-            if (dimensions > 0) {
-                sb.append("[".repeat(dimensions));
-                sb.append("L");
+        return switch (method.getName()) {
+            case "getName" -> {
+                StringBuilder sb = new StringBuilder();
+                if (dimensions > 0) {
+                    sb.append("[".repeat(dimensions));
+                    sb.append("L");
+                }
+                sb.append(klass.getName());
+                yield new JVMObject(vm.getSpecialClass(ClassNames.STRING), sb.toString());
             }
-            sb.append(klass.getName());
-            return new JVMObject(vm.getSpecialClass(ClassNames.STRING), sb.toString());
-        } else if (method.getName().equals("getEnclosingClass")) {
-            JClass outer = this.klass.getOuterClass();
-            // TODO: check if this behavior is correct
-            if (outer == null) {
-                return JNull.NULL;
-            } else {
-                return new JClassLiteralObject(vm, outer);
+            case "getEnclosingClass" -> {
+                // TODO: check if this behavior is correct
+                JClass outer = this.klass.getOuterClass();
+                yield outer == null ? JNull.NULL : new JClassLiteralObject(vm, outer);
             }
-        } else if (method.getName().equals("desiredAssertionStatus")) {
-            return JPrimitive.getBoolean(true);
-        }
+            case "desiredAssertionStatus" -> JPrimitive.getBoolean(true);
+            default -> throw new VMException();
+        };
+    }
+
+    @Override
+    public Object toJVMObj() {
         throw new VMException();
     }
 
     @Override
     public String toString() {
         return "Mock class object for " + klass;
-    }
-
-    @Override
-    public Object toJVMObj() {
-        throw new VMException();
     }
 }
