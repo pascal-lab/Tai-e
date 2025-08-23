@@ -506,16 +506,22 @@ public class Options implements Serializable {
     /**
      * Convert a file to a relative path using the "/" (forward slash)
      * from the working directory, thus preserving the portability of
-     * the dumped options file.
+     * the dumped options file as much as possible.
      *
      * @param file the file to be processed
-     * @return a relative path from the working directory
+     * @return the relative path from the working directory;
+     * if the file cannot be relativized, the absolute path is returned.
      */
     private static String toSerializedFilePath(String file) {
-        Path workingDir = Path.of("").toAbsolutePath();
-        Path path = Path.of(file).toAbsolutePath().normalize();
-        return workingDir.relativize(path).toString()
-                .replace('\\', '/');
+        Path workingDir = Path.of("").toAbsolutePath().normalize();
+        Path filePath = Path.of(file).toAbsolutePath().normalize();
+        try {
+            filePath = workingDir.relativize(filePath);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to get relative path of {}," +
+                            " use its absolute path in options file", file);
+        }
+        return filePath.toString().replace('\\', '/');
     }
 
     @Override

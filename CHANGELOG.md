@@ -8,6 +8,7 @@
 
 ### Fixes
 - Fix NPE in Zipper-e pre-analysis.
+- Fix relative path issue in serialization of Options.
 
 ## [0.5.1] - 2024-12-31
 
