@@ -80,9 +80,9 @@ public class IndexMapTest {
     @Test
     void testPut() {
         var m = makeMap();
-        assertEquals(m.get(1), "one");
+        assertEquals("one", m.get(1));
         m.put(1, "ONE");
-        assertEquals(m.get(1), "ONE");
+        assertEquals("ONE", m.get(1));
     }
 
     @Test

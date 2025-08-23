@@ -45,7 +45,7 @@ public class OptionsTest {
     @Test
     void testJavaVersion() {
         Options options = Options.parse("-java=8");
-        assertEquals(options.getJavaVersion(), 8);
+        assertEquals(8, options.getJavaVersion());
     }
 
     @Test
