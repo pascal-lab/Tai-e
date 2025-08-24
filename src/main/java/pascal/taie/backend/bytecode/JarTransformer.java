@@ -46,21 +46,25 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * A utility class for dumping the contents of a JAR file into a new JAR file.
- * This class can be used to extract specific classes from a JAR file and pack them into a new JAR file.
+ * This class is responsible for processing a given JAR file by
+ * loading its classes into Tai-e, converting them to Tai-e's representation,
+ * then transforming them back into .class files, and finally packaging
+ * these classes into a specified output JAR file.
  */
-public class JarDumper {
-    private static final Logger logger = LogManager.getLogger(JarDumper.class);
+public class JarTransformer {
+
+    private static final Logger logger = LogManager.getLogger(JarTransformer.class);
 
     /**
-     * The main entry point for the JarDumper class.
-     * This method takes two command-line arguments: the input JAR file path and the output JAR file path.
-     *
-     * @param args the command-line arguments (input JAR file path and output JAR file path)
+     * The main entry point for the JarTransformer.
+     * This method takes three command-line arguments:
+     * 1. the input JAR file path.
+     * 2. the output JAR file path.
+     * 3. the transformed Java version.
      */
     public static void main(String[] args) {
         if (args.length != 3) {
-            System.out.println("Usage: java JarDumper <input-jar-file> <output-jar-file> <java-version>");
+            System.out.println("Usage: java JarTransformer <input-jar-file> <output-jar-file> <java-version>");
             return;
         }
 
@@ -73,24 +77,19 @@ public class JarDumper {
             throw new RuntimeException("Error: The file " + inputJar + " does not exist.");
         }
 
-        Main.buildWorld("-pp", "-acp", inputJar.toString(),
-                "--allow-phantom");
-
-        // Convert each class in this file
+        // Load the input JAR into Tai-e
+        Main.buildWorld("-pp", "-acp", inputJar.toString(), "--allow-phantom");
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();
-
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");
+            // Convert each JClass of the classes in the input JAR
+            // to .class file and dump it to the output JAR
             for (JClass jClass : classes) {
                 if (!jClass.isApplication()) {
                     continue;
                 }
                 try {
-                    byte[] classfileBuffer = new BytecodeEmitter().emit(jClass, classFileVersion);
-                    Path classfilePath = tempDir.resolve(
-                            BytecodeEmitter.computeInternalName(jClass) + ".class");
-                    Files.createDirectories(classfilePath.getParent());
-                    Files.write(classfilePath, classfileBuffer);
+                    ClassFileDumper.dump(jClass, tempDir, classFileVersion);
                 } catch (MethodTooLargeException e) {
                     logger.warn("Skip {}, the output method (name: {}) too large. " +
                                     "It's not an error, current implementation may encounter such case",
@@ -112,7 +111,8 @@ public class JarDumper {
      * @param outputJar the output JAR file
      * @throws IOException if an I/O error occurs
      */
-    private static void packJar(Path inputJar, Path tempDir, Path outputJar) throws IOException {
+    private static void packJar(Path inputJar, Path tempDir, Path outputJar)
+            throws IOException {
         // Copy the original JAR to the new JAR
         Files.copy(inputJar, outputJar, StandardCopyOption.REPLACE_EXISTING);
 
@@ -120,11 +120,16 @@ public class JarDumper {
         try (FileSystem jarFs = FileSystems.newFileSystem(outputJar)) {
             // Copy the files from the output directory to the JAR file system
             Files.walkFileTree(tempDir, new SimpleFileVisitor<>() {
+                @Nonnull
                 @Override
-                public @Nonnull FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult visitFile(
+                        @Nonnull Path file, @Nonnull BasicFileAttributes attrs)
+                        throws IOException {
                     Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {
-                        throw new FileNotFoundException("File " + dest + " does not exist in the original JAR file, may be dues to phantom classes");
+                        throw new FileNotFoundException("File " + dest +
+                                " does not exist in the original JAR file," +
+                                " may be dues to phantom classes");
                     } else {
                         Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
                     }
@@ -163,4 +168,3 @@ public class JarDumper {
         }
     }
 }
-

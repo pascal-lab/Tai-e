@@ -21,25 +21,22 @@
  */
 
 /**
- * Provides classes for generating bytecode from Tai-e's intermediate representation (IR).
+ * Provides classes for generating bytecode from Tai-e IR.
  * This package includes classes responsible for emitting .class files,
- * handling bytecode instructions, and managing classfile dumping.
+ * handling bytecode instructions, and managing class file dumping.
  * <p>
  * The main components are:
  * <ul>
  *   <li>{@link pascal.taie.backend.bytecode.BytecodeEmitter}: Emits bytecode for a given Java class.</li>
- *   <li>{@link pascal.taie.backend.bytecode.ClassfileDumper}: Dumps generated class files to disk.</li>
- *   <li>{@link pascal.taie.backend.bytecode.JarDumper}: Packs generated class files into a JAR archive.</li>
+ *   <li>{@link pascal.taie.backend.bytecode.ClassFileDumper}: Dumps generated class files to disk.</li>
+ *   <li>{@link pascal.taie.backend.bytecode.JarTransformer}: Packs generated class files into a JAR archive.</li>
  * </ul>
  * <p>
  * <p>
- * {@link pascal.taie.backend.bytecode.JarDumper} provides a command-line interface for packing generated class files into a JAR archive.
+ * {@link pascal.taie.backend.bytecode.JarTransformer} provides a command-line interface for packing generated class files into a JAR archive.
  * It can be used as follows:
  * <pre>
  * java -cp tai-e.jar pascal.taie.backend.bytecode.JarDumper <em>input-jar</em> <em>output-jar</em> <em>java-language-level</em>
  * </pre>
- * This package uses the ASM library for bytecode manipulation.
- *
- * @since TODO
  */
 package pascal.taie.backend.bytecode;
