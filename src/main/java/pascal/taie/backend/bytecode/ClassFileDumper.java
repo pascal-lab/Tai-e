@@ -29,23 +29,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * A utility class to dump a classfile to the file system.
+ * A utility class that handles the conversion of {@link JClass} and
+ * its internal IR into Java bytecode (.class files).
  */
-public class ClassfileDumper {
+public class ClassFileDumper {
+
     /**
-     * Dump a classfile to the file system.
-     * @param cp the classpath to dump the classfile to
-     * @param jClass the class to dump
+     * Dumps a {@link JClass} to a .class file.
+     *
+     * @param jClass  the class to dump
+     * @param cp      the classpath to dump the class file to
+     * @param version the class file version
      */
-    public static void dump(Path cp, JClass jClass) {
-        byte[] classfileBuffer = new BytecodeEmitter().emit(jClass);
-        Path classfilePath = cp.resolve(
+    public static void dump(JClass jClass, Path cp, int version) {
+        byte[] content = new BytecodeEmitter().emit(jClass, version);
+        Path classFilePath = cp.resolve(
                 BytecodeEmitter.computeInternalName(jClass) + ".class");
         try {
-            Files.createDirectories(classfilePath.getParent());
-            Files.write(classfilePath, classfileBuffer);
+            Files.createDirectories(classFilePath.getParent());
+            Files.write(classFilePath, content);
         } catch (IOException e) {
-            throw new RuntimeException("Error: Cannot write classfile to " + classfilePath, e);
+            throw new RuntimeException("Error: Cannot write class file to " + classFilePath, e);
         }
     }
 }
