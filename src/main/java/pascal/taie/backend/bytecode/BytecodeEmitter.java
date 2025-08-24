@@ -46,8 +46,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.frontend.newfrontend.TypeContext;
+import pascal.taie.frontend.newfrontend.Utils;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -126,6 +126,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
@@ -949,7 +950,7 @@ public class BytecodeEmitter {
         if (type instanceof ClassType ct) {
             noticeInnerClass(ct.getJClass());
         }
-        return BinaryUtils.computeDescriptor(type);
+        return StringReps.toBytecodeDescriptor(type);
     }
 
     private String getDescriptorByDesc(String taieDesc) {

@@ -29,7 +29,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.backend.bytecode.BinaryUtils;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.bcir.BytecodeIRBuilder;
 import pascal.taie.frontend.newfrontend.report.FrontendTimer;
@@ -40,6 +39,7 @@ import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.util.collection.Maps;
 
 import java.util.List;
@@ -263,7 +263,8 @@ public class DefaultIRBuilder extends NewFrontendComponent
         for (JMethod method : clazz.getDeclaredMethods()) {
             AsmMethodSource source = kv.fastMap.get(method.getName());
             if (source == null) {
-                source = kv.slowMap.get(method.getName()).get(BinaryUtils.computeDescriptor(method));
+                source = kv.slowMap.get(method.getName())
+                        .get(StringReps.toBytecodeDescriptor(method));
             }
             if (source == null) {
                 throw new IllegalStateException("Cannot find method source for %s".formatted(method));

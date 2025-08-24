@@ -30,7 +30,6 @@
  *   <li>{@link pascal.taie.backend.bytecode.BytecodeEmitter}: Emits bytecode for a given Java class.</li>
  *   <li>{@link pascal.taie.backend.bytecode.ClassfileDumper}: Dumps generated class files to disk.</li>
  *   <li>{@link pascal.taie.backend.bytecode.JarDumper}: Packs generated class files into a JAR archive.</li>
- *   <li>{@link pascal.taie.backend.bytecode.BinaryUtils}: Provides utility methods for computing Java method descriptors.</li>
  * </ul>
  * <p>
  * <p>

@@ -23,7 +23,11 @@
 package pascal.taie.language.classes;
 
 import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.VoidType;
 import pascal.taie.util.AnalysisException;
 
 import javax.annotation.Nullable;
@@ -262,5 +266,52 @@ public final class StringReps {
             }
         }
         return !inIdentifierStart;
+    }
+
+    /**
+     * Computes the bytecode descriptor for the given type.
+     *
+     * @param type the type to compute the descriptor for
+     * @return the bytecode descriptor as a string
+     */
+    public static String toBytecodeDescriptor(Type type) {
+        if (type instanceof ClassType) {
+            return "L" + type.getName().replace('.', '/') + ";";
+        } else if (type instanceof PrimitiveType) {
+            return switch (type.getName()) {
+                case "int" -> "I";
+                case "long" -> "J";
+                case "short" -> "S";
+                case "byte" -> "B";
+                case "char" -> "C";
+                case "float" -> "F";
+                case "double" -> "D";
+                case "boolean" -> "Z";
+                default -> throw new IllegalArgumentException(
+                        "Unknown primitive type: " + type);
+            };
+        } else if (type instanceof VoidType) {
+            return "V";
+        } else if (type instanceof ArrayType arrayType) {
+            return "[" + toBytecodeDescriptor(arrayType.elementType());
+        } else {
+            throw new IllegalArgumentException("Unknown type: " + type);
+        }
+    }
+
+    /**
+     * Computes the bytecode descriptor for the given method.
+     *
+     * @param method the method to compute the descriptor for
+     * @return the bytecode descriptor as a string
+     */
+    public static String toBytecodeDescriptor(JMethod method) {
+        StringBuilder sb = new StringBuilder("(");
+        for (int i = 0; i < method.getParamCount(); ++i) {
+            sb.append(toBytecodeDescriptor(method.getParamType(i)));
+        }
+        sb.append(")");
+        sb.append(toBytecodeDescriptor(method.getReturnType()));
+        return sb.toString();
     }
 }
