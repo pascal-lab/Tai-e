@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.util;
+package pascal.taie.util.function;
 
 import java.util.function.Predicate;
 
