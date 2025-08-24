@@ -35,5 +35,5 @@ import java.util.function.Supplier;
  * @see Supplier
  */
 @FunctionalInterface
-public interface SSupplier<T> extends Supplier<T>, Serializable {
+public interface SerializableSupplier<T> extends Supplier<T>, Serializable {
 }

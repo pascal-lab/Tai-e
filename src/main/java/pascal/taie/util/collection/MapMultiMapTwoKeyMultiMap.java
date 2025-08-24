@@ -22,7 +22,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.function.SSupplier;
+import pascal.taie.util.function.SerializableSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractSet;
@@ -47,12 +47,12 @@ public class MapMultiMapTwoKeyMultiMap<K1, K2, V> extends
     /**
      * Factory function for creating multimap.
      */
-    private final SSupplier<MultiMap<K2, V>> multimapFactory;
+    private final SerializableSupplier<MultiMap<K2, V>> multimapFactory;
 
     private int size = 0;
 
     public MapMultiMapTwoKeyMultiMap(Map<K1, MultiMap<K2, V>> map,
-                                     SSupplier<MultiMap<K2, V>> multimapFactory) {
+                                     SerializableSupplier<MultiMap<K2, V>> multimapFactory) {
         this.map = map;
         this.multimapFactory = multimapFactory;
     }

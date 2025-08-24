@@ -22,7 +22,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.function.SSupplier;
+import pascal.taie.util.function.SerializableSupplier;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -95,11 +95,11 @@ public final class Maps {
     }
 
     public static <K, V> MultiMap<K, V> newMultiMap(Map<K, Set<V>> map,
-                                                    SSupplier<Set<V>> setFactory) {
+                                                    SerializableSupplier<Set<V>> setFactory) {
         return new MapSetMultiMap<>(map, setFactory);
     }
 
-    public static <K, V> MultiMap<K, V> newMultiMap(SSupplier<Set<V>> setFactory) {
+    public static <K, V> MultiMap<K, V> newMultiMap(SerializableSupplier<Set<V>> setFactory) {
         return newMultiMap(newMap(), setFactory);
     }
 
@@ -137,7 +137,7 @@ public final class Maps {
 
     public static <K1, K2, V> TwoKeyMap<K1, K2, V> newTwoKeyMap(
             Map<K1, Map<K2, V>> map1,
-            SSupplier<Map<K2, V>> map2Factory) {
+            SerializableSupplier<Map<K2, V>> map2Factory) {
         return new MapMapTwoKeyMap<>(map1, map2Factory);
     }
 
@@ -147,7 +147,7 @@ public final class Maps {
 
     public static <K1, K2, V> TwoKeyMultiMap<K1, K2, V> newTwoKeyMultiMap(
             Map<K1, MultiMap<K2, V>> map,
-            SSupplier<MultiMap<K2, V>> multimapFactory) {
+            SerializableSupplier<MultiMap<K2, V>> multimapFactory) {
         return new MapMultiMapTwoKeyMultiMap<>(map, multimapFactory);
     }
 
