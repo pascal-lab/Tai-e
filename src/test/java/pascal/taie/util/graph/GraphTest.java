@@ -24,48 +24,36 @@ package pascal.taie.util.graph;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class GraphTest {
 
-    private static Graph<Integer> genRandomGraph(int n) {
-        SimpleGraph<Integer> graph = new SimpleGraph<>();
-        Random random = new Random(System.currentTimeMillis());
-        for (int i = 0; i < n; ++i) {
-            graph.addNode(i);
-        }
-        for (int i = 0; i < 2 * n; ++i) {
-            graph.addEdge(random.nextInt(n), random.nextInt(n));
-        }
-        return graph;
-    }
+    private static final Graph<Integer> G_SIMPLE = buildGraph(
+            1, 5,
+            1, 3,
+            3, 6,
+            9, 8
+    );
 
     @Test
     void testSimpleGraph() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
-        assertEquals(6, g.getNumberOfNodes());
-        assertTrue(g.hasNode(1));
-        assertFalse(g.hasNode(10));
-        assertTrue(g.hasEdge(3, 6));
+        assertEquals(6, G_SIMPLE.getNumberOfNodes());
+        assertTrue(G_SIMPLE.hasNode(1));
+        assertFalse(G_SIMPLE.hasNode(10));
+        assertTrue(G_SIMPLE.hasEdge(3, 6));
     }
 
     @Test
     void testSimpleGraphCopy() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
-        SimpleGraph<Integer> copy = new SimpleGraph<>(g);
-        assertEquals(g.getNumberOfNodes(), copy.getNumberOfNodes());
-        for (Integer node : g) {
-            for (Integer succ : g.getSuccsOf(node)) {
+        SimpleGraph<Integer> copy = new SimpleGraph<>(G_SIMPLE);
+        assertEquals(G_SIMPLE.getNumberOfNodes(), copy.getNumberOfNodes());
+        for (Integer node : G_SIMPLE) {
+            for (Integer succ : G_SIMPLE.getSuccsOf(node)) {
                 assertTrue(copy.hasEdge(node, succ));
             }
         }
@@ -73,7 +61,7 @@ public class GraphTest {
 
     @Test
     void testSimpleGraphRemove() {
-        SimpleGraph<Integer> g = readGraph("src/test/resources/util/graph-simple.txt");
+        SimpleGraph<Integer> g = new SimpleGraph<>(G_SIMPLE);
         assertEquals(6, g.getNumberOfNodes());
         assertTrue(g.hasEdge(1, 3));
         assertTrue(g.hasEdge(1, 5));
@@ -88,41 +76,77 @@ public class GraphTest {
         assertFalse(g.hasEdge(3, 6));
     }
 
+    private static final Graph<Integer> G_TOPSORT = buildGraph(
+            1, 2,
+            2, 3,
+            3, 4,
+            5, 3,
+            6, 5,
+            7, 8,
+            9, 10
+    );
+
     @Test
-    void testTopsort() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-topsort.txt");
-        List<Integer> l = new TopologicalSorter<>(g).get();
+    void testTopSort() {
+        List<Integer> l = new TopologicalSorter<>(G_TOPSORT).get();
         assertTrue(l.indexOf(1) < l.indexOf(4));
         assertTrue(l.indexOf(5) < l.indexOf(3));
         assertTrue(l.indexOf(5) < l.indexOf(4));
         assertTrue(l.indexOf(6) < l.indexOf(4));
 
-        List<Integer> rl = new TopologicalSorter<>(g, true).get();
+        List<Integer> rl = new TopologicalSorter<>(G_TOPSORT, true).get();
         assertTrue(rl.indexOf(1) > rl.indexOf(4));
         assertTrue(rl.indexOf(5) > rl.indexOf(3));
         assertTrue(rl.indexOf(5) > rl.indexOf(4));
         assertTrue(rl.indexOf(6) > rl.indexOf(4));
     }
 
+    private static final Graph<Integer> G_SCC = buildGraph(
+            1, 1,
+            2, 4,
+            4, 6,
+            8, 9,
+            9, 8,
+            10, 11,
+            11, 12,
+            12, 13,
+            13, 11
+    );
+
     @Test
     void testSCC() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-scc.txt");
-        SCC<Integer> scc = new SCC<>(g);
+        SCC<Integer> scc = new SCC<>(G_SCC);
         assertEquals(7, scc.getComponents().size());
         assertEquals(3, scc.getTrueComponents().size());
     }
 
     @Test
     void testMergedSCC() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-scc.txt");
-        MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(g);
+        MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(G_SCC);
         assertEquals(7, mg.getNumberOfNodes());
     }
 
+    private static final Graph<Integer> G_DOM = buildGraph(
+            1, 2,
+            1, 3,
+            2, 3,
+            3, 4,
+            4, 3,
+            4, 5,
+            4, 6,
+            5, 7,
+            6, 7,
+            7, 4,
+            7, 8,
+            8, 3,
+            8, 9,
+            8, 10,
+            10, 7
+    );
+
     @Test
     void testDominator() {
-        Graph<Integer> g = readGraph("src/test/resources/util/graph-dominator.txt");
-        DominatorFinder<Integer> domFinder = new DominatorFinder<>(g);
+        DominatorFinder<Integer> domFinder = new DominatorFinder<>(G_DOM);
         assertTrue(domFinder.isDominatedBy(2, 1));
         assertFalse(domFinder.isDominatedBy(1, 2));
 
@@ -141,18 +165,11 @@ public class GraphTest {
         assertEquals(domFinder.getNodesDominatedBy(9), Set.of(9));
     }
 
-    private static SimpleGraph<Integer> readGraph(String filePath) {
+    private static SimpleGraph<Integer> buildGraph(int... nodes) {
+        assert nodes.length % 2 == 0;
         SimpleGraph<Integer> graph = new SimpleGraph<>();
-        try {
-            Files.readAllLines(Path.of(filePath)).forEach(line -> {
-                String[] split = line.split("->");
-                int source = Integer.parseInt(split[0]);
-                int target = Integer.parseInt(split[1]);
-                graph.addEdge(source, target);
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read " + filePath +
-                    " due to " + e);
+        for (int i = 0; i < nodes.length; i += 2) {
+            graph.addEdge(nodes[i], nodes[i + 1]);
         }
         return graph;
     }
