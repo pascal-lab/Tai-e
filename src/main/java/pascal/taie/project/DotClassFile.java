@@ -22,21 +22,17 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
-
 /**
  * Represents a <code>.class</code> file in the project to be analyzed.
  *
  * @param className     The name of the class defined in this file (e.g., <code>String</code>).
- * @param internalName  The internal name of the class (e.g., <code>java/lang/String</code>).
- * @param timeStamp     The last modified time of the file.
+ * @param internalName  The internal name of the class (e.g., <code>java/lang/String</code>). * @param timeStamp     The last modified time of the file.
  * @param resource      The resource from which this file originates.
  * @param rootContainer The container where the file is located.
  */
 public record DotClassFile(
         String className,
         String internalName,
-        FileTime timeStamp,
         Resource resource,
         FileContainer rootContainer
 ) implements ProgramFile, ClassFile {
@@ -59,11 +55,6 @@ public record DotClassFile(
     @Override
     public String getInternalName() {
         return internalName;
-    }
-
-    @Override
-    public FileTime getTimeStamp() {
-        return timeStamp;
     }
 
     @Override

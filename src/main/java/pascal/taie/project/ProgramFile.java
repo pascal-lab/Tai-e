@@ -22,14 +22,10 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
-
 /**
  * Represents a program file in the project to be analyzed.
  */
 public interface ProgramFile {
-
-    FileTime getTimeStamp();
 
     /**
      * @return the resource from which this file originates
@@ -42,5 +38,4 @@ public interface ProgramFile {
     String getFileName();
 
     FileContainer getRootContainer();
-
 }

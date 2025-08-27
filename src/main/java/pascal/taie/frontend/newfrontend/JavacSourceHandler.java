@@ -21,6 +21,7 @@
  */
 
 package pascal.taie.frontend.newfrontend;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
@@ -38,9 +39,7 @@ import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -146,9 +145,8 @@ public class JavacSourceHandler {
         Path relative = tempOutDir.relativize(output);
         String className = PathUtils.getClassName(relative);
         String internalName = PathUtils.getInternalName(relative);
-        FileTime time = Files.getLastModifiedTime(output);
         Resource r = new FileResource(output);
-        return new DotClassFile(className, internalName, time, r, null);
+        return new DotClassFile(className, internalName, r, null);
     }
 
     private Pattern getWritePattern() {

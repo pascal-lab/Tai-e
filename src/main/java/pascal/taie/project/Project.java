@@ -109,7 +109,6 @@ public class Project {
     public ProgramFile locate(String className) {
         List<List<FileContainer>> rootContainersList =
                 List.of(appRootContainers, libRootContainers);
-
         for (List<FileContainer> rootContainers : rootContainersList) {
             for (FileContainer container : rootContainers) {
                 // make sure to keep the order.
@@ -121,7 +120,6 @@ public class Project {
                 }
             }
         }
-
         return null;
     }
 
@@ -140,11 +138,8 @@ public class Project {
                 results.add(result);
             }
         };
-
         appRootContainers.forEach(get);
-
         libRootContainers.forEach(get);
-
         return results;
     }
 }

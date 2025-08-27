@@ -191,10 +191,9 @@ public final class Views {
             if (o == this) {
                 return true;
             }
-            if (!(o instanceof Set)) {
+            if (!(o instanceof Collection<?> c)) {
                 return false;
             }
-            Collection<?> c = (Collection<?>) o;
             if (c.size() != size()) {
                 return false;
             }

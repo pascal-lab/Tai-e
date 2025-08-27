@@ -274,15 +274,14 @@ class FileLoader {
             containerWorker.apply(currentContainer);
         } else {
             Resource r = mkResource(root, path);
-            FileTime time = Files.getLastModifiedTime(path);
             Path relativePath = getRelativePath(root, path);
             String internalName = PathUtils.getInternalName(relativePath);
             if (isClassFile(path)) {
-                fileWorker.apply(new DotClassFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
+                fileWorker.apply(new DotClassFile(PathUtils.getClassName(path), internalName, r, rootContainer));
             } else if (isJavaSourceFile(path)) {
-                fileWorker.apply(new DotJavaFile(PathUtils.getClassName(path), internalName, time, r, rootContainer));
+                fileWorker.apply(new DotJavaFile(PathUtils.getClassName(path), internalName, r, rootContainer));
             } else {
-                fileWorker.apply(new OtherFile(path.getFileName().toString(), time, r, rootContainer));
+                fileWorker.apply(new OtherFile(path.getFileName().toString(), r, rootContainer));
             }
         }
     }

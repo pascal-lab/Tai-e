@@ -23,6 +23,7 @@
 package pascal.taie.project;
 
 public interface ClassFile {
+
     String getClassName();
 
     default String getBinaryName() {

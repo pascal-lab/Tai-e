@@ -33,14 +33,15 @@ public class JarContainer extends ZipContainer {
     private final Manifest manifest;
 
     JarContainer(List<ProgramFile> files,
-                        List<FileContainer> containers,
-                        FileTime time,
-                        Manifest manifest,
-                        String name) {
+                 List<FileContainer> containers,
+                 FileTime time,
+                 @Nullable Manifest manifest,
+                 String name) {
         super(files, containers, time, name);
         this.manifest = manifest;
     }
 
+    @Nullable
     public Manifest getManifest() {
         return manifest;
     }

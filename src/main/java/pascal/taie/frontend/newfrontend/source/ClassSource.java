@@ -23,6 +23,7 @@
 package pascal.taie.frontend.newfrontend.source;
 
 public interface ClassSource {
+
     String getClassName();
 
     boolean isApplication();

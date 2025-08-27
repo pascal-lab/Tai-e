@@ -22,8 +22,6 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
-
 /**
  * Represents a `.java` file in the project to be analyzed.
  *
@@ -36,7 +34,6 @@ import java.nio.file.attribute.FileTime;
 public record DotJavaFile(
         String className,
         String internalName,
-        FileTime timeStamp,
         Resource resource,
         FileContainer rootContainer
 ) implements ProgramFile, ClassFile {
@@ -64,10 +61,5 @@ public record DotJavaFile(
     @Override
     public FileContainer getRootContainer() {
         return rootContainer;
-    }
-
-    @Override
-    public FileTime getTimeStamp() {
-        return timeStamp;
     }
 }
