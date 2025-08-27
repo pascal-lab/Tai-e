@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.config.Options;
 import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Streams;
 
 import javax.annotation.Nullable;
@@ -214,21 +215,20 @@ public class OptionsProjectBuilder implements ProjectBuilder {
     public Project build() {
         try {
             List<String> appClassPaths = options.getAppClassPath();
-
             List<String> libClassPaths = new ArrayList<>(options.getClassPath());
             libClassPaths.removeAll(appClassPaths);
-
             project = new Project(
-                    getMainClass(),
-                    getJavaVersion(),
-                    getInputClasses(),
-                    getAppContainers(appClassPaths),
-                    getLibContainers(libClassPaths, options.getJreDir(),
-                            options.isPrependJVM(), options.getJavaVersion()),
                     String.join(File.pathSeparator,
                             Stream.concat(
                                     options.getClassPath().stream(),
-                                    options.getAppClassPath().stream()).toList()));
+                                    options.getAppClassPath().stream()).toList()),
+                    getMainClass(),
+                    Sets.newSet(getInputClasses()),
+                    getAppContainers(appClassPaths),
+                    getLibContainers(libClassPaths, options.getJreDir(),
+                            options.isPrependJVM(), options.getJavaVersion()),
+                    getJavaVersion()
+            );
             return project;
         } catch (IOException e) {
             throw new RuntimeException(e);

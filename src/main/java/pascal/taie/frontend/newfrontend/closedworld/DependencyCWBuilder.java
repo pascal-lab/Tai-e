@@ -25,14 +25,14 @@ package pascal.taie.frontend.newfrontend.closedworld;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import pascal.taie.World;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.exception.ClassNotFoundException;
+import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.exception.UnknownFrontendException;
 import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.frontend.newfrontend.exception.FrontendException;
-import pascal.taie.World;
 import pascal.taie.project.ProgramFile;
 import pascal.taie.project.Project;
 import pascal.taie.project.SearchIndex;
@@ -93,7 +93,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
         return v;
     }
 
-    public void addTargets(List<String> target, List<String> binaryNames) {
+    public void addTargets(List<String> target, Collection<String> binaryNames) {
         for (String s : binaryNames) {
             target.add(s.replace('.', '/'));
         }
@@ -101,7 +101,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
 
     @Override
     public void build(Project p) throws FrontendException {
-        String entry = p.getMainClass();
+        String entry = p.mainClass();
         this.project = p;
         List<String> target = new ArrayList<>();
         try {
@@ -109,7 +109,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
             if (entry != null) {
                 addTargets(target, List.of(entry));
             }
-            addTargets(target, p.getInputClasses());
+            addTargets(target, p.inputClasses());
             addTargets(target, loadAuxiliaryClasses());
             buildClosure(target);
         } catch (InterruptedException ex) {

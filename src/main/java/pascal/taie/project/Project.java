@@ -22,8 +22,6 @@
 
 package pascal.taie.project;
 
-import pascal.taie.util.collection.Sets;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,56 +30,11 @@ import java.util.function.Consumer;
 /**
  * Representation of a Java project.
  */
-public class Project {
-
-    private final String mainClass;
-
-    private final int javaVersion;
-
-    private final List<String> inputClasses;
-
-    private final Set<String> inputClassesSet;
-
-    private final List<FileContainer> appRootContainers;
-
-    private final List<FileContainer> libRootContainers;
-
-    private final String classPath;
-
-    Project(String mainClass,
-            int javaVersion,
-            List<String> inputClasses,
-            List<FileContainer> appRootContainers,
-            List<FileContainer> libRootContainers,
-            String classPath) {
-        this.mainClass = mainClass;
-        this.javaVersion = javaVersion;
-        this.inputClasses = inputClasses;
-        this.inputClassesSet = Sets.newSet(inputClasses);
-        this.appRootContainers = appRootContainers;
-        this.libRootContainers = libRootContainers;
-        this.classPath = classPath;
-    }
-
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    public int getJavaVersion() {
-        return javaVersion;
-    }
-
-    public List<String> getInputClasses() {
-        return inputClasses;
-    }
-
-    public List<FileContainer> getAppRootContainers() {
-        return appRootContainers;
-    }
-
-    public List<FileContainer> getLibRootContainers() {
-        return libRootContainers;
-    }
+public record Project(String classPath,
+                      String mainClass, Set<String> inputClasses,
+                      List<FileContainer> appRootContainers,
+                      List<FileContainer> libRootContainers,
+                      int javaVersion) {
 
     public boolean isApp(ProgramFile file) {
         return appRootContainers.contains(file.getRootContainer()) ||
@@ -91,14 +44,10 @@ public class Project {
     private boolean isMainOrInputClass(ProgramFile file) {
         if (file instanceof ClassFile classFile) {
             String className = classFile.getBinaryName();
-            return inputClassesSet.contains(className) || className.equals(mainClass);
+            return inputClasses.contains(className) || mainClass.equals(className);
         } else {
             return false;
         }
-    }
-
-    public String getClassPath() {
-        return classPath;
     }
 
     /**

@@ -144,8 +144,8 @@ public class SearchIndex {
     public static SearchIndex makeIndex(Project project) {
         SearchIndex index = new SearchIndex();
         Set<FileContainer> roots = Sets.newLinkedSet();
-        roots.addAll(project.getAppRootContainers());
-        roots.addAll(project.getLibRootContainers());
+        roots.addAll(project.appRootContainers());
+        roots.addAll(project.libRootContainers());
         for (FileContainer root : roots) {
             index.trav("", root);
         }

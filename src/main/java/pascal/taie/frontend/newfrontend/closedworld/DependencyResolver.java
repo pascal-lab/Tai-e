@@ -23,15 +23,15 @@
 package pascal.taie.frontend.newfrontend.closedworld;
 
 import org.objectweb.asm.ClassReader;
+import pascal.taie.frontend.newfrontend.JavacSourceHandler;
 import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
-import pascal.taie.frontend.newfrontend.JavacSourceHandler;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
-import pascal.taie.project.ProgramFile;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.DotJavaFile;
+import pascal.taie.project.ProgramFile;
 import pascal.taie.project.Project;
 import pascal.taie.util.collection.Pair;
 
@@ -63,9 +63,9 @@ class DependencyResolver {
     resolveWithJavac(Project project, String binaryName, DotJavaFile dotJavaFile)
             throws IOException, FrontendException {
         List<DotClassFile> dotClassFiles =
-                new JavacSourceHandler().compile(project.getClassPath(),
+                new JavacSourceHandler().compile(project.classPath(),
                         dotJavaFile.resource().getPath().toString(),
-                        project.getJavaVersion());
+                        project.javaVersion());
         boolean isApplication = project.isApp(dotJavaFile);
         List<String> deps = new ArrayList<>();
         List<Pair<String, ClassSource>> sources = new ArrayList<>();
