@@ -29,14 +29,14 @@ public class DirContainer extends AbstractFileContainer {
 
     private final List<FileContainer> containers;
 
-    private final List<ProgramFile> files;
+    private final List<ClassFile> files;
 
     private final FileTime time;
 
     private final String name;
 
     DirContainer(List<FileContainer> childContainers,
-                        List<ProgramFile> childFiles,
+                        List<ClassFile> childFiles,
                         FileTime time,
                         String name) {
         this.containers = childContainers;
@@ -46,7 +46,7 @@ public class DirContainer extends AbstractFileContainer {
     }
 
     @Override
-    public List<ProgramFile> getFiles() {
+    public List<ClassFile> getFiles() {
         return files;
     }
 

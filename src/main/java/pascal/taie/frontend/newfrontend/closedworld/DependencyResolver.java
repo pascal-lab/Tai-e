@@ -29,9 +29,9 @@ import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.source.AsmSource;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.frontend.newfrontend.source.PhantomClassSource;
+import pascal.taie.project.ClassFile;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.DotJavaFile;
-import pascal.taie.project.ProgramFile;
 import pascal.taie.project.Project;
 import pascal.taie.util.collection.Pair;
 
@@ -41,7 +41,7 @@ import java.util.List;
 
 class DependencyResolver {
     static ResolveResult
-    resolve(Project project, String binaryName, ProgramFile file)
+    resolve(Project project, String binaryName, ClassFile file)
             throws IOException, FrontendException {
         if (file instanceof DotJavaFile dotJavaFile) {
             // return getJavaDependenciesWithJDT(project, binaryName, javaSourceFile);

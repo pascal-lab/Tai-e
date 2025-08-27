@@ -36,18 +36,10 @@ public record Project(String classPath,
                       List<FileContainer> libRootContainers,
                       int javaVersion) {
 
-    public boolean isApp(ProgramFile file) {
-        return appRootContainers.contains(file.getRootContainer()) ||
-                isMainOrInputClass(file);
-    }
-
-    private boolean isMainOrInputClass(ProgramFile file) {
-        if (file instanceof ClassFile classFile) {
-            String className = classFile.getBinaryName();
-            return inputClasses.contains(className) || mainClass.equals(className);
-        } else {
-            return false;
-        }
+    public boolean isApp(ClassFile file) {
+        return appRootContainers.contains(file.getRootContainer())
+                || inputClasses.contains(file.getBinaryName())
+                || mainClass.equals(file.getBinaryName());
     }
 
     /**
@@ -55,7 +47,7 @@ public record Project(String classPath,
      * @return the first file (with the same fully qualified name) found in the containerLists.
      * (QUESTION: how to define priority between different rootContainers?)
      */
-    public ProgramFile locate(String className) {
+    public ClassFile locate(String className) {
         List<List<FileContainer>> rootContainersList =
                 List.of(appRootContainers, libRootContainers);
         for (List<FileContainer> rootContainers : rootContainersList) {
@@ -63,7 +55,7 @@ public record Project(String classPath,
                 // make sure to keep the order.
                 ClassLocation classLocation = new ClassLocation(className);
                 assert classLocation.hasNext();
-                ProgramFile result = container.locate(classLocation);
+                ClassFile result = container.locate(classLocation);
                 if (result != null) {
                     return result;
                 }
@@ -76,13 +68,13 @@ public record Project(String classPath,
      * @param className the fully qualified name to the analysis file.
      * @return all the files with the full path.
      */
-    public List<ProgramFile> locateFiles(String className) {
-        List<ProgramFile> results = new ArrayList<>();
+    public List<ClassFile> locateFiles(String className) {
+        List<ClassFile> results = new ArrayList<>();
 
         Consumer<FileContainer> get = c -> {
             ClassLocation classLocation = new ClassLocation(className);
             assert classLocation.hasNext();
-            ProgramFile result = c.locate(classLocation);
+            ClassFile result = c.locate(classLocation);
             if (result != null) {
                 results.add(result);
             }

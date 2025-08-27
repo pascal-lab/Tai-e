@@ -81,7 +81,7 @@ public class ProjectTest {
         Project project = builder.build();
         assertNotNull(project);
 
-        ProgramFile file = project.locate("pascal.taie.project.ProjectTest");
+        ClassFile file = project.locate("pascal.taie.project.ProjectTest");
         assertNotNull(file);
         try (InputStream in = new FileInputStream(
                 "src/test/java/pascal/taie/project/ProjectTest.java")) {

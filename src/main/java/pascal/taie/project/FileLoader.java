@@ -147,7 +147,7 @@ class FileLoader {
         private final RootFileSystem root;
         private final List<Path> paths;
         private final FileContainer rootContainer;
-        private final List<ProgramFile> files;
+        private final List<ClassFile> files;
         private final List<FileContainer> containers;
 
         LoadAction(RootFileSystem root, List<Path> paths, FileContainer rootContainer) {
@@ -176,7 +176,7 @@ class FileLoader {
     private void loadChildren(RootFileSystem root,
                               Path path,
                               FileContainer rootContainer,
-                              List<ProgramFile> files,
+                              List<ClassFile> files,
                               List<FileContainer> containers) throws IOException {
         try (var s = Files.list(path)) {
             List<LoadAction> actions = new ArrayList<>();
@@ -207,11 +207,11 @@ class FileLoader {
     private <T> void loadFile(RootFileSystem root,
                               Path path,
                               FileContainer rootContainer,
-                              Function<ProgramFile, T> fileWorker,
+                              Function<ClassFile, T> fileWorker,
                               Function<FileContainer, T> containerWorker) throws IOException {
         if (Files.isDirectory(path)) {
             List<FileContainer> fileContainers = new ArrayList<>();
-            List<ProgramFile> files = new ArrayList<>();
+            List<ClassFile> files = new ArrayList<>();
             FileTime time = Files.getLastModifiedTime(path);
             String name = path.getFileName().toString();
             if (name.equals("BOOT-INF") && root.fs() != FileSystems.getDefault()) {
@@ -250,7 +250,7 @@ class FileLoader {
             }
             List<FileContainer> fileContainers = new ArrayList<>();
             RootFileSystem newParent = new RootFileSystem(fs, path);
-            List<ProgramFile> files = new ArrayList<>();
+            List<ClassFile> files = new ArrayList<>();
             FileTime time = Files.getLastModifiedTime(path);
             String name = PathUtils.getClassName(path);
 

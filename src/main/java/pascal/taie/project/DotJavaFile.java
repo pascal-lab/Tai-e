@@ -36,7 +36,7 @@ public record DotJavaFile(
         String internalName,
         Resource resource,
         FileContainer rootContainer
-) implements ProgramFile, ClassFile {
+) implements ClassFile {
 
     @Override
     public String getFileName() {

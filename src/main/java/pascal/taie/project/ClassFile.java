@@ -22,6 +22,9 @@
 
 package pascal.taie.project;
 
+/**
+ * Represents a class file in the project to be analyzed.
+ */
 public interface ClassFile {
 
     String getClassName();
@@ -31,4 +34,16 @@ public interface ClassFile {
     }
 
     String getInternalName();
+
+    /**
+     * @return the resource from which this file originates
+     */
+    Resource getResource();
+
+    /**
+     * @return file name of this file (with extension name)
+     */
+    String getFileName();
+
+    FileContainer getRootContainer();
 }

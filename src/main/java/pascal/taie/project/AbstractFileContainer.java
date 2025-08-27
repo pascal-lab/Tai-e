@@ -29,7 +29,7 @@ package pascal.taie.project;
  * @see FileContainer
  */
 public abstract class AbstractFileContainer implements FileContainer {
-    public ProgramFile locate(ClassLocation relativePath) {
+    public ClassFile locate(ClassLocation relativePath) {
         assert relativePath.hasNext() : "If a ClassLocation is terminated, never pass it to another locate call.";
 
         String current = relativePath.next();
@@ -50,7 +50,7 @@ public abstract class AbstractFileContainer implements FileContainer {
         }
     }
 
-    protected static boolean isTarget(ProgramFile file, String className) {
+    protected static boolean isTarget(ClassFile file, String className) {
         int endIndex = file.getFileName().indexOf('.');
         return file.getFileName().substring(0, endIndex).equals(className);
     }

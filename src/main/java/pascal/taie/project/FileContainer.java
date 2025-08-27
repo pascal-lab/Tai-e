@@ -33,7 +33,7 @@ import java.util.List;
  */
 public interface FileContainer {
 
-    List<ProgramFile> getFiles();
+    List<ClassFile> getFiles();
 
     List<FileContainer> getContainers();
 
@@ -57,5 +57,5 @@ public interface FileContainer {
      * @return the class file if found, otherwise null
      */
     @Nullable
-    ProgramFile locate(ClassLocation relativePath);
+    ClassFile locate(ClassLocation relativePath);
 }

@@ -32,7 +32,7 @@ public class JarContainer extends ZipContainer {
     @Nullable
     private final Manifest manifest;
 
-    JarContainer(List<ProgramFile> files,
+    JarContainer(List<ClassFile> files,
                  List<FileContainer> containers,
                  FileTime time,
                  @Nullable Manifest manifest,

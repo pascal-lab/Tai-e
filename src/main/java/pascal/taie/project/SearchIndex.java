@@ -50,7 +50,7 @@ public class SearchIndex {
     /**
      * The main map from file names to their associated ProgramFile.
      */
-    private final Map<String, ProgramFile> index = Maps.newMap();
+    private final Map<String, ClassFile> index = Maps.newMap();
 
     /**
      * The list of duplicate classes found during indexing.
@@ -65,11 +65,10 @@ public class SearchIndex {
      * @param internalName the internal name of the class
      * @param file the ProgramFile to add
      */
-    private void add(String internalName, ProgramFile file) {
+    private void add(String internalName, ClassFile file) {
         if (index.containsKey(internalName)
-                && file instanceof ClassFile cl
-                && !cl.getInternalName().contains("module-info")) {
-            ProgramFile file1 = index.get(internalName);
+                && !file.getInternalName().contains("module-info")) {
+            ClassFile file1 = index.get(internalName);
             Pair<FileContainer, FileContainer> jars = new Pair<>(
                     file1.getRootContainer(), file.getRootContainer());
             duplicateClasses.add(new DuplicateClass(internalName, jars));
@@ -131,7 +130,7 @@ public class SearchIndex {
      * @param fileName the name of the file
      * @return the associated ProgramFile, or null if not found
      */
-    public ProgramFile get(String fileName) {
+    public ClassFile get(String fileName) {
         return index.get(fileName);
     }
 
@@ -160,7 +159,7 @@ public class SearchIndex {
      * @param container the file container to traverse
      */
     private void trav(String currentName, FileContainer container) {
-        for (ProgramFile file : container.getFiles()) {
+        for (ClassFile file : container.getFiles()) {
             add(currentName + file.getFileName(), file);
         }
         for (FileContainer subContainer : container.getContainers()) {
@@ -178,8 +177,8 @@ public class SearchIndex {
      * @param internalName the internal name of the class without extension
      * @return the located ProgramFile, or null if not found
      */
-    public @Nullable ProgramFile locate(String internalName) {
-        ProgramFile klass = index.get(internalName + ".class");
+    public @Nullable ClassFile locate(String internalName) {
+        ClassFile klass = index.get(internalName + ".class");
         if (klass != null) {
             return klass;
         } else {
