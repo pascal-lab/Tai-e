@@ -27,13 +27,20 @@ package pascal.taie.project;
  */
 public interface ClassFile {
 
-    String getClassName();
-
-    default String getBinaryName() {
-        return getInternalName().replace('/', '.');
-    }
-
+    /**
+     * @return the internal name of the class (e.g., <code>java/lang/String</code>).
+     */
     String getInternalName();
+
+    /**
+     * @return the binary name of the class (e.g., <code>java.lang.String</code>).
+     */
+    String getBinaryName();
+
+    /**
+     * @return file name of this file (with extension name)
+     */
+    String getFileName();
 
     /**
      * @return the resource from which this file originates
@@ -41,9 +48,7 @@ public interface ClassFile {
     Resource getResource();
 
     /**
-     * @return file name of this file (with extension name)
+     * @return the container where the file is located.
      */
-    String getFileName();
-
     FileContainer getRootContainer();
 }

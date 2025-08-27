@@ -277,9 +277,9 @@ class FileLoader {
             Path relativePath = getRelativePath(root, path);
             String internalName = PathUtils.getInternalName(relativePath);
             if (isClassFile(path)) {
-                fileWorker.apply(new DotClassFile(PathUtils.getClassName(path), internalName, r, rootContainer));
+                fileWorker.apply(new DotClassFile(internalName, r, rootContainer));
             } else if (isJavaSourceFile(path)) {
-                fileWorker.apply(new DotJavaFile(PathUtils.getClassName(path), internalName, r, rootContainer));
+                fileWorker.apply(new DotJavaFile(internalName, r, rootContainer));
             }
         }
     }

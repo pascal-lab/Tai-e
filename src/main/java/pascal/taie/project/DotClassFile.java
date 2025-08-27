@@ -24,41 +24,17 @@ package pascal.taie.project;
 
 /**
  * Represents a <code>.class</code> file in the project to be analyzed.
- *
- * @param className     The name of the class defined in this file (e.g., <code>String</code>).
- * @param internalName  The internal name of the class (e.g., <code>java/lang/String</code>). * @param timeStamp     The last modified time of the file.
- * @param resource      The resource from which this file originates.
- * @param rootContainer The container where the file is located.
  */
-public record DotClassFile(
-        String className,
-        String internalName,
-        Resource resource,
-        FileContainer rootContainer
-) implements ClassFile {
+public class DotClassFile extends AbstractClassFile {
+
+    public DotClassFile(String internalName,
+                        Resource resource, FileContainer rootContainer) {
+        super(internalName, resource, rootContainer);
+    }
 
     @Override
     public String getFileName() {
-        return className + ".class";
-    }
-
-    @Override
-    public FileContainer getRootContainer() {
-        return rootContainer;
-    }
-
-    @Override
-    public String getClassName() {
-        return className;
-    }
-
-    @Override
-    public String getInternalName() {
-        return internalName;
-    }
-
-    @Override
-    public Resource getResource() {
-        return resource;
+        String[] splits = getInternalName().split("\\.");
+        return splits[splits.length - 1] + ".class";
     }
 }

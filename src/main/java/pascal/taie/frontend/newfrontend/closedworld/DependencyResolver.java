@@ -64,7 +64,7 @@ class DependencyResolver {
             throws IOException, FrontendException {
         List<DotClassFile> dotClassFiles =
                 new JavacSourceHandler().compile(project.classPath(),
-                        dotJavaFile.resource().getPath().toString(),
+                        dotJavaFile.getResource().getPath().toString(),
                         project.javaVersion());
         boolean isApplication = project.isApp(dotJavaFile);
         List<String> deps = new ArrayList<>();
@@ -81,8 +81,8 @@ class DependencyResolver {
     private static ResolveResult
     resolveClassFile(Project project, String binaryName, DotClassFile cFile, boolean isApplication)
             throws IOException, CorruptClassFileException {
-        byte[] content = cFile.resource().getContent();
-        cFile.resource().release();
+        byte[] content = cFile.getResource().getContent();
+        cFile.getResource().release();
         assert content != null;
         ClassReader reader = new ClassReader(content);
         int version = reader.readShort(6);

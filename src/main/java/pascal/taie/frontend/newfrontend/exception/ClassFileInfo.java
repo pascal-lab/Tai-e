@@ -29,8 +29,8 @@ import java.nio.file.Path;
 
 public record ClassFileInfo(DotClassFile file) {
     public @Nonnull String toString() {
-        Path p = file.resource().getPath();
+        Path p = file.getResource().getPath();
         return String.format("%s (%s in %s)",
-                file.internalName(), p, file.rootContainer().getFileName());
+                file.getInternalName(), p, file.getRootContainer().getFileName());
     }
 }

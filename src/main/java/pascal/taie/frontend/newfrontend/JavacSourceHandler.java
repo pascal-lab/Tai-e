@@ -146,7 +146,7 @@ public class JavacSourceHandler {
         String className = PathUtils.getClassName(relative);
         String internalName = PathUtils.getInternalName(relative);
         Resource r = new FileResource(output);
-        return new DotClassFile(className, internalName, r, null);
+        return new DotClassFile(internalName, r, null);
     }
 
     private Pattern getWritePattern() {

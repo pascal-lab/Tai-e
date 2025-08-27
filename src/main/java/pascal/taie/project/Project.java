@@ -39,7 +39,7 @@ public record Project(String classPath,
     public boolean isApp(ClassFile file) {
         return appRootContainers.contains(file.getRootContainer())
                 || inputClasses.contains(file.getBinaryName())
-                || mainClass.equals(file.getBinaryName());
+                || file.getBinaryName().equals(mainClass);
     }
 
     /**
