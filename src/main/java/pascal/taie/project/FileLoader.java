@@ -280,8 +280,6 @@ class FileLoader {
                 fileWorker.apply(new DotClassFile(PathUtils.getClassName(path), internalName, r, rootContainer));
             } else if (isJavaSourceFile(path)) {
                 fileWorker.apply(new DotJavaFile(PathUtils.getClassName(path), internalName, r, rootContainer));
-            } else {
-                fileWorker.apply(new OtherFile(path.getFileName().toString(), r, rootContainer));
             }
         }
     }
