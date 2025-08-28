@@ -31,7 +31,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -212,7 +211,6 @@ class FileLoader {
         if (Files.isDirectory(path)) {
             List<FileContainer> fileContainers = new ArrayList<>();
             List<ClassFile> files = new ArrayList<>();
-            FileTime time = Files.getLastModifiedTime(path);
             String name = path.getFileName().toString();
             if (name.equals("BOOT-INF") && root.fs() != FileSystems.getDefault()) {
                 // spring boot fatjar
@@ -230,7 +228,7 @@ class FileLoader {
                     }
                 }
             } else {
-                FileContainer currentContainer = new DirContainer(fileContainers, files, time, name);
+                FileContainer currentContainer = new DirContainer(fileContainers, files, name);
                 if (rootContainer == null) {
                     // rootContainer == null means that the container currently
                     // being processed is a root.
@@ -257,9 +255,9 @@ class FileLoader {
             FileContainer currentContainer;
             if (isJarFile(path)) {
                 Manifest manifest = getManifest(fs);
-                currentContainer = new JarContainer(files, fileContainers, time, manifest, name);
+                currentContainer = new JarContainer(files, fileContainers, manifest, name);
             } else {
-                currentContainer = new ZipContainer(files, fileContainers, time, name);
+                currentContainer = new ZipContainer(files, fileContainers, name);
             }
             if (rootContainer == null) {
                 // rootContainer == null means that the container currently
@@ -269,7 +267,6 @@ class FileLoader {
                 // skip
                 return;
             }
-
             loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
             containerWorker.apply(currentContainer);
         } else {
@@ -286,7 +283,7 @@ class FileLoader {
 
     /**
      * Load root containers from the given paths. Normally, the {@code paths} are
-     * the classpaths of the program to be analyzed.
+     * the class paths of the program to be analyzed.
      */
     List<FileContainer> loadRootContainers(List<Path> paths) {
         this.auxContainers = new ArrayList<>();
@@ -322,6 +319,4 @@ class FileLoader {
         }
         return obj;
     }
-
 }
-

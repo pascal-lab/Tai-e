@@ -23,7 +23,6 @@
 package pascal.taie.project;
 
 import javax.annotation.Nullable;
-import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.jar.Manifest;
 
@@ -34,10 +33,9 @@ public class JarContainer extends ZipContainer {
 
     JarContainer(List<ClassFile> files,
                  List<FileContainer> containers,
-                 FileTime time,
                  @Nullable Manifest manifest,
                  String name) {
-        super(files, containers, time, name);
+        super(files, containers, name);
         this.manifest = manifest;
     }
 

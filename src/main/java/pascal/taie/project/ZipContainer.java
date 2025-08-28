@@ -22,7 +22,6 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 public class ZipContainer extends AbstractFileContainer {
@@ -31,18 +30,14 @@ public class ZipContainer extends AbstractFileContainer {
 
     private final List<FileContainer> containers;
 
-    private final FileTime time;
-
     protected final String name;
 
 
     public ZipContainer(List<ClassFile> files,
                         List<FileContainer> containers,
-                        FileTime time,
                         String name) {
         this.files = files;
         this.containers = containers;
-        this.time = time;
         this.name = name;
     }
 
@@ -52,13 +47,8 @@ public class ZipContainer extends AbstractFileContainer {
     }
 
     @Override
-    public List<FileContainer> getContainers() {
+    public List<FileContainer> getSubContainers() {
         return containers;
-    }
-
-    @Override
-    public FileTime getTimeStamp() {
-        return time;
     }
 
     @Override

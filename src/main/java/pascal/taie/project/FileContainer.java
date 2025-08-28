@@ -23,21 +23,22 @@
 package pascal.taie.project;
 
 import javax.annotation.Nullable;
-import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 /**
- * Represents a container that can hold files and other containers.
- * This interface provides methods to retrieve the files,
- * sub-containers, and the timestamp of the container.
+ * Represents a container that can hold class files and other containers.
  */
 public interface FileContainer {
 
+    /**
+     * @return all files right in this container.
+     */
     List<ClassFile> getFiles();
 
-    List<FileContainer> getContainers();
-
-    FileTime getTimeStamp();
+    /**
+     * @return all sub containers right in this container.
+     */
+    List<FileContainer> getSubContainers();
 
     /**
      * Return FileName (with extension name)

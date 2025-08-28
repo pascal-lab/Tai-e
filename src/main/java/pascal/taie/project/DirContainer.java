@@ -22,7 +22,6 @@
 
 package pascal.taie.project;
 
-import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 public class DirContainer extends AbstractFileContainer {
@@ -31,17 +30,13 @@ public class DirContainer extends AbstractFileContainer {
 
     private final List<ClassFile> files;
 
-    private final FileTime time;
-
     private final String name;
 
     DirContainer(List<FileContainer> childContainers,
                         List<ClassFile> childFiles,
-                        FileTime time,
                         String name) {
         this.containers = childContainers;
         this.files = childFiles;
-        this.time = time;
         this.name = name;
     }
 
@@ -51,13 +46,8 @@ public class DirContainer extends AbstractFileContainer {
     }
 
     @Override
-    public List<FileContainer> getContainers() {
+    public List<FileContainer> getSubContainers() {
         return containers;
-    }
-
-    @Override
-    public FileTime getTimeStamp() {
-        return time;
     }
 
     @Override

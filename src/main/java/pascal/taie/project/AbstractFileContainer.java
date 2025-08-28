@@ -29,6 +29,7 @@ package pascal.taie.project;
  * @see FileContainer
  */
 public abstract class AbstractFileContainer implements FileContainer {
+
     public ClassFile locate(ClassLocation relativePath) {
         assert relativePath.hasNext() : "If a ClassLocation is terminated, never pass it to another locate call.";
 
@@ -36,7 +37,7 @@ public abstract class AbstractFileContainer implements FileContainer {
         if (relativePath.hasNext()) {
             // If classPath.hasNext() then current is a package name.
             // There should exist at most 1 container with the same name.
-            var fileContainer = getContainers().stream()
+            var fileContainer = getSubContainers().stream()
                     .filter(c -> c.getClassName().equals(current))
                     .findAny();
             return fileContainer.map(c -> c.locate(relativePath)).orElse(null);
