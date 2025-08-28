@@ -31,6 +31,6 @@ public record ClassFileInfo(DotClassFile file) {
     public @Nonnull String toString() {
         Path p = file.getResource().getPath();
         return String.format("%s (%s in %s)",
-                file.getInternalName(), p, file.getRootContainer().getFileName());
+                file.getClassName(), p, file.getRootContainer().getFileName());
     }
 }

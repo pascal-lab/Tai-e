@@ -143,8 +143,7 @@ public class JavacSourceHandler {
     private DotClassFile createPhantomClassFile(String outputPath) throws IOException {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
-        String className = PathUtils.getClassName(relative);
-        String internalName = PathUtils.getInternalName(relative);
+        String internalName = PathUtils.getClassName(relative);
         Resource r = new FileResource(output);
         return new DotClassFile(internalName, r, null);
     }

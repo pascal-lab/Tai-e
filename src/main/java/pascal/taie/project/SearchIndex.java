@@ -67,7 +67,7 @@ public class SearchIndex {
      */
     private void add(String internalName, ClassFile file) {
         if (index.containsKey(internalName)
-                && !file.getInternalName().contains("module-info")) {
+                && !file.getClassName().contains("module-info")) {
             ClassFile file1 = index.get(internalName);
             Pair<FileContainer, FileContainer> jars = new Pair<>(
                     file1.getRootContainer(), file.getRootContainer());
@@ -162,7 +162,7 @@ public class SearchIndex {
         for (ClassFile file : container.getFiles()) {
             add(currentName + file.getFileName(), file);
         }
-        for (FileContainer subContainer : container.getContainers()) {
+        for (FileContainer subContainer : container.getSubContainers()) {
             trav(currentName + subContainer.getFileName() + "/", subContainer);
         }
     }

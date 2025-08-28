@@ -71,7 +71,7 @@ class DependencyResolver {
         List<Pair<String, ClassSource>> sources = new ArrayList<>();
         for (DotClassFile dotClassFile : dotClassFiles) {
              ResolveResult r =
-                    resolveClassFile(project, dotClassFile.getInternalName(), dotClassFile, isApplication);
+                    resolveClassFile(project, dotClassFile.getClassName(), dotClassFile, isApplication);
             deps.addAll(r.dependencies());
             sources.addAll(r.resolvedSource());
         }

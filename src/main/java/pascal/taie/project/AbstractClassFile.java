@@ -26,27 +26,22 @@ import java.util.Objects;
 
 abstract class AbstractClassFile implements ClassFile {
 
-    private final String internalName;
+    private final String className;
 
     private final Resource resource;
 
     private final FileContainer rootContainer;
 
-    AbstractClassFile(String internalName,
+    AbstractClassFile(String className,
                       Resource resource, FileContainer rootContainer) {
-        this.internalName = internalName;
+        this.className = className;
         this.resource = resource;
         this.rootContainer = rootContainer;
     }
 
     @Override
-    public String getInternalName() {
-        return internalName;
-    }
-
-    @Override
-    public String getBinaryName() {
-        return internalName.replace('/', '.');
+    public String getClassName() {
+        return className;
     }
 
     @Override
@@ -65,18 +60,18 @@ abstract class AbstractClassFile implements ClassFile {
             return false;
         }
         AbstractClassFile other = (AbstractClassFile) o;
-        return internalName.equals(other.internalName)
+        return className.equals(other.className)
                 && resource.equals(other.resource)
                 && rootContainer.equals(other.rootContainer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(internalName, resource, rootContainer);
+        return Objects.hash(className, resource, rootContainer);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{" + getBinaryName() + '}';
+        return getClass().getSimpleName() + "{" + className + '}';
     }
 }

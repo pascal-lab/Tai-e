@@ -27,14 +27,14 @@ package pascal.taie.project;
  */
 public class DotClassFile extends AbstractClassFile {
 
-    public DotClassFile(String internalName,
+    public DotClassFile(String className,
                         Resource resource, FileContainer rootContainer) {
-        super(internalName, resource, rootContainer);
+        super(className, resource, rootContainer);
     }
 
     @Override
     public String getFileName() {
-        String[] splits = getInternalName().split("\\.");
+        String[] splits = getClassName().split("\\.");
         return splits[splits.length - 1] + ".class";
     }
 }

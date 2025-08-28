@@ -28,14 +28,9 @@ package pascal.taie.project;
 public interface ClassFile {
 
     /**
-     * @return the internal name of the class (e.g., <code>java/lang/String</code>).
+     * @return the fully-qualified name of the class.
      */
-    String getInternalName();
-
-    /**
-     * @return the binary name of the class (e.g., <code>java.lang.String</code>).
-     */
-    String getBinaryName();
+    String getClassName();
 
     /**
      * @return file name of this file (with extension name)

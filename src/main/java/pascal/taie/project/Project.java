@@ -22,10 +22,8 @@
 
 package pascal.taie.project;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Representation of a Java project.
@@ -38,8 +36,8 @@ public record Project(String classPath,
 
     public boolean isApp(ClassFile file) {
         return appRootContainers.contains(file.getRootContainer())
-                || inputClasses.contains(file.getBinaryName())
-                || file.getBinaryName().equals(mainClass);
+                || inputClasses.contains(file.getClassName())
+                || file.getClassName().equals(mainClass);
     }
 
     /**
@@ -62,25 +60,5 @@ public record Project(String classPath,
             }
         }
         return null;
-    }
-
-    /**
-     * @param className the fully qualified name to the analysis file.
-     * @return all the files with the full path.
-     */
-    public List<ClassFile> locateFiles(String className) {
-        List<ClassFile> results = new ArrayList<>();
-
-        Consumer<FileContainer> get = c -> {
-            ClassLocation classLocation = new ClassLocation(className);
-            assert classLocation.hasNext();
-            ClassFile result = c.locate(classLocation);
-            if (result != null) {
-                results.add(result);
-            }
-        };
-        appRootContainers.forEach(get);
-        libRootContainers.forEach(get);
-        return results;
     }
 }

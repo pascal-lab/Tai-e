@@ -249,8 +249,7 @@ class FileLoader {
             List<FileContainer> fileContainers = new ArrayList<>();
             RootFileSystem newParent = new RootFileSystem(fs, path);
             List<ClassFile> files = new ArrayList<>();
-            FileTime time = Files.getLastModifiedTime(path);
-            String name = PathUtils.getClassName(path);
+            String name = PathUtils.getClassSimpleName(path);
 
             FileContainer currentContainer;
             if (isJarFile(path)) {
@@ -272,7 +271,7 @@ class FileLoader {
         } else {
             Resource r = mkResource(root, path);
             Path relativePath = getRelativePath(root, path);
-            String internalName = PathUtils.getInternalName(relativePath);
+            String internalName = PathUtils.getClassName(relativePath);
             if (isClassFile(path)) {
                 fileWorker.apply(new DotClassFile(internalName, r, rootContainer));
             } else if (isJavaSourceFile(path)) {
