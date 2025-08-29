@@ -228,7 +228,7 @@ class FileLoader {
                     }
                 }
             } else {
-                FileContainer currentContainer = new DirContainer(fileContainers, files, name);
+                FileContainer currentContainer = new DirContainer(name, files, fileContainers);
                 if (rootContainer == null) {
                     // rootContainer == null means that the container currently
                     // being processed is a root.
@@ -254,9 +254,9 @@ class FileLoader {
             FileContainer currentContainer;
             if (isJarFile(path)) {
                 Manifest manifest = getManifest(fs);
-                currentContainer = new JarContainer(files, fileContainers, manifest, name);
+                currentContainer = new JarContainer(name, files, fileContainers, manifest);
             } else {
-                currentContainer = new ZipContainer(files, fileContainers, name);
+                currentContainer = new ZipContainer(name, files, fileContainers);
             }
             if (rootContainer == null) {
                 // rootContainer == null means that the container currently

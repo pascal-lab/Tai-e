@@ -22,13 +22,48 @@
 
 package pascal.taie.project;
 
+import java.util.List;
+
 /**
  * Abstract class for file containers.
  * This class provides a default implementation for the {@link #locate(ClassLocation)} method.
  *
  * @see FileContainer
  */
-public abstract class AbstractFileContainer implements FileContainer {
+abstract class AbstractFileContainer implements FileContainer {
+
+    private final String name;
+
+    private final List<ClassFile> files;
+
+    private final List<FileContainer> containers;
+
+    AbstractFileContainer(String name,
+                          List<ClassFile> files, List<FileContainer> containers) {
+        this.name = name;
+        this.files = files;
+        this.containers = containers;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public List<ClassFile> getFiles() {
+        return files;
+    }
+
+    @Override
+    public List<FileContainer> getSubContainers() {
+        return containers;
+    }
+
+    @Override
+    public String toString() {
+        return getFileName();
+    }
 
     public ClassFile locate(ClassLocation relativePath) {
         assert relativePath.hasNext() : "If a ClassLocation is terminated, never pass it to another locate call.";
@@ -38,7 +73,7 @@ public abstract class AbstractFileContainer implements FileContainer {
             // If classPath.hasNext() then current is a package name.
             // There should exist at most 1 container with the same name.
             var fileContainer = getSubContainers().stream()
-                    .filter(c -> c.getClassName().equals(current))
+                    .filter(c -> c.getName().equals(current))
                     .findAny();
             return fileContainer.map(c -> c.locate(relativePath)).orElse(null);
         } else {

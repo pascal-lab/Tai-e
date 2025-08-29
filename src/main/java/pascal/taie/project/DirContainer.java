@@ -24,39 +24,15 @@ package pascal.taie.project;
 
 import java.util.List;
 
-public class DirContainer extends AbstractFileContainer {
+class DirContainer extends AbstractFileContainer {
 
-    private final List<FileContainer> containers;
-
-    private final List<ClassFile> files;
-
-    private final String name;
-
-    DirContainer(List<FileContainer> childContainers,
-                        List<ClassFile> childFiles,
-                        String name) {
-        this.containers = childContainers;
-        this.files = childFiles;
-        this.name = name;
-    }
-
-    @Override
-    public List<ClassFile> getFiles() {
-        return files;
-    }
-
-    @Override
-    public List<FileContainer> getSubContainers() {
-        return containers;
+    DirContainer(String name,
+                 List<ClassFile> files, List<FileContainer> subContainers) {
+        super(name, files, subContainers);
     }
 
     @Override
     public String getFileName() {
-        return name;
-    }
-
-    @Override
-    public String getClassName() {
-        return name;
+        return getName();
     }
 }

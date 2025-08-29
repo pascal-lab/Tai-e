@@ -31,26 +31,24 @@ import java.util.List;
 public interface FileContainer {
 
     /**
-     * @return all files right in this container.
+     * @return the container name.
      */
-    List<ClassFile> getFiles();
+    String getName();
 
     /**
-     * @return all sub containers right in this container.
-     */
-    List<FileContainer> getSubContainers();
-
-    /**
-     * Return FileName (with extension name)
-     * e.g. a.jar --> a.jar
+     * @return the file name of the container.
      */
     String getFileName();
 
     /**
-     * Return name (without extension name)
-     * e.g. a.jar --> a
+     * @return a list of class files directly contained in this container.
      */
-    String getClassName();
+    List<ClassFile> getFiles();
+
+    /**
+     * @return a list of sub-containers directly contained in this container.
+     */
+    List<FileContainer> getSubContainers();
 
     /**
      * Find a class file in this container.

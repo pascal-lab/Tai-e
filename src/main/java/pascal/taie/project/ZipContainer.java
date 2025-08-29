@@ -24,40 +24,14 @@ package pascal.taie.project;
 
 import java.util.List;
 
-public class ZipContainer extends AbstractFileContainer {
+class ZipContainer extends AbstractFileContainer {
 
-    private final List<ClassFile> files;
-
-    private final List<FileContainer> containers;
-
-    protected final String name;
-
-
-    public ZipContainer(List<ClassFile> files,
-                        List<FileContainer> containers,
-                        String name) {
-        this.files = files;
-        this.containers = containers;
-        this.name = name;
+    ZipContainer(String name,
+                 List<ClassFile> files, List<FileContainer> subContainers) {
+        super(name, files, subContainers);
     }
-
-    @Override
-    public List<ClassFile> getFiles() {
-        return files;
-    }
-
-    @Override
-    public List<FileContainer> getSubContainers() {
-        return containers;
-    }
-
     @Override
     public String getFileName() {
-        return name + ".zip";
-    }
-
-    @Override
-    public String getClassName() {
-        return name;
+        return getName() + ".zip";
     }
 }
