@@ -34,9 +34,19 @@ public record Project(String classPath,
                       List<FileContainer> libRootContainers,
                       int javaVersion) {
 
+    /**
+     * @return if given class file represents an applicaiton class.
+     */
     public boolean isApp(ClassFile file) {
         return appRootContainers.contains(file.getRootContainer())
                 || inputClasses.contains(file.getClassName())
                 || file.getClassName().equals(mainClass);
+    }
+
+    /**
+     * @return a {@link ClassIndex} for quick search of classes in the project.
+     */
+    public ClassIndex makeIndex() {
+        return new ClassIndex(this);
     }
 }

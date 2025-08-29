@@ -37,10 +37,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Maintains an index of program files for quick lookup based on the internal name.
- * Detects and logs duplicate class definitions found in different containers.
+ * Maintains an index of class files for quick lookup based on the class names.
+ * Detects and logs duplicate class files found in different containers.
  */
-public class SearchIndex {
+public class ClassIndex {
+
+    private static final Logger logger = LogManager.getLogger(ClassIndex.class);
 
     /**
      * A record to represent a duplicate class definition.
@@ -57,7 +59,40 @@ public class SearchIndex {
      */
     private final List<DuplicateClass> duplicateClasses = new ArrayList<>();
 
-    private static final Logger logger = LogManager.getLogger(SearchIndex.class);
+    /**
+     * Creates a {@link ClassIndex} for the given project by traversing all root containers.
+     *
+     * @param project the project to index
+     */
+    ClassIndex(Project project) {
+        Set<FileContainer> roots = Sets.newLinkedSet();
+        roots.addAll(project.appRootContainers());
+        roots.addAll(project.libRootContainers());
+        for (FileContainer root : roots) {
+            traverse("", root);
+        }
+        displayDuplicateWarning();
+    }
+
+    /**
+     * Finds a {@link ClassFile} by its name.
+     *
+     * <p>
+     * First attempts to find a class file. If not found, falls back to searching for a java source file.
+     * </p>
+     *
+     * @param className the fully-qualified name of the class to search
+     * @return the found ClassFile, or {@code null} if not found.
+     */
+    @Nullable
+    public ClassFile find(String className) {
+        ClassFile classFile = index.get(className + ".class");
+        if (classFile != null) {
+            return classFile;
+        } else {
+            return index.get(className + ".java");
+        }
+    }
 
     /**
      * Adds a ProgramFile to the index.
@@ -125,64 +160,17 @@ public class SearchIndex {
     }
 
     /**
-     * Retrieves a ProgramFile from the index by file name.
-     *
-     * @param fileName the name of the file
-     * @return the associated ProgramFile, or null if not found
-     */
-    public ClassFile get(String fileName) {
-        return index.get(fileName);
-    }
-
-    /**
-     * Creates a SearchIndex for the given project by traversing all root containers.
-     *
-     * @param project the project to index
-     * @return the constructed SearchIndex
-     */
-    public static SearchIndex makeIndex(Project project) {
-        SearchIndex index = new SearchIndex();
-        Set<FileContainer> roots = Sets.newLinkedSet();
-        roots.addAll(project.appRootContainers());
-        roots.addAll(project.libRootContainers());
-        for (FileContainer root : roots) {
-            index.trav("", root);
-        }
-        index.displayDuplicateWarning();
-        return index;
-    }
-
-    /**
      * Recursively traverses the file containers, adding all encountered files to the index.
      *
      * @param currentName the current name prefix used during traversal
      * @param container the file container to traverse
      */
-    private void trav(String currentName, FileContainer container) {
+    private void traverse(String currentName, FileContainer container) {
         for (ClassFile file : container.getFiles()) {
             add(currentName + file.getFileName(), file);
         }
         for (FileContainer subContainer : container.getSubContainers()) {
-            trav(currentName + subContainer.getFileName() + "/", subContainer);
-        }
-    }
-
-    /**
-     * Locates a ProgramFile by its internal name.
-     *
-     * <p>
-     * First attempts to find a class file. If not found, falls back to searching for a java source file.
-     * </p>
-     *
-     * @param internalName the internal name of the class without extension
-     * @return the located ProgramFile, or null if not found
-     */
-    public @Nullable ClassFile locate(String internalName) {
-        ClassFile klass = index.get(internalName + ".class");
-        if (klass != null) {
-            return klass;
-        } else {
-            return index.get(internalName + ".java");
+            traverse(currentName + subContainer.getFileName() + "/", subContainer);
         }
     }
 }

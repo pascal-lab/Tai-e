@@ -34,8 +34,8 @@ import pascal.taie.frontend.newfrontend.main.NewFrontendComponent;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.frontend.newfrontend.source.ClassSource;
 import pascal.taie.project.ClassFile;
+import pascal.taie.project.ClassIndex;
 import pascal.taie.project.Project;
-import pascal.taie.project.SearchIndex;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -77,7 +77,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
 
     private Project project;
 
-    private SearchIndex index;
+    private ClassIndex index;
 
     public DependencyCWBuilder(FrontendContext context) {
         super(context);
@@ -105,7 +105,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
         this.project = p;
         List<String> target = new ArrayList<>();
         try {
-            index = SearchIndex.makeIndex(project);
+            index = project.makeIndex();
             if (entry != null) {
                 addTargets(target, List.of(entry));
             }
@@ -196,7 +196,7 @@ public class DependencyCWBuilder extends NewFrontendComponent
     }
 
     private ResolveResult buildDeps(String internalName) throws IOException, FrontendException {
-        ClassFile f = index.locate(internalName);
+        ClassFile f = index.find(internalName);
         if (f == null) {
             if (basicClassesList.contains(internalName.replace('/', '.'))) {
                 // if some classes in basicClassesList are not found, then just ignore them

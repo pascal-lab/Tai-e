@@ -79,10 +79,8 @@ public class ProjectTest {
         Options options = Options.parse("-cp", "src/test/java");
         ProjectBuilder builder = new OptionsProjectBuilder(options);
         Project project = builder.build();
-        assertNotNull(project);
-
-        SearchIndex index = SearchIndex.makeIndex(project);
-        ClassFile file = index.locate("pascal.taie.project.ProjectTest");
+        ClassIndex index = project.makeIndex();
+        ClassFile file = index.find("pascal.taie.project.ProjectTest");
         assertNotNull(file);
         try (InputStream in = new FileInputStream(
                 "src/test/java/pascal/taie/project/ProjectTest.java")) {
