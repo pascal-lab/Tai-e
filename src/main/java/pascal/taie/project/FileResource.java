@@ -22,12 +22,9 @@
 
 package pascal.taie.project;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
 /**
  * A <em>FileResource</em> is a file that can be read from the file system.
@@ -37,27 +34,19 @@ import java.nio.file.StandardOpenOption;
 public class FileResource implements Resource {
 
     private final Path path;
-    private byte[] readCache;
+
+    private byte[] cache;
 
     public FileResource(Path path) {
         this.path = path;
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        if (readCache != null) {
-            return new ByteArrayInputStream(readCache);
-        } else {
-            return Files.newInputStream(path, StandardOpenOption.READ);
-        }
-    }
-
-    @Override
     public byte[] getContent() throws IOException {
-        if (readCache == null) {
-            readCache = Files.readAllBytes(path);
+        if (cache == null) {
+            cache = Files.readAllBytes(path);
         }
-        return readCache;
+        return cache;
     }
 
     @Override
@@ -67,6 +56,6 @@ public class FileResource implements Resource {
 
     @Override
     public void release() {
-        readCache = null;
+        cache = null;
     }
 }

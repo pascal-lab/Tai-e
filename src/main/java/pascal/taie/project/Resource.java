@@ -23,12 +23,11 @@
 package pascal.taie.project;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
  * A <em>Resource</em> is a file that can be read from the file system or a jar file.
- * It has a path and can be read as an input stream or as a byte array.
+ * It has a path and can be read as a byte array.
  * <p>
  * The {@link ClassFile} represents a logical, abstract file in the project,
  * while this interface represents a physical file in the file system or a jar file.
@@ -40,11 +39,9 @@ import java.nio.file.Path;
  */
 public interface Resource {
 
-    InputStream getInputStream() throws IOException;
+    Path getPath();
 
     byte[] getContent() throws IOException;
-
-    Path getPath();
 
     void release();
 }

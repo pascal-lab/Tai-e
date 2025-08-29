@@ -102,11 +102,11 @@ class FileLoader {
         } else { // otherwise it's an entry of a zip file
             // path of [p] is on the disk, use lazy load
             if (root.p().getFileSystem() == FileSystems.getDefault()) {
-                return new ZipEntryResource(root.p(), null, path.toString(), root.fs());
+                return new ZipEntryResource(path.toString(), root.fs(), null);
             } else {
                 // path of [p] is an entry of a zip file, unzip the file of [path]
                 byte[] cache = Files.readAllBytes(path);
-                return new ZipEntryResource(root.p(), cache, path.toString(), null);
+                return new ZipEntryResource(path.toString(), null, cache);
             }
         }
     }
