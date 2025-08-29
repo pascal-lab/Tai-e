@@ -22,7 +22,6 @@
 
 package pascal.taie.project;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -49,12 +48,4 @@ public interface FileContainer {
      * @return a list of sub-containers directly contained in this container.
      */
     List<FileContainer> getSubContainers();
-
-    /**
-     * Find a class file in this container.
-     * @param relativePath the relative path to the class file
-     * @return the class file if found, otherwise null
-     */
-    @Nullable
-    ClassFile locate(ClassLocation relativePath);
 }

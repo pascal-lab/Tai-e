@@ -26,9 +26,6 @@ import java.util.List;
 
 /**
  * Abstract class for file containers.
- * This class provides a default implementation for the {@link #locate(ClassLocation)} method.
- *
- * @see FileContainer
  */
 abstract class AbstractFileContainer implements FileContainer {
 
@@ -63,31 +60,5 @@ abstract class AbstractFileContainer implements FileContainer {
     @Override
     public String toString() {
         return getFileName();
-    }
-
-    public ClassFile locate(ClassLocation relativePath) {
-        assert relativePath.hasNext() : "If a ClassLocation is terminated, never pass it to another locate call.";
-
-        String current = relativePath.next();
-        if (relativePath.hasNext()) {
-            // If classPath.hasNext() then current is a package name.
-            // There should exist at most 1 container with the same name.
-            var fileContainer = getSubContainers().stream()
-                    .filter(c -> c.getName().equals(current))
-                    .findAny();
-            return fileContainer.map(c -> c.locate(relativePath)).orElse(null);
-        } else {
-            // else then current is a class name.
-            // There should exist at most 1 file with the same name.
-            var file = getFiles().stream()
-                    .filter(f -> isTarget(f, current))
-                    .findAny();
-            return file.orElse(null);
-        }
-    }
-
-    protected static boolean isTarget(ClassFile file, String className) {
-        int endIndex = file.getFileName().indexOf('.');
-        return file.getFileName().substring(0, endIndex).equals(className);
     }
 }

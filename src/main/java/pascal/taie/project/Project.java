@@ -39,26 +39,4 @@ public record Project(String classPath,
                 || inputClasses.contains(file.getClassName())
                 || file.getClassName().equals(mainClass);
     }
-
-    /**
-     * @param className the fully qualified name to the analysis file.
-     * @return the first file (with the same fully qualified name) found in the containerLists.
-     * (QUESTION: how to define priority between different rootContainers?)
-     */
-    public ClassFile locate(String className) {
-        List<List<FileContainer>> rootContainersList =
-                List.of(appRootContainers, libRootContainers);
-        for (List<FileContainer> rootContainers : rootContainersList) {
-            for (FileContainer container : rootContainers) {
-                // make sure to keep the order.
-                ClassLocation classLocation = new ClassLocation(className);
-                assert classLocation.hasNext();
-                ClassFile result = container.locate(classLocation);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-        return null;
-    }
 }
