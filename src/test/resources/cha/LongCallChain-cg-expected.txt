@@ -1,14 +1,14 @@
 -------------------- <A: void <init>()> (cg) --------------------
-[0@L29] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L29] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <A: void m1()> (cg) --------------------
-[0@L31] invokevirtual %this.<A: void m2()>(); [<A: void m2()>]
+[0@L31] invokevirtual this.<A: void m2()>(); [<A: void m2()>]
 
 -------------------- <A: void m2()> (cg) --------------------
-[0@L35] invokevirtual %this.<A: void m3()>(); [<A: void m3()>]
+[0@L35] invokevirtual this.<A: void m3()>(); [<A: void m3()>]
 
 -------------------- <A: void m3()> (cg) --------------------
-[0@L39] invokevirtual %this.<A: void m4()>(); [<A: void m4()>]
+[0@L39] invokevirtual this.<A: void m4()>(); [<A: void m4()>]
 
 -------------------- <A: void m4()> (cg) --------------------
 
@@ -26,8 +26,8 @@
 -------------------- <LongCallChain: void bar2()> (cg) --------------------
 
 -------------------- <LongCallChain: void baz1()> (cg) --------------------
-[1@L21] invokespecial temp$0.<A: void <init>()>(); [<A: void <init>()>]
-[3@L22] invokevirtual a.<A: void m1()>(); [<A: void m1()>]
+[1@L21] invokespecial a.<A: void <init>()>(); [<A: void <init>()>]
+[2@L22] invokevirtual a.<A: void m1()>(); [<A: void m1()>]
 
 -------------------- <LongCallChain: void baz2()> (cg) --------------------
 

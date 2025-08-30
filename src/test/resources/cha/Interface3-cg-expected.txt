@@ -1,5 +1,5 @@
 -------------------- <A: void <init>()> (cg) --------------------
-[0@L30] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L30] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <A: void foo()> (cg) --------------------
 
@@ -10,15 +10,15 @@
 -------------------- <B: void bar()> (cg) --------------------
 
 -------------------- <D: void <init>()> (cg) --------------------
-[0@L47] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+[0@L47] invokespecial this.<A: void <init>()>(); [<A: void <init>()>]
 
 -------------------- <Interface3: void main(java.lang.String[])> (cg) --------------------
-[1@L15] invokespecial temp$0.<D: void <init>()>(); [<D: void <init>()>]
-[3@L16] invokeinterface i.<I: void foo()>(); [<A: void foo()>, <B: void foo()>]
-[5@L18] invokespecial temp$1.<D: void <init>()>(); [<D: void <init>()>]
-[7@L19] invokeinterface ii.<II: void foo()>(); [<A: void foo()>]
-[8@L20] invokeinterface ii.<II: void bar()>(); [<A: void bar()>]
-[10@L22] invokespecial temp$2.<D: void <init>()>(); [<D: void <init>()>]
-[12@L23] invokeinterface iii.<III: void bar()>(); [<A: void bar()>, <B: void bar()>]
-[13@L24] invokeinterface iii.<III: void foo()>(); [<A: void foo()>, <B: void foo()>]
+[1@L15] invokespecial i.<D: void <init>()>(); [<D: void <init>()>]
+[2@L16] invokeinterface i.<I: void foo()>(); [<A: void foo()>, <B: void foo()>]
+[4@L18] invokespecial ii.<D: void <init>()>(); [<D: void <init>()>]
+[5@L19] invokeinterface ii.<II: void foo()>(); [<A: void foo()>]
+[6@L20] invokeinterface ii.<II: void bar()>(); [<A: void bar()>]
+[8@L22] invokespecial iii.<D: void <init>()>(); [<D: void <init>()>]
+[9@L23] invokeinterface iii.<III: void bar()>(); [<A: void bar()>, <B: void bar()>]
+[10@L24] invokeinterface iii.<III: void foo()>(); [<A: void foo()>, <B: void foo()>]
 

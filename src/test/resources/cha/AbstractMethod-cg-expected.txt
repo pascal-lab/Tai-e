@@ -1,12 +1,12 @@
 -------------------- <A: void <init>()> (cg) --------------------
-[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L9] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <AbstractMethod: void main(java.lang.String[])> (cg) --------------------
-[1@L4] invokespecial temp$0.<B: void <init>()>(); [<B: void <init>()>]
-[3@L5] invokevirtual a.<A: void foo()>(); [<B: void foo()>]
+[1@L4] invokespecial a.<B: void <init>()>(); [<B: void <init>()>]
+[2@L5] invokevirtual a.<A: void foo()>(); [<B: void foo()>]
 
 -------------------- <B: void <init>()> (cg) --------------------
-[0@L13] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+[0@L13] invokespecial this.<A: void <init>()>(); [<A: void <init>()>]
 
 -------------------- <B: void foo()> (cg) --------------------
 
