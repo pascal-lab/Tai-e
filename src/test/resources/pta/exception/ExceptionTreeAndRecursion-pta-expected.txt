@@ -1,7 +1,7 @@
 Points-to sets of all variables
-[]:<ExceptionTreeAndRecursion: void m()>/temp$0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<ExceptionTreeAndRecursion: void m1()>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<ExceptionTreeAndRecursion: void m1()>/temp$0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionTreeAndRecursion: void m()>/%v0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionTreeAndRecursion: void m1()>/%v1 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionTreeAndRecursion: void m1()>/%v2 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionTreeAndRecursion: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionTreeAndRecursion: void main(java.lang.String[])>}]
 []:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/e1 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
 []:<ExceptionTreeAndRecursion: void main(java.lang.String[])>/e2 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
