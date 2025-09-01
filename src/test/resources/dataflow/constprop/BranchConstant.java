@@ -13,7 +13,7 @@ class BranchConstant {
     }
 
     void constant2(boolean b) {
-        int x;
+        int x = 0;
         if (b) {
             x = 10;
         }

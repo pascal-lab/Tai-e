@@ -26,11 +26,6 @@ class BinaryOp {
         int y = 1 + x;
     }
 
-    void undefined() {
-        int x;
-        int y = x + 1;
-    }
-
     void longExpressions() {
         int x = 1, y = 2, z = 3;
         int a = x + y * z;

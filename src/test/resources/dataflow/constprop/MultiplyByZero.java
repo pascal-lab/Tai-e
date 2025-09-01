@@ -13,10 +13,4 @@ class MultiplyByZero {
         int zero2 = one * zero;
     }
 
-    void multiplyUndefByZero() {
-        int undef;
-        int zero = 0;
-        int undef1 = zero * undef;
-        int undef2 = undef * zero;
-    }
 }

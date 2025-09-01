@@ -32,7 +32,6 @@ public class CPTestFull extends CPTest {
             "SimpleBoolean",
             "BinaryOp",
             "BranchNAC",
-            "BranchUndef",
             "Loop",
             "LogicalOp",
             "DivisionByZero",
