@@ -1,40 +1,35 @@
 -------------------- <A: void <init>()> (inter-const-prop) --------------------
-[0@L24] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[0@L24] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L24] return; {}
+
+-------------------- <ArrayInField: void foo()> (inter-const-prop) --------------------
+[0@L-1] %ci1 = 1; {}
+[1@L-1] %ci2 = 2; {}
+[2@L8] a1 = new A; {}
+[3@L8] invokespecial a1.<A: void <init>()>(); {}
+[4@L9] %v4 = newarray int[%ci2]; {}
+[5@L9] a1.<A: int[] f> = %v4; {}
+[6@L10] %v6 = a1.<A: int[] f>; {}
+[7@L10] %v6[%ci1] = %ci1; {}
+[8@L11] %v7 = a1.<A: int[] f>; {}
+[9@L11] %v8 = %v7[%ci1]; {%v8=1}
+[10@L12] return; {%v8=1}
+
+-------------------- <ArrayInField: void goo()> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {}
+[1@L-1] %ci1 = 1; {}
+[2@L-1] %ci2 = 2; {}
+[3@L15] a2 = new A; {}
+[4@L15] invokespecial a2.<A: void <init>()>(); {}
+[5@L16] array = newarray int[%ci2]; {}
+[6@L17] array[%ci0] = %ci1; {}
+[7@L18] a2.<A: int[] f> = array; {}
+[8@L19] %v8 = a2.<A: int[] f>; {}
+[9@L19] %v9 = %v8[%ci0]; {%v9=1}
+[10@L20] return; {%v9=1}
 
 -------------------- <ArrayInField: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L3] invokestatic <ArrayInField: void foo()>(); {}
 [1@L4] invokestatic <ArrayInField: void goo()>(); {}
-[2@L4] return; {}
-
--------------------- <ArrayInField: void foo()> (inter-const-prop) --------------------
-[0@L8] temp$0 = new A; {}
-[1@L8] invokespecial temp$0.<A: void <init>()>(); {}
-[2@L8] a1 = temp$0; {}
-[3@L9] %intconst0 = 2; {}
-[4@L9] temp$1 = newarray int[%intconst0]; {}
-[5@L9] a1.<A: int[] f> = temp$1; {}
-[6@L10] temp$2 = a1.<A: int[] f>; {}
-[7@L10] temp$3 = 1; {temp$3=1}
-[8@L10] temp$4 = 1; {temp$3=1, temp$4=1}
-[9@L10] temp$2[temp$3] = temp$4; {temp$3=1, temp$4=1}
-[10@L11] temp$5 = a1.<A: int[] f>; {temp$3=1, temp$4=1}
-[11@L11] temp$6 = 1; {temp$3=1, temp$4=1, temp$6=1}
-[12@L11] r1 = temp$5[temp$6]; {r1=1, temp$3=1, temp$4=1, temp$6=1}
-[13@L11] return; {r1=1, temp$3=1, temp$4=1, temp$6=1}
-
--------------------- <ArrayInField: void goo()> (inter-const-prop) --------------------
-[0@L15] temp$0 = new A; {}
-[1@L15] invokespecial temp$0.<A: void <init>()>(); {}
-[2@L15] a2 = temp$0; {}
-[3@L16] %intconst0 = 2; {}
-[4@L16] array = newarray int[%intconst0]; {}
-[5@L17] temp$2 = 0; {temp$2=0}
-[6@L17] temp$3 = 1; {temp$2=0, temp$3=1}
-[7@L17] array[temp$2] = temp$3; {temp$2=0, temp$3=1}
-[8@L18] a2.<A: int[] f> = array; {temp$2=0, temp$3=1}
-[9@L19] temp$4 = a2.<A: int[] f>; {temp$2=0, temp$3=1}
-[10@L19] temp$5 = 0; {temp$2=0, temp$3=1, temp$5=0}
-[11@L19] r2 = temp$4[temp$5]; {r2=1, temp$2=0, temp$3=1, temp$5=0}
-[12@L19] return; {r2=1, temp$2=0, temp$3=1, temp$5=0}
+[2@L5] return; {}
 

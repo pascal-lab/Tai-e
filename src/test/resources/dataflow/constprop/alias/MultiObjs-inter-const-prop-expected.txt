@@ -1,46 +1,33 @@
 -------------------- <A: void <init>()> (inter-const-prop) --------------------
-[0@L18] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[0@L18] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L18] return; {}
 
 -------------------- <MultiObjs: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] temp$0 = new A; {}
-[1@L4] invokespecial temp$0.<A: void <init>()>(); {}
-[2@L4] a1 = temp$0; {}
-[3@L5] temp$1 = 2333; {temp$1=2333}
-[4@L5] a1.<A: int f> = temp$1; {temp$1=2333}
-[5@L6] temp$2 = new A; {temp$1=2333}
-[6@L6] invokespecial temp$2.<A: void <init>()>(); {temp$1=2333}
-[7@L6] a2 = temp$2; {temp$1=2333}
-[8@L7] temp$3 = 666; {temp$1=2333, temp$3=666}
-[9@L7] a2.<A: int f> = temp$3; {temp$1=2333, temp$3=666}
-[10@L8] temp$4 = new A; {temp$1=2333, temp$3=666}
-[11@L8] invokespecial temp$4.<A: void <init>()>(); {temp$1=2333, temp$3=666}
-[12@L8] a3 = temp$4; {temp$1=2333, temp$3=666}
-[13@L9] temp$5 = 666; {temp$1=2333, temp$3=666, temp$5=666}
-[14@L9] a3.<A: int f> = temp$5; {temp$1=2333, temp$3=666, temp$5=666}
-[15@L10] temp$7 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[16@L10] %intconst0 = 0; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[17@L10] if (temp$7 > %intconst0) goto 19; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[18@L10] goto 22; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[19@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[20@L10] temp$6 = a1; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[21@L10] goto 24; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[22@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[23@L10] temp$6 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[24@L10] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[25@L10] aa = temp$6; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC}
-[26@L11] temp$9 = args.length; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[27@L11] if (temp$9 > %intconst0) goto 29; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[28@L11] goto 32; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[29@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[30@L11] temp$8 = a2; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[31@L11] goto 34; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[32@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[33@L11] temp$8 = a3; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[34@L11] nop; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[35@L11] aaa = temp$8; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC}
-[36@L12] x = aa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC}
-[37@L13] y = aaa.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666}
-[38@L14] z = a1.<A: int f>; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
-[39@L14] return; {temp$1=2333, temp$3=666, temp$5=666, temp$7=NAC, temp$9=NAC, x=NAC, y=666, z=2333}
+[0@L-1] %ci0 = 0; {}
+[1@L4] a1 = new A; {}
+[2@L4] invokespecial a1.<A: void <init>()>(); {}
+[3@L5] %c10 = 2333; {}
+[4@L5] a1.<A: int f> = %c10; {}
+[5@L6] a2 = new A; {}
+[6@L6] invokespecial a2.<A: void <init>()>(); {}
+[7@L7] %c12 = 666; {}
+[8@L7] a2.<A: int f> = %c12; {}
+[9@L8] a3 = new A; {}
+[10@L8] invokespecial a3.<A: void <init>()>(); {}
+[11@L9] %c14 = 666; {}
+[12@L9] a3.<A: int f> = %c14; {}
+[13@L10] %v15 = args.length; {%v15=NAC}
+[14@L10] if (%v15 <= %ci0) goto 17; {%v15=NAC}
+[15@L15] aa = a1; {%v15=NAC}
+[16@L10] goto 18; {%v15=NAC}
+[17@L15] aa = a2; {%v15=NAC}
+[18@L11] %v18 = args.length; {%v15=NAC, %v18=NAC}
+[19@L11] if (%v18 <= %ci0) goto 22; {%v15=NAC, %v18=NAC}
+[20@L15] aaa = a2; {%v15=NAC, %v18=NAC}
+[21@L11] goto 23; {%v15=NAC, %v18=NAC}
+[22@L15] aaa = a3; {%v15=NAC, %v18=NAC}
+[23@L12] %v20 = aa.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC}
+[24@L13] %v21 = aaa.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC, %v21=666}
+[25@L14] %v22 = a1.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC, %v21=666, %v22=2333}
+[26@L15] return; {%v15=NAC, %v18=NAC, %v20=NAC, %v21=666, %v22=2333}
 
