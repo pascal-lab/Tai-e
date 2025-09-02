@@ -27,6 +27,7 @@ import pascal.taie.frontend.newfrontend.exception.ConstantTableCorruption;
 import pascal.taie.frontend.newfrontend.exception.CorruptClassFileException;
 import pascal.taie.frontend.newfrontend.main.TaiePhase;
 import pascal.taie.project.DotClassFile;
+import pascal.taie.util.collection.Lists;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,13 +35,13 @@ import java.util.List;
 
 /**
  * <p>Read constant table from class file.
- * Some code is taken from the asm library.</p>
+ * Some code is taken from the ASM library.</p>
  *
  * <p>The implementation mainly focus on efficiency,
  * contains some tricky code</p>
  */
-public class ConstantTableReader {
-    private static final int HEAD = 0xcafebabe;
+class ConstantTableReader {
+
     // Constant pool types
     private static final byte CONSTANT_Utf8 = 1;
     private static final byte CONSTANT_Integer = 3;
@@ -66,33 +67,109 @@ public class ConstantTableReader {
             (byte) 0x73
     };
 
-    private List<String> internalNames;
-
-    private int[] constantsOffset;
-    private boolean[] internalsLoad;
-    private boolean[] descriptorsLoad;
-    private char[] decodeBuffer;
+    private final DotClassFile file;
 
     private final byte[] classFileBuffer;
 
+    private List<String> internalNames;
+
+    private int[] constantsOffset;
+
+    private boolean[] descriptorsLoad;
+
+    private char[] decodeBuffer;
+
     private int offset = 0;
 
-    /**
-     * internal name of the target class
-     */
-    private final String internalName;
-
-    private final DotClassFile file;
-
-    public ConstantTableReader(String internalName, DotClassFile file, byte[] content) {
-        this.internalName = internalName;
+    ConstantTableReader(DotClassFile file, byte[] content) {
         this.file = file;
         classFileBuffer = content;
     }
 
-    public List<String> read() throws CorruptClassFileException {
+    List<String> readClassNames() throws CorruptClassFileException {
         parse();
-        return internalNames;
+        return Lists.map(internalNames, name -> name.replace('/', '.'));
+    }
+
+    private void parse() throws CorruptClassFileException {
+        internalNames = new ArrayList<>();
+        // head
+        offset += 4;
+        // minor
+        offset += 2;
+        // version
+        offset += 2;
+        int count = readUnsignedShort();
+        constantsOffset = new int[count];
+        boolean[] internalsLoad = new boolean[count];
+        descriptorsLoad = new boolean[count];
+        int maxLen = 0;
+        for (int ix = 1; ix < count; ix++) {
+            int index1, index2;
+            byte tag = classFileBuffer[offset++];
+            switch (tag) {
+                case CONSTANT_Utf8 -> {
+                    constantsOffset[ix] = offset;
+                    int len = readUnsignedShort();
+                    maxLen = Math.max(len, maxLen);
+                    offset += len;
+                }
+                case CONSTANT_Class -> {
+                    // CONSTANT_Class_info {
+                    //    u1 tag;
+                    //    u2 name_index;
+                    // }
+                    index1 = readUnsignedShort();
+                    internalsLoad[index1] = true;
+                }
+                case CONSTANT_MethodType -> {
+                    index1 = readUnsignedShort();
+                    descriptorsLoad[index1] = true;
+                }
+                case CONSTANT_FieldRef, CONSTANT_MethodRef, CONSTANT_InterfaceMethodRef,
+                     CONSTANT_InvokeDynamic ->
+                    // E.g.
+                    // CONSTANT_Fieldref_info {
+                    //    u1 tag;
+                    //    u2 class_index;          ;; Points to CONSTANT_Class_info
+                    //    u2 name_and_type_index;  ;; Points to CONSTANT_NameAndType_info
+                    // }
+                        offset += 4;
+                case CONSTANT_NameAndType -> {
+                    offset += 2;
+                    index2 = readUnsignedShort();
+                    descriptorsLoad[index2] = true;
+                }
+                case CONSTANT_Double, CONSTANT_Long -> {
+                    offset += 8;
+                    ix++;
+                }
+                case CONSTANT_MethodHandle -> offset += 3;
+                case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
+                case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
+
+                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
+                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
+                        String.format("invalid constant table tag: 0x%02X", tag)));
+            }
+        }
+
+        decodeBuffer = new char[maxLen];
+        offset += 6;
+        int interfaceCount =  readUnsignedShort();
+        offset += interfaceCount * 2;
+        readFieldOrMethod(descriptorsLoad);
+        readFieldOrMethod(descriptorsLoad);
+        parseAttributes();
+
+        // Now parse descriptors and internal names
+        for (int i = 1; i < count; ++i) {
+            if (internalsLoad[i]) {
+                visitInternalName(constantsOffset[i], internalNames);
+            } else if (descriptorsLoad[i]) {
+                visitDescriptor(constantsOffset[i], internalNames);
+            }
+        }
     }
 
     private int readUnsignedShort() {
@@ -123,90 +200,6 @@ public class ConstantTableReader {
             }
         }
         return true;
-    }
-
-    private void parse() throws CorruptClassFileException {
-        internalNames = new ArrayList<>();
-        // head
-        offset += 4;
-        // minor
-        offset += 2;
-        // version
-        offset += 2;
-        int count = readUnsignedShort();
-        constantsOffset = new int[count];
-        internalsLoad = new boolean[count];
-        descriptorsLoad = new boolean[count];
-        int maxLen = 0;
-        for (int ix = 1; ix < count; ix++) {
-            int index1, index2;
-            byte tag = classFileBuffer[offset++];
-            switch (tag) {
-                case CONSTANT_Utf8 -> {
-                    constantsOffset[ix] = offset;
-                    int len = readUnsignedShort();
-                    maxLen = Math.max(len, maxLen);
-                    offset += len;
-                }
-                case CONSTANT_Class -> {
-                    // CONSTANT_Class_info {
-                    //    u1 tag;
-                    //    u2 name_index;
-                    // }
-                    index1 = readUnsignedShort();
-                    internalsLoad[index1] = true;
-                }
-                case CONSTANT_MethodType -> {
-                    index1 = readUnsignedShort();
-                    descriptorsLoad[index1] = true;
-                }
-                case CONSTANT_FieldRef, CONSTANT_MethodRef, CONSTANT_InterfaceMethodRef,
-                     CONSTANT_InvokeDynamic -> {
-                    // E.g.
-                    // CONSTANT_Fieldref_info {
-                    //    u1 tag;
-                    //    u2 class_index;          ;; Points to CONSTANT_Class_info
-                    //    u2 name_and_type_index;  ;; Points to CONSTANT_NameAndType_info
-                    // }
-                    offset += 4;
-                }
-                case CONSTANT_NameAndType -> {
-                    offset += 2;
-                    index2 = readUnsignedShort();
-                    descriptorsLoad[index2] = true;
-                }
-                case CONSTANT_Double, CONSTANT_Long -> {
-                    offset += 8;
-                    ix++;
-                }
-                case CONSTANT_MethodHandle -> {
-                    offset += 3;
-                }
-                case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
-                case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
-
-                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
-                        String.format("invalid constant table tag: 0x%02X", tag)));
-            }
-        }
-
-        decodeBuffer = new char[maxLen];
-        offset += 6;
-        int interfaceCount =  readUnsignedShort();
-        offset += interfaceCount * 2;
-        readFieldOrMethod(descriptorsLoad);
-        readFieldOrMethod(descriptorsLoad);
-        parseAttributes();
-
-        // Now parse descriptors and internal names
-        for (int i = 1; i < count; ++i) {
-            if (internalsLoad[i]) {
-                visitInternalName(constantsOffset[i], internalNames);
-            } else if (descriptorsLoad[i]) {
-                visitDescriptor(constantsOffset[i], internalNames);
-            }
-        }
     }
 
     private void readFieldOrMethod(boolean[] descriptors) throws CorruptClassFileException {
@@ -337,12 +330,8 @@ public class ConstantTableReader {
                 switch (now) {
                     case 'B', 'C', 'D', 'I', 'F', 'J', 'S', 'Z' -> {
                     }
-                    case '[' -> {
-                        extractArrayType(container);
-                    }
-                    case 'L' -> {
-                        extractAndAddInternalName(container);
-                    }
+                    case '[' -> extractArrayType(container);
+                    case 'L' -> extractAndAddInternalName(container);
                     default -> throw new UnsupportedOperationException();
                 }
                 now = nextChar();
