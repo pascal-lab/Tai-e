@@ -33,67 +33,62 @@ import pascal.taie.project.ClassFile;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.DotJavaFile;
 import pascal.taie.project.Project;
-import pascal.taie.util.collection.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Resolves all class dependencies (i.e., the referenced classes) of a class.
+ */
 class DependencyResolver {
-    static ResolveResult
-    resolve(Project project, String binaryName, ClassFile file)
+
+    static ResolveResult resolve(Project project, ClassFile file)
             throws IOException, FrontendException {
         if (file instanceof DotJavaFile dotJavaFile) {
-            // return getJavaDependenciesWithJDT(project, binaryName, javaSourceFile);
-            return resolveWithJavac(project, binaryName, dotJavaFile);
+            return resolveWithJavac(project, dotJavaFile);
         } else if (file instanceof DotClassFile dotClassFile) {
-            return resolveClassFile(project, binaryName, dotClassFile);
+            return resolveClassFile(project, dotClassFile);
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    static ResolveResult
-    resolvePhantom(String binaryName) {
-        return new ResolveResult(List.of(), List.of(new Pair<>(binaryName,
-                new PhantomClassSource(binaryName.replace('/', '.'), false))));
+    static ResolveResult resolvePhantom(String className) {
+        return new ResolveResult(List.of(),
+                List.of(new PhantomClassSource(className, false)));
     }
 
-    private static ResolveResult
-    resolveWithJavac(Project project, String binaryName, DotJavaFile dotJavaFile)
+    private static ResolveResult resolveWithJavac(Project project, DotJavaFile dotJavaFile)
             throws IOException, FrontendException {
         List<DotClassFile> dotClassFiles =
                 new JavacSourceHandler().compile(project.classPath(),
                         dotJavaFile.getResource().getPath().toString(),
                         project.javaVersion());
-        boolean isApplication = project.isApp(dotJavaFile);
         List<String> deps = new ArrayList<>();
-        List<Pair<String, ClassSource>> sources = new ArrayList<>();
+        List<ClassSource> sources = new ArrayList<>();
         for (DotClassFile dotClassFile : dotClassFiles) {
-             ResolveResult r =
-                    resolveClassFile(project, dotClassFile.getClassName(), dotClassFile, isApplication);
-            deps.addAll(r.dependencies());
-            sources.addAll(r.resolvedSource());
+            ResolveResult result = resolveClassFile(dotClassFile, project.isApp(dotJavaFile));
+            deps.addAll(result.dependencies());
+            sources.addAll(result.resolvedSource());
         }
         return new ResolveResult(deps, sources);
     }
 
-    private static ResolveResult
-    resolveClassFile(Project project, String binaryName, DotClassFile cFile, boolean isApplication)
+    private static ResolveResult resolveClassFile(Project project, DotClassFile classFile)
             throws IOException, CorruptClassFileException {
-        byte[] content = cFile.getResource().getContent();
-        cFile.getResource().release();
-        assert content != null;
-        ClassReader reader = new ClassReader(content);
-        int version = reader.readShort(6);
-        List<String> deps = new ConstantTableReader(binaryName, cFile, content).read();
-        return new ResolveResult(deps, List.of(
-                new Pair<>(binaryName, new AsmSource(reader, isApplication, version, null))));
+        return resolveClassFile(classFile, project.isApp(classFile));
     }
 
-    private static ResolveResult
-    resolveClassFile(Project project, String binaryName, DotClassFile cFile)
+    private static ResolveResult resolveClassFile(DotClassFile classFile, boolean isApp)
             throws IOException, CorruptClassFileException {
-        return resolveClassFile(project, binaryName, cFile, project.isApp(cFile));
+        byte[] content = classFile.getResource().getContent();
+        assert content != null;
+        classFile.getResource().release();
+        ClassReader reader = new ClassReader(content);
+        // 6 is the offset of class file version
+        int version = reader.readShort(6);
+        List<String> deps = new ConstantTableReader(classFile, content).readClassNames();
+        return new ResolveResult(deps, List.of(new AsmSource(reader, isApp, version)));
     }
 }

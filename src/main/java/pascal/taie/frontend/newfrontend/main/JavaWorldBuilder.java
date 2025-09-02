@@ -30,7 +30,6 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.newfrontend.FrontendContext;
 import pascal.taie.frontend.newfrontend.closedworld.ClosedWorldBuilder;
-import pascal.taie.frontend.newfrontend.closedworld.DependencyCWBuilder;
 import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.newfrontend.hierarchy.DefaultCHBuilder;
@@ -92,9 +91,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         ctx.setPhase(TaiePhase.CLOSED_WORLD_ANALYSIS);
         timer.start();
-        ClosedWorldBuilder closedWorldBuilder = new DependencyCWBuilder(ctx); // Configurable
-        closedWorldBuilder.build(project);
-        Collection<ClassSource> closedWorld = closedWorldBuilder.getClosedWorld();
+        Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
         timer.stop();
         long closedWorldBuildingTime = timer.inMilliseconds();
 
