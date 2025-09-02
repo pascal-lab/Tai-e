@@ -31,10 +31,4 @@ public class DotJavaFile extends AbstractClassFile {
                        Resource resource, FileContainer rootContainer) {
         super(className, resource, rootContainer);
     }
-
-    @Override
-    public String getFileName() {
-        String[] splits = getClassName().split("\\.");
-        return splits[splits.length - 1] + ".java";
-    }
 }

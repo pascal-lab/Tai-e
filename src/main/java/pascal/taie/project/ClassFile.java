@@ -33,11 +33,6 @@ public interface ClassFile {
     String getClassName();
 
     /**
-     * @return file name of this file (with extension name)
-     */
-    String getFileName();
-
-    /**
      * @return the resource from which this file originates
      */
     Resource getResource();

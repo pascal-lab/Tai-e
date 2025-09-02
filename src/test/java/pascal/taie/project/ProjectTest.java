@@ -63,7 +63,7 @@ public class ProjectTest {
 
         FileContainer c = cs.get(0);
         for (var i : c.getFiles()) {
-            if (i.getFileName().equals("Cards.class")) {
+            if (i.getResource().getPath().toString().endsWith("Cards.class")) {
                 assertSame(i.getRootContainer(), c);
                 String cards = "src/test/resources/world/Cards.class";
                 assertArrayEquals(i.getResource().getContent(),
