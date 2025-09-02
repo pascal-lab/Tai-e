@@ -26,8 +26,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.config.Options;
 import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.util.collection.Streams;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -38,24 +38,50 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class OptionsProjectBuilder implements ProjectBuilder {
 
-    private static final String JREs = "java-benchmarks/JREs";
     private static final Logger logger = LogManager.getLogger(OptionsProjectBuilder.class);
-    private static final String JRE_FIND_FAILED = """
+
+    private static final String JREs = "java-benchmarks/JREs";
+
+    private static final String JRE_NOT_FOUND = """
             Failed to locate Java library.
             Please clone submodule 'java-benchmarks' by command:
             git submodule update --init --recursive
             and put it in Tai-e's working directory.""";
-    private final Options options;
 
-    private Project project;
+    private final Options options;
 
     public OptionsProjectBuilder(Options options) {
         this.options = options;
+    }
+
+    @Override
+    public Project build() {
+        List<String> appClassPaths =
+                new ArrayList<>(new LinkedHashSet<>(options.getAppClassPath()));
+        List<String> libClassPaths =
+                new ArrayList<>(new LinkedHashSet<>(options.getClassPath()));
+        libClassPaths.removeAll(appClassPaths);
+        try {
+            return new Project(
+                    String.join(File.pathSeparator,
+                            Lists.concatDistinct(options.getClassPath(),
+                                    options.getAppClassPath())),
+                    options.getMainClass(),
+                    Sets.newSet(getInputClasses(options)),
+                    getAppContainers(appClassPaths),
+                    getLibContainers(libClassPaths, options.getJreDir(),
+                            options.isPrependJVM(), options.getJavaVersion()),
+                    options.getJavaVersion()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -86,35 +112,27 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         return classes;
     }
 
-    private String getMainClass() {
-        return options.getMainClass();
-    }
-
-    private int getJavaVersion() {
-        return options.getJavaVersion();
-    }
-
-    private List<String> getInputClasses() {
-        return getInputClasses(options);
-    }
-
-    private List<FileContainer> getAppContainers(List<String> appClassPaths) throws IOException {
-        return FileLoader.get().loadRootContainers(
-                appClassPaths.stream().distinct().map(Path::of).toList());
+    private List<FileContainer> getAppContainers(List<String> appClassPaths)
+            throws IOException {
+        return FileLoader.get().loadRootContainers(Lists.map(appClassPaths, Path::of));
     }
 
     private List<FileContainer> getLibContainers(List<String> libClassPaths,
                                                  @Nullable String jrePath,
                                                  boolean isPrependJVM,
-                                                 int javaVersion) throws IOException {
+                                                 int javaVersion)
+            throws IOException {
         List<FileContainer> libs = FileLoader.get().loadRootContainers(
-                libClassPaths.stream().distinct().map(Path::of).toList());
+                Lists.map(libClassPaths, Path::of));
         // add jre
         List<FileContainer> jre = getJREContainers(jrePath, isPrependJVM, javaVersion);
-        return Streams.concat(libs.stream(), jre.stream()).toList();
+        return Lists.concatDistinct(libs, jre);
     }
 
-    private List<FileContainer> getJREContainers(@Nullable String jrePath, boolean isPrependJVM, int javaVersion) throws IOException {
+    private List<FileContainer> getJREContainers(@Nullable String jrePath,
+                                                 boolean isPrependJVM,
+                                                 int javaVersion)
+            throws IOException {
         if (isPrependJVM) {
             // if prependJVM is set, we use jrt:/ to load JRE
             FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
@@ -174,8 +192,9 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         }
     }
 
-    private List<FileContainer> processModulesFile(Path modules, Path jrtfs) throws IOException {
-        FileSystem fs = FileSystemManager.get().getJrtFs(modules, jrtfs);
+    private List<FileContainer> processModulesFile(Path modules, Path jrtFs)
+            throws IOException {
+        FileSystem fs = FileSystemManager.get().getJrtFs(modules, jrtFs);
         return processModulesFile(fs.getPath("modules"));
     }
 
@@ -197,7 +216,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
     private List<FileContainer> getJREFromJavaBenchmarks(int javaVersion) throws IOException {
         File jreDir = new File(JREs);
         if (!jreDir.exists()) {
-            throw new IOException(JRE_FIND_FAILED);
+            throw new IOException(JRE_NOT_FOUND);
         }
         String jrePath = String.format("%s/jre" + ((javaVersion <= 8) ? "1.%d" : "%d"),
                 JREs, javaVersion);
@@ -209,29 +228,5 @@ public class OptionsProjectBuilder implements ProjectBuilder {
                     "Please specify the path to your JRE by option --jre-dir");
         }
         return processJarDirectory(jarDir);
-    }
-
-    @Override
-    public Project build() {
-        try {
-            List<String> appClassPaths = options.getAppClassPath();
-            List<String> libClassPaths = new ArrayList<>(options.getClassPath());
-            libClassPaths.removeAll(appClassPaths);
-            project = new Project(
-                    String.join(File.pathSeparator,
-                            Stream.concat(
-                                    options.getClassPath().stream(),
-                                    options.getAppClassPath().stream()).toList()),
-                    getMainClass(),
-                    Sets.newSet(getInputClasses()),
-                    getAppContainers(appClassPaths),
-                    getLibContainers(libClassPaths, options.getJreDir(),
-                            options.isPrependJVM(), options.getJavaVersion()),
-                    getJavaVersion()
-            );
-            return project;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
