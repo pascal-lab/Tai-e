@@ -26,5 +26,5 @@ public interface ClassSource {
 
     String getClassName();
 
-    boolean isApplication();
+    boolean isApp();
 }

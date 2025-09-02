@@ -105,7 +105,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
         this.fields = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        this.version = source.getClassFileVersion();
+        this.version = source.version();
     }
 
     @Override
@@ -164,7 +164,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
     @Override
     public boolean isApplication() {
-        return source.isApplication();
+        return source.isApp();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
     private void buildAll() {
         CVisitor visitor = new CVisitor();
-        source.r().accept(visitor, ClassReader.SKIP_CODE);
+        source.reader().accept(visitor, ClassReader.SKIP_CODE);
     }
 
     private String getSimpleName(String binaryName) {

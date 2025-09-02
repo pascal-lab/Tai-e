@@ -243,9 +243,9 @@ public class DefaultIRBuilder extends NewFrontendComponent
         // use remove to release memory
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
-        int version = source.getClassFileVersion();
+        int version = source.version();
         LoadingKV kv = new LoadingKV();
-        source.r().accept(new ClassVisitor(Opcodes.ASM9) {
+        source.reader().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
                 JSRInlinerAdapter adapter = new JSRInlinerAdapter(null, access, name, descriptor, signature, exceptions);

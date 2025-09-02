@@ -24,32 +24,18 @@ package pascal.taie.frontend.newfrontend.source;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
 
+/**
+ * @param version the class file version.
+ */
 public record AsmSource(
-        ClassReader r,
-        boolean isApplication,
-        int version,
-        ClassNode node
+        ClassReader reader,
+        boolean isApp,
+        int version
 ) implements ClassSource {
 
     @Override
     public String getClassName() {
-        String name;
-        if (r == null) {
-            name = node.name;
-        } else {
-            name = r.getClassName();
-        }
-        return Type.getObjectType(name).getClassName();
-    }
-
-    /**
-     * @return the class file version of current class file
-     */
-    public int getClassFileVersion() {
-        // some hack here
-        // 6 is the offset of classfile version
-        return version;
+        return Type.getObjectType(reader.getClassName()).getClassName();
     }
 }
