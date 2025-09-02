@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -45,14 +44,19 @@ public class ClassIndex {
     private static final Logger logger = LogManager.getLogger(ClassIndex.class);
 
     /**
-     * A record to represent a duplicate class definition.
+     * The list defining the priority order of class file types to index.
      */
-    private record DuplicateClass(String internalName, Pair<FileContainer, FileContainer> jars) {}
+    private final List<Class<? extends ClassFile>> classPriority;
 
     /**
-     * The main map from file names to their associated ProgramFile.
+     * The main map from class names to their associated class file.
      */
     private final Map<String, ClassFile> index = Maps.newMap();
+
+    /**
+     * A record to represent a duplicate class definition.
+     */
+    private record DuplicateClass(String className, Pair<FileContainer, FileContainer> containers) {}
 
     /**
      * The list of duplicate classes found during indexing.
@@ -65,112 +69,92 @@ public class ClassIndex {
      * @param project the project to index
      */
     ClassIndex(Project project) {
-        Set<FileContainer> roots = Sets.newLinkedSet();
-        roots.addAll(project.appRootContainers());
-        roots.addAll(project.libRootContainers());
-        for (FileContainer root : roots) {
-            traverse("", root);
-        }
-        displayDuplicateWarning();
+        classPriority = project.classPriority();
+        project.appRootContainers().forEach(this::traverse);
+        project.libRootContainers().forEach(this::traverse);
+        logDuplicateClasses();
     }
 
     /**
      * Finds a {@link ClassFile} by its name.
-     *
-     * <p>
-     * First attempts to find a class file. If not found, falls back to searching for a java source file.
-     * </p>
      *
      * @param className the fully-qualified name of the class to search
      * @return the found ClassFile, or {@code null} if not found.
      */
     @Nullable
     public ClassFile find(String className) {
-        ClassFile classFile = index.get(className + ".class");
-        if (classFile != null) {
-            return classFile;
-        } else {
-            return index.get(className + ".java");
-        }
+        return index.get(className);
     }
 
     /**
-     * Adds a ProgramFile to the index.
-     *
-     * @param internalName the internal name of the class
-     * @param file the ProgramFile to add
+     * Recursively traverses the file containers, adding all class files to the index.
      */
-    private void add(String internalName, ClassFile file) {
-        if (index.containsKey(internalName)
-                && !file.getClassName().contains("module-info")) {
-            ClassFile file1 = index.get(internalName);
-            Pair<FileContainer, FileContainer> jars = new Pair<>(
-                    file1.getRootContainer(), file.getRootContainer());
-            duplicateClasses.add(new DuplicateClass(internalName, jars));
+    private void traverse(FileContainer container) {
+        container.getFiles().forEach(this::add);
+        container.getSubContainers().forEach(this::traverse);
+    }
+
+    private void add(ClassFile classFile) {
+        String className = classFile.getClassName();
+        if (index.containsKey(className)
+                && !classFile.getClassName().contains("module-info")) {
+            ClassFile existed = index.get(className);
+            switch (compare(existed, classFile)) {
+                // found duplicate classes
+                case 0 -> duplicateClasses.add(new DuplicateClass(className,
+                        new Pair<>(existed.getRootContainer(), classFile.getRootContainer())));
+                // classFile has higher priority than existed,
+                // then replace the existed by classFile
+                case 1 -> index.put(className, classFile);
+            }
             return;
         }
-        index.put(internalName, file);
+        index.put(className, classFile);
     }
 
-    /**
-     * Displays warnings for all detected duplicate class definitions.
-     */
-    private void displayDuplicateWarning() {
-        MultiMap<Pair<FileContainer, FileContainer>, String> duplicateClassMap = Maps.newMultiMap();
-
-        for (DuplicateClass dc : duplicateClasses) {
-            duplicateClassMap.put(dc.jars(), dc.internalName());
+    private int compare(ClassFile c1, ClassFile c2) {
+        int index1 = classPriority.indexOf(c1.getClass());
+        if (index1 == -1) { // out-of-scope class type, give the lowest priority
+            index1 = classPriority.size();
         }
+        int index2 = classPriority.indexOf(c2.getClass());
+        if (index2 == -1) { // out-of-scope class type, give the lowest priority
+            index2 = classPriority.size();
+        }
+        return Integer.compare(index1, index2);
+    }
+
+    private void logDuplicateClasses() {
+        MultiMap<Pair<FileContainer, FileContainer>, String> duplicateClassMap = Maps.newMultiMap();
+        duplicateClasses.forEach(dup ->
+                duplicateClassMap.put(dup.containers(), dup.className()));
         StringBuilder message = new StringBuilder();
-        duplicateClassMap.forEachSet((jars, classes) -> {
-            message.append(prettyPrintInfo(jars, classes));
-        });
+        duplicateClassMap.forEachSet((containers, classes) ->
+                message.append(truncateDuplicates(containers, classes)));
         logger.warn(message.toString());
     }
 
     /**
-     * Pretty-prints the information about duplicate classes.
+     * Truncate the information about duplicate classes for better display.
      *
-     * @param jars the pair of file containers containing the duplicates
+     * @param containers the pair of file containers containing the duplicates
      * @param classes the set of classes duplicated between the containers
      * @return the formatted message
      */
-    private static String prettyPrintInfo(Pair<FileContainer, FileContainer> jars, Set<String> classes) {
-       return String.format(
+    private static String truncateDuplicates(Pair<FileContainer, FileContainer> containers,
+                                             Set<String> classes) {
+        String classList = (classes.size() <= 4)
+                ? classes.toString()
+                : String.format("%s ... (%d more)",
+                new ArrayList<>(classes).subList(0, 4),
+                classes.size() - 4);
+        return String.format(
                """
-               Non-deterministic classes (total %d) resolving introduced by %s and %s,
-               %s is founded in both jars
+               Duplicate classes (total %d) introduced by %s and %s,
+               %s is founded in both containers
                """,
-               classes.size(), jars.first(), jars.second(), ppList(classes.stream().toList()));
-    }
-
-    /**
-     * Formats a list of class names for output.
-     *
-     * @param classes the list of class names
-     * @return a formatted string representing the class names
-     */
-    private static String ppList(List<String> classes) {
-        if (classes.size() <= 4) {
-            return classes.toString();
-        } else {
-            return String.format("%s ... (%d more)",
-                    classes.subList(0, 4), classes.size() - 4);
-        }
-    }
-
-    /**
-     * Recursively traverses the file containers, adding all encountered files to the index.
-     *
-     * @param currentName the current name prefix used during traversal
-     * @param container the file container to traverse
-     */
-    private void traverse(String currentName, FileContainer container) {
-        for (ClassFile file : container.getFiles()) {
-            add(currentName + file.getFileName(), file);
-        }
-        for (FileContainer subContainer : container.getSubContainers()) {
-            traverse(currentName + subContainer.getFileName() + "/", subContainer);
-        }
+               classes.size(),
+               containers.first(), containers.second(),
+               classList);
     }
 }

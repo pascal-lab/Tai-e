@@ -35,7 +35,15 @@ public record Project(String classPath,
                       int javaVersion) {
 
     /**
-     * @return if given class file represents an applicaiton class.
+     * This list specifies the processing priority of class file types,
+     * arranged from highest to lowest. To change the priority, simply
+     * adjust the order of classes in this list.
+     */
+    private static final List<Class<? extends ClassFile>> CLASS_PRIORITY
+            = List.of(DotClassFile.class, DotJavaFile.class);
+
+    /**
+     * @return if given class file represents an application class.
      */
     public boolean isApp(ClassFile file) {
         return appRootContainers.contains(file.getRootContainer())
@@ -48,5 +56,12 @@ public record Project(String classPath,
      */
     public ClassIndex makeIndex() {
         return new ClassIndex(this);
+    }
+
+    /**
+     * @return the class priority list.
+     */
+    List<Class<? extends ClassFile>> classPriority() {
+        return CLASS_PRIORITY;
     }
 }

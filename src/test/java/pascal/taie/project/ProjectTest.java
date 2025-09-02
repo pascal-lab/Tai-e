@@ -48,6 +48,7 @@ import java.util.jar.Manifest;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -157,5 +158,18 @@ public class ProjectTest {
         } else {
             return -1;
         }
+    }
+
+    @Test
+    void testClassPriority() {
+        Options options = Options.parse("-cp", "src/test/resources/world",
+                "-m", "AllInOne");
+        ProjectBuilder builder = new OptionsProjectBuilder(options);
+        Project project = builder.build();
+        ClassIndex index = project.makeIndex();
+        ClassFile file = index.find("AllInOne");
+        // when .class and .java co-exist in the same container,
+        // .class should be loaded into the project.
+        assertInstanceOf(DotClassFile.class, file);
     }
 }
