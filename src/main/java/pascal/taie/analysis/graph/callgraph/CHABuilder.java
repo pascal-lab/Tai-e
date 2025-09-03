@@ -25,7 +25,9 @@ package pascal.taie.analysis.graph.callgraph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
@@ -34,6 +36,8 @@ import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
+import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -151,7 +155,15 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 if (ignoreObjectMethods && isObjectMethod(methodRef)) {
                     yield Set.of();
                 }
-                JClass cls = methodRef.getDeclaringClass();
+                Var base = InvokeUtils.getVar(callSite, InvokeUtils.BASE);
+                JClass cls;
+                if (base.getType() instanceof ClassType classType) {
+                    cls = classType.getJClass();
+                } else if (base.getType() instanceof NullType) {
+                    yield Set.of();
+                } else {
+                    cls = methodRef.getDeclaringClass();
+                }
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees == null) {
                     callees = hierarchy.getAllSubclassesOf(cls)

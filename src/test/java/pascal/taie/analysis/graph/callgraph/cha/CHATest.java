@@ -22,9 +22,21 @@
 
 package pascal.taie.analysis.graph.callgraph.cha;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import pascal.taie.Main;
+import pascal.taie.World;
 import pascal.taie.analysis.Tests;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.language.classes.JMethod;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class CHATest {
 
@@ -43,6 +55,20 @@ public class CHATest {
     })
     void testFull(String mainClass) {
         test(mainClass);
+    }
+
+    @Test
+    void testArray() {
+        Main.main("-pp",
+                "-cp", CLASS_PATH,
+                "-m", "Array",
+                "-a", "cg=algorithm:cha-full");
+        CallGraph<Invoke, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
+        JMethod main = World.get().getMainMethod();
+        List<Invoke> invokes = main.getIR().invokes(false).toList();
+        assertEquals(2, invokes.size());
+        assertFalse(callGraph.getCalleesOf(invokes.get(0)).isEmpty());
+        assertFalse(callGraph.getCalleesOf(invokes.get(1)).isEmpty());
     }
 
 }
