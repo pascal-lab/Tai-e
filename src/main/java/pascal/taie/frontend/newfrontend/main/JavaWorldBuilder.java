@@ -44,7 +44,6 @@ import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
-import pascal.taie.project.ProjectBuilder;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
@@ -84,8 +83,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // initialize class hierarchy
         FrontendTimer timer = new FrontendTimer();
         timer.start();
-        ProjectBuilder projectBuilder = new OptionsProjectBuilder(options);
-        Project project = projectBuilder.build();
+        Project project = new OptionsProjectBuilder(options).build();
         timer.stop();
         long projectBuildingTime = timer.inMilliseconds();
 

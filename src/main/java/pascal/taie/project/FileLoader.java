@@ -45,8 +45,6 @@ class FileLoader {
 
     private static final Logger logger = LogManager.getLogger(FileLoader.class);
 
-    private static FileLoader obj;
-
     /**
      * temp solution to handle non-root jar (e.g. b.jar in a.zip),
      */
@@ -55,9 +53,7 @@ class FileLoader {
     // -------------------- Helper Functions (starts)--------------------
 
     /**
-     * Get the manifest of a jar file
-     *
-     * @return may be null (no Manifest include)
+     * Gets the manifest of a jar file.
      */
     private @Nullable Manifest getManifest(FileSystem fs) throws IOException {
         Path p = fs.getPath("META-INF/MANIFEST.MF");
@@ -84,7 +80,7 @@ class FileLoader {
     }
 
     private boolean isZipFile(Path p) {
-        return getExt(p).equals("zip") || get().isJarFile(p);
+        return getExt(p).equals("zip") || isJarFile(p);
     }
 
     private boolean isJarFile(Path p) {
@@ -95,7 +91,7 @@ class FileLoader {
         return getExt(p).equals("java");
     }
 
-    private Resource mkResource(RootFileSystem root, Path path) throws IOException {
+    private Resource makeResource(RootFileSystem root, Path path) throws IOException {
         // fs is default means it's a file on the disk
         if (root.fs() == FileSystems.getDefault()) {
             return new FileResource(path);
@@ -136,7 +132,7 @@ class FileLoader {
      * @param fs the file system
      * @param p path of the file system
      */
-    record RootFileSystem(FileSystem fs, Path p) {
+    private record RootFileSystem(FileSystem fs, Path p) {
     }
 
     /**
@@ -269,7 +265,7 @@ class FileLoader {
             loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
             containerWorker.apply(currentContainer);
         } else {
-            Resource r = mkResource(root, path);
+            Resource r = makeResource(root, path);
             Path relativePath = getRelativePath(root, path);
             String internalName = PathUtils.getClassName(relativePath);
             if (isClassFile(path)) {
@@ -311,11 +307,4 @@ class FileLoader {
         return containers;
     }
     // -------------------- Main Functions (ends) --------------------
-
-    public static FileLoader get() {
-        if (obj == null) {
-            obj = new FileLoader();
-        }
-        return obj;
-    }
 }

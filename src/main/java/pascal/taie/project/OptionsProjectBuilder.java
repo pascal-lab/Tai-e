@@ -54,6 +54,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
             git submodule update --init --recursive
             and put it in Tai-e's working directory.""";
 
+    private final FileLoader loader = new FileLoader();
+
     private final Options options;
 
     public OptionsProjectBuilder(Options options) {
@@ -114,7 +116,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
 
     private List<FileContainer> getAppContainers(List<String> appClassPaths)
             throws IOException {
-        return FileLoader.get().loadRootContainers(Lists.map(appClassPaths, Path::of));
+        return loader.loadRootContainers(Lists.map(appClassPaths, Path::of));
     }
 
     private List<FileContainer> getLibContainers(List<String> libClassPaths,
@@ -122,7 +124,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
                                                  boolean isPrependJVM,
                                                  int javaVersion)
             throws IOException {
-        List<FileContainer> libs = FileLoader.get().loadRootContainers(
+        List<FileContainer> libs = loader.loadRootContainers(
                 Lists.map(libClassPaths, Path::of));
         // add jre
         List<FileContainer> jre = getJREContainers(jrePath, isPrependJVM, javaVersion);
@@ -200,13 +202,13 @@ public class OptionsProjectBuilder implements ProjectBuilder {
 
     private List<FileContainer> processModulesFile(Path modules) throws IOException {
         try (Stream<Path> paths = Files.list(modules)) {
-            return FileLoader.get().loadRootContainers(paths.toList());
+            return loader.loadRootContainers(paths.toList());
         }
     }
 
     private List<FileContainer> processJarDirectory(Path jarDir) throws IOException {
         try (Stream<Path> paths = Files.list(jarDir)) {
-            return FileLoader.get().loadRootContainers(
+            return loader.loadRootContainers(
                     paths.filter(p -> p.toString().endsWith(".jar"))
                             .distinct()
                             .toList());

@@ -57,7 +57,7 @@ public class ProjectTest {
 
     @Test
     void testLoadJar() throws IOException {
-        FileLoader loader = FileLoader.get();
+        FileLoader loader = new FileLoader();
         String classes = "src/test/resources/world/classes.jar";
         List<FileContainer> cs = loader.loadRootContainers(List.of(Path.of(classes)));
         assertEquals(1, cs.size());
