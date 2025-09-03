@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.graph.callgraph.cha;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.Main;
@@ -56,14 +57,11 @@ public class CHATest {
         test(mainClass);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "Array",
-    })
-    void testArray(String mainClass) {
+    @Test
+    void testArray() {
         Main.main("-pp",
                 "-cp", CLASS_PATH,
-                "-m", mainClass,
+                "-m", "Array",
                 "-a", "cg=algorithm:cha-full");
         CallGraph<Invoke, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);
         JMethod main = World.get().getMainMethod();
