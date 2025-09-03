@@ -39,16 +39,23 @@ import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Computes modification information based on pointer analysis
- * and topological sorting of call graph.
+ * Computes side-effect information (which objects might be modified) based on pointer analysis
+ * and topological sorting of context-sensitive call graph.
  */
 class TopologicalSolver {
 
@@ -68,18 +75,24 @@ class TopologicalSolver {
     }
 
     SideEffect solve() {
-        // 1. compute the objects directly modified by each method and stmt
-        TwoKeyMap<JMethod, Context, Set<Obj>> methodDirectMods = Maps.newTwoKeyMap();
+        // Step 1: Compute the objects directly modified by each statement and method
+        // Based on rules: x.f = y -> modify(stmt/method) += pts(x)
+        //                 x[*] = y -> modify(stmt/method) += pts(x)
         TwoKeyMap<Stmt, Context, Set<Obj>> stmtDirectMods = Maps.newTwoKeyMap();
+        TwoKeyMap<JMethod, Context, Set<Obj>> methodDirectMods = Maps.newTwoKeyMap();
         computeDirectMods(stmtDirectMods, methodDirectMods);
-        // 2. compute the objects directly modified by
-        //    the methods of each SCC in the call graph
-        var mg = new MergedSCCGraph<>(callGraph);
+
+        // Step 2: Merge modified objects within each SCC (Strongly Connected Component)
+        // Methods in the same SCC can call each other recursively
+        MergedSCCGraph<CSMethod> mg = new MergedSCCGraph<>(callGraph);
         TwoKeyMap<JMethod, Context, Set<Obj>> sccDirectMods = computeSCCDirectMods(
                 mg.getNodes(), methodDirectMods);
-        // 3. fully compute the objects modified by each method
+
+        // Step 3: Propagate modified objects through call graph in reverse topological order
+        // Based on rule: x = y.foo(...) -> modify(caller) += modify(callee)
         TwoKeyMap<JMethod, Context, Set<Obj>> methodMods = computeMethodMods(
                 mg, sccDirectMods);
+
         return new SideEffect(methodMods, stmtDirectMods, pta.getCallGraph());
     }
 
@@ -94,22 +107,30 @@ class TopologicalSolver {
                     .map(CSObj::getObject)
                     .filter(this::isRelevant)
                     .collect(Collectors.toUnmodifiableSet());
+
+            // Handle field store
             if (!base.getStoreFields().isEmpty()) {
                 for (Stmt stmt : base.getStoreFields()) {
+                    // Rule: x.f = y, o ∈ pts(x) => o ∈ modify(stmt)
                     stmtDirectMods.computeIfAbsent(stmt, context,
                                     (s, c) -> Sets.newSet())
                             .addAll(baseObjs);
                 }
+                // Rule: x.f = y, o ∈ pts(x) => o ∈ modify(method)
                 methodDirectMods.computeIfAbsent(method, context,
                                 (m, c) -> Sets.newSet())
                         .addAll(baseObjs);
             }
+
+            // Handle array store
             if (!base.getStoreArrays().isEmpty()) {
                 for (Stmt stmt : base.getStoreArrays()) {
+                    // Rule: x[*] = y, o ∈ pts(x) => o ∈ modify(stmt)
                     stmtDirectMods.computeIfAbsent(stmt, context,
                                     (s, c) -> Sets.newSet())
                             .addAll(baseObjs);
                 }
+                // Rule: x[*] = y, o ∈ pts(x) => o ∈ modify(method)
                 methodDirectMods.computeIfAbsent(method, context,
                                 (m, c) -> Sets.newSet())
                         .addAll(baseObjs);
@@ -117,6 +138,10 @@ class TopologicalSolver {
         }
     }
 
+    /**
+     * Filters objects based on analysis scope.
+     * If onlyApp is true, only considers objects from application methods.
+     */
     private boolean isRelevant(Obj obj) {
         // TODO: this method might not be well-defined for MergedObjs
         if (onlyApp) {
@@ -126,17 +151,25 @@ class TopologicalSolver {
         return true;
     }
 
+    /**
+     * Computes objects directly modified by methods in each SCC.
+     * All methods in the same SCC share the same set of directly modified objects
+     * because they can call each other recursively.
+     */
     private static TwoKeyMap<JMethod, Context, Set<Obj>> computeSCCDirectMods(
             Set<MergedNode<CSMethod>> sccs,
             TwoKeyMap<JMethod, Context, Set<Obj>> methodDirectMods) {
         TwoKeyMap<JMethod, Context, Set<Obj>> sccDirectMods = Maps.newTwoKeyMap();
         for (MergedNode<CSMethod> scc : sccs) {
+            // Collect all directly modified objects within the SCC
             Set<Obj> mods = Sets.newHybridSet();
             for (CSMethod csMethod : scc.getNodes()) {
                 Context context = csMethod.getContext();
                 JMethod method = csMethod.getMethod();
                 mods.addAll(methodDirectMods.getOrDefault(method, context, Set.of()));
             }
+
+            // Assign the collected modified objects to all methods in the SCC
             for (CSMethod csMethod : scc.getNodes()) {
                 Context context = csMethod.getContext();
                 JMethod method = csMethod.getMethod();
@@ -146,32 +179,43 @@ class TopologicalSolver {
         return sccDirectMods;
     }
 
+    /**
+     * Computes final side-effect for each method by propagating
+     * modified objects through the call graph.
+     * Uses reverse topological order to ensure each method is processed only once.
+     */
     private TwoKeyMap<JMethod, Context, Set<Obj>> computeMethodMods(
             MergedSCCGraph<CSMethod> mg,
             TwoKeyMap<JMethod, Context, Set<Obj>> sccDirectMods) {
         TwoKeyMap<JMethod, Context, Set<Obj>> methodMods = Maps.newTwoKeyMap();
-        // to accelerate side effect analysis, we propagate modified objects
-        // of methods (methodMods) based on topological sorting of call graph,
-        // so that each method only needs to be processed once
-        var sorter = new TopologicalSorter<>(mg, true);
-        for (MergedNode<CSMethod> scc : sorter.get()) {
+
+        // Process SCCs in reverse topological order
+        // This ensures that when processing an SCC, all its callees have been processed
+        for (MergedNode<CSMethod> scc : reverseTopologicalSort(mg)) {
             Set<Obj> mods = new IndexerBitSet<>(objIndexer, true);
-            // add SCC direct mods
+
+            // Pick a representative method from the SCC
             Set<CSMethod> sccNodes = Sets.newSet(scc.getNodes());
             CSMethod rep = CollectionUtils.getOne(sccNodes);
             Context repContext = rep.getContext();
             JMethod repMethod = rep.getMethod();
+
+            // Add objects that are modified by methods in the same SCC
             mods.addAll(sccDirectMods.getOrDefault(repMethod, repContext, Set.of()));
-            // add callees' mods
+
+            // Add modified objects from callees
+            // Rule: i: x = y.foo(...) ->call j, j ∈ m, o ∈ modify(j) => o ∈ modify(i)
             sccNodes.stream().map(callGraph::getCalleesOfM).flatMap(Collection::stream)
                     .distinct()
-                    // avoid redundantly adding SCC direct mods
+                    // Avoid redundantly adding SCC direct mods (already added above)
                     .filter(callee -> !sccNodes.contains(callee))
                     .forEach(csCallee -> {
                         Context context = csCallee.getContext();
                         JMethod callee = csCallee.getMethod();
                         mods.addAll(methodMods.getOrDefault(callee, context, Set.of()));
                     });
+
+            // Assign computed side-effect to all methods in the SCC
             if (!mods.isEmpty()) {
                 for (CSMethod csMethod : sccNodes) {
                     Context context = csMethod.getContext();
@@ -181,5 +225,46 @@ class TopologicalSolver {
             }
         }
         return methodMods;
+    }
+
+    /**
+     * Performs reverse topological sorting on a directed acyclic graph (DAG) using BFS.
+     * This implementation is optimized for side-effect analysis by avoiding redundant traversals.
+     * <p>
+     * The reverse topological order ensures that when processing a node,
+     * all its successors (callees) have already been processed.
+     *
+     * @param <N>   type of nodes in the graph
+     * @param graph the graph to sort
+     * @return list of nodes in reverse topological order
+     */
+    private static <N> List<N> reverseTopologicalSort(Graph<N> graph) {
+        // Map to track in-degree of each node
+        Map<N, Long> inDegreeMap = Maps.newMap();
+        Queue<N> queue = new ArrayDeque<>();
+        for (N node : graph.getNodes()) {
+            long inDegree = graph.getInDegreeOf(node);
+            inDegreeMap.put(node, inDegree);
+            if (inDegree == 0) {
+                queue.add(node);
+            }
+        }
+
+        List<N> result = new ArrayList<>(graph.getNumberOfNodes());
+        while (!queue.isEmpty()) {
+            N curr = queue.poll();
+            result.add(curr);
+            for (N pred : graph.getSuccsOf(curr)) {
+                long inDegree = inDegreeMap.get(pred) - 1;
+                inDegreeMap.put(pred, inDegree);
+                if (inDegree == 0) {
+                    queue.add(pred);
+                }
+            }
+        }
+
+        // Reverse to get reverse topological order
+        Collections.reverse(result);
+        return Collections.unmodifiableList(result);
     }
 }
