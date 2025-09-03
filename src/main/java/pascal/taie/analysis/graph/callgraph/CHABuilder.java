@@ -37,6 +37,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.NullType;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
@@ -155,7 +156,14 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                     yield Set.of();
                 }
                 Var base = InvokeUtils.getVar(callSite, InvokeUtils.BASE);
-                JClass cls = ((ClassType) base.getType()).getJClass();
+                JClass cls;
+                if (base.getType() instanceof NullType) {
+                    yield Set.of();
+                } else if (base.getType() instanceof ClassType classType) {
+                    cls = classType.getJClass();
+                } else {
+                    cls = methodRef.getDeclaringClass();
+                }
                 Set<JMethod> callees = resolveTable.get(cls, methodRef);
                 if (callees == null) {
                     callees = hierarchy.getAllSubclassesOf(cls)

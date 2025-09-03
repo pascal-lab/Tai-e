@@ -30,8 +30,12 @@ public class CHATest {
 
     private static final String CLASS_PATH = "src/test/resources/cha/";
 
+    static void test(String mainClass, String algorithm) {
+        Tests.testMain(mainClass, CLASS_PATH, "cg", "algorithm:" + algorithm);
+    }
+
     static void test(String mainClass) {
-        Tests.testMain(mainClass, CLASS_PATH, "cg", "algorithm:cha");
+        test(mainClass, "cha");
     }
 
     @ParameterizedTest
@@ -43,6 +47,14 @@ public class CHATest {
     })
     void testFull(String mainClass) {
         test(mainClass);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Array",
+    })
+    void testCHAFull(String mainClass) {
+        test(mainClass, "cha-full");
     }
 
 }
