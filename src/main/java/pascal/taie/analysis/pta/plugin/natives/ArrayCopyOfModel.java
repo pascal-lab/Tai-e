@@ -23,20 +23,15 @@
 package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
-import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.heap.AbstractHeapModel;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
-import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
+import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.util.collection.Sets;
-
-import java.util.Set;
 
 public class ArrayCopyOfModel extends AnalysisModelPlugin {
 
@@ -49,21 +44,16 @@ public class ArrayCopyOfModel extends AnalysisModelPlugin {
     @InvokeHandler(signature = "<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>", argIndexes = {0})
     public void arraysCopyOf(Context context, Invoke invoke, PointsToSet from) {
         Var result = invoke.getResult();
-        if(result != null){
-            Pointer to = solver.getCSManager().getCSVar(context, result);
-            Set<CSObj> toObjs = Sets.newHybridSet();
+        if (result != null) {
             from.getObjects().forEach(csObj -> {
-                // handle the argument0's obj is zero-length-array obj
-                if(csObj.getObject() instanceof MockObj mockObj
-                        && mockObj.getDescriptor().equals(AbstractHeapModel.ZERO_LENGTH_ARRAY_DESC)){
-                    toObjs.add(solver.getCSManager().getCSObj(context,
-                            heapModel.getMockObj(COPYOF_ARRAY_DESC, invoke, mockObj.getType())));
-                }
-                else {
-                    toObjs.add(csObj);
+                // handle the argument0's obj contains zero-length-array obj
+                if (CSObjs.hasDescriptor(csObj, AbstractHeapModel.ZERO_LENGTH_ARRAY_DESC)) {
+                    solver.addVarPointsTo(context, result, csManager.getCSObj(context,
+                            heapModel.getMockObj(COPYOF_ARRAY_DESC, invoke, csObj.getObject().getType())));
+                } else {
+                    solver.addVarPointsTo(context, result, csObj);
                 }
             });
-            toObjs.forEach(csObj -> solver.addPointsTo(to, csObj));
         }
     }
 
