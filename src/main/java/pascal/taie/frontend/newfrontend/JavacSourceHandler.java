@@ -45,30 +45,29 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 // TODO: check concurrent behavior, note compile may be called concurrently
 
 /**
- * This class handles the compilation of Java source files using the Java Compiler API.
- * It provides methods to compile Java files, collect diagnostics, and manage temporary output directories.
+ * This class handles Java source files using the Java Compiler API.
+ * It provides methods to compile Java source files, collect diagnostics,
+ * and manage temporary output directories.
  */
 public class JavacSourceHandler {
 
-    private final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
+    private static final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
 
-    // ---------------- JAVA COMPILER RELATED (starts) ----------------
     private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
     private final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
     private final StandardJavaFileManager fileManager =
             compiler.getStandardFileManager(diagnostics, null, null);
-    // ---------------- JAVA COMPILER RELATED (ends) ----------------
 
     /**
      * Temporary output directory for compiled class files.
      */
-    private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir")).resolve("taie");
+    private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir"))
+            .resolve("tai-e");
 
     /**
      * Regex pattern to extract the name of the compiled class file from the compiler output.
@@ -91,8 +90,8 @@ public class JavacSourceHandler {
                 "-implicit:class",
                 "-g");
 
-        JavaCompiler.CompilationTask task =
-                compiler.getTask(output, fileManager, diagnostics, options, null, compilationUnits);
+        JavaCompiler.CompilationTask task = compiler.getTask(output, fileManager,
+                diagnostics, options, null, compilationUnits);
 
         boolean success = task.call();
 
@@ -140,12 +139,12 @@ public class JavacSourceHandler {
         return files;
     }
 
-    private DotClassFile createPhantomClassFile(String outputPath) throws IOException {
+    private DotClassFile createPhantomClassFile(String outputPath) {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
-        String internalName = PathUtils.getClassName(relative);
-        Resource r = new FileResource(output);
-        return new DotClassFile(internalName, r, null);
+        String className = PathUtils.getClassName(relative);
+        Resource resource = new FileResource(output);
+        return new DotClassFile(className, resource, null);
     }
 
     private Pattern getWritePattern() {
@@ -163,7 +162,8 @@ public class JavacSourceHandler {
             logger.warn("""
                     Unknown language: {}, country: {}
                     The Java source code frontend may not work properly
-                    Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]""", lang, country);
+                    Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]""",
+                    lang, country);
             return Pattern.compile("\\[wrote (.*\\.class)]");
         }
     }

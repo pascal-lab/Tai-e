@@ -21,15 +21,13 @@
  */
 
 /**
- * Provides classes and interfaces for representing and analyzing Java projects.
+ * Provides classes and interfaces representing a Java project being analyzed.
  * <p> The main purpose of this package is to provide {@link pascal.taie.project.Project}.
  * A {@link pascal.taie.project.Project} is a structure for representing
  * Java projects, including their files, directories, and resources.
  * </p>
  * <p> The {@link pascal.taie.project.ProjectBuilder} declares the methods
- * for building a {@link pascal.taie.project.Project} from a given {@link pascal.taie.config.Options}
+ * for building a {@link pascal.taie.project.Project}.
  * </p>
- *
- * @since TODO
  */
 package pascal.taie.project;
