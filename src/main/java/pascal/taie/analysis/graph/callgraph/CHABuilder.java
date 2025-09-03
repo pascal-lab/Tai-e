@@ -157,10 +157,10 @@ class CHABuilder implements CGBuilder<Invoke, JMethod> {
                 }
                 Var base = InvokeUtils.getVar(callSite, InvokeUtils.BASE);
                 JClass cls;
-                if (base.getType() instanceof NullType) {
-                    yield Set.of();
-                } else if (base.getType() instanceof ClassType classType) {
+                if (base.getType() instanceof ClassType classType) {
                     cls = classType.getJClass();
+                } else if (base.getType() instanceof NullType) {
+                    yield Set.of();
                 } else {
                     cls = methodRef.getDeclaringClass();
                 }
