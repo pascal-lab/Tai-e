@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,10 +78,12 @@ public class SCC<N> {
             if (indexes.containsKey(curr)) {
                 continue;
             }
-            Deque<N> workStack = new ArrayDeque<>();
-            workStack.push(curr);
+            Deque<WorkEntry<N>> workStack = new ArrayDeque<>();
+            workStack.push(WorkEntry.make(graph, curr));
             while (!workStack.isEmpty()) {
-                N node = workStack.peek();
+                WorkEntry<N> entry = workStack.peek();
+                N node = entry.node;
+                ListIterator<N> succIter = entry.iterator;
                 if (!indexes.containsKey(node)) {
                     indexes.put(node, index);
                     lows.put(node, index);
@@ -89,9 +92,11 @@ public class SCC<N> {
                     inStack.add(node);
                 }
                 boolean hasUnvisitedSucc = false;
-                for (N succ : graph.getSuccsOf(node)) {
+                while (succIter.hasNext()) {
+                    N succ = succIter.next();
                     if (!indexes.containsKey(succ)) {
-                        workStack.push(succ);
+                        succIter.previous();
+                        workStack.push(WorkEntry.make(graph, succ));
                         hasUnvisitedSucc = true;
                         break;
                     } else if (indexes.get(node) < indexes.get(succ)) {
@@ -140,5 +145,12 @@ public class SCC<N> {
     private void validate(Graph<N> graph, List<List<N>> components) {
         assert graph.getNumberOfNodes() ==
                 components.stream().mapToInt(List::size).sum();
+    }
+
+    private record WorkEntry<N>(N node, ListIterator<N> iterator) {
+
+        static <N> WorkEntry<N> make(Graph<N> graph, N node) {
+            return new WorkEntry<>(node, new ArrayList<>(graph.getSuccsOf(node)).listIterator());
+        }
     }
 }

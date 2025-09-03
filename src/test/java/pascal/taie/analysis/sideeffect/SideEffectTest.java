@@ -27,6 +27,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.Tests;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.LongSummaryStatistics;
 import java.util.Set;
@@ -113,5 +124,50 @@ public class SideEffectTest {
         LongSummaryStatistics globalSummary = summarize(globalResult);
 
         assertTrue(appSummary.getMax() <= globalSummary.getMax());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "StaticStore",
+            "SimpleCases",
+            "LinkedList",
+            "BubbleSort",
+            "PureTest",
+            "ConstructorTest",
+            "PrimitiveTest",
+            "Arrays",
+            "SideEffects",
+            "Globals",
+            "Inheritance",
+            "InterProc",
+            "Recursion",
+            "Loops",
+            "Null",
+            "OOP",
+            "Milanova",
+            "PolyLoop"
+    })
+    void testCorrectness(String mainClass) {
+        SideEffect effect = runSideEffect(mainClass, false);
+        PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
+        CallGraph<Invoke, JMethod> callGraph = pta.getCallGraph();
+        for (JMethod method : callGraph) {
+            Set<Obj> methodMod = effect.getModifiedObjects(method);
+            for (Stmt stmt : method.getIR()) {
+                Set<Obj> stmtMod = effect.getModifiedObjects(stmt);
+                assertTrue(methodMod.containsAll(stmtMod));
+                if (stmt instanceof StoreField storeField
+                        && storeField.getFieldAccess() instanceof InstanceFieldAccess access) {
+                    assertTrue(stmtMod.containsAll(pta.getPointsToSet(access.getBase())));
+                } else if (stmt instanceof StoreArray storeArray) {
+                    ArrayAccess access = storeArray.getArrayAccess();
+                    assertTrue(stmtMod.containsAll(pta.getPointsToSet(access.getBase())));
+                } else if (stmt instanceof Invoke invoke) {
+                    for (JMethod callee : callGraph.getCalleesOf(invoke)) {
+                        assertTrue(stmtMod.containsAll(effect.getModifiedObjects(callee)));
+                    }
+                }
+            }
+        }
     }
 }
