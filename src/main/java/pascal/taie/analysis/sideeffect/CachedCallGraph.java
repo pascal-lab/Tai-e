@@ -20,8 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.graph.callgraph;
+package pascal.taie.analysis.sideeffect;
 
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Maps;
 
@@ -37,7 +39,7 @@ import java.util.stream.Stream;
  *
  * @implNote This class is not thread-safe
  */
-public class CachedCallGraph<CallSite, Method> implements CallGraph<CallSite, Method> {
+class CachedCallGraph<CallSite, Method> implements CallGraph<CallSite, Method> {
 
     private final CallGraph<CallSite, Method> delegate;
 
