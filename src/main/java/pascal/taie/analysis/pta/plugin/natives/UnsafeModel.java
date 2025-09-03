@@ -85,24 +85,29 @@ public class UnsafeModel extends IRModelPlugin {
 
     @InvokeHandler(signature = "<jdk.internal.misc.Unsafe: java.lang.Object getReferenceAcquire(java.lang.Object,long)>")
     public List<Stmt> getReferenceAcquire(Invoke invoke) {
-        // unsafe.getReferenceAcquire(o, offset);
+        // r = unsafe.getReferenceAcquire(o, offset);
         List<Var> args = invoke.getInvokeExp().getArgs();
         List<Stmt> stmts = new ArrayList<>();
         Var o = args.get(0);
+        Var r = invoke.getResult();
+        if (r == null) {
+            return List.of();
+        }
         if (o.getType() instanceof ArrayType) { // if o is of ArrayType
             // generate r = o[i];
             Var i = new Var(invoke.getContainer(),
                     "%unsafe-index" + counter++, IntType.INT, -1);
-            stmts.add(new LoadArray(invoke.getResult(), new ArrayAccess(o, i)));
+            stmts.add(new LoadArray(r, new ArrayAccess(o, i)));
         } else { // otherwise, o is of ClassType
             // generate r = o.f; for every field f.
             JClass clazz = ((ClassType) o.getType()).getJClass();
+            Type rType = r.getType();
             clazz.getDeclaredFields()
                     .stream()
                     .filter(field -> !field.isStatic())
-                    .filter(f -> f.getType() instanceof ReferenceType)
+                    .filter(f -> f.getType().equals(rType))
                     .forEach(f -> stmts.add(new LoadField(
-                            invoke.getResult(), new InstanceFieldAccess(f.getRef(), o))));
+                            r, new InstanceFieldAccess(f.getRef(), o))));
         }
         return stmts;
     }
@@ -120,12 +125,13 @@ public class UnsafeModel extends IRModelPlugin {
                     "%unsafe-index" + counter++, IntType.INT, -1);
             stmts.add(new StoreArray(new ArrayAccess(o, i), x));
         } else { // otherwise, o is of ClassType
-            // generate o.f = x; for every field f.
+            // generate o.f = x; for field f that has the same type of x.
             JClass clazz = ((ClassType) o.getType()).getJClass();
+            Type xType = x.getType();
             clazz.getDeclaredFields()
                     .stream()
                     .filter(field -> !field.isStatic())
-                    .filter(f -> f.getType() instanceof ReferenceType)
+                    .filter(f -> f.getType().equals(xType))
                     .forEach(f -> stmts.add(new StoreField(
                             new InstanceFieldAccess(f.getRef(), o), x)));
         }
