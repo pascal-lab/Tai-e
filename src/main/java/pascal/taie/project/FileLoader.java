@@ -186,7 +186,7 @@ class FileLoader {
         } else if (isZipFile(path)) {
             FileSystem fileSys;
             try {
-                fileSys = FileSystemManager.get().newZipFS(path);
+                fileSys = FileSystemManager.getZipFileSys(path);
             } catch (ZipException e) {
                 // Some error occur (maybe empty file, ...)
                 // skip this zip file

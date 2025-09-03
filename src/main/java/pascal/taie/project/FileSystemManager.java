@@ -24,58 +24,44 @@ package pascal.taie.project;
 
 import pascal.taie.util.collection.Maps;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Singleton class for managing file systems.
- * It provides methods to create and retrieve
- * file systems for zip files and the jrt file system.
+ * Provides methods to retrieves zip and jrt file systems.
  *
  * @see <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jlink/spec/jrtfs.html">JRT File System</a>
  */
-public class FileSystemManager {
-    Map<Path, FileSystem> fsMap;
+class FileSystemManager {
 
-    private FileSystemManager() {
-        fsMap = Maps.newMap();
+    /**
+     * Cache for created file systems.
+     */
+    private static final Map<Path, FileSystem> cache = Maps.newMap();
+
+    static FileSystem getZipFileSys(Path path) throws IOException {
+        FileSystem fileSys = cache.get(path);
+        if (fileSys == null) {
+            fileSys = FileSystems.newFileSystem(path);
+            cache.put(path, fileSys);
+        }
+        return fileSys;
     }
 
-    public FileSystem newZipFS(Path path) throws IOException {
-        if (fsMap.containsKey(path)) {
-            return fsMap.get(path);
-        } else {
-            FileSystem fs = FileSystems.newFileSystem(path);
-            fsMap.put(path, fs);
-            return fs;
+    static FileSystem getJrtFileSys(Path modules, Path jrtfs) throws IOException {
+        FileSystem fileSys = cache.get(modules);
+        if (fileSys == null) {
+            URLClassLoader loader = new URLClassLoader(new URL[] { jrtfs.toUri().toURL() });
+            fileSys = FileSystems.newFileSystem(URI.create("jrt:/"),
+                    Map.of("java.home", modules.toString()), loader);
+            cache.put(modules, fileSys);
         }
-    }
-
-    public FileSystem getJrtFs(Path modules, Path jrtfs) throws IOException {
-        if (fsMap.containsKey(modules)) {
-            return fsMap.get(modules);
-        }
-
-        URLClassLoader loader = new URLClassLoader(new URL[] { jrtfs.toUri().toURL() });
-        FileSystem fs = FileSystems.newFileSystem(URI.create("jrt:/"),
-                Map.of("java.home", modules.toString()), loader);
-        fsMap.put(modules, fs);
-        return fs;
-    }
-
-    static FileSystemManager manager;
-    public static FileSystemManager get() {
-        if (manager == null) {
-            manager = new FileSystemManager();
-        }
-        return manager;
+        return fileSys;
     }
 }

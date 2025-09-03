@@ -119,11 +119,9 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         return loader.loadRootContainers(Lists.map(appClassPaths, Path::of));
     }
 
-    private List<FileContainer> getLibContainers(List<String> libClassPaths,
-                                                 @Nullable String jrePath,
-                                                 boolean isPrependJVM,
-                                                 int javaVersion)
-            throws IOException {
+    private List<FileContainer> getLibContainers(
+            List<String> libClassPaths, @Nullable String jrePath,
+            boolean isPrependJVM, int javaVersion) throws IOException {
         List<FileContainer> libs = loader.loadRootContainers(
                 Lists.map(libClassPaths, Path::of));
         // add jre
@@ -131,9 +129,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         return Lists.concatDistinct(libs, jre);
     }
 
-    private List<FileContainer> getJREContainers(@Nullable String jrePath,
-                                                 boolean isPrependJVM,
-                                                 int javaVersion)
+    private List<FileContainer> getJREContainers(
+            @Nullable String jrePath, boolean isPrependJVM, int javaVersion)
             throws IOException {
         if (isPrependJVM) {
             // if prependJVM is set, we use jrt:/ to load JRE
@@ -154,8 +151,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
      * The JRE path should be one of the following:
      * <ul>
      *     <li>A {@code JAVA_HOME} like directory. For java 9 and above,
-     *     it should contain a {@code lib/modules} and {@code lib/jrt-fs.jar} file. For java 8 and below,
-     *     it should contain a {@code jre/lib} directory.</li>
+     *     it should contain a {@code lib/modules} and {@code lib/jrt-fs.jar} file.
+     *     For java 8 and below, it should contain a {@code jre/lib} directory.</li>
      *     <li>A directory with {@code rt.jar} and related jars.</li>
      *     <li>A directory with {@code modules} file and {@code jrt-fs.jar} file.</li>
      * </ul>
@@ -163,23 +160,27 @@ public class OptionsProjectBuilder implements ProjectBuilder {
      * @throws IOException when the JRE path is invalid or cannot be read.
      */
     private List<FileContainer> parseJREPath(String jrePath) throws IOException {
-        Path p = Path.of(jrePath);
-        if (!Files.exists(p) || !Files.isDirectory(p)) {
-            throw new IOException(String.format("%s (--jre-dir) not found or not a directory", jrePath));
+        Path path = Path.of(jrePath);
+        if (!Files.exists(path) || !Files.isDirectory(path)) {
+            throw new IOException(String.format(
+                    "%s (--jre-dir) not found or not a directory", jrePath));
         }
-        if (Files.exists(p.resolve("modules")) && Files.exists(p.resolve("jrt-fs.jar"))) {
+        if (Files.exists(path.resolve("modules"))
+                && Files.exists(path.resolve("jrt-fs.jar"))) {
             // try to parse with modules file
-            return processModulesFile(p.resolve("modules"), p.resolve("jrt-fs.jar"));
-        } else if (Files.exists(p.resolve("rt.jar"))) {
+            return processModulesFile(path.resolve("modules"),
+                    path.resolve("jrt-fs.jar"));
+        } else if (Files.exists(path.resolve("rt.jar"))) {
             // try to parse with rt.jar
-            return processJarDirectory(p);
-        } else if (Files.exists(p.resolve("jre/lib"))) {
+            return processJarDirectory(path);
+        } else if (Files.exists(path.resolve("jre/lib"))) {
             // try to parse with jre/lib
-            return processJarDirectory(p.resolve("jre/lib"));
-        } else if (Files.exists(p.resolve("lib/modules"))
-                && Files.exists(p.resolve("lib/jrt-fs.jar"))) {
+            return processJarDirectory(path.resolve("jre/lib"));
+        } else if (Files.exists(path.resolve("lib/modules"))
+                && Files.exists(path.resolve("lib/jrt-fs.jar"))) {
             // try to parse with lib/modules
-            return processModulesFile(p.resolve("lib/modules"), p.resolve("lib/jrt-fs.jar"));
+            return processModulesFile(path.resolve("lib/modules"),
+                    path.resolve("lib/jrt-fs.jar"));
         } else {
             throw new IOException(String.format(
                     """
@@ -196,8 +197,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
 
     private List<FileContainer> processModulesFile(Path modules, Path jrtFs)
             throws IOException {
-        FileSystem fs = FileSystemManager.get().getJrtFs(modules, jrtFs);
-        return processModulesFile(fs.getPath("modules"));
+        FileSystem fileSys = FileSystemManager.getJrtFileSys(modules, jrtFs);
+        return processModulesFile(fileSys.getPath("modules"));
     }
 
     private List<FileContainer> processModulesFile(Path modules) throws IOException {
