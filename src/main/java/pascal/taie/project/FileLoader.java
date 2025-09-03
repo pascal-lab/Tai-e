@@ -33,263 +33,43 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
-import java.util.function.Function;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
+/**
+ * Loads all class files in the given paths, and wraps them into
+ * {@link ClassFile} and {@link FileContainer}.
+ */
 class FileLoader {
 
     private static final Logger logger = LogManager.getLogger(FileLoader.class);
 
     /**
-     * temp solution to handle non-root jar (e.g. b.jar in a.zip),
+     * Temp solution to handle non-root jar, e.g., b.jar nested in a.zip.
      */
-    private List<FileContainer> auxContainers = new ArrayList<>();
-
-    // -------------------- Helper Functions (starts)--------------------
+    private List<FileContainer> nestedContainers;
 
     /**
-     * Gets the manifest of a jar file.
-     */
-    private @Nullable Manifest getManifest(FileSystem fs) throws IOException {
-        Path p = fs.getPath("META-INF/MANIFEST.MF");
-        if (Files.exists(p)) {
-            return new Manifest(Files.newInputStream(p));
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * for this class only
-     *
-     * @return ext name of p
-     */
-    private String getExt(Path p) {
-        String s = p.getFileName().toString();
-        int dotIndex = s.lastIndexOf('.');
-        return (dotIndex == -1) ? "" : s.substring(dotIndex + 1);
-    }
-
-    private boolean isClassFile(Path p) {
-        return getExt(p).equals("class");
-    }
-
-    private boolean isZipFile(Path p) {
-        return getExt(p).equals("zip") || isJarFile(p);
-    }
-
-    private boolean isJarFile(Path p) {
-        return getExt(p).equals("jar");
-    }
-
-    private boolean isJavaSourceFile(Path p) {
-        return getExt(p).equals("java");
-    }
-
-    private Resource makeResource(RootFileSystem root, Path path) throws IOException {
-        // fs is default means it's a file on the disk
-        if (root.fs() == FileSystems.getDefault()) {
-            return new FileResource(path);
-        } else { // otherwise it's an entry of a zip file
-            // path of [p] is on the disk, use lazy load
-            if (root.p().getFileSystem() == FileSystems.getDefault()) {
-                return new ZipEntryResource(path.toString(), root.fs(), null);
-            } else {
-                // path of [p] is an entry of a zip file, unzip the file of [path]
-                byte[] cache = Files.readAllBytes(path);
-                return new ZipEntryResource(path.toString(), null, cache);
-            }
-        }
-    }
-
-    private Path getRelativePath(RootFileSystem root, Path p) {
-        if (root.fs() == FileSystems.getDefault()) {
-            return root.p().relativize(p);
-        } else {
-            // just need to substrate root
-            return root.fs().getPath("/").relativize(p);
-        }
-    }
-    // -------------------- Helper Functions (ends) --------------------
-
-    // -------------------- Helper Classes (starts) --------------------
-
-    /**
-     * This class is used to store the root file system and the path of the file system.
-     * <p>
-     * There are basically two types:
-     *     <ul>
-     *         <li>{@code fs == FileSystem.getDefault()}, and {@code p} is the path of the file on the disk</li>
-     *         <li>{@code fs} is a zip file system, and {@code p} is the path of the zip file that creates the {@code fs}</li>
-     *     </ul>
-     * </p>
-     *
-     * @param fs the file system
-     * @param p path of the file system
-     */
-    private record RootFileSystem(FileSystem fs, Path p) {
-    }
-
-    /**
-     * Load Action for multithreaded loading
-     */
-    private class LoadAction extends RecursiveAction {
-        private final RootFileSystem root;
-        private final List<Path> paths;
-        private final FileContainer rootContainer;
-        private final List<ClassFile> files;
-        private final List<FileContainer> containers;
-
-        LoadAction(RootFileSystem root, List<Path> paths, FileContainer rootContainer) {
-            this.root = root;
-            this.paths = paths;
-            this.rootContainer = rootContainer;
-            this.files = new ArrayList<>();
-            this.containers = new ArrayList<>();
-        }
-
-        @Override
-        protected void compute() {
-            try {
-                for (Path path : paths) {
-                    loadFile(root, path, rootContainer, files::add, containers::add);
-                }
-            } catch (IOException e) {
-                // avoid silent failure
-                throw new RuntimeException(e);
-            }
-        }
-    }
-    // -------------------- Helper Classes (ends) --------------------
-
-    // -------------------- Main Functions (starts) --------------------
-    private void loadChildren(RootFileSystem root,
-                              Path path,
-                              FileContainer rootContainer,
-                              List<ClassFile> files,
-                              List<FileContainer> containers) throws IOException {
-        try (var s = Files.list(path)) {
-            List<LoadAction> actions = new ArrayList<>();
-            List<Path> current = new ArrayList<>();
-            s.forEach((p) -> {
-                LoadAction action = new LoadAction(root, List.of(p), rootContainer);
-                actions.add(action);
-            });
-            // wait for all
-            ForkJoinTask.invokeAll(actions);
-            for (LoadAction action : actions) {
-                files.addAll(action.files);
-                containers.addAll(action.containers);
-            }
-        }
-    }
-
-    /**
-     * main method for loading files
-     *
-     * @param root            the root file system
-     * @param path            the file to load
-     * @param rootContainer   the root container of the file
-     * @param fileWorker      when {@code path} is a file, execute {@code fileWorker.apply(path)}.
-     * @param containerWorker when {@code path} is a directory, execute {@code containerWorker.apply(path)}.
-     * @throws IOException if an I/O error occurs
-     */
-    private <T> void loadFile(RootFileSystem root,
-                              Path path,
-                              FileContainer rootContainer,
-                              Function<ClassFile, T> fileWorker,
-                              Function<FileContainer, T> containerWorker) throws IOException {
-        if (Files.isDirectory(path)) {
-            List<FileContainer> fileContainers = new ArrayList<>();
-            List<ClassFile> files = new ArrayList<>();
-            String name = path.getFileName().toString();
-            if (name.equals("BOOT-INF") && root.fs() != FileSystems.getDefault()) {
-                // spring boot fatjar
-                // load `classes` and `lib/*` as rootContainer
-                Path classesPath = path.resolve("classes");
-                if (Files.isDirectory(classesPath)) {
-                    loadFile(root, classesPath, null, null, auxContainers::add);
-                }
-                Path libsPath = path.resolve("lib");
-                if (Files.isDirectory(libsPath)) {
-                    try (Stream<Path> pathStream = Files.list(libsPath)) {
-                        for (Path path1 : pathStream.toList()) {
-                            loadFile(root, path1, null, (f) -> null, (d) -> null);
-                        }
-                    }
-                }
-            } else {
-                FileContainer currentContainer = new DirContainer(name, files, fileContainers);
-                if (rootContainer == null) {
-                    // rootContainer == null means that the container currently
-                    // being processed is a root.
-                    rootContainer = currentContainer;
-                }
-                loadChildren(root, path, rootContainer, files, fileContainers);
-                containerWorker.apply(currentContainer);
-            }
-        } else if (isZipFile(path)) {
-            FileSystem fs;
-            try {
-                fs = FileSystemManager.get().newZipFS(path);
-            } catch (ZipException e) {
-                // Some error occur (maybe empty file, ...)
-                // skip this zip file
-                return;
-            }
-            List<FileContainer> fileContainers = new ArrayList<>();
-            RootFileSystem newParent = new RootFileSystem(fs, path);
-            List<ClassFile> files = new ArrayList<>();
-            String name = PathUtils.getClassSimpleName(path);
-
-            FileContainer currentContainer;
-            if (isJarFile(path)) {
-                Manifest manifest = getManifest(fs);
-                currentContainer = new JarContainer(name, files, fileContainers, manifest);
-            } else {
-                currentContainer = new ZipContainer(name, files, fileContainers);
-            }
-            if (rootContainer == null) {
-                // rootContainer == null means that the container currently
-                // being processed is a root.
-                rootContainer = currentContainer;
-            } else {
-                // skip
-                return;
-            }
-            loadChildren(newParent, fs.getPath("/"), rootContainer, files, fileContainers);
-            containerWorker.apply(currentContainer);
-        } else {
-            Resource r = makeResource(root, path);
-            Path relativePath = getRelativePath(root, path);
-            String internalName = PathUtils.getClassName(relativePath);
-            if (isClassFile(path)) {
-                fileWorker.apply(new DotClassFile(internalName, r, rootContainer));
-            } else if (isJavaSourceFile(path)) {
-                fileWorker.apply(new DotJavaFile(internalName, r, rootContainer));
-            }
-        }
-    }
-
-    /**
-     * Load root containers from the given paths. Normally, the {@code paths} are
-     * the class paths of the program to be analyzed.
+     * Loads root containers from the given paths.
+     * Typically, {@code paths} are the class paths of the program to analyze.
      */
     List<FileContainer> loadRootContainers(List<Path> paths) {
-        this.auxContainers = new ArrayList<>();
-        List<FileContainer> containers = new ArrayList<>();
+        nestedContainers = new CopyOnWriteArrayList<>();
         List<LoadAction> actions = new ArrayList<>();
-        for (Path p : paths) {
-            LoadAction action = new LoadAction(new RootFileSystem(FileSystems.getDefault(), p), List.of(p), null);
+        for (Path path : paths) {
+            LoadAction action = new LoadAction(
+                    new RootFileSystem(FileSystems.getDefault(), path),
+                    path, null);
             ForkJoinPool.commonPool().execute(action);
             actions.add(action);
         }
         boolean hasError = false;
+        List<FileContainer> containers = new ArrayList<>();
         for (LoadAction action : actions) {
             action.join();
             containers.addAll(action.containers);
@@ -303,8 +83,220 @@ class FileLoader {
                     they will be ignored in the analysis.
                     Please check your classpath.""");
         }
-        containers.addAll(auxContainers);
+        containers.addAll(nestedContainers);
         return containers;
     }
-    // -------------------- Main Functions (ends) --------------------
+
+    /**
+     * Load Action for multithreaded loading.
+     */
+    private class LoadAction extends RecursiveAction {
+        private final RootFileSystem root;
+        private final Path path;
+        private final FileContainer rootContainer;
+        private final List<ClassFile> files = new ArrayList<>();
+        private final List<FileContainer> containers = new ArrayList<>();
+
+        private LoadAction(RootFileSystem root, Path path, FileContainer rootContainer) {
+            this.root = root;
+            this.path = path;
+            this.rootContainer = rootContainer;
+        }
+
+        @Override
+        protected void compute() {
+            try {
+                loadFile(root, path, rootContainer, files, containers);
+            } catch (IOException e) {
+                // avoid silent failure
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * This class is used to store the root file system and the path of the file system.
+     * <p>
+     * There are basically two cases:
+     *     <ul>
+     *         <li>{@code fileSys == FileSystem.getDefault()}, and {@code path} is
+     *         the path of the file on the disk</li>
+     *         <li>{@code fileSys} is a zip file system, and {@code path} is
+     *         the path of the zip file that creates the {@code fileSys}</li>
+     *     </ul>
+     * </p>
+     *
+     * @param fileSys the file system
+     * @param path path of the file system
+     */
+    private record RootFileSystem(FileSystem fileSys, Path path) {
+
+        /**
+         * @return {@code true} if this is a zip file system.
+         */
+        private boolean isZip() {
+            return fileSys != FileSystems.getDefault();
+        }
+    }
+
+    /**
+     * main method for loading files
+     *
+     * @param root            the root file system
+     * @param path            the file to load
+     * @param rootContainer   the root container of the file
+     * @param files      when {@code path} is a file, execute {@code files.apply(path)}.
+     * @param containers when {@code path} is a directory, execute {@code containers.apply(path)}.
+     * @throws IOException if an I/O error occurs
+     */
+    private void loadFile(RootFileSystem root,
+                          Path path,
+                          FileContainer rootContainer,
+                          List<ClassFile> files,
+                          List<FileContainer> containers) throws IOException {
+        if (Files.isDirectory(path)) {
+            String name = path.getFileName().toString();
+            if (name.equals("BOOT-INF") && root.isZip()) {
+                // Special handing for SpringBoot fatjar
+                // Load `classes` and `lib/*` as rootContainer
+                Path classesPath = path.resolve("classes");
+                if (Files.isDirectory(classesPath)) {
+                    loadFile(root, classesPath, null, null, nestedContainers);
+                }
+                Path libsPath = path.resolve("lib");
+                if (Files.isDirectory(libsPath)) {
+                    try (Stream<Path> pathStream = Files.list(libsPath)) {
+                        for (Path path1 : pathStream.toList()) {
+                            loadFile(root, path1, null, null, null);
+                        }
+                    }
+                }
+            } else {
+                List<ClassFile> subFiles = new ArrayList<>();
+                List<FileContainer> subContainers = new ArrayList<>();
+                FileContainer currentContainer = new DirContainer(name, subFiles, subContainers);
+                if (rootContainer == null) {
+                    // rootContainer == null means that the container currently
+                    // being processed is a root.
+                    rootContainer = currentContainer;
+                }
+                loadChildren(root, path, rootContainer, subFiles, subContainers);
+                containers.add(currentContainer);
+            }
+        } else if (isZipFile(path)) {
+            FileSystem fileSys;
+            try {
+                fileSys = FileSystemManager.get().newZipFS(path);
+            } catch (ZipException e) {
+                // Some error occur (maybe empty file, ...)
+                // skip this zip file
+                return;
+            }
+            String name = PathUtils.getClassSimpleName(path);
+            List<ClassFile> subFiles = new ArrayList<>();
+            List<FileContainer> subContainers = new ArrayList<>();
+            FileContainer currentContainer;
+            if (isJarFile(path)) {
+                Manifest manifest = getManifest(fileSys);
+                currentContainer = new JarContainer(name, subFiles, subContainers, manifest);
+            } else {
+                currentContainer = new ZipContainer(name, subFiles, subContainers);
+            }
+            if (rootContainer == null) {
+                // rootContainer == null means that the container currently
+                // being processed is a root.
+                RootFileSystem newRoot = new RootFileSystem(fileSys, path);
+                loadChildren(newRoot, fileSys.getPath("/"), currentContainer,
+                        subFiles, subContainers);
+                containers.add(currentContainer);
+            }
+        } else {
+            Resource resource = makeResource(root, path);
+            Path relativePath = getRelativePath(root, path);
+            String className = PathUtils.getClassName(relativePath);
+            if (isClassFile(path)) {
+                files.add(new DotClassFile(className, resource, rootContainer));
+            } else if (isJavaSourceFile(path)) {
+                files.add(new DotJavaFile(className, resource, rootContainer));
+            }
+        }
+    }
+
+    private void loadChildren(RootFileSystem root,
+                              Path path,
+                              FileContainer rootContainer,
+                              List<ClassFile> files,
+                              List<FileContainer> containers) throws IOException {
+        try (Stream<Path> paths = Files.list(path)) {
+            List<LoadAction> actions = paths
+                    .map(p -> new LoadAction(root, p, rootContainer))
+                    .toList();
+            // wait for all
+            ForkJoinTask.invokeAll(actions);
+            for (LoadAction action : actions) {
+                files.addAll(action.files);
+                containers.addAll(action.containers);
+            }
+        }
+    }
+
+    private static Resource makeResource(RootFileSystem root, Path path)
+            throws IOException {
+        if (root.isZip()) { // root is an entry of a zip file
+            // path of [path] is on the disk, use lazy load
+            if (root.path().getFileSystem() == FileSystems.getDefault()) {
+                return new ZipEntryResource(path.toString(), root.fileSys(), null);
+            } else {
+                // path of [path] is an entry of a zip file, unzip the file of [path]
+                byte[] cache = Files.readAllBytes(path);
+                return new ZipEntryResource(path.toString(), null, cache);
+            }
+        } else { // otherwise it's a file on the disk
+            return new FileResource(path);
+        }
+    }
+
+    /**
+     * Gets the manifest of a jar file.
+     */
+    @Nullable
+    private static Manifest getManifest(FileSystem fs) throws IOException {
+        Path p = fs.getPath("META-INF/MANIFEST.MF");
+        if (Files.exists(p)) {
+            return new Manifest(Files.newInputStream(p));
+        } else {
+            return null;
+        }
+    }
+
+    private static Path getRelativePath(RootFileSystem root, Path path) {
+        if (root.isZip()) {
+            // just need to substrate root
+            return root.fileSys().getPath("/").relativize(path);
+        } else {
+            return root.path().relativize(path);
+        }
+    }
+
+    private static String getExt(Path path) {
+        String fileName = path.getFileName().toString();
+        int i = fileName.lastIndexOf('.');
+        return (i == -1) ? "" : fileName.substring(i + 1);
+    }
+
+    private static boolean isZipFile(Path path) {
+        return getExt(path).equals("zip") || isJarFile(path);
+    }
+
+    private static boolean isJarFile(Path path) {
+        return getExt(path).equals("jar");
+    }
+
+    private static boolean isClassFile(Path path) {
+        return getExt(path).equals("class");
+    }
+
+    private static boolean isJavaSourceFile(Path path) {
+        return getExt(path).equals("java");
+    }
 }
