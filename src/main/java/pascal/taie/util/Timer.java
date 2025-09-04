@@ -87,13 +87,12 @@ public class Timer {
      * @param taskName name of the task
      */
     public static <T> T runAndCount(Supplier<T> task, String taskName, Level level) {
-        logger.info("{} starts ...", taskName);
+        logger.info("[{}] starts ...", taskName);
         Timer timer = new Timer(taskName);
         timer.start();
         T result = task.get();
         timer.stop();
-        logger.log(level, "{} finishes, elapsed time: {}", taskName,
-                String.format("%.2fs", timer.inSecond()));
+        logger.log(level, timer);
         return result;
     }
 
