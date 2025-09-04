@@ -29,6 +29,8 @@ import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
@@ -50,7 +52,10 @@ public class UnsafeModel extends IRModelPlugin {
         super(solver);
     }
 
-    @InvokeHandler(signature = "<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>")
+    @InvokeHandler(signature = {
+            "<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>",
+            "<jdk.internal.misc.Unsafe: boolean compareAndSetReference(java.lang.Object,long,java.lang.Object,java.lang.Object)>"
+    })
     public List<Stmt> compareAndSwapObject(Invoke invoke) {
         // unsafe.compareAndSwapObject(o, offset, expected, x);
         List<Var> args = invoke.getInvokeExp().getArgs();
@@ -74,6 +79,61 @@ public class UnsafeModel extends IRModelPlugin {
                         .forEach(f -> stmts.add(new StoreField(
                                 new InstanceFieldAccess(f.getRef(), o), x)));
             }
+        }
+        return stmts;
+    }
+
+    @InvokeHandler(signature = "<jdk.internal.misc.Unsafe: java.lang.Object getReferenceAcquire(java.lang.Object,long)>")
+    public List<Stmt> getReferenceAcquire(Invoke invoke) {
+        // r = unsafe.getReferenceAcquire(o, offset);
+        List<Var> args = invoke.getInvokeExp().getArgs();
+        List<Stmt> stmts = new ArrayList<>();
+        Var o = args.get(0);
+        Var r = invoke.getResult();
+        if (r == null) {
+            return List.of();
+        }
+        if (o.getType() instanceof ArrayType) { // if o is of ArrayType
+            // generate r = o[i];
+            Var i = new Var(invoke.getContainer(),
+                    "%unsafe-index" + counter++, IntType.INT, -1);
+            stmts.add(new LoadArray(r, new ArrayAccess(o, i)));
+        } else { // otherwise, o is of ClassType
+            // generate r = o.f; for every field f.
+            JClass clazz = ((ClassType) o.getType()).getJClass();
+            Type rType = r.getType();
+            clazz.getDeclaredFields()
+                    .stream()
+                    .filter(field -> !field.isStatic())
+                    .filter(f -> f.getType().equals(rType))
+                    .forEach(f -> stmts.add(new LoadField(
+                            r, new InstanceFieldAccess(f.getRef(), o))));
+        }
+        return stmts;
+    }
+
+    @InvokeHandler(signature = "<jdk.internal.misc.Unsafe: void putReferenceRelease(java.lang.Object,long,java.lang.Object)>")
+    public List<Stmt> putReferenceRelease(Invoke invoke) {
+        // unsafe.putReferenceRelease(o, offset, x);
+        List<Var> args = invoke.getInvokeExp().getArgs();
+        List<Stmt> stmts = new ArrayList<>();
+        Var o = args.get(0);
+        Var x = args.get(2);
+        if (o.getType() instanceof ArrayType) { // if o is of ArrayType
+            // generate o[i] = x;
+            Var i = new Var(invoke.getContainer(),
+                    "%unsafe-index" + counter++, IntType.INT, -1);
+            stmts.add(new StoreArray(new ArrayAccess(o, i), x));
+        } else { // otherwise, o is of ClassType
+            // generate o.f = x; for field f that has the same type of x.
+            JClass clazz = ((ClassType) o.getType()).getJClass();
+            Type xType = x.getType();
+            clazz.getDeclaredFields()
+                    .stream()
+                    .filter(field -> !field.isStatic())
+                    .filter(f -> f.getType().equals(xType))
+                    .forEach(f -> stmts.add(new StoreField(
+                            new InstanceFieldAccess(f.getRef(), o), x)));
         }
         return stmts;
     }

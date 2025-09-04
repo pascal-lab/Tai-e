@@ -36,4 +36,10 @@ public class UnsafeModelTest {
         assertTrue(result.getInstanceFields().stream()
                 .noneMatch(x -> x.getField().isStatic()));
     }
+
+    @Test
+    void testUnsoundMap() {
+        Tests.testPTA("misc", "UnsoundMap",
+                "only-app:false", "dump:false", "expected-file:null");
+    }
 }
