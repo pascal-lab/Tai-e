@@ -1,0 +1,40 @@
+name: Checkstyle
+on:
+  pull_request:
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Checkstyle
+        run: |
+          ./gradlew checkstyleMain checkstyleTest
+
+      - uses: reviewdog/action-setup@v1.4.0
+
+      - name: Run reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          find . -path "*/build/reports/checkstyle/*.xml" -exec sh -c '
+            for xmlReport do
+              cat "$xmlReport" | reviewdog -f=checkstyle -fail-level=any -reporter=github-pr-review || exit 1
+            done
+          ' sh {} +
