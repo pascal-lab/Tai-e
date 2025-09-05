@@ -97,7 +97,7 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<Type, Obj> zeroLengthArrays = Maps.newMap();
 
-    private static final Descriptor zeroLengthArrayDesc = () -> "ZeroLengthArray";
+    private static final Descriptor ZERO_LENGTH_ARRAY_DESC = () -> "ZeroLengthArray";
 
     /**
      * Counter for indexing Objs.
@@ -204,7 +204,7 @@ public abstract class AbstractHeapModel implements HeapModel {
      */
     protected Obj getZeroLengthArrayObj(Type type) {
         return zeroLengthArrays.computeIfAbsent(type,
-                t -> getMockObj(zeroLengthArrayDesc,
+                t -> getMockObj(ZERO_LENGTH_ARRAY_DESC,
                         "<Merged zero-length " + t + ">", t, false));
     }
 
