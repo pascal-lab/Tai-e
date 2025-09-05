@@ -1,0 +1,28 @@
+name: StyleCheck
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # add manual trigger button
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252
+        with:
+          reviewdog_version: latest
+
+      - name: Run reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.REVIEW_DOG_TOKEN }}
+        run: |
+          reviewdog -reporter=github-pr-review -runners=checkstyle

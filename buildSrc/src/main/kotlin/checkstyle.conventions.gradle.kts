@@ -8,13 +8,7 @@ tasks.findByName("testClasses")?.finalizedBy("checkstyleTest")
 
 // custom the report format
 checkstyle {
-    if (System.getenv("CI") == "true") {
-        isShowViolations = true
-        isIgnoreFailures = false
-        maxWarnings = 0
-    } else {
-        isShowViolations = true
-    }
+    isShowViolations = false
 }
 tasks.withType<Checkstyle> {
     // only xml need
