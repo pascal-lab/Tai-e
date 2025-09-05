@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class ZeroLengthArrayWithArraysCopyOf{
+public class ZeroLengthArrayWithArraysCopyOf {
 
     public static void main(String[] args) {
         testZeroLengthArrayPath();

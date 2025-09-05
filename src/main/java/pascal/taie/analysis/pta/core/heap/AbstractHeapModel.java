@@ -97,7 +97,7 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<Type, Obj> zeroLengthArrays = Maps.newMap();
 
-    public static final Descriptor ZERO_LENGTH_ARRAY_DESC = () -> "ZeroLengthArray";
+    private static final Descriptor ZERO_LENGTH_ARRAY_DESC = () -> "ZeroLengthArray";
 
     /**
      * Counter for indexing Objs.
