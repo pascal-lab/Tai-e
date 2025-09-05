@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Checkstyle
         run: |
-          ./gradlew check --continue
+          ./gradlew checkstyleMain checkstyleTest --continue
 
       - uses: reviewdog/action-setup@v1.4.0
 
