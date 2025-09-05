@@ -17,6 +17,13 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
       - uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252
         with:
           reviewdog_version: latest
