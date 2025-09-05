@@ -87,7 +87,7 @@ public class RuntimeInfoLogger {
         int cpuCores = osBean.getAvailableProcessors();
         long memoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
         logger.info("Available CPU cores: {}", cpuCores);
-        logger.info("Total memory (MB): {}", memoryMB);
+        logger.info("Total memory: {}MB", memoryMB);
     }
 
     /**

@@ -22,15 +22,19 @@
 
 package pascal.taie.util;
 
+import com.sun.management.OperatingSystemMXBean;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
@@ -39,29 +43,71 @@ public class Timer {
 
     private static final Logger logger = LogManager.getLogger(Timer.class);
 
+    /**
+     * Monitoring interval in seconds
+     */
+    private static final int INTERVAL = 1;
+
     private final String name;
 
+    private final OperatingSystemMXBean osBean;
+    private final MemoryMXBean memoryBean;
+    private final ScheduledExecutorService scheduler;
+
+    // Time tracking
+    private long startTime;
     private long elapsedTime = 0;
 
-    private long startTime;
+    // CPU and Memory tracking
+    private double startCpuUsage;
+    private double peakCpuUsage;
+    private double endCpuUsage;
+    private long startMemoryMB;
+    private long peakMemoryMB;
+    private long endMemoryMB;
 
     private boolean inCounting = false;
 
     public Timer(String name) {
         this.name = name;
+        this.osBean = (OperatingSystemMXBean) ManagementFactory
+                .getOperatingSystemMXBean();
+        this.memoryBean = ManagementFactory.getMemoryMXBean();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, this.getClass().getName() + "[" + name + "]");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     public void start() {
         if (!inCounting) {
             inCounting = true;
             startTime = System.currentTimeMillis();
+            startCpuUsage = getCpuUsage();
+            startMemoryMB = getMemoryUsedMB();
+            // start up the scheduler
+            scheduler.scheduleAtFixedRate(this::updatePeakValues,
+                    0, INTERVAL, TimeUnit.SECONDS);
         }
     }
 
     public void stop() {
         if (inCounting) {
-            elapsedTime += System.currentTimeMillis() - startTime;
             inCounting = false;
+            elapsedTime += System.currentTimeMillis() - startTime;
+            endCpuUsage = getCpuUsage();
+            endMemoryMB = getMemoryUsedMB();
+            // shut down the scheduler
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -76,8 +122,38 @@ public class Timer {
 
     @Override
     public String toString() {
-        return String.format("[%s] elapsed time: %.2fs",
-                name, inSecond());
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("[%s] elapsed time: %.2fs", name, inSecond()));
+        sb.append(String.format("; CPU usage: start %.2f%%, peak %.2f%%, end %.2f%%",
+                startCpuUsage * 100, peakCpuUsage * 100, endCpuUsage * 100));
+        sb.append(String.format("; Memory usage: start %dMB, peak %dMB, end %dMB",
+                startMemoryMB, peakMemoryMB, endMemoryMB));
+        return sb.toString();
+    }
+
+    private void updatePeakValues() {
+        double currentCpuUsage = getCpuUsage();
+        if (currentCpuUsage > peakCpuUsage) {
+            peakCpuUsage = currentCpuUsage;
+        }
+        long currentMemoryMB = getMemoryUsedMB();
+        if (currentMemoryMB > peakMemoryMB) {
+            peakMemoryMB = currentMemoryMB;
+        }
+    }
+
+    private double getCpuUsage() {
+        double processCpuUsage = osBean.getProcessCpuLoad();
+        if (processCpuUsage < 0) {
+            processCpuUsage = 0.0;
+        }
+        return processCpuUsage;
+    }
+
+    private long getMemoryUsedMB() {
+        long heapMemoryUsed = memoryBean.getHeapMemoryUsage().getUsed();
+        long nonHeapMemoryUsed = memoryBean.getNonHeapMemoryUsage().getUsed();
+        return (heapMemoryUsed + nonHeapMemoryUsed) / (1024 * 1024);
     }
 
     /**
