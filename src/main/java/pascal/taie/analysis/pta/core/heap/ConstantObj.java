@@ -36,12 +36,8 @@ public class ConstantObj extends Obj {
     private final ReferenceLiteral value;
 
     ConstantObj(ReferenceLiteral value) {
+        super(value.getType());
         this.value = value;
-    }
-
-    @Override
-    public Type getType() {
-        return value.getType();
     }
 
     @Override
