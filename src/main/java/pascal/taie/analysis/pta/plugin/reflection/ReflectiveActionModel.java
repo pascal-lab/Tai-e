@@ -115,9 +115,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
     public void classNewInstance(Context context, Invoke invoke, PointsToSet classes) {
         classes.forEach(obj -> {
-            if (isInvalidTarget(invoke, obj)) {
-                return;
-            }
+            if (isInvalidTarget(invoke, obj)) return;
             JClass clazz = CSObjs.toClass(obj);
             if (clazz != null) {
                 JMethod init = clazz.getDeclaredMethod(initNoArg);
