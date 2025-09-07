@@ -64,6 +64,7 @@ public class RuntimeInfoLogger {
      */
     public static void logRuntimeInfo() {
         logEnvInfo();
+        logSystemInfo();
         logTaieInfo();
     }
 
@@ -75,6 +76,18 @@ public class RuntimeInfoLogger {
             String value = System.getProperty(key);
             logger.info("{}: {}", key, value);
         }
+    }
+
+    /**
+     * Logs system information such as the number of CPU cores and total memory size.
+     */
+    private static void logSystemInfo() {
+        var osBean = (com.sun.management.OperatingSystemMXBean)
+                java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+        int cpuCores = osBean.getAvailableProcessors();
+        long memoryMB = osBean.getTotalMemorySize() / (1024 * 1024);
+        logger.info("Available CPU cores: {}", cpuCores);
+        logger.info("Total memory: {}MB", memoryMB);
     }
 
     /**
