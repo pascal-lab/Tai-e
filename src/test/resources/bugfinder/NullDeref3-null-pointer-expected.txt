@@ -1,10 +1,10 @@
--------------------- <NullDeref3: java.lang.Object foo2(java.lang.Object)> (null-pointer) --------------------
-Class: NullDeref3, Method: <NullDeref3: java.lang.Object foo2(java.lang.Object)>, LineNumber: 20, BugType: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, Severity: MAJOR
-
 -------------------- <NullDeref3: void <init>()> (null-pointer) --------------------
 
 -------------------- <NullDeref3: void foo()> (null-pointer) --------------------
 Class: NullDeref3, Method: <NullDeref3: void foo()>, LineNumber: 7, BugType: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, Severity: MAJOR
+
+-------------------- <NullDeref3: java.lang.Object foo2(java.lang.Object)> (null-pointer) --------------------
+Class: NullDeref3, Method: <NullDeref3: java.lang.Object foo2(java.lang.Object)>, LineNumber: 20, BugType: RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE, Severity: MAJOR
 
 -------------------- <NullDeref3: java.lang.Object bar(java.lang.Object)> (null-pointer) --------------------
 Class: NullDeref3, Method: <NullDeref3: java.lang.Object bar(java.lang.Object)>, LineNumber: 31, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
