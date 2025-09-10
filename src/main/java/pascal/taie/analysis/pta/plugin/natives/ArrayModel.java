@@ -57,6 +57,13 @@ public class ArrayModel {
             super(solver);
         }
 
+        @Override
+        public void onStart() {
+            // Solver should ignore `Arrays.copyOf()` to avoid spurious flows merging from other
+            // callsites, as in the `IRModelPlugin.onStart()`.
+            handlers.keySet().forEach(solver::addIgnoredMethod);
+        }
+
         @InvokeHandler(signature = "<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>", argIndexes = {0})
         public void arraysCopyOf(Context context, Invoke invoke, PointsToSet from) {
             JMethod container = invoke.getContainer();
