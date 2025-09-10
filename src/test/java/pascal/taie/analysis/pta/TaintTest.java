@@ -74,8 +74,6 @@ public class TaintTest {
             TAINT_CONFIG_PREFIX + "taint-config-call-source.yml"})
     @MultiStringsSource({"CallSiteMode",
             TAINT_CONFIG_PREFIX + "taint-config-call-site-model.yml"})
-    @MultiStringsSource({"ZeroLengthArrayWithArraysCopyOf",
-            TAINT_CONFIG_PREFIX + "taint-config-zero-length-array-with-arrays-copy-of.yml"})
     void test(String mainClass, String... opts) {
         testInNonInteractiveMode(mainClass, opts);
         testInInteractiveMode(mainClass, opts);

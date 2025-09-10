@@ -22,8 +22,11 @@
 
 package pascal.taie.analysis.pta;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
+import pascal.taie.analysis.pta.plugin.assertion.AssertionChecker;
 import pascal.taie.util.MultiStringsSource;
 
 public class BasicTestFull extends BasicTest {
@@ -53,6 +56,19 @@ public class BasicTestFull extends BasicTest {
     @MultiStringsSource({"ZeroLengthArray", "cs:1-obj-1h"})
     void testFull(String mainClass, String... opts) {
         Tests.testPTA(DIR, mainClass, opts);
+    }
+
+    @Test
+    void testZeroLengthArrayWithArraysCopyOf() {
+        String ptaTestRoot = "src/test/resources/pta";
+        String classPath = ptaTestRoot + "/" + DIR;
+        Main.main("-pp",
+                "-cp", ptaTestRoot,
+                "-cp", classPath,
+                "-m", "ZeroLengthArrayWithArraysCopyOf",
+                "-a", "pta=implicit-entries:false;" +
+                        "plugins:[" + AssertionChecker.class.getName() + "]"
+                );
     }
 
 }
