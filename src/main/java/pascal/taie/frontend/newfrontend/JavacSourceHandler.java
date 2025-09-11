@@ -28,8 +28,8 @@ import pascal.taie.frontend.newfrontend.exception.FrontendException;
 import pascal.taie.frontend.newfrontend.exception.JavacException;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.FileResource;
-import pascal.taie.project.PathUtils;
 import pascal.taie.project.Resource;
+import pascal.taie.util.PathUtils;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -142,7 +142,7 @@ public class JavacSourceHandler {
     private DotClassFile createPhantomClassFile(String outputPath) {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
-        String className = PathUtils.getClassName(relative);
+        String className = PathUtils.toClassName(relative);
         Resource resource = new FileResource(output);
         return new DotClassFile(className, resource, null);
     }

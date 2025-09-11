@@ -24,6 +24,7 @@ package pascal.taie.project;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.util.PathUtils;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -183,7 +184,7 @@ class FileLoader {
                 loadChildren(root, path, rootContainer, subFiles, subContainers);
                 containers.add(currentContainer);
             }
-        } else if (isZipFile(path)) {
+        } else if (PathUtils.isZipFile(path)) {
             FileSystem fileSys;
             try {
                 fileSys = FileSystemManager.getZipFileSys(path);
@@ -192,11 +193,11 @@ class FileLoader {
                 // skip this zip file
                 return;
             }
-            String name = PathUtils.getClassSimpleName(path);
+            String name = PathUtils.toStringWithoutExt(path.getFileName());
             List<ClassFile> subFiles = new ArrayList<>();
             List<FileContainer> subContainers = new ArrayList<>();
             FileContainer currentContainer;
-            if (isJarFile(path)) {
+            if (PathUtils.isJarFile(path)) {
                 Manifest manifest = getManifest(fileSys);
                 currentContainer = new JarContainer(name, subFiles, subContainers, manifest);
             } else {
@@ -213,10 +214,10 @@ class FileLoader {
         } else {
             Resource resource = makeResource(root, path);
             Path relativePath = getRelativePath(root, path);
-            String className = PathUtils.getClassName(relativePath);
-            if (isClassFile(path)) {
+            String className = PathUtils.toClassName(relativePath);
+            if (PathUtils.isClassFile(path)) {
                 files.add(new DotClassFile(className, resource, rootContainer));
-            } else if (isJavaSourceFile(path)) {
+            } else if (PathUtils.isJavaFile(path)) {
                 files.add(new DotJavaFile(className, resource, rootContainer));
             }
         }
@@ -276,27 +277,5 @@ class FileLoader {
         } else {
             return root.path().relativize(path);
         }
-    }
-
-    private static String getExt(Path path) {
-        String fileName = path.getFileName().toString();
-        int i = fileName.lastIndexOf('.');
-        return (i == -1) ? "" : fileName.substring(i + 1);
-    }
-
-    private static boolean isZipFile(Path path) {
-        return getExt(path).equals("zip") || isJarFile(path);
-    }
-
-    private static boolean isJarFile(Path path) {
-        return getExt(path).equals("jar");
-    }
-
-    private static boolean isClassFile(Path path) {
-        return getExt(path).equals("class");
-    }
-
-    private static boolean isJavaSourceFile(Path path) {
-        return getExt(path).equals("java");
     }
 }
