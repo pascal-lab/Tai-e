@@ -178,7 +178,7 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = "--world-builder",
             description = "Specify world builder class (default: ${DEFAULT-VALUE})",
-            defaultValue = "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder")
+            defaultValue = "pascal.taie.frontend.java.JavaWorldBuilder")
     private Class<? extends WorldBuilder> worldBuilderClass;
 
     public Class<? extends WorldBuilder> getWorldBuilderClass() {
