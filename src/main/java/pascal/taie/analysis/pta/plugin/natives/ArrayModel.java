@@ -22,14 +22,19 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
+import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
+import pascal.taie.analysis.pta.core.heap.Descriptor;
+import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.IRModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
+import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
-import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.Stmt;
@@ -42,47 +47,78 @@ import pascal.taie.language.type.Type;
 
 import java.util.List;
 
-public class ArrayModel extends IRModelPlugin {
+public class ArrayModel {
 
-    private final ClassType objType;
+    private static final Descriptor COPY_OF_ARRAY_DESC = () -> "ArrayGeneratedByCopyOfModel";
 
-    private final ArrayType objArrayType;
+    public static class AnalysisModel extends AnalysisModelPlugin {
 
-    /**
-     * Counter for naming temporary variables.
-     */
-    private int counter = 0;
+        AnalysisModel(Solver solver) {
+            super(solver);
+        }
 
-    ArrayModel(Solver solver) {
-        super(solver);
-        objType = typeSystem.getClassType(ClassNames.OBJECT);
-        objArrayType = typeSystem.getArrayType(objType, 1);
+        @Override
+        public void onStart() {
+            // Solver should ignore `Arrays.copyOf()` to avoid spurious flows merging from other
+            // callsites, as in the `IRModelPlugin.onStart()`.
+            handlers.keySet().forEach(solver::addIgnoredMethod);
+        }
+
+        @InvokeHandler(signature = "<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>", argIndexes = {0})
+        public void arraysCopyOf(Context context, Invoke invoke, PointsToSet from) {
+            JMethod container = invoke.getContainer();
+            Var result = invoke.getResult();
+            if (result != null) {
+                from.getObjects().forEach(csObj -> {
+                    // When the array object from the first argument is not functional,
+                    // create a new functional array
+                    if (!csObj.getObject().isFunctional()) {
+                        Type type = csObj.getObject().getType();
+                        Obj newArray = heapModel.getMockObj(COPY_OF_ARRAY_DESC, invoke, type, container);
+                        CSObj csNewArray = csManager.getCSObj(context, newArray);
+                        solver.addVarPointsTo(context, result, csNewArray);
+                    } else {
+                        solver.addVarPointsTo(context, result, csObj);
+                    }
+                });
+            }
+        }
     }
 
-    @InvokeHandler(signature = "<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>")
-    public List<Stmt> arraysCopyOf(Invoke invoke) {
-        Var result = invoke.getResult();
-        return result != null
-                ? List.of(new Copy(result, invoke.getInvokeExp().getArg(0)))
-                : List.of();
-    }
+    public static class IRModel extends IRModelPlugin {
 
-    @InvokeHandler(signature = "<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>")
-    public List<Stmt> systemArraycopy(Invoke invoke) {
-        JMethod container = invoke.getContainer();
-        Var src = getTempVar(container, "src", objArrayType);
-        Var dest = getTempVar(container, "dest", objArrayType);
-        Var temp = getTempVar(container, "temp", objType);
-        List<Var> args = invoke.getInvokeExp().getArgs();
-        return List.of(
-                new Cast(src, new CastExp(args.get(0), objArrayType)),
-                new Cast(dest, new CastExp(args.get(2), objArrayType)),
-                new LoadArray(temp, new ArrayAccess(src, args.get(1))),
-                new StoreArray(new ArrayAccess(dest, args.get(3)), temp));
-    }
+        private final ClassType objType;
 
-    private Var getTempVar(JMethod container, String name, Type type) {
-        String varName = "%native-arraycopy-" + name + counter++;
-        return new Var(container, varName, type, -1);
+        private final ArrayType objArrayType;
+
+        /**
+         * Counter for naming temporary variables.
+         */
+        private int counter = 0;
+
+        IRModel(Solver solver) {
+            super(solver);
+            objType = typeSystem.getClassType(ClassNames.OBJECT);
+            objArrayType = typeSystem.getArrayType(objType, 1);
+        }
+
+        @InvokeHandler(signature = "<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>")
+        public List<Stmt> systemArraycopy(Invoke invoke) {
+            JMethod container = invoke.getContainer();
+            Var src = getTempVar(container, "src", objArrayType);
+            Var dest = getTempVar(container, "dest", objArrayType);
+            Var temp = getTempVar(container, "temp", objType);
+            List<Var> args = invoke.getInvokeExp().getArgs();
+            return List.of(
+                    new Cast(src, new CastExp(args.get(0), objArrayType)),
+                    new Cast(dest, new CastExp(args.get(2), objArrayType)),
+                    new LoadArray(temp, new ArrayAccess(src, args.get(1))),
+                    new StoreArray(new ArrayAccess(dest, args.get(3)), temp));
+        }
+
+        private Var getTempVar(JMethod container, String name, Type type) {
+            String varName = "%native-arraycopy-" + name + counter++;
+            return new Var(container, varName, type, -1);
+        }
     }
 }

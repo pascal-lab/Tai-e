@@ -33,7 +33,8 @@ public class NativeModeller extends CompositePlugin {
 
     @Override
     public void setSolver(Solver solver) {
-        addPlugin(new ArrayModel(solver),
+        addPlugin(new ArrayModel.AnalysisModel(solver),
+                new ArrayModel.IRModel(solver),
                 new UnsafeModel(solver),
                 new DoPriviledgedModel(solver));
     }
