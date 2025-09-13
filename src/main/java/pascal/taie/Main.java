@@ -41,7 +41,6 @@ import pascal.taie.util.collection.Lists;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class Main {
@@ -142,8 +141,7 @@ public class Main {
                                 .allClasses()
                                 .mapToInt(c -> c.getDeclaredMethods().size())
                                 .sum());
-            } catch (InstantiationException | IllegalAccessException |
-                    NoSuchMethodException | InvocationTargetException e) {
+            } catch (Exception e) {
                 System.err.println("Failed to build world due to " + e);
                 System.exit(1);
             }

@@ -30,12 +30,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.java.exception.FrontendException;
-import pascal.taie.frontend.java.hierarchy.ClassHierarchyBuilder;
 import pascal.taie.frontend.java.hierarchy.DefaultCHBuilder;
-import pascal.taie.frontend.java.main.TaiePhase;
-import pascal.taie.frontend.java.report.FrontendStats;
-import pascal.taie.frontend.java.report.FrontendStatsResult;
-import pascal.taie.frontend.java.report.FrontendTimer;
 import pascal.taie.frontend.java.source.ClassSource;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -44,7 +39,6 @@ import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
-import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.List;
@@ -62,8 +56,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         try {
             build(options);
         } catch (FrontendException e) {
-            e.printStackTrace();
-            System.exit(1);
+            throw new RuntimeException(e);
         }
     }
 
@@ -79,44 +72,17 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // initialize build context
         FrontendContext ctx = new FrontendContext(options.isSSA());
 
-        ctx.setPhase(TaiePhase.PROJECT_LOADING);
-        // initialize class hierarchy
-        FrontendTimer timer = new FrontendTimer();
-        timer.start();
+        // build project from options
         Project project = new OptionsProjectBuilder(options).build();
-        timer.stop();
-        long projectBuildingTime = timer.inMilliseconds();
-
-        ctx.setPhase(TaiePhase.CLOSED_WORLD_ANALYSIS);
-        timer.start();
+        // build closed world
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
-        timer.stop();
-        long closedWorldBuildingTime = timer.inMilliseconds();
-
-        ctx.setPhase(TaiePhase.CLASS_HIERARCHY_ANALYSIS);
-        timer.start();
-        ClassHierarchyBuilder hierarchyBuilder = new DefaultCHBuilder(ctx);
-        ClassHierarchy hierarchy = hierarchyBuilder.build(closedWorld);
-        timer.stop();
-        long classHierarchyBuildingTime = timer.inMilliseconds();
+        // set up class hierarchy, classes are built in this phase
+        ClassHierarchy hierarchy = new DefaultCHBuilder(ctx).build(closedWorld);
         world.setClassHierarchy(hierarchy);
-
-        FrontendStats stats = new FrontendStats(
-                projectBuildingTime,
-                closedWorldBuildingTime,
-                classHierarchyBuildingTime,
-                Maps.newConcurrentMap(),
-                Maps.newConcurrentMap(),
-                Maps.newConcurrentMap(),
-                Maps.newConcurrentMap());
-        ctx.setStats(stats);
-
-
+        // set up type system
+        // TODO: check type system here, maybe replace temp type system
         TypeSystem typeSystem = ctx.getTypeSystem(); // the singleton context was built in hierarchyBuilder.build
         world.setTypeSystem(typeSystem);
-
-        // classes has been built in hierarchyBuilder.build()
-
         // set main method
         String mainClassName = options.getMainClass();
         if (mainClassName != null) {
@@ -149,12 +115,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
         world.setIRBuilder(ctx.getIRBuilder());
         if (options.isPreBuildIR()) {
-            ctx.setPhase(TaiePhase.PREBUILDING_IR);
             ctx.getIRBuilder().buildAll(hierarchy);
         }
-
-        FrontendStatsResult.setStats(stats);
-
-        ctx.setPhase(TaiePhase.ANALYSIS);
     }
 }
