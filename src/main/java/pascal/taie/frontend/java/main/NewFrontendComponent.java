@@ -60,10 +60,6 @@ public abstract class NewFrontendComponent {
         return context;
     }
 
-    protected TaiePhase getTaiePhase() {
-        return null;
-    }
-
     protected TypeContext tCtx() {
         return context.getTypeContext();
     }

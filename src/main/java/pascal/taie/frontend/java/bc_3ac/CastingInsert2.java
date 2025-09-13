@@ -103,7 +103,6 @@ public class CastingInsert2 extends NewFrontendIRComponent {
                 right,
                 right.getType()
         );
-        ctx().getFrontendStats().castingInfos().put(builder.method, info);
         return new Cast(left, new CastExp(right, t));
     }
 

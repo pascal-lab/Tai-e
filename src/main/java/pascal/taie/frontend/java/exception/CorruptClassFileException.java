@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java.exception;
 
-import pascal.taie.frontend.java.main.TaiePhase;
-
 /**
  * Exception thrown when a .class file is found to be corrupt during the compilation process.
  */
@@ -32,11 +30,10 @@ public final class CorruptClassFileException extends FrontendException {
     /**
      * Constructs a new instance of CorruptClassFileException with the specified phase, binary name, and corruption details.
      *
-     * @param phase the phase of the taie where the corruption was detected
      * @param corruption the details of the corruption found in the .class file
      */
-    public CorruptClassFileException(TaiePhase phase, ClassFileInfo info, ClassFileCorruption corruption) {
-        super(phase, String.format("""
+    public CorruptClassFileException(ClassFileInfo info, ClassFileCorruption corruption) {
+        super("Closed-world construction", String.format("""
                 %s is corrupt.
                 Corruption details:
                 %s

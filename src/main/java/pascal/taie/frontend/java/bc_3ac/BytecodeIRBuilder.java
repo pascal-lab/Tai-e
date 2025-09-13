@@ -50,9 +50,7 @@ import pascal.taie.frontend.java.Top;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.IRBuildingPhase;
 import pascal.taie.frontend.java.main.NewFrontendIRComponent;
-import pascal.taie.frontend.java.report.IRConstructionTime;
 import pascal.taie.frontend.java.report.IRConstructionTimeBuilder;
-import pascal.taie.frontend.java.report.StackMergeStats;
 import pascal.taie.frontend.java.source.AsmMethodSource;
 import pascal.taie.frontend.java.ssa.BCSSA;
 import pascal.taie.frontend.java.ssa.DUInfo;
@@ -316,8 +314,6 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             this.stmts = null;
             this.phiList = null;
             this.duInfo = null;
-            ctx().getFrontendStats().irConstructionTime().put(method,
-                    new IRConstructionTime(0, 0, 0));
         }
     }
 
@@ -341,8 +337,6 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             makeExceptionTable();
             this.ir = getIR();
             reportMergeStats();
-            ctx().getFrontendStats().irConstructionTime().put(method,
-                    irConstructionTimeBuilder.build());
         }
     }
 
@@ -2396,12 +2390,6 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 }
             }
         }
-        StackMergeStats stackMergeStats = new StackMergeStats(
-                totalBlocks,
-                pessimisticBlocks,
-                pessimisticPhis,
-                pessimisticLivePhis);
-        ctx().getFrontendStats().stackMergeStats().put(this.method, stackMergeStats);
     }
 
     public IR getIr() {

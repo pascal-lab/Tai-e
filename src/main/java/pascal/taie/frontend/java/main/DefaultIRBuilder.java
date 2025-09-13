@@ -255,8 +255,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
         }, ClassReader.SKIP_FRAMES);
         paringMethodSource(kv, clazz);
         bytecodeParsingTimer.stop();
-        ctx().getFrontendStats().bytecodeParsingTime().put(clazz,
-                bytecodeParsingTimer.inMircoSeconds());
     }
 
     private void paringMethodSource(LoadingKV kv, JClass clazz) {

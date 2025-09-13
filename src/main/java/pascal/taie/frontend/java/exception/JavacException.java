@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java.exception;
 
-import pascal.taie.frontend.java.main.TaiePhase;
-
 /**
  * Custom exception class for Javac-related errors.
  */
@@ -34,7 +32,7 @@ public final class JavacException extends FrontendException {
      * This exception is typically thrown when the Java Development Kit (JDK) is not installed.
      */
     public JavacException() {
-        super(TaiePhase.CLOSED_WORLD_ANALYSIS, "Failed to obtain Javac instance. Please ensure the Java Development Kit (JDK) is installed.");
+        super("Closed-world construction", "Failed to obtain Javac instance. Please ensure the Java Development Kit (JDK) is installed.");
     }
 
     /**
@@ -43,6 +41,6 @@ public final class JavacException extends FrontendException {
      * @param compileError the error message from the Javac compiler
      */
     public JavacException(String compileError) {
-        super(TaiePhase.CLOSED_WORLD_ANALYSIS, compileError);
+        super("Closed-world construction", compileError);
     }
 }

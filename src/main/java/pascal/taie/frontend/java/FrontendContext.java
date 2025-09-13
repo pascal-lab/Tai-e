@@ -24,8 +24,6 @@ package pascal.taie.frontend.java;
 
 import pascal.taie.frontend.java.hierarchy.DefaultClassLoader;
 import pascal.taie.frontend.java.main.DefaultIRBuilder;
-import pascal.taie.frontend.java.main.TaiePhase;
-import pascal.taie.frontend.java.report.FrontendStats;
 import pascal.taie.frontend.java.source.AsmSource;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -70,18 +68,12 @@ public class FrontendContext {
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
-    private TaiePhase phase;
-
-    private FrontendStats stats;
-
     public FrontendContext(boolean useSSA) {
         this.useSSA = useSSA;
         this.irBuilder = new DefaultIRBuilder(this);
     }
 
     public static FrontendContext get() {
-//        assert buildContext != null;
-//        return buildContext;
         throw new UnsupportedOperationException();
     }
 
@@ -208,22 +200,6 @@ public class FrontendContext {
 
     public ClassHierarchy getClassHierarchy() {
         return hierarchy;
-    }
-
-    public FrontendStats getFrontendStats() {
-        return stats;
-    }
-
-    public void setPhase(TaiePhase phase) {
-        this.phase = phase;
-    }
-
-    public void setStats(FrontendStats stats) {
-        this.stats = stats;
-    }
-
-    public TaiePhase getPhase() {
-        return phase;
     }
 
     public boolean isUseSSA() {

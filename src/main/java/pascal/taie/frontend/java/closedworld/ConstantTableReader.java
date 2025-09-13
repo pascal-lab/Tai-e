@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.closedworld;
 import pascal.taie.frontend.java.exception.ClassFileInfo;
 import pascal.taie.frontend.java.exception.ConstantTableCorruption;
 import pascal.taie.frontend.java.exception.CorruptClassFileException;
-import pascal.taie.frontend.java.main.TaiePhase;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.util.collection.Lists;
 
@@ -148,8 +147,8 @@ class ConstantTableReader {
                 case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
                 case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
 
-                default -> throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
+                default -> throw new CorruptClassFileException(new ClassFileInfo(file),
+                        new ConstantTableCorruption(offset,
                         String.format("invalid constant table tag: 0x%02X", tag)));
             }
         }
@@ -275,8 +274,8 @@ class ConstantTableReader {
                 }
                 break;
             default:
-                throw new CorruptClassFileException(TaiePhase.CLOSED_WORLD_ANALYSIS,
-                        new ClassFileInfo(file), new ConstantTableCorruption(offset,
+                throw new CorruptClassFileException(new ClassFileInfo(file),
+                        new ConstantTableCorruption(offset,
                         String.format("invalid annotation element tag: 0x%02X", tag)));
         }
     }

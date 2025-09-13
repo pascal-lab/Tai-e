@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java.exception;
 
-import pascal.taie.frontend.java.main.TaiePhase;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -35,15 +33,14 @@ public final class UnknownFrontendException extends FrontendException {
     /**
      * Constructs a new UnknownException with the given phase and the underlying cause.
      *
-     * @param phase the phase at which the exception occurred
-     * @param e     the underlying cause of the exception
+     * @param cause the underlying cause of the exception
      */
-    public UnknownFrontendException(TaiePhase phase, Throwable e) {
-        super(phase, String.format("""
+    public UnknownFrontendException(Throwable cause) {
+        super("Closed-world construction", String.format("""
                 Unexpected error occurred
                 %s
                 Consider submitting a bug report at %s
-                """, printException(e), TAIE_ISSUES));
+                """, printException(cause), TAIE_ISSUES));
     }
 
     /**

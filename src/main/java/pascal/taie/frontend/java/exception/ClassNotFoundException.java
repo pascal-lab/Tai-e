@@ -23,11 +23,9 @@
 package pascal.taie.frontend.java.exception;
 
 
-import pascal.taie.frontend.java.main.TaiePhase;
-
 public final class ClassNotFoundException extends FrontendException {
     public ClassNotFoundException(String binaryName) {
-        super(TaiePhase.CLOSED_WORLD_ANALYSIS,
+        super("Closed-world construction",
                 String.format("""
                         %s NOT FOUND in your classpath, possible fix:
                             If it's intended, try to add (--allow-phantom) to args""", binaryName));

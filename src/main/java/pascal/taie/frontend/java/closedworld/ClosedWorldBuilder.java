@@ -26,7 +26,6 @@ import pascal.taie.World;
 import pascal.taie.frontend.java.exception.ClassNotFoundException;
 import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.frontend.java.exception.UnknownFrontendException;
-import pascal.taie.frontend.java.main.TaiePhase;
 import pascal.taie.frontend.java.source.ClassSource;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.ClassIndex;
@@ -96,13 +95,13 @@ public class ClosedWorldBuilder {
         try {
             buildClosure(initialClasses);
         } catch (InterruptedException ex) {
-            throw new UnknownFrontendException(TaiePhase.CLOSED_WORLD_ANALYSIS, ex);
+            throw new UnknownFrontendException(ex);
         } catch (ExecutionException ex) {
             Throwable cause = ex.getCause();
             if (cause instanceof FrontendException fex) {
                 throw fex;
             } else {
-                throw new UnknownFrontendException(TaiePhase.CLOSED_WORLD_ANALYSIS, cause);
+                throw new UnknownFrontendException(cause);
             }
         } finally {
             // call it explicitly, otherwise the program will not stop
