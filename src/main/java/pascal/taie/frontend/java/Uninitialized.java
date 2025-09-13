@@ -25,11 +25,11 @@ package pascal.taie.frontend.java;
 import pascal.taie.language.type.Type;
 
 public enum Uninitialized implements Type {
+
     UNINITIALIZED;
 
     @Override
     public String getName() {
-        return "Uninitialized";
+        return "<uninitialized-type>";
     }
-
 }

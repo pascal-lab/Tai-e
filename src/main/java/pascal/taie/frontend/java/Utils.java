@@ -99,7 +99,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.java.TOP.Top;
+import static pascal.taie.frontend.java.Top.TOP;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -424,7 +424,7 @@ public class Utils {
     public  static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
         if (o instanceof Integer i) {
             return switch (i) {
-                case 0 -> Top; // Opcodes.Top
+                case 0 -> TOP; // Opcodes.Top
                 case 1 -> INT; // Opcodes.INTEGER
                 case 2 -> FLOAT; // Opcodes.FLOAT
                 case 3 -> DOUBLE; // Opcodes.DOUBLE

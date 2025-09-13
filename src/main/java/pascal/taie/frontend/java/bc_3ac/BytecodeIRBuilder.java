@@ -46,7 +46,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.IBasicBlock;
-import pascal.taie.frontend.java.TOP;
+import pascal.taie.frontend.java.Top;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.IRBuildingPhase;
 import pascal.taie.frontend.java.main.NewFrontendIRComponent;
@@ -260,9 +260,9 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
 
     /**
      * The top element, used as a placeholder two word stack value (e.g. long and double)
-     * @see TOP
+     * @see Top
      */
-    private static final StackItem TOP = new StackItem(pascal.taie.frontend.java.TOP.Top, null);
+    private static final StackItem TOP = new StackItem(Top.TOP, null);
 
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
@@ -475,9 +475,9 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
 
     private StackItem popExp(Stack<StackItem> stack) {
         StackItem e = popStack(stack);
-        if (e.e() instanceof TOP) {
+        if (e.e() instanceof Top) {
             StackItem e1 = popStack(stack);
-            assert ! (e1.e() instanceof TOP);
+            assert ! (e1.e() instanceof Top);
             return e1;
         } else {
             return e;
@@ -530,7 +530,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
      * @param item the item to be lifted
      */
     private void liftToVar(StackItem item) {
-        if (item.e() instanceof TOP) {
+        if (item.e() instanceof Top) {
             return;
         } else if (item.e() instanceof Var v) {
             item.lift(v);
@@ -609,7 +609,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
         // normally, this should only be used to pop a InvokeExp
         StackItem item = popStack(stack);
         Exp e = item.e();
-        if (e instanceof TOP) {
+        if (e instanceof Top) {
             return;
         } else {
             expToEffect(item);
@@ -651,7 +651,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
     private void ensureStackSafety(Stack<StackItem> stack, Function<Exp, Boolean> predicate) {
         for (StackItem item : stack) {
             Exp e = item.e();
-            if (e instanceof TOP || e instanceof StackPhi) {
+            if (e instanceof Top || e instanceof StackPhi) {
                 continue;
             }
             if (predicate.apply(e)) {
@@ -665,7 +665,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
     }
 
     private void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp e) {
-        assert ! (e instanceof TOP);
+        assert ! (e instanceof Top);
         if (maySideEffect(e)) {
             ensureStackSafety(stack, this::maySideEffect);
         }
@@ -1200,7 +1200,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             case Opcodes.DUP -> {
                 StackItem item = popStack(stack);
                 Exp e = item.e();
-                assert ! (e instanceof TOP);
+                assert ! (e instanceof Top);
                 liftToVar(item);
                 stack.push(item);
                 stack.push(item);
@@ -1215,7 +1215,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 int top = stack.size() - 1;
                 StackItem e1 = popStack(stack);
                 StackItem e2 = popStack(stack);
-                assert ! (e1.e() instanceof TOP) && ! (e2.e() instanceof TOP);
+                assert ! (e1.e() instanceof Top) && ! (e2.e() instanceof Top);
                 stack.push(e1);
                 stack.push(e2);
             }
@@ -1406,7 +1406,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             for (int i = 0; i < inStack.size(); ++i) {
                 StackItem item = inStack.get(i);
                 Exp e = item.e();
-                if (e instanceof TOP) {
+                if (e instanceof Top) {
                     continue;
                 }
                 // ignore, add inExps during phi resolving
@@ -1432,13 +1432,13 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             Exp e = item.e();
             StackItem item1 = currentStack.get(j);
             Exp e1 = item1.e();
-            if (e instanceof TOP) {
-                assert e1 instanceof TOP;
+            if (e instanceof Top) {
+                assert e1 instanceof Top;
                 continue;
             }
             List<StackItem> inExp = inExps.get(j);
             inExp.add(item1);
-            assert !(e1 instanceof TOP);
+            assert !(e1 instanceof Top);
             needPhi[j] = needPhi[j] || e != e1;
         }
     }
@@ -1621,7 +1621,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 }
                 for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
                     Exp currentExp = inStack.get(j).originalExp();
-                    if (currentExp instanceof TOP) {
+                    if (currentExp instanceof Top) {
                         continue;
                     }
                     StackPhi phi = (StackPhi) currentExp;
@@ -2386,7 +2386,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
                 pessimisticBlocks++;
                 pessimisticPhis += bb.getInStack().size();
                 for (StackItem item : bb.getInStack()) {
-                    if (item.originalExp() instanceof TOP) {
+                    if (item.originalExp() instanceof Top) {
                         continue;
                     }
                     StackPhi exp = (StackPhi) item.originalExp();

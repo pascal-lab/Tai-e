@@ -34,15 +34,14 @@ import java.util.Set;
  * when push a double / long to stack, first push a Top. <br>
  * [top, double, ...]
  */
-public enum TOP implements Exp, Type {
+public enum Top implements Exp, Type {
 
-    Top;
+    TOP;
 
     @Override
     public Type getType() {
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public Set<RValue> getUses() {
@@ -56,6 +55,6 @@ public enum TOP implements Exp, Type {
 
     @Override
     public String getName() {
-        return "top";
+        return "<top-type>";
     }
 }
