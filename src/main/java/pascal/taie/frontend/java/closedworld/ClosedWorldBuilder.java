@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.closedworld;
 
 import pascal.taie.World;
-import pascal.taie.frontend.java.exception.ClassNotFoundException;
 import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.frontend.java.exception.UnknownFrontendException;
 import pascal.taie.frontend.java.source.ClassSource;
@@ -181,7 +180,8 @@ public class ClosedWorldBuilder {
                 addClassSource(result);
                 return result;
             }
-            throw new ClassNotFoundException(className);
+            throw new FrontendException(
+                    className + " is not found in the given classpath");
         } else {
              ResolveResult result = DependencyResolver.resolve(project, classFile);
              addClassSource(result);
