@@ -25,7 +25,6 @@ package pascal.taie.frontend.java;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.exception.FrontendException;
-import pascal.taie.frontend.java.exception.JavacException;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.Resource;
@@ -68,10 +67,12 @@ public class JavacSourceHandler {
     private static final Pattern writePattern = getWritePattern();
 
     public static List<DotClassFile> compile(String cp, String javaSourceFile, int javaVersion)
-            throws JavacException, IOException {
+            throws FrontendException, IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null) {
-            throw new JavacException();
+            throw new FrontendException("Failed to process .java file " +
+                    "since javac instance cannot be obtained. " +
+                    "Please ensure that the JDK is properly configured.");
         }
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(
@@ -99,8 +100,9 @@ public class JavacSourceHandler {
                         sourceInfo));
                 errors.append(String.format("Message: %s%n", diagnostic.getMessage(null)));
             });
-            throw new JavacException(
-                    "Javac compilation failed for " + javaSourceFile + ":\n" + errors);
+            throw new FrontendException(
+                    "Failed to process .java file due to javac compilation errors for "
+                            + javaSourceFile + ":\n" + errors);
         }
         fileManager.close();
 
@@ -109,13 +111,15 @@ public class JavacSourceHandler {
                 .map(JavacSourceHandler::createCompiledClassFile)
                 .toList();
         if (compileResults.isEmpty()) {
-            throw new JavacException(
+            throw new FrontendException(
                     String.format("""
-                    Javac compilation failed for %s. Insufficient information was found to determine the cause.
+                    Failed to process .java file due to javac compilation errors for %s.
+                    Insufficient information was found to determine the cause.
                     Please check the following potential reasons:
                     1) Ensure JAVA_TOOL_OPTIONS is properly set. Refer to the warning message for guidance.
-                    2) Verify that your JDK version meets the minimum requirement 17 (or higher).
-                    3) This might be a Tai-e bug, consider submit a bug report at %s""", javaSourceFile, FrontendException.TAIE_ISSUES));
+                    2) Verify that your JDK version meets the requirement: Java 17 or higher.
+                    3) This might be a Tai-e bug, consider submit a bug report at %s""",
+                            javaSourceFile, FrontendException.TAIE_ISSUES));
         }
         return compileResults;
     }
