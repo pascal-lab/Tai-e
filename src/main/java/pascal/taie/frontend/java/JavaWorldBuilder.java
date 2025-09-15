@@ -29,7 +29,6 @@ import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
-import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.frontend.java.hierarchy.DefaultCHBuilder;
 import pascal.taie.frontend.java.source.ClassSource;
 import pascal.taie.language.classes.ClassHierarchy;

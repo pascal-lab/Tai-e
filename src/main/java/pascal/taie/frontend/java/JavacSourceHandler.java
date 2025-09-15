@@ -24,7 +24,6 @@ package pascal.taie.frontend.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.Resource;

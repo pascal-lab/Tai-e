@@ -23,7 +23,7 @@
 package pascal.taie.frontend.java.closedworld;
 
 import pascal.taie.World;
-import pascal.taie.frontend.java.exception.FrontendException;
+import pascal.taie.frontend.java.FrontendException;
 import pascal.taie.frontend.java.source.ClassSource;
 import pascal.taie.project.ClassFile;
 import pascal.taie.project.ClassIndex;

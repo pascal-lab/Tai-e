@@ -20,23 +20,20 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.exception;
+package pascal.taie.frontend.java;
 
 /**
- * Represents the errors raised during program information construction in frontend.
+ * Represents the exceptions raised during world building via frontend.
  */
-public abstract sealed class FrontendException extends Exception
-        permits ClassNotFoundException, CorruptClassFileException, JavacException, UnknownFrontendException {
-    protected FrontendException(String phase, String message) {
-        this(String.format("""
-                !!! ERROR in FRONTEND DURING %s !!!
-                %s
-                """, phase, message));
+public class FrontendException extends Exception {
+
+    public static final String TAIE_ISSUES = "https://github.com/pascal-lab/Tai-e/issues";
+
+    public FrontendException(String message) {
+        super(message);
     }
 
-    private FrontendException(String msg) {
-        super(msg);
+    public FrontendException(Throwable cause) {
+        super(cause);
     }
-
-    public static String TAIE_ISSUES = "https://github.com/pascal-lab/Tai-e/issues";
 }
