@@ -20,15 +20,22 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.classes;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
+
 /**
- * This package contains classes for building and managing class hierarchies in Tai-e.
- * <p>
- * The main components are:
- * <ul>
- *   <li>{@link pascal.taie.frontend.java.hierarchy.ClassHierarchyBuilder} - Interface for building class hierarchies</li>
- *   <li>{@link pascal.taie.frontend.java.hierarchy.DefaultCHBuilder} - Default implementation for building class hierarchies</li>
- *   <li>{@link pascal.taie.frontend.java.hierarchy.BytecodeClassBuilder} - Builds class information from ASM bytecode</li>
- *   <li>{@link pascal.taie.frontend.java.hierarchy.DefaultClassLoader} - Handles class loading and phantom classes</li>
- * </ul>
+ * @param version the class file version.
  */
-package pascal.taie.frontend.java.hierarchy;
+public record AsmSource(
+        ClassReader reader,
+        boolean isApp,
+        int version
+) implements ClassSource {
+
+    @Override
+    public String getClassName() {
+        return Type.getObjectType(reader.getClassName()).getClassName();
+    }
+}

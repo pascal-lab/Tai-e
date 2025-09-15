@@ -20,22 +20,14 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.source;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
+package pascal.taie.frontend.java.classes;
 
 /**
- * @param version the class file version.
+ * Represents the origin of a Java class, which comes from a Java class file.
  */
-public record AsmSource(
-        ClassReader reader,
-        boolean isApp,
-        int version
-) implements ClassSource {
+public interface ClassSource {
 
-    @Override
-    public String getClassName() {
-        return Type.getObjectType(reader.getClassName()).getClassName();
-    }
+    String getClassName();
+
+    boolean isApp();
 }

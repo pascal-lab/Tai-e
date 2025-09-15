@@ -20,11 +20,13 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.source;
+package pascal.taie.frontend.java.classes;
 
-public interface ClassSource {
+public record PhantomClassSource(String className, boolean isApp)
+        implements ClassSource {
 
-    String getClassName();
-
-    boolean isApp();
+    @Override
+    public String getClassName() {
+        return className;
+    }
 }

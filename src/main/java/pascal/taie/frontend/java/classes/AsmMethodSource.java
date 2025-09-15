@@ -20,13 +20,12 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.hierarchy;
+package pascal.taie.frontend.java.classes;
 
-import pascal.taie.frontend.java.source.ClassSource;
-import pascal.taie.language.classes.ClassHierarchy;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 
-import java.util.Collection;
-
-public interface ClassHierarchyBuilder {
-    ClassHierarchy build(Collection<ClassSource> sources);
+/**
+ * Represents the origin of a Java method, which comes from a java class file.
+ */
+public record AsmMethodSource(JSRInlinerAdapter adapter, int classFileVersion) {
 }

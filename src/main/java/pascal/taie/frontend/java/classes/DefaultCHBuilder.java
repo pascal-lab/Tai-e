@@ -20,14 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.hierarchy;
+package pascal.taie.frontend.java.classes;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
-import pascal.taie.frontend.java.source.AsmSource;
-import pascal.taie.frontend.java.source.ClassSource;
-import pascal.taie.frontend.java.source.PhantomClassSource;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.JClass;
