@@ -24,7 +24,6 @@ package pascal.taie.frontend.java.closedworld;
 
 import org.objectweb.asm.ClassReader;
 import pascal.taie.frontend.java.JavacSourceHandler;
-import pascal.taie.frontend.java.exception.CorruptClassFileException;
 import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.frontend.java.source.AsmSource;
 import pascal.taie.frontend.java.source.ClassSource;
@@ -76,12 +75,12 @@ class DependencyResolver {
     }
 
     private static ResolveResult resolveClassFile(Project project, DotClassFile classFile)
-            throws IOException, CorruptClassFileException {
+            throws IOException, FrontendException {
         return resolveClassFile(classFile, project.isApp(classFile));
     }
 
     private static ResolveResult resolveClassFile(DotClassFile classFile, boolean isApp)
-            throws IOException, CorruptClassFileException {
+            throws IOException, FrontendException {
         byte[] content = classFile.getResource().getContent();
         assert content != null;
         classFile.getResource().release();

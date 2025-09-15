@@ -22,9 +22,7 @@
 
 package pascal.taie.frontend.java.closedworld;
 
-import pascal.taie.frontend.java.exception.ClassFileInfo;
-import pascal.taie.frontend.java.exception.ConstantTableCorruption;
-import pascal.taie.frontend.java.exception.CorruptClassFileException;
+import pascal.taie.frontend.java.exception.FrontendException;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.util.collection.Lists;
 
@@ -85,12 +83,12 @@ class ConstantTableReader {
         classFileBuffer = content;
     }
 
-    List<String> readClassNames() throws CorruptClassFileException {
+    List<String> readClassNames() throws FrontendException {
         parse();
         return Lists.map(internalNames, name -> name.replace('/', '.'));
     }
 
-    private void parse() throws CorruptClassFileException {
+    private void parse() throws FrontendException {
         internalNames = new ArrayList<>();
         // head
         offset += 4;
@@ -127,12 +125,12 @@ class ConstantTableReader {
                 }
                 case CONSTANT_FieldRef, CONSTANT_MethodRef, CONSTANT_InterfaceMethodRef,
                      CONSTANT_InvokeDynamic ->
-                    // E.g.
-                    // CONSTANT_Fieldref_info {
-                    //    u1 tag;
-                    //    u2 class_index;          ;; Points to CONSTANT_Class_info
-                    //    u2 name_and_type_index;  ;; Points to CONSTANT_NameAndType_info
-                    // }
+                        // for example:
+                        // CONSTANT_Fieldref_info {
+                        //    u1 tag;
+                        //    u2 class_index;          ;; Points to CONSTANT_Class_info
+                        //    u2 name_and_type_index;  ;; Points to CONSTANT_NameAndType_info
+                        // }
                         offset += 4;
                 case CONSTANT_NameAndType -> {
                     offset += 2;
@@ -147,9 +145,8 @@ class ConstantTableReader {
                 case CONSTANT_Integer, CONSTANT_Float -> offset += 4;
                 case CONSTANT_Module, CONSTANT_Package, CONSTANT_String -> offset += 2;
 
-                default -> throw new CorruptClassFileException(new ClassFileInfo(file),
-                        new ConstantTableCorruption(offset,
-                        String.format("invalid constant table tag: 0x%02X", tag)));
+                default -> throw new FrontendException(
+                        buildErrorMessage(file, offset, "constant table", tag));
             }
         }
 
@@ -201,7 +198,7 @@ class ConstantTableReader {
         return true;
     }
 
-    private void readFieldOrMethod(boolean[] descriptors) throws CorruptClassFileException {
+    private void readFieldOrMethod(boolean[] descriptors) throws FrontendException {
         int methodCount = readUnsignedShort();
         for (int i = 0; i < methodCount; i++) {
             offset += 4;
@@ -210,7 +207,7 @@ class ConstantTableReader {
         }
     }
 
-    private void parseAttributes() throws CorruptClassFileException {
+    private void parseAttributes() throws FrontendException {
         int attributesCount = readUnsignedShort();
         for (int i = 0; i < attributesCount; i++) {
             int nameIndex = readUnsignedShort();
@@ -230,14 +227,14 @@ class ConstantTableReader {
      * <p>Precondition</p>
      * <code>offset</code> points to the <code>num_annotations;</code> of annotation attribute
      */
-    private void parseAnnotationContent() throws CorruptClassFileException {
+    private void parseAnnotationContent() throws FrontendException {
         int numAnnotations = readUnsignedShort();
         for (int i = 0; i < numAnnotations; i++) {
             parseAnnotation();
         }
     }
 
-    private void parseAnnotation() throws CorruptClassFileException {
+    private void parseAnnotation() throws FrontendException {
         int typeIndex = readUnsignedShort();  // Class descriptor
         descriptorsLoad[typeIndex] = true;
 
@@ -248,7 +245,7 @@ class ConstantTableReader {
         }
     }
 
-    private void parseElementValue() throws CorruptClassFileException {
+    private void parseElementValue() throws FrontendException {
         byte tag = classFileBuffer[offset++];
         switch (tag) {
             case 'B': case 'C': case 'D': case 'F': case 'I': case 'J': case 'S': case 'Z':
@@ -273,10 +270,8 @@ class ConstantTableReader {
                     parseElementValue(); // Parse each element in the array
                 }
                 break;
-            default:
-                throw new CorruptClassFileException(new ClassFileInfo(file),
-                        new ConstantTableCorruption(offset,
-                        String.format("invalid annotation element tag: 0x%02X", tag)));
+            default: throw new FrontendException(
+                    buildErrorMessage(file, offset, "annotation element", tag));
         }
     }
 
@@ -403,5 +398,18 @@ class ConstantTableReader {
         }
         decodeBuffer[decodeOffset++] = now;
         return now;
+    }
+
+    private static String buildErrorMessage(
+            DotClassFile file, int offset, String tagName, byte tag) {
+        return String.format("""
+                Failed to read the constant table of class %s (%s in %s).
+                The class appears to be corrupt at position %d.
+                Detail: encountered an invalid %s tag with value 0x%02X.
+                If you believe the class is not corrupt, please submit an issue at %s.""",
+                file.getClassName(),
+                file.getResource().getPath(),
+                file.getRootContainer().getFileName(),
+                offset, tagName, tag, FrontendException.TAIE_ISSUES);
     }
 }
