@@ -61,10 +61,10 @@ class DependencyResolver {
 
     private static ResolveResult resolveWithJavac(Project project, DotJavaFile dotJavaFile)
             throws IOException, FrontendException {
-        List<DotClassFile> dotClassFiles =
-                new JavacSourceHandler().compile(project.classPath(),
-                        dotJavaFile.getResource().getPath().toString(),
-                        project.javaVersion());
+        List<DotClassFile> dotClassFiles = JavacSourceHandler.compile(
+                project.classPath(),
+                dotJavaFile.getResource().getPath().toString(),
+                project.javaVersion());
         List<String> deps = new ArrayList<>();
         List<ClassSource> sources = new ArrayList<>();
         for (DotClassFile dotClassFile : dotClassFiles) {

@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: check concurrent behavior, note compile may be called concurrently
+// TODO: check concurrent behavior, compile() may be called concurrently.
 
 /**
  * This class handles Java source files using the Java Compiler API.
@@ -56,49 +56,43 @@ public class JavacSourceHandler {
 
     private static final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
 
-    private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-    private final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-
-    private final StandardJavaFileManager fileManager =
-            compiler.getStandardFileManager(diagnostics, null, null);
-
     /**
      * Temporary output directory for compiled class files.
      */
-    private final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir"))
+    private static final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir"))
             .resolve("tai-e");
 
     /**
      * Regex pattern to extract the name of the compiled class file from the compiler output.
      */
-    private final Pattern writePattern = getWritePattern();
+    private static final Pattern writePattern = getWritePattern();
 
-    public List<DotClassFile> compile(String cp, String javaSourceFile, int javaVersion)
+    public static List<DotClassFile> compile(String cp, String javaSourceFile, int javaVersion)
             throws JavacException, IOException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null) {
             throw new JavacException();
         }
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(
+                diagnostics, null, null);
+
         StringWriter output = new StringWriter();
         File javaFile = new File(javaSourceFile);
         Iterable<? extends JavaFileObject> compilationUnits =
                 fileManager.getJavaFileObjectsFromFiles(List.of(javaFile));
 
-        List<String> options = List.of("-classpath", cp, "-verbose",
-                "--release", "" + javaVersion,
+        List<String> options = List.of("-classpath", cp,
                 "-d", tempOutDir.toAbsolutePath().toString(),
-                "-implicit:class",
-                "-g");
+                "--release", Integer.toString(javaVersion),
+                "-implicit:class", "-g", "-verbose");
 
         JavaCompiler.CompilationTask task = compiler.getTask(output, fileManager,
                 diagnostics, options, null, compilationUnits);
-
-        boolean success = task.call();
-
-        if (!success) {
+        if (!task.call()) {
             StringBuilder errors = new StringBuilder();
             diagnostics.getDiagnostics().forEach(diagnostic -> {
-                String sourceInfo = diagnostic.getSource() != null ?
+                String sourceInfo = (diagnostic.getSource() != null) ?
                         diagnostic.getSource().toUri().toString() : "Unknown source";
                 errors.append(String.format("Error on line %d in %s%n",
                         diagnostic.getLineNumber(),
@@ -108,25 +102,25 @@ public class JavacSourceHandler {
             throw new JavacException(
                     "Javac compilation failed for " + javaSourceFile + ":\n" + errors);
         }
-
         fileManager.close();
-        List<DotClassFile> compileResults = new ArrayList<>();
-        for (String compileResult : getCompiledFiles(output.toString())) {
-            compileResults.add(createPhantomClassFile(compileResult));
-        }
+
+        List<DotClassFile> compileResults = getCompiledFiles(output.toString())
+                .stream()
+                .map(JavacSourceHandler::createCompiledClassFile)
+                .toList();
         if (compileResults.isEmpty()) {
             throw new JavacException(
                     String.format("""
                     Javac compilation failed for %s. Insufficient information was found to determine the cause.
                     Please check the following potential reasons:
                     1) Ensure JAVA_TOOL_OPTIONS is properly set. Refer to the warning message for guidance.
-                    2) Verify that your JDK version meets the minimum requirement of Java 11. We recommend using Java 17 or higher.
+                    2) Verify that your JDK version meets the minimum requirement 17 (or higher).
                     3) This might be a Tai-e bug, consider submit a bug report at %s""", javaSourceFile, FrontendException.TAIE_ISSUES));
         }
         return compileResults;
     }
 
-    private List<String> getCompiledFiles(String output) {
+    private static List<String> getCompiledFiles(String output) {
         String[] lines = output.split("\n");
         List<String> files = new ArrayList<>();
         for (String line : lines) {
@@ -139,7 +133,7 @@ public class JavacSourceHandler {
         return files;
     }
 
-    private DotClassFile createPhantomClassFile(String outputPath) {
+    private static DotClassFile createCompiledClassFile(String outputPath) {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
         String className = PathUtils.toClassName(relative);
@@ -147,24 +141,21 @@ public class JavacSourceHandler {
         return new DotClassFile(className, resource, null);
     }
 
-    private Pattern getWritePattern() {
+    private static Pattern getWritePattern() {
         String lang = System.getProperty("user.language");
-        String country = System.getProperty("user.country");
-        if (lang.equals("en")) {
-            return Pattern.compile("\\[wrote (.*\\.class)]");
-        } else if (lang.equals("de")) {
-            return Pattern.compile("\\[(.*\\.class) geschrieben]");
-        } else if (lang.equals("ja")) {
-            return Pattern.compile("\\[(.*\\.class)を書込み完了]");
-        } else if (lang.equals("zh") && country.equals("CN")) {
-            return Pattern.compile("\\[已写入(.*\\.class)]");
-        } else {
-            logger.warn("""
-                    Unknown language: {}, country: {}
-                    The Java source code frontend may not work properly
-                    Suggest add env: [JAVA_TOOL_OPTIONS=-Duser.language=en]""",
-                    lang, country);
-            return Pattern.compile("\\[wrote (.*\\.class)]");
-        }
+        return switch (lang) {
+            case "en" -> Pattern.compile("\\[wrote (.*\\.class)]");
+            // TODO: take country/region code (zh-CN/zh-HK/zh-Tw) into account?
+            case "zh" -> Pattern.compile("\\[已写入(.*\\.class)]");
+            case "de" -> Pattern.compile("\\[(.*\\.class) geschrieben]");
+            case "ja" -> Pattern.compile("\\[(.*\\.class)を書込み完了]");
+            default -> {
+                logger.warn("""
+                    Unknown language: {}
+                    JavacSourceHandler may not work properly with javac.
+                    Possible fix: add 'JAVA_TOOL_OPTIONS=-Duser.language=en' to env""", lang);
+                yield Pattern.compile("\\[wrote (.*\\.class)]");
+            }
+        };
     }
 }
