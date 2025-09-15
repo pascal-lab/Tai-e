@@ -50,7 +50,6 @@ import pascal.taie.frontend.java.Top;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.IRBuildingPhase;
 import pascal.taie.frontend.java.main.NewFrontendIRComponent;
-import pascal.taie.frontend.java.report.IRConstructionTimeBuilder;
 import pascal.taie.frontend.java.source.AsmMethodSource;
 import pascal.taie.frontend.java.ssa.BCSSA;
 import pascal.taie.frontend.java.ssa.DUInfo;
@@ -283,8 +282,6 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
      */
     private Dominator<BytecodeBlock> dom;
 
-    private IRConstructionTimeBuilder irConstructionTimeBuilder;
-
     public BytecodeIRBuilder(FrontendContext context, JMethod method, AsmMethodSource methodSource) {
         super(context, IRBuildingPhase.BYTECODE_UNTYPED_IR_BUILDING);
         this.method = method;
@@ -306,7 +303,6 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
             this.stmts = new ArrayList<>();
             this.phiList = new ArrayList<>();
             this.duInfo = new DUInfo(source.maxLocals);
-            this.irConstructionTimeBuilder = new IRConstructionTimeBuilder();
         } else {
             this.manager = null;
             this.asm2Stmt = null;
@@ -318,20 +314,11 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
     }
 
     public void build() {
-        // a.analyze()
         if (!isEmpty) {
-            irConstructionTimeBuilder.startBCSSA();
             buildCFG();
-            irConstructionTimeBuilder.endBCSSA();
-
-            irConstructionTimeBuilder.startBC3AC();
             traverseBlocks();
-            irConstructionTimeBuilder.endBC3AC();
-
-            irConstructionTimeBuilder.startTypeInference();
             this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
             inferTypeWithoutFrame();
-            irConstructionTimeBuilder.endTypeInference();
 
             makeStmts(true);
             makeExceptionTable();

@@ -31,7 +31,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.bc_3ac.BytecodeIRBuilder;
-import pascal.taie.frontend.java.report.FrontendTimer;
 import pascal.taie.frontend.java.source.AsmMethodSource;
 import pascal.taie.frontend.java.source.AsmSource;
 import pascal.taie.ir.IR;
@@ -84,11 +83,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
      * A map to store the method source for each method.
      */
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
-
-    /**
-     * A timer to measure the time taken for bytecode parsing.
-     */
-    private final FrontendTimer bytecodeParsingTimer = new FrontendTimer();
 
     public DefaultIRBuilder(FrontendContext context) {
         super(context);
@@ -239,7 +233,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
     }
 
     private void loadClassSourceImpl(JClass clazz) {
-        bytecodeParsingTimer.start();
         // use remove to release memory
         AsmSource source = class2Node.remove(clazz);
         assert source != null;
@@ -254,7 +247,6 @@ public class DefaultIRBuilder extends NewFrontendComponent
             }
         }, ClassReader.SKIP_FRAMES);
         paringMethodSource(kv, clazz);
-        bytecodeParsingTimer.stop();
     }
 
     private void paringMethodSource(LoadingKV kv, JClass clazz) {
