@@ -26,8 +26,7 @@ import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.frontend.java.Uninitialized;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.main.IRBuildingPhase;
-import pascal.taie.frontend.java.main.NewFrontendIRComponent;
+import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -92,7 +91,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * Type inference based on stack map frames
  */
-public class TypeInference0 extends NewFrontendIRComponent {
+public class TypeInference0 extends NewFrontendComponent {
 
     private final BytecodeIRBuilder builder;
 
@@ -107,7 +106,7 @@ public class TypeInference0 extends NewFrontendIRComponent {
     private final ClassType stringType;
 
     public TypeInference0(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
+        super(context);
         this.builder = builder;
         varSize = builder.manager.getVars().size();
 

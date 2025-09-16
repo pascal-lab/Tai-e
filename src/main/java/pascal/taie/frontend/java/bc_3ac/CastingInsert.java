@@ -28,8 +28,7 @@ import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.frontend.java.Lenses;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.main.IRBuildingPhase;
-import pascal.taie.frontend.java.main.NewFrontendIRComponent;
+import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ExpMutator;
@@ -63,7 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CastingInsert extends NewFrontendIRComponent {
+public class CastingInsert extends NewFrontendComponent {
 
     private final BytecodeIRBuilder builder;
 
@@ -74,7 +73,7 @@ public class CastingInsert extends NewFrontendIRComponent {
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
     public CastingInsert(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
+        super(context);
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();
     }

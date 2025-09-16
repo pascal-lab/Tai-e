@@ -49,8 +49,7 @@ import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Top;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
-import pascal.taie.frontend.java.main.IRBuildingPhase;
-import pascal.taie.frontend.java.main.NewFrontendIRComponent;
+import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.BCSSA;
 import pascal.taie.frontend.java.ssa.DUInfo;
 import pascal.taie.frontend.java.ssa.Dominator;
@@ -155,7 +154,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * <p>The main class for IR building of bytecode frontend</p>
  */
-public class BytecodeIRBuilder extends NewFrontendIRComponent {
+public class BytecodeIRBuilder extends NewFrontendComponent {
 
     /**
      * Taie IR output
@@ -283,7 +282,7 @@ public class BytecodeIRBuilder extends NewFrontendIRComponent {
     private Dominator<BytecodeBlock> dom;
 
     public BytecodeIRBuilder(FrontendContext context, JMethod method, AsmMethodSource methodSource) {
-        super(context, IRBuildingPhase.BYTECODE_UNTYPED_IR_BUILDING);
+        super(context);
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);

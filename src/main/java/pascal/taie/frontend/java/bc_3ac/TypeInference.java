@@ -25,8 +25,7 @@ package pascal.taie.frontend.java.bc_3ac;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.main.IRBuildingPhase;
-import pascal.taie.frontend.java.main.NewFrontendIRComponent;
+import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.ExpMutator;
@@ -85,7 +84,7 @@ import static pascal.taie.language.type.IntType.INT;
  * <p>(1) Ben Bellamy, Pavel Avgustinov, Oege de Moor, and Damien Sereni. 2008. Efficient local type inference.
  * SIGPLAN Not. 43, 10 (September 2008), 475–492. <a href="https://doi.org/10.1145/1449955.1449802">link</a>
  */
-public class TypeInference extends NewFrontendIRComponent {
+public class TypeInference extends NewFrontendComponent {
 
     final BytecodeIRBuilder builder;
 
@@ -94,7 +93,7 @@ public class TypeInference extends NewFrontendIRComponent {
     private boolean needCasting;
 
     public TypeInference(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context, IRBuildingPhase.BYTECODE_TYPE_INFERENCE);
+        super(context);
         this.builder = builder;
         graph = new TypingFlowGraph(builder.manager.getVars().size());
         this.needCasting = false;

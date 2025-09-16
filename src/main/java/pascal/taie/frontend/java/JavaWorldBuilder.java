@@ -67,14 +67,12 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // options will be used during World building, thus it should be
         // set at first.
         world.setOptions(options);
-
-        // initialize build context
-        FrontendContext ctx = new FrontendContext(options.isSSA());
-
         // build project from options
         Project project = new OptionsProjectBuilder(options).build();
         // build closed world
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
+        // initialize build context
+        FrontendContext ctx = new FrontendContext(options.isSSA());
         // set up class hierarchy, classes are built in this phase
         ClassHierarchy hierarchy = new DefaultCHBuilder(ctx).build(closedWorld);
         world.setClassHierarchy(hierarchy);
