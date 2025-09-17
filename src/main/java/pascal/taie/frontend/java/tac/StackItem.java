@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.bc_3ac;
+package pascal.taie.frontend.java.tac;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import pascal.taie.ir.exp.Exp;
