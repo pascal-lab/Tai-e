@@ -20,15 +20,17 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.tac;
+package pascal.taie.frontend.java.type;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.frontend.java.Lenses;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
+import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
+import pascal.taie.frontend.java.tac.BytecodeBlock;
+import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ExpMutator;
@@ -62,17 +64,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CastingInsert extends NewFrontendComponent {
+class CastingInserter extends NewFrontendComponent {
+
+    private static final Logger logger = LogManager.getLogger(CastingInserter.class);
 
     private final BytecodeIRBuilder builder;
-
-    private static final Logger logger = LogManager.getLogger(CastingInsert.class);
 
     private Stmt currentStmt;
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    public CastingInsert(BytecodeIRBuilder builder, FrontendContext context) {
+    CastingInserter(BytecodeIRBuilder builder, FrontendContext context) {
         super(context);
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();
@@ -144,7 +146,7 @@ public class CastingInsert extends NewFrontendComponent {
         }
     }
 
-    public void build() {
+    void build() {
 
         for (BytecodeBlock block : builder.blockSortedList) {
 
@@ -327,11 +329,11 @@ public class CastingInsert extends NewFrontendComponent {
         return l.subSt(stmt);
     }
 
-    List<Stmt> getStmts(BytecodeBlock block) {
+    private List<Stmt> getStmts(BytecodeBlock block) {
         return block.getStmts();
     }
 
-    Pair<DefinitionStmt<?, ?>, Integer> findNewInBlock(List<Stmt> newStmts, Var target) {
+    private Pair<DefinitionStmt<?, ?>, Integer> findNewInBlock(List<Stmt> newStmts, Var target) {
         int idx = newStmts.size() - 1;
         for (; idx >= 0; idx--) {
             Stmt now = newStmts.get(idx);
@@ -347,7 +349,7 @@ public class CastingInsert extends NewFrontendComponent {
      * @return offered variable with local type, maybe null
      */
     private Var requireFlowTypeVar(BytecodeBlock block, Var globalVar, List<Stmt> newStmts, Type targetType) {
-        if (builder.isUSE_SSA()) {
+        if (builder.isSSA()) {
             return null;
         }
         FlowTypeInfo info = new FlowTypeInfo(block, globalVar);

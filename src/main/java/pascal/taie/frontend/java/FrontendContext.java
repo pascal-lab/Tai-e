@@ -25,6 +25,8 @@ package pascal.taie.frontend.java;
 import pascal.taie.frontend.java.classes.AsmSource;
 import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.main.DefaultIRBuilder;
+import pascal.taie.frontend.java.type.TempTypeSystem;
+import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;

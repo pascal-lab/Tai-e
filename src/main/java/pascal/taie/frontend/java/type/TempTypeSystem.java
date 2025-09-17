@@ -20,8 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.type;
 
+import pascal.taie.frontend.java.FrontendContext;
+import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;

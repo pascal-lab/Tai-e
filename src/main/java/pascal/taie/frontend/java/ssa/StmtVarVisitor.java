@@ -20,9 +20,8 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ssa;
 
-import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.ConditionExp;

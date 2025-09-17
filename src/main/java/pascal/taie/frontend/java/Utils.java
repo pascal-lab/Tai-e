@@ -32,6 +32,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.frontend.java.type.TypeContext;
+import pascal.taie.frontend.java.type.Uninitialized;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -99,7 +101,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.java.Top.TOP;
+import static pascal.taie.frontend.java.type.Top.TOP;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -593,7 +595,7 @@ public class Utils {
         return t instanceof PrimitiveType p && p.asInt();
     }
 
-    static boolean isSubtype(
+    public static boolean isSubtype(
             TypeContext tCtx,
             pascal.taie.language.type.Type supertype, pascal.taie.language.type.Type subtype) {
 //        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();

@@ -20,16 +20,41 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.type;
 
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.ExpVisitor;
+import pascal.taie.ir.exp.RValue;
 import pascal.taie.language.type.Type;
 
-public enum Uninitialized implements Type {
+import java.util.Set;
 
-    UNINITIALIZED;
+/**
+ * see JVM spec 4.10.1.2. Verification Type System <br>
+ * when push a double / long to stack, first push a Top. <br>
+ * [top, double, ...]
+ */
+public enum Top implements Exp, Type {
+
+    TOP;
+
+    @Override
+    public Type getType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<RValue> getUses() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public String getName() {
-        return "<uninitialized-type>";
+        return "<top-type>";
     }
 }

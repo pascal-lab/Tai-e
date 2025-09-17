@@ -20,14 +20,15 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.tac;
+package pascal.taie.frontend.java.type;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.FrontendStmtVisitor;
-import pascal.taie.frontend.java.Uninitialized;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
+import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
+import pascal.taie.frontend.java.tac.BytecodeBlock;
+import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.BinaryExp;
@@ -291,8 +292,7 @@ public class TypeInference0 extends NewFrontendComponent {
         buildLocalTypes();
         inferTypes();
         setTypeForLocal();
-        CastingInsert insert = new CastingInsert(builder, ctx());
-        insert.build();
+        new CastingInserter(builder, ctx()).build();
     }
 
     private void buildLocalTypes() {
@@ -371,7 +371,7 @@ public class TypeInference0 extends NewFrontendComponent {
     Typing loadNewBlockTyping(BytecodeBlock block, Typing typing) {
         Type[] newTyping = typing.typing;
         // only NON-SSA need this, it will cause problem in SSA
-        if (!builder.isUSE_SSA()) {
+        if (!builder.isSSA()) {
             for (int i = 0; i < varSize; ++i) {
                 int slot = localCells[i];
                 if (slot != -1) {
@@ -553,7 +553,7 @@ public class TypeInference0 extends NewFrontendComponent {
             stmt.accept(visitor);
         }
 
-        if (builder.isUSE_SSA()) {
+        if (builder.isSSA()) {
             // add type assigns for phi stmts
             addPhiAssigns(block, typing);
         }

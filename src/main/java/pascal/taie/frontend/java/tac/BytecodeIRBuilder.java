@@ -46,7 +46,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.IBasicBlock;
-import pascal.taie.frontend.java.Top;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
@@ -60,6 +59,9 @@ import pascal.taie.frontend.java.ssa.IRSSATransform;
 import pascal.taie.frontend.java.ssa.IndexedGraph;
 import pascal.taie.frontend.java.ssa.PhiResolver;
 import pascal.taie.frontend.java.ssa.VarSSAInfo;
+import pascal.taie.frontend.java.type.Top;
+import pascal.taie.frontend.java.type.TypeInference;
+import pascal.taie.frontend.java.type.TypeInference0;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -164,7 +166,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     /**
      * The method to be built
      */
-    final JMethod method;
+    public final JMethod method;
 
     /**
      * Class file version number,
@@ -180,7 +182,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     /**
      * Blocks that are sorted in bytecode order
      */
-    List<BytecodeBlock> blockSortedList;
+    public List<BytecodeBlock> blockSortedList;
 
     /**
      * Entry block
@@ -190,7 +192,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     /**
      * Manager that manage the creation and naming of Taie IR variables
      */
-    final VarManager manager;
+    public final VarManager manager;
 
     /**
      * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Taie IR stmt
@@ -250,12 +252,12 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     /**
      * If we build SSA IR. Read from {@link pascal.taie.config.Options}
      */
-    private final boolean USE_SSA;
+    private final boolean isSSA;
 
     /**
      * Currently only used for test.
      */
-    final VarSSAInfo varSSAInfo;
+    public final VarSSAInfo varSSAInfo;
 
     /**
      * Dominator and dominator frontier computed for bytecode block graph
@@ -271,7 +273,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
-        this.USE_SSA = ctx().isUseSSA();
+        this.isSSA = ctx().isUseSSA();
         if (!isEmpty) {
             this.manager = new VarManager(method,
                     source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
@@ -1056,7 +1058,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             v = popVar(stack);
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (manager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !USE_SSA) {
+            if (manager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !isSSA) {
                 Var origin = v;
                 v = manager.getTempVar();
                 assocStmt(varNode, getAssignStmt(v, origin));
@@ -1185,7 +1187,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     }
 
     private void emitSSAPhisForLocal(BytecodeBlock block) {
-        assert USE_SSA;
+        assert isSSA;
         // should have at least one instruction
         AbstractInsnNode first = block.instr().get(0);
         splitting.visitLivePhis(block, (phi) -> {
@@ -1218,7 +1220,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         Stack<StackItem> nowStack = new Stack<>();
         Iterator<AbstractInsnNode> instr = block.instr().iterator();
 
-        if (USE_SSA) {
+        if (isSSA) {
            emitSSAPhisForLocal(block);
         }
         // skips all non-bytecode insn
@@ -1288,7 +1290,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         }
 
         // Temp fix. Add a nop to represent a block. Used in ssa.
-        if (USE_SSA) {
+        if (isSSA) {
             ensureBlockNotEmpty(block);
         }
 
@@ -1428,7 +1430,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     private void solveAllPhiAndOutput() {
         for (BytecodeBlock bb : blockSortedList) {
             fillInLoopHeaderStackPhis(bb);
-            if (USE_SSA) {
+            if (isSSA) {
                 addLocalPhiInDefs(bb);
             }
         }
@@ -1439,7 +1441,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             if (bb.getOutStack() == null) {
                 continue;
             }
-            if (!USE_SSA) {
+            if (!isSSA) {
                 if (stackMergeStmts.has(bb.getIndex())) {
                     List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
                     appendStackMergeStmts(bb, stmts);
@@ -1470,7 +1472,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     }
 
     private void resolveStackPhi() {
-        if (!USE_SSA) {
+        if (!isSSA) {
             stackMergeStmts = new LazyArray<>(blockSortedList.size()) {
                 @Override
                 protected List<Stmt> createInstance() {
@@ -1610,7 +1612,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 blockStmt.addAll(stmts);
             }
         }
-        if (block.isCatch() && USE_SSA) {
+        if (block.isCatch() && isSSA) {
             // adjust order for phis, put catch in the front
             List<Stmt> stmts = new ArrayList<>();
             Catch catchStmt = null;
@@ -1991,10 +1993,10 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             }
         };
 
-        splitting = new BCSSA<>(graph, maxLocal, genericDUInfo, USE_SSA, dom);
+        splitting = new BCSSA<>(graph, maxLocal, genericDUInfo, isSSA, dom);
         splitting.build();
         reachVars = new Var[splitting.getMaxDUCount()];
-        if (!USE_SSA) {
+        if (!isSSA) {
             manager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable());
         }
         // ensure all params is defined at beginning
@@ -2362,16 +2364,16 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         return blockSortedList.get(idx);
     }
 
-    BytecodeBlock getMergedOutEdge(BytecodeBlock block, int index) {
+    public BytecodeBlock getMergedOutEdge(BytecodeBlock block, int index) {
         int idx = g.getMergedOutEdge(block.getIndex(), index);
         return blockSortedList.get(idx);
     }
 
-    int getMergedOutEdgesCount(BytecodeBlock block) {
+    public int getMergedOutEdgesCount(BytecodeBlock block) {
         return g.getMergedOutEdgesCount(block.getIndex());
     }
 
-    boolean isInEdgeEmpty(BytecodeBlock block) {
+    public boolean isInEdgeEmpty(BytecodeBlock block) {
         return block.isCatch()  // be careful that there might be a case, catch block has unreachable inEdge
                 || getInEdgeCount(block) == 0;
     }
@@ -2381,15 +2383,15 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     }
 
     boolean isFastProcessVar(int v) {
-        return USE_SSA || splitting.canFastProcess(v);
+        return isSSA || splitting.canFastProcess(v);
     }
 
-    int[] getPostOrder() {
+    public int[] getPostOrder() {
         return dom.getPostOrder();
     }
 
-    boolean isUSE_SSA() {
-        return USE_SSA;
+    public boolean isSSA() {
+        return isSSA;
     }
 
     Dominator<BytecodeBlock> getDom() {

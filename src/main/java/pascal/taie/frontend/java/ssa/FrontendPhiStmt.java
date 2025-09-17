@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.ssa;
 
-import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.AssignStmt;
 import pascal.taie.ir.stmt.StmtVisitor;

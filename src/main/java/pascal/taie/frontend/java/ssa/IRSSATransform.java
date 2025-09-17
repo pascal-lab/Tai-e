@@ -24,7 +24,6 @@ package pascal.taie.frontend.java.ssa;
 
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Lenses;
-import pascal.taie.frontend.java.StmtVarVisitor;
 import pascal.taie.frontend.java.tac.BytecodeBlock;
 import pascal.taie.frontend.java.tac.VarManager;
 import pascal.taie.ir.exp.RValue;

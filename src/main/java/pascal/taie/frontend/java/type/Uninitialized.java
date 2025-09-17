@@ -20,17 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
-import pascal.taie.ir.stmt.StmtVisitor;
+import pascal.taie.language.type.Type;
 
-/**
- * As we separate the {@link pascal.taie.ir.stmt.PhiStmt} and {@link FrontendPhiStmt},
- * we need a new visitor interface to visit the {@link FrontendPhiStmt}.
- */
-public interface FrontendStmtVisitor<T> extends StmtVisitor<T> {
-    default T visit(FrontendPhiStmt stmt) {
-        return visitDefault(stmt);
+public enum Uninitialized implements Type {
+
+    UNINITIALIZED;
+
+    @Override
+    public String getName() {
+        return "<uninitialized-type>";
     }
 }

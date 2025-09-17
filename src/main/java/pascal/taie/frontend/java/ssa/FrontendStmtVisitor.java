@@ -20,41 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ssa;
 
-import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.ExpVisitor;
-import pascal.taie.ir.exp.RValue;
-import pascal.taie.language.type.Type;
-
-import java.util.Set;
+import pascal.taie.ir.stmt.StmtVisitor;
 
 /**
- * see JVM spec 4.10.1.2. Verification Type System <br>
- * when push a double / long to stack, first push a Top. <br>
- * [top, double, ...]
+ * As we separate the {@link pascal.taie.ir.stmt.PhiStmt} and {@link FrontendPhiStmt},
+ * we need a new visitor interface to visit the {@link FrontendPhiStmt}.
  */
-public enum Top implements Exp, Type {
-
-    TOP;
-
-    @Override
-    public Type getType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<RValue> getUses() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> T accept(ExpVisitor<T> visitor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getName() {
-        return "<top-type>";
+public interface FrontendStmtVisitor<T> extends StmtVisitor<T> {
+    default T visit(FrontendPhiStmt stmt) {
+        return visitDefault(stmt);
     }
 }

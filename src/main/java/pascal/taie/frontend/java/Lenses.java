@@ -23,6 +23,7 @@
 package pascal.taie.frontend.java;
 
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
+import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;

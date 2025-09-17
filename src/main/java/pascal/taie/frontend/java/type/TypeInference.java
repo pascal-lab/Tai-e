@@ -20,13 +20,15 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.tac;
+package pascal.taie.frontend.java.type;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.FrontendStmtVisitor;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
+import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
+import pascal.taie.frontend.java.tac.BytecodeBlock;
+import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -300,8 +302,8 @@ public class TypeInference extends NewFrontendComponent {
         graph.inferTypes();
         setTypes(graph);
         if (needCasting) {
-            CastingInsert insert = new CastingInsert(builder, ctx());
-            insert.build();
+            CastingInserter inserter = new CastingInserter(builder, ctx());
+            inserter.build();
         }
     }
 

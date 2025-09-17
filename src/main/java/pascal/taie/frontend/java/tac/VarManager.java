@@ -474,7 +474,7 @@ public class VarManager {
         return v;
     }
 
-    int[] getSlotTable() {
+    public int[] getSlotTable() {
         int[] res = new int[vars.size()];
         Arrays.fill(res, -1);
         var2Local.forEach((k, v) -> {

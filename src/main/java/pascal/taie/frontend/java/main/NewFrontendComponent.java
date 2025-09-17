@@ -23,7 +23,7 @@
 package pascal.taie.frontend.java.main;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.TypeContext;
+import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.language.type.TypeSystem;
 
 /**
