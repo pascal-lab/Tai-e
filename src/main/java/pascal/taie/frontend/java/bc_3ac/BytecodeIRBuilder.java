@@ -233,25 +233,6 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
      */
     private final DUInfo duInfo;
 
-    /**
-     * <p>Bytecode exception table is a table of</p>
-     * <pre>
-     *     start   end    handler
-     * </pre>
-     * Where the <code>start</code> and <code>end</code> is try block,
-     * the <code>handler</code> is catch block.
-     * <p>We convert them to a more convenient way,</p>
-     * <pre>
-     *     [ ([ try_1, try_2, ... try_n], catch) ... ]
-     * </pre>
-     * <p>Note we do <em>NOT</em> ensure the catch block of this list is unique</p>
-     *
-     * <p>This field only intend to be used for {@link VarWebSplitter}.
-     * As {@link VarWebSplitter} is deprecated, this field is also deprecated.</p>
-     */
-    @Deprecated
-    private List<Pair<List<BytecodeBlock>, BytecodeBlock>> tryAndHandlerBlocks;
-
     private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
 
     /**
@@ -2327,33 +2308,6 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 }
             }
         }
-    }
-
-    /**
-     * This method is only intend to be used for {@link VarWebSplitter}.
-     * Because {@link VarWebSplitter} is deprecated, this method is also deprecated.
-     * It might be used for debugging so we keep it.
-     */
-    @Deprecated
-    public List<Pair<List<BytecodeBlock>, BytecodeBlock>> getTryAndHandlerBlocks() {
-        if (this.tryAndHandlerBlocks == null) {
-            List<Pair<List<BytecodeBlock>, BytecodeBlock>> result = new ArrayList<>();
-            for (var node : source.tryCatchBlocks) {
-                List<BytecodeBlock> tryBlocks = new ArrayList<>();
-                for (int i = getIndex(node.start); i < getIndex(node.end); ++i) {
-                    if (idx2Block[i] != null) {
-                        idx2Block[i].setIsInTry();
-                        tryBlocks.add(idx2Block[i]);
-                    }
-                }
-                BytecodeBlock handler = getBlockFromLabel(node.handler);
-                assert handler != null;
-                result.add(new Pair<>(tryBlocks, handler));
-            }
-            this.tryAndHandlerBlocks = result;
-        }
-
-        return this.tryAndHandlerBlocks;
     }
 
     private void reportMergeStats() {

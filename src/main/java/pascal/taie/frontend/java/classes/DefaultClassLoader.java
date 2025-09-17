@@ -38,9 +38,7 @@ public class DefaultClassLoader extends NewFrontendComponent
 
     private final boolean allowPhantom;
 
-    Map<String, JClass> mapping;
-
-    private final Object phantomLock = new Object();
+    private Map<String, JClass> classes;
 
     DefaultClassLoader(FrontendContext context, ClassHierarchy hierarchy, boolean allowPhantom) {
         super(context);
@@ -55,39 +53,35 @@ public class DefaultClassLoader extends NewFrontendComponent
 
     @Override
     public JClass loadClass(String name, boolean allowPhantom) {
-        JClass jclass = mapping.get(name);
+        JClass jclass = classes.get(name);
         // Disable phantom class creating with this function
         if (jclass == null && this.allowPhantom && allowPhantom) {
             return loadPhantomClass(name);
         }
-
         // TODO: add warning for missing classes
         return jclass;
     }
 
-    public JClass loadPhantomClass(String name) {
-        synchronized (phantomLock) {
-            JClass jclass = mapping.get(name);
-            if (jclass == null) {
-                // phantom class
-                // what should a moduleName for a phantom class be?
-                jclass = new JClass(this, name, null);
-                mapping.put(name, jclass); // mapping itself is a concurrent map
-                new PhantomClassBuilder(ctx(), name).build(jclass);
-                // Here is the only point where hierarchy could be concurrently added
-                // if there is no mutex.
-                hierarchy.addClass(jclass);
-            }
-            return jclass;
+    private synchronized JClass loadPhantomClass(String name) {
+        JClass jclass = classes.get(name);
+        if (jclass == null) { // phantom class
+            // what should a moduleName for a phantom class be?
+            jclass = new JClass(this, name, null);
+            classes.put(name, jclass);
+            new PhantomClassBuilder(ctx(), name).build(jclass);
+            // Here is the only point where hierarchy could be concurrently added
+            // if there is no mutex.
+            hierarchy.addClass(jclass);
         }
+        return jclass;
     }
 
-    public void setMapping(Map<String, JClass> mapping) {
-        this.mapping = mapping;
+    public void setClasses(Map<String, JClass> classes) {
+        this.classes = classes;
     }
 
     @Override
     public Collection<JClass> getLoadedClasses() {
-        return null;
+        return classes.values();
     }
 }

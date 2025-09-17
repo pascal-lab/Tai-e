@@ -113,6 +113,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
  * Utility functions for frontend
  */
 public class Utils {
+
     public static String getBinaryName(String internalName) {
         return Type.getObjectType(internalName).getClassName();
     }
@@ -121,7 +122,7 @@ public class Utils {
         return (opcodes & modifier) != 0;
     }
 
-    public static int toAsmModifier(Modifier modifier) {
+    private static int toAsmModifier(Modifier modifier) {
         return switch (modifier) {
             case PUBLIC -> Opcodes.ACC_PUBLIC;
             case PRIVATE -> Opcodes.ACC_PRIVATE;
@@ -152,7 +153,7 @@ public class Utils {
         return res;
     }
 
-    static final Set<Modifier> PUB = EnumSet.of(Modifier.PUBLIC);
+    private static final Set<Modifier> PUB = EnumSet.of(Modifier.PUBLIC);
     static final Set<Modifier> PRI = EnumSet.of(Modifier.PRIVATE);
     static final Set<Modifier> PRO = EnumSet.of(Modifier.PROTECTED);
     static final Set<Modifier> STA = EnumSet.of(Modifier.STATIC);

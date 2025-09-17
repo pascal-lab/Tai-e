@@ -28,8 +28,8 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.java.classes.ClassHierarchyBuilder;
 import pascal.taie.frontend.java.classes.ClassSource;
-import pascal.taie.frontend.java.classes.DefaultCHBuilder;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -74,7 +74,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // initialize build context
         FrontendContext ctx = new FrontendContext(options.isSSA());
         // set up class hierarchy, classes are built in this phase
-        ClassHierarchy hierarchy = new DefaultCHBuilder(ctx).build(closedWorld);
+        ClassHierarchy hierarchy = new ClassHierarchyBuilder(ctx).build(closedWorld);
         world.setClassHierarchy(hierarchy);
         // set up type system
         // TODO: check type system here, maybe replace temp type system

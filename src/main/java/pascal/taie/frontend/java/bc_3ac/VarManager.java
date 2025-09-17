@@ -54,7 +54,7 @@ import java.util.stream.Stream;
 
 import static pascal.taie.language.type.IntType.INT;
 
-public class VarManager implements IVarManager {
+public class VarManager {
 
     public static final String LOCAL_PREFIX = "$";
 
@@ -219,7 +219,6 @@ public class VarManager implements IVarManager {
         return v;
     }
 
-    @Override
     public Var splitVar(Var var, int index) {
         if (isTempVar(var)) {
             if (index == 1) {
@@ -238,7 +237,6 @@ public class VarManager implements IVarManager {
     /**
      * @return parameters except `this`.
      */
-    @Override
     public List<Var> getParams() {
         return params;
     }
@@ -255,7 +253,6 @@ public class VarManager implements IVarManager {
         return temp;
     }
 
-    @Override
     public List<Var> getVars() {
         return vars;
     }
@@ -286,7 +283,6 @@ public class VarManager implements IVarManager {
         return local2Var;
     }
 
-    @Override
     public Var[] getNonSSAVar() {
         return vars.toArray(Var[]::new);
     }
@@ -491,7 +487,6 @@ public class VarManager implements IVarManager {
         return var.getIndex();
     }
 
-    @Override
     public void removeAndReindexVars(Predicate<Var> p) {
         vars.removeIf(p);
         for (int i = 0; i < vars.size(); i++) {

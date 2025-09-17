@@ -22,10 +22,68 @@
 
 package pascal.taie.frontend.java.classes;
 
+import pascal.taie.World;
+import pascal.taie.frontend.java.FrontendContext;
+import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassHierarchyImpl;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
+import java.util.Map;
 
-public interface ClassHierarchyBuilder {
-    ClassHierarchy build(Collection<ClassSource> sources);
+public class ClassHierarchyBuilder extends NewFrontendComponent {
+
+    public ClassHierarchyBuilder(FrontendContext context) {
+        super(context);
+    }
+
+    public ClassHierarchy build(Collection<ClassSource> sources) {
+        ClassHierarchyImpl hierarchy = new ClassHierarchyImpl();
+        DefaultClassLoader loader = new DefaultClassLoader(
+                ctx(), hierarchy, World.get().getOptions().isAllowPhantom());
+        Map<String, JClass> classes = Maps.newMap();
+        loader.setClasses(classes);
+        sources.forEach(i -> {
+            String name = i.getClassName();
+            classes.put(name, new JClass(loader, name));
+        });
+
+        hierarchy.setDefaultClassLoader(loader);
+        hierarchy.setBootstrapClassLoader(loader);
+        ctx().initClassloaderAndTypeSystem(loader);
+
+        sources.parallelStream().forEach(source -> {
+            JClass jclass = classes.getOrDefault(source.getClassName(), null);
+            if (jclass == null) {
+                throw new IllegalStateException();
+            }
+            JClassBuilder asb = getClassBuilder(source, jclass);
+            asb.build(jclass);
+            if (source instanceof AsmSource asmSource) {
+                ctx().noticeClassSource(jclass, asmSource);
+            }
+        });
+
+        for (JClass jclass : classes.values()) {
+            if (jclass.getIndex() == -1) {
+                hierarchy.addClass(jclass);
+            }
+        }
+        ctx().initHierarchy(hierarchy);
+        return hierarchy;
+    }
+
+    private JClassBuilder getClassBuilder(
+            ClassSource source, JClass jClass) {
+        if (source instanceof AsmSource i) {
+            return new BytecodeClassBuilder(ctx(), i, jClass);
+        } else if (source instanceof PhantomClassSource p) {
+            return new PhantomClassBuilder(ctx(), p.getClassName());
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

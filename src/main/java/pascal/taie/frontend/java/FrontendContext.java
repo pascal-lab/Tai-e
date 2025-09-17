@@ -198,10 +198,6 @@ public class FrontendContext {
         irBuilder.putClassSource(clazz, source);
     }
 
-    public ClassHierarchy getClassHierarchy() {
-        return hierarchy;
-    }
-
     public boolean isUseSSA() {
         return useSSA;
     }

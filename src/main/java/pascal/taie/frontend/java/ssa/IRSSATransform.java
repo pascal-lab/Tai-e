@@ -26,7 +26,6 @@ import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Lenses;
 import pascal.taie.frontend.java.StmtVarVisitor;
 import pascal.taie.frontend.java.bc_3ac.BytecodeBlock;
-import pascal.taie.frontend.java.bc_3ac.IVarManager;
 import pascal.taie.frontend.java.bc_3ac.VarManager;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
@@ -71,7 +70,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
 
     private final int[] postOrder;
 
-    private final IVarManager manager;
+    private final VarManager manager;
 
     private final List<Var> vars;
 
@@ -86,7 +85,7 @@ public class IRSSATransform<Block extends IBasicBlock> {
     public IRSSATransform(
             JMethod method,
             IndexedGraph<Block> graph,
-            IVarManager manager,
+            VarManager manager,
             DUInfo info
     ) {
         this.method = method;
