@@ -133,7 +133,7 @@ public class CSCallGraph extends AbstractCallGraph<CSCallSite, CSMethod> {
     }
 
     /**
-     * @implNote This implementation may be inefficient, please use with care
+     * <strong>Note:</strong> This implementation may be inefficient, please use with care
      */
     @Override
     public int getNumberOfEdges() {

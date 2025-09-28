@@ -37,7 +37,9 @@ import java.util.stream.Stream;
  * Query operations on the returned callgraph "read through" to the underlying callgraph,
  * and the results are cached.
  *
- * @implNote This class is not thread-safe
+ * <p>
+ * <strong>Note:</strong> This class is not thread-safe
+ * </p>
  */
 class CachedCallGraph<CallSite, Method> implements CallGraph<CallSite, Method> {
 
