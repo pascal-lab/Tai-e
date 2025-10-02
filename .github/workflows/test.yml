@@ -28,7 +28,11 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
-      - name: Test
+      - name: Check release generation
+        run: |
+          ./gradlew docs:all fatJar
+
+      - name: Regression tests and code coverage
         run: |
           ./gradlew test jacocoTestReport --scan
 
