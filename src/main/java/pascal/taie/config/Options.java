@@ -94,6 +94,16 @@ public class Options implements Serializable {
         cmd.usage(System.out);
     }
 
+    @JsonProperty
+    @Option(names = "--create-issue-package",
+            description = "Create reproducible package for issue reporting",
+            defaultValue = "false")
+    private boolean createIssuePackage;
+
+    public boolean isCreateIssuePackage() {
+        return createIssuePackage;
+    }
+
     // ---------- program options ----------
     @JsonProperty
     @JsonSerialize(contentUsing = FilePathSerializer.class)
