@@ -28,13 +28,11 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    // Use asm to read java class file
-    implementation("org.ow2.asm:asm:9.4")
+    // Use asm to read class file
+    implementation("org.ow2.asm:asm:9.5")
     implementation("org.ow2.asm:asm-commons:9.5")
     implementation("org.ow2.asm:asm-tree:9.5")
     implementation("org.ow2.asm:asm-util:9.5")
-    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.28.0")
-
 
     testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
