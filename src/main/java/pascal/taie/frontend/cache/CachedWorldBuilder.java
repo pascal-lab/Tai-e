@@ -41,8 +41,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link WorldBuilder} that loads the cached world if it exists, or delegates to the
- * underlying {@link WorldBuilder} otherwise.
+ * A {@link WorldBuilder} that caches the built World on disk,
+ * improving performance by loading from cache on subsequent runs.
+ * <p>
+ * The cache can be reused when {@link #getWorldCacheHash(Options)} produces
+ * the same hash value, which is computed based on program input related
+ * fields in {@link Options}. If any program input related fields change
+ * in {@link Options}, please update that method accordingly.
+ * <p>
+ * Defaults to the {@link #delegate} builder if the cache is unavailable.
  */
 public class CachedWorldBuilder implements WorldBuilder {
 
@@ -50,6 +57,10 @@ public class CachedWorldBuilder implements WorldBuilder {
 
     private static final String CACHE_DIR = "cache";
 
+    /**
+     * The delegate {@link WorldBuilder} used to build the {@link World}
+     * when the cache is unavailable.
+     */
     private final WorldBuilder delegate;
 
     public CachedWorldBuilder(WorldBuilder delegate) {
@@ -59,11 +70,6 @@ public class CachedWorldBuilder implements WorldBuilder {
 
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
-        if (!options.isWorldCacheMode()) {
-            logger.error("Using CachedWorldBuilder,"
-                    + " but world cache mode option is not enabled");
-            System.exit(-1);
-        }
         File worldCacheFile = getWorldCacheFile(options);
         if (loadCache(options, worldCacheFile)) {
             return;
@@ -118,23 +124,13 @@ public class CachedWorldBuilder implements WorldBuilder {
         logger.info("Saving the world cache to {}", worldCacheFile);
         Timer timer = new Timer("Save the world cache");
         timer.start();
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(worldCacheFile)));
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new BufferedOutputStream(new FileOutputStream(worldCacheFile)))) {
             oos.writeObject(World.get());
-            oos.close();
         } catch (Exception e) {
             logger.error("Failed to save world cache from {} due to {}",
                     worldCacheFile, e);
         } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (Exception e) {
-                    logger.error("Failed to close output stream", e);
-                }
-            }
             timer.stop();
             logger.info(timer);
         }
