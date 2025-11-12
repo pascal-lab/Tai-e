@@ -35,6 +35,7 @@ import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
+import pascal.taie.util.IssuePackager;
 import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Lists;
@@ -60,6 +61,9 @@ public class Main {
             }
             buildWorld(options, plan.analyses());
             executePlan(plan);
+            if (options.isCreateIssuePackage()) {
+                IssuePackager.createIssuePackage(options);
+            }
         }, "Tai-e");
         LoggerConfigs.reconfigure();
     }
