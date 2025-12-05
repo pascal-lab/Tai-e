@@ -39,12 +39,48 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+/**
+ * A comprehensive monitoring utility for tracking task execution metrics including
+ * elapsed time, CPU usage, and memory consumption.
+ *
+ * <p>This class provides both instance-based and static methods for monitoring tasks.
+ * It tracks the following metrics:
+ * <ul>
+ *   <li><b>Elapsed Time:</b> Total execution time in seconds</li>
+ *   <li><b>CPU Usage:</b> Process CPU load at start, peak, and end of execution</li>
+ *   <li><b>Memory Usage:</b> Heap and non-heap memory consumption at start, peak, and end</li>
+ * </ul>
+ *
+ * <p>The monitor uses a scheduled executor to periodically sample CPU and memory usage
+ * (every {@value #INTERVAL} second) to capture peak values during task execution.
+ *
+ * <p><b>Example usage (instance-based):</b>
+ * <pre>{@code
+ * Monitor monitor = new Monitor("MyTask");
+ * monitor.start();
+ * // ... perform task ...
+ * monitor.stop();
+ * System.out.println(monitor); // Prints all metrics
+ * }</pre>
+ *
+ * <p><b>Example usage (static convenience method):</b>
+ * <pre>{@code
+ * Monitor.runAndCount(() -> {
+ *     // ... perform task ...
+ * }, "MyTask");
+ * }</pre>
+ *
+ * <p>This class replaces the deprecated {@link Timer} class and provides enhanced
+ * monitoring capabilities beyond simple time tracking.
+ *
+ * @see Timer
+ */
 public class Monitor {
 
     private static final Logger logger = LogManager.getLogger(Monitor.class);
 
     /**
-     * Monitoring interval in seconds
+     * Monitoring interval in seconds for periodic CPU and memory sampling.
      */
     private static final int INTERVAL = 1;
 
@@ -68,6 +104,11 @@ public class Monitor {
 
     private boolean inCounting = false;
 
+    /**
+     * Creates a new Monitor with the given name.
+     *
+     * @param name the name of this monitor, used in output messages
+     */
     public Monitor(String name) {
         this.name = name;
         this.osBean = (OperatingSystemMXBean) ManagementFactory
@@ -80,6 +121,13 @@ public class Monitor {
         });
     }
 
+    /**
+     * Starts the monitoring process.
+     *
+     * <p>Records the start time and initial CPU/memory metrics, and begins
+     * periodic sampling of CPU and memory usage to track peak values.
+     * If the monitor is already running, this call has no effect.
+     */
     public void start() {
         if (!inCounting) {
             inCounting = true;
@@ -92,6 +140,13 @@ public class Monitor {
         }
     }
 
+    /**
+     * Stops the monitoring process.
+     *
+     * <p>Records the final elapsed time and end CPU/memory metrics, then
+     * shuts down the periodic sampling scheduler. If the monitor is not
+     * currently running, this call has no effect.
+     */
     public void stop() {
         if (inCounting) {
             inCounting = false;
@@ -111,15 +166,34 @@ public class Monitor {
         }
     }
 
+    /**
+     * Returns the total elapsed time in seconds.
+     *
+     * @return the elapsed time in seconds as a floating-point number
+     */
     public float inSecond() {
         return elapsedTime / 1000F;
     }
 
+    /**
+     * Clears all monitoring data and resets the counting state.
+     *
+     * <p>This resets the elapsed time to zero and marks the monitor as not counting.
+     */
     public void clear() {
         elapsedTime = 0;
         inCounting = false;
     }
 
+    /**
+     * Returns a string representation of the monitoring results.
+     *
+     * <p>The output includes the monitor name, elapsed time, CPU usage statistics
+     * (start, peak, and end percentages), and memory usage statistics (start, peak,
+     * and end in megabytes).
+     *
+     * @return a formatted string containing all monitoring metrics
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -157,10 +231,16 @@ public class Monitor {
     }
 
     /**
-     * Runs a task, log the elapsed time, and return the result.
+     * Runs a task, monitors its execution, logs the results, and returns the task's result.
      *
-     * @param task     task to be executed
-     * @param taskName name of the task
+     * <p>This is a convenience method that creates a Monitor, starts it, executes the task,
+     * stops monitoring, and logs the results at the specified logging level.
+     *
+     * @param <T>      the type of result returned by the task
+     * @param task     the task to be executed
+     * @param taskName the name of the task for logging purposes
+     * @param level    the logging level for the monitoring results
+     * @return the result of the task execution
      */
     public static <T> T runAndCount(Supplier<T> task, String taskName, Level level) {
         logger.info("[{}] starts ...", taskName);
@@ -173,15 +253,28 @@ public class Monitor {
     }
 
     /**
-     * Runs a task and log the elapsed time.
+     * Runs a task, monitors its execution, and logs the results at INFO level.
      *
-     * @param task     task to be executed
-     * @param taskName taskName of the task
+     * <p>This is a convenience method that creates a Monitor, starts it, executes the task,
+     * stops monitoring, and logs the results at INFO level.
+     *
+     * @param task     the task to be executed
+     * @param taskName the name of the task for logging purposes
      */
     public static void runAndCount(Runnable task, String taskName) {
         runAndCount(task, taskName, Level.INFO);
     }
 
+    /**
+     * Runs a task, monitors its execution, and logs the results at the specified level.
+     *
+     * <p>This is a convenience method that creates a Monitor, starts it, executes the task,
+     * stops monitoring, and logs the results at the specified logging level.
+     *
+     * @param task     the task to be executed
+     * @param taskName the name of the task for logging purposes
+     * @param level    the logging level for the monitoring results
+     */
     public static void runAndCount(Runnable task, String taskName, Level level) {
         runAndCount(() -> {
             task.run();
@@ -190,7 +283,14 @@ public class Monitor {
     }
 
     /**
-     * Runs a task with given time budget.
+     * Runs a task with a given time budget.
+     *
+     * <p>Executes the task in a separate thread with a timeout. If the task does not
+     * complete within the specified time limit, the execution is terminated and the
+     * program exits with status code 1.
+     *
+     * @param task    the task to be executed
+     * @param seconds the time budget in seconds
      */
     public static void runWithTimeout(Runnable task, long seconds) {
         Duration timeout = Duration.ofSeconds(seconds);
@@ -207,4 +307,5 @@ public class Monitor {
             executor.shutdown();
         }
     }
+
 }
