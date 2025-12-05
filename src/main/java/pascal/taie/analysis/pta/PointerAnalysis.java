@@ -55,7 +55,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -85,15 +85,15 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 PointerAnalysisResult preResult = runAnalysis(heapModel,
                         ContextSelectorFactory.makeCISelector());
                 if (advanced.startsWith("scaler")) {
-                    selector = Timer.runAndCount(() -> ContextSelectorFactory
+                    selector = Monitor.runAndCount(() -> ContextSelectorFactory
                                     .makeGuidedSelector(Scaler.run(preResult, advanced)),
                             "Scaler", Level.INFO);
                 } else if (advanced.startsWith("zipper")) {
-                    selector = Timer.runAndCount(() -> ContextSelectorFactory
+                    selector = Monitor.runAndCount(() -> ContextSelectorFactory
                                     .makeSelectiveSelector(cs, Zipper.run(preResult, advanced)),
                             "Zipper", Level.INFO);
                 } else if (advanced.equals("mahjong")) {
-                    heapModel = Timer.runAndCount(() -> Mahjong.run(preResult, options),
+                    heapModel = Monitor.runAndCount(() -> Mahjong.run(preResult, options),
                             "Mahjong", Level.INFO);
                 } else {
                     throw new IllegalArgumentException(

@@ -28,7 +28,7 @@ import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.UnionFindSet;
 
@@ -55,12 +55,12 @@ public class Mahjong {
 
     HeapModel buildHeapModel(PointerAnalysisResult pta,
                              AnalysisOptions options) {
-        FieldPointsToGraph fpg = Timer.runAndCount(
+        FieldPointsToGraph fpg = Monitor.runAndCount(
                 () -> new FieldPointsToGraph(pta),
                 "Building field points-to graph", Level.INFO);
-        dfaFactory = Timer.runAndCount(() -> new DFAFactory(fpg),
+        dfaFactory = Monitor.runAndCount(() -> new DFAFactory(fpg),
                 "Building DFA", Level.INFO);
-        UnionFindSet<Obj> uf = Timer.runAndCount(
+        UnionFindSet<Obj> uf = Monitor.runAndCount(
                 () -> mergeTypeConsistentObjects(fpg),
                 "Merging type-consistent objects", Level.INFO);
         // build resulting heap model based on merge map

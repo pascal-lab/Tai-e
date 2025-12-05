@@ -39,9 +39,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
-public class Timer {
+public class Monitor {
 
-    private static final Logger logger = LogManager.getLogger(Timer.class);
+    private static final Logger logger = LogManager.getLogger(Monitor.class);
 
     /**
      * Monitoring interval in seconds
@@ -68,7 +68,7 @@ public class Timer {
 
     private boolean inCounting = false;
 
-    public Timer(String name) {
+    public Monitor(String name) {
         this.name = name;
         this.osBean = (OperatingSystemMXBean) ManagementFactory
                 .getOperatingSystemMXBean();
@@ -164,11 +164,11 @@ public class Timer {
      */
     public static <T> T runAndCount(Supplier<T> task, String taskName, Level level) {
         logger.info("[{}] starts ...", taskName);
-        Timer timer = new Timer(taskName);
-        timer.start();
+        Monitor monitor = new Monitor(taskName);
+        monitor.start();
         T result = task.get();
-        timer.stop();
-        logger.log(level, timer);
+        monitor.stop();
+        logger.log(level, monitor);
         return result;
     }
 

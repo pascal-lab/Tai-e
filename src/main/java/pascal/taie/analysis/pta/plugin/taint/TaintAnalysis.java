@@ -41,7 +41,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -251,7 +251,7 @@ public class TaintAnalysis extends CompositePlugin {
         taintFlows.forEach(logger::info);
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         TaintManager manager = context.manager();
-        Timer.runAndCount(() -> new TFGDumper().dump(
+        Monitor.runAndCount(() -> new TFGDumper().dump(
                         new TFGBuilder(solver.getResult(), taintFlows, manager).build(),
                         new File(World.get().getOptions().getOutputDir(), TAINT_FLOW_GRAPH_FILE)),
                 "TFGDumper");

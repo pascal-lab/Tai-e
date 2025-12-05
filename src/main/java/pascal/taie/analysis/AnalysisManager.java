@@ -36,7 +36,7 @@ import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 import pascal.taie.util.graph.SimpleGraph;
 
 import java.lang.reflect.Constructor;
@@ -100,7 +100,7 @@ public class AnalysisManager {
         methodScope = null;
         // execute analyses
         plan.analyses().forEach(config -> {
-            Analysis analysis = Timer.runAndCount(
+            Analysis analysis = Monitor.runAndCount(
                     () -> runAnalysis(config), config.getId(), Level.INFO);
             if (!keepAllResults) {
                 executedAnalyses.add(analysis);
