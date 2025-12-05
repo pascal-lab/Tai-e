@@ -19,7 +19,7 @@ class ArrayFieldTransfer {
 
         C c = new C();
 
-        A merge;
+        A merge = null;
         merge.transfer(taint);
         merge = c;
 
@@ -45,7 +45,7 @@ class ArrayFieldTransfer {
     private static void varToArray() {
         A taint = getSource();
         A[] a = new A[1];
-        transfer(taint, a)
+        transfer(taint, a);
         B b = new B();
         b.sink(a[0]);
     }

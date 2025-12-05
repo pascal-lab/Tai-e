@@ -7,7 +7,7 @@ class ArrayTaint {
         SourceSink.sink(join(",", arr));
     }
 
-    public static String join(String delim, String[] strings) {]
+    public static String join(String delim, String[] strings) {
         if (strings == null || strings.length == 0) {
             return "";
         }
