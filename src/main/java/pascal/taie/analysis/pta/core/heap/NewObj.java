@@ -24,7 +24,6 @@ package pascal.taie.analysis.pta.core.heap;
 
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
 import java.util.Optional;
@@ -37,12 +36,8 @@ public class NewObj extends Obj {
     private final New allocSite;
 
     NewObj(New allocSite) {
+        super(allocSite.getRValue().getType());
         this.allocSite = allocSite;
-    }
-
-    @Override
-    public ReferenceType getType() {
-        return allocSite.getRValue().getType();
     }
 
     @Override
