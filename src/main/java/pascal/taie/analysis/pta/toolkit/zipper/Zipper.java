@@ -37,8 +37,8 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Monitor;
 import pascal.taie.util.MutableInt;
-import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -110,9 +110,9 @@ public class Zipper {
         this.pta = new PointerAnalysisResultExImpl(ptaBase, true);
         this.isExpress = isExpress;
         this.pv = pv;
-        this.oag = Timer.runAndCount(() -> new ObjectAllocationGraph(pta),
+        this.oag = Monitor.runAndCount(() -> new ObjectAllocationGraph(pta),
                 "Building OAG", Level.INFO);
-        this.pce = Timer.runAndCount(() -> new PotentialContextElement(pta, oag),
+        this.pce = Monitor.runAndCount(() -> new PotentialContextElement(pta, oag),
                 "Building PCE", Level.INFO);
         this.ofg = ptaBase.getObjectFlowGraph();
         logger.info("{} nodes in OFG", ofg.getNodes().size());
@@ -148,7 +148,7 @@ public class Zipper {
 
         // build and analyze precision-flow graphs
         Set<Type> types = pta.getObjectTypes();
-        Timer.runAndCount(() -> types.parallelStream().forEach(this::analyze),
+        Monitor.runAndCount(() -> types.parallelStream().forEach(this::analyze),
                 "Building and analyzing PFG", Level.INFO);
         logger.info("#types: {}", types.size());
         logger.info("#avg. nodes in PFG: {}", totalPFGNodes.get() / types.size());

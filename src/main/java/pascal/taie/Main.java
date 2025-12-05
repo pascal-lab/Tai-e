@@ -35,8 +35,8 @@ import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
+import pascal.taie.util.Monitor;
 import pascal.taie.util.RuntimeInfoLogger;
-import pascal.taie.util.Timer;
 import pascal.taie.util.collection.Lists;
 
 import java.io.InputStream;
@@ -49,7 +49,7 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String... args) {
-        Timer.runAndCount(() -> {
+        Monitor.runAndCount(() -> {
             Options options = processArgs(args);
             LoggerConfigs.setOutput(options.getOutputDir());
             RuntimeInfoLogger.logRuntimeInfo();
@@ -123,7 +123,7 @@ public class Main {
     }
 
     private static void buildWorld(Options options, List<AnalysisConfig> analyses) {
-        Timer.runAndCount(() -> {
+        Monitor.runAndCount(() -> {
             try {
                 Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
                 Constructor<? extends WorldBuilder> builderCtor = builderClass.getConstructor();

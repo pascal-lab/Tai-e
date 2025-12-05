@@ -28,7 +28,7 @@ import pascal.taie.World;
 import pascal.taie.WorldBuilder;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -84,8 +84,8 @@ public class CachedWorldBuilder implements WorldBuilder {
             return false;
         }
         logger.info("Loading the world cache from {}", worldCacheFile);
-        Timer timer = new Timer("Load the world cache");
-        timer.start();
+        Monitor monitor = new Monitor("Load the world cache");
+        monitor.start();
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(
@@ -105,25 +105,25 @@ public class CachedWorldBuilder implements WorldBuilder {
                     logger.error("Failed to close input stream", e);
                 }
             }
-            timer.stop();
-            logger.info(timer);
+            monitor.stop();
+            logger.info(monitor);
         }
         return false;
     }
 
     private void runWorldBuilder(Options options, List<AnalysisConfig> analyses) {
         logger.info("Running the WorldBuilder ...");
-        Timer timer = new Timer("Run the WorldBuilder");
-        timer.start();
+        Monitor monitor = new Monitor("Run the WorldBuilder");
+        monitor.start();
         delegate.build(options, analyses);
-        timer.stop();
-        logger.info(timer);
+        monitor.stop();
+        logger.info(monitor);
     }
 
     private void saveCache(File worldCacheFile) {
         logger.info("Saving the world cache to {}", worldCacheFile);
-        Timer timer = new Timer("Save the world cache");
-        timer.start();
+        Monitor monitor = new Monitor("Save the world cache");
+        monitor.start();
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new BufferedOutputStream(new FileOutputStream(worldCacheFile)))) {
             oos.writeObject(World.get());
@@ -131,8 +131,8 @@ public class CachedWorldBuilder implements WorldBuilder {
             logger.error("Failed to save world cache from {} due to {}",
                     worldCacheFile, e);
         } finally {
-            timer.stop();
-            logger.info(timer);
+            monitor.stop();
+            logger.info(monitor);
         }
     }
 
