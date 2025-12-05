@@ -49,6 +49,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 /**
@@ -92,6 +93,8 @@ public class JClass extends AbstractResultHolder
     private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
 
     private final Map<Subsignature, JMethod> phantomMethods = Maps.newConcurrentMap();
+
+    private final ReentrantReadWriteLock phantomFieldsLock = new ReentrantReadWriteLock();
 
     /**
      * If this class is application class.
@@ -366,13 +369,19 @@ public class JClass extends AbstractResultHolder
     @Nullable
     public JField getPhantomField(String fieldName, Type fieldType, boolean isStatic) {
         assert isPhantom();
-        for (JField field : phantomFields.get(fieldName)) {
-            if (field.getType().equals(fieldType)) {
-                return field;
+        phantomFieldsLock.readLock().lock();
+        try {
+            for (JField field : phantomFields.get(fieldName)) {
+                if (field.getType().equals(fieldType)) {
+                    return field;
+                }
             }
+        } finally {
+            phantomFieldsLock.readLock().unlock();
         }
         // Not found. Add concurrently.
-        synchronized (phantomFields) {
+        phantomFieldsLock.writeLock().lock();
+        try {
             // Make sure that no other thread added the field.
             for (JField field : phantomFields.get(fieldName)) {
                 if (field.getType().equals(fieldType)) {
@@ -387,6 +396,8 @@ public class JClass extends AbstractResultHolder
                     type, null, AnnotationHolder.emptyHolder(), null);
             phantomFields.put(fieldName, field);
             return field;
+        } finally {
+            phantomFieldsLock.writeLock().unlock();
         }
     }
 
