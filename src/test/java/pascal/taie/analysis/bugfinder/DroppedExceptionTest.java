@@ -30,8 +30,7 @@ public class DroppedExceptionTest {
 
     @Test
     void test() {
-        // FIXME: newfrontend testcase failed
-//        Tests.testInput("DroppedException", "src/test/resources/bugfinder",
-//                DroppedException.ID);
+        Tests.testInput("DroppedException", "src/test/resources/bugfinder",
+                DroppedException.ID);
     }
 }

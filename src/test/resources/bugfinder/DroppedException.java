@@ -1,4 +1,5 @@
 public class DroppedException implements Cloneable {
+
     public static int x(int i) throws Exception {
         if (i > 0) {
             throw new Exception();
@@ -6,7 +7,7 @@ public class DroppedException implements Cloneable {
         return i;
     }
 
-    public void commonPractice() { // right case
+    public void commonPractice() {
         try {
             x(1);
         } catch (Exception e) {
@@ -29,33 +30,41 @@ public class DroppedException implements Cloneable {
         }
     }
 
-    public DroppedException cloneException() { // should ignore CloneNotSupportedException and InterruptedException
+    public DroppedException cloneException() {
+        try {
+            return (DroppedException) clone();
+        } catch (CloneNotSupportedException e) { // DE_MIGHT_DROP
+            throw new RuntimeException("Clone failed");
+        }
+    }
+
+    public DroppedException cloneException2() {
         try {
             return (DroppedException) clone();
         } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone failed", e);
         }
-        return new DroppedException();
     }
 
     public static void emptyCatchBlock1() {
         try {
             x(1);
-        } catch (Exception e1) {
+        } catch (Exception e1) { // DE_MIGHT_IGNORE
         }
     }
 
     public static void emptyCatchBlock2() {
         try {
             x(0);
-        } catch (Exception e2) {
-        } catch (Throwable e3) {
+        } catch (Exception e2) { // DE_MIGHT_IGNORE
+        } catch (Throwable e3) { // DE_MIGHT_IGNORE
         }
     }
 
     public static void emptyCatchBlockWithFinally1() {
         try {
             x(2);
-        } catch (Exception e1) {
+        } catch (Exception e1) { // DE_MIGHT_IGNORE
         } finally {
             int a = 1;
         }
@@ -64,12 +73,11 @@ public class DroppedException implements Cloneable {
     public static void emptyCatchBlockWithFinally2() {
         try {
             x(0);
-        } catch (Exception e1) {
-            // empty catch block with finally block
+        } catch (Exception e1) { // DE_MIGHT_IGNORE
         } finally {
             try {
                 x(1);
-            } catch (Exception e2) {
+            } catch (Exception e2) { // DE_MIGHT_IGNORE
             }
         }
     }
@@ -78,13 +86,14 @@ public class DroppedException implements Cloneable {
         try {
             x(0);
             return 1;
-        } catch (Exception e) {
+        } catch (Exception e) { // DE_MIGHT_IGNORE
         }
 
         try {
             return x(2);
-        } catch (Exception e) {
+        } catch (Exception e) { // DE_MIGHT_IGNORE
         }
         return 0;
     }
+
 }
