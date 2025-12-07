@@ -33,8 +33,8 @@ import pascal.taie.ir.stmt.Stmt;
 
 import java.util.List;
 
-public class ObjectModel extends IRModelPlugin {
-    ObjectModel(Solver solver) {
+public class ObjectCloneModel extends IRModelPlugin {
+    ObjectCloneModel(Solver solver) {
         super(solver);
     }
 

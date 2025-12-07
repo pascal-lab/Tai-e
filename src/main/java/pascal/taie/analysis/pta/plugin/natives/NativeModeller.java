@@ -37,6 +37,6 @@ public class NativeModeller extends CompositePlugin {
                 new ArrayModel.IRModel(solver),
                 new UnsafeModel(solver),
                 new DoPriviledgedModel(solver),
-                new ObjectModel(solver));
+                new ObjectCloneModel(solver));
     }
 }
