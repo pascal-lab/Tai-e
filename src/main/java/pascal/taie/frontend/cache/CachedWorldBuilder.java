@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.World;
 import pascal.taie.WorldBuilder;
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.util.Monitor;
 
@@ -69,12 +68,12 @@ public class CachedWorldBuilder implements WorldBuilder {
     }
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
+    public void build(Options options) {
         File worldCacheFile = getWorldCacheFile(options);
         if (loadCache(options, worldCacheFile)) {
             return;
         }
-        runWorldBuilder(options, analyses);
+        runWorldBuilder(options);
         saveCache(worldCacheFile);
     }
 
@@ -86,10 +85,8 @@ public class CachedWorldBuilder implements WorldBuilder {
         logger.info("Loading the world cache from {}", worldCacheFile);
         Monitor monitor = new Monitor("Load the world cache");
         monitor.start();
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(
-                    new BufferedInputStream(new FileInputStream(worldCacheFile)));
+        try (ObjectInputStream ois = new ObjectInputStream(
+                new BufferedInputStream(new FileInputStream(worldCacheFile)))) {
             World world = (World) ois.readObject();
             World.set(world);
             world.setOptions(options);
@@ -98,24 +95,17 @@ public class CachedWorldBuilder implements WorldBuilder {
             logger.error("Failed to load world cache from {} due to {}",
                     worldCacheFile, e);
         } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (Exception e) {
-                    logger.error("Failed to close input stream", e);
-                }
-            }
             monitor.stop();
             logger.info(monitor);
         }
         return false;
     }
 
-    private void runWorldBuilder(Options options, List<AnalysisConfig> analyses) {
+    private void runWorldBuilder(Options options) {
         logger.info("Running the WorldBuilder ...");
         Monitor monitor = new Monitor("Run the WorldBuilder");
         monitor.start();
-        delegate.build(options, analyses);
+        delegate.build(options);
         monitor.stop();
         logger.info(monitor);
     }

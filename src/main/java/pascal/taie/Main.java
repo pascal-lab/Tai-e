@@ -58,7 +58,7 @@ public class Main {
                 logger.info("No analyses are specified");
                 System.exit(0);
             }
-            buildWorld(options, plan.analyses());
+            buildWorld(options);
             executePlan(plan);
         }, "Tai-e");
         LoggerConfigs.reconfigure();
@@ -117,12 +117,11 @@ public class Main {
     public static void buildWorld(String... args) {
         Options options = Options.parse(args);
         LoggerConfigs.setOutput(options.getOutputDir());
-        Plan plan = processConfigs(options);
-        buildWorld(options, plan.analyses());
+        buildWorld(options);
         LoggerConfigs.reconfigure();
     }
 
-    private static void buildWorld(Options options, List<AnalysisConfig> analyses) {
+    private static void buildWorld(Options options) {
         Monitor.runAndCount(() -> {
             try {
                 Class<? extends WorldBuilder> builderClass = options.getWorldBuilderClass();
@@ -131,7 +130,7 @@ public class Main {
                 if (options.isWorldCacheMode()) {
                     builder = new CachedWorldBuilder(builder);
                 }
-                builder.build(options, analyses);
+                builder.build(options);
                 logger.info("{} classes with {} methods in the world",
                         World.get()
                                 .getClassHierarchy()
@@ -143,7 +142,7 @@ public class Main {
                                 .mapToInt(c -> c.getDeclaredMethods().size())
                                 .sum());
             } catch (InstantiationException | IllegalAccessException |
-                    NoSuchMethodException | InvocationTargetException e) {
+                     NoSuchMethodException | InvocationTargetException e) {
                 System.err.println("Failed to build world due to " + e);
                 System.exit(1);
             }

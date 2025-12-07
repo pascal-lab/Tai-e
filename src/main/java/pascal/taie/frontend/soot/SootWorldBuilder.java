@@ -29,13 +29,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
-import pascal.taie.analysis.pta.PointerAnalysis;
-import pascal.taie.analysis.pta.plugin.reflection.LogItem;
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
 import soot.G;
@@ -67,8 +63,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
-        initSoot(options, analyses, this);
+    public void build(Options options) {
+        initSoot(options, this);
         // set arguments and run soot
         List<String> args = new ArrayList<>();
         // set class path
@@ -83,8 +79,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         runSoot(args.toArray(new String[0]));
     }
 
-    private static void initSoot(Options options, List<AnalysisConfig> analyses,
-                                 SootWorldBuilder builder) {
+    private static void initSoot(Options options, SootWorldBuilder builder) {
         // reset Soot
         G.reset();
 
@@ -119,7 +114,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene);
-        addReflectionLogClasses(analyses, scene);
 
         // Configure Soot transformer
         Transform transform = new Transform(
@@ -151,43 +145,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         } catch (IOException e) {
             throw new SootFrontendException("Failed to read Soot basic classes", e);
         }
-    }
-
-    /**
-     * Add classes in reflection log to the scene.
-     * Tai-e's ClassHierarchy depends on Soot's Scene, which does not change
-     * after hierarchy's construction, thus we need to add the classes
-     * in the reflection log before starting Soot.
-     * <p>
-     * TODO: this is a tentative solution. We should remove it and use other
-     *  way to load basic classes in the reflection log, so that world builder
-     *  does not depend on analyses to be executed.
-     *
-     * @param analyses the analyses to be executed
-     * @param scene    the Soot's scene
-     */
-    private static void addReflectionLogClasses(List<AnalysisConfig> analyses, Scene scene) {
-        analyses.forEach(config -> {
-            if (config.getId().equals(PointerAnalysis.ID)) {
-                String path = config.getOptions().getString("reflection-log");
-                if (path != null) {
-                    LogItem.load(path).forEach(item -> {
-                        // add target class
-                        String target = item.target;
-                        String targetClass;
-                        if (target.startsWith("<")) {
-                            targetClass = StringReps.getClassNameOf(target);
-                        } else {
-                            targetClass = target;
-                        }
-                        if (StringReps.isArrayType(targetClass)) {
-                            targetClass = StringReps.getBaseTypeNameOf(target);
-                        }
-                        scene.addBasicClass(targetClass);
-                    });
-                }
-            }
-        });
     }
 
     private void build(Options options, Scene scene) {

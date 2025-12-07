@@ -22,10 +22,7 @@
 
 package pascal.taie;
 
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
-
-import java.util.List;
 
 /**
  * Interface for {@link World} builder.
@@ -35,10 +32,8 @@ public interface WorldBuilder {
     /**
      * Builds a new instance of {@link World} and make it globally accessible
      * through static methods of {@link World}.
-     * TODO: remove {@code analyses}.
      *
-     * @param options  the options
-     * @param analyses the analyses to be executed
+     * @param options the options
      */
-    void build(Options options, List<AnalysisConfig> analyses);
+    void build(Options options);
 }
