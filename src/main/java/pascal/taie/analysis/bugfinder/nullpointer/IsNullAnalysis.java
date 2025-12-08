@@ -45,7 +45,7 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.language.annotation.Annotation;
-import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.ExceptionNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -176,8 +176,8 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             if (edge.getKind() == CFGEdge.Kind.CAUGHT_EXCEPTION) {
                 resultFact = nodeFact.copy();
                 for (ClassType classType : edge.getExceptions()) {
-                    if (classType.getName().equals(ClassNames.CLONE_NOT_SUPPORTED_EXCEPTION)
-                            || classType.getName().equals(ClassNames.INTERRUPTED_EXCEPTION)) {
+                    if (classType.getName().equals(ExceptionNames.CLONE_NOT_SUPPORTED_EXCEPTION)
+                            || classType.getName().equals(ExceptionNames.INTERRUPTED_EXCEPTION)) {
                         resultFact.entries()
                                 .filter(entry -> entry.getValue().isDefinitelyNull()
                                         || entry.getValue().isNullOnSomePath())

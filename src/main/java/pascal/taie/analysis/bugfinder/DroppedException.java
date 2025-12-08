@@ -25,8 +25,8 @@ package pascal.taie.analysis.bugfinder;
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.InvokeExp;
+import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Catch;
@@ -39,6 +39,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.ExceptionNames;
 import pascal.taie.util.collection.Sets;
 
 import java.util.Set;
@@ -455,7 +456,7 @@ public class DroppedException extends MethodAnalysis<Set<BugInstance>> {
         if (exceptionName.equals(ClassNames.ERROR)
                 || exceptionName.equals(ClassNames.EXCEPTION)
                 || exceptionName.equals(ClassNames.THROWABLE)
-                || exceptionName.equals(ClassNames.RUNTIME_EXCEPTION)) {
+                || exceptionName.equals(ExceptionNames.RUNTIME_EXCEPTION)) {
             return Severity.CRITICAL;
         }
         return Severity.MINOR;
