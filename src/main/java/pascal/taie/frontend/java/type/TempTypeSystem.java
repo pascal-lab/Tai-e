@@ -62,6 +62,20 @@ public class TempTypeSystem extends NewFrontendComponent
 
     private final Map<JClassLoader, Map<String, ClassType>> classTypes = newConcurrentMap();
 
+    private final ClassType objectType;
+
+    private final ClassType serializableType;
+
+    private final ClassType cloneableType;
+
+    private final ClassType stringType;
+
+    private final ClassType arrayType;
+
+    private final ClassType classType;
+
+    private final ClassType throwableType;
+
     private final Map<String, ClassType> defaultClassTypes = newConcurrentMap();
 
     private final Map<String, ClassType> internalNameClassTypes = newConcurrentMap();
@@ -83,6 +97,13 @@ public class TempTypeSystem extends NewFrontendComponent
     public TempTypeSystem(FrontendContext ctx, JClassLoader loader) {
         super(ctx);
         defaultClassLoader = loader;
+        objectType = getClassType(loader, ClassNames.OBJECT);
+        serializableType = getClassType(loader, ClassNames.SERIALIZABLE);
+        cloneableType = getClassType(loader, ClassNames.CLONEABLE);
+        stringType = getClassType(loader, ClassNames.STRING);
+        arrayType = getClassType(loader, ClassNames.ARRAY);
+        classType = getClassType(loader, ClassNames.CLASS);
+        throwableType = getClassType(loader, ClassNames.THROWABLE);
         boxedMap = Map.of(
                 BooleanType.BOOLEAN, getClassType(loader, ClassNames.BOOLEAN),
                 ByteType.BYTE, getClassType(loader, ClassNames.BYTE),
@@ -98,6 +119,41 @@ public class TempTypeSystem extends NewFrontendComponent
         primitiveTypes = boxedMap.keySet()
                 .stream()
                 .collect(Collectors.toMap(PrimitiveType::getName, t -> t));
+    }
+
+    @Override
+    public ClassType objectType() {
+        return objectType;
+    }
+
+    @Override
+    public ClassType serializableType() {
+        return serializableType;
+    }
+
+    @Override
+    public ClassType cloneableType() {
+        return cloneableType;
+    }
+
+    @Override
+    public ClassType stringType() {
+        return stringType;
+    }
+
+    @Override
+    public ClassType arrayType() {
+        return arrayType;
+    }
+
+    @Override
+    public ClassType classType() {
+        return classType;
+    }
+
+    @Override
+    public ClassType throwableType() {
+        return throwableType;
     }
 
     @Override

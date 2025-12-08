@@ -43,18 +43,26 @@ public class TypeSystemImpl implements TypeSystem {
 
     private final Map<JClassLoader, Map<String, ClassType>> classTypes = newSmallMap();
 
+    private final ClassType objectType;
+
+    private final ClassType serializableType;
+
+    private final ClassType cloneableType;
+
+    private final ClassType stringType;
+
+    private final ClassType arrayType;
+
+    private final ClassType classType;
+
+    private final ClassType throwableType;
+
     /**
      * This map may be concurrently written during IR construction,
      * thus we use concurrent map to ensure its thread-safety.
      */
     private final ConcurrentMap<Integer, ConcurrentMap<Type, ArrayType>> arrayTypes
             = newConcurrentMap(8);
-
-    private final ClassType OBJECT;
-
-    private final ClassType SERIALIZABLE;
-
-    private final ClassType CLONEABLE;
 
     /**
      * Maps a primitive type to its boxed type.
@@ -73,11 +81,15 @@ public class TypeSystemImpl implements TypeSystem {
 
     public TypeSystemImpl(ClassHierarchy hierarchy) {
         this.hierarchy = hierarchy;
-        // Initialize special types
+        // Initialize commonly-used types
         JClassLoader loader = hierarchy.getBootstrapClassLoader();
-        OBJECT = getClassType(loader, ClassNames.OBJECT);
-        SERIALIZABLE = getClassType(loader, ClassNames.SERIALIZABLE);
-        CLONEABLE = getClassType(loader, ClassNames.CLONEABLE);
+        objectType = getClassType(loader, ClassNames.OBJECT);
+        serializableType = getClassType(loader, ClassNames.SERIALIZABLE);
+        cloneableType = getClassType(loader, ClassNames.CLONEABLE);
+        stringType = getClassType(loader, ClassNames.STRING);
+        arrayType = getClassType(loader, ClassNames.ARRAY);
+        classType = getClassType(loader, ClassNames.CLASS);
+        throwableType = getClassType(loader, ClassNames.THROWABLE);
         boxedMap = Map.of(
                 BooleanType.BOOLEAN, getClassType(loader, ClassNames.BOOLEAN),
                 ByteType.BYTE, getClassType(loader, ClassNames.BYTE),
@@ -93,6 +105,41 @@ public class TypeSystemImpl implements TypeSystem {
         primitiveTypes = boxedMap.keySet()
                 .stream()
                 .collect(Collectors.toMap(PrimitiveType::getName, t -> t));
+    }
+
+    @Override
+    public ClassType objectType() {
+        return objectType;
+    }
+
+    @Override
+    public ClassType serializableType() {
+        return serializableType;
+    }
+
+    @Override
+    public ClassType cloneableType() {
+        return cloneableType;
+    }
+
+    @Override
+    public ClassType stringType() {
+        return stringType;
+    }
+
+    @Override
+    public ClassType arrayType() {
+        return arrayType;
+    }
+
+    @Override
+    public ClassType classType() {
+        return classType;
+    }
+
+    @Override
+    public ClassType throwableType() {
+        return throwableType;
     }
 
     @Override
@@ -184,9 +231,9 @@ public class TypeSystemImpl implements TypeSystem {
         } else if (subtype instanceof ArrayType) {
             if (supertype instanceof ClassType) {
                 // JLS (11 Ed.), Chapter 10, Arrays
-                return supertype == OBJECT ||
-                        supertype == CLONEABLE ||
-                        supertype == SERIALIZABLE;
+                return supertype == objectType ||
+                        supertype == cloneableType ||
+                        supertype == serializableType;
             } else if (supertype instanceof ArrayType superArray) {
                 ArrayType subArray = (ArrayType) subtype;
                 Type superBase = superArray.baseType();
@@ -201,9 +248,9 @@ public class TypeSystemImpl implements TypeSystem {
                                 ((ClassType) subBase).getJClass());
                     }
                 } else if (superArray.dimensions() < subArray.dimensions()) {
-                    return superBase == OBJECT ||
-                            superBase == CLONEABLE ||
-                            superBase == SERIALIZABLE;
+                    return superBase == objectType ||
+                            superBase == cloneableType ||
+                            superBase == serializableType;
                 }
             }
         }

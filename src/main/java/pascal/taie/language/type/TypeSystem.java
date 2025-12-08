@@ -33,6 +33,43 @@ import java.io.Serializable;
  */
 public interface TypeSystem extends Serializable {
 
+    // ---------- APIs for retrieving commonly-used types ----------
+    /**
+     * @return the ClassType representing java.lang.Object.
+     */
+    ClassType objectType();
+
+    /**
+     * @return the ClassType representing java.io.Serializable.
+     */
+    ClassType serializableType();
+
+    /**
+     * @return the ClassType representing java.lang.Cloneable.
+     */
+    ClassType cloneableType();
+
+    /**
+     * @return the ClassType representing java.lang.String.
+     */
+    ClassType stringType();
+
+    /**
+     * @return the ClassType representing java.lang.reflect.Array.
+     */
+    ClassType arrayType();
+
+    /**
+     * @return the ClassType representing java.lang.Class.
+     */
+    ClassType classType();  // ← 避免与 getClassType(String) 混淆
+
+    /**
+     * @return the ClassType representing java.lang.Throwable.
+     */
+    ClassType throwableType();
+
+    // ---------- APIs for retrieving arbitrary types ----------
     Type getType(JClassLoader loader, String typeName);
 
     Type getType(String typeName);
@@ -49,6 +86,7 @@ public interface TypeSystem extends Serializable {
 
     PrimitiveType getUnboxedType(ClassType type);
 
+    // ---------- APIs for type checking ----------
     boolean isSubtype(Type supertype, Type subtype);
 
     boolean isPrimitiveType(String typeName);
