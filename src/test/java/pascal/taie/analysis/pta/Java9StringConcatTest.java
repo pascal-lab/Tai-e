@@ -30,7 +30,6 @@ import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
@@ -54,7 +53,7 @@ public class Java9StringConcatTest {
         assert main != null;
         // check the return value of string concatenation
         PointerAnalysisResult ptaResult = World.get().getResult(PointerAnalysis.ID);
-        ClassType string = World.get().getTypeSystem().getClassType(ClassNames.STRING);
+        ClassType string = World.get().getTypeSystem().stringType();
         main.getDeclaredMethods()
                 .stream()
                 .filter(m -> m.getReturnType().equals(string))

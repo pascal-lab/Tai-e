@@ -80,7 +80,7 @@ public class Java9StringConcatHandler implements Plugin {
         this.solver = solver;
         TypeSystem typeSystem = solver.getTypeSystem();
         stringBuilder = typeSystem.getClassType(ClassNames.STRING_BUILDER);
-        string = typeSystem.getClassType(ClassNames.STRING);
+        string = typeSystem.stringType();
         JClass sb = stringBuilder.getJClass();
         appendString = Objects.requireNonNull(sb.getDeclaredMethod(Subsignature.get(
                         "java.lang.StringBuilder append(java.lang.String)")))

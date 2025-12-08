@@ -77,10 +77,11 @@ public class BenchmarkRunner {
         List<String> args = new ArrayList<>();
         int jdkVersion = jdk != 0 ? jdk : info.jdk();
         Collections.addAll(args,
-                "-java", Integer.toString(jdkVersion),
+                //"-java", Integer.toString(jdkVersion),
+                "-pp",
                 "-acp", buildClassPath(info.apps()),
                 "-cp", buildClassPath(info.libs()),
-                "-wc",
+                //"-wc",
                 "-m", info.main());
         if (info.allowPhantom()) {
             args.add("--allow-phantom");

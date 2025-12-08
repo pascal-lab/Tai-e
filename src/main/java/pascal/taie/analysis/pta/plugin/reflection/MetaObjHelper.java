@@ -90,7 +90,7 @@ class MetaObjHelper {
     MetaObjHelper(Solver solver) {
         typeSystem = solver.getTypeSystem();
         heapModel = solver.getHeapModel();
-        clazz = typeSystem.getClassType(ClassNames.CLASS);
+        clazz = typeSystem.classType();
         constructor = typeSystem.getClassType(ClassNames.CONSTRUCTOR);
         method = typeSystem.getClassType(ClassNames.METHOD);
         field = typeSystem.getClassType(ClassNames.FIELD);

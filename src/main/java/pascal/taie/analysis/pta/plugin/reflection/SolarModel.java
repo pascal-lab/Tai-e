@@ -43,7 +43,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Reflections;
@@ -97,7 +96,7 @@ public class SolarModel extends InferenceModel {
                TypeMatcher typeMatcher, Set<Invoke> invokesWithLog) {
         super(solver, helper, invokesWithLog);
         this.typeMatcher = typeMatcher;
-        object = typeSystem.getClassType(ClassNames.OBJECT);
+        object = typeSystem.objectType();
     }
 
     private boolean isIgnored(Invoke invoke) {

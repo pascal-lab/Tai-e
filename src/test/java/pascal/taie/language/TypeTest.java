@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pascal.taie.Main;
 import pascal.taie.World;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
@@ -49,7 +48,7 @@ public class TypeTest {
 
     @Test
     void testSubtypeNull() {
-        Type object = typeSystem.getClassType(ClassNames.OBJECT);
+        Type object = typeSystem.objectType();
         Type intArray = typeSystem.getArrayType(INT, 1);
 
         assertTrue(typeSystem.isSubtype(object, NULL));
@@ -69,13 +68,13 @@ public class TypeTest {
     @Test
     void testSubtypeArray1() {
         Type intArray = typeSystem.getArrayType(INT, 1);
-        Type object = typeSystem.getClassType(ClassNames.OBJECT);
+        Type object = typeSystem.objectType();
         assertTrue(typeSystem.isSubtype(object, intArray));
 
-        Type serializable = typeSystem.getClassType(ClassNames.SERIALIZABLE);
+        Type serializable = typeSystem.serializableType();
         assertTrue(typeSystem.isSubtype(serializable, intArray));
 
-        Type cloneable = typeSystem.getClassType(ClassNames.CLONEABLE);
+        Type cloneable = typeSystem.cloneableType();
         assertTrue(typeSystem.isSubtype(cloneable, intArray));
 
         Type a = typeSystem.getClassType("A");
@@ -88,7 +87,7 @@ public class TypeTest {
     @Test
     void testSubtypeArray2() {
         Type intArray2 = typeSystem.getArrayType(INT, 2);
-        Type object = typeSystem.getClassType(ClassNames.OBJECT);
+        Type object = typeSystem.objectType();
         Type objectArray = typeSystem.getArrayType(object, 1);
         assertTrue(typeSystem.isSubtype(objectArray, intArray2));
 
@@ -101,7 +100,7 @@ public class TypeTest {
      */
     @Test
     void testSubtypeArray3() {
-        Type object = typeSystem.getClassType(ClassNames.OBJECT);
+        Type object = typeSystem.objectType();
         Type objectArray = typeSystem.getArrayType(object, 1);
         Type a = typeSystem.getClassType("A");
         Type aArray = typeSystem.getArrayType(a, 1);

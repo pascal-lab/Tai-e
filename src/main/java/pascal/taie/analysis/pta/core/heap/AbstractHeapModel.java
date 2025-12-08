@@ -48,10 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
 import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
-import static pascal.taie.language.classes.ClassNames.THROWABLE;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -113,10 +111,10 @@ public abstract class AbstractHeapModel implements HeapModel {
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
         typeSystem = World.get().getTypeSystem();
-        string = typeSystem.getClassType(STRING);
+        string = typeSystem.stringType();
         stringBuilder = typeSystem.getClassType(STRING_BUILDER);
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
-        throwable = typeSystem.getClassType(THROWABLE);
+        throwable = typeSystem.throwableType();
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
     }
 
