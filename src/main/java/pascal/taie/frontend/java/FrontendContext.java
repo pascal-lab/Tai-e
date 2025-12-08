@@ -26,7 +26,6 @@ import pascal.taie.frontend.java.classes.AsmSource;
 import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.main.DefaultIRBuilder;
 import pascal.taie.frontend.java.type.TempTypeSystem;
-import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -62,8 +61,6 @@ public class FrontendContext {
 
     private ClassHierarchy hierarchy;
 
-    private TypeContext typeContext;
-
     private final boolean useSSA;
 
     private final DefaultIRBuilder irBuilder;
@@ -82,7 +79,6 @@ public class FrontendContext {
     public void initClassloaderAndTypeSystem(DefaultClassLoader loader) {
         this.defaultClassLoader = loader;
         this.typeSystem = new TempTypeSystem(this, defaultClassLoader);
-        this.typeContext = new TypeContext(typeSystem);
     }
 
     public void initHierarchy(ClassHierarchy hierarchy) {
@@ -95,10 +91,6 @@ public class FrontendContext {
 
     public DefaultIRBuilder getIRBuilder() {
         return irBuilder;
-    }
-
-    public TypeContext getTypeContext() {
-        return typeContext;
     }
 
     public JClass getClassByName(String name) {
@@ -190,7 +182,7 @@ public class FrontendContext {
 
     public JClass toJClass(String internalName) {
         if (internalName.charAt(0) == '[') {
-            return typeContext.object().getJClass();
+            return typeSystem.objectType().getJClass();
         } else {
             return typeSystem.getClassTypeByInternalName(internalName).getJClass();
         }

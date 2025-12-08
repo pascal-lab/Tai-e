@@ -102,7 +102,7 @@ public class TypeInference extends NewFrontendComponent {
     }
 
     public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
-        return Utils.lca(tCtx(), r1, r2);
+        return Utils.lca(typeSystem(), r1, r2);
     }
 
     public Optional<Type> plusOneArray(Type t) {
@@ -140,7 +140,7 @@ public class TypeInference extends NewFrontendComponent {
         public Void visit(AssignLiteral stmt) {
             Type t;
             if (stmt.getRValue() instanceof StringLiteral) {
-                t = tCtx().string();
+                t = typeSystem().stringType();
             } else {
                 t = stmt.getRValue().getType();
             }
@@ -328,7 +328,7 @@ public class TypeInference extends NewFrontendComponent {
                 }
                 if (node.initConstraints != null) {
                     for (Type t : node.initConstraints) {
-                        if (!isAssignable(tCtx(), t, target)) {
+                        if (!isAssignable(typeSystem(), t, target)) {
                             this.needCasting = true;
                         }
                     }
@@ -638,7 +638,7 @@ public class TypeInference extends NewFrontendComponent {
             }
             boolean ret = true;
             for (ReferenceType c : useValidConstrains) {
-                ret &= Utils.isAssignable(tCtx(), c, t);
+                ret &= Utils.isAssignable(typeSystem(), c, t);
             }
             return ret;
         }
@@ -661,13 +661,13 @@ public class TypeInference extends NewFrontendComponent {
             } else {
                 if (lcas.isEmpty()) {
                     // normally impossible, but possible for phantom
-                    return tCtx().object();
+                    return typeSystem().objectType();
                 }
                 ReferenceType t1 = lcas.iterator().next();
                 if (t1 instanceof ClassType) {
-                    return tCtx().object();
+                    return typeSystem().objectType();
                 } else if (t1 instanceof ArrayType arrayType) {
-                    return typeSystem().getArrayType(tCtx().object(), arrayType.dimensions());
+                    return typeSystem().getArrayType(typeSystem().objectType(), arrayType.dimensions());
                 } else {
                     throw new UnsupportedOperationException();
                 }

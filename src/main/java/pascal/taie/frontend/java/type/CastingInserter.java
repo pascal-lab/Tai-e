@@ -81,7 +81,7 @@ class CastingInserter extends NewFrontendComponent {
     }
 
     private boolean isAssignable(Type left, Type right) {
-        return Utils.isAssignable(tCtx(), left, right);
+        return Utils.isAssignable(typeSystem(), left, right);
     }
 
     private Cast getNewCast(Var left, Var right, Type t) {
@@ -103,7 +103,7 @@ class CastingInserter extends NewFrontendComponent {
     }
 
     private Stmt ensureValidArrayType(ArrayAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
-        Type t = typeSystem().getArrayType(tCtx().object(), 1);
+        Type t = typeSystem().getArrayType(typeSystem().objectType(), 1);
         if (access.getBase().getType() instanceof ArrayType) {
             return stmt;
         } else {

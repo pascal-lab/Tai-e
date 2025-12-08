@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.main;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.language.type.TypeSystem;
 
 /**
@@ -58,10 +57,6 @@ public abstract class NewFrontendComponent {
      */
     protected FrontendContext ctx() {
         return context;
-    }
-
-    protected TypeContext tCtx() {
-        return context.getTypeContext();
     }
 
     protected TypeSystem typeSystem() {

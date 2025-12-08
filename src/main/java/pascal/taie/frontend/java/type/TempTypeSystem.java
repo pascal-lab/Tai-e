@@ -248,7 +248,7 @@ public class TempTypeSystem extends NewFrontendComponent
      */
     @Override
     public boolean isSubtype(Type supertype, Type subtype) {
-        return Utils.isSubtype(tCtx(), supertype, subtype);
+        return Utils.isSubtype(this, supertype, subtype);
     }
 
     @Override

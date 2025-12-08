@@ -120,7 +120,7 @@ public class TypeInference0 extends NewFrontendComponent {
             localTypeAssigns.add(null);
         }
         localCells = builder.manager.getSlotTable();
-        stringType = tCtx().string();
+        stringType = typeSystem().stringType();
     }
 
     private void putMultiSet(List<Set<Type>> set, Var v, Type t) {
@@ -151,9 +151,9 @@ public class TypeInference0 extends NewFrontendComponent {
         Type now = allTypes.iterator().next();
         if (allTypes.size() == 1) {
             if (now == Uninitialized.UNINITIALIZED) {
-                return tCtx().object();
+                return typeSystem().objectType();
             }
-            if (now == tCtx().object()) {
+            if (now == typeSystem().objectType()) {
                 Set<Type> constrains = localTypeConstrains.get(v.getIndex());
                 if (constrains != null && constrains.size() == 1) {
                     return constrains.iterator().next();
@@ -171,13 +171,13 @@ public class TypeInference0 extends NewFrontendComponent {
             } else {
                 assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
                         t1 instanceof Uninitialized);
-                Set<ReferenceType> res = lca(tCtx(),
+                Set<ReferenceType> res = lca(typeSystem(),
                         allTypes.stream()
                         .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
                         .map(i -> (ReferenceType) i)
                         .collect(Collectors.toSet()));
                 if (res.isEmpty())  {
-                    now = tCtx().object();
+                    now = typeSystem().objectType();
                 } else if (res.size() == 1) {
                     now = res.iterator().next();
                 } else {
@@ -185,14 +185,14 @@ public class TypeInference0 extends NewFrontendComponent {
                     int count = -1;
                     for (ReferenceType type : res) {
                         int newCount = (int) constrains.stream()
-                                .filter(c -> isAssignable(tCtx(), c, type)).count();
+                                .filter(c -> isAssignable(typeSystem(), c, type)).count();
                         if (newCount > count) {
                             now = type;
                             count = newCount;
                         }
                     }
                     if (now == null) {
-                        now = tCtx().object();
+                        now = typeSystem().objectType();
                     }
                 }
                 break;
@@ -229,7 +229,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 return;
             }
             if (t == Uninitialized.UNINITIALIZED) {
-                ExpMutator.setType(var, tCtx().object());
+                ExpMutator.setType(var, typeSystem().objectType());
             } else {
                 ExpMutator.setType(var, t);
             }
@@ -403,7 +403,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 if (l instanceof StringLiteral) {
                     t = stringType;
                 } else if (l instanceof ClassLiteral) {
-                    t = tCtx().klass();
+                    t = typeSystem().classType();
                 } else {
                     t = l.getType();
                 }
@@ -431,7 +431,7 @@ public class TypeInference0 extends NewFrontendComponent {
                     // TODO: this rule is useless, and may not be safe
                     //       But currently works well, check & remove this in the future
                     if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                        putMultiSet(localTypeAssigns, base, wrap1(tCtx(), referenceType));
+                        putMultiSet(localTypeAssigns, base, wrap1(typeSystem(), referenceType));
                     }
                 }
                 return null;
@@ -528,8 +528,8 @@ public class TypeInference0 extends NewFrontendComponent {
                 List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
                 assert exceptionTypes != null;
                 // calculate lca here
-                Set<ReferenceType> res = lca(tCtx(), Sets.newSet(exceptionTypes));
-                ReferenceType type = res.isEmpty() ? tCtx().throwable() : res.iterator().next();
+                Set<ReferenceType> res = lca(typeSystem(), Sets.newSet(exceptionTypes));
+                ReferenceType type = res.isEmpty() ? typeSystem().throwableType() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return null;
             }

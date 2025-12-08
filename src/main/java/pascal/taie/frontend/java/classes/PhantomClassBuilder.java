@@ -25,6 +25,7 @@ package pascal.taie.frontend.java.classes;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.annotation.AnnotationHolder;
+import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JField;
@@ -78,11 +79,11 @@ class PhantomClassBuilder extends NewFrontendComponent
 
     @Override
     public JClass getSuperClass() {
-        if (name.equals("java.lang.Object")) {
+        if (name.equals(ClassNames.OBJECT)) {
             return null;
         } else {
             // Object for phantom class. However, is it better to fake a "ILL" supertype?
-            return tCtx().object().getJClass();
+            return typeSystem().objectType().getJClass();
         }
     }
 

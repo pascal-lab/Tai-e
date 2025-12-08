@@ -2215,7 +2215,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 
     private ClassType fromExceptionType(String internalName) {
         if (internalName == null) {
-            return tCtx().throwable();
+            return typeSystem().throwableType();
         } else {
             ReferenceType r = ctx().fromAsmInternalName(internalName);
             if (r instanceof ClassType c) {

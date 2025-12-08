@@ -47,7 +47,6 @@ import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -133,6 +132,7 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
@@ -197,20 +197,20 @@ public class BytecodeEmitter {
             }
 
             private JClass lca(JClass c1, JClass c2) {
-                TypeContext tCtx = new TypeContext(World.get().getTypeSystem());
-                if (Utils.isAssignable(tCtx, c1.getType(), c2.getType())) {
+                TypeSystem typeSystem = World.get().getTypeSystem();
+                if (Utils.isAssignable(typeSystem, c1.getType(), c2.getType())) {
                     return c1;
-                } else if (Utils.isAssignable(tCtx, c2.getType(), c1.getType())) {
+                } else if (Utils.isAssignable(typeSystem, c2.getType(), c1.getType())) {
                     return c2;
                 } else if (c1.isInterface() || c2.isInterface()) {
-                    return tCtx.object().getJClass();
+                    return typeSystem.objectType().getJClass();
                 } else {
                     do {
                         c1 = c1.getSuperClass();
                         if (c1 == null) {
                             throw new UnsupportedOperationException();
                         }
-                    } while (!Utils.isAssignable(tCtx, c1.getType(), c2.getType()));
+                    } while (!Utils.isAssignable(typeSystem, c1.getType(), c2.getType()));
                     return c1;
                 }
             }

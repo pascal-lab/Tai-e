@@ -32,7 +32,6 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.java.type.TypeContext;
 import pascal.taie.frontend.java.type.Uninitialized;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
@@ -88,6 +87,7 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
@@ -460,7 +460,7 @@ public class Utils {
         return Collections.unmodifiableSet(in);
     }
 
-    public static Set<ReferenceType> lca(TypeContext tCtx, ReferenceType t1, ReferenceType t2) {
+    public static Set<ReferenceType> lca(TypeSystem typeSystem, ReferenceType t1, ReferenceType t2) {
         assert ! (t1 != t2 && t1.equals(t2));
         if (t1 == t2) {
             return Set.of(t1);
@@ -481,28 +481,28 @@ public class Utils {
             }
         } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType at2) {
             Set<ClassType> upper1 = upperClosure(ct1);
-            Set<ClassType> upper2 = getArraySupers(tCtx);
+            Set<ClassType> upper2 = getArraySupers(typeSystem);
             intersection(upper1, upper2);
             return minimum(upper1);
         } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
-            return lca(tCtx, t2, t1);
+            return lca(typeSystem, t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.elementType() instanceof PrimitiveType
                     || at2.elementType() instanceof PrimitiveType) {
-                return Collections.unmodifiableSet(getArraySupers(tCtx));
+                return Collections.unmodifiableSet(getArraySupers(typeSystem));
             } else {
                 ReferenceType r1 = (ReferenceType) at1.elementType();
                 ReferenceType r2 = (ReferenceType) at2.elementType();
-                return lca(tCtx, r1, r2).stream()
-                        .map((t) -> Utils.wrap1(tCtx, t))
+                return lca(typeSystem, r1, r2).stream()
+                        .map((t) -> Utils.wrap1(typeSystem, t))
                         .collect(Collectors.toSet());
             }
         }
         throw new UnsupportedOperationException();
     }
 
-    static Set<ClassType> getArraySupers(TypeContext tCtx) {
-        return Set.of(tCtx.object(), tCtx.cloneable(), tCtx.serializable());
+    static Set<ClassType> getArraySupers(TypeSystem typeSystem) {
+        return Set.of(typeSystem.objectType(), typeSystem.cloneableType(), typeSystem.serializableType());
     }
 
     /**
@@ -515,15 +515,15 @@ public class Utils {
     /**
      * @param types null and uninitialized type should be removed
      */
-    public static Set<ReferenceType> lca(TypeContext tCtx, Set<ReferenceType> types) {
+    public static Set<ReferenceType> lca(TypeSystem typeSystem, Set<ReferenceType> types) {
         if (types.size() <= 1) {
             return types;
         } else {
             if (allRefArray(types)) {
-                return lca(tCtx, types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
+                return lca(typeSystem, types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
                         .collect(Collectors.toSet()))
                         .stream()
-                        .map((t) -> Utils.wrap1(tCtx, t))
+                        .map((t) -> Utils.wrap1(typeSystem, t))
                         .collect(Collectors.toSet());
             }
 
@@ -533,7 +533,7 @@ public class Utils {
                 if (t instanceof NullType) {
                     continue;
                 } else if (t instanceof ArrayType at) {
-                    current = Sets.newSet(getArraySupers(tCtx));
+                    current = Sets.newSet(getArraySupers(typeSystem));
                 } else {
                     current = upperClosure((ClassType) t);
                 }
@@ -554,11 +554,11 @@ public class Utils {
                 && arrayType.elementType() instanceof ReferenceType);
     }
 
-    public static ArrayType wrap1(TypeContext tCtx, ReferenceType referenceType) {
+    public static ArrayType wrap1(TypeSystem typeSystem, ReferenceType referenceType) {
         if (referenceType instanceof ArrayType at) {
-            return tCtx.typeSystem().getArrayType(at.baseType(), at.dimensions() + 1);
+            return typeSystem.getArrayType(at.baseType(), at.dimensions() + 1);
         } else {
-            return tCtx.typeSystem().getArrayType(referenceType, 1);
+            return typeSystem.getArrayType(referenceType, 1);
         }
     }
 
@@ -596,12 +596,12 @@ public class Utils {
     }
 
     public static boolean isSubtype(
-            TypeContext tCtx,
+            TypeSystem typeSystem,
             pascal.taie.language.type.Type supertype, pascal.taie.language.type.Type subtype) {
 //        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
-        ClassType OBJECT = tCtx.object();
-        ClassType CLONEABLE = tCtx.cloneable();
-        ClassType SERIALIZABLE = tCtx.serializable();
+        ClassType OBJECT = typeSystem.objectType();
+        ClassType CLONEABLE = typeSystem.cloneableType();
+        ClassType SERIALIZABLE = typeSystem.serializableType();
 
         assert subtype != null;
         if (subtype == supertype) {
@@ -692,7 +692,7 @@ public class Utils {
     /**
      * @return if <code>t1 := t2</code> is valid
      */
-    public static boolean isAssignable(TypeContext tCtx,
+    public static boolean isAssignable(TypeSystem typeSystem,
                                        pascal.taie.language.type.Type t1,
                                        pascal.taie.language.type.Type t2) {
         if (t1 == t2) {
@@ -700,10 +700,10 @@ public class Utils {
         }
         if (t1 instanceof PrimitiveType) {
             return isIntAssignable(t1, t2);
-        } else if (t1 == tCtx.reflectArray() && t2 instanceof ArrayType) {
+        } else if (t1 == typeSystem.arrayType() && t2 instanceof ArrayType) {
             return true;
         } else {
-            return isSubtype(tCtx, t1, t2);
+            return isSubtype(typeSystem, t1, t2);
         }
     }
 
