@@ -41,13 +41,13 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.AnalysisException;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.Maps.newConcurrentMap;
 
 /**
  * Temporary Type System for frontend,
@@ -56,8 +56,6 @@ import static pascal.taie.util.collection.Maps.newConcurrentMap;
 public class TempTypeSystem implements TypeSystem {
 
     private final JClassLoader defaultClassLoader;
-
-    private final Map<JClassLoader, Map<String, ClassType>> classTypes = newConcurrentMap();
 
     private final ClassType objectType;
 
@@ -73,17 +71,14 @@ public class TempTypeSystem implements TypeSystem {
 
     private final ClassType throwableType;
 
-    private final Map<String, ClassType> defaultClassTypes = newConcurrentMap();
-
-    private final Map<String, ClassType> internalNameClassTypes = newConcurrentMap();
+    private final Map<String, ClassType> classTypes = Maps.newConcurrentMap();
 
     /**
      * This map may be concurrently written during IR construction,
      * thus we use concurrent map to ensure its thread-safety.
      */
     private final ConcurrentMap<Integer, ConcurrentMap<Type, ArrayType>> arrayTypes
-            = newConcurrentMap(8);
-
+            = Maps.newConcurrentMap(8);
 
     private final Map<PrimitiveType, ClassType> boxedMap;
 
@@ -177,7 +172,6 @@ public class TempTypeSystem implements TypeSystem {
                 return getClassType(loader, typeName);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new AnalysisException("Invalid type name: " + typeName, e);
         }
     }
@@ -200,7 +194,7 @@ public class TempTypeSystem implements TypeSystem {
     }
 
     public ClassType getClassTypeByInternalName(String internalName) {
-        return internalNameClassTypes.computeIfAbsent(internalName,
+        return classTypes.computeIfAbsent(internalName,
                 name -> new ClassType(defaultClassLoader, name.replace('/', '.')));
     }
 
@@ -215,7 +209,7 @@ public class TempTypeSystem implements TypeSystem {
         assert !(baseType instanceof VoidType)
                 && !(baseType instanceof NullType);
         assert dim >= 1;
-        return arrayTypes.computeIfAbsent(dim, d -> newConcurrentMap())
+        return arrayTypes.computeIfAbsent(dim, d -> Maps.newConcurrentMap())
                 .computeIfAbsent(baseType, t ->
                         new ArrayType(t, dim,
                                 dim == 1 ? t : getArrayType(t, dim - 1)));
@@ -237,7 +231,6 @@ public class TempTypeSystem implements TypeSystem {
         return Objects.requireNonNull(unboxedMap.get(type),
                 type + " cannot be unboxed");
     }
-
 
     /**
      * This method should never be called
