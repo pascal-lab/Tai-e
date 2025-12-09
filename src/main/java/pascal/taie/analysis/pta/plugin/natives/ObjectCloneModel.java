@@ -23,20 +23,26 @@
 package pascal.taie.analysis.pta.plugin.natives;
 
 import pascal.taie.analysis.pta.core.solver.Solver;
-import pascal.taie.analysis.pta.plugin.CompositePlugin;
+import pascal.taie.analysis.pta.plugin.util.IRModelPlugin;
+import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
+import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
 
-/**
- * This class models some native calls by "inlining" their side effects
- * at the call sites to provide better precision for pointer analysis.
- */
-public class NativeModeller extends CompositePlugin {
+import java.util.List;
 
-    @Override
-    public void setSolver(Solver solver) {
-        addPlugin(new ArrayModel.AnalysisModel(solver),
-                new ArrayModel.IRModel(solver),
-                new UnsafeModel(solver),
-                new DoPriviledgedModel(solver),
-                new ObjectCloneModel(solver));
+public class ObjectCloneModel extends IRModelPlugin {
+    ObjectCloneModel(Solver solver) {
+        super(solver);
+    }
+
+    @InvokeHandler(signature = "<java.lang.Object: java.lang.Object clone()>")
+    public List<Stmt> objectClone(Invoke invoke) {
+        Var result = invoke.getResult();
+        return result != null
+                ? List.of(new Copy(result, InvokeUtils.getVar(invoke, InvokeUtils.BASE)))
+                : List.of();
     }
 }
