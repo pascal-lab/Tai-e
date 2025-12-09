@@ -59,10 +59,6 @@ public class FrontendContext {
         this.typeSystem = typeSystem;
     }
 
-    public static FrontendContext get() {
-        throw new UnsupportedOperationException();
-    }
-
     public TypeSystem getTypeSystem() {
         return typeSystem;
     }

@@ -436,8 +436,6 @@ public class Utils {
                 case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
                 default -> throw new UnsupportedOperationException();
             };
-        } else if (o instanceof String s) {
-            return FrontendContext.get().fromAsmInternalName(s);
         } else if (o instanceof LabelNode) {
             return Uninitialized.UNINITIALIZED;
         } else {
