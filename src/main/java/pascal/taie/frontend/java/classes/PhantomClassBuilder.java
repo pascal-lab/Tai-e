@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java.classes;
 
-import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -33,6 +31,7 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.TypeSystem;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -40,13 +39,14 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-class PhantomClassBuilder extends NewFrontendComponent
-        implements JClassBuilder {
+public class PhantomClassBuilder implements JClassBuilder {
+
+    private final TypeSystem typeSystem;
 
     private final String name;
 
-    PhantomClassBuilder(FrontendContext context, String name) {
-        super(context);
+    public PhantomClassBuilder(TypeSystem typeSystem, String name) {
+        this.typeSystem = typeSystem;
         this.name = name;
     }
 
@@ -74,7 +74,7 @@ class PhantomClassBuilder extends NewFrontendComponent
 
     @Override
     public ClassType getClassType() {
-        return typeSystem().getClassType(name);
+        return typeSystem.getClassType(name);
     }
 
     @Override
@@ -83,7 +83,7 @@ class PhantomClassBuilder extends NewFrontendComponent
             return null;
         } else {
             // Object for phantom class. However, is it better to fake a "ILL" supertype?
-            return typeSystem().objectType().getJClass();
+            return typeSystem.objectType().getJClass();
         }
     }
 

@@ -22,9 +22,7 @@
 
 package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.type.ArrayType;
@@ -55,8 +53,7 @@ import static pascal.taie.util.collection.Maps.newConcurrentMap;
  * Temporary Type System for frontend,
  * Copy and Paste from language.type.TypeSystemImpl
  */
-public class TempTypeSystem extends NewFrontendComponent
-        implements TypeSystem {
+public class TempTypeSystem implements TypeSystem {
 
     private final JClassLoader defaultClassLoader;
 
@@ -94,8 +91,7 @@ public class TempTypeSystem extends NewFrontendComponent
 
     private final Map<String, PrimitiveType> primitiveTypes;
 
-    public TempTypeSystem(FrontendContext ctx, JClassLoader loader) {
-        super(ctx);
+    public TempTypeSystem(JClassLoader loader) {
         defaultClassLoader = loader;
         objectType = getClassType(loader, ClassNames.OBJECT);
         serializableType = getClassType(loader, ClassNames.SERIALIZABLE);

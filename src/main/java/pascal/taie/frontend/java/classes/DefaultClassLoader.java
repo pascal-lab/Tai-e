@@ -22,26 +22,25 @@
 
 package pascal.taie.frontend.java.classes;
 
-import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
+import pascal.taie.language.type.TypeSystem;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class DefaultClassLoader extends NewFrontendComponent
-        implements JClassLoader {
+public class DefaultClassLoader implements JClassLoader {
 
     private final ClassHierarchy hierarchy;
 
     private final boolean allowPhantom;
 
+    private TypeSystem typeSystem;
+
     private Map<String, JClass> classes;
 
-    DefaultClassLoader(FrontendContext context, ClassHierarchy hierarchy, boolean allowPhantom) {
-        super(context);
+    public DefaultClassLoader(ClassHierarchy hierarchy, boolean allowPhantom) {
         this.hierarchy = hierarchy;
         this.allowPhantom = allowPhantom;
     }
@@ -62,13 +61,17 @@ public class DefaultClassLoader extends NewFrontendComponent
         return jclass;
     }
 
+    public void setTypeSystem(TypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
+    }
+
     private synchronized JClass loadPhantomClass(String name) {
         JClass jclass = classes.get(name);
         if (jclass == null) { // phantom class
-            // what should a moduleName for a phantom class be?
+            // TODO: what should a moduleName for a phantom class be?
             jclass = new JClass(this, name, null);
             classes.put(name, jclass);
-            new PhantomClassBuilder(ctx(), name).build(jclass);
+            new PhantomClassBuilder(typeSystem, name).build(jclass);
             // Here is the only point where hierarchy could be concurrently added
             // if there is no mutex.
             hierarchy.addClass(jclass);

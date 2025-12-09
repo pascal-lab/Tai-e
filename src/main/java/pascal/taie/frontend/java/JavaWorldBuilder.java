@@ -28,7 +28,6 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
-import pascal.taie.frontend.java.classes.ClassHierarchyBuilder;
 import pascal.taie.frontend.java.classes.ClassSource;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -71,14 +70,14 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         Project project = new OptionsProjectBuilder(options).build();
         // build closed world
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
-        // initialize build context
-        FrontendContext ctx = new FrontendContext();
-        // set up class hierarchy, classes are built in this phase
-        ClassHierarchy hierarchy = new ClassHierarchyBuilder(ctx).build(closedWorld);
+        // KEY STEP: build key frontend components, classes are built in this phase
+        FrontendBuilder builder = new FrontendBuilder(closedWorld);
+        // set up class hierarchy
+        ClassHierarchy hierarchy = builder.getHierarchy();
         world.setClassHierarchy(hierarchy);
         // set up type system
         // TODO: check type system here, maybe replace temp type system
-        TypeSystem typeSystem = ctx.getTypeSystem(); // the singleton context was built in hierarchyBuilder.build
+        TypeSystem typeSystem = builder.getTypeSystem();
         world.setTypeSystem(typeSystem);
         // set main method
         String mainClassName = options.getMainClass();
@@ -110,9 +109,9 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        world.setIRBuilder(ctx.getIRBuilder());
+        world.setIRBuilder(builder.getIRBuilder());
         if (options.isPreBuildIR()) {
-            ctx.getIRBuilder().buildAll(hierarchy);
+            builder.getIRBuilder().buildAll(hierarchy);
         }
     }
 }

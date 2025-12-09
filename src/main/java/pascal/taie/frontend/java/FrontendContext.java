@@ -22,9 +22,6 @@
 
 package pascal.taie.frontend.java;
 
-import pascal.taie.frontend.java.classes.AsmSource;
-import pascal.taie.frontend.java.classes.DefaultClassLoader;
-import pascal.taie.frontend.java.main.DefaultIRBuilder;
 import pascal.taie.frontend.java.type.TempTypeSystem;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.JClass;
@@ -54,39 +51,20 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class FrontendContext {
 
-    private DefaultClassLoader defaultClassLoader;
-
-    private TempTypeSystem typeSystem;
-
-    private final DefaultIRBuilder irBuilder;
+    private final TempTypeSystem typeSystem;
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
-    public FrontendContext() {
-        this.irBuilder = new DefaultIRBuilder(this);
+    FrontendContext(TempTypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
     }
 
     public static FrontendContext get() {
         throw new UnsupportedOperationException();
     }
 
-    public void initClassloaderAndTypeSystem(DefaultClassLoader loader) {
-        this.defaultClassLoader = loader;
-        this.typeSystem = new TempTypeSystem(this, defaultClassLoader);
-    }
-
     public TypeSystem getTypeSystem() {
         return typeSystem;
-    }
-
-    public DefaultIRBuilder getIRBuilder() {
-        return irBuilder;
-    }
-
-    public JClass getClassByName(String name) {
-        JClass klass = defaultClassLoader.loadClass(name);
-        assert klass != null;
-        return klass;
     }
 
     public ReferenceType fromAsmInternalName(String internalName) {
@@ -176,9 +154,5 @@ public class FrontendContext {
         } else {
             return typeSystem.getClassTypeByInternalName(internalName).getJClass();
         }
-    }
-
-    public void noticeClassSource(JClass clazz, AsmSource source) {
-        irBuilder.putClassSource(clazz, source);
     }
 }

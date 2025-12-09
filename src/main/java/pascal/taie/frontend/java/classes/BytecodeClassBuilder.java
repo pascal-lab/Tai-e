@@ -40,6 +40,7 @@ import pascal.taie.language.annotation.Element;
 import pascal.taie.language.annotation.EnumElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
@@ -72,6 +73,8 @@ import static pascal.taie.frontend.java.Utils.toElement;
 public class BytecodeClassBuilder extends NewFrontendComponent
         implements JClassBuilder {
 
+    private final JClassLoader loader;
+
     private final AsmSource source;
 
     private final JClass jClass;
@@ -97,8 +100,9 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
     private final int version;
 
-    public BytecodeClassBuilder(FrontendContext context, AsmSource source, JClass jClass) {
+    public BytecodeClassBuilder(FrontendContext context, JClassLoader loader, AsmSource source, JClass jClass) {
         super(context);
+        this.loader = loader;
         this.source = source;
         this.jClass = jClass;
         this.fields = new ArrayList<>();
@@ -192,7 +196,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
     }
 
     private JClass getClassByName(String internalName) {
-        return ctx().getClassByName(getBinaryName(internalName));
+        return loader.loadClass(getBinaryName(internalName));
     }
 
     class CVisitor extends ClassVisitor {
