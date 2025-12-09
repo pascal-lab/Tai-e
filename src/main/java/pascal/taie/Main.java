@@ -142,8 +142,7 @@ public class Main {
                                 .mapToInt(c -> c.getDeclaredMethods().size())
                                 .sum());
             } catch (Exception e) {
-                System.err.println("Failed to build world due to " + e);
-                System.exit(1);
+                throw new RuntimeException("Failed to build world", e);
             }
         }, "WorldBuilder");
     }
