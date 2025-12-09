@@ -72,7 +72,6 @@ public class ClassHierarchyBuilder extends NewFrontendComponent {
                 hierarchy.addClass(jclass);
             }
         }
-        ctx().initHierarchy(hierarchy);
         return hierarchy;
     }
 

@@ -27,7 +27,6 @@ import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.main.DefaultIRBuilder;
 import pascal.taie.frontend.java.type.TempTypeSystem;
 import pascal.taie.ir.exp.MethodType;
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -59,8 +58,6 @@ public class FrontendContext {
 
     private TempTypeSystem typeSystem;
 
-    private ClassHierarchy hierarchy;
-
     private final DefaultIRBuilder irBuilder;
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
@@ -76,10 +73,6 @@ public class FrontendContext {
     public void initClassloaderAndTypeSystem(DefaultClassLoader loader) {
         this.defaultClassLoader = loader;
         this.typeSystem = new TempTypeSystem(this, defaultClassLoader);
-    }
-
-    public void initHierarchy(ClassHierarchy hierarchy) {
-        this.hierarchy = hierarchy;
     }
 
     public TypeSystem getTypeSystem() {
