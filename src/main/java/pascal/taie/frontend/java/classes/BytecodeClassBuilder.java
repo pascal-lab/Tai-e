@@ -64,9 +64,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static pascal.taie.frontend.java.Utils.fromAsmClassModifier;
-import static pascal.taie.frontend.java.Utils.fromAsmFieldModifier;
-import static pascal.taie.frontend.java.Utils.fromAsmMethodModifier;
 import static pascal.taie.frontend.java.Utils.getBinaryName;
 import static pascal.taie.frontend.java.Utils.toElement;
 
@@ -223,7 +220,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                     .map(BytecodeClassBuilder.this::getClassByName)
                     .toList();
 
-            modifiers = fromAsmClassModifier(access);
+            modifiers = Modifiers.fromAsmClass(access);
             if (signature != null) {
                 klassGSig = GSignatures.toClassSig(modifiers.contains(Modifier.INTERFACE), signature);
             }
@@ -239,7 +236,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
             if (outerName != null && Objects.equals(name, currentInternalName)) {
                 outerClass = getClassByName(outerName);
                 // also, fix modifiers
-                modifiers.addAll(fromAsmClassModifier(access));
+                modifiers.addAll(Modifiers.fromAsmClass(access));
             }
         }
 
@@ -268,7 +265,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                 gSignature = null;
             }
             return new FVisitor(annotations -> fields.add(
-                    new JField(jClass, name, fromAsmFieldModifier(access), type, gSignature,
+                    new JField(jClass, name, Modifiers.fromAsmField(access), type, gSignature,
                             AnnotationHolder.make(annotations),
                             value == null ? null : Utils.fromObject(ctx(), value))));
         }
@@ -326,7 +323,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
         public MVisitor(int access, String name, String descriptor, String[] exceptions, MethodGSignature sig) {
             super(Opcodes.ASM9);
-            this.modifiers = fromAsmMethodModifier(access);
+            this.modifiers = Modifiers.fromAsmMethod(access);
             this.methodName = name;
             this.exceptions = new ArrayList<>();
             if (exceptions != null) {

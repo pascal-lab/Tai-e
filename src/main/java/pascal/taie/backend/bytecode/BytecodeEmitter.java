@@ -47,6 +47,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.frontend.java.Utils;
+import pascal.taie.frontend.java.classes.Modifiers;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -176,7 +177,7 @@ public class BytecodeEmitter {
              * need to load computed class to the running JVM,
              * which is not suitable for our use case.</p>
              * <p>Our implementation is similar to ASM. Though we may directly use
-             * {@link Utils#lca(TypeContext, ReferenceType, ReferenceType)},
+             * {@link Utils#lca(TypeSystem, ReferenceType, ReferenceType)},
              * such implementation is enough to compute
              * the {@link org.objectweb.asm.tree.FrameNode}</p>
              * @see ClassWriter#getCommonSuperClass(String, String)
@@ -243,7 +244,7 @@ public class BytecodeEmitter {
         Set<Modifier> classModifiers = modifiers.stream()
                 .filter(classPermittedModifiers::contains)
                 .collect(Collectors.toSet());
-        int accessModifiers = Utils.toAsmModifier(classModifiers);
+        int accessModifiers = Modifiers.toAsm(classModifiers);
         int access = classModifiers.contains(Modifier.INTERFACE)
                 ? accessModifiers
                 : accessModifiers | Opcodes.ACC_SUPER;
@@ -264,7 +265,7 @@ public class BytecodeEmitter {
         }
         for (JField field : jClass.getDeclaredFields()) {
             Literal constantValue = field.getConstantValue();
-            writer.visitField(Utils.toAsmModifier(field.getModifiers()), field.getName(),
+            writer.visitField(Modifiers.toAsm(field.getModifiers()), field.getName(),
                     getDescriptor(field.getType()), null,
                     constantValue == null ? null : toObject(constantValue));
         }
@@ -315,7 +316,7 @@ public class BytecodeEmitter {
     private void emitMethod(JMethod method) {
         this.method = method;
         MethodVisitor mv = writer.visitMethod(
-                Utils.toAsmModifier(method.getModifiers()), method.getName(),
+                Modifiers.toAsm(method.getModifiers()), method.getName(),
                 getDescriptor(method), null,
                 method.getExceptions()
                         .stream()
@@ -977,7 +978,7 @@ public class BytecodeEmitter {
                 return new InnerClassNode(computeInternalName(jClass),
                         computeInternalName(outer),
                         computeRealSimpleName(jClass),
-                        Utils.toAsmModifier(jClass.getModifiers()));
+                        Modifiers.toAsm(jClass.getModifiers()));
             });
         }
     }

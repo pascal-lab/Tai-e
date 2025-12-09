@@ -80,7 +80,6 @@ import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.Modifier;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -94,7 +93,6 @@ import pascal.taie.util.collection.Sets;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -118,108 +116,6 @@ public class Utils {
 
     public static String getBinaryName(String internalName) {
         return Type.getObjectType(internalName).getClassName();
-    }
-
-    static boolean hasAsmModifier(int opcodes, int modifier) {
-        return (opcodes & modifier) != 0;
-    }
-
-    private static int toAsmModifier(Modifier modifier) {
-        return switch (modifier) {
-            case PUBLIC -> Opcodes.ACC_PUBLIC;
-            case PRIVATE -> Opcodes.ACC_PRIVATE;
-            case PROTECTED -> Opcodes.ACC_PROTECTED;
-            case STATIC -> Opcodes.ACC_STATIC;
-            case FINAL -> Opcodes.ACC_FINAL;
-            case SYNCHRONIZED -> Opcodes.ACC_SYNCHRONIZED;
-            case VOLATILE -> Opcodes.ACC_VOLATILE;
-            case TRANSIENT -> Opcodes.ACC_TRANSIENT;
-            case NATIVE -> Opcodes.ACC_NATIVE;
-            case INTERFACE -> Opcodes.ACC_INTERFACE;
-            case ABSTRACT -> Opcodes.ACC_ABSTRACT;
-            case STRICTFP -> Opcodes.ACC_STRICT;
-            case BRIDGE -> Opcodes.ACC_BRIDGE;
-            case VARARGS -> Opcodes.ACC_VARARGS;
-            case SYNTHETIC -> Opcodes.ACC_SYNTHETIC;
-            case ANNOTATION -> Opcodes.ACC_ANNOTATION;
-            case ENUM -> Opcodes.ACC_ENUM;
-            case MANDATED -> Opcodes.ACC_MANDATED;
-        };
-    }
-
-    public static int toAsmModifier(Set<Modifier> modifiers) {
-        int res = 0;
-        for (Modifier modifier : modifiers) {
-            res |= toAsmModifier(modifier);
-        }
-        return res;
-    }
-
-    private static final Set<Modifier> PUB = EnumSet.of(Modifier.PUBLIC);
-    static final Set<Modifier> PRI = EnumSet.of(Modifier.PRIVATE);
-    static final Set<Modifier> PRO = EnumSet.of(Modifier.PROTECTED);
-    static final Set<Modifier> STA = EnumSet.of(Modifier.STATIC);
-    static final Set<Modifier> PUB_FINAL = EnumSet.of(Modifier.PUBLIC, Modifier.FINAL);
-    static final Set<Modifier> PRI_FINAL = EnumSet.of(Modifier.PRIVATE, Modifier.FINAL);
-    static final Set<Modifier> PRO_FINAL = EnumSet.of(Modifier.PROTECTED, Modifier.FINAL);
-
-    static final List<Modifier> CLASS_MODIFIERS = List.of(
-            Modifier.PUBLIC,    Modifier.FINAL,      Modifier.INTERFACE, Modifier.ABSTRACT,
-            Modifier.SYNTHETIC, Modifier.ANNOTATION, Modifier.ENUM);
-    static final int[] CLASS_ASM_MODIFIERS =
-            CLASS_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
-
-    static final List<Modifier> FIELD_MODIFIERS = List.of(
-            Modifier.PUBLIC, Modifier.PRIVATE,  Modifier.PROTECTED, Modifier.STATIC,
-            Modifier.FINAL,  Modifier.VOLATILE, Modifier.TRANSIENT, Modifier.SYNTHETIC,
-            Modifier.ENUM);
-    static final int[] FIELD_ASM_MODIFIERS =
-            FIELD_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
-
-    static final List<Modifier> METHOD_MODIFIERS = List.of(
-            Modifier.PUBLIC, Modifier.PRIVATE,      Modifier.PROTECTED, Modifier.STATIC,
-            Modifier.FINAL,  Modifier.SYNCHRONIZED, Modifier.BRIDGE,    Modifier.VARARGS,
-            Modifier.NATIVE, Modifier.ABSTRACT,     Modifier.STRICTFP,  Modifier.SYNTHETIC);
-    static final int[] METHOD_ASM_MODIFIERS =
-            METHOD_MODIFIERS.stream().mapToInt(Utils::toAsmModifier).toArray();
-
-    public static Set<Modifier> fromAsmModifiers(int opcodes, int[] asmModifiers,
-                                                 List<Modifier> taieModifiers) {
-        switch (opcodes) {
-            case Opcodes.ACC_PUBLIC:
-                return PUB;
-            case Opcodes.ACC_PRIVATE:
-                return PRI;
-            case Opcodes.ACC_PROTECTED:
-                return PRO;
-            case Opcodes.ACC_STATIC:
-                return STA;
-            case Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL:
-                return PUB_FINAL;
-            case Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL:
-                return PRI_FINAL;
-            case Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL:
-                return PRO_FINAL;
-        }
-        Set<Modifier> res = EnumSet.noneOf(Modifier.class);
-        for (int i = 0; i < taieModifiers.size(); i++) {
-            if ((opcodes & asmModifiers[i]) != 0) {
-                res.add(taieModifiers.get(i));
-            }
-        }
-        return res;
-    }
-
-    public static Set<Modifier> fromAsmClassModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, CLASS_ASM_MODIFIERS, CLASS_MODIFIERS);
-    }
-
-    public static Set<Modifier> fromAsmFieldModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, FIELD_ASM_MODIFIERS, FIELD_MODIFIERS);
-    }
-
-    public static Set<Modifier> fromAsmMethodModifier(int opcodes) {
-        return fromAsmModifiers(opcodes, METHOD_ASM_MODIFIERS, METHOD_MODIFIERS);
     }
 
     /**
