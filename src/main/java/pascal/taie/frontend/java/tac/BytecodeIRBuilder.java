@@ -44,6 +44,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Utils;
@@ -273,7 +274,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         int instrSize = source.instructions.size();
         this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
-        this.isSSA = ctx().isUseSSA();
+        this.isSSA = World.get().getOptions().isSSA();
         if (!isEmpty) {
             this.manager = new VarManager(method,
                     source.localVariables, source.instructions, source.maxLocals, varSSAInfo);

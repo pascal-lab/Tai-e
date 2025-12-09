@@ -72,7 +72,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // build closed world
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
         // initialize build context
-        FrontendContext ctx = new FrontendContext(options.isSSA());
+        FrontendContext ctx = new FrontendContext();
         // set up class hierarchy, classes are built in this phase
         ClassHierarchy hierarchy = new ClassHierarchyBuilder(ctx).build(closedWorld);
         world.setClassHierarchy(hierarchy);

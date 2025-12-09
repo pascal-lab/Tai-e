@@ -61,14 +61,11 @@ public class FrontendContext {
 
     private ClassHierarchy hierarchy;
 
-    private final boolean useSSA;
-
     private final DefaultIRBuilder irBuilder;
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
-    public FrontendContext(boolean useSSA) {
-        this.useSSA = useSSA;
+    public FrontendContext() {
         this.irBuilder = new DefaultIRBuilder(this);
     }
 
@@ -190,9 +187,5 @@ public class FrontendContext {
 
     public void noticeClassSource(JClass clazz, AsmSource source) {
         irBuilder.putClassSource(clazz, source);
-    }
-
-    public boolean isUseSSA() {
-        return useSSA;
     }
 }
