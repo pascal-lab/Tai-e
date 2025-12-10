@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java;
 
-import pascal.taie.frontend.java.type.TempTypeSystem;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.type.ReferenceType;
@@ -51,11 +51,11 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class FrontendContext {
 
-    private final TempTypeSystem typeSystem;
+    private final FrontendTypeSystem typeSystem;
 
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
-    FrontendContext(TempTypeSystem typeSystem) {
+    FrontendContext(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
@@ -122,7 +122,7 @@ public class FrontendContext {
         return methodDescriptorCache.computeIfAbsent(descriptor, this::internalFromAsmMethodType);
     }
 
-    public Pair<List<Type>, Type> internalFromAsmMethodType(String descriptor) {
+    private Pair<List<Type>, Type> internalFromAsmMethodType(String descriptor) {
         org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
         return fromAsmMethodType(t);
     }

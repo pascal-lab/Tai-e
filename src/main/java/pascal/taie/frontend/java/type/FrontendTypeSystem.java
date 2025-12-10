@@ -30,11 +30,11 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 
 /**
- * Temporary Type System for frontend.
+ * This type system provides more functionalities for frontend.
  */
-public class TempTypeSystem extends AbstractTypeSystem {
+public class FrontendTypeSystem extends AbstractTypeSystem {
 
-    public TempTypeSystem(JClassLoader defaultClassLoader) {
+    public FrontendTypeSystem(JClassLoader defaultClassLoader) {
         super(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
     }
 
