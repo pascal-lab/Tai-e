@@ -36,8 +36,8 @@ import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.FastTypeSystem;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.language.type.TypeSystemImpl;
 import soot.G;
 import soot.PackManager;
 import soot.Scene;
@@ -206,7 +206,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);
         // initialize type manager
-        TypeSystem typeSystem = new TypeSystemImpl(hierarchy);
+        TypeSystem typeSystem = new FastTypeSystem(hierarchy);
         world.setTypeSystem(typeSystem);
         // initialize converter
         Converter converter = new Converter(loader, typeSystem);

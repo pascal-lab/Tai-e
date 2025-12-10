@@ -24,11 +24,15 @@ package pascal.taie.language.type;
 
 import pascal.taie.language.classes.ClassHierarchy;
 
-public class TypeSystemImpl extends AbstractTypeSystem {
+/**
+ * Type system implementation that leverage {@link ClassHierarchy}
+ * for fast subtype checking.
+ */
+public class FastTypeSystem extends AbstractTypeSystem {
 
     private final ClassHierarchy hierarchy;
 
-    public TypeSystemImpl(ClassHierarchy hierarchy) {
+    public FastTypeSystem(ClassHierarchy hierarchy) {
         super(hierarchy.getDefaultClassLoader());
         this.hierarchy = hierarchy;
     }
