@@ -257,7 +257,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                 String descriptor,
                 String signature,
                 Object value) {
-            Type type = ctx().fromAsmType(descriptor);
+            Type type = typeSystem().fromAsmType(descriptor);
             ReferenceTypeGSignature gSignature;
             if (signature != null) {
                 gSignature = GSignatures.toTypeSig(signature);
@@ -267,7 +267,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
             return new FVisitor(annotations -> fields.add(
                     new JField(jClass, name, Modifiers.fromAsmField(access), type, gSignature,
                             AnnotationHolder.make(annotations),
-                            value == null ? null : Utils.fromObject(ctx(), value))));
+                            value == null ? null : Utils.fromObject(typeSystem(), value))));
         }
 
         @Override
@@ -328,10 +328,10 @@ public class BytecodeClassBuilder extends NewFrontendComponent
             this.exceptions = new ArrayList<>();
             if (exceptions != null) {
                 for (String exception : exceptions) {
-                    this.exceptions.add((ClassType) ctx().fromAsmInternalName(exception));
+                    this.exceptions.add((ClassType) typeSystem().fromAsmInternalName(exception));
                 }
             }
-            Pair<List<Type>, Type> mtdType = ctx().fromAsmMethodType(descriptor);
+            Pair<List<Type>, Type> mtdType = typeSystem().fromAsmMethodType(descriptor);
             this.retType = mtdType.second();
             this.paramTypes = mtdType.first();
             this.annotations = new ArrayList<>();

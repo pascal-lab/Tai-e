@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.type;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
@@ -61,6 +60,7 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
@@ -71,9 +71,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
-import static pascal.taie.frontend.java.Utils.isAssignable;
-import static pascal.taie.frontend.java.Utils.isIntAssignable;
-import static pascal.taie.frontend.java.Utils.isPrimitiveArrayType;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
 
@@ -102,7 +99,7 @@ public class TypeInference extends NewFrontendComponent {
     }
 
     public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
-        return Utils.lca(typeSystem(), r1, r2);
+        return typeSystem().lca(r1, r2);
     }
 
     public Optional<Type> plusOneArray(Type t) {
@@ -328,7 +325,7 @@ public class TypeInference extends NewFrontendComponent {
                 }
                 if (node.initConstraints != null) {
                     for (Type t : node.initConstraints) {
-                        if (!isAssignable(typeSystem(), t, target)) {
+                        if (!typeSystem().isAssignable(t, target)) {
                             this.needCasting = true;
                         }
                     }
@@ -586,7 +583,8 @@ public class TypeInference extends NewFrontendComponent {
             } else {
                 if (this.primitiveType == t) {
                     return false;
-                } else if (isIntAssignable(primitiveType, t)) {
+                } else if (TypeSystem.canHoldsInt(primitiveType)
+                        && TypeSystem.canHoldsInt(t)) {
                     return false;
                 } else {
                     throw new UnsupportedOperationException();
@@ -603,7 +601,9 @@ public class TypeInference extends NewFrontendComponent {
         }
 
         public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
-            if (kind == EdgeKind.VAR_ARRAY && isPrimitiveArrayType(t)) {
+            if (kind == EdgeKind.VAR_ARRAY
+                    && t instanceof ArrayType arrayType
+                    && TypeSystem.canHoldsInt(arrayType.baseType())) {
                 // example for that:
                 // 1. a = new int[10]
                 // 2. a[1] = 1
@@ -638,7 +638,7 @@ public class TypeInference extends NewFrontendComponent {
             }
             boolean ret = true;
             for (ReferenceType c : useValidConstrains) {
-                ret &= Utils.isAssignable(typeSystem(), c, t);
+                ret &= typeSystem().isAssignable(c, t);
             }
             return ret;
         }

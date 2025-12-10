@@ -28,7 +28,6 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
@@ -215,8 +214,11 @@ public abstract class AbstractTypeSystem implements TypeSystem {
 
     @Override
     public PrimitiveType getPrimitiveType(String typeName) {
-        return Objects.requireNonNull(primitiveTypes.get(typeName),
-                typeName + " is not a primitive type");
+        PrimitiveType res = primitiveTypes.get(typeName);
+        if (res == null) {
+            throw new IllegalArgumentException(typeName + " is not a primitive type");
+        }
+        return res;
     }
 
     @Override
@@ -226,8 +228,11 @@ public abstract class AbstractTypeSystem implements TypeSystem {
 
     @Override
     public PrimitiveType getUnboxedType(ClassType type) {
-        return Objects.requireNonNull(unboxedMap.get(type),
-                type + " cannot be unboxed");
+        PrimitiveType res = unboxedMap.get(type);
+        if (res == null) {
+            throw new IllegalArgumentException(type + " cannot be unboxed");
+        }
+        return res;
     }
 
     @Override

@@ -23,7 +23,7 @@
 package pascal.taie.frontend.java.main;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.language.type.TypeSystem;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 
 /**
  * Abstract base class for frontend components that require access to the build context.
@@ -59,7 +59,7 @@ public abstract class NewFrontendComponent {
         return context;
     }
 
-    protected TypeSystem typeSystem() {
+    protected FrontendTypeSystem typeSystem() {
         return context.getTypeSystem();
     }
 }

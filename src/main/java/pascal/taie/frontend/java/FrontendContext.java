@@ -23,132 +23,23 @@
 package pascal.taie.frontend.java;
 
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
-import pascal.taie.ir.exp.MethodType;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
-import pascal.taie.language.type.VoidType;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static pascal.taie.language.type.BooleanType.BOOLEAN;
-import static pascal.taie.language.type.ByteType.BYTE;
-import static pascal.taie.language.type.CharType.CHAR;
-import static pascal.taie.language.type.DoubleType.DOUBLE;
-import static pascal.taie.language.type.FloatType.FLOAT;
-import static pascal.taie.language.type.IntType.INT;
-import static pascal.taie.language.type.LongType.LONG;
-import static pascal.taie.language.type.ShortType.SHORT;
 
 /**
  * The context for frontend processing. Can be viewed as global state of
  * the new frontend.
+ * <p>
+ * This is a pure data class that holds references to shared components
+ * used during frontend processing.
  */
 public class FrontendContext {
 
     private final FrontendTypeSystem typeSystem;
 
-    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
-
     FrontendContext(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
-    public TypeSystem getTypeSystem() {
+    public FrontendTypeSystem getTypeSystem() {
         return typeSystem;
-    }
-
-    public ReferenceType fromAsmInternalName(String internalName) {
-        if (internalName.charAt(0) != '[') {
-            return typeSystem.getClassTypeByInternalName(internalName);
-        }
-        return (ReferenceType) fromAsmType(
-                org.objectweb.asm.Type.getObjectType(internalName));
-    }
-
-    public Type fromAsmType(String descriptor) {
-        return switch (descriptor.charAt(0)) {
-            case 'V' -> VoidType.VOID;
-            case 'Z' -> BOOLEAN;
-            case 'C' -> CHAR;
-            case 'B' -> BYTE;
-            case 'S' -> SHORT;
-            case 'I' -> INT;
-            case 'F' -> FLOAT;
-            case 'J' -> LONG;
-            case 'D' -> DOUBLE;
-            case '[' -> fromAsmType(org.objectweb.asm.Type.getType(descriptor));
-            case 'L' -> typeSystem.getClassTypeByInternalName(
-                    descriptor.substring(1, descriptor.length() - 1));
-            default -> throw new IllegalArgumentException("Invalid descriptor: " + descriptor);
-        };
-    }
-
-    public Type fromAsmType(org.objectweb.asm.Type t) {
-        int sort = t.getSort();
-        if (sort == org.objectweb.asm.Type.VOID) {
-            return VoidType.VOID;
-        } else if (sort < org.objectweb.asm.Type.ARRAY) {
-            return switch (sort) {
-                case org.objectweb.asm.Type.BOOLEAN -> BOOLEAN;
-                case org.objectweb.asm.Type.BYTE -> BYTE;
-                case org.objectweb.asm.Type.CHAR -> CHAR;
-                case org.objectweb.asm.Type.SHORT -> SHORT;
-                case org.objectweb.asm.Type.INT -> INT;
-                case org.objectweb.asm.Type.LONG -> LONG;
-                case org.objectweb.asm.Type.FLOAT -> FLOAT;
-                case org.objectweb.asm.Type.DOUBLE -> DOUBLE;
-                default -> throw new UnsupportedOperationException();
-            };
-        } else if (sort == org.objectweb.asm.Type.ARRAY) {
-            return typeSystem.getArrayType(fromAsmType(t.getElementType()), t.getDimensions());
-        } else if (sort == org.objectweb.asm.Type.OBJECT) {
-            return typeSystem.getClassType(t.getClassName());
-        } else {
-            // t maybe a function ? error
-            throw new IllegalArgumentException();
-        }
-    }
-
-    public Pair<List<Type>, Type> fromAsmMethodType(String descriptor) {
-        // normally we want to avoid using caching
-        // but this method will be called very frequently
-        // caching is able to save ~70% of calculation time
-        return methodDescriptorCache.computeIfAbsent(descriptor, this::internalFromAsmMethodType);
-    }
-
-    private Pair<List<Type>, Type> internalFromAsmMethodType(String descriptor) {
-        org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-        return fromAsmMethodType(t);
-    }
-
-    private Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type t) {
-        if (t.getSort() == org.objectweb.asm.Type.METHOD) {
-            List<Type> paramTypes = new ArrayList<>();
-            for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
-                paramTypes.add(fromAsmType(t1));
-            }
-            return new Pair<>(paramTypes, fromAsmType(t.getReturnType()));
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    public MethodType toMethodType(org.objectweb.asm.Type t) {
-        Pair<List<Type>, Type> temp = fromAsmMethodType(t);
-        return MethodType.get(temp.first(), temp.second());
-    }
-
-    public JClass toJClass(String internalName) {
-        if (internalName.charAt(0) == '[') {
-            return typeSystem.objectType().getJClass();
-        } else {
-            return typeSystem.getClassTypeByInternalName(internalName).getJClass();
-        }
     }
 }

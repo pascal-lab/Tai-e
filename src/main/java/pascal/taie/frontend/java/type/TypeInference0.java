@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.type;
 
 import pascal.taie.frontend.java.FrontendContext;
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
@@ -69,6 +68,7 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
@@ -76,11 +76,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.java.Utils.canHoldsInt;
-import static pascal.taie.frontend.java.Utils.fromAsmFrameType;
-import static pascal.taie.frontend.java.Utils.isAssignable;
-import static pascal.taie.frontend.java.Utils.lca;
-import static pascal.taie.frontend.java.Utils.wrap1;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -167,11 +162,11 @@ public class TypeInference0 extends NewFrontendComponent {
         }
         for (Type t : allTypes) {
             if (now instanceof PrimitiveType) {
-                assert t == now || canHoldsInt(t) && canHoldsInt(now);
+                assert t == now || TypeSystem.canHoldsInt(t) && TypeSystem.canHoldsInt(now);
             } else {
                 assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
                         t1 instanceof Uninitialized);
-                Set<ReferenceType> res = lca(typeSystem(),
+                Set<ReferenceType> res = typeSystem().lca(
                         allTypes.stream()
                         .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
                         .map(i -> (ReferenceType) i)
@@ -185,7 +180,7 @@ public class TypeInference0 extends NewFrontendComponent {
                     int count = -1;
                     for (ReferenceType type : res) {
                         int newCount = (int) constrains.stream()
-                                .filter(c -> isAssignable(typeSystem(), c, type)).count();
+                                .filter(c -> typeSystem().isAssignable(c, type)).count();
                         if (newCount > count) {
                             now = type;
                             count = newCount;
@@ -210,7 +205,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 int slot = localCells[v.getIndex()];
                 assert slot != -1 && slot < typing.frameLocalType().size();
                 Object frameLocalType = typing.frameLocalType().get(slot);
-                Type currentType = fromAsmFrameType(frameLocalType);
+                Type currentType = FrontendTypeSystem.fromAsmFrameType(frameLocalType);
                 typing.setType(v, currentType);
                 putMultiSet(localTypeConstrains, v, currentType);
                 return currentType;
@@ -266,7 +261,7 @@ public class TypeInference0 extends NewFrontendComponent {
             }
         }
         assert types.size() == 1 ||
-                types.stream().allMatch(Utils::canHoldsInt);
+                types.stream().allMatch(TypeSystem::canHoldsInt);
         Type resultType = types.get(0);
         if (resultType == BOOLEAN || resultType == BYTE ||
                 resultType == SHORT || resultType == CHAR) {
@@ -431,7 +426,7 @@ public class TypeInference0 extends NewFrontendComponent {
                     // TODO: this rule is useless, and may not be safe
                     //       But currently works well, check & remove this in the future
                     if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                        putMultiSet(localTypeAssigns, base, wrap1(typeSystem(), referenceType));
+                        putMultiSet(localTypeAssigns, base, typeSystem().wrap1(referenceType));
                     }
                 }
                 return null;
@@ -457,7 +452,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 if (binaryExp instanceof ConditionExp || binaryExp instanceof ComparisonExp) {
                     newTypeAssign(stmt.getLValue(), binaryExp.getType(), typing);
                 } else if (binaryExp instanceof ShiftExp shiftExp) {
-                    assert canHoldsInt(getType(typing, shiftExp.getOperand2()));
+                    assert TypeSystem.canHoldsInt(getType(typing, shiftExp.getOperand2()));
                     newTypeAssign(stmt.getLValue(), getType(typing, shiftExp.getOperand1()), typing);
                 } else {
                     newTypeAssign(stmt.getLValue(), List.of(stmt.getRValue().getOperand1(),
@@ -528,7 +523,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
                 assert exceptionTypes != null;
                 // calculate lca here
-                Set<ReferenceType> res = lca(typeSystem(), Sets.newSet(exceptionTypes));
+                Set<ReferenceType> res = typeSystem().lca(Sets.newSet(exceptionTypes));
                 ReferenceType type = res.isEmpty() ? typeSystem().throwableType() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return null;
@@ -541,7 +536,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 if (slot != -1) {
                     // load from frame
                     assert slot < typing.frameLocalType().size();
-                    Type t = fromAsmFrameType(typing.frameLocalType().get(slot));
+                    Type t = FrontendTypeSystem.fromAsmFrameType(typing.frameLocalType().get(slot));
                     // DON'T use newTypeAssign, it will lose precision
                     // frame type is type constrain, not type assign
                     typing.setType(stmt.getLValue(), t);

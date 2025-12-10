@@ -46,7 +46,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.classes.Modifiers;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -163,12 +162,16 @@ import java.util.stream.Collectors;
  */
 public class BytecodeEmitter {
 
+    private final TypeSystem typeSystem;
+
     private final int classWriterOptions;
+
     private final ClassWriter writer;
 
     private final Map<JClass, InnerClassNode> innerClassMap = Maps.newMap();
 
     private BytecodeEmitter(int classWriterOptions) {
+        typeSystem = World.get().getTypeSystem();
         writer = new ClassWriter(classWriterOptions) {
             /**
              * <p>Use Tai-e API to compute the LCA (the least common ancestor) of
@@ -176,10 +179,8 @@ public class BytecodeEmitter {
              * <p>The default implementation provide by {@link ClassWriter}
              * need to load computed class to the running JVM,
              * which is not suitable for our use case.</p>
-             * <p>Our implementation is similar to ASM. Though we may directly use
-             * {@link Utils#lca(TypeSystem, ReferenceType, ReferenceType)},
-             * such implementation is enough to compute
-             * the {@link org.objectweb.asm.tree.FrameNode}</p>
+             * <p>Our implementation is similar to ASM, which is enough to
+             * compute the {@link org.objectweb.asm.tree.FrameNode}</p>
              * @see ClassWriter#getCommonSuperClass(String, String)
              */
             @Override
@@ -198,10 +199,9 @@ public class BytecodeEmitter {
             }
 
             private JClass lca(JClass c1, JClass c2) {
-                TypeSystem typeSystem = World.get().getTypeSystem();
-                if (Utils.isAssignable(typeSystem, c1.getType(), c2.getType())) {
+                if (typeSystem.isAssignable(c1.getType(), c2.getType())) {
                     return c1;
-                } else if (Utils.isAssignable(typeSystem, c2.getType(), c1.getType())) {
+                } else if (typeSystem.isAssignable(c2.getType(), c1.getType())) {
                     return c2;
                 } else if (c1.isInterface() || c2.isInterface()) {
                     return typeSystem.objectType().getJClass();
@@ -211,7 +211,7 @@ public class BytecodeEmitter {
                         if (c1 == null) {
                             throw new UnsupportedOperationException();
                         }
-                    } while (!Utils.isAssignable(typeSystem, c1.getType(), c2.getType()));
+                    } while (!typeSystem.isAssignable(c1.getType(), c2.getType()));
                     return c1;
                 }
             }

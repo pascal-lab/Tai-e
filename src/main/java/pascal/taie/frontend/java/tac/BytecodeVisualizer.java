@@ -25,7 +25,7 @@ package pascal.taie.frontend.java.tac;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import pascal.taie.frontend.java.Utils;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.util.Indexer;
 
 import java.io.PrintWriter;
@@ -126,7 +126,7 @@ public class BytecodeVisualizer {
         List<Object> stack = block.getFrame().stack;
         for (int i = 0; i < stack.size(); i++) {
             sb.append(i).append("->").append(
-                    Utils.fromAsmFrameType(stack.get(i)).getName());
+                    FrontendTypeSystem.fromAsmFrameType(stack.get(i)).getName());
             if (i != stack.size() - 1) {
                 sb.append(", ");
             }
@@ -136,7 +136,7 @@ public class BytecodeVisualizer {
         sb.append("local: [");
         for (int i = 0; i < block.getFrame().local.size(); i++) {
             Object o = block.getFrame().local.get(i);
-            String name = Utils.fromAsmFrameType(o).getName();
+            String name = FrontendTypeSystem.fromAsmFrameType(o).getName();
             if (name.equals(LONG.getName()) ||
                 name.equals(DOUBLE.getName())) {
                 n++;

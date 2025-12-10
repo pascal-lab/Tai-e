@@ -29,6 +29,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Utils;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.frontend.java.type.Top;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.Var;
@@ -187,7 +188,7 @@ public final class BytecodeBlock implements IBasicBlock {
                     v = null;
                 }
                 if (v != null) {
-                    Type t = Utils.fromAsmFrameType(frame.stack.get(i));
+                    Type t = FrontendTypeSystem.fromAsmFrameType(frame.stack.get(i));
                     consumer.accept(v, t);
                 }
                 n++;

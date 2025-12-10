@@ -32,7 +32,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.java.type.Uninitialized;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -77,40 +77,19 @@ import pascal.taie.language.annotation.FloatElement;
 import pascal.taie.language.annotation.IntElement;
 import pascal.taie.language.annotation.LongElement;
 import pascal.taie.language.annotation.StringElement;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Pair;
-import pascal.taie.util.collection.Sets;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static pascal.taie.frontend.java.type.Top.TOP;
-import static pascal.taie.language.type.BooleanType.BOOLEAN;
-import static pascal.taie.language.type.ByteType.BYTE;
-import static pascal.taie.language.type.CharType.CHAR;
-import static pascal.taie.language.type.DoubleType.DOUBLE;
-import static pascal.taie.language.type.FloatType.FLOAT;
-import static pascal.taie.language.type.IntType.INT;
-import static pascal.taie.language.type.LongType.LONG;
-import static pascal.taie.language.type.ShortType.SHORT;
 
 /**
- * Utility functions for frontend
+ * Utility functions for frontend.
+ * <p>
+ * Note: Type-related operations have been moved to {@link FrontendTypeSystem}.
  */
 public class Utils {
 
@@ -219,7 +198,7 @@ public class Utils {
         return false;
     }
 
-    public static Literal fromObject(FrontendContext context, Object o) {
+    public static Literal fromObject(FrontendTypeSystem typeSystem, Object o) {
         // TODO: handle MethodType / ConstantDynamic
         if (o instanceof Integer i) {
             return IntLiteral.get(i);
@@ -233,30 +212,30 @@ public class Utils {
             return StringLiteral.get(s);
         } else if (o instanceof Type t) {
             if (t.getSort() == Type.METHOD) {
-                return context.toMethodType(t);
+                return typeSystem.toMethodType(t);
             } else {
-                return ClassLiteral.get(context.fromAsmType(t));
+                return ClassLiteral.get(typeSystem.fromAsmType(t));
             }
         } else if (o instanceof Handle handle) {
-            return fromAsmHandle(context, handle);
+            return fromAsmHandle(typeSystem, handle);
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    public static MethodHandle fromAsmHandle(FrontendContext ctx, Handle handle) {
+    public static MethodHandle fromAsmHandle(FrontendTypeSystem typeSystem, Handle handle) {
         MethodHandle.Kind kind = toMethodHandleKind(handle.getTag());
         MemberRef ref;
-        JClass jClass = ctx.toJClass(handle.getOwner());
+        JClass jClass = typeSystem.toJClass(handle.getOwner());
         if (isFieldKind(kind)) {
             pascal.taie.language.type.Type t =
-                    ctx.fromAsmType(handle.getDesc());
+                    typeSystem.fromAsmType(handle.getDesc());
             ref = FieldRef.get(jClass, handle.getName(), t,
                     kind == MethodHandle.Kind.REF_getStatic ||
                             kind == MethodHandle.Kind.REF_putStatic);
         } else {
             Pair<List<pascal.taie.language.type.Type>, pascal.taie.language.type.Type>
-                    mtdType = ctx.fromAsmMethodType(handle.getDesc());
+                    mtdType = typeSystem.fromAsmMethodType(handle.getDesc());
             ref = MethodRef.get(jClass, handle.getName(), mtdType.first(), mtdType.second(),
                     kind == MethodHandle.Kind.REF_invokeStatic, handle.isInterface());
         }
@@ -301,7 +280,7 @@ public class Utils {
                 return new LoadField(v, fieldAccess);
             } else if (e instanceof InvokeExp invokeExp) {
                 return new Invoke(method, invokeExp, v);
-            } else if (e instanceof NewExp newExp)  {
+            } else if (e instanceof NewExp newExp) {
                 return new New(method, v, newExp);
             } else if (e instanceof ArrayAccess access) {
                 return new LoadArray(v, access);
@@ -318,350 +297,5 @@ public class Utils {
             return new StoreField(fieldAccess, (Var) e);
         }
         throw new UnsupportedOperationException();
-    }
-
-    public  static pascal.taie.language.type.Type fromAsmFrameType(Object o) {
-        if (o instanceof Integer i) {
-            return switch (i) {
-                case 0 -> TOP; // Opcodes.Top
-                case 1 -> INT; // Opcodes.INTEGER
-                case 2 -> FLOAT; // Opcodes.FLOAT
-                case 3 -> DOUBLE; // Opcodes.DOUBLE
-                case 4 -> LONG; // Opcodes.LONG
-                case 5 -> NullType.NULL; // Opcodes.NULL
-                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
-                default -> throw new UnsupportedOperationException();
-            };
-        } else if (o instanceof LabelNode) {
-            return Uninitialized.UNINITIALIZED;
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    static Set<ReferenceType> minimum(Set<ClassType> in) {
-        Set<ClassType> removed = Sets.newHybridSet();
-        for (ClassType t1 : in) {
-            if (removed.contains(t1)) {
-                continue;
-            } else {
-                Set<ClassType> upper = upperClosure(t1);
-                upper.remove(t1);
-                removed.addAll(upper);
-            }
-        }
-        in.removeAll(removed);
-        return Collections.unmodifiableSet(in);
-    }
-
-    public static Set<ReferenceType> lca(TypeSystem typeSystem, ReferenceType t1, ReferenceType t2) {
-        assert ! (t1 != t2 && t1.equals(t2));
-        if (t1 == t2) {
-            return Set.of(t1);
-        } else if (t1 instanceof NullType) {
-            return Set.of(t2);
-        } else if (t2 instanceof NullType) {
-            return Set.of(t1);
-        } else if (t1 instanceof ClassType ct1 && t2 instanceof ClassType ct2) {
-            Set<ClassType> upper1 = upperClosure(ct1);
-            Set<ClassType> upper2 = upperClosure(ct2);
-            if (upper2.contains(ct1)) {
-                return Set.of(ct1);
-            } else if (upper1.contains(ct2)) {
-                return Set.of(ct2);
-            } else {
-                intersection(upper1, upper2);
-                return minimum(upper1);
-            }
-        } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType at2) {
-            Set<ClassType> upper1 = upperClosure(ct1);
-            Set<ClassType> upper2 = getArraySupers(typeSystem);
-            intersection(upper1, upper2);
-            return minimum(upper1);
-        } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
-            return lca(typeSystem, t2, t1);
-        } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
-            if (at1.elementType() instanceof PrimitiveType
-                    || at2.elementType() instanceof PrimitiveType) {
-                return Collections.unmodifiableSet(getArraySupers(typeSystem));
-            } else {
-                ReferenceType r1 = (ReferenceType) at1.elementType();
-                ReferenceType r2 = (ReferenceType) at2.elementType();
-                return lca(typeSystem, r1, r2).stream()
-                        .map((t) -> Utils.wrap1(typeSystem, t))
-                        .collect(Collectors.toSet());
-            }
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    static Set<ClassType> getArraySupers(TypeSystem typeSystem) {
-        return Set.of(typeSystem.objectType(), typeSystem.cloneableType(), typeSystem.serializableType());
-    }
-
-    /**
-     * s1 <- s1 /\ s2
-     */
-    static <T> void intersection(Set<T> s1, Set<T> s2) {
-        s1.removeIf(t -> ! s2.contains(t));
-    }
-
-    /**
-     * @param types null and uninitialized type should be removed
-     */
-    public static Set<ReferenceType> lca(TypeSystem typeSystem, Set<ReferenceType> types) {
-        if (types.size() <= 1) {
-            return types;
-        } else {
-            if (allRefArray(types)) {
-                return lca(typeSystem, types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
-                        .collect(Collectors.toSet()))
-                        .stream()
-                        .map((t) -> Utils.wrap1(typeSystem, t))
-                        .collect(Collectors.toSet());
-            }
-
-            Set<ClassType> res = null;
-            for (ReferenceType t : types) {
-                Set<ClassType> current;
-                if (t instanceof NullType) {
-                    continue;
-                } else if (t instanceof ArrayType at) {
-                    current = Sets.newSet(getArraySupers(typeSystem));
-                } else {
-                    current = upperClosure((ClassType) t);
-                }
-                if (res == null) {
-                    res = current;
-                } else {
-                    intersection(res, current);
-                }
-            }
-
-            assert res != null;
-            return minimum(res);
-        }
-    }
-
-    static boolean allRefArray(Set<ReferenceType> types) {
-        return types.stream().allMatch(t -> t instanceof ArrayType arrayType
-                && arrayType.elementType() instanceof ReferenceType);
-    }
-
-    public static ArrayType wrap1(TypeSystem typeSystem, ReferenceType referenceType) {
-        if (referenceType instanceof ArrayType at) {
-            return typeSystem.getArrayType(at.baseType(), at.dimensions() + 1);
-        } else {
-            return typeSystem.getArrayType(referenceType, 1);
-        }
-    }
-
-    public static Set<ClassType> upperClosure(ClassType type) {
-        Queue<JClass> workList = new LinkedList<>();
-        workList.add(type.getJClass());
-        Set<ClassType> res = Sets.newHybridSet();
-
-        while (! workList.isEmpty()) {
-            JClass now = workList.poll();
-            assert now != null;
-            if (! res.contains(now.getType())) {
-                workList.addAll(getAllDirectSuperType(now));
-                res.add(now.getType());
-            }
-        }
-
-        return res;
-    }
-
-    static List<JClass> getAllDirectSuperType(JClass type) {
-        List<JClass> res = new ArrayList<>(type.getInterfaces());
-        if (type.getSuperClass() != null) {
-            res.add(type.getSuperClass());
-        }
-        return res;
-    }
-
-    public static boolean isTwoWord(pascal.taie.language.type.Type t) {
-        return t == DOUBLE || t == LONG;
-    }
-
-    public static boolean canHoldsInt(pascal.taie.language.type.Type t) {
-        return t instanceof PrimitiveType p && p.asInt();
-    }
-
-    public static boolean isSubtype(
-            TypeSystem typeSystem,
-            pascal.taie.language.type.Type supertype, pascal.taie.language.type.Type subtype) {
-//        ClassHierarchy hierarchy = BuildContext.get().getClassHierarchy();
-        ClassType OBJECT = typeSystem.objectType();
-        ClassType CLONEABLE = typeSystem.cloneableType();
-        ClassType SERIALIZABLE = typeSystem.serializableType();
-
-        assert subtype != null;
-        if (subtype == supertype) {
-            return true;
-        } else if (subtype instanceof NullType) {
-            return supertype instanceof ReferenceType;
-        } else if (subtype instanceof ClassType) {
-            if (supertype instanceof ClassType) {
-                return isSubclass((ClassType) supertype, (ClassType) subtype);
-            }
-        } else if (subtype instanceof ArrayType) {
-            if (supertype instanceof ClassType) {
-                // JLS (11 Ed.), Chapter 10, Arrays
-                return supertype == OBJECT ||
-                        supertype == CLONEABLE ||
-                        supertype == SERIALIZABLE;
-            } else if (supertype instanceof ArrayType superArray) {
-                ArrayType subArray = (ArrayType) subtype;
-                pascal.taie.language.type.Type superBase = superArray.baseType();
-                pascal.taie.language.type.Type subBase = subArray.baseType();
-                if (superArray.dimensions() == subArray.dimensions()) {
-                    if (subBase.equals(superBase)) {
-                        return true;
-                    } else if (superBase instanceof ClassType &&
-                            subBase instanceof ClassType) {
-                        return isSubclass((ClassType) superBase, (ClassType) subBase);
-                    }
-                } else if (superArray.dimensions() < subArray.dimensions()) {
-                    return superBase == OBJECT ||
-                            superBase == CLONEABLE ||
-                            superBase == SERIALIZABLE;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean isSubclass(ClassType supertype, ClassType subtype) {
-        JClass subClass = subtype.getJClass();
-        assert subClass != null;
-        JClass superClass = supertype.getJClass();
-        if (subClass.getName().equals(ClassNames.OBJECT)) {
-            return subClass == superClass;
-        }
-        if (!subClass.isInterface() && !superClass.isInterface()) {
-            return isSubclassOnly(subClass, superClass);
-        } else if (subClass.isInterface() && !superClass.isInterface()) {
-            return subClass.getSuperClass() == superClass;
-        } else {
-            return isSubInterfaces(subClass, superClass);
-        }
-    }
-
-    private static boolean isSubclassOnly(JClass subClass, JClass superClass) {
-        assert !subClass.isInterface() && !superClass.isInterface();
-        JClass realSuperClass = subClass.getSuperClass();
-        if (realSuperClass == null) {
-            return false;
-        }
-        return realSuperClass == superClass || isSubclassOnly(realSuperClass, superClass);
-    }
-
-    private static boolean isSubInterfaces(JClass subClass, JClass superClass) {
-        assert superClass.isInterface();
-        JClass realSuperClass = subClass.getSuperClass();
-        if (realSuperClass == null) {
-            return false;
-        }
-        if (isSubInterfaces(realSuperClass, superClass)) {
-            return true;
-        }
-        for (JClass i : subClass.getInterfaces()) {
-            if (i == superClass || isSubInterfaces(i, superClass)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isPrimitiveArrayType(pascal.taie.language.type.Type t) {
-        return t instanceof ArrayType at && canHoldsInt(at.baseType());
-    }
-
-    public static boolean isIntAssignable(pascal.taie.language.type.Type t1, pascal.taie.language.type.Type t2) {
-        return canHoldsInt(t2) && canHoldsInt(t1);
-    }
-
-    /**
-     * @return if <code>t1 := t2</code> is valid
-     */
-    public static boolean isAssignable(TypeSystem typeSystem,
-                                       pascal.taie.language.type.Type t1,
-                                       pascal.taie.language.type.Type t2) {
-        if (t1 == t2) {
-            return true;
-        }
-        if (t1 instanceof PrimitiveType) {
-            return isIntAssignable(t1, t2);
-        } else if (t1 == typeSystem.arrayType() && t2 instanceof ArrayType) {
-            return true;
-        } else {
-            return isSubtype(typeSystem, t1, t2);
-        }
-    }
-
-    static PrimitiveType numericPromotion(PrimitiveType t1, PrimitiveType t2) {
-        return toIntType(Math.max(fromIntTypeIndex(t1),  fromIntTypeIndex(t2)));
-    }
-
-    static int fromIntTypeIndex(PrimitiveType t) {
-        if (t == LONG || t == FLOAT || t == DOUBLE) {
-            throw new UnsupportedOperationException();
-        } else {
-            return getPrimitiveTypeIndex(t);
-        }
-    }
-
-    static PrimitiveType toIntType(int i) {
-        if (i >= 5) {
-            throw new UnsupportedOperationException();
-        } else {
-            return getPrimitiveTypeByIndex(i);
-        }
-    }
-
-    public static int getPrimitiveTypeIndex(PrimitiveType t) {
-        if (t == BOOLEAN) {
-            return 0;
-        } else if (t == BYTE) {
-            return 1;
-        } else if (t == CHAR) {
-            return 2;
-        } else if (t == SHORT) {
-            return 3;
-        } else if (t == INT) {
-            return 4;
-        } else if (t == LONG) {
-            return 5;
-        } else if (t == FLOAT) {
-            return 6;
-        } else if (t == DOUBLE) {
-            return 7;
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    public static PrimitiveType getPrimitiveTypeByIndex(int i) {
-        if (i == 0) {
-            return BOOLEAN;
-        } else if (i == 1) {
-            return BYTE;
-        } else if (i == 2) {
-            return CHAR;
-        } else if (i == 3) {
-            return SHORT;
-        } else if (i == 4) {
-            return INT;
-        } else if (i == 5) {
-            return LONG;
-        } else if (i == 6) {
-            return FLOAT;
-        } else if (i == 7) {
-            return DOUBLE;
-        } else {
-            throw new UnsupportedOperationException();
-        }
     }
 }
