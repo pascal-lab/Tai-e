@@ -25,7 +25,9 @@ package pascal.taie.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +39,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.language.classes.StringReps;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -48,10 +53,12 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
 
 /**
@@ -261,9 +268,9 @@ public class Options implements Serializable {
             description = "Analyses to be executed",
             paramLabel = "<analysisID[=<options>]>",
             mapFallbackValue = "")
-    private Map<String, String> analyses = Map.of();
+    private Map<String, AnalysisOptions> analyses = Map.of();
 
-    public Map<String, String> getAnalyses() {
+    public Map<String, AnalysisOptions> getAnalyses() {
         return analyses;
     }
 
@@ -293,7 +300,9 @@ public class Options implements Serializable {
      * Parses arguments and return the parsed and post-processed Options.
      */
     public static Options parse(String... args) {
-        Options options = CommandLine.populateCommand(new Options(), args);
+        CommandLine commandLine = new CommandLine(new Options())
+                .registerConverter(AnalysisOptions.class, new AnalysisOptionsConverter());
+        Options options = (Options) commandLine.parseArgs(args).commandSpec().userObject();
         return postProcess(options);
     }
 
@@ -328,6 +337,7 @@ public class Options implements Serializable {
                     "at least one of --main-class, --input-classes " +
                     "or --app-class-path should be specified");
         }
+        options.addReflectionLogClasses();
         // mkdir for output dir
         if (!options.outputDir.exists()) {
             options.outputDir.mkdirs();
@@ -497,6 +507,72 @@ public class Options implements Serializable {
         Path path = Path.of(file).toAbsolutePath().normalize();
         return workingDir.relativize(path).toString()
                 .replace('\\', '/');
+    }
+
+    private static class AnalysisOptionsConverter implements CommandLine.ITypeConverter<AnalysisOptions> {
+        @Override
+        public AnalysisOptions convert(String value) {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            JavaType mapType = mapper.getTypeFactory()
+                    .constructMapType(Map.class, String.class, Object.class);
+            String optStr = toYAMLString(value);
+            try {
+                Map<String, Object> optsMap = optStr.isBlank()
+                        ? Map.of()
+                        // Leverage Jackson to parse YAML string to Map
+                        : mapper.readValue(optStr, mapType);
+                return new AnalysisOptions(optsMap);
+            } catch (JsonProcessingException e) {
+                throw new ConfigException("Invalid analysis options: " + value, e);
+            }
+        }
+
+        /**
+         * Converts option string to a valid YAML string.
+         * The option string is of format "key1:value1;key2:value2;...".
+         */
+        private static String toYAMLString(String optValue) {
+            StringJoiner joiner = new StringJoiner("\n");
+            for (String keyValue : optValue.split(";")) {
+                if (!keyValue.isBlank()) {
+                    int i = keyValue.indexOf(':'); // split keyValue
+                    joiner.add(keyValue.substring(0, i) + ": "
+                            + keyValue.substring(i + 1));
+                }
+            }
+            return joiner.toString();
+        }
+    }
+
+    /**
+     * Add classes in reflection log to the input classes.
+     * <p>
+     * TODO: this is still a tentative solution.
+     */
+    private void addReflectionLogClasses() {
+        List<String> inputClasses = new ArrayList<>(this.inputClasses);
+        AnalysisOptions analysisOptions = analyses.get(PointerAnalysis.ID);
+        if (analysisOptions == null || !analysisOptions.has("reflection-log")) {
+            return;
+        }
+        String path = analysisOptions.getString("reflection-log");
+        if (path != null) {
+            LogItem.load(path).forEach(item -> {
+                // add target class
+                String target = item.target;
+                String targetClass;
+                if (target.startsWith("<")) {
+                    targetClass = StringReps.getClassNameOf(target);
+                } else {
+                    targetClass = target;
+                }
+                if (StringReps.isArrayType(targetClass)) {
+                    targetClass = StringReps.getBaseTypeNameOf(target);
+                }
+                inputClasses.add(targetClass);
+            });
+        }
+        this.inputClasses = List.copyOf(inputClasses);
     }
 
     @Override

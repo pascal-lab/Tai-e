@@ -24,7 +24,6 @@ package pascal.taie.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -35,9 +34,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 /**
  * Configuration for an analysis to be executed.
@@ -108,46 +105,14 @@ public class PlanConfig {
      * Reads a list of PlanConfig from options.
      */
     public static List<PlanConfig> readConfigs(Options options) {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        JavaType mapType = mapper.getTypeFactory()
-                .constructMapType(Map.class, String.class, Object.class);
         return options.getAnalyses().entrySet()
                 .stream()
                 .map(entry -> {
                     String id = entry.getKey();
-                    String optStr = toYAMLString(entry.getValue());
-                    try {
-                        Map<String, Object> optsMap = optStr.isBlank()
-                                ? Map.of()
-                                // Leverage Jackson to parse YAML string to Map
-                                : mapper.readValue(optStr, mapType);
-                        return new PlanConfig(id, new AnalysisOptions(optsMap));
-                    } catch (JsonProcessingException e) {
-                        throw new ConfigException("Invalid analysis options: " +
-                                entry.getKey() + ":" + entry.getValue(), e);
-                    }
+                    AnalysisOptions analysisOptions = entry.getValue();
+                    return new PlanConfig(id, analysisOptions);
                 })
                 .toList();
-    }
-
-    /**
-     * Converts option string to a valid YAML string.
-     * The option string is of format "key1:value1;key2:value2;...".
-     */
-    private static String toYAMLString(String optValue) {
-        StringJoiner joiner = new StringJoiner("\n");
-        for (String keyValue : optValue.split(";")) {
-            if (!keyValue.isBlank()) {
-                int i = keyValue.indexOf(':'); // split keyValue
-                if (i == -1) {
-                    throw new IllegalArgumentException("Invalid argument format '" + keyValue
-                    + "'. Expected format: 'key:value'");
-                }
-                joiner.add(keyValue.substring(0, i) + ": "
-                        + keyValue.substring(i + 1));
-            }
-        }
-        return joiner.toString();
     }
 
     /**
