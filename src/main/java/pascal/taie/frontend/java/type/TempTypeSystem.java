@@ -23,173 +23,23 @@
 package pascal.taie.frontend.java.type;
 
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.type.ArrayType;
-import pascal.taie.language.type.BooleanType;
-import pascal.taie.language.type.ByteType;
-import pascal.taie.language.type.CharType;
+import pascal.taie.language.type.AbstractTypeSystem;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.DoubleType;
-import pascal.taie.language.type.FloatType;
-import pascal.taie.language.type.IntType;
-import pascal.taie.language.type.LongType;
-import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.PrimitiveType;
-import pascal.taie.language.type.ShortType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
-import pascal.taie.language.type.VoidType;
-import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-
-
 /**
- * Temporary Type System for frontend,
- * Copy and Paste from language.type.TypeSystemImpl
+ * Temporary Type System for frontend.
  */
-public class TempTypeSystem implements TypeSystem {
+public class TempTypeSystem extends AbstractTypeSystem {
 
-    private final JClassLoader defaultClassLoader;
-
-    private final ClassType objectType;
-
-    private final ClassType serializableType;
-
-    private final ClassType cloneableType;
-
-    private final ClassType stringType;
-
-    private final ClassType arrayType;
-
-    private final ClassType classType;
-
-    private final ClassType throwableType;
-
-    private final Map<String, ClassType> classTypes = Maps.newConcurrentMap();
-
-    /**
-     * This map may be concurrently written during IR construction,
-     * thus we use concurrent map to ensure its thread-safety.
-     */
-    private final ConcurrentMap<Integer, ConcurrentMap<Type, ArrayType>> arrayTypes
-            = Maps.newConcurrentMap(8);
-
-    private final Map<PrimitiveType, ClassType> boxedMap;
-
-    private final Map<ClassType, PrimitiveType> unboxedMap;
-
-    private final Map<String, PrimitiveType> primitiveTypes;
-
-    public TempTypeSystem(JClassLoader loader) {
-        defaultClassLoader = loader;
-        objectType = getClassType(loader, ClassNames.OBJECT);
-        serializableType = getClassType(loader, ClassNames.SERIALIZABLE);
-        cloneableType = getClassType(loader, ClassNames.CLONEABLE);
-        stringType = getClassType(loader, ClassNames.STRING);
-        arrayType = getClassType(loader, ClassNames.ARRAY);
-        classType = getClassType(loader, ClassNames.CLASS);
-        throwableType = getClassType(loader, ClassNames.THROWABLE);
-        boxedMap = Map.of(
-                BooleanType.BOOLEAN, getClassType(loader, ClassNames.BOOLEAN),
-                ByteType.BYTE, getClassType(loader, ClassNames.BYTE),
-                ShortType.SHORT, getClassType(loader, ClassNames.SHORT),
-                CharType.CHAR, getClassType(loader, ClassNames.CHARACTER),
-                IntType.INT, getClassType(loader, ClassNames.INTEGER),
-                LongType.LONG, getClassType(loader, ClassNames.LONG),
-                FloatType.FLOAT, getClassType(loader, ClassNames.FLOAT),
-                DoubleType.DOUBLE, getClassType(loader, ClassNames.DOUBLE));
-        unboxedMap = boxedMap.entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-        primitiveTypes = boxedMap.keySet()
-                .stream()
-                .collect(Collectors.toMap(PrimitiveType::getName, t -> t));
-    }
-
-    @Override
-    public ClassType objectType() {
-        return objectType;
-    }
-
-    @Override
-    public ClassType serializableType() {
-        return serializableType;
-    }
-
-    @Override
-    public ClassType cloneableType() {
-        return cloneableType;
-    }
-
-    @Override
-    public ClassType stringType() {
-        return stringType;
-    }
-
-    @Override
-    public ClassType arrayType() {
-        return arrayType;
-    }
-
-    @Override
-    public ClassType classType() {
-        return classType;
-    }
-
-    @Override
-    public ClassType throwableType() {
-        return throwableType;
-    }
-
-    @Override
-    public Type getType(JClassLoader loader, String typeName) {
-        try {
-            if (typeName.endsWith("[]")) {
-                int dim = 0;
-                int i = typeName.length() - 1;
-                while (i > 0) {
-                    if (typeName.charAt(i - 1) == '[' && typeName.charAt(i) == ']') {
-                        ++dim;
-                        i -= 2;
-                    } else {
-                        break;
-                    }
-                }
-                return getArrayType(
-                        getType(loader, typeName.substring(0, i + 1)),
-                        dim);
-            } else if (isPrimitiveType(typeName)) {
-                return getPrimitiveType(typeName);
-            } else if (typeName.equals(VoidType.VOID.getName())) {
-                return VoidType.VOID;
-            } else {
-                return getClassType(loader, typeName);
-            }
-        } catch (Exception e) {
-            throw new AnalysisException("Invalid type name: " + typeName, e);
-        }
-    }
-
-    @Override
-    public Type getType(String typeName) {
-        return getType(defaultClassLoader, typeName);
+    public TempTypeSystem(JClassLoader defaultClassLoader) {
+        super(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
     }
 
     @Override
     public ClassType getClassType(JClassLoader loader, String className) {
-//        assert loader == defaultClassLoader;
-//        if (loader == defaultClassLoader) {
-//            return defaultClassTypes.computeIfAbsent(className,
-//                    name -> new ClassType(loader, name));
-//        }
-//        return classTypes.computeIfAbsent(loader, l -> newConcurrentMap())
-//                .computeIfAbsent(className, name -> new ClassType(loader, name));
         return getClassTypeByInternalName(className.replace('.', '/'));
     }
 
@@ -199,49 +49,7 @@ public class TempTypeSystem implements TypeSystem {
     }
 
     @Override
-    public ClassType getClassType(String className) {
-        // TODO: add warning for missing class loader
-        return getClassType(defaultClassLoader, className);
-    }
-
-    @Override
-    public ArrayType getArrayType(Type baseType, int dim) {
-        assert !(baseType instanceof VoidType)
-                && !(baseType instanceof NullType);
-        assert dim >= 1;
-        return arrayTypes.computeIfAbsent(dim, d -> Maps.newConcurrentMap())
-                .computeIfAbsent(baseType, t ->
-                        new ArrayType(t, dim,
-                                dim == 1 ? t : getArrayType(t, dim - 1)));
-    }
-
-    @Override
-    public PrimitiveType getPrimitiveType(String typeName) {
-        return Objects.requireNonNull(primitiveTypes.get(typeName),
-                typeName + " is not a primitive type");
-    }
-
-    @Override
-    public ClassType getBoxedType(PrimitiveType type) {
-        return boxedMap.get(type);
-    }
-
-    @Override
-    public PrimitiveType getUnboxedType(ClassType type) {
-        return Objects.requireNonNull(unboxedMap.get(type),
-                type + " cannot be unboxed");
-    }
-
-    /**
-     * This method should never be called
-     */
-    @Override
     public boolean isSubtype(Type supertype, Type subtype) {
         return Utils.isSubtype(this, supertype, subtype);
-    }
-
-    @Override
-    public boolean isPrimitiveType(String typeName) {
-        return primitiveTypes.containsKey(typeName);
     }
 }
