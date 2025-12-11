@@ -229,13 +229,13 @@ public class Utils {
         JClass jClass = typeSystem.toJClass(handle.getOwner());
         if (isFieldKind(kind)) {
             pascal.taie.language.type.Type t =
-                    typeSystem.fromAsmType(handle.getDesc());
+                    typeSystem.fromAsmTypeDesc(handle.getDesc());
             ref = FieldRef.get(jClass, handle.getName(), t,
                     kind == MethodHandle.Kind.REF_getStatic ||
                             kind == MethodHandle.Kind.REF_putStatic);
         } else {
             Pair<List<pascal.taie.language.type.Type>, pascal.taie.language.type.Type>
-                    mtdType = typeSystem.fromAsmMethodType(handle.getDesc());
+                    mtdType = typeSystem.fromAsmMethodDesc(handle.getDesc());
             ref = MethodRef.get(jClass, handle.getName(), mtdType.first(), mtdType.second(),
                     kind == MethodHandle.Kind.REF_invokeStatic, handle.isInterface());
         }

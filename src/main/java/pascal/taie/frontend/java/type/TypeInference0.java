@@ -426,7 +426,7 @@ public class TypeInference0 extends NewFrontendComponent {
                     // TODO: this rule is useless, and may not be safe
                     //       But currently works well, check & remove this in the future
                     if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                        putMultiSet(localTypeAssigns, base, typeSystem().wrap1(referenceType));
+                        putMultiSet(localTypeAssigns, base, typeSystem().makeArrayOf(referenceType));
                     }
                 }
                 return null;

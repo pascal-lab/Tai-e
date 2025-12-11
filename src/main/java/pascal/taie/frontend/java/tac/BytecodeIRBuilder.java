@@ -60,6 +60,7 @@ import pascal.taie.frontend.java.ssa.IRSSATransform;
 import pascal.taie.frontend.java.ssa.IndexedGraph;
 import pascal.taie.frontend.java.ssa.PhiResolver;
 import pascal.taie.frontend.java.ssa.VarSSAInfo;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.frontend.java.type.Top;
 import pascal.taie.frontend.java.type.TypeInference;
 import pascal.taie.frontend.java.type.TypeInference0;
@@ -125,7 +126,6 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.LazyArray;
@@ -989,7 +989,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         int opcode = methodInsnNode.getOpcode();
         JClass owner = typeSystem().toJClass(methodInsnNode.owner);
         assert owner != null;
-        Pair<List<Type>, Type> desc = typeSystem().fromAsmMethodType(methodInsnNode.desc);
+        Pair<List<Type>, Type> desc = typeSystem().fromAsmMethodDesc(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
         MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic, methodInsnNode.itf);
@@ -1741,7 +1741,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             int opcode = fieldInsnNode.getOpcode();
             ClassType owner = (ClassType)
                     typeSystem().fromAsmInternalName(fieldInsnNode.owner);
-            Type type = typeSystem().fromAsmType(fieldInsnNode.desc);
+            Type type = typeSystem().fromAsmTypeDesc(fieldInsnNode.desc);
             String name = fieldInsnNode.name;
             FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                     opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
@@ -1773,7 +1773,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 popToEffect(nowStack);
             }
         } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
-            Type type = typeSystem().fromAsmType(newArrayInsnNode.desc);
+            Type type = typeSystem().fromAsmTypeDesc(newArrayInsnNode.desc);
             assert type instanceof ArrayType;
 
             List<Var> lengths = new ArrayList<>();
@@ -1798,7 +1798,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                     .map((o) -> Utils.fromObject(typeSystem(), o)).toList();
             assert handle.isMethodRef();
             Pair<List<Type>, Type> paramRets =
-                    typeSystem().fromAsmMethodType(invokeDynamicInsnNode.desc);
+                    typeSystem().fromAsmMethodDesc(invokeDynamicInsnNode.desc);
             List<Var> args = new ArrayList<>();
             for (int i = 0; i < paramRets.first().size(); ++i) {
                 args.add(popVar(nowStack));
@@ -1866,7 +1866,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         int curr = method.isStatic() ? 0 : 1;
         for (int i = 0; i < method.getParamTypes().size(); ++i) {
             Type type = method.getParamTypes().get(i);
-            if (TypeSystem.isTwoWord(type)) {
+            if (FrontendTypeSystem.isTwoWord(type)) {
                 curr += 2;
             } else {
                 curr += 1;

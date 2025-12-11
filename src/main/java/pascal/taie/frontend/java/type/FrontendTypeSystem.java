@@ -65,152 +65,16 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 public class FrontendTypeSystem extends AbstractTypeSystem {
 
+    /**
+     * All super types of array types.
+     */
+    private final Set<ClassType> arraySupers;
+
     private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
 
     public FrontendTypeSystem(JClassLoader defaultClassLoader) {
         super(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
-    }
-
-    @Override
-    public ClassType getClassType(JClassLoader loader, String className) {
-        return getClassTypeByInternalName(className.replace('.', '/'));
-    }
-
-    public ClassType getClassTypeByInternalName(String internalName) {
-        return classTypes.computeIfAbsent(internalName,
-                name -> new ClassType(defaultClassLoader, name.replace('/', '.')));
-    }
-
-    // ==================== ASM Type Conversion Methods ====================
-
-    /**
-     * Convert ASM internal name to ReferenceType.
-     */
-    public ReferenceType fromAsmInternalName(String internalName) {
-        if (internalName.charAt(0) != '[') {
-            return getClassTypeByInternalName(internalName);
-        }
-        return (ReferenceType) fromAsmType(
-                org.objectweb.asm.Type.getObjectType(internalName));
-    }
-
-    /**
-     * Convert ASM type descriptor string to Type.
-     */
-    public Type fromAsmType(String descriptor) {
-        return switch (descriptor.charAt(0)) {
-            case 'V' -> VoidType.VOID;
-            case 'Z' -> BOOLEAN;
-            case 'C' -> CHAR;
-            case 'B' -> BYTE;
-            case 'S' -> SHORT;
-            case 'I' -> INT;
-            case 'F' -> FLOAT;
-            case 'J' -> LONG;
-            case 'D' -> DOUBLE;
-            case '[' -> fromAsmType(org.objectweb.asm.Type.getType(descriptor));
-            case 'L' -> getClassTypeByInternalName(
-                    descriptor.substring(1, descriptor.length() - 1));
-            default -> throw new IllegalArgumentException("Invalid descriptor: " + descriptor);
-        };
-    }
-
-    /**
-     * Convert ASM Type object to Type.
-     */
-    public Type fromAsmType(org.objectweb.asm.Type t) {
-        int sort = t.getSort();
-        if (sort == org.objectweb.asm.Type.VOID) {
-            return VoidType.VOID;
-        } else if (sort < org.objectweb.asm.Type.ARRAY) {
-            return switch (sort) {
-                case org.objectweb.asm.Type.BOOLEAN -> BOOLEAN;
-                case org.objectweb.asm.Type.BYTE -> BYTE;
-                case org.objectweb.asm.Type.CHAR -> CHAR;
-                case org.objectweb.asm.Type.SHORT -> SHORT;
-                case org.objectweb.asm.Type.INT -> INT;
-                case org.objectweb.asm.Type.LONG -> LONG;
-                case org.objectweb.asm.Type.FLOAT -> FLOAT;
-                case org.objectweb.asm.Type.DOUBLE -> DOUBLE;
-                default -> throw new UnsupportedOperationException();
-            };
-        } else if (sort == org.objectweb.asm.Type.ARRAY) {
-            return getArrayType(fromAsmType(t.getElementType()), t.getDimensions());
-        } else if (sort == org.objectweb.asm.Type.OBJECT) {
-            return getClassType(t.getClassName());
-        } else {
-            // t maybe a function ? error
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * Convert ASM method descriptor to parameter types and return type.
-     * Results are cached for performance.
-     */
-    public Pair<List<Type>, Type> fromAsmMethodType(String descriptor) {
-        // normally we want to avoid using caching
-        // but this method will be called very frequently
-        // caching is able to save ~70% of calculation time
-        return methodDescriptorCache.computeIfAbsent(descriptor, this::internalFromAsmMethodType);
-    }
-
-    private Pair<List<Type>, Type> internalFromAsmMethodType(String descriptor) {
-        org.objectweb.asm.Type t = org.objectweb.asm.Type.getType(descriptor);
-        return fromAsmMethodType(t);
-    }
-
-    private Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type t) {
-        if (t.getSort() == org.objectweb.asm.Type.METHOD) {
-            List<Type> paramTypes = new ArrayList<>();
-            for (org.objectweb.asm.Type t1 : t.getArgumentTypes()) {
-                paramTypes.add(fromAsmType(t1));
-            }
-            return new Pair<>(paramTypes, fromAsmType(t.getReturnType()));
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * Convert ASM Type to MethodType.
-     */
-    public MethodType toMethodType(org.objectweb.asm.Type t) {
-        Pair<List<Type>, Type> temp = fromAsmMethodType(t);
-        return MethodType.get(temp.first(), temp.second());
-    }
-
-    /**
-     * Convert ASM internal name to JClass.
-     */
-    public JClass toJClass(String internalName) {
-        if (internalName.charAt(0) == '[') {
-            return objectType().getJClass();
-        } else {
-            return getClassTypeByInternalName(internalName).getJClass();
-        }
-    }
-
-    /**
-     * Convert ASM frame type to Type.
-     */
-    public static Type fromAsmFrameType(Object o) {
-        if (o instanceof Integer i) {
-            return switch (i) {
-                case 0 -> TOP; // Opcodes.Top
-                case 1 -> INT; // Opcodes.INTEGER
-                case 2 -> FLOAT; // Opcodes.FLOAT
-                case 3 -> DOUBLE; // Opcodes.DOUBLE
-                case 4 -> LONG; // Opcodes.LONG
-                case 5 -> NullType.NULL; // Opcodes.NULL
-                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
-                default -> throw new UnsupportedOperationException();
-            };
-        } else if (o instanceof LabelNode) {
-            return Uninitialized.UNINITIALIZED;
-        } else {
-            throw new UnsupportedOperationException();
-        }
+        arraySupers = Set.of(objectType, cloneableType, serializableType);
     }
 
     // ==================== Type Checking Methods ====================
@@ -295,6 +159,151 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         return false;
     }
 
+    /**
+     * Determines if the given type occupies two words on the JVM stack.
+     * In Java, the double and long types are two-word types, while all
+     * other types are single-word types.
+     *
+     * @param type the type to check
+     * @return {@code true} if the type is double or long;
+     * {@code false} otherwise.
+     */
+    public static boolean isTwoWord(Type type) {
+        return type == DOUBLE || type == LONG;
+    }
+
+    // ==================== ASM Type Conversion Methods ====================
+
+    /**
+     * Convert ASM internal name to ReferenceType.
+     */
+    public ReferenceType fromAsmInternalName(String internalName) {
+        if (internalName.charAt(0) != '[') {
+            return getClassTypeByInternalName(internalName);
+        }
+        return (ReferenceType) fromAsmType(
+                org.objectweb.asm.Type.getObjectType(internalName));
+    }
+
+    /**
+     * Convert ASM type descriptor string to Type.
+     */
+    public Type fromAsmTypeDesc(String descriptor) {
+        return switch (descriptor.charAt(0)) {
+            case 'V' -> VoidType.VOID;
+            case 'Z' -> BOOLEAN;
+            case 'C' -> CHAR;
+            case 'B' -> BYTE;
+            case 'S' -> SHORT;
+            case 'I' -> INT;
+            case 'F' -> FLOAT;
+            case 'J' -> LONG;
+            case 'D' -> DOUBLE;
+            case '[' -> fromAsmType(org.objectweb.asm.Type.getType(descriptor));
+            case 'L' -> getClassTypeByInternalName(
+                    descriptor.substring(1, descriptor.length() - 1));
+            default -> throw new IllegalArgumentException("Invalid type descriptor: " + descriptor);
+        };
+    }
+
+    /**
+     * Convert ASM Type object to Type.
+     */
+    public Type fromAsmType(org.objectweb.asm.Type t) {
+        int sort = t.getSort();
+        if (sort == org.objectweb.asm.Type.VOID) {
+            return VoidType.VOID;
+        } else if (sort < org.objectweb.asm.Type.ARRAY) {
+            return switch (sort) {
+                case org.objectweb.asm.Type.BOOLEAN -> BOOLEAN;
+                case org.objectweb.asm.Type.BYTE -> BYTE;
+                case org.objectweb.asm.Type.CHAR -> CHAR;
+                case org.objectweb.asm.Type.SHORT -> SHORT;
+                case org.objectweb.asm.Type.INT -> INT;
+                case org.objectweb.asm.Type.LONG -> LONG;
+                case org.objectweb.asm.Type.FLOAT -> FLOAT;
+                case org.objectweb.asm.Type.DOUBLE -> DOUBLE;
+                default -> throw new UnsupportedOperationException();
+            };
+        } else if (sort == org.objectweb.asm.Type.ARRAY) {
+            return getArrayType(fromAsmType(t.getElementType()), t.getDimensions());
+        } else if (sort == org.objectweb.asm.Type.OBJECT) {
+            return getClassType(t.getClassName());
+        } else {
+            // t maybe a function ? error
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Convert ASM method descriptor to parameter types and return type.
+     * Results are cached for performance.
+     */
+    public Pair<List<Type>, Type> fromAsmMethodDesc(String descriptor) {
+        // normally we want to avoid using caching
+        // but this method will be called very frequently
+        // caching is able to save ~70% of calculation time
+        return methodDescriptorCache.computeIfAbsent(descriptor,
+                desc -> fromAsmMethodType(org.objectweb.asm.Type.getType(desc)));
+    }
+
+    private Pair<List<Type>, Type> fromAsmMethodType(org.objectweb.asm.Type type) {
+        if (type.getSort() == org.objectweb.asm.Type.METHOD) {
+            List<Type> paramTypes = new ArrayList<>();
+            for (org.objectweb.asm.Type t : type.getArgumentTypes()) {
+                paramTypes.add(fromAsmType(t));
+            }
+            return new Pair<>(paramTypes, fromAsmType(type.getReturnType()));
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Convert ASM Type to MethodType.
+     */
+    public MethodType toMethodType(org.objectweb.asm.Type type) {
+        Pair<List<Type>, Type> desc = fromAsmMethodType(type);
+        return MethodType.get(desc.first(), desc.second());
+    }
+
+    /**
+     * Convert ASM internal name to JClass.
+     */
+    public JClass toJClass(String internalName) {
+        if (internalName.charAt(0) == '[') {
+            return objectType().getJClass();
+        } else {
+            return getClassTypeByInternalName(internalName).getJClass();
+        }
+    }
+
+    /**
+     * Convert ASM frame type to Type.
+     */
+    public static Type fromAsmFrameType(Object o) {
+        if (o instanceof Integer i) {
+            return switch (i) {
+                case 0 -> TOP; // Opcodes.Top
+                case 1 -> INT; // Opcodes.INTEGER
+                case 2 -> FLOAT; // Opcodes.FLOAT
+                case 3 -> DOUBLE; // Opcodes.DOUBLE
+                case 4 -> LONG; // Opcodes.LONG
+                case 5 -> NullType.NULL; // Opcodes.NULL
+                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
+                default -> throw new IllegalArgumentException();
+            };
+        } else if (o instanceof LabelNode) {
+            return Uninitialized.UNINITIALIZED;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private ClassType getClassTypeByInternalName(String internalName) {
+        return getClassType(internalName.replace('/', '.'));
+    }
+
     // ==================== LCA (Least Common Ancestor) Methods ====================
 
     public Set<ReferenceType> lca(ReferenceType t1, ReferenceType t2) {
@@ -313,25 +322,24 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
             } else if (upper1.contains(ct2)) {
                 return Set.of(ct2);
             } else {
-                intersection(upper1, upper2);
+                upper1.retainAll(upper2);
                 return minimum(upper1);
             }
         } else if (t1 instanceof ClassType ct1 && t2 instanceof ArrayType) {
             Set<ClassType> upper1 = upperClosure(ct1);
-            Set<ClassType> upper2 = getArraySupers();
-            intersection(upper1, upper2);
+            upper1.retainAll(arraySupers);
             return minimum(upper1);
         } else if (t1 instanceof ArrayType && t2 instanceof ClassType) {
             return lca(t2, t1);
         } else if (t1 instanceof ArrayType at1 && t2 instanceof ArrayType at2) {
             if (at1.elementType() instanceof PrimitiveType
                     || at2.elementType() instanceof PrimitiveType) {
-                return Collections.unmodifiableSet(getArraySupers());
+                return Set.copyOf(arraySupers);
             } else {
                 ReferenceType r1 = (ReferenceType) at1.elementType();
                 ReferenceType r2 = (ReferenceType) at2.elementType();
                 return lca(r1, r2).stream()
-                        .map(this::wrap1)
+                        .map(this::makeArrayOf)
                         .collect(Collectors.toSet());
             }
         }
@@ -350,7 +358,7 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
                 return lca(types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
                         .collect(Collectors.toSet()))
                         .stream()
-                        .map(this::wrap1)
+                        .map(this::makeArrayOf)
                         .collect(Collectors.toSet());
             }
             Set<ClassType> res = null;
@@ -359,14 +367,14 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
                 if (t instanceof NullType) {
                     continue;
                 } else if (t instanceof ArrayType) {
-                    current = Sets.newSet(getArraySupers());
+                    current = arraySupers;
                 } else {
                     current = upperClosure((ClassType) t);
                 }
                 if (res == null) {
                     res = current;
                 } else {
-                    intersection(res, current);
+                    res.retainAll(current);
                 }
             }
             assert res != null;
@@ -387,30 +395,23 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         return Collections.unmodifiableSet(in);
     }
 
-    private Set<ClassType> getArraySupers() {
-        return Set.of(objectType(), cloneableType(), serializableType());
+    private static boolean allRefArray(Set<ReferenceType> types) {
+        return types.stream()
+                .allMatch(t -> t instanceof ArrayType arrayType
+                        && arrayType.elementType() instanceof ReferenceType);
     }
 
     /**
-     * s1 <- s1 ∩ s2
+     * Creates an array type with the given element type.
+     * <p>
+     * If the element type is already an array, the dimension is incremented by one.
+     * For example: {@code String -> String[]}, {@code String[] -> String[][]}.
      */
-    private <T> void intersection(Set<T> s1, Set<T> s2) {
-        s1.removeIf(t -> !s2.contains(t));
-    }
-
-    private boolean allRefArray(Set<ReferenceType> types) {
-        return types.stream().allMatch(t -> t instanceof ArrayType arrayType
-                && arrayType.elementType() instanceof ReferenceType);
-    }
-
-    /**
-     * Wrap a reference type into an array type with one more dimension.
-     */
-    public ArrayType wrap1(ReferenceType referenceType) {
-        if (referenceType instanceof ArrayType at) {
+    public ArrayType makeArrayOf(ReferenceType elementType) {
+        if (elementType instanceof ArrayType at) {
             return getArrayType(at.baseType(), at.dimensions() + 1);
         } else {
-            return getArrayType(referenceType, 1);
+            return getArrayType(elementType, 1);
         }
     }
 
@@ -432,7 +433,7 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         return res;
     }
 
-    private List<JClass> getAllDirectSuperType(JClass type) {
+    private static List<JClass> getAllDirectSuperType(JClass type) {
         List<JClass> res = new ArrayList<>(type.getInterfaces());
         if (type.getSuperClass() != null) {
             res.add(type.getSuperClass());

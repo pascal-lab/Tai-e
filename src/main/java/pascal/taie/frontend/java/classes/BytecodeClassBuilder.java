@@ -257,7 +257,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                 String descriptor,
                 String signature,
                 Object value) {
-            Type type = typeSystem().fromAsmType(descriptor);
+            Type type = typeSystem().fromAsmTypeDesc(descriptor);
             ReferenceTypeGSignature gSignature;
             if (signature != null) {
                 gSignature = GSignatures.toTypeSig(signature);
@@ -331,7 +331,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                     this.exceptions.add((ClassType) typeSystem().fromAsmInternalName(exception));
                 }
             }
-            Pair<List<Type>, Type> mtdType = typeSystem().fromAsmMethodType(descriptor);
+            Pair<List<Type>, Type> mtdType = typeSystem().fromAsmMethodDesc(descriptor);
             this.retType = mtdType.second();
             this.paramTypes = mtdType.first();
             this.annotations = new ArrayList<>();

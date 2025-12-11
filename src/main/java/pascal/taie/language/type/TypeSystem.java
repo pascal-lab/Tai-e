@@ -26,9 +26,6 @@ import pascal.taie.language.classes.JClassLoader;
 
 import java.io.Serializable;
 
-import static pascal.taie.language.type.DoubleType.DOUBLE;
-import static pascal.taie.language.type.LongType.LONG;
-
 /**
  * This class provides APIs for retrieving types in the analyzed program.
  * For convenience, null type, void type and single primitive type
@@ -90,9 +87,17 @@ public interface TypeSystem extends Serializable {
     PrimitiveType getUnboxedType(ClassType type);
 
     // ---------- APIs for type checking ----------
-    boolean isSubtype(Type supertype, Type subtype);
 
-    boolean isPrimitiveType(String typeName);
+    /**
+     * Determines if {@code subtype} is a subtype of {@code supertype}
+     * according to the Java type system rules.
+     *
+     * @param supertype the potential supertype
+     * @param subtype the potential subtype
+     * @return {@code true} if {@code subtype} is a subtype of {@code supertype},
+     * {@code false} otherwise.
+     */
+    boolean isSubtype(Type supertype, Type subtype);
 
     /**
      * @return  if {@code left = right} is valid (assignable).
@@ -107,11 +112,16 @@ public interface TypeSystem extends Serializable {
         }
     }
 
+    boolean isPrimitiveType(String typeName);
+
+    /**
+     * Checks if the given type can hold int values.
+     *
+     * @param type the type to be checked
+     * @return {@code true} if the type is a primitive type
+     * that can hold int values; {@code false} otherwise。
+     */
     static boolean canHoldInt(Type type) {
         return type instanceof PrimitiveType p && p.asInt();
-    }
-
-    static boolean isTwoWord(Type type) {
-        return type == DOUBLE || type == LONG;
     }
 }

@@ -30,6 +30,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.ssa.VarSSAInfo;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
@@ -37,7 +38,6 @@ import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -149,7 +149,7 @@ public class VarManager {
                 }
             }
             params.add(v);
-            if (TypeSystem.isTwoWord(method.getParamType(noOfParam - firstParamIndex))) {
+            if (FrontendTypeSystem.isTwoWord(method.getParamType(noOfParam - firstParamIndex))) {
                 slotOfCurrentParam += 2;
             } else {
                 slotOfCurrentParam += 1;
