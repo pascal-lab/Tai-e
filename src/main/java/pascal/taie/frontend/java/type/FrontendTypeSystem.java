@@ -377,9 +377,7 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
     private Set<ReferenceType> minimum(Set<ClassType> in) {
         Set<ClassType> removed = Sets.newHybridSet();
         for (ClassType t1 : in) {
-            if (removed.contains(t1)) {
-                continue;
-            } else {
+            if (!removed.contains(t1)) {
                 Set<ClassType> upper = upperClosure(t1);
                 upper.remove(t1);
                 removed.addAll(upper);

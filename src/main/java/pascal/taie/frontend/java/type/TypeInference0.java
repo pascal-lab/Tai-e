@@ -162,7 +162,7 @@ public class TypeInference0 extends NewFrontendComponent {
         }
         for (Type t : allTypes) {
             if (now instanceof PrimitiveType) {
-                assert t == now || TypeSystem.canHoldsInt(t) && TypeSystem.canHoldsInt(now);
+                assert t == now || TypeSystem.canHoldInt(t) && TypeSystem.canHoldInt(now);
             } else {
                 assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
                         t1 instanceof Uninitialized);
@@ -261,7 +261,7 @@ public class TypeInference0 extends NewFrontendComponent {
             }
         }
         assert types.size() == 1 ||
-                types.stream().allMatch(TypeSystem::canHoldsInt);
+                types.stream().allMatch(TypeSystem::canHoldInt);
         Type resultType = types.get(0);
         if (resultType == BOOLEAN || resultType == BYTE ||
                 resultType == SHORT || resultType == CHAR) {
@@ -452,7 +452,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 if (binaryExp instanceof ConditionExp || binaryExp instanceof ComparisonExp) {
                     newTypeAssign(stmt.getLValue(), binaryExp.getType(), typing);
                 } else if (binaryExp instanceof ShiftExp shiftExp) {
-                    assert TypeSystem.canHoldsInt(getType(typing, shiftExp.getOperand2()));
+                    assert TypeSystem.canHoldInt(getType(typing, shiftExp.getOperand2()));
                     newTypeAssign(stmt.getLValue(), getType(typing, shiftExp.getOperand1()), typing);
                 } else {
                     newTypeAssign(stmt.getLValue(), List.of(stmt.getRValue().getOperand1(),

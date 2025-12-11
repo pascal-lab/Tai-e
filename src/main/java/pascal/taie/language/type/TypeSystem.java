@@ -95,21 +95,19 @@ public interface TypeSystem extends Serializable {
     boolean isPrimitiveType(String typeName);
 
     /**
-     * @return  if {@code left := right} is valid (assignable).
+     * @return  if {@code left = right} is valid (assignable).
      */
     default boolean isAssignable(Type left, Type right) {
         if (left == right) {
             return true;
-        } else if (left instanceof PrimitiveType) {
-            return canHoldsInt(left) && canHoldsInt(right);
-        } else if (left == arrayType() && right instanceof ArrayType) {
-            return true;
-        } else {
+        } else if (left instanceof ReferenceType) {
             return isSubtype(left, right);
+        } else {
+            return canHoldInt(left) && canHoldInt(right);
         }
     }
 
-    static boolean canHoldsInt(Type type) {
+    static boolean canHoldInt(Type type) {
         return type instanceof PrimitiveType p && p.asInt();
     }
 

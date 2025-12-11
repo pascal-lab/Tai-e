@@ -583,8 +583,8 @@ public class TypeInference extends NewFrontendComponent {
             } else {
                 if (this.primitiveType == t) {
                     return false;
-                } else if (TypeSystem.canHoldsInt(primitiveType)
-                        && TypeSystem.canHoldsInt(t)) {
+                } else if (TypeSystem.canHoldInt(primitiveType)
+                        && TypeSystem.canHoldInt(t)) {
                     return false;
                 } else {
                     throw new UnsupportedOperationException();
@@ -603,7 +603,7 @@ public class TypeInference extends NewFrontendComponent {
         public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
             if (kind == EdgeKind.VAR_ARRAY
                     && t instanceof ArrayType arrayType
-                    && TypeSystem.canHoldsInt(arrayType.baseType())) {
+                    && TypeSystem.canHoldInt(arrayType.baseType())) {
                 // example for that:
                 // 1. a = new int[10]
                 // 2. a[1] = 1

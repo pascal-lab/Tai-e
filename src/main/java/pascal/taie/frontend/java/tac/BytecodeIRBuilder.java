@@ -1862,7 +1862,6 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
         table[index] = table[index] | var | rwFlag;
     }
 
-
     private int getParamWriteSize() {
         int curr = method.isStatic() ? 0 : 1;
         for (int i = 0; i < method.getParamTypes().size(); ++i) {
