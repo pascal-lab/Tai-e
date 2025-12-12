@@ -28,18 +28,27 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
+import pascal.taie.frontend.java.classes.AsmSource;
+import pascal.taie.frontend.java.classes.BytecodeClassBuilder;
 import pascal.taie.frontend.java.classes.ClassSource;
+import pascal.taie.frontend.java.classes.DefaultClassLoader;
+import pascal.taie.frontend.java.classes.PhantomClassBuilder;
+import pascal.taie.frontend.java.classes.PhantomClassSource;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
-import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
+import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
-import pascal.taie.language.type.TypeSystem;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -70,14 +79,49 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         Project project = new OptionsProjectBuilder(options).build();
         // build closed world
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
-        // KEY STEP: build key frontend components, classes are built in this phase
-        FrontendBuilder builder = new FrontendBuilder(closedWorld);
+
+        // ============ Build frontend components ============
+        // create class hierarchy
+        ClassHierarchyImpl hierarchy = new ClassHierarchyImpl();
+        DefaultClassLoader loader = new DefaultClassLoader(hierarchy,
+                options.isAllowPhantom());
+        hierarchy.setDefaultClassLoader(loader);
+        hierarchy.setBootstrapClassLoader(loader);
+
+        // create type system
+        FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
+        loader.setTypeSystem(typeSystem);
+
+        // create IR builder
+        DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
+
+        // build classes
+        Map<String, JClass> classes = Maps.newMap();
+        closedWorld.forEach(source -> {
+            String name = source.getClassName();
+            classes.put(name, new JClass(loader, name));
+        });
+        loader.setClasses(classes);
+        closedWorld.parallelStream().forEach(source -> {
+            JClass jclass = classes.get(source.getClassName());
+            if (jclass == null) {
+                throw new IllegalStateException();
+            }
+            getClassBuilder(typeSystem, loader, source, jclass).build(jclass);
+            if (source instanceof AsmSource asmSource) {
+                irBuilder.putClassSource(jclass, asmSource);
+            }
+        });
+        for (JClass jclass : classes.values()) {
+            if (jclass.getIndex() == -1) {
+                hierarchy.addClass(jclass);
+            }
+        }
+        // ============ End of building frontend components ============
+
         // set up class hierarchy
-        ClassHierarchy hierarchy = builder.getHierarchy();
         world.setClassHierarchy(hierarchy);
         // set up type system
-        // TODO: check type system here, maybe replace temp type system
-        TypeSystem typeSystem = builder.getTypeSystem();
         world.setTypeSystem(typeSystem);
         // set main method
         String mainClassName = options.getMainClass();
@@ -109,9 +153,21 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        world.setIRBuilder(builder.getIRBuilder());
+        world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
-            builder.getIRBuilder().buildAll(hierarchy);
+            irBuilder.buildAll(hierarchy);
+        }
+    }
+
+    private static JClassBuilder getClassBuilder(
+            FrontendTypeSystem typeSystem, JClassLoader loader,
+            ClassSource source, JClass jClass) {
+        if (source instanceof AsmSource asmSource) {
+            return new BytecodeClassBuilder(typeSystem, loader, asmSource, jClass);
+        } else if (source instanceof PhantomClassSource pSource) {
+            return new PhantomClassBuilder(typeSystem, pSource.getClassName());
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 }
