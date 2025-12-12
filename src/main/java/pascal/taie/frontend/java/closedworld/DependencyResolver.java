@@ -24,7 +24,6 @@ package pascal.taie.frontend.java.closedworld;
 
 import org.objectweb.asm.ClassReader;
 import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.JavacSourceHandler;
 import pascal.taie.frontend.java.classes.AsmSource;
 import pascal.taie.frontend.java.classes.ClassSource;
 import pascal.taie.frontend.java.classes.PhantomClassSource;

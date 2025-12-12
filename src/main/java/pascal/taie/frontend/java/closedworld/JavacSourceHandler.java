@@ -20,10 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.closedworld;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.frontend.java.FrontendException;
 import pascal.taie.project.DotClassFile;
 import pascal.taie.project.FileResource;
 import pascal.taie.project.Resource;
@@ -50,7 +51,7 @@ import java.util.regex.Pattern;
  * It provides methods to compile Java source files, collect diagnostics,
  * and manage temporary output directories.
  */
-public class JavacSourceHandler {
+class JavacSourceHandler {
 
     private static final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
 
