@@ -29,8 +29,8 @@ import pascal.taie.util.collection.LazyArray;
  * A graph represented as an adjacency list.
  * The graph is directed and unweighted.
  */
-public class IntGraph extends LazyArray<IntList> {
-    public IntGraph(int initialCapacity) {
+class IntGraph extends LazyArray<IntList> {
+    IntGraph(int initialCapacity) {
         super(initialCapacity);
     }
 
@@ -42,7 +42,7 @@ public class IntGraph extends LazyArray<IntList> {
     /**
      * Add an edge from {@code from} to {@code to}.
      */
-    public void addEdge(int from, int to) {
+    void addEdge(int from, int to) {
         get(from).add(to);
     }
 

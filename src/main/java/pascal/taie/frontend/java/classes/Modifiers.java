@@ -68,8 +68,8 @@ public class Modifiers {
     private static final int[] METHOD_ASM_MODIFIERS =
             METHOD_MODIFIERS.stream().mapToInt(Modifiers::toAsm).toArray();
 
-    public static Set<Modifier> fromAsm(int opcodes, int[] asmModifiers,
-                                        List<Modifier> taieModifiers) {
+    static Set<Modifier> fromAsm(int opcodes, int[] asmModifiers,
+                                 List<Modifier> taieModifiers) {
         switch (opcodes) {
             case Opcodes.ACC_PUBLIC:
                 return PUB;
@@ -95,15 +95,15 @@ public class Modifiers {
         return res;
     }
 
-    public static Set<Modifier> fromAsmClass(int opcodes) {
+    static Set<Modifier> fromAsmClass(int opcodes) {
         return fromAsm(opcodes, CLASS_ASM_MODIFIERS, CLASS_MODIFIERS);
     }
 
-    public static Set<Modifier> fromAsmField(int opcodes) {
+    static Set<Modifier> fromAsmField(int opcodes) {
         return fromAsm(opcodes, FIELD_ASM_MODIFIERS, FIELD_MODIFIERS);
     }
 
-    public static Set<Modifier> fromAsmMethod(int opcodes) {
+    static Set<Modifier> fromAsmMethod(int opcodes) {
         return fromAsm(opcodes, METHOD_ASM_MODIFIERS, METHOD_MODIFIERS);
     }
 

@@ -70,9 +70,9 @@ import java.util.function.Consumer;
  * }
  * </pre>
  */
-public class StmtVarVisitor {
+class StmtVarVisitor {
 
-    public static void visitUse(Stmt stmt, Consumer<Var> consumer) {
+    static void visitUse(Stmt stmt, Consumer<Var> consumer) {
         if (stmt instanceof Cast cast) {
             consumer.accept(cast.getRValue().getValue());
         } else if (stmt instanceof InstanceOf instanceOf) {

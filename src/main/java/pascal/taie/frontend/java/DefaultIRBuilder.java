@@ -85,7 +85,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
      */
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
 
-    public DefaultIRBuilder(FrontendTypeSystem typeSystem) {
+    DefaultIRBuilder(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
@@ -264,7 +264,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
         }
     }
 
-    public void putClassSource(JClass clazz, AsmSource source) {
+    void putClassSource(JClass clazz, AsmSource source) {
         class2Node.put(clazz, source);
     }
 }

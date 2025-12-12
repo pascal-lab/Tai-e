@@ -98,11 +98,11 @@ public class TypeInference {
         this.needCasting = false;
     }
 
-    public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
+    private Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
         return typeSystem.lca(r1, r2);
     }
 
-    public Optional<Type> plusOneArray(Type t) {
+    private Optional<Type> plusOneArray(Type t) {
         if (t instanceof NullType) {
             return Optional.empty();
         }

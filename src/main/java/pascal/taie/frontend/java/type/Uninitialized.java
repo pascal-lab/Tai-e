@@ -24,7 +24,7 @@ package pascal.taie.frontend.java.type;
 
 import pascal.taie.language.type.Type;
 
-public enum Uninitialized implements Type {
+enum Uninitialized implements Type {
 
     UNINITIALIZED;
 
