@@ -28,7 +28,7 @@ import org.objectweb.asm.Type;
 /**
  * @param version the class file version.
  */
-public record AsmSource(
+public record AsmClassSource(
         ClassReader reader,
         boolean isApp,
         int version

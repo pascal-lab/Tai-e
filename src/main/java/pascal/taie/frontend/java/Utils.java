@@ -88,8 +88,6 @@ import java.util.List;
 
 /**
  * Utility functions for frontend.
- * <p>
- * Note: Type-related operations have been moved to {@link FrontendTypeSystem}.
  */
 public class Utils {
 

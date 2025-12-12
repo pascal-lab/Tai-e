@@ -29,8 +29,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
+import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
-import pascal.taie.frontend.java.classes.AsmSource;
 import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IR;
@@ -78,7 +78,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
     /**
      * A map to store the class source for each class.
      */
-    private final ConcurrentMap<JClass, AsmSource> class2Node = Maps.newConcurrentMap();
+    private final ConcurrentMap<JClass, AsmClassSource> class2Node = Maps.newConcurrentMap();
 
     /**
      * A map to store the method source for each method.
@@ -235,7 +235,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
 
     private void loadClassSourceImpl(JClass clazz) {
         // use remove to release memory
-        AsmSource source = class2Node.remove(clazz);
+        AsmClassSource source = class2Node.remove(clazz);
         assert source != null;
         int version = source.version();
         LoadingKV kv = new LoadingKV();
@@ -264,7 +264,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
         }
     }
 
-    void putClassSource(JClass clazz, AsmSource source) {
+    void putClassSource(JClass clazz, AsmClassSource source) {
         class2Node.put(clazz, source);
     }
 }

@@ -24,7 +24,7 @@ package pascal.taie.frontend.java.closedworld;
 
 import org.objectweb.asm.ClassReader;
 import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.classes.AsmSource;
+import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.ClassSource;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
 import pascal.taie.project.ClassFile;
@@ -87,6 +87,6 @@ class DependencyResolver {
         // 6 is the offset of class file version
         int version = reader.readShort(6);
         List<String> deps = new ConstantTableReader(classFile, content).readClassNames();
-        return new ResolveResult(deps, List.of(new AsmSource(reader, isApp, version)));
+        return new ResolveResult(deps, List.of(new AsmClassSource(reader, isApp, version)));
     }
 }

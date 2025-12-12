@@ -72,7 +72,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
     private final JClassLoader loader;
 
-    private final AsmSource source;
+    private final AsmClassSource source;
 
     private final JClass jClass;
 
@@ -97,7 +97,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
     private final int version;
 
-    public BytecodeClassBuilder(FrontendTypeSystem typeSystem, JClassLoader loader, AsmSource source, JClass jClass) {
+    public BytecodeClassBuilder(FrontendTypeSystem typeSystem, JClassLoader loader, AsmClassSource source, JClass jClass) {
         this.typeSystem = typeSystem;
         this.loader = loader;
         this.source = source;

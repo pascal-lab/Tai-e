@@ -28,7 +28,7 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
-import pascal.taie.frontend.java.classes.AsmSource;
+import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.BytecodeClassBuilder;
 import pascal.taie.frontend.java.classes.ClassSource;
 import pascal.taie.frontend.java.classes.DefaultClassLoader;
@@ -108,7 +108,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
                 throw new IllegalStateException();
             }
             getClassBuilder(typeSystem, loader, source, jclass).build(jclass);
-            if (source instanceof AsmSource asmSource) {
+            if (source instanceof AsmClassSource asmSource) {
                 irBuilder.putClassSource(jclass, asmSource);
             }
         });
@@ -162,7 +162,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
     private static JClassBuilder getClassBuilder(
             FrontendTypeSystem typeSystem, JClassLoader loader,
             ClassSource source, JClass jClass) {
-        if (source instanceof AsmSource asmSource) {
+        if (source instanceof AsmClassSource asmSource) {
             return new BytecodeClassBuilder(typeSystem, loader, asmSource, jClass);
         } else if (source instanceof PhantomClassSource pSource) {
             return new PhantomClassBuilder(typeSystem, pSource.getClassName());
