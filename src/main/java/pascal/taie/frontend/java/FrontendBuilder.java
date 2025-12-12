@@ -29,7 +29,6 @@ import pascal.taie.frontend.java.classes.ClassSource;
 import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.classes.PhantomClassBuilder;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
-import pascal.taie.frontend.java.main.DefaultIRBuilder;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.language.classes.ClassHierarchy;

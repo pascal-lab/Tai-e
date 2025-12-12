@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.main;
+package pascal.taie.frontend.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * building Intermediate Representations (IR) for Java methods.
  * It supports building IR for JVM Bytecode ({@link AsmMethodSource}) method sources.
  */
-public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
+class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
 
     private final FrontendTypeSystem typeSystem;
 
