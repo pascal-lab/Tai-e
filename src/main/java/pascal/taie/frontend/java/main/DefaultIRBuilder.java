@@ -29,10 +29,10 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
 import pascal.taie.frontend.java.classes.AsmSource;
 import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -84,8 +84,8 @@ public class DefaultIRBuilder extends NewFrontendComponent
      */
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
 
-    public DefaultIRBuilder(FrontendContext context) {
-        super(context);
+    public DefaultIRBuilder(FrontendTypeSystem typeSystem) {
+        super(typeSystem);
     }
 
     /**
@@ -125,7 +125,7 @@ public class DefaultIRBuilder extends NewFrontendComponent
         try {
             Object source = method.getMethodSource();
             if (source instanceof AsmMethodSource asmMethodSource) {
-                BytecodeIRBuilder builder = new BytecodeIRBuilder(ctx(), method, asmMethodSource);
+                BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem(), method, asmMethodSource);
                 builder.build();
                 return builder.getIr();
             } else if (source == null) {
@@ -169,7 +169,7 @@ public class DefaultIRBuilder extends NewFrontendComponent
                     most likely the method is built twice by mistake.
                     """.formatted(method));
         }
-        BytecodeIRBuilder builder = new BytecodeIRBuilder(ctx(), method, source);
+        BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem(), method, source);
         builder.build();
         IR ir = builder.getIr();
         if (ir == null) {

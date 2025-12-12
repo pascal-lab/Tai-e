@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
@@ -91,8 +90,8 @@ public class TypeInference extends NewFrontendComponent {
 
     private boolean needCasting;
 
-    public TypeInference(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context);
+    public TypeInference(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
+        super(typeSystem);
         this.builder = builder;
         graph = new TypingFlowGraph(builder.manager.getVars().size());
         this.needCasting = false;
@@ -299,7 +298,7 @@ public class TypeInference extends NewFrontendComponent {
         graph.inferTypes();
         setTypes(graph);
         if (needCasting) {
-            CastingInserter inserter = new CastingInserter(builder, ctx());
+            CastingInserter inserter = new CastingInserter(builder, typeSystem());
             inserter.build();
         }
     }

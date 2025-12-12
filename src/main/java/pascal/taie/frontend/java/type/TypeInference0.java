@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
@@ -101,8 +100,8 @@ public class TypeInference0 extends NewFrontendComponent {
 
     private final ClassType stringType;
 
-    public TypeInference0(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context);
+    public TypeInference0(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
+        super(typeSystem);
         this.builder = builder;
         varSize = builder.manager.getVars().size();
 
@@ -287,7 +286,7 @@ public class TypeInference0 extends NewFrontendComponent {
         buildLocalTypes();
         inferTypes();
         setTypeForLocal();
-        new CastingInserter(builder, ctx()).build();
+        new CastingInserter(builder, typeSystem()).build();
     }
 
     private void buildLocalTypes() {

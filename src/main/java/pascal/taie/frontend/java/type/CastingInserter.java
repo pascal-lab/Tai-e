@@ -24,7 +24,6 @@ package pascal.taie.frontend.java.type;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.Lenses;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
@@ -73,8 +72,8 @@ class CastingInserter extends NewFrontendComponent {
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    CastingInserter(BytecodeIRBuilder builder, FrontendContext context) {
-        super(context);
+    CastingInserter(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
+        super(typeSystem);
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();
     }

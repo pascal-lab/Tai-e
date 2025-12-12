@@ -29,9 +29,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.main.NewFrontendComponent;
+import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -97,8 +97,8 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
     private final int version;
 
-    public BytecodeClassBuilder(FrontendContext context, JClassLoader loader, AsmSource source, JClass jClass) {
-        super(context);
+    public BytecodeClassBuilder(FrontendTypeSystem typeSystem, JClassLoader loader, AsmSource source, JClass jClass) {
+        super(typeSystem);
         this.loader = loader;
         this.source = source;
         this.jClass = jClass;

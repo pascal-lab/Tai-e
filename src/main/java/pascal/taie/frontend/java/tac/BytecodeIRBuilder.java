@@ -45,7 +45,6 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
@@ -264,8 +263,8 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
      */
     private Dominator<BytecodeBlock> dom;
 
-    public BytecodeIRBuilder(FrontendContext context, JMethod method, AsmMethodSource methodSource) {
-        super(context);
+    public BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method, AsmMethodSource methodSource) {
+        super(typeSystem);
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
@@ -316,7 +315,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        TypeInference0 inference = new TypeInference0(this, ctx());
+        TypeInference0 inference = new TypeInference0(this, typeSystem());
         inference.build();
     }
 
@@ -327,7 +326,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        TypeInference inference = new TypeInference(this, ctx());
+        TypeInference inference = new TypeInference(this, typeSystem());
         inference.build();
     }
 

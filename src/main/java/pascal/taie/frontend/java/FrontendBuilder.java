@@ -47,11 +47,9 @@ class FrontendBuilder {
 
     private final ClassHierarchy hierarchy;
 
-    private final TypeSystem typeSystem;
+    private final FrontendTypeSystem typeSystem;
 
     private final IRBuilder irBuilder;
-
-    private final FrontendContext context;
 
     FrontendBuilder(Collection<ClassSource> classSources) {
         // create key components
@@ -66,15 +64,12 @@ class FrontendBuilder {
         FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
         loader.setTypeSystem(typeSystem);
 
-        FrontendContext context = new FrontendContext(typeSystem);
-
-        DefaultIRBuilder irBuilder = new DefaultIRBuilder(context);
+        DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
 
         // set fields
         this.hierarchy = hierarchy;
         this.typeSystem = typeSystem;
         this.irBuilder = irBuilder;
-        this.context = context;
 
         // build classes
         Map<String, JClass> classes = Maps.newMap();
@@ -103,7 +98,7 @@ class FrontendBuilder {
     private JClassBuilder getClassBuilder(
             JClassLoader loader, ClassSource source, JClass jClass) {
         if (source instanceof AsmSource asmSource) {
-            return new BytecodeClassBuilder(context, loader, asmSource, jClass);
+            return new BytecodeClassBuilder(typeSystem, loader, asmSource, jClass);
         } else if (source instanceof PhantomClassSource pSource) {
             return new PhantomClassBuilder(typeSystem, pSource.getClassName());
         } else {

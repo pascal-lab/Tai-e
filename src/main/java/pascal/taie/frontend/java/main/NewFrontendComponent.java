@@ -22,44 +22,37 @@
 
 package pascal.taie.frontend.java.main;
 
-import pascal.taie.frontend.java.FrontendContext;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 
 /**
- * Abstract base class for frontend components that require access to the build context.
+ * Abstract base class for frontend components that require access to the type system.
  *
  * <p>A {@link NewFrontendComponent} is responsible for performing a specific task in the frontend,
  * such as building a closed world, class hierarchy, or intermediate representation (IR).
- * This class provides a common interface for accessing the build context and related services.</p>
- *
- * @see FrontendContext
+ * This class provides a common interface for accessing the type system.</p>
  */
 public abstract class NewFrontendComponent {
 
     /**
-     * The build context instance, which provides access to various services and data structures.
+     * The type system instance, which provides type-related services.
      */
-    private final FrontendContext context;
+    private final FrontendTypeSystem typeSystem;
 
     /**
-     * Constructs a new instance of this component with the given build context.
+     * Constructs a new instance of this component with the given type system.
      *
-     * @param context the build context instance
+     * @param typeSystem the type system instance
      */
-    protected NewFrontendComponent(FrontendContext context) {
-        this.context = context;
+    protected NewFrontendComponent(FrontendTypeSystem typeSystem) {
+        this.typeSystem = typeSystem;
     }
 
     /**
-     * Returns the build context instance
+     * Returns the type system instance.
      *
-     * @return the build context instance
+     * @return the type system instance
      */
-    protected FrontendContext ctx() {
-        return context;
-    }
-
     protected FrontendTypeSystem typeSystem() {
-        return context.getTypeSystem();
+        return typeSystem;
     }
 }
