@@ -48,7 +48,6 @@ import pascal.taie.World;
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.classes.AsmMethodSource;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.BCSSA;
 import pascal.taie.frontend.java.ssa.DUInfo;
 import pascal.taie.frontend.java.ssa.Dominator;
@@ -155,7 +154,9 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * <p>The main class for IR building of bytecode frontend</p>
  */
-public class BytecodeIRBuilder extends NewFrontendComponent {
+public class BytecodeIRBuilder {
+
+    private final FrontendTypeSystem typeSystem;
 
     /**
      * Taie IR output
@@ -264,7 +265,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
     private Dominator<BytecodeBlock> dom;
 
     public BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method, AsmMethodSource methodSource) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
@@ -315,7 +316,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        TypeInference0 inference = new TypeInference0(this, typeSystem());
+        TypeInference0 inference = new TypeInference0(this, typeSystem);
         inference.build();
     }
 
@@ -326,7 +327,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 //            splitter.build();
 //            stageTimer.endSplitting();
 //        }
-        TypeInference inference = new TypeInference(this, typeSystem());
+        TypeInference inference = new TypeInference(this, typeSystem);
         inference.build();
     }
 
@@ -986,9 +987,9 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<StackItem> stack) {
         int opcode = methodInsnNode.getOpcode();
-        JClass owner = typeSystem().toJClass(methodInsnNode.owner);
+        JClass owner = typeSystem.toJClass(methodInsnNode.owner);
         assert owner != null;
-        Pair<List<Type>, Type> desc = typeSystem().fromAsmMethodDesc(methodInsnNode.desc);
+        Pair<List<Type>, Type> desc = typeSystem.fromAsmMethodDesc(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
         MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic, methodInsnNode.itf);
@@ -1688,10 +1689,10 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 assocStmt(jump, new If(cond));
             }
         } else if (node instanceof LdcInsnNode ldc) {
-            pushConst(node, nowStack, Utils.fromObject(typeSystem(), ldc.cst));
+            pushConst(node, nowStack, Utils.fromObject(typeSystem, ldc.cst));
         } else if (node instanceof TypeInsnNode typeNode) {
             int opcode = typeNode.getOpcode();
-            ReferenceType type = typeSystem().fromAsmInternalName(typeNode.desc);
+            ReferenceType type = typeSystem.fromAsmInternalName(typeNode.desc);
             if (opcode == Opcodes.CHECKCAST) {
                 pushExp(node, nowStack, getCastExp(nowStack, type));
             } else if (opcode == Opcodes.NEW) {
@@ -1706,7 +1707,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 } else {
                     base = type;
                 }
-                ArrayType arrayType = typeSystem().getArrayType(base, dims);
+                ArrayType arrayType = typeSystem.getArrayType(base, dims);
                 pushExp(node, nowStack, new NewArray(arrayType, length));
             } else if (opcode == Opcodes.INSTANCEOF) {
                 Var obj = popVar(nowStack);
@@ -1730,7 +1731,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                     case 11 -> LONG;
                     default -> throw new IllegalArgumentException();
                 };
-                ArrayType arrayType = typeSystem().getArrayType(base, 1);
+                ArrayType arrayType = typeSystem.getArrayType(base, 1);
                 Var length = popVar(nowStack);
                 pushExp(node, nowStack, new NewArray(arrayType, length));
             } else {
@@ -1738,9 +1739,8 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             }
         } else if (node instanceof FieldInsnNode fieldInsnNode) {
             int opcode = fieldInsnNode.getOpcode();
-            ClassType owner = (ClassType)
-                    typeSystem().fromAsmInternalName(fieldInsnNode.owner);
-            Type type = typeSystem().fromAsmTypeDesc(fieldInsnNode.desc);
+            ClassType owner = (ClassType) typeSystem.fromAsmInternalName(fieldInsnNode.owner);
+            Type type = typeSystem.fromAsmTypeDesc(fieldInsnNode.desc);
             String name = fieldInsnNode.name;
             FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                     opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
@@ -1772,7 +1772,7 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
                 popToEffect(nowStack);
             }
         } else if (node instanceof MultiANewArrayInsnNode newArrayInsnNode) {
-            Type type = typeSystem().fromAsmTypeDesc(newArrayInsnNode.desc);
+            Type type = typeSystem.fromAsmTypeDesc(newArrayInsnNode.desc);
             assert type instanceof ArrayType;
 
             List<Var> lengths = new ArrayList<>();
@@ -1792,12 +1792,12 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
             pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
             storeRWVar(def, inc.var, inc, block, nowStack);
         } else if (node instanceof InvokeDynamicInsnNode invokeDynamicInsnNode) {
-            MethodHandle handle = Utils.fromAsmHandle(typeSystem(), invokeDynamicInsnNode.bsm);
+            MethodHandle handle = Utils.fromAsmHandle(typeSystem, invokeDynamicInsnNode.bsm);
             List<Literal> bootArgs = Arrays.stream(invokeDynamicInsnNode.bsmArgs)
-                    .map((o) -> Utils.fromObject(typeSystem(), o)).toList();
+                    .map((o) -> Utils.fromObject(typeSystem, o)).toList();
             assert handle.isMethodRef();
             Pair<List<Type>, Type> paramRets =
-                    typeSystem().fromAsmMethodDesc(invokeDynamicInsnNode.desc);
+                    typeSystem.fromAsmMethodDesc(invokeDynamicInsnNode.desc);
             List<Var> args = new ArrayList<>();
             for (int i = 0; i < paramRets.first().size(); ++i) {
                 args.add(popVar(nowStack));
@@ -2213,9 +2213,9 @@ public class BytecodeIRBuilder extends NewFrontendComponent {
 
     private ClassType fromExceptionType(String internalName) {
         if (internalName == null) {
-            return typeSystem().throwableType();
+            return typeSystem.throwableType();
         } else {
-            ReferenceType r = typeSystem().fromAsmInternalName(internalName);
+            ReferenceType r = typeSystem.fromAsmInternalName(internalName);
             if (r instanceof ClassType c) {
                 return c;
             } else {

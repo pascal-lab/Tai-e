@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.type;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.Lenses;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
 import pascal.taie.frontend.java.tac.BytecodeBlock;
 import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
@@ -62,7 +61,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class CastingInserter extends NewFrontendComponent {
+class CastingInserter {
+
+    private final FrontendTypeSystem typeSystem;
 
     private static final Logger logger = LogManager.getLogger(CastingInserter.class);
 
@@ -73,7 +74,7 @@ class CastingInserter extends NewFrontendComponent {
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
     CastingInserter(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
         this.builder = builder;
         this.flowTypeCache = Maps.newHybridMap();
     }
@@ -89,7 +90,7 @@ class CastingInserter extends NewFrontendComponent {
     private Type maySplitStmt(LValue l, RValue r) {
         Type lType = l.getType();
         Type rType = r.getType();
-        if (!typeSystem().isAssignable(lType, rType)) {
+        if (!typeSystem.isAssignable(lType, rType)) {
             return lType;
         } else {
             return null;
@@ -97,7 +98,7 @@ class CastingInserter extends NewFrontendComponent {
     }
 
     private Stmt ensureValidArrayType(ArrayAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
-        Type t = typeSystem().getArrayType(typeSystem().objectType(), 1);
+        Type t = typeSystem.getArrayType(typeSystem.objectType(), 1);
         if (access.getBase().getType() instanceof ArrayType) {
             return stmt;
         } else {
@@ -119,12 +120,12 @@ class CastingInserter extends NewFrontendComponent {
         if (access instanceof InstanceFieldAccess instance) {
             Var base = instance.getBase();
             Type t = instance.getFieldRef().getDeclaringClass().getType();
-            if (typeSystem().isAssignable(t, base.getType())) {
+            if (typeSystem.isAssignable(t, base.getType())) {
                 return stmt;
             } else {
                 Var v1 = requireFlowTypeVar(block, base, newStmts, t);
                 if (v1 != null) {
-                    assert typeSystem().isAssignable(t, v1.getType());
+                    assert typeSystem.isAssignable(t, v1.getType());
                     Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
                     return lenses.subSt(stmt);
                 } else {
@@ -161,7 +162,7 @@ class CastingInserter extends NewFrontendComponent {
                                     findNewInBlock(newStmts, right);
                             if (newInBlock != null) {
                                 RValue rValue = newInBlock.first().getRValue();
-                                if (typeSystem().isAssignable(t, rValue.getType())) {
+                                if (typeSystem.isAssignable(t, rValue.getType())) {
                                     Var v = requireFlowTypeVar(block, right, newStmts, t);
                                     return stage1Transform(stmt, right, v);
                                 }
@@ -238,7 +239,7 @@ class CastingInserter extends NewFrontendComponent {
                             Type t = jClass.getType();
                             Type baseType = invokeInstanceExp.getBase().getType();
                             Var base = invokeInstanceExp.getBase();
-                            if (!typeSystem().isAssignable(t, baseType)) {
+                            if (!typeSystem.isAssignable(t, baseType)) {
                                 if (! (invokeInstanceExp instanceof InvokeInterface)) {
                                     // prev stmt is new
                                     // TODO: add tests for fallback
@@ -267,7 +268,7 @@ class CastingInserter extends NewFrontendComponent {
                         for (int i = 0; i < prevStmt.getInvokeExp().getArgCount(); ++i) {
                             Var arg = prevStmt.getInvokeExp().getArg(i);
                             Type t = prevStmt.getMethodRef().getParameterTypes().get(i);
-                            if (!typeSystem().isAssignable(t, arg.getType())) {
+                            if (!typeSystem.isAssignable(t, arg.getType())) {
                                 Var v = requireFlowTypeVar(block, arg, newStmts, t);
                                 if (v != null) {
                                     prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
@@ -293,7 +294,7 @@ class CastingInserter extends NewFrontendComponent {
                     public Stmt visit(Return stmt) {
                         Type t = builder.method.getReturnType();
                         if (stmt.getValue() != null &&
-                                !typeSystem().isAssignable(t, stmt.getValue().getType())) {
+                                !typeSystem.isAssignable(t, stmt.getValue().getType())) {
                             Var v = builder.manager.getTempVar();
                             newStmts.add(getNewCast(v, stmt.getValue(), t));
                             builder.manager.getRetVars().remove(stmt.getValue());
@@ -358,7 +359,7 @@ class CastingInserter extends NewFrontendComponent {
             Pair<DefinitionStmt<?, ?>, Integer> newInBlock = findNewInBlock(newStmts, globalVar);
             if (newInBlock != null) {
                 DefinitionStmt<?, ?> def = newInBlock.first();
-                if (!typeSystem().isAssignable(targetType, def.getRValue().getType())) {
+                if (!typeSystem.isAssignable(targetType, def.getRValue().getType())) {
                     return null;
                 }
 

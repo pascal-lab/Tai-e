@@ -52,8 +52,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * building Intermediate Representations (IR) for Java methods.
  * It supports building IR for JVM Bytecode ({@link AsmMethodSource}) method sources.
  */
-public class DefaultIRBuilder extends NewFrontendComponent
-        implements pascal.taie.ir.IRBuilder {
+public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
+
+    private final FrontendTypeSystem typeSystem;
 
     private static final Logger logger = LogManager.getLogger(DefaultIRBuilder.class);
 
@@ -85,7 +86,7 @@ public class DefaultIRBuilder extends NewFrontendComponent
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source = Maps.newConcurrentMap();
 
     public DefaultIRBuilder(FrontendTypeSystem typeSystem) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
     }
 
     /**
@@ -125,7 +126,7 @@ public class DefaultIRBuilder extends NewFrontendComponent
         try {
             Object source = method.getMethodSource();
             if (source instanceof AsmMethodSource asmMethodSource) {
-                BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem(), method, asmMethodSource);
+                BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, asmMethodSource);
                 builder.build();
                 return builder.getIr();
             } else if (source == null) {
@@ -169,7 +170,7 @@ public class DefaultIRBuilder extends NewFrontendComponent
                     most likely the method is built twice by mistake.
                     """.formatted(method));
         }
-        BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem(), method, source);
+        BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, source);
         builder.build();
         IR ir = builder.getIr();
         if (ir == null) {

@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
 import pascal.taie.frontend.java.tac.BytecodeBlock;
@@ -82,7 +81,9 @@ import static pascal.taie.language.type.IntType.INT;
  * <p>(1) Ben Bellamy, Pavel Avgustinov, Oege de Moor, and Damien Sereni. 2008. Efficient local type inference.
  * SIGPLAN Not. 43, 10 (September 2008), 475–492. <a href="https://doi.org/10.1145/1449955.1449802">link</a>
  */
-public class TypeInference extends NewFrontendComponent {
+public class TypeInference {
+
+    private final FrontendTypeSystem typeSystem;
 
     final BytecodeIRBuilder builder;
 
@@ -91,14 +92,14 @@ public class TypeInference extends NewFrontendComponent {
     private boolean needCasting;
 
     public TypeInference(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
         this.builder = builder;
         graph = new TypingFlowGraph(builder.manager.getVars().size());
         this.needCasting = false;
     }
 
     public Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
-        return typeSystem().lca(r1, r2);
+        return typeSystem.lca(r1, r2);
     }
 
     public Optional<Type> plusOneArray(Type t) {
@@ -114,7 +115,7 @@ public class TypeInference extends NewFrontendComponent {
             baseType = t;
             dim = 1;
         }
-        return Optional.of(typeSystem().getArrayType(baseType, dim));
+        return Optional.of(typeSystem.getArrayType(baseType, dim));
     }
 
     public static Optional<Type> subOneArray(Type t) {
@@ -136,7 +137,7 @@ public class TypeInference extends NewFrontendComponent {
         public Void visit(AssignLiteral stmt) {
             Type t;
             if (stmt.getRValue() instanceof StringLiteral) {
-                t = typeSystem().stringType();
+                t = typeSystem.stringType();
             } else {
                 t = stmt.getRValue().getType();
             }
@@ -298,7 +299,7 @@ public class TypeInference extends NewFrontendComponent {
         graph.inferTypes();
         setTypes(graph);
         if (needCasting) {
-            CastingInserter inserter = new CastingInserter(builder, typeSystem());
+            CastingInserter inserter = new CastingInserter(builder, typeSystem);
             inserter.build();
         }
     }
@@ -324,7 +325,7 @@ public class TypeInference extends NewFrontendComponent {
                 }
                 if (node.initConstraints != null) {
                     for (Type t : node.initConstraints) {
-                        if (!typeSystem().isAssignable(t, target)) {
+                        if (!typeSystem.isAssignable(t, target)) {
                             this.needCasting = true;
                         }
                     }
@@ -637,7 +638,7 @@ public class TypeInference extends NewFrontendComponent {
             }
             boolean ret = true;
             for (ReferenceType c : useValidConstrains) {
-                ret &= typeSystem().isAssignable(c, t);
+                ret &= typeSystem.isAssignable(c, t);
             }
             return ret;
         }
@@ -660,13 +661,13 @@ public class TypeInference extends NewFrontendComponent {
             } else {
                 if (lcas.isEmpty()) {
                     // normally impossible, but possible for phantom
-                    return typeSystem().objectType();
+                    return typeSystem.objectType();
                 }
                 ReferenceType t1 = lcas.iterator().next();
                 if (t1 instanceof ClassType) {
-                    return typeSystem().objectType();
+                    return typeSystem.objectType();
                 } else if (t1 instanceof ArrayType arrayType) {
-                    return typeSystem().getArrayType(typeSystem().objectType(), arrayType.dimensions());
+                    return typeSystem.getArrayType(typeSystem.objectType(), arrayType.dimensions());
                 } else {
                     throw new UnsupportedOperationException();
                 }

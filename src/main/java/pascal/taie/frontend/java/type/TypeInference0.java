@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.type;
 
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ssa.FrontendStmtVisitor;
 import pascal.taie.frontend.java.tac.BytecodeBlock;
@@ -86,7 +85,9 @@ import static pascal.taie.language.type.ShortType.SHORT;
 /**
  * Type inference based on stack map frames
  */
-public class TypeInference0 extends NewFrontendComponent {
+public class TypeInference0 {
+
+    private final FrontendTypeSystem typeSystem;
 
     private final BytecodeIRBuilder builder;
 
@@ -101,7 +102,7 @@ public class TypeInference0 extends NewFrontendComponent {
     private final ClassType stringType;
 
     public TypeInference0(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
         this.builder = builder;
         varSize = builder.manager.getVars().size();
 
@@ -114,7 +115,7 @@ public class TypeInference0 extends NewFrontendComponent {
             localTypeAssigns.add(null);
         }
         localCells = builder.manager.getSlotTable();
-        stringType = typeSystem().stringType();
+        stringType = typeSystem.stringType();
     }
 
     private void putMultiSet(List<Set<Type>> set, Var v, Type t) {
@@ -145,9 +146,9 @@ public class TypeInference0 extends NewFrontendComponent {
         Type now = allTypes.iterator().next();
         if (allTypes.size() == 1) {
             if (now == Uninitialized.UNINITIALIZED) {
-                return typeSystem().objectType();
+                return typeSystem.objectType();
             }
-            if (now == typeSystem().objectType()) {
+            if (now == typeSystem.objectType()) {
                 Set<Type> constrains = localTypeConstrains.get(v.getIndex());
                 if (constrains != null && constrains.size() == 1) {
                     return constrains.iterator().next();
@@ -165,13 +166,13 @@ public class TypeInference0 extends NewFrontendComponent {
             } else {
                 assert allTypes.stream().allMatch(t1 -> t1 instanceof ReferenceType ||
                         t1 instanceof Uninitialized);
-                Set<ReferenceType> res = typeSystem().lca(
+                Set<ReferenceType> res = typeSystem.lca(
                         allTypes.stream()
                         .filter(t1 -> ! (t1 instanceof NullType) && ! (t1 instanceof Uninitialized))
                         .map(i -> (ReferenceType) i)
                         .collect(Collectors.toSet()));
                 if (res.isEmpty())  {
-                    now = typeSystem().objectType();
+                    now = typeSystem.objectType();
                 } else if (res.size() == 1) {
                     now = res.iterator().next();
                 } else {
@@ -179,14 +180,14 @@ public class TypeInference0 extends NewFrontendComponent {
                     int count = -1;
                     for (ReferenceType type : res) {
                         int newCount = (int) constrains.stream()
-                                .filter(c -> typeSystem().isAssignable(c, type)).count();
+                                .filter(c -> typeSystem.isAssignable(c, type)).count();
                         if (newCount > count) {
                             now = type;
                             count = newCount;
                         }
                     }
                     if (now == null) {
-                        now = typeSystem().objectType();
+                        now = typeSystem.objectType();
                     }
                 }
                 break;
@@ -223,7 +224,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 return;
             }
             if (t == Uninitialized.UNINITIALIZED) {
-                ExpMutator.setType(var, typeSystem().objectType());
+                ExpMutator.setType(var, typeSystem.objectType());
             } else {
                 ExpMutator.setType(var, t);
             }
@@ -286,7 +287,7 @@ public class TypeInference0 extends NewFrontendComponent {
         buildLocalTypes();
         inferTypes();
         setTypeForLocal();
-        new CastingInserter(builder, typeSystem()).build();
+        new CastingInserter(builder, typeSystem).build();
     }
 
     private void buildLocalTypes() {
@@ -397,7 +398,7 @@ public class TypeInference0 extends NewFrontendComponent {
                 if (l instanceof StringLiteral) {
                     t = stringType;
                 } else if (l instanceof ClassLiteral) {
-                    t = typeSystem().classType();
+                    t = typeSystem.classType();
                 } else {
                     t = l.getType();
                 }
@@ -425,7 +426,7 @@ public class TypeInference0 extends NewFrontendComponent {
                     // TODO: this rule is useless, and may not be safe
                     //       But currently works well, check & remove this in the future
                     if (t instanceof ReferenceType referenceType && referenceType != NullType.NULL) {
-                        putMultiSet(localTypeAssigns, base, typeSystem().makeArrayOf(referenceType));
+                        putMultiSet(localTypeAssigns, base, typeSystem.makeArrayOf(referenceType));
                     }
                 }
                 return null;
@@ -522,8 +523,8 @@ public class TypeInference0 extends NewFrontendComponent {
                 List<ClassType> exceptionTypes = block.getExceptionHandlerTypes();
                 assert exceptionTypes != null;
                 // calculate lca here
-                Set<ReferenceType> res = typeSystem().lca(Sets.newSet(exceptionTypes));
-                ReferenceType type = res.isEmpty() ? typeSystem().throwableType() : res.iterator().next();
+                Set<ReferenceType> res = typeSystem.lca(Sets.newSet(exceptionTypes));
+                ReferenceType type = res.isEmpty() ? typeSystem.throwableType() : res.iterator().next();
                 newTypeAssign(stmt.getExceptionRef(), type, typing);
                 return null;
             }

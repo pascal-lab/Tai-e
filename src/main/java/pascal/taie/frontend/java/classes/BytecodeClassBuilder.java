@@ -30,7 +30,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.main.NewFrontendComponent;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
@@ -67,8 +66,9 @@ import java.util.function.Consumer;
 import static pascal.taie.frontend.java.Utils.getBinaryName;
 import static pascal.taie.frontend.java.Utils.toElement;
 
-public class BytecodeClassBuilder extends NewFrontendComponent
-        implements JClassBuilder {
+public class BytecodeClassBuilder implements JClassBuilder {
+
+    private final FrontendTypeSystem typeSystem;
 
     private final JClassLoader loader;
 
@@ -98,7 +98,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
     private final int version;
 
     public BytecodeClassBuilder(FrontendTypeSystem typeSystem, JClassLoader loader, AsmSource source, JClass jClass) {
-        super(typeSystem);
+        this.typeSystem = typeSystem;
         this.loader = loader;
         this.source = source;
         this.jClass = jClass;
@@ -129,7 +129,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
 
     @Override
     public ClassType getClassType() {
-        return typeSystem().getClassType(source.getClassName());
+        return typeSystem.getClassType(source.getClassName());
     }
 
     @Override
@@ -257,7 +257,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
                 String descriptor,
                 String signature,
                 Object value) {
-            Type type = typeSystem().fromAsmTypeDesc(descriptor);
+            Type type = typeSystem.fromAsmTypeDesc(descriptor);
             ReferenceTypeGSignature gSignature;
             if (signature != null) {
                 gSignature = GSignatures.toTypeSig(signature);
@@ -267,7 +267,7 @@ public class BytecodeClassBuilder extends NewFrontendComponent
             return new FVisitor(annotations -> fields.add(
                     new JField(jClass, name, Modifiers.fromAsmField(access), type, gSignature,
                             AnnotationHolder.make(annotations),
-                            value == null ? null : Utils.fromObject(typeSystem(), value))));
+                            value == null ? null : Utils.fromObject(typeSystem, value))));
         }
 
         @Override
@@ -328,10 +328,10 @@ public class BytecodeClassBuilder extends NewFrontendComponent
             this.exceptions = new ArrayList<>();
             if (exceptions != null) {
                 for (String exception : exceptions) {
-                    this.exceptions.add((ClassType) typeSystem().fromAsmInternalName(exception));
+                    this.exceptions.add((ClassType) typeSystem.fromAsmInternalName(exception));
                 }
             }
-            Pair<List<Type>, Type> mtdType = typeSystem().fromAsmMethodDesc(descriptor);
+            Pair<List<Type>, Type> mtdType = typeSystem.fromAsmMethodDesc(descriptor);
             this.retType = mtdType.second();
             this.paramTypes = mtdType.first();
             this.annotations = new ArrayList<>();
