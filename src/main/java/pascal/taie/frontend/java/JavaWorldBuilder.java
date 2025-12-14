@@ -44,11 +44,9 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.project.OptionsProjectBuilder;
 import pascal.taie.project.Project;
-import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -81,42 +79,23 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         Collection<ClassSource> closedWorld = new ClosedWorldBuilder(project).build();
 
         // ============ Build frontend components ============
-        // create class hierarchy
-        ClassHierarchyImpl hierarchy = new ClassHierarchyImpl();
-        DefaultClassLoader loader = new DefaultClassLoader(hierarchy,
-                options.isAllowPhantom());
-        hierarchy.setDefaultClassLoader(loader);
-        hierarchy.setBootstrapClassLoader(loader);
-
-        // create type system
+        // create two most basic classes in frontend: class loader and type system
+        DefaultClassLoader loader = new DefaultClassLoader(closedWorld);
         FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
-        loader.setTypeSystem(typeSystem);
 
-        // create IR builder
         DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
 
         // build classes
-        Map<String, JClass> classes = Maps.newMap();
-        closedWorld.forEach(source -> {
-            String name = source.getClassName();
-            classes.put(name, new JClass(loader, name));
-        });
-        loader.setClasses(classes);
         closedWorld.parallelStream().forEach(source -> {
-            JClass jclass = classes.get(source.getClassName());
-            if (jclass == null) {
-                throw new IllegalStateException();
-            }
+            JClass jclass = loader.loadClass(source.getClassName());
             getClassBuilder(typeSystem, loader, source, jclass).build(jclass);
             if (source instanceof AsmClassSource asmSource) {
                 irBuilder.putClassSource(jclass, asmSource);
             }
         });
-        for (JClass jclass : classes.values()) {
-            if (jclass.getIndex() == -1) {
-                hierarchy.addClass(jclass);
-            }
-        }
+        // create class hierarchy
+        ClassHierarchyImpl hierarchy = new ClassHierarchyImpl(loader);
+
         // ============ End of building frontend components ============
 
         // set up class hierarchy

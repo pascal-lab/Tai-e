@@ -22,65 +22,45 @@
 
 package pascal.taie.frontend.java.classes;
 
-import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.type.TypeSystem;
+import pascal.taie.util.collection.Maps;
 
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * A basic implementation of {@link JClassLoader} that loads and manages
+ * {@link JClass} objects from a given collection of {@link ClassSource}.
+ * <p>
+ * All classes that can be loaded by this loader originate from the
+ * {@link ClassSource} collection provided at construction time;
+ * no additional classes outside this collection are supported.
+ */
 public class DefaultClassLoader implements JClassLoader {
 
-    private final ClassHierarchy hierarchy;
+    private final Map<String, JClass> classes;
 
-    private final boolean allowPhantom;
-
-    private TypeSystem typeSystem;
-
-    private Map<String, JClass> classes;
-
-    public DefaultClassLoader(ClassHierarchy hierarchy, boolean allowPhantom) {
-        this.hierarchy = hierarchy;
-        this.allowPhantom = allowPhantom;
+    /**
+     * Initializes the {@link JClass} objects from provided {@link ClassSource}s.
+     */
+    public DefaultClassLoader(Collection<ClassSource> classSources) {
+        this.classes = Maps.newMap();
+        classSources.forEach(source -> {
+            String name = source.getClassName();
+            classes.put(name, new JClass(this, name));
+        });
     }
 
     @Override
     public JClass loadClass(String name) {
-        return loadClass(name, allowPhantom);
+        return loadClass(name, true);
     }
 
     @Override
     public JClass loadClass(String name, boolean allowPhantom) {
-        JClass jclass = classes.get(name);
-        // Disable phantom class creating with this function
-        if (jclass == null && this.allowPhantom && allowPhantom) {
-            return loadPhantomClass(name);
-        }
         // TODO: add warning for missing classes
-        return jclass;
-    }
-
-    public void setTypeSystem(TypeSystem typeSystem) {
-        this.typeSystem = typeSystem;
-    }
-
-    private synchronized JClass loadPhantomClass(String name) {
-        JClass jclass = classes.get(name);
-        if (jclass == null) { // phantom class
-            // TODO: what should a moduleName for a phantom class be?
-            jclass = new JClass(this, name, null);
-            classes.put(name, jclass);
-            new PhantomClassBuilder(typeSystem, name).build(jclass);
-            // Here is the only point where hierarchy could be concurrently added
-            // if there is no mutex.
-            hierarchy.addClass(jclass);
-        }
-        return jclass;
-    }
-
-    public void setClasses(Map<String, JClass> classes) {
-        this.classes = classes;
+        return classes.get(name);
     }
 
     @Override

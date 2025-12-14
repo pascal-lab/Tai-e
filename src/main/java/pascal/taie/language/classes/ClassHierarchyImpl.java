@@ -26,20 +26,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.HybridBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Triple;
 import pascal.taie.util.collection.TwoKeyMap;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,6 +89,15 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Cache results of {@link #getAllSubclassesOf(JClass)}.
      */
     private final Map<JClass, Set<JClass>> allSubclasses = Maps.newConcurrentMap();
+
+    public ClassHierarchyImpl() {
+    }
+
+    public ClassHierarchyImpl(JClassLoader defaultLoader) {
+        setDefaultClassLoader(defaultLoader);
+        setBootstrapClassLoader(defaultLoader);
+        defaultLoader.getLoadedClasses().forEach(this::addClass);
+    }
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
