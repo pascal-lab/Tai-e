@@ -70,7 +70,8 @@ public class JField extends ClassMember {
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
                   Type type, @Nullable ReferenceTypeGSignature gSignature,
-                  AnnotationHolder annotationHolder, Literal constantValue) {
+                  AnnotationHolder annotationHolder,
+                  @Nullable Literal constantValue) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.type = type;
         this.gSignature = gSignature;
@@ -106,6 +107,7 @@ public class JField extends ClassMember {
      * See <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2">JVM Spec 4.7.2</a>
      * @return constant value for static final fields, can be a primitive type or string value
      */
+    @Nullable
     public Literal getConstantValue() {
         return constantValue;
     }

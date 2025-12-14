@@ -68,87 +68,16 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
-import pascal.taie.language.annotation.ArrayElement;
-import pascal.taie.language.annotation.BooleanElement;
-import pascal.taie.language.annotation.ClassElement;
-import pascal.taie.language.annotation.DoubleElement;
-import pascal.taie.language.annotation.Element;
-import pascal.taie.language.annotation.FloatElement;
-import pascal.taie.language.annotation.IntElement;
-import pascal.taie.language.annotation.LongElement;
-import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.util.collection.Pair;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Utility functions for frontend.
  */
 public class Utils {
-
-    public static String getBinaryName(String internalName) {
-        return Type.getObjectType(internalName).getClassName();
-    }
-
-    /**
-     * Convert object to tai-e Annotation rep.
-     * @param ele object, should be boxed primitive type OR string OR array OR asm type
-     */
-    public static Element toElement(Object ele) {
-        if (ele instanceof Boolean b) {
-            return new BooleanElement(b);
-        } else if (ele instanceof Character c) {
-            return new IntElement(c);
-        } else if (ele instanceof Short s) {
-            return new IntElement(s);
-        } else if (ele instanceof Integer i) {
-            return new IntElement(i);
-        } else if (ele instanceof Long l) {
-            return new LongElement(l);
-        } else if (ele instanceof Float f) {
-            return new FloatElement(f);
-        } else if (ele instanceof Double d) {
-            return new DoubleElement(d);
-        } else if (ele instanceof String s) {
-            return new StringElement(s);
-        } else if (ele.getClass().isArray()) {
-            List<Element> elements = new ArrayList<>();
-            for (int i = 0; i < Array.getLength(ele); ++i) {
-                elements.add(toElement(Array.get(ele, i)));
-            }
-            return new ArrayElement(elements);
-        } else if (ele instanceof Type c) {
-            return toClassElement(c);
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private static Element toClassElement(Type c) {
-        if (c.getDescriptor().equals("V")) {
-            // This is due to the abuse of notations in the classfile format.
-            // According to the JVM specification section 4.3, "V" is an invalid descriptor.
-            // You cannot define a value with type void; void can only be used as the return type in method descriptors.
-            // However, in the "class_info_index" defined in JVM spec 4.7.16, "V" is permitted.
-            // For example:
-            //     @MyAnnotation(type = void.class)
-            // This will be compiled to:
-            //    RuntimeVisibleAnnotations:
-            //        MyAnnotation(
-            //          type=class V
-            //        )
-            // Therefore, we need to handle this case specially, as "V" is not a valid descriptor
-            // and cannot be passed to StringReps#toTaieTypeDesc.
-            return new ClassElement("void");
-        } else {
-            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
-        }
-    }
 
     /**
      * Check if an asm instruction indices the control flow edge

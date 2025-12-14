@@ -47,6 +47,7 @@ public class Modifiers {
     private static final List<Modifier> CLASS_MODIFIERS = List.of(
             Modifier.PUBLIC, Modifier.FINAL, Modifier.INTERFACE, Modifier.ABSTRACT,
             Modifier.SYNTHETIC, Modifier.ANNOTATION, Modifier.ENUM);
+
     private static final int[] CLASS_ASM_MODIFIERS =
             CLASS_MODIFIERS.stream().mapToInt(Modifiers::toAsm).toArray();
 

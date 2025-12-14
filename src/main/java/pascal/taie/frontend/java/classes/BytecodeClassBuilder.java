@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.classes;
 
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -31,12 +30,20 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.BooleanElement;
+import pascal.taie.language.annotation.ClassElement;
+import pascal.taie.language.annotation.DoubleElement;
 import pascal.taie.language.annotation.Element;
 import pascal.taie.language.annotation.EnumElement;
+import pascal.taie.language.annotation.FloatElement;
+import pascal.taie.language.annotation.IntElement;
+import pascal.taie.language.annotation.LongElement;
+import pascal.taie.language.annotation.StringElement;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JClassLoader;
@@ -54,6 +61,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,9 +70,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import static pascal.taie.frontend.java.Utils.getBinaryName;
-import static pascal.taie.frontend.java.Utils.toElement;
 
 public class BytecodeClassBuilder implements JClassBuilder {
 
@@ -93,11 +98,12 @@ public class BytecodeClassBuilder implements JClassBuilder {
      */
     private final List<Annotation> annotations;
 
-    private ClassGSignature klassGSig;
+    private ClassGSignature classGSig;
 
-    private final int version;
-
-    public BytecodeClassBuilder(FrontendTypeSystem typeSystem, JClassLoader loader, AsmClassSource source, JClass jClass) {
+    public BytecodeClassBuilder(FrontendTypeSystem typeSystem,
+                                JClassLoader loader,
+                                AsmClassSource source,
+                                JClass jClass) {
         this.typeSystem = typeSystem;
         this.loader = loader;
         this.source = source;
@@ -105,15 +111,15 @@ public class BytecodeClassBuilder implements JClassBuilder {
         this.fields = new ArrayList<>();
         this.methods = new ArrayList<>();
         this.annotations = new ArrayList<>();
-        this.version = source.version();
     }
 
     @Override
     public void build(JClass jclass) {
-        buildAll();
+        readClassInfo();
         if (jclass != this.jClass) {
             throw new IllegalArgumentException();
         }
+        // inject class information to JClass
         jclass.build(this);
     }
 
@@ -171,131 +177,153 @@ public class BytecodeClassBuilder implements JClassBuilder {
     @Override
     public ClassGSignature getGSignature() {
         // TODO: implement this
-        return klassGSig;
+        return classGSig;
     }
 
-    private void buildAll() {
-        CVisitor visitor = new CVisitor();
-        source.reader().accept(visitor, ClassReader.SKIP_CODE);
+    private void readClassInfo() {
+        source.reader().accept(new ClassInfoVisitor(), ClassReader.SKIP_CODE);
     }
 
-    private String getSimpleName(String binaryName) {
-        int lastIndex = binaryName.lastIndexOf(".");
-        if (lastIndex == -1) {
-            return binaryName;
-        }
-        return binaryName.substring(lastIndex + 1);
+    private JClass getClassByInternalName(String internalName) {
+        // convert internal name to class name
+        String className = org.objectweb.asm.Type.getObjectType(internalName)
+                .getClassName();
+        // retrieve the class
+        return loader.loadClass(className);
     }
 
-    private JClass getClassByName(String internalName) {
-        return loader.loadClass(getBinaryName(internalName));
-    }
+    /**
+     * Visitor for parsing class-level information.
+     * <p>
+     * Handles: superclass, interfaces, modifiers, generic signature,
+     * outer class (for inner classes), and class annotations.
+     */
+    private class ClassInfoVisitor extends ClassVisitor {
 
-    class CVisitor extends ClassVisitor {
+        /**
+         * The internal name of the class being visited.
+         * Used to match inner class entries.
+         */
+        private String internalName;
 
-        String currentInternalName;
-
-        public CVisitor() {
+        private ClassInfoVisitor() {
             super(Opcodes.ASM9);
         }
 
         @Override
-        public void visit(
-                int version,
-                int access,
-                String name,
-                String signature,
-                String superName,
-                String[] interfaces) {
+        public void visit(int version, int access, String name, String signature,
+                          String superName, String[] interfaces) {
             if (superName != null) {
-                superClass = getClassByName(superName);
+                superClass = getClassByInternalName(superName);
             }
-            currentInternalName = name;
+            internalName = name;
             BytecodeClassBuilder.this.interfaces = Arrays.stream(interfaces)
-                    .map(BytecodeClassBuilder.this::getClassByName)
+                    .map(BytecodeClassBuilder.this::getClassByInternalName)
                     .toList();
-
             modifiers = Modifiers.fromAsmClass(access);
             if (signature != null) {
-                klassGSig = GSignatures.toClassSig(modifiers.contains(Modifier.INTERFACE), signature);
+                classGSig = GSignatures.toClassSig(modifiers.contains(Modifier.INTERFACE), signature);
             }
         }
 
         @Override
         public void visitOuterClass(String owner, String name, String descriptor) {
-            BytecodeClassBuilder.this.outerClass = getClassByName(owner);
+            BytecodeClassBuilder.this.outerClass = getClassByInternalName(owner);
         }
 
+        /**
+         * Visits the InnerClasses attribute entry for inner/nested classes.
+         * <p>
+         * This method is called for each inner class entry in the class file's
+         * InnerClasses attribute. We use it to:
+         * <ul>
+         *     <li>Identify the outer class of the current class (if it is an inner class)</li>
+         *     <li>Retrieve the true access modifiers (e.g., private, static) which are
+         *         only available here, not in {@link #visit}</li>
+         * </ul>
+         */
         @Override
         public void visitInnerClass(String name, String outerName, String innerName, int access) {
-            if (outerName != null && Objects.equals(name, currentInternalName)) {
-                outerClass = getClassByName(outerName);
-                // also, fix modifiers
+            if (outerName != null && Objects.equals(name, internalName)) {
+                outerClass = getClassByInternalName(outerName);
+                // The access flags from visit() are incomplete for inner classes;
+                // the true modifiers (private, protected, static) come from here
                 modifiers.addAll(Modifiers.fromAsmClass(access));
             }
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-            return new AnnoVisitor(descriptor, annotations::add);
+            return new AnnotationInfoVisitor(descriptor, annotations::add);
         }
 
         @Override
-        public void visitAttribute(Attribute attribute) {
-            // TODO: check what attribute is needed.
+        public FieldVisitor visitField(int access, String name, String descriptor,
+                                       String signature, Object value) {
+            return new FieldInfoVisitor(access, name, descriptor, signature, value);
         }
 
         @Override
-        public FieldVisitor visitField(
-                int access,
-                String name,
-                String descriptor,
-                String signature,
-                Object value) {
-            Type type = typeSystem.fromAsmTypeDesc(descriptor);
-            ReferenceTypeGSignature gSignature;
-            if (signature != null) {
-                gSignature = GSignatures.toTypeSig(signature);
-            } else {
-                gSignature = null;
-            }
-            return new FVisitor(annotations -> fields.add(
-                    new JField(jClass, name, Modifiers.fromAsmField(access), type, gSignature,
-                            AnnotationHolder.make(annotations),
-                            value == null ? null : Utils.fromObject(typeSystem, value))));
+        public MethodVisitor visitMethod(int access, String name, String descriptor,
+                                         String signature, String[] exceptions) {
+            return new MethodInfoVisitor(access, name, descriptor, signature, exceptions);
         }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            return new MVisitor(access, name, descriptor, exceptions,
-                    signature == null ? null : GSignatures.toMethodSig(signature));
-        }
-
     }
 
-    class FVisitor extends FieldVisitor {
-        private final List<Annotation> annotations;
+    /**
+     * Visitor for parsing field declarations.
+     * <p>
+     * Collects field modifiers, type, annotations, generic signature,
+     * and constant value. Creates {@link JField} when visiting is complete.
+     */
+    private class FieldInfoVisitor extends FieldVisitor {
 
-        private final Consumer<List<Annotation>> consumer;
+        private final Set<Modifier> modifiers;
 
-        protected FVisitor(Consumer<List<Annotation>> consumer) {
+        private final String fieldName;
+
+        private final Type type;
+
+        @Nullable
+        private final ReferenceTypeGSignature gSignature;
+
+        @Nullable
+        private final Literal constantValue;
+
+        private final List<Annotation> annotations = new ArrayList<>();
+
+        private FieldInfoVisitor(int access, String name, String descriptor,
+                                 String signature, Object value) {
             super(Opcodes.ASM9);
-            this.consumer = consumer;
-            this.annotations = new ArrayList<>();
+            this.modifiers = Modifiers.fromAsmField(access);
+            this.fieldName = name;
+            this.type = typeSystem.fromAsmTypeDesc(descriptor);
+            this.gSignature = (signature == null)
+                    ? null : GSignatures.toTypeSig(signature);
+            this.constantValue = (value == null)
+                    ? null : Utils.fromObject(typeSystem, value);
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-            return new AnnoVisitor(descriptor, annotations::add);
+            return new AnnotationInfoVisitor(descriptor, annotations::add);
         }
 
         @Override
         public void visitEnd() {
-            consumer.accept(annotations);
+            JField field = new JField(jClass, fieldName, modifiers, type,
+                    gSignature, AnnotationHolder.make(annotations), constantValue);
+            BytecodeClassBuilder.this.fields.add(field);
         }
     }
 
-    class MVisitor extends MethodVisitor {
+    /**
+     * Visitor for parsing method declarations.
+     * <p>
+     * Collects method signature, modifiers, annotations, parameter names,
+     * and exception types. Method body is not parsed here (SKIP_CODE is used).
+     */
+    private class MethodInfoVisitor extends MethodVisitor {
 
         private final Set<Modifier> modifiers;
 
@@ -307,91 +335,110 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         private final Type retType;
 
-        private final List<Annotation> annotations;
-
-        private Map<Integer, List<Annotation>> paramAnnotations;
-
-        @Nullable
-        private List<String> paramName;
-
         private final MethodGSignature gSignature;
 
-        public MVisitor(int access, String name, String descriptor, String[] exceptions, MethodGSignature sig) {
+        private final List<Annotation> annotations = new ArrayList<>();
+
+        @Nullable
+        private List<String> paramNames;
+
+        private final Map<Integer, List<Annotation>> paramAnnotations = Maps.newSmallMap();
+
+        private MethodInfoVisitor(int access, String name, String descriptor,
+                          String signature, String[] exceptions) {
             super(Opcodes.ASM9);
             this.modifiers = Modifiers.fromAsmMethod(access);
             this.methodName = name;
-            this.exceptions = new ArrayList<>();
-            if (exceptions != null) {
-                for (String exception : exceptions) {
-                    this.exceptions.add((ClassType) typeSystem.fromAsmInternalName(exception));
-                }
-            }
             Pair<List<Type>, Type> mtdType = typeSystem.fromAsmMethodDesc(descriptor);
             this.retType = mtdType.second();
             this.paramTypes = mtdType.first();
-            this.annotations = new ArrayList<>();
-            this.paramAnnotations = Maps.newMap();
-            this.gSignature = sig;
+            this.gSignature = (signature == null)
+                    ? null : GSignatures.toMethodSig(signature);
+            this.exceptions = readExceptions(exceptions);
+        }
+
+        private List<ClassType> readExceptions(String[] exceptions) {
+            if (exceptions == null) {
+                return List.of();
+            }
+            List<ClassType> result = new ArrayList<>(exceptions.length);
+            for (String exception : exceptions) {
+                result.add((ClassType) typeSystem.fromAsmInternalName(exception));
+            }
+            return result;
         }
 
         @Override
         public void visitParameter(String name, int access) {
-            super.visitParameter(name, access);
-            if (paramName == null) {
-                paramName = new ArrayList<>();
+            if (paramNames == null) {
+                paramNames = new ArrayList<>();
             }
-            paramName.add(name);
+            paramNames.add(name);
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-            return new AnnoVisitor(descriptor, annotations::add);
+            return new AnnotationInfoVisitor(descriptor, annotations::add);
         }
 
         @Override
-        public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
-            // Note: this handle may cause problem for <init>()
+        public AnnotationVisitor visitParameterAnnotation(
+                int parameter, String descriptor, boolean visible) {
+            // NOTE: this handle may cause problem for <init>()
             // of inner class (check doc of this function)
-            // TODO: fix this
-            return new AnnoVisitor(descriptor, paramAnnotations
-                    .computeIfAbsent(parameter, i -> new ArrayList<>())::add);
+            // TODO: fix this, and uncomment visitEnd()
+            List<Annotation> annos = paramAnnotations
+                    .computeIfAbsent(parameter, __ -> new ArrayList<>());
+            return new AnnotationInfoVisitor(descriptor, annos::add);
         }
 
         @Override
         public void visitEnd() {
-            super.visitEnd();
-//            List<AnnotationHolder> l = new ArrayList<>();
-//            for (int i = 0; i < paramTypes.size(); ++i) {
-//                List<Annotation> annotations1 = paramAnnotations;
-//                AnnotationHolder h = annotations1 == null ?
-//                        null : AnnotationHolder.make(annotations1);
-//                l.add(h);
+            List<AnnotationHolder> paramAnnos = null;
+//            if (!paramAnnotations.isEmpty()) {
+                // convert parameter annotation map to list
+//                paramAnnos = new ArrayList<>();
+//                for (int i = 0; i < paramTypes.size(); ++i) {
+//                    List<Annotation> annos = paramAnnotations.get(i);
+//                    AnnotationHolder holder = (annos == null) ?
+//                            null : AnnotationHolder.make(annos);
+//                    paramAnnos.add(holder);
+//                }
 //            }
-            JMethod method = new JMethod(jClass, methodName, modifiers, paramTypes,
-                    retType, exceptions, gSignature,
-                    AnnotationHolder.make(annotations), null,
-                    paramName,
-                    null);
+            JMethod method = new JMethod(jClass, methodName, modifiers,
+                    paramTypes, retType, exceptions, gSignature,
+                    AnnotationHolder.make(annotations), paramAnnos,
+                    paramNames, null);
             BytecodeClassBuilder.this.methods.add(method);
         }
     }
 
     /**
-     * Annotation visitor to build annotations
+     * Visitor for parsing annotation declarations.
+     * <p>
+     * Collects annotation elements (name-value pairs) and builds an
+     * {@link Annotation} object when visiting is complete.
+     * <p>
+     * Annotation elements can be:
+     * <ul>
+     *   <li>Primitives, String, Class - handled by {@link #visit}</li>
+     *   <li>Enum constants - handled by {@link #visitEnum}</li>
+     *   <li>Nested annotations - handled by {@link #visitAnnotation}</li>
+     *   <li>Arrays - handled by {@link #visitArray}</li>
+     * </ul>
      */
-    class AnnoVisitor extends AnnotationVisitor {
+    private static class AnnotationInfoVisitor extends AnnotationVisitor {
 
         private final String type;
 
-        private final Map<String, Element> pairs;
+        private final Map<String, Element> elements = Maps.newHybridMap();
 
-        private final Consumer<Annotation> consumer;
+        private final Consumer<Annotation> onComplete;
 
-        public AnnoVisitor(String descriptor, Consumer<Annotation> consumer) {
+        private AnnotationInfoVisitor(String descriptor, Consumer<Annotation> onComplete) {
             super(Opcodes.ASM9);
             this.type = StringReps.toTaieTypeDesc(descriptor);
-            this.pairs = Maps.newHybridMap();
-            this.consumer = consumer;
+            this.onComplete = onComplete;
         }
 
         /**
@@ -399,18 +446,19 @@ public class BytecodeClassBuilder implements JClassBuilder {
          */
         @Override
         public void visit(String name, Object value) {
-            pairs.put(name, toElement(value));
+            elements.put(name, toElement(value));
         }
 
         @Override
         public void visitEnum(String name, String descriptor, String value) {
-            pairs.put(name, new EnumElement(StringReps.toTaieTypeDesc(descriptor), value));
+            String enumType = StringReps.toTaieTypeDesc(descriptor);
+            elements.put(name, new EnumElement(enumType, value));
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String descriptor) {
-            return new AnnoVisitor(descriptor,
-                    i -> pairs.put(name, new AnnotationElement(i)));
+            return new AnnotationInfoVisitor(descriptor,
+                    anno -> elements.put(name, new AnnotationElement(anno)));
         }
 
         /**
@@ -418,51 +466,114 @@ public class BytecodeClassBuilder implements JClassBuilder {
          */
         @Override
         public AnnotationVisitor visitArray(String name) {
-            return new AnnoArrayVisitor(i ->
-                    pairs.put(name, new ArrayElement(i)));
+            return new AnnotationArrayVisitor(
+                    elems -> elements.put(name, new ArrayElement(elems)));
         }
 
         @Override
         public void visitEnd() {
-            consumer.accept(new Annotation(type, pairs));
-            super.visitEnd();
+            onComplete.accept(new Annotation(type, elements));
         }
     }
 
-    class AnnoArrayVisitor extends AnnotationVisitor {
-        private final List<Element> collector;
+    /**
+     * Visitor for parsing annotation array elements.
+     * <p>
+     * Used when an annotation element is an array of non-primitive values
+     * (e.g., array of enums, Class objects, or nested annotations).
+     * Primitive arrays are handled directly by {@link AnnotationInfoVisitor#visit}.
+     */
+    private static class AnnotationArrayVisitor extends AnnotationVisitor {
 
-        private final Consumer<List<Element>> consumer;
+        private final List<Element> elements = new ArrayList<>();
 
-        public AnnoArrayVisitor(Consumer<List<Element>> consumer) {
+        private final Consumer<List<Element>> onComplete;
+
+        private AnnotationArrayVisitor(Consumer<List<Element>> onComplete) {
             super(Opcodes.ASM9);
-            this.collector = new ArrayList<>();
-            this.consumer = consumer;
+            this.onComplete = onComplete;
         }
 
-
+        /**
+         * Visits a primitive, String, or Class array element.
+         */
         @Override
         public void visit(String name, Object value) {
-            collector.add(toElement(value));
+            elements.add(toElement(value));
         }
 
         @Override
         public void visitEnum(String name, String descriptor, String value) {
-            collector.add(new EnumElement(StringReps.toTaieTypeDesc(descriptor), value));
+            String enumType = StringReps.toTaieTypeDesc(descriptor);
+            elements.add(new EnumElement(enumType, value));
         }
 
         @Override
         public AnnotationVisitor visitAnnotation(String name, String descriptor) {
-            return new AnnoVisitor(descriptor, this::add);
+            return new AnnotationInfoVisitor(descriptor,
+                    anno -> elements.add(new AnnotationElement(anno)));
         }
 
         @Override
         public void visitEnd() {
-            consumer.accept(collector);
+            onComplete.accept(elements);
         }
+    }
 
-        private void add(Annotation a) {
-            collector.add(new AnnotationElement(a));
+    /**
+     * Convert object to tai-e Annotation representation.
+     * @param o object, should be boxed primitive type OR string OR array OR ASM type
+     */
+    private static Element toElement(Object o) {
+        if (o instanceof Boolean b) {
+            return new BooleanElement(b);
+        } else if (o instanceof Character c) {
+            return new IntElement(c);
+        } else if (o instanceof Short s) {
+            return new IntElement(s);
+        } else if (o instanceof Integer i) {
+            return new IntElement(i);
+        } else if (o instanceof Long l) {
+            return new LongElement(l);
+        } else if (o instanceof Float f) {
+            return new FloatElement(f);
+        } else if (o instanceof Double d) {
+            return new DoubleElement(d);
+        } else if (o instanceof String s) {
+            return new StringElement(s);
+        } else if (o.getClass().isArray()) {
+            List<Element> elements = new ArrayList<>();
+            for (int i = 0; i < Array.getLength(o); ++i) {
+                elements.add(toElement(Array.get(o, i)));
+            }
+            return new ArrayElement(elements);
+        } else if (o instanceof org.objectweb.asm.Type c) {
+            return toClassElement(c);
+        } else {
+            throw new IllegalArgumentException(
+                    o + " is not a valid annotation element");
+        }
+    }
+
+    private static Element toClassElement(org.objectweb.asm.Type c) {
+        if (c.getDescriptor().equals("V")) {
+            // This is due to the abuse of notations in the classfile format.
+            // According to JVM Spec. 4.3, "V" is an invalid descriptor.
+            // You cannot define a value with type void; void can only be used
+            // as the return type in method descriptors.
+            // However, in the "class_info_index" defined in JVM Spec. 4.7.16, "V" is permitted.
+            // For example:
+            //     @MyAnnotation(type = void.class)
+            // This will be compiled to:
+            //    RuntimeVisibleAnnotations:
+            //        MyAnnotation(
+            //          type=class V
+            //        )
+            // Therefore, we need to handle this case specially, as "V" is not
+            // a valid descriptor and cannot be passed to StringReps#toTaieTypeDesc.
+            return new ClassElement("void");
+        } else {
+            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
         }
     }
 }
