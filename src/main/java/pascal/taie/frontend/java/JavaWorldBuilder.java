@@ -39,7 +39,6 @@ import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
-import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.project.OptionsProjectBuilder;
@@ -87,8 +86,16 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // build classes
         closedWorld.parallelStream().forEach(source -> {
-            JClass jclass = loader.loadClass(source.getClassName());
-            getClassBuilder(typeSystem, loader, source, jclass).build(jclass);
+            JClass jclass = loader.loadClass(source.className());
+            JClassBuilder builder;
+            if (source instanceof AsmClassSource asmSource) {
+                builder = new BytecodeClassBuilder(typeSystem, loader, asmSource, jclass);
+            } else if (source instanceof PhantomClassSource pSource) {
+                builder = new PhantomClassBuilder(typeSystem, pSource);
+            } else {
+                throw new UnsupportedOperationException();
+            }
+            builder.build(jclass);
             if (source instanceof AsmClassSource asmSource) {
                 irBuilder.putClassSource(jclass, asmSource);
             }
@@ -135,18 +142,6 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);
-        }
-    }
-
-    private static JClassBuilder getClassBuilder(
-            FrontendTypeSystem typeSystem, JClassLoader loader,
-            ClassSource source, JClass jClass) {
-        if (source instanceof AsmClassSource asmSource) {
-            return new BytecodeClassBuilder(typeSystem, loader, asmSource, jClass);
-        } else if (source instanceof PhantomClassSource pSource) {
-            return new PhantomClassBuilder(typeSystem, pSource.getClassName());
-        } else {
-            throw new UnsupportedOperationException();
         }
     }
 }

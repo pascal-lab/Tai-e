@@ -47,7 +47,7 @@ public class DefaultClassLoader implements JClassLoader {
     public DefaultClassLoader(Collection<ClassSource> classSources) {
         this.classes = Maps.newMap();
         classSources.forEach(source -> {
-            String name = source.getClassName();
+            String name = source.className();
             classes.put(name, new JClass(this, name));
         });
     }

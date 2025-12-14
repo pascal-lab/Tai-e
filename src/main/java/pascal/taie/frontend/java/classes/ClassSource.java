@@ -23,11 +23,11 @@
 package pascal.taie.frontend.java.classes;
 
 /**
- * Represents the origin of a Java class, which comes from a Java class file.
+ * Represents the origin of a Java class.
  */
-public interface ClassSource {
+public sealed interface ClassSource permits AsmClassSource, PhantomClassSource {
 
-    String getClassName();
+    String className();
 
     boolean isApp();
 }

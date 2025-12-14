@@ -130,7 +130,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
     @Override
     public ClassType getClassType() {
-        return typeSystem.getClassType(source.getClassName());
+        return typeSystem.getClassType(source.className());
     }
 
     @Override

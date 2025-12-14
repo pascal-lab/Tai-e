@@ -158,7 +158,7 @@ public class ClosedWorldBuilder {
                                  Set<String> founded, Queue<String> workList) {
         if (result != null) {
             for (ClassSource resolved : result.resolvedSource()) {
-                founded.add(resolved.getClassName());
+                founded.add(resolved.className());
             }
             workList.addAll(result.dependencies());
         }
@@ -190,7 +190,7 @@ public class ClosedWorldBuilder {
 
     private void addClassSource(ResolveResult result) {
         for (ClassSource source : result.resolvedSource()) {
-            sourceMap.put(source.getClassName(), source);
+            sourceMap.put(source.className(), source);
         }
     }
 }

@@ -54,7 +54,10 @@ class DependencyResolver {
 
     static ResolveResult resolvePhantom(String className) {
         return new ResolveResult(List.of(),
-                List.of(new PhantomClassSource(className, false)));
+                // by default, we consider phantom classes as app classes
+                // TODO: consider a better way to decide if a phantom class
+                //  is app class or lib class
+                List.of(new PhantomClassSource(className, true)));
     }
 
     private static ResolveResult resolveWithJavac(Project project, DotJavaFile dotJavaFile)

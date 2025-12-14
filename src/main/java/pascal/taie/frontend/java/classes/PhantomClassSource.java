@@ -24,9 +24,4 @@ package pascal.taie.frontend.java.classes;
 
 public record PhantomClassSource(String className, boolean isApp)
         implements ClassSource {
-
-    @Override
-    public String getClassName() {
-        return className;
-    }
 }

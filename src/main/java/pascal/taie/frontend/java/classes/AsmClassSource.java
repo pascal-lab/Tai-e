@@ -35,7 +35,7 @@ public record AsmClassSource(
 ) implements ClassSource {
 
     @Override
-    public String getClassName() {
+    public String className() {
         return Type.getObjectType(reader.getClassName()).getClassName();
     }
 }

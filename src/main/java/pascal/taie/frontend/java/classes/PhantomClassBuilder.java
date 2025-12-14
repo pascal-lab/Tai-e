@@ -45,9 +45,12 @@ public class PhantomClassBuilder implements JClassBuilder {
 
     private final String name;
 
-    public PhantomClassBuilder(TypeSystem typeSystem, String name) {
+    private final boolean isApp;
+
+    public PhantomClassBuilder(TypeSystem typeSystem, PhantomClassSource source) {
         this.typeSystem = typeSystem;
-        this.name = name;
+        this.name = source.className();
+        this.isApp = source.isApp();
     }
 
     @Override
@@ -104,8 +107,7 @@ public class PhantomClassBuilder implements JClassBuilder {
 
     @Override
     public boolean isApplication() {
-        // TODO
-        return true; // Temporarily, true for safety
+        return isApp;
     }
 
     @Override
@@ -116,7 +118,7 @@ public class PhantomClassBuilder implements JClassBuilder {
     @Nullable
     @Override
     public ClassGSignature getGSignature() {
-        // for phantom class, no generic signature should be provided.
+        // for phantom class, generic signature is unavailable.
         return null;
     }
 }
