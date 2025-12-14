@@ -64,9 +64,9 @@ public class JClass extends AbstractResultHolder
 
     private final String name;
 
-    private final String moduleName;
+    private final String simpleName;
 
-    private String simpleName;
+    private final String moduleName;
 
     private ClassType type;
 
@@ -110,15 +110,23 @@ public class JClass extends AbstractResultHolder
     public JClass(JClassLoader loader, String name, String moduleName) {
         this.loader = loader;
         this.name = name;
+        this.simpleName = toSimpleName(name);
         this.moduleName = moduleName;
     }
 
+    private static String toSimpleName(String name) {
+        int lastIndex = name.lastIndexOf('.');
+        if (lastIndex == -1) {
+            return name;
+        } else {
+            return name.substring(lastIndex + 1);
+        }
+    }
 
     /**
      * This method should be called after creating this instance.
      */
     public void build(JClassBuilder builder) {
-        simpleName = builder.getSimpleName();
         type = builder.getClassType();
         gSignature = builder.getGSignature();
         modifiers = builder.getModifiers();
@@ -361,9 +369,6 @@ public class JClass extends AbstractResultHolder
     }
 
     /**
-     *
-     * @param fieldName
-     * @param fieldType
      * @return the phantom field. If not exist yet, create one atomically.
      */
     @Nullable
@@ -424,9 +429,7 @@ public class JClass extends AbstractResultHolder
     }
 
     /**
-     *
-     * @param subsignature
-     * @return the phantom method. If not exist yet, create one atomically.
+     * @return the phantom method by given subsignature. If not exist yet, create one atomically.
      */
     @Nullable
     public JMethod getPhantomMethod(Subsignature subsignature) {

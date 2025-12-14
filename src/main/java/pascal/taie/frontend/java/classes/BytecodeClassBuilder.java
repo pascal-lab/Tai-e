@@ -123,11 +123,6 @@ public class BytecodeClassBuilder implements JClassBuilder {
     }
 
     @Override
-    public String getSimpleName() {
-        return getSimpleName(source.getClassName());
-    }
-
-    @Override
     public ClassType getClassType() {
         return typeSystem.getClassType(source.getClassName());
     }

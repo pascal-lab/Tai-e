@@ -64,11 +64,6 @@ class SootClassBuilder implements JClassBuilder {
     }
 
     @Override
-    public String getSimpleName() {
-        return sootClass.getShortName();
-    }
-
-    @Override
     public ClassType getClassType() {
         return (ClassType) converter.convertType(sootClass.getType());
     }

@@ -63,16 +63,6 @@ public class PhantomClassBuilder implements JClassBuilder {
     }
 
     @Override
-    public String getSimpleName() {
-        int i = name.lastIndexOf('.');
-        if (i > 0) {
-            return name.substring(i + 1);
-        } else {
-            return name;
-        }
-    }
-
-    @Override
     public ClassType getClassType() {
         return typeSystem.getClassType(name);
     }
