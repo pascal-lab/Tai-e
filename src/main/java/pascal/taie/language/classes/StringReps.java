@@ -222,7 +222,6 @@ public final class StringReps {
         }
     }
 
-
     /**
      * @return {@code true} if the given string is a valid Java identifier.
      */

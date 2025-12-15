@@ -47,7 +47,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
 import pascal.taie.frontend.java.IBasicBlock;
 import pascal.taie.frontend.java.Utils;
-import pascal.taie.frontend.java.classes.AsmMethodSource;
 import pascal.taie.frontend.java.ssa.BCSSA;
 import pascal.taie.frontend.java.ssa.DUInfo;
 import pascal.taie.frontend.java.ssa.Dominator;
@@ -647,7 +646,6 @@ public class BytecodeIRBuilder {
             pushExp(node, stack, literal);
         }
     }
-
 
     private IR getIR() {
         Var thisVar = manager.getThisVar();

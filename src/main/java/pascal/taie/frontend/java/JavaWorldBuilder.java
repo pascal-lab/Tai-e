@@ -34,11 +34,15 @@ import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.classes.PhantomClassBuilder;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
+import pascal.taie.frontend.java.tac.DefaultIRBuilder;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
+import pascal.taie.ir.IRBuilder;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
 import pascal.taie.language.classes.ClassSource;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
+import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.project.OptionsProjectBuilder;
@@ -79,7 +83,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // ============ Build frontend components ============
         // create two most basic classes in frontend: class loader and type system
-        DefaultClassLoader loader = new DefaultClassLoader(closedWorld);
+        JClassLoader loader = new DefaultClassLoader(closedWorld);
         FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
         // build classes
         closedWorld.parallelStream().forEach(source -> {
@@ -95,7 +99,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
             builder.build(jclass);
         });
         // create class hierarchy
-        ClassHierarchyImpl hierarchy = new ClassHierarchyImpl(loader);
+        ClassHierarchy hierarchy = new ClassHierarchyImpl(loader);
 
         // ============ End of building frontend components ============
 
@@ -133,7 +137,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
+        IRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);

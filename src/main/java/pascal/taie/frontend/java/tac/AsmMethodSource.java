@@ -20,12 +20,12 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.classes;
+package pascal.taie.frontend.java.tac;
 
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 
 /**
  * Represents the origin of a Java method, which comes from a java class file.
  */
-public record AsmMethodSource(JSRInlinerAdapter adapter, int classFileVersion) {
+record AsmMethodSource(JSRInlinerAdapter adapter, int classFileVersion) {
 }

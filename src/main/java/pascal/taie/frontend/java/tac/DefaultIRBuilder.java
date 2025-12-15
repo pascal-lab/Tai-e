@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.tac;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -28,8 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import pascal.taie.frontend.java.classes.AsmClassSource;
-import pascal.taie.frontend.java.classes.AsmMethodSource;
-import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -48,9 +46,9 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * This class implements the IRBuilder interface and is responsible for
  * building Intermediate Representations (IR) for Java methods.
- * It supports building IR for JVM Bytecode ({@link AsmMethodSource}) method sources.
+ * It supports building IR for JVM bytecode in ({@link AsmMethodSource}).
  */
-class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
+public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
 
     private final FrontendTypeSystem typeSystem;
 
@@ -67,7 +65,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source
             = Maps.newConcurrentMap(1024);
 
-    DefaultIRBuilder(FrontendTypeSystem typeSystem) {
+    public DefaultIRBuilder(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
