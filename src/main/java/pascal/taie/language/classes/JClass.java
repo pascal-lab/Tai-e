@@ -92,26 +92,39 @@ public class JClass extends AbstractResultHolder
 
     private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
 
-    private final Map<Subsignature, JMethod> phantomMethods = Maps.newConcurrentMap();
-
     private final ReentrantReadWriteLock phantomFieldsLock = new ReentrantReadWriteLock();
+
+    private final Map<Subsignature, JMethod> phantomMethods = Maps.newConcurrentMap();
 
     /**
      * If this class is application class.
      */
     private boolean isApplication;
 
+    /**
+     * The source (origin) of content of this class. Set during construction
+     * and can be released via {@link #releaseClassSource()} to save memory.
+     */
+    @Nullable
+    private ClassSource classSource;
+
     private int index = -1;
 
-    public JClass(JClassLoader loader, String name) {
-        this(loader, name, null);
+    public JClass(JClassLoader loader, String name, @Nullable ClassSource classSource) {
+        this(loader, name, null, classSource);
     }
 
-    public JClass(JClassLoader loader, String name, String moduleName) {
+    public JClass(JClassLoader loader, String name, @Nullable String moduleName) {
+        this(loader, name, moduleName, null);
+    }
+
+    private JClass(JClassLoader loader, String name, @Nullable String moduleName,
+                  @Nullable ClassSource classSource) {
         this.loader = loader;
         this.name = name;
         this.simpleName = toSimpleName(name);
         this.moduleName = moduleName;
+        this.classSource = classSource;
     }
 
     private static String toSimpleName(String name) {
@@ -393,10 +406,7 @@ public class JClass extends AbstractResultHolder
                     return field;
                 }
             }
-
-            Set<Modifier> modifiers = isStatic ?
-                    Set.of(Modifier.STATIC) :
-                    Set.of();
+            Set<Modifier> modifiers = isStatic ? Set.of(Modifier.STATIC) : Set.of();
             JField field = new JField(this, name, modifiers,
                     type, null, AnnotationHolder.emptyHolder(), null);
             phantomFields.put(fieldName, field);
@@ -404,6 +414,21 @@ public class JClass extends AbstractResultHolder
         } finally {
             phantomFieldsLock.writeLock().unlock();
         }
+    }
+
+    /**
+     * @return the phantom method by given subsignature. If not exist yet, create one atomically.
+     */
+    @Nullable
+    public JMethod getPhantomMethod(Subsignature subsignature) {
+        assert isPhantom();
+        return phantomMethods.computeIfAbsent(subsignature, k -> {
+            Triple<String, List<Type>, Type> t = parseSubsignature(subsignature);
+            return new JMethod(this, t.first(), EnumSet.noneOf(Modifier.class),
+                    t.second(), t.third(), List.of(), null, AnnotationHolder.emptyHolder(),
+                    null, null, null
+            );
+        });
     }
 
     /**
@@ -428,21 +453,6 @@ public class JClass extends AbstractResultHolder
         return new Triple<>(name, parameterTypes, returnType);
     }
 
-    /**
-     * @return the phantom method by given subsignature. If not exist yet, create one atomically.
-     */
-    @Nullable
-    public JMethod getPhantomMethod(Subsignature subsignature) {
-        assert isPhantom();
-        return phantomMethods.computeIfAbsent(subsignature, k -> {
-            Triple<String, List<Type>, Type> t = parseSubsignature(subsignature);
-            return new JMethod(this, t.first(), EnumSet.noneOf(Modifier.class),
-                    t.second(), t.third(), List.of(), null, AnnotationHolder.emptyHolder(),
-                    null, null, null
-            );
-        });
-    }
-
     public Collection<JMethod> getPhantomMethods() {
         return phantomMethods.values();
     }
@@ -456,6 +466,29 @@ public class JClass extends AbstractResultHolder
                     "index must be 0 or positive number, given: " + index);
         }
         this.index = index;
+    }
+
+    /**
+     * Gets the class source (origin) of this class.
+     *
+     * @return the ClassSource instance, or null for phantom classes
+     */
+    @Nullable
+    public ClassSource getClassSource() {
+        return classSource;
+    }
+
+    /**
+     * Releases the ClassSource to save memory.
+     *
+     * <p>ClassSource contains the bytecode ClassReader which may consume
+     * significant memory. This method should be called after IR building
+     * is complete to free up resources.
+     *
+     * <p>Note: This method is idempotent and safe to call multiple times.
+     */
+    public void releaseClassSource() {
+        this.classSource = null;
     }
 
     @Override

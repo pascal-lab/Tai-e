@@ -49,7 +49,7 @@ public class DefaultClassLoader implements JClassLoader {
         this.classes = Maps.newMap();
         classSources.forEach(source -> {
             String name = source.className();
-            classes.put(name, new JClass(this, name));
+            classes.put(name, new JClass(this, name, source));
         });
     }
 

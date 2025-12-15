@@ -81,9 +81,6 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         // create two most basic classes in frontend: class loader and type system
         DefaultClassLoader loader = new DefaultClassLoader(closedWorld);
         FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
-
-        DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
-
         // build classes
         closedWorld.parallelStream().forEach(source -> {
             JClass jclass = loader.loadClass(source.className());
@@ -96,9 +93,6 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
                 throw new UnsupportedOperationException();
             }
             builder.build(jclass);
-            if (source instanceof AsmClassSource asmSource) {
-                irBuilder.putClassSource(jclass, asmSource);
-            }
         });
         // create class hierarchy
         ClassHierarchyImpl hierarchy = new ClassHierarchyImpl(loader);
@@ -139,6 +133,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
+        DefaultIRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);
