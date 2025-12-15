@@ -22,7 +22,6 @@
 
 package pascal.taie.frontend.java.ir;
 
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArithmeticExp;

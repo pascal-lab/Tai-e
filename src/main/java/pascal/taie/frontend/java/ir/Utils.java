@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -32,6 +32,7 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.BinaryExp;
 import pascal.taie.ir.exp.CastExp;
@@ -76,12 +77,15 @@ import java.util.List;
 /**
  * Utility functions for frontend.
  */
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+    }
 
     /**
      * Check if an asm instruction indices the control flow edge
      */
-    public static boolean isCFEdge(AbstractInsnNode node) {
+    static boolean isCFEdge(AbstractInsnNode node) {
         return node instanceof JumpInsnNode ||
                 node instanceof TableSwitchInsnNode ||
                 node instanceof LookupSwitchInsnNode ||
@@ -90,7 +94,7 @@ public class Utils {
                 isThrow(node);
     }
 
-    public static boolean isVarStore(AbstractInsnNode node) {
+    static boolean isVarStore(AbstractInsnNode node) {
         if (node instanceof VarInsnNode varInsnNode) {
             int op = varInsnNode.getOpcode();
             return op == Opcodes.ISTORE ||
@@ -103,7 +107,7 @@ public class Utils {
         }
     }
 
-    public static boolean isReturn(AbstractInsnNode node) {
+    static boolean isReturn(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             int op = insnNode.getOpcode();
             return op == Opcodes.ARETURN ||
@@ -117,7 +121,7 @@ public class Utils {
         }
     }
 
-    public static boolean isThrow(AbstractInsnNode node) {
+    static boolean isThrow(AbstractInsnNode node) {
         if (node instanceof InsnNode insnNode) {
             return insnNode.getOpcode() == Opcodes.ATHROW;
         }
@@ -149,7 +153,7 @@ public class Utils {
         }
     }
 
-    public static MethodHandle fromAsmHandle(FrontendTypeSystem typeSystem, Handle handle) {
+    static MethodHandle fromAsmHandle(FrontendTypeSystem typeSystem, Handle handle) {
         MethodHandle.Kind kind = toMethodHandleKind(handle.getTag());
         MemberRef ref;
         JClass jClass = typeSystem.toJClass(handle.getOwner());
@@ -190,7 +194,7 @@ public class Utils {
         };
     }
 
-    public static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
+    static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
         if (left instanceof Var v) {
             if (e instanceof BinaryExp binaryExp) {
                 return new Binary(v, binaryExp);

@@ -46,7 +46,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.ir.ssa.BCSSA;
 import pascal.taie.frontend.java.ir.ssa.DUInfo;
 import pascal.taie.frontend.java.ir.ssa.Dominator;
@@ -138,8 +137,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 
-import static pascal.taie.frontend.java.Utils.isCFEdge;
-import static pascal.taie.frontend.java.Utils.isVarStore;
+import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
+import static pascal.taie.frontend.java.ir.Utils.isVarStore;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;

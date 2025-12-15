@@ -29,7 +29,6 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.Utils;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.IntLiteral;

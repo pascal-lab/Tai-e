@@ -29,7 +29,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.Utils;
+import pascal.taie.frontend.java.ir.Utils;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
