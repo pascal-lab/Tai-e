@@ -73,7 +73,6 @@ import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.FieldAccess;
-import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InstanceOfExp;
 import pascal.taie.ir.exp.IntLiteral;
@@ -137,6 +136,26 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isArithmeticInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isArrayLoadInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isArrayStoreInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isBinaryInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isBitwiseInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isComparisonInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isConstInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isInRange;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isNegInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isPrimCastInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isReturnInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isShiftInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.isStackInsn;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toArithmeticOp;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toBitwiseOp;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toCastType;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toCmpOp;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toCondOp;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toConstValue;
+import static pascal.taie.frontend.java.ir.OpcodeUtils.toShiftOp;
 import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 import static pascal.taie.frontend.java.ir.Utils.isVarStore;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
@@ -772,122 +791,10 @@ public class BytecodeIRBuilder {
         exceptionEntries = res;
     }
 
-    private boolean inRange(int opcode, int min, int max) {
-        return opcode >= min && opcode <= max;
-    }
-
-    private boolean isConstInsn(int opcode) {
-        return opcode == Opcodes.ACONST_NULL ||
-                inRange(opcode, Opcodes.ICONST_M1, Opcodes.ICONST_5) ||
-                inRange(opcode, Opcodes.FCONST_0, Opcodes.FCONST_2) ||
-                inRange(opcode, Opcodes.LCONST_0, Opcodes.LCONST_1) ||
-                inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1);
-    }
-
-    private boolean isAddInsn(int opcode) {
-        return inRange(opcode, Opcodes.IADD, Opcodes.DADD);
-    }
-    private boolean isSubInsn(int opcode) {
-        return inRange(opcode, Opcodes.ISUB, Opcodes.DSUB);
-    }
-    private boolean isMulInsn(int opcode) {
-        return inRange(opcode, Opcodes.IMUL, Opcodes.DMUL);
-    }
-    private boolean isDivInsn(int opcode) {
-        return inRange(opcode, Opcodes.IDIV, Opcodes.DDIV);
-    }
-    private boolean isRemInsn(int opcode) {
-        return inRange(opcode, Opcodes.IREM, Opcodes.DREM);
-    }
-    private boolean isNegInsn(int opcode) {
-        return inRange(opcode, Opcodes.INEG, Opcodes.DNEG);
-    }
-
-    private boolean isPrimCastInsn(int opcode) {
-        return inRange(opcode, Opcodes.I2L, Opcodes.I2S);
-    }
-
-    private boolean isBinaryInsn(int opcode) {
-        return (inRange(opcode, Opcodes.IADD, Opcodes.LXOR) && ! isNegInsn(opcode)) ||
-                isComparisonInsn(opcode);
-    }
-
-    private boolean isArithmeticInsn(int opcode) {
-        return inRange(opcode, Opcodes.IADD, Opcodes.DREM);
-    }
-
-    private boolean isBitwiseInsn(int opcode) {
-        return inRange(opcode, Opcodes.IAND, Opcodes.LXOR);
-    }
-
-    private boolean isShiftInsn(int opcode) {
-        return inRange(opcode, Opcodes.ISHL, Opcodes.LUSHR);
-    }
-
-    private boolean isComparisonInsn(int opcode) {
-        return inRange(opcode, Opcodes.LCMP, Opcodes.DCMPG);
-    }
-
-    private boolean isReturnInsn(int opcode) {
-        return inRange(opcode, Opcodes.IRETURN, Opcodes.RETURN);
-    }
-
-    private boolean isStackInsn(int opcode) {
-        return inRange(opcode, Opcodes.POP, Opcodes.SWAP);
-    }
-
-    private boolean isArrayLoadInsn(int opcode) {
-        return inRange(opcode, Opcodes.IALOAD, Opcodes.SALOAD);
-    }
-
-    private boolean isArrayStoreInsn(int opcode) {
-        return inRange(opcode, Opcodes.IASTORE, Opcodes.SASTORE);
-    }
-
-    private Literal getConstValue(InsnNode node) {
-        int opcode = node.getOpcode();
-        if (opcode == Opcodes.ACONST_NULL) {
-            return NullLiteral.get();
-        } else if (inRange(opcode, Opcodes.ICONST_M1, Opcodes.ICONST_5)) {
-            return IntLiteral.get(opcode - Opcodes.ICONST_M1 - 1);
-        } else if (inRange(opcode, Opcodes.FCONST_0, Opcodes.FCONST_2)) {
-            return FloatLiteral.get(opcode - Opcodes.FCONST_0 + 0.0f);
-        } else if (inRange(opcode, Opcodes.DCONST_0, Opcodes.DCONST_1)) {
-            return DoubleLiteral.get(opcode - Opcodes.DCONST_0 + 0.0);
-        } else if (inRange(opcode, Opcodes.LCONST_0, Opcodes.LCONST_1)) {
-            return LongLiteral.get(opcode - Opcodes.LCONST_0);
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private int unifyIfOp(int opcode) {
-        if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
-            return opcode - Opcodes.IFEQ + Opcodes.IF_ICMPEQ;
-        } else if (inRange(opcode, Opcodes.FCMPL, Opcodes.FCMPG)) {
-            return opcode - Opcodes.FCMPL + Opcodes.DCMPL;
-        } else {
-            return opcode;
-        }
-    }
-
-    private ConditionExp.Op toTIRCondOp(int opcode) {
-        opcode = unifyIfOp(opcode);
-        return switch (opcode) {
-            case Opcodes.IF_ICMPEQ, Opcodes.IF_ACMPEQ, Opcodes.IFNULL -> ConditionExp.Op.EQ;
-            case Opcodes.IF_ICMPNE, Opcodes.IF_ACMPNE, Opcodes.IFNONNULL -> ConditionExp.Op.NE;
-            case Opcodes.IF_ICMPLT -> ConditionExp.Op.LT;
-            case Opcodes.IF_ICMPGE -> ConditionExp.Op.GE;
-            case Opcodes.IF_ICMPGT -> ConditionExp.Op.GT;
-            case Opcodes.IF_ICMPLE -> ConditionExp.Op.LE;
-            default -> throw new IllegalArgumentException();
-        };
-    }
-
     private ConditionExp getIfExp(Stack<StackItem> stack, int opcode) {
         Var v1;
         Var v2;
-        if (inRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
+        if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             v1 = popVar(stack);
             v2 = manager.getConstVar(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
@@ -897,83 +804,27 @@ public class BytecodeIRBuilder {
             v2 = popVar(stack);
             v1 = popVar(stack);
         }
-        return new ConditionExp(toTIRCondOp(opcode), v1, v2);
-    }
-
-    private ArithmeticExp.Op toTIRArithmeticOp(int opcode) {
-        if (isAddInsn(opcode)) {
-            return ArithmeticExp.Op.ADD;
-        } else if (isSubInsn(opcode)) {
-            return ArithmeticExp.Op.SUB;
-        } else if (isMulInsn(opcode)) {
-            return ArithmeticExp.Op.MUL;
-        } else if (isDivInsn(opcode)) {
-             return ArithmeticExp.Op.DIV;
-        } else if (isRemInsn(opcode)) {
-            return ArithmeticExp.Op.REM;
-        }  else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private BitwiseExp.Op toTIRBitwiseOp(int opcode) {
-        return switch (opcode) {
-            case Opcodes.IAND, Opcodes.LAND -> BitwiseExp.Op.AND;
-            case Opcodes.IOR, Opcodes.LOR -> BitwiseExp.Op.OR;
-            case Opcodes.IXOR, Opcodes.LXOR -> BitwiseExp.Op.XOR;
-            default -> throw new IllegalArgumentException();
-        };
-    }
-
-    private ComparisonExp.Op toTIRCmpOp(int opcode) {
-        return switch (opcode) {
-            case Opcodes.LCMP -> ComparisonExp.Op.CMP;
-            case Opcodes.DCMPG, Opcodes.FCMPG -> ComparisonExp.Op.CMPG;
-            case Opcodes.DCMPL, Opcodes.FCMPL -> ComparisonExp.Op.CMPL;
-            default -> throw new IllegalArgumentException();
-        };
-    }
-
-    private ShiftExp.Op toTIRShiftOp(int opcode) {
-        return switch (opcode) {
-            case Opcodes.ISHL, Opcodes.LSHL -> ShiftExp.Op.SHL;
-            case Opcodes.ISHR, Opcodes.LSHR -> ShiftExp.Op.SHR;
-            case Opcodes.IUSHR, Opcodes.LUSHR -> ShiftExp.Op.USHR;
-            default -> throw new IllegalArgumentException();
-        };
-    }
-
-    private Type getCastType(int opcode) {
-        return switch (opcode) {
-            case Opcodes.L2I, Opcodes.F2I, Opcodes.D2I -> INT;
-            case Opcodes.I2L, Opcodes.F2L, Opcodes.D2L -> LONG;
-            case Opcodes.I2F, Opcodes.L2F, Opcodes.D2F -> FLOAT;
-            case Opcodes.I2D, Opcodes.L2D,  Opcodes.F2D -> DOUBLE;
-            case Opcodes.I2B -> BYTE;
-            case Opcodes.I2S -> SHORT;
-            case Opcodes.I2C -> CHAR;
-            default -> throw new IllegalArgumentException();
-        };
+        return new ConditionExp(toCondOp(opcode), v1, v2);
     }
 
     private BinaryExp getBinaryExp(Stack<StackItem> stack, int opcode) {
         Var v2 = popVar(stack);
         Var v1 = popVar(stack);
         if (isArithmeticInsn(opcode)) {
-            return new ArithmeticExp(toTIRArithmeticOp(opcode), v1, v2);
+            return new ArithmeticExp(toArithmeticOp(opcode), v1, v2);
         } else if (isBitwiseInsn(opcode)) {
-            return new BitwiseExp(toTIRBitwiseOp(opcode), v1, v2);
+            return new BitwiseExp(toBitwiseOp(opcode), v1, v2);
         } else if (isComparisonInsn(opcode)) {
-            return new ComparisonExp(toTIRCmpOp(opcode), v1, v2);
+            return new ComparisonExp(toCmpOp(opcode), v1, v2);
         } else if (isShiftInsn(opcode)) {
-            return new ShiftExp(toTIRShiftOp(opcode), v1, v2);
+            return new ShiftExp(toShiftOp(opcode), v1, v2);
         } else {
             throw new IllegalArgumentException();
         }
     }
 
     private CastExp getCastExp(Stack<StackItem> stack, int opcode) {
-        return getCastExp(stack, getCastType(opcode));
+        return getCastExp(stack, toCastType(opcode));
     }
 
     private CastExp getCastExp(Stack<StackItem> stack, Type t) {
@@ -1659,7 +1510,7 @@ public class BytecodeIRBuilder {
             } else if (isReturnInsn(opcode)) {
                 returnExp(nowStack, insnNode);
             } else if (isConstInsn(opcode)) {
-                pushConst(node, nowStack, getConstValue(insnNode));
+                pushConst(node, nowStack, toConstValue(insnNode));
             } else if (isPrimCastInsn(opcode)) {
                 pushExp(node, nowStack, getCastExp(nowStack, opcode));
             } else if (isNegInsn(opcode)) {
