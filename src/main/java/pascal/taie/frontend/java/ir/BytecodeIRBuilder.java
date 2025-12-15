@@ -348,7 +348,7 @@ public class BytecodeIRBuilder {
     }
 
     void ssa() {
-        IRSSATransform<BytecodeBlock> ssa = new IRSSATransform<>(method, g, manager, duInfo);
+        IRSSATransform<BytecodeBlock> ssa = new IRSSATransform<>(method, cfg, manager, duInfo);
         ssa.build();
     }
 
@@ -357,7 +357,7 @@ public class BytecodeIRBuilder {
     }
 
     public void dump() {
-        BytecodeVisualizer.printDotFile(g,
+        BytecodeVisualizer.printDotFile(cfg,
                 new Indexer<>() {
                     @Override
                     public int getIndex(AbstractInsnNode o) {
@@ -675,7 +675,7 @@ public class BytecodeIRBuilder {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = searchForValidBlock(label);
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = getOutEdge(block, 0);
+            BytecodeBlock next1 = cfg.getOutEdge(block, 0);
             BytecodeBlock next2 = blockSortedList.get(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
@@ -746,7 +746,7 @@ public class BytecodeIRBuilder {
         }
 
         if (isLastTime) {
-            PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(g);
+            PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(cfg);
             // Make PhiStmts using stmt.index as the value source.
             for (FrontendPhiStmt p : frontendPhiStmts) {
                 int index = p.getIndex();
@@ -1164,11 +1164,11 @@ public class BytecodeIRBuilder {
 
     private Stack<StackItem> getInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
-        int inEdgeCount = getInEdgeCount(block);
-        if (isInEdgeEmpty(block)) {
+        int inEdgeCount = cfg.getInEdgesCount(block);
+        if (cfg.isInEdgeEmpty(block)) {
             inStack = null;
         } else if (inEdgeCount == 1) {
-            BytecodeBlock inEdge = getInEdge(block, 0);
+            BytecodeBlock inEdge = cfg.getInEdge(block, 0);
             assert inEdge.getOutStack() != null;
             inStack = new Stack<>();
             inStack.addAll(inEdge.getOutStack());
@@ -1184,7 +1184,7 @@ public class BytecodeIRBuilder {
         List<List<StackItem>> inExps = new ArrayList<>();
         boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
-            BytecodeBlock inEdge = getInEdge(block, i);
+            BytecodeBlock inEdge = cfg.getInEdge(block, i);
             if (inEdge.getOutStack() == null) {
                 isLoopHeader = true;
                 if (inStack != null) {
@@ -1332,8 +1332,8 @@ public class BytecodeIRBuilder {
                 }
                 BytecodeBlock block = phi.createPos;
                 boolean hasCriticalInEdge = block.isLoopHeader();
-//                for (int i = 0; i < getInEdgeCount(block); ++i) {
-//                    int pred = g.getInEdge(block.getIndex(), i);
+//                for (int i = 0; i < g.getInEdgesCount(block); ++i) {
+//                    int pred = g.g.getInEdge(block.getIndex(), i);
 //                    if (g.getOutEdgesCount(pred) > 1) {
 //                        hasCriticalInEdge = true;
 //                        break;
@@ -1370,14 +1370,14 @@ public class BytecodeIRBuilder {
                 // insert phi node in the first instruction
                 FrontendPhiExp phiExp = new FrontendPhiExp();
                 int unreachableOffset = 0;
-                for (int i = 0; i < getInEdgeCount(block); ++i) {
-                    if (getInEdge(block, i).getOutStack() == null) {
+                for (int i = 0; i < cfg.getInEdgesCount(block); ++i) {
+                    if (cfg.getInEdge(block, i).getOutStack() == null) {
                         unreachableOffset++;
                         continue;
                     }
                     StackItem item = phi.getNodes().get(i - unreachableOffset);
                     liftToVar(item);
-                    phiExp.addUseAndCorrespondingBlocks(item.var(), getInEdge(block, i));
+                    phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getInEdge(block, i));
                 }
                 FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
                 phi.setWriteOutVar(phi.getVar());
@@ -1400,7 +1400,7 @@ public class BytecodeIRBuilder {
         Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getNodes().size(); ++i) {
             StackItem item = phi.getNodes().get(i);
-            BytecodeBlock inEdge = getInEdge(phi.createPos, i + unreachableOffset);
+            BytecodeBlock inEdge = cfg.getInEdge(phi.createPos, i + unreachableOffset);
             if (inEdge.getOutStack() == null) {
                 unreachableOffset++;
                 continue;
@@ -1423,8 +1423,8 @@ public class BytecodeIRBuilder {
     private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
         if (current.isLoopHeader()) {
             Stack<StackItem> inStack = current.getInStack();
-            for (int i = 0; i < getInEdgeCount(current); ++i) {
-                BytecodeBlock outEdge = getInEdge(current, i);
+            for (int i = 0; i < cfg.getInEdgesCount(current); ++i) {
+                BytecodeBlock outEdge = cfg.getInEdge(current, i);
                 if (outEdge.getOutStack() == null) {
                     assert outEdge.getInStack() == null;
                     continue;
@@ -1688,7 +1688,7 @@ public class BytecodeIRBuilder {
             // very unlikely, but possible
             b = searchForValidBlock(target);
         }
-        g.addEdge(now.getIndex(), b.getIndex());
+        cfg.addEdge(now.getIndex(), b.getIndex());
     }
 
     private void processEdges(BytecodeBlock now, List<LabelNode> targets) {
@@ -1745,7 +1745,7 @@ public class BytecodeIRBuilder {
         rwToIndex = new int[rwCount];
         BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
         int counter = 0;
-        IndexedGraph<BytecodeBlock> graph = g;
+        IndexedGraph<BytecodeBlock> graph = cfg;
         BytecodeBlock entry = graph.getEntry();
         start = new int[graph.size()];
         end = new int[graph.size()];
@@ -1878,7 +1878,7 @@ public class BytecodeIRBuilder {
      *
      * <p>TODO: optimize block construction && edge adding</p>
      */
-    private BytecodeGraph g;
+    private BytecodeCFG cfg;
     private void buildCFG() {
         rwCount = getParamWriteSize();
         int size = source.instructions.size();
@@ -1970,7 +1970,7 @@ public class BytecodeIRBuilder {
         }
 
         this.blockSortedList = new ArrayList<>(size / 4);
-        g = new BytecodeGraph(maxBlockCounter);
+        cfg = new BytecodeCFG(maxBlockCounter);
 
         AbstractInsnNode[] edgeInsn = new AbstractInsnNode[size];
         BytecodeBlock current = idx2Block[0];
@@ -2006,7 +2006,7 @@ public class BytecodeIRBuilder {
                     start = i;
                     if (fallThrough) {
                         // prev.getIndex() must be counter
-                        g.addEdge(counter, counter + 1);
+                        cfg.addEdge(counter, counter + 1);
                     }
                 }
             }
@@ -2039,10 +2039,10 @@ public class BytecodeIRBuilder {
         }
 
         addExceptionEdges();
-        g.setEntry(entry);
-        g.setBlockSortedList(blockSortedList);
+        cfg.setEntry(entry);
+        cfg.setSortedBlockList(blockSortedList);
 
-        dom = new Dominator<>(g);
+        dom = new Dominator<>(cfg);
         postProcess();
     }
 
@@ -2052,7 +2052,7 @@ public class BytecodeIRBuilder {
             BytecodeBlock start = searchForValidBlock(now.start);
             int end = searchForValidBlockOrEnd(now.end);
             for (int i = start.getIndex(); i < end; ++i) {
-                g.addExceptionEdge(i, handler.getIndex());
+                cfg.addExceptionEdge(i, handler.getIndex());
             }
             handler.addExceptionHandlerType(fromExceptionType(now.type));
         }
@@ -2183,50 +2183,6 @@ public class BytecodeIRBuilder {
         return ir;
     }
 
-    int getOutEdgeCount(BytecodeBlock block) {
-        return g.getOutEdgesCount(block.getIndex());
-    }
-
-    int getInEdgeCount(BytecodeBlock block) {
-        return g.getInEdgesCount(block.getIndex());
-    }
-
-    int getOutEdgeIndex(BytecodeBlock block, int outIndex) {
-        return g.getOutEdge(block.getIndex(), outIndex);
-    }
-
-    int getInEdgeIndex(BytecodeBlock block, int inIndex) {
-        return g.getInEdge(block.getIndex(), inIndex);
-    }
-
-    BytecodeBlock getOutEdge(BytecodeBlock block, int index) {
-        int idx = getOutEdgeIndex(block, index);
-        return blockSortedList.get(idx);
-    }
-
-    BytecodeBlock getInEdge(BytecodeBlock block, int index) {
-        int idx = getInEdgeIndex(block, index);
-        return blockSortedList.get(idx);
-    }
-
-    public BytecodeBlock getMergedOutEdge(BytecodeBlock block, int index) {
-        int idx = g.getMergedOutEdge(block.getIndex(), index);
-        return blockSortedList.get(idx);
-    }
-
-    public int getMergedOutEdgesCount(BytecodeBlock block) {
-        return g.getMergedOutEdgesCount(block.getIndex());
-    }
-
-    public boolean isInEdgeEmpty(BytecodeBlock block) {
-        return block.isCatch()  // be careful that there might be a case, catch block has unreachable inEdge
-                || getInEdgeCount(block) == 0;
-    }
-
-    boolean isOutEdgeEmpty(BytecodeBlock block) {
-        return getOutEdgeCount(block) == 0;
-    }
-
     boolean isFastProcessVar(int v) {
         return isSSA || splitting.canFastProcess(v);
     }
@@ -2243,7 +2199,7 @@ public class BytecodeIRBuilder {
         return dom;
     }
 
-    BytecodeGraph getGraph() {
-        return g;
+    public BytecodeCFG getCFG() {
+        return cfg;
     }
 }

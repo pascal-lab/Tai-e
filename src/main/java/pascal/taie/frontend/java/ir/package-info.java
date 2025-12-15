@@ -29,7 +29,7 @@
  *   Converts JVM bytecode to Tai-e 3-address code IR</li>
  *   <li>{@link pascal.taie.frontend.java.ir.DefaultIRBuilder}:
  *   Implements {@link pascal.taie.ir.IRBuilder}</li>
- *   <li>{@link pascal.taie.frontend.java.ir.BytecodeGraph} /
+ *   <li>{@link pascal.taie.frontend.java.ir.BytecodeCFG} /
  *   {@link pascal.taie.frontend.java.ir.BytecodeBlock}:
  *   Control flow graph representation</li>
  *   <li>{@link pascal.taie.frontend.java.ir.VarManager}:

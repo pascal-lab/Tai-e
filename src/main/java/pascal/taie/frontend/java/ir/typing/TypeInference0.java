@@ -24,6 +24,7 @@ package pascal.taie.frontend.java.ir.typing;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
+import pascal.taie.frontend.java.ir.BytecodeCFG;
 import pascal.taie.frontend.java.ir.BytecodeIRBuilder;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
@@ -351,7 +352,7 @@ public class TypeInference0 {
     Typing getBlockInitTyping(BytecodeBlock block, int varSize) {
         List<Object> frameLocalType;
         Type[] initTyping = new Type[varSize];
-        if (builder.isInEdgeEmpty(block) && ! block.isCatch()) {
+        if (builder.getCFG().isInEdgeEmpty(block) && ! block.isCatch()) {
             frameLocalType = List.of();
         } else {
             block.visitInitTyping((v, t) -> {
@@ -554,8 +555,9 @@ public class TypeInference0 {
     }
 
     private void addPhiAssigns(BytecodeBlock block, Typing typing) {
-        for (int i = 0; i < builder.getMergedOutEdgesCount(block); ++i) {
-            BytecodeBlock succ = builder.getMergedOutEdge(block, i);
+        BytecodeCFG graph = builder.getCFG();
+        for (int i = 0; i < graph.getMergedOutEdgesCount(block); ++i) {
+            BytecodeBlock succ = graph.getMergedOutEdge(block, i);
             for (Stmt stmt : getStmts(succ)) {
                 if (stmt instanceof Catch) {
                     continue;

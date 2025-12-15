@@ -29,9 +29,11 @@ import java.util.List;
 
 /**
  * <p>Bytecode control flow graph representation optimized for performance.</p>
- * <p>The graph is represented using adjacency lists for in-edges, out-edges, and exception edges.
- * Each node can have up to three edges stored directly in the main arrays. If a node has more than
- * three edges, the additional edges are stored in extra arrays.</p>
+ * <p>The graph is represented using adjacency lists for in-edges, out-edges,
+ * and exception edges.
+ * Each node can have up to three edges stored directly in the main arrays.
+ * If a node has more than three edges, the additional edges are stored
+ * in extra arrays.</p>
  *
  * <p>For example, the layout of the {@link #inEdges} array is as follows:</p>
  *
@@ -41,9 +43,15 @@ import java.util.List;
  * the current in edge count    in edges (0, 1, 2)
  * </pre>
  *
- * <p>If a node has more than three in-edges, the remaining edges are stored in the {@link #extraInEdges} array.</p>
+ * <p>If a node has more than three in-edges, the remaining edges are stored in the
+ * {@link #extraInEdges} array.</p>
  */
-public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
+public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
+
+    /**
+     * [ count, edge1, edge2, edge3 ]
+     */
+    private static final int DEFAULT_EDGE_SIZE = 4;
 
     private final int[] inEdges;
 
@@ -65,22 +73,18 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     private final int[] exceptionInEdgesCount;
 
-    private static final int DEFAULT_EDGE_SIZE = 4;
-
     BytecodeBlock entry;
 
-    List<BytecodeBlock> blockSortedList;
+    List<BytecodeBlock> sortedBlockList;
 
     /**
      * Constructs a new BytecodeGraph with the specified maximum block size.
      *
      * @param maxBlockSize The maximum number of blocks in the graph.
      */
-    BytecodeGraph(int maxBlockSize) {
-        // [ count, edge1, edge2, edge3 ]
-        int defaultSize = 4;
-        inEdges = new int[maxBlockSize * defaultSize];
-        outEdges = new int[maxBlockSize * defaultSize];
+    BytecodeCFG(int maxBlockSize) {
+        inEdges = new int[maxBlockSize * DEFAULT_EDGE_SIZE];
+        outEdges = new int[maxBlockSize * DEFAULT_EDGE_SIZE];
         extraInEdges = new int[maxBlockSize][];
         extraOutEdges = new int[maxBlockSize][];
         inEdgesCount = new int[maxBlockSize];
@@ -96,8 +100,8 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
         this.entry = entry;
     }
 
-    void setBlockSortedList(List<BytecodeBlock> blockSortedList) {
-        this.blockSortedList = blockSortedList;
+    void setSortedBlockList(List<BytecodeBlock> sortedBlockList) {
+        this.sortedBlockList = sortedBlockList;
     }
 
     /**
@@ -158,19 +162,19 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
         count[b1]++;
     }
 
-    public int getOutEdgesCount(int b) {
+    int getOutEdgesCount(int b) {
         return outEdgesCount[b];
     }
 
-    public int getInEdgesCount(int b) {
+    int getInEdgesCount(int b) {
         return inEdgesCount[b];
     }
 
-    public List<BytecodeBlock> getBlockSortedList() {
-        return blockSortedList;
+    List<BytecodeBlock> getSortedBlockList() {
+        return sortedBlockList;
     }
 
-    public int getInEdge(int b, int index) {
+    int getInEdge(int b, int index) {
         if (index < DEFAULT_EDGE_SIZE) {
             return inEdges[b * DEFAULT_EDGE_SIZE + index];
         } else {
@@ -178,7 +182,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
         }
     }
 
-    public int getOutEdge(int b, int index) {
+    int getOutEdge(int b, int index) {
         assert b >= 0;
         if (index < DEFAULT_EDGE_SIZE) {
             return outEdges[b * DEFAULT_EDGE_SIZE + index];
@@ -193,9 +197,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
     }
 
     /**
-     * Only for debug propose
-     * <br/>
-     * Performance will be very bad
+     * Only for debug propose. The performance will be very bad.
      */
     @Override
     public List<BytecodeBlock> inEdges(BytecodeBlock node) {
@@ -229,7 +231,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     @Override
     public BytecodeBlock getNode(int index) {
-        return blockSortedList.get(index);
+        return sortedBlockList.get(index);
     }
 
     @Override
@@ -239,7 +241,7 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
 
     @Override
     public int size() {
-        return blockSortedList.size();
+        return sortedBlockList.size();
     }
 
     @Override
@@ -268,5 +270,67 @@ public class BytecodeGraph implements IndexedGraph<BytecodeBlock> {
         } else {
             return exceptionOutEdges[node][index - outEdgesCount[node]];
         }
+    }
+
+    // ==================== Block-level convenience methods ====================
+
+    /**
+     * Returns the number of outgoing edges for the given block.
+     */
+    int getOutEdgesCount(BytecodeBlock block) {
+        return outEdgesCount[block.getIndex()];
+    }
+
+    /**
+     * Returns the number of incoming edges for the given block.
+     */
+    int getInEdgesCount(BytecodeBlock block) {
+        return inEdgesCount[block.getIndex()];
+    }
+
+    /**
+     * Returns the number of merged outgoing edges (normal + exception) for the given block.
+     */
+    public int getMergedOutEdgesCount(BytecodeBlock block) {
+        return getMergedOutEdgesCount(block.getIndex());
+    }
+
+    /**
+     * Returns the target block of the outgoing edge at the given index.
+     */
+    BytecodeBlock getOutEdge(BytecodeBlock block, int index) {
+        int targetIndex = getOutEdge(block.getIndex(), index);
+        return sortedBlockList.get(targetIndex);
+    }
+
+    /**
+     * Returns the source block of the incoming edge at the given index.
+     */
+    BytecodeBlock getInEdge(BytecodeBlock block, int index) {
+        int sourceIndex = getInEdge(block.getIndex(), index);
+        return sortedBlockList.get(sourceIndex);
+    }
+
+    /**
+     * Returns the target block of the merged outgoing edge at the given index.
+     */
+    public BytecodeBlock getMergedOutEdge(BytecodeBlock block, int index) {
+        int targetIndex = getMergedOutEdge(block.getIndex(), index);
+        return sortedBlockList.get(targetIndex);
+    }
+
+    /**
+     * Checks if the block has no incoming edges.
+     * Note: catch blocks are treated as having no incoming edges for control flow purposes.
+     */
+    public boolean isInEdgeEmpty(BytecodeBlock block) {
+        return block.isCatch() || inEdgesCount[block.getIndex()] == 0;
+    }
+
+    /**
+     * Checks if the block has no outgoing edges.
+     */
+    boolean isOutEdgeEmpty(BytecodeBlock block) {
+        return outEdgesCount[block.getIndex()] == 0;
     }
 }

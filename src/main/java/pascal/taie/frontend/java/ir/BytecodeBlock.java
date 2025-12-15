@@ -72,16 +72,16 @@ public final class BytecodeBlock implements IBasicBlock {
 
     private boolean isLoopHeader = false;
 
-    public BytecodeBlock(LabelNode label) {
+    BytecodeBlock(LabelNode label) {
         this.label = label;
         this.stmts = new ArrayList<>();
     }
 
-    public BytecodeListSlice instr() {
+    BytecodeListSlice instr() {
         return instr;
     }
 
-    public void setInstr(BytecodeListSlice instr) {
+    void setInstr(BytecodeListSlice instr) {
         this.instr = instr;
     }
 
@@ -89,37 +89,37 @@ public final class BytecodeBlock implements IBasicBlock {
         return getExceptionHandlerTypes() != null;
     }
 
-    public void setIsInTry() {
+    void setIsInTry() {
         isInTry = true;
     }
 
-    public boolean isInTry() {
+    boolean isInTry() {
         return isInTry;
     }
 
-    public Stack<StackItem> getInStack() {
+    Stack<StackItem> getInStack() {
         return inStack;
     }
 
-    public Stack<StackItem> getOutStack() {
+    Stack<StackItem> getOutStack() {
         return outStack;
     }
 
-    public void setInStack(Stack<StackItem> inStack) {
+    void setInStack(Stack<StackItem> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
         this.inStack = inStack;
     }
 
-    public void setOutStack(Stack<StackItem> outStack) {
+    void setOutStack(Stack<StackItem> outStack) {
         assert this.outStack == null : "OutStack should not be assigned multiple times.";
         this.outStack = outStack;
     }
 
-    public AbstractInsnNode getLastBytecode() {
+    AbstractInsnNode getLastBytecode() {
         return instr.get(instr.size() - 1);
     }
 
-    public Stmt getLastStmt() {
+    Stmt getLastStmt() {
         assert !stmts.isEmpty();
         return stmts.get(stmts.size() - 1);
     }
@@ -223,7 +223,7 @@ public final class BytecodeBlock implements IBasicBlock {
         }
     }
 
-    public boolean isLocalExistInFrame(int slot) {
+    boolean isLocalExistInFrame(int slot) {
         ensureLocalType();
         if (slot >= frameLocalType.size()) {
             return false;
@@ -237,7 +237,7 @@ public final class BytecodeBlock implements IBasicBlock {
         return frameLocalType;
     }
 
-    public void setFrame(FrameNode frame) {
+    void setFrame(FrameNode frame) {
         assert frame != null;
         this.frame = frame;
     }
@@ -250,7 +250,7 @@ public final class BytecodeBlock implements IBasicBlock {
         return instr.get(stmt2Asm[index]);
     }
 
-    public void setIndex(int i) {
+    void setIndex(int i) {
         this.index = i;
     }
 
@@ -263,7 +263,7 @@ public final class BytecodeBlock implements IBasicBlock {
         return exceptionHandlerTypes;
     }
 
-    public void addExceptionHandlerType(ClassType type) {
+    void addExceptionHandlerType(ClassType type) {
         if (exceptionHandlerTypes == null) {
             exceptionHandlerTypes = new ArrayList<>();
         }
@@ -316,11 +316,11 @@ public final class BytecodeBlock implements IBasicBlock {
         }
     }
 
-    public boolean isLoopHeader() {
+    boolean isLoopHeader() {
         return isLoopHeader;
     }
 
-    public void setLoopHeader(boolean loopHeader) {
+    void setLoopHeader(boolean loopHeader) {
         isLoopHeader = loopHeader;
     }
 }

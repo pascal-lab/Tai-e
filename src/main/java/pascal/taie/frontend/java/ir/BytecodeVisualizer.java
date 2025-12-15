@@ -43,10 +43,10 @@ import static pascal.taie.language.type.LongType.LONG;
  */
 public class BytecodeVisualizer {
 
-    public static String printDot(BytecodeGraph graph, Indexer<AbstractInsnNode> insnIndex) {
+    public static String printDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
-        for (BytecodeBlock block : graph.getBlockSortedList()) {
+        for (BytecodeBlock block : graph.getSortedBlockList()) {
             sb.append(getBlockName(block))
                     .append(" [label=\"")
                     .append(getBlockDisplayName(block))
@@ -54,7 +54,7 @@ public class BytecodeVisualizer {
                     .append(getContents(graph, block, insnIndex))
                     .append("\"];\n");
         }
-        for (BytecodeBlock block : graph.getBlockSortedList()) {
+        for (BytecodeBlock block : graph.getSortedBlockList()) {
             for (int i = 0; i < graph.getOutEdgesCount(block.getIndex()); i++) {
                 int succIndex = graph.getOutEdge(block.getIndex(), i);
                 BytecodeBlock succ = graph.getNode(succIndex);
@@ -68,7 +68,7 @@ public class BytecodeVisualizer {
         return sb.toString();
     }
 
-    public static void printDotFile(BytecodeGraph graph, Indexer<AbstractInsnNode> indexer, String name) {
+    public static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
         try {
             if (name.length() > 200) {
                 name = name.substring(0, 200);
@@ -89,7 +89,7 @@ public class BytecodeVisualizer {
         return "block" + " (" + block.getIndex() + ")";
     }
 
-    private static String getContents(BytecodeGraph g, BytecodeBlock block, Indexer<AbstractInsnNode> indexer) {
+    private static String getContents(BytecodeCFG g, BytecodeBlock block, Indexer<AbstractInsnNode> indexer) {
         StringBuilder sb = new StringBuilder();
         if (block.getFrame() != null) {
             sb.append(getFrameInfo(block));
