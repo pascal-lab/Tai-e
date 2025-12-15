@@ -36,6 +36,7 @@ import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.ClassSource;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;

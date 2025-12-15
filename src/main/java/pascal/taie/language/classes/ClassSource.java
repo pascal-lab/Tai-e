@@ -20,12 +20,12 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.classes;
+package pascal.taie.language.classes;
 
 /**
  * Represents the origin of a Java class.
  */
-public sealed interface ClassSource permits AsmClassSource, PhantomClassSource {
+public interface ClassSource {
 
     String className();
 

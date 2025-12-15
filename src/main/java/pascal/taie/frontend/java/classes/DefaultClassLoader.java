@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.classes;
 
+import pascal.taie.language.classes.ClassSource;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.util.collection.Maps;

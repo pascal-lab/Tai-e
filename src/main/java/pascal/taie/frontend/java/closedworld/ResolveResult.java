@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.closedworld;
 
-import pascal.taie.frontend.java.classes.ClassSource;
+import pascal.taie.language.classes.ClassSource;
 
 import java.util.List;
 

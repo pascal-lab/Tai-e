@@ -22,6 +22,8 @@
 
 package pascal.taie.frontend.java.classes;
 
+import pascal.taie.language.classes.ClassSource;
+
 public record PhantomClassSource(String className, boolean isApp)
         implements ClassSource {
 }

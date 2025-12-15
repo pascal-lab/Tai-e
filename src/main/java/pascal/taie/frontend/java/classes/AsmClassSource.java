@@ -24,6 +24,7 @@ package pascal.taie.frontend.java.classes;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
+import pascal.taie.language.classes.ClassSource;
 
 /**
  * @param version the class file version.
