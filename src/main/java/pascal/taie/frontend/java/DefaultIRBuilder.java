@@ -123,7 +123,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
     }
 
     private IR loadingAndGetIR(JMethod method) {
-        loadClassIfNeeded(method.getDeclaringClass());
+        loadMethodSourcesIfNeeded(method.getDeclaringClass());
         AsmMethodSource source = method2Source.remove(method);
         if (source == null) {
             throw new IllegalStateException("""
@@ -141,12 +141,12 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
     }
 
     /**
-     * Loads the class source if not already loaded.
-     * Uses double-checked locking for thread safety with minimal synchronization overhead.
-     *
-     * @param clazz the class to load
+     * Ensures that method sources for the specified class are loaded.
+     * If the method sources have already been loaded, this is a no-op.
+     * Uses synchronization to guard against concurrent loading.
+     * @param clazz the class whose method sources should be loaded
      */
-    private void loadClassIfNeeded(JClass clazz) {
+    private void loadMethodSourcesIfNeeded(JClass clazz) {
         // Fast path: already loaded (no synchronization needed)
         if (loadedClasses.contains(clazz)) {
             return;
@@ -157,18 +157,17 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
             if (loadedClasses.contains(clazz)) {
                 return;
             }
-            loadClassSource(clazz);
+            loadMethodSources(clazz);
             loadedClasses.add(clazz);
         }
     }
 
     /**
-     * Loads the ClassSource and populates method sources.
-     * Must be called within synchronized block to ensure single execution per class.
+     * Loads the method sources for all declared methods in the given class.
      *
-     * @param clazz the class to load
+     * @param clazz the class whose method sources are to be loaded
      */
-    private void loadClassSource(JClass clazz) {
+    private void loadMethodSources(JClass clazz) {
         ClassSource classSource = clazz.getClassSource();
         if (classSource == null) {
             throw new IllegalStateException("""
@@ -181,8 +180,10 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
                     "Unsupported ClassSource type: " + classSource.getClass()
             );
         }
+
+        // load AsmMethodSources from the AsmClassSource
         int version = source.version();
-        LoadingKV kv = new LoadingKV();
+        Map<MethodKey, AsmMethodSource> methodSources = Maps.newMap();
         source.reader().accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public MethodVisitor visitMethod(
@@ -190,53 +191,32 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
                     String signature, String[] exceptions) {
                 JSRInlinerAdapter adapter = new JSRInlinerAdapter(
                         null, access, name, descriptor, signature, exceptions);
-                kv.put(name, descriptor, new AsmMethodSource(adapter, version));
+                methodSources.put(new MethodKey(name, descriptor),
+                        new AsmMethodSource(adapter, version));
                 return adapter;
             }
         }, ClassReader.SKIP_FRAMES);
-        loadMethodSource(kv, clazz);
+
+        // map JMethod to AsmMethodSource
+        for (JMethod method : clazz.getDeclaredMethods()) {
+            AsmMethodSource methodSource = methodSources.get(new MethodKey(
+                    method.getName(),
+                    StringReps.toBytecodeDescriptor(method)));
+            if (methodSource == null) {
+                throw new IllegalStateException(
+                        "Cannot find method source for %s".formatted(method));
+            }
+            method2Source.put(method, methodSource);
+        }
+
         // Release ClassSource to save memory after loading method sources
         clazz.releaseClassSource();
     }
 
-    private void loadMethodSource(LoadingKV kv, JClass clazz) {
-        for (JMethod method : clazz.getDeclaredMethods()) {
-            AsmMethodSource source = kv.fastMap.get(method.getName());
-            if (source == null) {
-                source = kv.slowMap.get(method.getName())
-                        .get(StringReps.toBytecodeDescriptor(method));
-            }
-            if (source == null) {
-                throw new IllegalStateException(
-                        "Cannot find method source for %s".formatted(method));
-            }
-            method2Source.put(method, source);
-        }
-    }
-
     /**
-     * A helper class to load method sources concurrently.
+     * Composite key for uniquely identifying methods by name and descriptor.
+     * Handles method overloading naturally.
      */
-    private static class LoadingKV {
-        private final Map<String, AsmMethodSource> fastMap;
-        private final Map<String, Map<String, AsmMethodSource>> slowMap;
-
-        private LoadingKV() {
-            fastMap = Maps.newMap();
-            slowMap = Maps.newMap();
-        }
-
-        void put(String name, String descriptor, AsmMethodSource value) {
-            if (slowMap.containsKey(name)) {
-                slowMap.get(name).put(descriptor, value);
-            } else if (fastMap.containsKey(name)) {
-                slowMap.put(name, Maps.newMap());
-                AsmMethodSource oldValue = fastMap.remove(name);
-                slowMap.get(name).put(oldValue.adapter().desc, oldValue);
-                slowMap.get(name).put(descriptor, value);
-            } else {
-                fastMap.put(name, value);
-            }
-        }
+    private record MethodKey(String name, String descriptor) {
     }
 }
