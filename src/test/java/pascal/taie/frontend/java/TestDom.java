@@ -1,8 +1,8 @@
 package pascal.taie.frontend.java;
 
 import org.junit.jupiter.api.Test;
-import pascal.taie.frontend.java.ssa.Dominator;
-import pascal.taie.frontend.java.ssa.IndexedGraph;
+import pascal.taie.frontend.java.ir.ssa.Dominator;
+import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -20,15 +20,41 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.ir.typing;
+
+import pascal.taie.ir.exp.Exp;
+import pascal.taie.ir.exp.ExpVisitor;
+import pascal.taie.ir.exp.RValue;
+import pascal.taie.language.type.Type;
+
+import java.util.Set;
+
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * see JVM spec 4.10.1.2. Verification Type System <br>
+ * when push a double / long to stack, first push a Top. <br>
+ * [top, double, ...]
  */
-package pascal.taie.frontend.java;
+public enum Top implements Exp, Type {
+
+    TOP;
+
+    @Override
+    public Type getType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<RValue> getUses() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T accept(ExpVisitor<T> visitor) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getName() {
+        return "<top-type>";
+    }
+}

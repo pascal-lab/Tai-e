@@ -20,15 +20,35 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.ir.ssa;
+
+import pascal.taie.frontend.java.ir.IBasicBlock;
+
+import java.util.List;
+
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * Def-use information
+ * DON FORGET PARAMS (a special kind of def)
  */
-package pascal.taie.frontend.java;
+public interface GenericDUInfo<Block extends IBasicBlock> {
+
+    enum OccurType {
+        USE,
+        DEF,
+        PARAM
+    }
+
+    interface DUVisitor {
+        void visit(int index, OccurType type, int v);
+    }
+
+    List<Block> getDefBlock(int v);
+
+    int getMaxDuIndex();
+
+    void visit(Block block, DUVisitor visitor);
+
+    Block getBlock(int index);
+
+    int getParamSize();
+}

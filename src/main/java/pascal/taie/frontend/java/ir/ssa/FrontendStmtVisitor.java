@@ -20,15 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.ir.ssa;
+
+import pascal.taie.ir.stmt.StmtVisitor;
+
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * As we separate the {@link pascal.taie.ir.stmt.PhiStmt} and {@link FrontendPhiStmt},
+ * we need a new visitor interface to visit the {@link FrontendPhiStmt}.
  */
-package pascal.taie.frontend.java;
+public interface FrontendStmtVisitor<T> extends StmtVisitor<T> {
+    default T visit(FrontendPhiStmt stmt) {
+        return visitDefault(stmt);
+    }
+}

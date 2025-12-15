@@ -20,15 +20,28 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
- */
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir.ssa;
+
+import pascal.taie.ir.exp.Var;
+
+import java.util.BitSet;
+
+public class VarSSAInfo {
+    private final BitSet isSSA;
+
+    public VarSSAInfo() {
+        isSSA = new BitSet();
+    }
+
+    public boolean isSSAVar(Var v) {
+        return isSSA.get(v.getIndex());
+    }
+
+    public void setSSA(Var v) {
+        isSSA.set(v.getIndex(), true);
+    }
+
+    public void setNonSSA(Var v) {
+        isSSA.set(v.getIndex(), false);
+    }
+}

@@ -21,14 +21,9 @@
  */
 
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * This package provides type inference and type-related utilities
+ * for the Java bytecode frontend, including type inference for
+ * local variables and expressions, and insertion of necessary type casts.
  */
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir.typing;
+

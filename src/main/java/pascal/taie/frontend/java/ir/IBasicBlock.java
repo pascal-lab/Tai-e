@@ -20,15 +20,25 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
- */
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir;
+
+import pascal.taie.ir.stmt.Stmt;
+
+import java.util.List;
+
+public interface IBasicBlock {
+
+    int getIndex();
+
+    List<Stmt> getStmts();
+
+    void setStmt(Stmt stmt, int pos);
+
+    /**
+     * Insert statements at the beginning of the block
+     * @param stmts the statements to be inserted
+     */
+    void insertStmts(List<Stmt> stmts);
+
+    void setStmts(List<Stmt> stmts);
+}

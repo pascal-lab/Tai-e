@@ -20,15 +20,12 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.ir;
+
+import org.objectweb.asm.commons.JSRInlinerAdapter;
+
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * Represents the origin of a Java method, which comes from a java class file.
  */
-package pascal.taie.frontend.java;
+record AsmMethodSource(JSRInlinerAdapter adapter, int classFileVersion) {
+}

@@ -20,15 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
- */
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir.typing;
+
+import pascal.taie.language.type.Type;
+
+public enum Uninitialized implements Type {
+
+    UNINITIALIZED;
+
+    @Override
+    public String getName() {
+        return "<uninitialized-type>";
+    }
+}

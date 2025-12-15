@@ -20,15 +20,30 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
+package pascal.taie.frontend.java.ir.ssa;
+
+import pascal.taie.util.collection.IntList;
+import pascal.taie.util.collection.LazyArray;
+
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * A graph represented as an adjacency list.
+ * The graph is directed and unweighted.
  */
-package pascal.taie.frontend.java;
+class IntGraph extends LazyArray<IntList> {
+    IntGraph(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    @Override
+    protected IntList createInstance() {
+        return new IntList(4);
+    }
+
+    /**
+     * Add an edge from {@code from} to {@code to}.
+     */
+    void addEdge(int from, int to) {
+        get(from).add(to);
+    }
+
+}

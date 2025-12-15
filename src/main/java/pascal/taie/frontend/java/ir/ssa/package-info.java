@@ -21,14 +21,8 @@
  */
 
 /**
- * This package contains implementation of our new and fast frontend
- * that can efficiently converts a Java program to Tai-e IR.
- * <p>
- * The key techniques behind this frontend were presented in paper:
- * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
- * Two Approaches to Fast Bytecode Frontend for Static Analysis.
- * In OOPSLA 2025.
- * <p>
- * The main IR construction logics reside in {@link pascal.taie.frontend.java.ir}.
+ * This package contains the Static Single Assignment (SSA) transformation
+ * for Tai-e IR. It includes implementations for SSA construction,
+ * dominator analysis, phi function resolution, and related utilities.
  */
-package pascal.taie.frontend.java;
+package pascal.taie.frontend.java.ir.ssa;
