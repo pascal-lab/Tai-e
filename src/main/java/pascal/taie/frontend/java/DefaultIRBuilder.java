@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -34,7 +32,6 @@ import pascal.taie.frontend.java.classes.AsmMethodSource;
 import pascal.taie.frontend.java.tac.BytecodeIRBuilder;
 import pascal.taie.frontend.java.type.FrontendTypeSystem;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassSource;
 import pascal.taie.language.classes.JClass;
@@ -54,8 +51,6 @@ import java.util.concurrent.ConcurrentMap;
  * It supports building IR for JVM Bytecode ({@link AsmMethodSource}) method sources.
  */
 class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
-
-    private static final Logger logger = LogManager.getLogger(DefaultIRBuilder.class);
 
     private final FrontendTypeSystem typeSystem;
 
@@ -84,26 +79,22 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
      */
     @Override
     public IR buildIR(JMethod method) {
-        try {
-            Object source = method.getMethodSource();
-            if (source instanceof AsmMethodSource asmMethodSource) {
-                BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, asmMethodSource);
-                builder.build();
-                return builder.getIr();
-            } else if (source == null) {
-                return loadingAndGetIR(method);
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        } catch (RuntimeException e) {
-            if (e.getStackTrace()[0].getClassName().startsWith("Asm")) {
-                logger.warn("ASM bytecode front failed to build method body for {}," +
-                        " constructs an empty IR instead", method);
-                return new IRBuildHelper(method).buildEmpty();
-            } else {
-                throw e;
-            }
+        loadMethodSourcesIfNeeded(method.getDeclaringClass());
+        AsmMethodSource source = method2Source.remove(method);
+        if (source == null) {
+            throw new IllegalStateException("""
+                Cannot find method source for %s,
+                most likely the method is built twice by mistake.
+                """.formatted(method));
         }
+        BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, source);
+        builder.build();
+        IR ir = builder.getIr();
+        if (ir == null) {
+            throw new IllegalStateException("Failed to build IR for method %s"
+                    .formatted(method));
+        }
+        return ir;
     }
 
     /**
@@ -120,24 +111,6 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
                 }
             }
         });
-    }
-
-    private IR loadingAndGetIR(JMethod method) {
-        loadMethodSourcesIfNeeded(method.getDeclaringClass());
-        AsmMethodSource source = method2Source.remove(method);
-        if (source == null) {
-            throw new IllegalStateException("""
-                    Cannot find method source for %s,
-                    most likely the method is built twice by mistake.
-                    """.formatted(method));
-        }
-        BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, source);
-        builder.build();
-        IR ir = builder.getIr();
-        if (ir == null) {
-            throw new IllegalStateException("IR is null for method %s".formatted(method));
-        }
-        return ir;
     }
 
     /**
@@ -197,7 +170,7 @@ class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
             }
         }, ClassReader.SKIP_FRAMES);
 
-        // map JMethod to AsmMethodSource
+        // build mapping from JMethod to AsmMethodSource
         for (JMethod method : clazz.getDeclaredMethods()) {
             AsmMethodSource methodSource = methodSources.get(new MethodKey(
                     method.getName(),
