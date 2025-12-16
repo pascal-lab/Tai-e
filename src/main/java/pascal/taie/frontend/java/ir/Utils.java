@@ -194,37 +194,37 @@ public final class Utils {
         };
     }
 
-    static Stmt getAssignStmt(JMethod method, LValue left, Exp e) {
+    static Stmt newAssignStmt(JMethod method, LValue left, Exp right) {
         if (left instanceof Var v) {
-            if (e instanceof BinaryExp binaryExp) {
+            if (right instanceof BinaryExp binaryExp) {
                 return new Binary(v, binaryExp);
-            } else if (e instanceof Literal l) {
+            } else if (right instanceof Literal l) {
                 return new AssignLiteral(v, l);
-            } else if (e instanceof CastExp cast) {
+            } else if (right instanceof CastExp cast) {
                 return new Cast(v, cast);
-            } else if (e instanceof UnaryExp unaryExp) {
+            } else if (right instanceof UnaryExp unaryExp) {
                 return new Unary(v, unaryExp);
-            } else if (e instanceof Var v1) {
+            } else if (right instanceof Var v1) {
                 return new Copy(v, v1);
-            } else if (e instanceof FieldAccess fieldAccess) {
+            } else if (right instanceof FieldAccess fieldAccess) {
                 return new LoadField(v, fieldAccess);
-            } else if (e instanceof InvokeExp invokeExp) {
+            } else if (right instanceof InvokeExp invokeExp) {
                 return new Invoke(method, invokeExp, v);
-            } else if (e instanceof NewExp newExp) {
+            } else if (right instanceof NewExp newExp) {
                 return new New(method, v, newExp);
-            } else if (e instanceof ArrayAccess access) {
+            } else if (right instanceof ArrayAccess access) {
                 return new LoadArray(v, access);
-            } else if (e instanceof InstanceOfExp instanceOfExp) {
+            } else if (right instanceof InstanceOfExp instanceOfExp) {
                 return new InstanceOf(v, instanceOfExp);
             } else {
                 throw new UnsupportedOperationException();
             }
         } else if (left instanceof ArrayAccess arrayAccess) {
-            assert e instanceof Var;
-            return new StoreArray(arrayAccess, (Var) e);
+            assert right instanceof Var;
+            return new StoreArray(arrayAccess, (Var) right);
         } else if (left instanceof FieldAccess fieldAccess) {
-            assert e instanceof Var;
-            return new StoreField(fieldAccess, (Var) e);
+            assert right instanceof Var;
+            return new StoreField(fieldAccess, (Var) right);
         }
         throw new UnsupportedOperationException();
     }

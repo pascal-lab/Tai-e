@@ -33,7 +33,7 @@ import java.util.Objects;
  * <p>
  * This class is designed with the principle of "lazy evaluation" in mind.
  * When a {@code StackItem} is created, it initially holds a Taie {@link Exp} (expression).
- * The {@link #originalExp} and {@link #e} fields both point to this initial expression.
+ * The {@link #originalExp} and {@link #exp} fields both point to this initial expression.
  * <p>
  * There are two primary scenarios for the use of a {@code StackItem}:
  * <ul>
@@ -41,7 +41,7 @@ import java.util.Objects;
  *     {@link pascal.taie.ir.stmt.AssignStmt}, the expression is directly assigned to a variable.
  *     For example, <code>v = e</code>.</li>
  *     <li><strong>Lifting:</strong> If the value needs to be converted to a {@link Var},
- *     the {@link #lift} method is called. This method updates the {@link #e} field to
+ *     the {@link #lift} method is called. This method updates the {@link #exp} field to
  *     reference the new variable, while {@link #originalExp} retains the original expression.</li>
  * </ul>
  * <p>
@@ -50,13 +50,13 @@ import java.util.Objects;
 final class StackItem {
 
     /**
-     * A mutable expression representing the value in Taie IR.
+     * A mutable expression representing the value in Tai-e IR.
      * <ul>
      *     <li>Initially, this field points to the same expression as {@link #originalExp}.</li>
      *     <li>After calling {@link #lift}, this field is updated to reference a {@link Var}.</li>
      * </ul>
      */
-    private Exp e;
+    private Exp exp;
 
     /**
      * The original expression that this {@code StackItem} represents.
@@ -68,14 +68,14 @@ final class StackItem {
      */
     private final AbstractInsnNode origin;
 
-    StackItem(Exp e, AbstractInsnNode origin) {
-        this.e = e;
-        this.originalExp = e;
+    StackItem(Exp exp, AbstractInsnNode origin) {
+        this.exp = exp;
+        this.originalExp = exp;
         this.origin = origin;
     }
 
-    Exp e() {
-        return e;
+    Exp exp() {
+        return exp;
     }
 
     Exp originalExp() {
@@ -83,16 +83,16 @@ final class StackItem {
     }
 
     Var var() {
-        assert e instanceof Var;
-        return (Var) e;
-    }
-
-    void lift(Var v) {
-        this.e = v;
+        assert exp instanceof Var;
+        return (Var) exp;
     }
 
     AbstractInsnNode origin() {
         return origin;
+    }
+
+    void lift(Var v) {
+        this.exp = v;
     }
 
     @Override
@@ -104,19 +104,19 @@ final class StackItem {
             return false;
         }
         var that = (StackItem) obj;
-        return Objects.equals(this.e, that.e) &&
+        return Objects.equals(this.exp, that.exp) &&
                 Objects.equals(this.origin, that.origin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(e, origin);
+        return Objects.hash(exp, origin);
     }
 
     @Override
     public String toString() {
         return "StackItem[" +
-                "e=" + e + ", " +
+                "exp=" + exp + ", " +
                 "origin=" + origin + ']';
     }
 
