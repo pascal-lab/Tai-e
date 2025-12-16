@@ -716,7 +716,7 @@ public class BytecodeIRBuilder {
         }
 
         if (isLastTime) {
-            PhiResolver<? extends IBasicBlock> resolver = new PhiResolver<>(cfg);
+            PhiResolver<? extends BasicBlock> resolver = new PhiResolver<>(cfg);
             // Make PhiStmts using stmt.index as the value source.
             for (FrontendPhiStmt p : frontendPhiStmts) {
                 int index = p.getIndex();

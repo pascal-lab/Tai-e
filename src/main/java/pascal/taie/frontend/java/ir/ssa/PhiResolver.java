@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.IBasicBlock;
+import pascal.taie.frontend.java.ir.BasicBlock;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Used to convert a {@link FrontendPhiExp} to a {@link PhiExp}
  */
-public class PhiResolver<T extends IBasicBlock> {
+public class PhiResolver<T extends BasicBlock> {
 
     private final IndexedGraph<T> graph;
 
@@ -47,9 +47,9 @@ public class PhiResolver<T extends IBasicBlock> {
     public List<Pair<Stmt, Var>> resolvePhi(FrontendPhiExp exp) {
         var usesAndInBlocks = exp.getUsesAndInBlocks();
         List<Pair<Stmt, Var>> sourceAndVar = new ArrayList<>(usesAndInBlocks.size());
-        for (Pair<Var, IBasicBlock> p : usesAndInBlocks) {
+        for (Pair<Var, BasicBlock> p : usesAndInBlocks) {
             Var v = p.first();
-            IBasicBlock b = p.second();
+            BasicBlock b = p.second();
             Stmt stmt = getSourceIndex((T) b);
             Pair<Stmt, Var> np = new Pair<>(stmt, v);
             if (!sourceAndVar.contains(np)) {

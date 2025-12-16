@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.IBasicBlock;
+import pascal.taie.frontend.java.ir.BasicBlock;
 import pascal.taie.ir.exp.ExpVisitor;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
@@ -40,20 +40,20 @@ import java.util.stream.Collectors;
  * to represent the phi expression in the frontend.
  *
  * <p>
- * The main difference is that this class use {@link IBasicBlock} as the
+ * The main difference is that this class use {@link BasicBlock} as the
  * corresponding block, while {@link pascal.taie.ir.exp.PhiExp}
  * uses {@link pascal.taie.ir.stmt.Stmt} as the corresponding
  * block.
  * </p>
  */
 public class FrontendPhiExp implements RValue {
-    private final List<Pair<Var, IBasicBlock>> usesAndInBlocks = new ArrayList<>();
+    private final List<Pair<Var, BasicBlock>> usesAndInBlocks = new ArrayList<>();
 
-    public void addUseAndCorrespondingBlocks(Var v, IBasicBlock block) {
+    public void addUseAndCorrespondingBlocks(Var v, BasicBlock block) {
         usesAndInBlocks.add(new Pair<>(v, block));
     }
 
-    List<Pair<Var, IBasicBlock>> getUsesAndInBlocks() {
+    List<Pair<Var, BasicBlock>> getUsesAndInBlocks() {
         return usesAndInBlocks;
     }
 
@@ -66,8 +66,8 @@ public class FrontendPhiExp implements RValue {
         return "Φ(" + repr + ")";
     }
 
-    public Var findVar(IBasicBlock block) {
-        for (Pair<Var, IBasicBlock> pair : usesAndInBlocks) {
+    public Var findVar(BasicBlock block) {
+        for (Pair<Var, BasicBlock> pair : usesAndInBlocks) {
             if (pair.second() == block) {
                 return pair.first();
             }

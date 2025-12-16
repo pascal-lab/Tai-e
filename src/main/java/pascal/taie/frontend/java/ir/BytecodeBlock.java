@@ -37,7 +37,7 @@ import java.util.Stack;
 /**
  * The basic block of bytecode control flow graph.
  */
-public final class BytecodeBlock implements IBasicBlock {
+public final class BytecodeBlock implements BasicBlock {
 
     private final LabelNode label;
 

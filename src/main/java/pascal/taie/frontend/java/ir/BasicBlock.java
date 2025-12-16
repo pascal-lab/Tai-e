@@ -26,7 +26,7 @@ import pascal.taie.ir.stmt.Stmt;
 
 import java.util.List;
 
-public interface IBasicBlock {
+public interface BasicBlock {
 
     int getIndex();
 

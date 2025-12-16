@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.IBasicBlock;
+import pascal.taie.frontend.java.ir.BasicBlock;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-public class BCSSA<Block extends IBasicBlock> {
+public class BCSSA<Block extends BasicBlock> {
 
     public class SemiPhi {
         final int var;

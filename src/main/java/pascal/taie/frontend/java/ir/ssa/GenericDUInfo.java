@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.IBasicBlock;
+import pascal.taie.frontend.java.ir.BasicBlock;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
  * Def-use information
  * DON FORGET PARAMS (a special kind of def)
  */
-public interface GenericDUInfo<Block extends IBasicBlock> {
+public interface GenericDUInfo<Block extends BasicBlock> {
 
     enum OccurType {
         USE,
