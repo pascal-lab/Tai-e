@@ -20,17 +20,22 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * The {@code pascal.taie.vm} package provides the core classes for the Tai-e virtual machine.
- * <p>
- * This package includes:
- * <ul>
- *   <li>{@link pascal.taie.vm.VM}: The main virtual machine for executing intermediate representations (IR) of Java programs.</li>
- *   <li>{@link pascal.taie.vm.JValue}, {@link pascal.taie.vm.JObject}, {@link pascal.taie.vm.JPrimitive}, {@link pascal.taie.vm.JArray}:
- *   Abstractions for representing Java values and objects in the VM.</li>
- * </ul>
- * <p>
- * The VM supports execution of Java IR, method invocation, field access, and exception handling,
- * with special handling for native and JVM classes.
- */
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
+
+import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.language.type.Type;
+
+enum JNull implements JValue {
+
+    NULL;
+
+    @Override
+    public Type getType() {
+        return NullLiteral.get().getType();
+    }
+
+    @Override
+    public Object toJVMObj() {
+        return null;
+    }
+}

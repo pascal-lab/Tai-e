@@ -20,22 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
-
-import pascal.taie.ir.exp.NullLiteral;
-import pascal.taie.language.type.Type;
-
-enum JNull implements JValue {
-
-    NULL;
-
-    @Override
-    public Type getType() {
-        return NullLiteral.get().getType();
-    }
-
-    @Override
-    public Object toJVMObj() {
-        return null;
-    }
-}
+/**
+ * This package provides backend functionality for Tai-e IR.
+ * The backend is responsible for converting Tai-e IR back to
+ * executable forms or directly executing the IR.
+ */
+package pascal.taie.backend;

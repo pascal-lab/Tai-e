@@ -1,4 +1,4 @@
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

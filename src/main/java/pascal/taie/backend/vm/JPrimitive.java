@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
 import pascal.taie.language.type.DoubleType;
 import pascal.taie.language.type.FloatType;

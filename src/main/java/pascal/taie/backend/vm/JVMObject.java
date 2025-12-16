@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.classes.JMethod;
@@ -77,7 +77,7 @@ import java.util.List;
  * However, JVM will call the {@code toString()} method of the object.
  * So we need to
  * hook the {@code toString()} method of the object to return the string representation.
- * See {@link pascal.taie.vm.JObject#toString()} for more details.
+ * See {@link JObject#toString()} for more details.
  * <p>
  * Though this case is a little complex, we can at least handle it.
  * However, we even

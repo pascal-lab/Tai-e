@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
 import pascal.taie.World;
 import pascal.taie.ir.IR;

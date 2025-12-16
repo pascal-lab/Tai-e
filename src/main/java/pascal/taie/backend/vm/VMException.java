@@ -20,21 +20,18 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
-/**
- * Represents the exception (defined in the application) thrown
- * by the application.
- */
-class AppDefinedException extends RuntimeException {
+class VMException extends UnsupportedOperationException {
 
-    private final JObject internal;
-
-    AppDefinedException(JObject internal) {
-        this.internal = internal;
+    VMException() {
     }
 
-    JObject getInternal() {
-        return internal;
+    VMException(String message) {
+        super(message);
+    }
+
+    VMException(Throwable cause) {
+        super(cause);
     }
 }

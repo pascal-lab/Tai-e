@@ -20,18 +20,19 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.vm;
+package pascal.taie.backend.vm;
 
-class VMException extends UnsupportedOperationException {
+/**
+ * Represents the exception (defined in JDK) thrown by the application.
+ */
+class AppException extends RuntimeException {
 
-    VMException() {
-    }
-
-    VMException(String message) {
-        super(message);
-    }
-
-    VMException(Throwable cause) {
+    AppException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String toString() {
+        return "Client code throw uncaught exception: " + getCause();
     }
 }
