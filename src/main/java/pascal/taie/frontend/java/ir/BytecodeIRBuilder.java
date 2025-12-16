@@ -52,7 +52,6 @@ import pascal.taie.frontend.java.ir.ssa.Dominator;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
-import pascal.taie.frontend.java.ir.ssa.IRSSATransform;
 import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 import pascal.taie.frontend.java.ir.ssa.PhiResolver;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
@@ -170,7 +169,7 @@ public class BytecodeIRBuilder {
     private final FrontendTypeSystem typeSystem;
 
     /**
-     * Taie IR output
+     * Tai-e IR output
      */
     private IR ir;
 
@@ -178,12 +177,6 @@ public class BytecodeIRBuilder {
      * The method to be built
      */
     public final JMethod method;
-
-    /**
-     * Class file version number,
-     * see <code>minor_version, major_version</code> of JVM Spec
-     */
-    private final int classFileVersion;
 
     /**
      * Bytecode input, a bytecode method represented by {@link JSRInlinerAdapter}
@@ -201,33 +194,28 @@ public class BytecodeIRBuilder {
     private BytecodeBlock entry;
 
     /**
-     * Manager that manage the creation and naming of Taie IR variables
+     * Manager that manage the creation and naming of Tai-e IR variables
      */
     public final VarManager manager;
 
     /**
-     * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Taie IR stmt
+     * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Tai-e IR stmt
      */
     final Stmt[] asm2Stmt;
 
     /**
      * Similar to {@link BytecodeIRBuilder#asm2Stmt}, when a bytecode instruction generate more than
-     * one Taie IR stmt, use this mapping to store the rest
+     * one Tai-e IR stmt, use this mapping to store the rest
      */
     final List<List<Stmt>> auxiliaryStmts;
 
     /**
-     * If the input bytecode method is empty (has no bytecode instruction)
-     */
-    private final boolean isEmpty;
-
-    /**
-     * Generated Taie IR stmts
+     * Generated Tai-e IR stmts
      */
     private List<Stmt> stmts;
 
     /**
-     * Generated Taie IR exception entry ({@link ExceptionEntry})
+     * Generated Tai-e IR exception entry ({@link ExceptionEntry})
      */
     private List<ExceptionEntry> exceptionEntries;
 
@@ -267,59 +255,41 @@ public class BytecodeIRBuilder {
      */
     private Dominator<BytecodeBlock> dom;
 
-    public BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method, AsmMethodSource methodSource) {
+    BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method,
+                      AsmMethodSource methodSource) {
         this.typeSystem = typeSystem;
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
-        this.classFileVersion = methodSource.classFileVersion();
         int instrSize = source.instructions.size();
-        this.isEmpty = instrSize == 0;
         this.varSSAInfo = new VarSSAInfo();
         this.isSSA = World.get().getOptions().isSSA();
-        if (!isEmpty) {
-            this.manager = new VarManager(method,
-                    source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
-            this.asm2Stmt = new Stmt[instrSize];
-            this.auxiliaryStmts = new ArrayList<>(instrSize);
-            for (int i = 0; i < instrSize; ++i) {
-                auxiliaryStmts.add(null);
-            }
-            this.stmts = new ArrayList<>();
-            this.phiList = new ArrayList<>();
-            this.duInfo = new DUInfo(source.maxLocals);
-            this.stackSimulator = new StackSimulator(method, manager, this::assocStmt);
-        } else {
-            this.manager = null;
-            this.asm2Stmt = null;
-            this.auxiliaryStmts = null;
-            this.stmts = null;
-            this.phiList = null;
-            this.duInfo = null;
-            this.stackSimulator = null;
+        this.manager = new VarManager(method,
+                source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
+        this.asm2Stmt = new Stmt[instrSize];
+        this.auxiliaryStmts = new ArrayList<>(instrSize);
+        for (int i = 0; i < instrSize; ++i) {
+            auxiliaryStmts.add(null);
         }
+        this.stmts = new ArrayList<>();
+        this.phiList = new ArrayList<>();
+        this.duInfo = new DUInfo(source.maxLocals);
+        this.stackSimulator = new StackSimulator(method, manager, this::assocStmt);
     }
 
     public void build() {
-        if (!isEmpty) {
+        if (source.instructions.size() != 0) {
             buildCFG();
             traverseBlocks();
             inferTypes();
-
             makeStmts(true);
             makeExceptionTable();
             this.ir = getIR();
-            reportMergeStats();
         }
     }
 
     private void inferTypes() {
         new TypeInference(this, typeSystem).build();
-    }
-
-    void ssa() {
-        IRSSATransform<BytecodeBlock> ssa = new IRSSATransform<>(method, cfg, manager, duInfo);
-        ssa.build();
     }
 
     public void dump() {
@@ -1590,9 +1560,9 @@ public class BytecodeIRBuilder {
     /**
      * Build CFG from ASM instructions.
      * <p>
-     *     The {@code blockSortedList} is constructed,
+     *     The {@link #sortedBlockList} is constructed,
      *     For every block, the block index is set to its pos in this list.
-     *     i.e., forall b, {@code b.getIndex() == blockSortedList.indexOf(b)}
+     *     i.e., forall b, {@code b.getIndex() == sortedBlockList.indexOf(b)}
      * </p>
      * <p>
      *     Current implementation takes a 3-step solution
@@ -1608,6 +1578,7 @@ public class BytecodeIRBuilder {
      * <p>TODO: optimize block construction && edge adding</p>
      */
     private BytecodeCFG cfg;
+
     private void buildCFG() {
         rwCount = getParamWriteSize();
         int size = source.instructions.size();
@@ -1880,28 +1851,6 @@ public class BytecodeIRBuilder {
                         for (var s : stmts) {
                             s.setLineNumber(currentLineNumber);
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    private void reportMergeStats() {
-        long totalBlocks = sortedBlockList.size();
-        long pessimisticBlocks = 0;
-        long pessimisticPhis = 0;
-        long pessimisticLivePhis = 0;
-        for (BytecodeBlock bb : sortedBlockList) {
-            if (bb.isLoopHeader() && !bb.getInStack().isEmpty()) {
-                pessimisticBlocks++;
-                pessimisticPhis += bb.getInStack().size();
-                for (StackItem item : bb.getInStack()) {
-                    if (item.originalExp() instanceof Top) {
-                        continue;
-                    }
-                    StackPhi exp = (StackPhi) item.originalExp();
-                    if (exp.used) {
-                        pessimisticLivePhis++;
                     }
                 }
             }
