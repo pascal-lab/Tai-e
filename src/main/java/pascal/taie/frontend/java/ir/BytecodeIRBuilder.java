@@ -327,7 +327,7 @@ public class BytecodeIRBuilder {
     }
 
     public void dump() {
-        BytecodeVisualizer.printDotFile(cfg,
+        BytecodeDumper.printDotFile(cfg,
                 new Indexer<>() {
                     @Override
                     public int getIndex(AbstractInsnNode o) {

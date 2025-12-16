@@ -43,12 +43,25 @@ import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 
 /**
- * A utility class to visualize the bytecode graph in DOT format.
+ * A utility class to dump the bytecode CFG to DOT graph.
  * Currently only triggered by {@link BytecodeIRBuilder#dump()}.
  */
-class BytecodeVisualizer {
+class BytecodeDumper {
 
-    static String printDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
+    static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
+        try {
+            if (name.length() > 200) {
+                name = name.substring(0, 200);
+            }
+            Path p = Path.of("output", "bytecode", name + ".dot");
+            Files.createDirectories(p.getParent());
+            Files.writeString(p, toDot(graph, indexer));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String toDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
         for (BytecodeBlock block : graph.getSortedBlockList()) {
@@ -56,7 +69,7 @@ class BytecodeVisualizer {
                     .append(" [label=\"")
                     .append(getBlockDisplayName(block))
                     .append("\n")
-                    .append(getContents(graph, block, insnIndex))
+                    .append(getContents(block, insnIndex))
                     .append("\"];\n");
         }
         for (BytecodeBlock block : graph.getSortedBlockList()) {
@@ -73,19 +86,6 @@ class BytecodeVisualizer {
         return sb.toString();
     }
 
-    static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
-        try {
-            if (name.length() > 200) {
-                name = name.substring(0, 200);
-            }
-            Path p = Path.of("output", "bytecode", name + ".dot");
-            Files.createDirectories(p.getParent());
-            Files.writeString(p, printDot(graph, indexer));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private static String getBlockName(BytecodeBlock block) {
         return "block" + block.hashCode();
     }
@@ -94,7 +94,8 @@ class BytecodeVisualizer {
         return "block" + " (" + block.getIndex() + ")";
     }
 
-    private static String getContents(BytecodeCFG g, BytecodeBlock block, Indexer<AbstractInsnNode> indexer) {
+    private static String getContents(BytecodeBlock block,
+                                      Indexer<AbstractInsnNode> indexer) {
         StringBuilder sb = new StringBuilder();
         if (block.getFrame() != null) {
             sb.append(getFrameInfo(block));
@@ -106,13 +107,13 @@ class BytecodeVisualizer {
                     .append(" @ ")
                     .append(indexer.getIndex(insn))
                     .append("]").append("   ");
-            sb.append(printInsn(insn));
+            sb.append(formatInsn(insn));
             sb.append("\n");
         }
         return sb.toString().replace("\"", "\\\"");
     }
 
-    static String printInsn(AbstractInsnNode insn) {
+    static String formatInsn(AbstractInsnNode insn) {
         Textifier textifier = new Textifier();
         StringBuilder sb = new StringBuilder();
         TraceMethodVisitor mp = new TraceMethodVisitor(textifier);

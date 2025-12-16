@@ -197,7 +197,7 @@ public class BytecodeListSlice implements List<AbstractInsnNode> {
     public String toString() {
         List<String> instr = new ArrayList<>();
         for (AbstractInsnNode insn : this) {
-            instr.add(BytecodeVisualizer.printInsn(insn));
+            instr.add(BytecodeDumper.formatInsn(insn));
         }
         return String.join("\n", instr);
     }
