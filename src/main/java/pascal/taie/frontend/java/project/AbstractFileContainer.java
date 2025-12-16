@@ -20,15 +20,45 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
+
+import java.util.List;
 
 /**
- * Represents a<code>.java</code> file in the project to be analyzed.
+ * Abstract class for file containers.
  */
-public class DotJavaFile extends AbstractClassFile {
+abstract class AbstractFileContainer implements FileContainer {
 
-    public DotJavaFile(String className,
-                       Resource resource, FileContainer rootContainer) {
-        super(className, resource, rootContainer);
+    private final String name;
+
+    private final List<ClassFile> files;
+
+    private final List<FileContainer> containers;
+
+    AbstractFileContainer(String name,
+                          List<ClassFile> files, List<FileContainer> containers) {
+        this.name = name;
+        this.files = files;
+        this.containers = containers;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public List<ClassFile> getFiles() {
+        return files;
+    }
+
+    @Override
+    public List<FileContainer> getSubContainers() {
+        return containers;
+    }
+
+    @Override
+    public String toString() {
+        return getFileName();
     }
 }

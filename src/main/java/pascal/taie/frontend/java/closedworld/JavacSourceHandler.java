@@ -25,9 +25,9 @@ package pascal.taie.frontend.java.closedworld;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.project.DotClassFile;
-import pascal.taie.project.FileResource;
-import pascal.taie.project.Resource;
+import pascal.taie.frontend.java.project.DotClassFile;
+import pascal.taie.frontend.java.project.FileResource;
+import pascal.taie.frontend.java.project.Resource;
 import pascal.taie.util.PathUtils;
 
 import javax.tools.DiagnosticCollector;

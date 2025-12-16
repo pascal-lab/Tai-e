@@ -20,15 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
-/**
- * Represents a <code>.class</code> file in the project to be analyzed.
- */
-public class DotClassFile extends AbstractClassFile {
+public interface ProjectBuilder {
 
-    public DotClassFile(String className,
-                        Resource resource, FileContainer rootContainer) {
-        super(className, resource, rootContainer);
-    }
+    Project build();
 }

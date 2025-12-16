@@ -20,31 +20,25 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.jar.Manifest;
+/**
+ * Represents a class file in the project to be analyzed.
+ */
+public interface ClassFile {
 
-class JarContainer extends ZipContainer {
+    /**
+     * @return the fully-qualified name of the class.
+     */
+    String getClassName();
 
-    @Nullable
-    private final Manifest manifest;
+    /**
+     * @return the resource from which this file originates
+     */
+    Resource getResource();
 
-    JarContainer(String name,
-                 List<ClassFile> files, List<FileContainer> containers,
-                 @Nullable Manifest manifest) {
-        super(name, files, containers);
-        this.manifest = manifest;
-    }
-
-    @Override
-    public String getFileName() {
-        return getName() + ".jar";
-    }
-
-    @Nullable
-    public Manifest getManifest() {
-        return manifest;
-    }
+    /**
+     * @return the container where the file is located.
+     */
+    FileContainer getRootContainer();
 }

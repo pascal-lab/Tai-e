@@ -26,11 +26,11 @@ import org.objectweb.asm.ClassReader;
 import pascal.taie.frontend.java.FrontendException;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
+import pascal.taie.frontend.java.project.ClassFile;
+import pascal.taie.frontend.java.project.DotClassFile;
+import pascal.taie.frontend.java.project.DotJavaFile;
+import pascal.taie.frontend.java.project.Project;
 import pascal.taie.language.classes.ClassSource;
-import pascal.taie.project.ClassFile;
-import pascal.taie.project.DotClassFile;
-import pascal.taie.project.DotJavaFile;
-import pascal.taie.project.Project;
 
 import java.io.IOException;
 import java.util.ArrayList;

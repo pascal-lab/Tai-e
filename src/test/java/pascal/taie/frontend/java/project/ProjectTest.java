@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -81,10 +81,10 @@ public class ProjectTest {
         ProjectBuilder builder = new OptionsProjectBuilder(options);
         Project project = builder.build();
         ClassIndex index = project.makeIndex();
-        ClassFile file = index.find("pascal.taie.project.ProjectTest");
+        ClassFile file = index.find("pascal.taie.frontend.java.project.ProjectTest");
         assertNotNull(file);
         try (InputStream in = new FileInputStream(
-                "src/test/java/pascal/taie/project/ProjectTest.java")) {
+                "src/test/java/pascal/taie/frontend/java/project/ProjectTest.java")) {
             assertArrayEquals(in.readAllBytes(), file.getResource().getContent());
         }
     }

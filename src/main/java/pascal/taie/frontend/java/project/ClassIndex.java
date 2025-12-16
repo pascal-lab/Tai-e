@@ -21,7 +21,7 @@
  */
 
 // Java
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

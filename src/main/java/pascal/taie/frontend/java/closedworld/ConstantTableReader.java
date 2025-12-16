@@ -23,7 +23,7 @@
 package pascal.taie.frontend.java.closedworld;
 
 import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.project.DotClassFile;
+import pascal.taie.frontend.java.project.DotClassFile;
 import pascal.taie.util.collection.Lists;
 
 import java.util.ArrayList;

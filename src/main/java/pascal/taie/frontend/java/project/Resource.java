@@ -20,9 +20,28 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
-public interface ProjectBuilder {
+import java.io.IOException;
+import java.nio.file.Path;
 
-    Project build();
+/**
+ * A <em>Resource</em> is a file that can be read from the file system or a jar file.
+ * It has a path and can be read as a byte array.
+ * <p>
+ * The {@link ClassFile} represents a logical, abstract file in the project,
+ * while this interface represents a physical file in the file system or a jar file.
+ * A {@link ClassFile} contains a {@link Resource} that can be used to read the file.
+ * </p>
+ *
+ * @see FileResource
+ * @see ZipEntryResource
+ */
+public interface Resource {
+
+    Path getPath();
+
+    byte[] getContent() throws IOException;
+
+    void release();
 }

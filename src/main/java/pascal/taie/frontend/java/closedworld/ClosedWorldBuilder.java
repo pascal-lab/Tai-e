@@ -24,10 +24,10 @@ package pascal.taie.frontend.java.closedworld;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendException;
+import pascal.taie.frontend.java.project.ClassFile;
+import pascal.taie.frontend.java.project.ClassIndex;
+import pascal.taie.frontend.java.project.Project;
 import pascal.taie.language.classes.ClassSource;
-import pascal.taie.project.ClassFile;
-import pascal.taie.project.ClassIndex;
-import pascal.taie.project.Project;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 

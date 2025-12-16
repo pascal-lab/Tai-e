@@ -35,6 +35,8 @@ import pascal.taie.frontend.java.classes.PhantomClassBuilder;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
 import pascal.taie.frontend.java.ir.DefaultIRBuilder;
+import pascal.taie.frontend.java.project.OptionsProjectBuilder;
+import pascal.taie.frontend.java.project.Project;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
@@ -44,8 +46,6 @@ import pascal.taie.language.classes.JClassBuilder;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
-import pascal.taie.project.OptionsProjectBuilder;
-import pascal.taie.project.Project;
 
 import java.util.Collection;
 import java.util.List;

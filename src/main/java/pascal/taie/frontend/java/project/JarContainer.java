@@ -20,45 +20,31 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.List;
+import java.util.jar.Manifest;
 
-public class ZipEntryResource implements Resource {
-
-    private final String path;
-
-    private final FileSystem fileSystem;
+class JarContainer extends ZipContainer {
 
     @Nullable
-    private byte[] cache;
+    private final Manifest manifest;
 
-    public ZipEntryResource(String path, FileSystem fileSystem, @Nullable byte[] cache) {
-        this.cache = cache;
-        this.path = path;
-        this.fileSystem = fileSystem;
+    JarContainer(String name,
+                 List<ClassFile> files, List<FileContainer> containers,
+                 @Nullable Manifest manifest) {
+        super(name, files, containers);
+        this.manifest = manifest;
     }
 
     @Override
-    public Path getPath() {
-        return fileSystem.getPath(path);
+    public String getFileName() {
+        return getName() + ".jar";
     }
 
-    @Override
-    public byte[] getContent() throws IOException {
-        if (cache == null) {
-            // NOTE: if reach here, this resource must be on the disk
-            cache = Files.readAllBytes(fileSystem.getPath(path));
-        }
-        return cache;
-    }
-
-    @Override
-    public void release() {
-        cache = null;
+    @Nullable
+    public Manifest getManifest() {
+        return manifest;
     }
 }

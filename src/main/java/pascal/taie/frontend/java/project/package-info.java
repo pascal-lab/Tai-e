@@ -20,18 +20,12 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
-
-import java.util.List;
-
-class ZipContainer extends AbstractFileContainer {
-
-    ZipContainer(String name,
-                 List<ClassFile> files, List<FileContainer> subContainers) {
-        super(name, files, subContainers);
-    }
-    @Override
-    public String getFileName() {
-        return getName() + ".zip";
-    }
-}
+/**
+ * Provides classes and interfaces representing a Java project being analyzed.
+ * <p> The main purpose of this package is to provide
+ * {@link pascal.taie.frontend.java.project.Project}, which is a structure
+ * for representing Java projects, including their files, directories, and resources.
+ * <p> The {@link pascal.taie.frontend.java.project.ProjectBuilder} declares
+ * the methods for building a {@link pascal.taie.frontend.java.project.Project}.
+ */
+package pascal.taie.frontend.java.project;

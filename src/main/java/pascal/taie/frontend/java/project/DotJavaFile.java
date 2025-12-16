@@ -20,25 +20,15 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
 /**
- * Represents a class file in the project to be analyzed.
+ * Represents a<code>.java</code> file in the project to be analyzed.
  */
-public interface ClassFile {
+public class DotJavaFile extends AbstractClassFile {
 
-    /**
-     * @return the fully-qualified name of the class.
-     */
-    String getClassName();
-
-    /**
-     * @return the resource from which this file originates
-     */
-    Resource getResource();
-
-    /**
-     * @return the container where the file is located.
-     */
-    FileContainer getRootContainer();
+    public DotJavaFile(String className,
+                       Resource resource, FileContainer rootContainer) {
+        super(className, resource, rootContainer);
+    }
 }

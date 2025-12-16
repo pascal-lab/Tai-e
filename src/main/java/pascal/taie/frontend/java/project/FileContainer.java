@@ -20,19 +20,32 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
 import java.util.List;
 
-class DirContainer extends AbstractFileContainer {
+/**
+ * Represents a container that can hold class files and other containers.
+ */
+public interface FileContainer {
 
-    DirContainer(String name,
-                 List<ClassFile> files, List<FileContainer> subContainers) {
-        super(name, files, subContainers);
-    }
+    /**
+     * @return the container name.
+     */
+    String getName();
 
-    @Override
-    public String getFileName() {
-        return getName();
-    }
+    /**
+     * @return the file name of the container.
+     */
+    String getFileName();
+
+    /**
+     * @return a list of class files directly contained in this container.
+     */
+    List<ClassFile> getFiles();
+
+    /**
+     * @return a list of sub-containers directly contained in this container.
+     */
+    List<FileContainer> getSubContainers();
 }

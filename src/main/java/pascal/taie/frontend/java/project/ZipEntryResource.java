@@ -20,38 +20,41 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * A <em>FileResource</em> is a file that can be read from the file system.
- *
- * @see Resource
- */
-public class FileResource implements Resource {
+public class ZipEntryResource implements Resource {
 
-    private final Path path;
+    private final String path;
 
+    private final FileSystem fileSystem;
+
+    @Nullable
     private byte[] cache;
 
-    public FileResource(Path path) {
+    public ZipEntryResource(String path, FileSystem fileSystem, @Nullable byte[] cache) {
+        this.cache = cache;
         this.path = path;
+        this.fileSystem = fileSystem;
+    }
+
+    @Override
+    public Path getPath() {
+        return fileSystem.getPath(path);
     }
 
     @Override
     public byte[] getContent() throws IOException {
         if (cache == null) {
-            cache = Files.readAllBytes(path);
+            // NOTE: if reach here, this resource must be on the disk
+            cache = Files.readAllBytes(fileSystem.getPath(path));
         }
         return cache;
-    }
-
-    @Override
-    public Path getPath() {
-        return path;
     }
 
     @Override

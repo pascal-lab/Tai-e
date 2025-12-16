@@ -20,32 +20,42 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.project;
+package pascal.taie.frontend.java.project;
 
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
- * Represents a container that can hold class files and other containers.
+ * A <em>FileResource</em> is a file that can be read from the file system.
+ *
+ * @see Resource
  */
-public interface FileContainer {
+public class FileResource implements Resource {
 
-    /**
-     * @return the container name.
-     */
-    String getName();
+    private final Path path;
 
-    /**
-     * @return the file name of the container.
-     */
-    String getFileName();
+    private byte[] cache;
 
-    /**
-     * @return a list of class files directly contained in this container.
-     */
-    List<ClassFile> getFiles();
+    public FileResource(Path path) {
+        this.path = path;
+    }
 
-    /**
-     * @return a list of sub-containers directly contained in this container.
-     */
-    List<FileContainer> getSubContainers();
+    @Override
+    public byte[] getContent() throws IOException {
+        if (cache == null) {
+            cache = Files.readAllBytes(path);
+        }
+        return cache;
+    }
+
+    @Override
+    public Path getPath() {
+        return path;
+    }
+
+    @Override
+    public void release() {
+        cache = null;
+    }
 }
