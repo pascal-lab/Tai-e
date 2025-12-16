@@ -33,27 +33,39 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A slice of {@link InsnList}
+ * An immutable view representing a contiguous slice of bytecode instructions
+ * from an ASM {@link InsnList}.
+ * <p>
+ * This class provides a lightweight, non-copying way to reference a range of
+ * instructions within a method's bytecode. It is primarily used to associate
+ * a sequence of bytecode instructions with a {@link BytecodeBlock} during
+ * IR construction.
+ * <p>
+ * The slice is defined by a start index (inclusive) and an end index (exclusive).
+ * All modification operations throw {@link UnsupportedOperationException} as
+ * this is a read-only view.
+ *
+ * @see BytecodeBlock
+ * @see BytecodeIRBuilder
  */
-public class BytecodeListSlice implements List<AbstractInsnNode> {
+class BytecodeListSlice implements List<AbstractInsnNode> {
 
+    /**
+     * The backing instruction list from which this slice is derived.
+     */
     private final InsnList list;
 
     /**
-     * inclusive
+     * Start index of the slice (inclusive).
      */
     private final int start;
 
-    public int getEnd() {
-        return end;
-    }
-
     /**
-     * exclusive
+     * End index of the slice (exclusive).
      */
     private final int end;
 
-    public BytecodeListSlice(InsnList list, int start, int end) {
+    BytecodeListSlice(InsnList list, int start, int end) {
         this.list = list;
         this.start = start;
         this.end = end;
@@ -202,7 +214,11 @@ public class BytecodeListSlice implements List<AbstractInsnNode> {
         return String.join("\n", instr);
     }
 
-    public int getStart() {
+    int getStart() {
         return start;
+    }
+
+    int getEnd() {
+        return end;
     }
 }
