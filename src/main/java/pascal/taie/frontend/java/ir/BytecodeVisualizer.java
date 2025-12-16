@@ -23,9 +23,11 @@
 package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-import pascal.taie.frontend.java.FrontendTypeSystem;
+import pascal.taie.language.type.NullType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexer;
 
 import java.io.PrintWriter;
@@ -34,16 +36,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static pascal.taie.frontend.java.ir.Top.TOP;
 import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 
 /**
  * A utility class to visualize the bytecode graph in DOT format.
  * Currently only triggered by {@link BytecodeIRBuilder#dump()}.
  */
-public class BytecodeVisualizer {
+class BytecodeVisualizer {
 
-    public static String printDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
+    static String printDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
         for (BytecodeBlock block : graph.getSortedBlockList()) {
@@ -68,7 +73,7 @@ public class BytecodeVisualizer {
         return sb.toString();
     }
 
-    public static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
+    static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
         try {
             if (name.length() > 200) {
                 name = name.substring(0, 200);
@@ -107,7 +112,7 @@ public class BytecodeVisualizer {
         return sb.toString().replace("\"", "\\\"");
     }
 
-    public static String printInsn(AbstractInsnNode insn) {
+    static String printInsn(AbstractInsnNode insn) {
         Textifier textifier = new Textifier();
         StringBuilder sb = new StringBuilder();
         TraceMethodVisitor mp = new TraceMethodVisitor(textifier);
@@ -125,8 +130,7 @@ public class BytecodeVisualizer {
         sb.append("stack: [");
         List<Object> stack = block.getFrame().stack;
         for (int i = 0; i < stack.size(); i++) {
-            sb.append(i).append("->").append(
-                    FrontendTypeSystem.fromAsmFrameType(stack.get(i)).getName());
+            sb.append(i).append("->").append(fromAsmFrameType(stack.get(i)).getName());
             if (i != stack.size() - 1) {
                 sb.append(", ");
             }
@@ -136,7 +140,7 @@ public class BytecodeVisualizer {
         sb.append("local: [");
         for (int i = 0; i < block.getFrame().local.size(); i++) {
             Object o = block.getFrame().local.get(i);
-            String name = FrontendTypeSystem.fromAsmFrameType(o).getName();
+            String name = fromAsmFrameType(o).getName();
             if (name.equals(LONG.getName()) ||
                 name.equals(DOUBLE.getName())) {
                 n++;
@@ -149,5 +153,37 @@ public class BytecodeVisualizer {
         }
         sb.append("]\n");
         return sb.toString();
+    }
+
+    /**
+     * Convert ASM frame type to Type.
+     */
+    private static Type fromAsmFrameType(Object o) {
+        if (o instanceof Integer i) {
+            return switch (i) {
+                case 0 -> TOP; // Opcodes.Top
+                case 1 -> INT; // Opcodes.INTEGER
+                case 2 -> FLOAT; // Opcodes.FLOAT
+                case 3 -> DOUBLE; // Opcodes.DOUBLE
+                case 4 -> LONG; // Opcodes.LONG
+                case 5 -> NullType.NULL; // Opcodes.NULL
+                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
+                default -> throw new IllegalArgumentException();
+            };
+        } else if (o instanceof LabelNode) {
+            return Uninitialized.UNINITIALIZED;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private enum Uninitialized implements Type {
+
+        UNINITIALIZED;
+
+        @Override
+        public String getName() {
+            return "<uninitialized-type>";
+        }
     }
 }

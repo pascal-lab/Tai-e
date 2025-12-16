@@ -21,9 +21,13 @@
  */
 
 /**
- * This package provides type inference and type-related utilities
- * for the Java bytecode frontend, including type inference for
- * local variables and expressions, and insertion of necessary type casts.
+ * This package provides type inference for untyped 3-address Tai-e IR.
+ * The core typing algorithm is introduced in paper:
+ * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li.
+ * Two Approaches to Fast Bytecode Frontend for Static Analysis.
+ * In OOPSLA 2025.
+ *
+ * @see pascal.taie.frontend.java.ir.typing.TypeInference
  */
 package pascal.taie.frontend.java.ir.typing;
 

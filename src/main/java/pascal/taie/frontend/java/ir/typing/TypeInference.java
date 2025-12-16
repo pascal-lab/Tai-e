@@ -74,11 +74,7 @@ import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
 
 /**
- * <p>Type inference based on the constraint graph.</p>
- *
- * <p>The algorithm is based on (1), but contains non-trivial improvement</p>
- * <p>(1) Ben Bellamy, Pavel Avgustinov, Oege de Moor, and Damien Sereni. 2008. Efficient local type inference.
- * SIGPLAN Not. 43, 10 (September 2008), 475–492. <a href="https://doi.org/10.1145/1449955.1449802">link</a>
+ * Pruning-based type inference based on the constraint graph.
  */
 public class TypeInference {
 
@@ -95,10 +91,6 @@ public class TypeInference {
         this.builder = builder;
         graph = new TypingFlowGraph(builder.manager.getVars().size());
         this.needCasting = false;
-    }
-
-    private Set<ReferenceType> lca(ReferenceType r1, ReferenceType r2) {
-        return typeSystem.lca(r1, r2);
     }
 
     private Optional<Type> plusOneArray(Type t) {
@@ -275,7 +267,7 @@ public class TypeInference {
     public void build() {
         addThisParam();
         ConstraintVisitor visitor = new ConstraintVisitor();
-        for (BytecodeBlock block : builder.blockSortedList) {
+        for (BytecodeBlock block : builder.sortedBlockList) {
             if (block.getExceptionHandlerTypes() != null) {
                 Var ref = null;
                 for (Stmt stmt : block.getStmts()) {
@@ -646,7 +638,7 @@ public class TypeInference {
             if (current == t) {
                 return t;
             }
-            Set<ReferenceType> lcas = lca(current, t);
+            Set<ReferenceType> lcas = typeSystem.lca(current, t);
             ReferenceType target = null;
             for (ReferenceType lca : lcas) {
                 if (isUseValid(lca)) {

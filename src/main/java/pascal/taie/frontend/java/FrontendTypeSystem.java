@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java;
 
-import org.objectweb.asm.tree.LabelNode;
-import pascal.taie.frontend.java.ir.typing.Uninitialized;
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -49,7 +47,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pascal.taie.frontend.java.ir.typing.Top.TOP;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -71,7 +68,15 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
      */
     private final Set<ClassType> arraySupers;
 
-    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache = Maps.newConcurrentMap();
+    /**
+     * Map from method descriptor in strings to types.
+     *
+     * <p>Usually we want to avoid using caching, but the conversion
+     * from method descriptor strings to types happens very frequently
+     * in frontend, and this cache is able to save ~70% of calculation time.
+     */
+    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache
+            = Maps.newConcurrentMap();
 
     public FrontendTypeSystem(JClassLoader defaultClassLoader) {
         super(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
@@ -241,9 +246,6 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
      * Results are cached for performance.
      */
     public Pair<List<Type>, Type> fromAsmMethodDesc(String descriptor) {
-        // normally we want to avoid using caching
-        // but this method will be called very frequently
-        // caching is able to save ~70% of calculation time
         return methodDescriptorCache.computeIfAbsent(descriptor,
                 desc -> fromAsmMethodType(org.objectweb.asm.Type.getType(desc)));
     }
@@ -279,34 +281,15 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         }
     }
 
-    /**
-     * Convert ASM frame type to Type.
-     */
-    public static Type fromAsmFrameType(Object o) {
-        if (o instanceof Integer i) {
-            return switch (i) {
-                case 0 -> TOP; // Opcodes.Top
-                case 1 -> INT; // Opcodes.INTEGER
-                case 2 -> FLOAT; // Opcodes.FLOAT
-                case 3 -> DOUBLE; // Opcodes.DOUBLE
-                case 4 -> LONG; // Opcodes.LONG
-                case 5 -> NullType.NULL; // Opcodes.NULL
-                case 6 -> Uninitialized.UNINITIALIZED; // Opcodes.UNINITIALIZED_THIS
-                default -> throw new IllegalArgumentException();
-            };
-        } else if (o instanceof LabelNode) {
-            return Uninitialized.UNINITIALIZED;
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     private ClassType getClassTypeByInternalName(String internalName) {
         return getClassType(internalName.replace('/', '.'));
     }
 
     // ==================== LCA (Least Common Ancestor) Methods ====================
 
+    /**
+     * @return LCA type for {@code t1} and {@code t2}.
+     */
     public Set<ReferenceType> lca(ReferenceType t1, ReferenceType t2) {
         assert !(t1 != t2 && t1.equals(t2));
         if (t1 == t2) {
@@ -347,42 +330,6 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Compute LCA for multiple types.
-     * @param types null and uninitialized type should be removed
-     */
-    public Set<ReferenceType> lca(Set<ReferenceType> types) {
-        if (types.size() <= 1) {
-            return types;
-        } else {
-            if (allRefArray(types)) {
-                return lca(types.stream().map(t -> (ReferenceType) ((ArrayType) t).elementType())
-                        .collect(Collectors.toSet()))
-                        .stream()
-                        .map(this::makeArrayOf)
-                        .collect(Collectors.toSet());
-            }
-            Set<ClassType> res = null;
-            for (ReferenceType t : types) {
-                Set<ClassType> current;
-                if (t instanceof NullType) {
-                    continue;
-                } else if (t instanceof ArrayType) {
-                    current = arraySupers;
-                } else {
-                    current = upperClosure((ClassType) t);
-                }
-                if (res == null) {
-                    res = current;
-                } else {
-                    res.retainAll(current);
-                }
-            }
-            assert res != null;
-            return minimum(res);
-        }
-    }
-
     private Set<ReferenceType> minimum(Set<ClassType> in) {
         Set<ClassType> removed = Sets.newHybridSet();
         for (ClassType t1 : in) {
@@ -394,12 +341,6 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
         }
         in.removeAll(removed);
         return Collections.unmodifiableSet(in);
-    }
-
-    private static boolean allRefArray(Set<ReferenceType> types) {
-        return types.stream()
-                .allMatch(t -> t instanceof ArrayType arrayType
-                        && arrayType.elementType() instanceof ReferenceType);
     }
 
     /**

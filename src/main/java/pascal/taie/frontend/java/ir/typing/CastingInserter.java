@@ -144,7 +144,7 @@ class CastingInserter {
 
     void build() {
 
-        for (BytecodeBlock block : builder.blockSortedList) {
+        for (BytecodeBlock block : builder.sortedBlockList) {
 
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
 
@@ -375,12 +375,6 @@ class CastingInserter {
                 flowTypeCache.put(info, v1);
                 return v1;
             }
-
-            // TODO: 2. if frame is available,
-            if (builder.isFrameUsable()) {
-                return null;
-            }
-
             // can't get flow type, use worse solution
             return null;
         }

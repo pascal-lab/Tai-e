@@ -27,7 +27,9 @@ package pascal.taie.util.collection;
  * Current implementation is quite naive, but is enough for our main purpose: used in frontend
  */
 public class IntList {
+
     private int[] items;
+
     private int size;
 
     public IntList(int initialCapacity) {

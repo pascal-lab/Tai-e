@@ -30,6 +30,7 @@ import pascal.taie.util.collection.LazyArray;
  * The graph is directed and unweighted.
  */
 class IntGraph extends LazyArray<IntList> {
+
     IntGraph(int initialCapacity) {
         super(initialCapacity);
     }
@@ -45,5 +46,4 @@ class IntGraph extends LazyArray<IntList> {
     void addEdge(int from, int to) {
         get(from).add(to);
     }
-
 }

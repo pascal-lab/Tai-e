@@ -56,7 +56,6 @@ import pascal.taie.frontend.java.ir.ssa.IRSSATransform;
 import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 import pascal.taie.frontend.java.ir.ssa.PhiResolver;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
-import pascal.taie.frontend.java.ir.typing.Top;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -167,9 +166,11 @@ import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
 /**
- * <p>The main class for IR building of bytecode frontend</p>
+ * The main class for converting bytecode to Tai-e IR.
  */
 public class BytecodeIRBuilder {
+
+    private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
 
     private final FrontendTypeSystem typeSystem;
 
@@ -197,7 +198,7 @@ public class BytecodeIRBuilder {
     /**
      * Blocks that are sorted in bytecode order
      */
-    public List<BytecodeBlock> blockSortedList;
+    public List<BytecodeBlock> sortedBlockList;
 
     /**
      * Entry block
@@ -226,11 +227,6 @@ public class BytecodeIRBuilder {
     private final boolean isEmpty;
 
     /**
-     * If the stack map frame is available
-     */
-    private boolean isFrameUsable;
-
-    /**
      * Generated Taie IR stmts
      */
     private List<Stmt> stmts;
@@ -249,8 +245,6 @@ public class BytecodeIRBuilder {
      * Def-use info for local variable table of bytecode
      */
     private final DUInfo duInfo;
-
-    private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
 
     /**
      * The top element, used as a placeholder two word stack value (e.g. long and double)
@@ -314,8 +308,7 @@ public class BytecodeIRBuilder {
         if (!isEmpty) {
             buildCFG();
             traverseBlocks();
-            this.isFrameUsable = classFileVersion >= Opcodes.V1_6;
-            inferTypeWithoutFrame();
+            inferTypes();
 
             makeStmts(true);
             makeExceptionTable();
@@ -331,10 +324,6 @@ public class BytecodeIRBuilder {
     void ssa() {
         IRSSATransform<BytecodeBlock> ssa = new IRSSATransform<>(method, cfg, manager, duInfo);
         ssa.build();
-    }
-
-    public boolean isFrameUsable() {
-        return isFrameUsable;
     }
 
     public void dump() {
@@ -358,13 +347,13 @@ public class BytecodeIRBuilder {
     }
 
     public List<Stmt> getAllStmts() {
-        return blockSortedList.stream()
+        return sortedBlockList.stream()
                 .flatMap(block -> block.getStmts().stream())
                 .toList();
     }
 
     public List<BytecodeBlock> getAllBlocks() {
-        return blockSortedList;
+        return sortedBlockList;
     }
 
     public List<ExceptionEntry> getExceptionEntries() {
@@ -657,7 +646,7 @@ public class BytecodeIRBuilder {
         BytecodeBlock block = searchForValidBlock(label);
         while (block.getStmts().isEmpty()) {
             BytecodeBlock next1 = cfg.getOutEdge(block, 0);
-            BytecodeBlock next2 = blockSortedList.get(block.getIndex() + 1);
+            BytecodeBlock next2 = sortedBlockList.get(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
@@ -712,7 +701,7 @@ public class BytecodeIRBuilder {
                 stmts.add(curr);
             }
         }
-        for (BytecodeBlock block : blockSortedList) {
+        for (BytecodeBlock block : sortedBlockList) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
@@ -1256,7 +1245,7 @@ public class BytecodeIRBuilder {
     }
 
     private void solveAllPhiAndOutput() {
-        for (BytecodeBlock bb : blockSortedList) {
+        for (BytecodeBlock bb : sortedBlockList) {
             fillInLoopHeaderStackPhis(bb);
             if (isSSA) {
                 addLocalPhiInDefs(bb);
@@ -1264,7 +1253,7 @@ public class BytecodeIRBuilder {
         }
         propagatePhiUsed();
         resolveStackPhi();
-        for (BytecodeBlock bb : blockSortedList) {
+        for (BytecodeBlock bb : sortedBlockList) {
             // unreachable
             if (bb.getOutStack() == null) {
                 continue;
@@ -1301,7 +1290,7 @@ public class BytecodeIRBuilder {
 
     private void resolveStackPhi() {
         if (!isSSA) {
-            stackMergeStmts = new LazyArray<>(blockSortedList.size()) {
+            stackMergeStmts = new LazyArray<>(sortedBlockList.size()) {
                 @Override
                 protected List<Stmt> createInstance() {
                     return new ArrayList<>();
@@ -1950,7 +1939,7 @@ public class BytecodeIRBuilder {
             }
         }
 
-        this.blockSortedList = new ArrayList<>(size / 4);
+        this.sortedBlockList = new ArrayList<>(size / 4);
         cfg = new BytecodeCFG(maxBlockCounter);
 
         AbstractInsnNode[] edgeInsn = new AbstractInsnNode[size];
@@ -1975,10 +1964,10 @@ public class BytecodeIRBuilder {
                     current = idx2Block[i];
                 } else {
                     // process current
-                    int counter = blockSortedList.size();
+                    int counter = sortedBlockList.size();
                     current.setIndex(counter);
                     edgeInsn[counter] = edge;
-                    blockSortedList.add(current);
+                    sortedBlockList.add(current);
                     current.setInstr(new BytecodeListSlice(source.instructions, start, end));
                     // update and post-processing
                     boolean fallThrough = fallThroughTable[end - 1];
@@ -1997,23 +1986,23 @@ public class BytecodeIRBuilder {
         // first check for that
         boolean emtpyLast = start == size - 1 && source.instructions.getLast().getOpcode() == -1;
         if (!emtpyLast) {
-            int counter = blockSortedList.size();
+            int counter = sortedBlockList.size();
             current.setIndex(counter);
             edgeInsn[counter] = source.instructions.getLast();
-            blockSortedList.add(current);
+            sortedBlockList.add(current);
             current.setInstr(new BytecodeListSlice(source.instructions, start, size));
         }
-        for (int i = 0; i < blockSortedList.size(); ++i) {
+        for (int i = 0; i < sortedBlockList.size(); ++i) {
             AbstractInsnNode insn = edgeInsn[i];
             if (insn instanceof JumpInsnNode jmp) {
-                BytecodeBlock bb = blockSortedList.get(i);
+                BytecodeBlock bb = sortedBlockList.get(i);
                 processEdge(bb, jmp.label);
             } else if (insn instanceof LookupSwitchInsnNode lookup) {
-                BytecodeBlock bb = blockSortedList.get(i);
+                BytecodeBlock bb = sortedBlockList.get(i);
                 processEdges(bb, lookup.labels);
                 processEdge(bb, lookup.dflt);
             } else if (insn instanceof TableSwitchInsnNode table) {
-                BytecodeBlock bb = blockSortedList.get(i);
+                BytecodeBlock bb = sortedBlockList.get(i);
                 processEdges(bb, table.labels);
                 processEdge(bb, table.dflt);
             }
@@ -2021,7 +2010,7 @@ public class BytecodeIRBuilder {
 
         addExceptionEdges();
         cfg.setEntry(entry);
-        cfg.setSortedBlockList(blockSortedList);
+        cfg.setSortedBlockList(sortedBlockList);
 
         dom = new Dominator<>(cfg);
         postProcess();
@@ -2080,7 +2069,7 @@ public class BytecodeIRBuilder {
             }
             idx++;
         }
-        return blockSortedList.size();
+        return sortedBlockList.size();
     }
 
     private int maxBlockCounter = 0;
@@ -2105,7 +2094,7 @@ public class BytecodeIRBuilder {
         int[] postOrder = dom.getPostOrder();
         for (int i = postOrder.length - 1; i >= 0; --i) {
             int current = postOrder[i];
-            BytecodeBlock bb = blockSortedList.get(current);
+            BytecodeBlock bb = sortedBlockList.get(current);
             buildBlockStmt(bb);
         }
         solveAllPhiAndOutput();
@@ -2139,11 +2128,11 @@ public class BytecodeIRBuilder {
     }
 
     private void reportMergeStats() {
-        long totalBlocks = blockSortedList.size();
+        long totalBlocks = sortedBlockList.size();
         long pessimisticBlocks = 0;
         long pessimisticPhis = 0;
         long pessimisticLivePhis = 0;
-        for (BytecodeBlock bb : blockSortedList) {
+        for (BytecodeBlock bb : sortedBlockList) {
             if (bb.isLoopHeader() && !bb.getInStack().isEmpty()) {
                 pessimisticBlocks++;
                 pessimisticPhis += bb.getInStack().size();

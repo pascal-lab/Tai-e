@@ -28,6 +28,7 @@ package pascal.taie.util.collection;
  * @param <T> The type of element
  */
 public abstract class LazyArray<T> {
+
     private final Object[] items;
 
     public LazyArray(int initialCapacity) {

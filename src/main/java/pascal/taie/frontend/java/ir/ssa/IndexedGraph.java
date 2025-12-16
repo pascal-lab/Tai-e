@@ -33,6 +33,7 @@ import java.util.List;
  * </p>
  */
 public interface IndexedGraph<N> {
+
     List<N> inEdges(N node);
 
     List<N> outEdges(N node);
