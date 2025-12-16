@@ -149,7 +149,6 @@ import static pascal.taie.frontend.java.ir.OpcodeUtils.toCondOp;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.toConstValue;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.toShiftOp;
 import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
-import static pascal.taie.frontend.java.ir.Utils.isVarStore;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -297,7 +296,7 @@ public class BytecodeIRBuilder {
                 new Indexer<>() {
                     @Override
                     public int getIndex(AbstractInsnNode o) {
-                        return BytecodeIRBuilder.this.getIndex(o);
+                        return source.instructions.indexOf(o);
                     }
 
                     @Override
@@ -405,14 +404,15 @@ public class BytecodeIRBuilder {
     }
 
     private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = searchForValidBlock(label);
+        BytecodeBlock block = cfg.searchForValidBlock(getIndex(label));
         while (block.getStmts().isEmpty()) {
             BytecodeBlock next1 = cfg.getOutEdge(block, 0);
             BytecodeBlock next2 = sortedBlockList.get(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
-                logger.atTrace().log("[IR] Unreachable code reference detected in method: "
+                logger.atTrace()
+                        .log("[IR] Unreachable code reference detected in method: "
                         + method.toString());
             }
             block = next2;
@@ -1373,29 +1373,6 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private BytecodeBlock[] idx2Block;
-
-    private BytecodeBlock getBlockFromLabel(LabelNode node) {
-        return idx2Block[getIndex(node)];
-    }
-
-    private void processEdge(BytecodeBlock now, LabelNode target) {
-        int index = getIndex(target);
-        BytecodeBlock b = idx2Block[index];
-        assert b != null;
-        if (b.getIndex() == -1) {
-            // very unlikely, but possible
-            b = searchForValidBlock(target);
-        }
-        cfg.addEdge(now.getIndex(), b.getIndex());
-    }
-
-    private void processEdges(BytecodeBlock now, List<LabelNode> targets) {
-        for (LabelNode target : targets) {
-            processEdge(now, target);
-        }
-    }
-
     private int rwCount;
     private int[] rwTable;
     private BCSSA<BytecodeBlock> splitting;
@@ -1558,204 +1535,27 @@ public class BytecodeIRBuilder {
     }
 
     /**
-     * Build CFG from ASM instructions.
-     * <p>
-     *     The {@link #sortedBlockList} is constructed,
-     *     For every block, the block index is set to its pos in this list.
-     *     i.e., forall b, {@code b.getIndex() == sortedBlockList.indexOf(b)}
-     * </p>
-     * <p>
-     *     Current implementation takes a 3-step solution
-     *     <ol>
-     *     <li>build a block for each instruction if needed</li>
-     *     <li>remove the empty block and add the fall-through edges</li>
-     *     <li>add other edges</li>
-     *     </ol>
-     *     If asm library can generate clean insnlist ("clean" means there is no
-     *     empty block), then step 2 and 3 can be merged.
-     * </p>
-     *
-     * <p>TODO: optimize block construction && edge adding</p>
+     * Build CFG from ASM instructions using {@link BytecodeCFGBuilder}.
      */
     private BytecodeCFG cfg;
 
     private void buildCFG() {
         rwCount = getParamWriteSize();
         int size = source.instructions.size();
-        idx2Block = new BytecodeBlock[size];
-        boolean[] fallThroughTable = new boolean[size];
-        Arrays.fill(fallThroughTable, true);
         rwTable = new int[size];
-        AbstractInsnNode begin = source.instructions.getFirst();
-        if (begin == null) {
+
+        // Build CFG with rwTable visitor and exception type resolver
+        cfg = new BytecodeCFGBuilder(source,
+                (index, varSlot, isRead) -> writeRwTable(rwTable, index, varSlot, isRead),
+                this::fromExceptionType)
+                .build();
+        if (cfg == null) {
             return;
         }
-
-        assert getIndex(begin) == 0;
-        idx2Block[0] = getBlock(begin);
-        this.entry = idx2Block[0];
-
-        for (TryCatchBlockNode now : source.tryCatchBlocks) {
-            getBlock(now.start);
-            getBlock(now.end);
-            getBlock(now.handler);
-        }
-
-        FlattenExceptionTable fet = new FlattenExceptionTable(source);
-        boolean inTry = false;
-        Pair<int[], Integer> exceptionSwitchesPair = fet.buildExceptionSwitches();
-        int[] trySwitch = exceptionSwitchesPair.first();
-        int trySwitchSize = exceptionSwitchesPair.second();
-        int trySwitchIndex = 0;
-        for (int i = 0; i < size; ++i) {
-            while (trySwitchIndex < trySwitchSize && trySwitch[trySwitchIndex] == i) {
-                inTry = !inTry;
-                trySwitchIndex++;
-            }
-            AbstractInsnNode now = source.instructions.get(i);
-            boolean needNoBlock = true;
-            boolean splitBefore = false;
-            if (now instanceof JumpInsnNode jmp) {
-                getBlock(jmp.label);
-                needNoBlock = false;
-                fallThroughTable[i] = jmp.getOpcode() != Opcodes.GOTO;
-            } else if (now instanceof LookupSwitchInsnNode lookup) {
-                getBlock(lookup.dflt);
-                for (LabelNode label : lookup.labels) {
-                    getBlock(label);
-                }
-                needNoBlock = false;
-                fallThroughTable[i] = false;
-            } else if (now instanceof TableSwitchInsnNode table) {
-                getBlock(table.dflt);
-                for (LabelNode label : table.labels) {
-                    getBlock(label);
-                }
-                needNoBlock = false;
-                fallThroughTable[i] = false;
-            } else {
-                // inlined from Util::isReturnOrThrow
-                // this checking may not be stable,
-                // if upgrade ASM version, should check here
-                if (now instanceof InsnNode insnNode) {
-                    int opcode = insnNode.getOpcode();
-                    if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) ||
-                            opcode == Opcodes.ATHROW) {
-                        needNoBlock = false;
-                        fallThroughTable[i] = false;
-                    }
-                } else if (now instanceof VarInsnNode varNode) {
-                    if (inTry && isVarStore(varNode)) {
-                        splitBefore = true;
-                    }
-                    writeRwTable(rwTable, i, varNode.var, !isVarStore(varNode));
-                } else if (now instanceof IincInsnNode iincInsnNode) {
-                    if (inTry) {
-                        splitBefore = true;
-                    }
-                    writeRwTable(rwTable, i, iincInsnNode.var, true);
-                    writeRwTable(rwTable, i, iincInsnNode.var, false);
-                }
-            }
-
-            if (!needNoBlock) {
-                AbstractInsnNode next = now.getNext();
-                if (next != null) {
-                    getBlock(next);
-                }
-            }
-            if (splitBefore) {
-                getBlock(now);
-            }
-        }
-
-        this.sortedBlockList = new ArrayList<>(size / 4);
-        cfg = new BytecodeCFG(maxBlockCounter);
-
-        AbstractInsnNode[] edgeInsn = new AbstractInsnNode[size];
-        BytecodeBlock current = idx2Block[0];
-        assert current != null;
-        int start = 0;
-        for (int i = 1; i < size; ++i) {
-            if (idx2Block[i] != null) {
-                int end = i;
-                AbstractInsnNode edge = source.instructions.get(end - 1);
-                // check for empty
-                // TODO: are there any better way to do that?
-                for (int curr = end - 1; curr >= start; --curr) {
-                    edge = source.instructions.get(curr);
-                    if (edge.getOpcode() != -1) {
-                        break;
-                    }
-                }
-                if (edge.getOpcode() == -1 && current != entry) {
-                    // empty block
-                    idx2Block[start] = idx2Block[i];
-                    current = idx2Block[i];
-                } else {
-                    // process current
-                    int counter = sortedBlockList.size();
-                    current.setIndex(counter);
-                    edgeInsn[counter] = edge;
-                    sortedBlockList.add(current);
-                    current.setInstr(new BytecodeListSlice(source.instructions, start, end));
-                    // update and post-processing
-                    boolean fallThrough = fallThroughTable[end - 1];
-                    BytecodeBlock prev = current;
-                    current = idx2Block[i];
-                    start = i;
-                    if (fallThrough) {
-                        // prev.getIndex() must be counter
-                        cfg.addEdge(counter, counter + 1);
-                    }
-                }
-            }
-        }
-        // the last block is not processed
-        // but for some cases, it is an empty block
-        // first check for that
-        boolean emtpyLast = start == size - 1 && source.instructions.getLast().getOpcode() == -1;
-        if (!emtpyLast) {
-            int counter = sortedBlockList.size();
-            current.setIndex(counter);
-            edgeInsn[counter] = source.instructions.getLast();
-            sortedBlockList.add(current);
-            current.setInstr(new BytecodeListSlice(source.instructions, start, size));
-        }
-        for (int i = 0; i < sortedBlockList.size(); ++i) {
-            AbstractInsnNode insn = edgeInsn[i];
-            if (insn instanceof JumpInsnNode jmp) {
-                BytecodeBlock bb = sortedBlockList.get(i);
-                processEdge(bb, jmp.label);
-            } else if (insn instanceof LookupSwitchInsnNode lookup) {
-                BytecodeBlock bb = sortedBlockList.get(i);
-                processEdges(bb, lookup.labels);
-                processEdge(bb, lookup.dflt);
-            } else if (insn instanceof TableSwitchInsnNode table) {
-                BytecodeBlock bb = sortedBlockList.get(i);
-                processEdges(bb, table.labels);
-                processEdge(bb, table.dflt);
-            }
-        }
-
-        addExceptionEdges();
-        cfg.setEntry(entry);
-        cfg.setSortedBlockList(sortedBlockList);
-
+        sortedBlockList = cfg.getSortedBlockList();
+        entry = cfg.getEntry();
         dom = new Dominator<>(cfg);
         postProcess();
-    }
-
-    private void addExceptionEdges() {
-        for (TryCatchBlockNode now : source.tryCatchBlocks) {
-            BytecodeBlock handler = searchForValidBlock(now.handler);
-            BytecodeBlock start = searchForValidBlock(now.start);
-            int end = searchForValidBlockOrEnd(now.end);
-            for (int i = start.getIndex(); i < end; ++i) {
-                cfg.addExceptionEdge(i, handler.getIndex());
-            }
-            handler.addExceptionHandlerType(fromExceptionType(now.type));
-        }
     }
 
     private ClassType fromExceptionType(String internalName) {
@@ -1769,53 +1569,6 @@ public class BytecodeIRBuilder {
                 throw new UnsupportedOperationException("Unsupported exception type: " + r);
             }
         }
-    }
-
-    private BytecodeBlock getBlock(AbstractInsnNode label) {
-        int idx = getIndex(label);
-        if (idx2Block[idx] == null) {
-            LabelNode labelNode = (label instanceof LabelNode)
-                    ? (LabelNode) label
-                    : createNewLabel(label);
-            idx2Block[idx] = createNewBlock(labelNode);
-        }
-        return idx2Block[idx];
-    }
-
-    private BytecodeBlock searchForValidBlock(AbstractInsnNode label) {
-        int idx = getIndex(label);
-        while (idx2Block[idx] == null || idx2Block[idx].getIndex() == -1) {
-            idx++;
-        }
-        return idx2Block[idx];
-    }
-
-    private int searchForValidBlockOrEnd(AbstractInsnNode label) {
-        int idx = getIndex(label);
-        int maxSize = idx2Block.length;
-        while (idx < maxSize) {
-            if (idx2Block[idx] != null && idx2Block[idx].getIndex() != -1) {
-                return idx2Block[idx].getIndex();
-            }
-            idx++;
-        }
-        return sortedBlockList.size();
-    }
-
-    private int maxBlockCounter = 0;
-    private BytecodeBlock createNewBlock(LabelNode label) {
-        maxBlockCounter++;
-        return new BytecodeBlock(label);
-    }
-
-    // avoid creating outer reference, use a static method
-    private static LabelNode createNewLabel(AbstractInsnNode next) {
-        return new LabelNode() {
-            @Override
-            public AbstractInsnNode getNext() {
-                return next;
-            }
-        };
     }
 
     private void traverseBlocks() {

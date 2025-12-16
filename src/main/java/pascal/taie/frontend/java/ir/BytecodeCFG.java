@@ -73,16 +73,29 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     private final int[] exceptionInEdgesCount;
 
-    BytecodeBlock entry;
+    private final BytecodeBlock entry;
 
-    List<BytecodeBlock> sortedBlockList;
+    private final List<BytecodeBlock> sortedBlockList;
 
     /**
-     * Constructs a new BytecodeGraph with the specified maximum block size.
-     *
-     * @param maxBlockSize The maximum number of blocks in the graph.
+     * Mapping from instruction index to block.
      */
-    BytecodeCFG(int maxBlockSize) {
+    private final BytecodeBlock[] idx2Block;
+
+    /**
+     * Constructs a new BytecodeCFG with the specified parameters.
+     *
+     * @param maxBlockSize    The maximum number of blocks in the graph.
+     * @param entry           The entry block of the CFG.
+     * @param sortedBlockList The list of blocks sorted in bytecode order.
+     * @param idx2Block       Mapping from instruction index to block.
+     */
+    BytecodeCFG(int maxBlockSize, BytecodeBlock entry,
+                List<BytecodeBlock> sortedBlockList, BytecodeBlock[] idx2Block) {
+        this.entry = entry;
+        this.sortedBlockList = sortedBlockList;
+        this.idx2Block = idx2Block;
+
         inEdges = new int[maxBlockSize * DEFAULT_EDGE_SIZE];
         outEdges = new int[maxBlockSize * DEFAULT_EDGE_SIZE];
         extraInEdges = new int[maxBlockSize][];
@@ -96,12 +109,19 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         exceptionInEdgesCount = new int[maxBlockSize];
     }
 
-    void setEntry(BytecodeBlock entry) {
-        this.entry = entry;
-    }
-
-    void setSortedBlockList(List<BytecodeBlock> sortedBlockList) {
-        this.sortedBlockList = sortedBlockList;
+    /**
+     * Searches for a valid block starting from the given instruction index.
+     * Skips empty or merged blocks.
+     *
+     * @param startIdx the starting instruction index
+     * @return the first valid block at or after startIdx
+     */
+    BytecodeBlock searchForValidBlock(int startIdx) {
+        int idx = startIdx;
+        while (idx2Block[idx] == null || idx2Block[idx].getIndex() == -1) {
+            idx++;
+        }
+        return idx2Block[idx];
     }
 
     /**
