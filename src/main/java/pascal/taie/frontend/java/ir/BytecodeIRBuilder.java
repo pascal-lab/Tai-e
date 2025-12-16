@@ -58,7 +58,6 @@ import pascal.taie.frontend.java.ir.ssa.PhiResolver;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.frontend.java.ir.typing.Top;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
-import pascal.taie.frontend.java.ir.typing.TypeInference0;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -325,26 +324,8 @@ public class BytecodeIRBuilder {
         }
     }
 
-    void inferTypeWithFrame() {
-//        if (!EXPERIMENTAL) {
-//            stageTimer.startSplitting();
-//            VarWebSplitter splitter = new VarWebSplitter(this);
-//            splitter.build();
-//            stageTimer.endSplitting();
-//        }
-        TypeInference0 inference = new TypeInference0(this, typeSystem);
-        inference.build();
-    }
-
-    void inferTypeWithoutFrame() {
-//        if (!EXPERIMENTAL) {
-//            stageTimer.startSplitting();
-//            VarWebSplitter splitter = new VarWebSplitter(this);
-//            splitter.build();
-//            stageTimer.endSplitting();
-//        }
-        TypeInference inference = new TypeInference(this, typeSystem);
-        inference.build();
+    private void inferTypes() {
+        new TypeInference(this, typeSystem).build();
     }
 
     void ssa() {

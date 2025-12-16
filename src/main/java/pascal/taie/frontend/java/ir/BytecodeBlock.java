@@ -24,29 +24,21 @@ package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.VarInsnNode;
-import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.typing.Top;
-import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.Type;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
-import java.util.function.BiConsumer;
 
 /**
  * The basic block of bytecode control flow graph.
  */
 public final class BytecodeBlock implements IBasicBlock {
+
     private final LabelNode label;
 
     private int index = -1;
@@ -64,11 +56,7 @@ public final class BytecodeBlock implements IBasicBlock {
     @Nullable
     private List<ClassType> exceptionHandlerTypes;
 
-    private List<Object> frameLocalType;
-
     private int[] stmt2Asm;
-
-    private boolean isInTry = false;
 
     private boolean isLoopHeader = false;
 
@@ -87,14 +75,6 @@ public final class BytecodeBlock implements IBasicBlock {
 
     public boolean isCatch() {
         return getExceptionHandlerTypes() != null;
-    }
-
-    void setIsInTry() {
-        isInTry = true;
-    }
-
-    boolean isInTry() {
-        return isInTry;
     }
 
     Stack<StackItem> getInStack() {
@@ -164,79 +144,6 @@ public final class BytecodeBlock implements IBasicBlock {
         return frame;
     }
 
-    public void visitInitTyping(BiConsumer<Var, Type> consumer) {
-        assert frame != null;
-
-        if (inStack != null) {
-            int n = 0;
-            for (int i = 0; i < frame.stack.size(); ++i) {
-                Exp e = inStack.get(n).e();
-                Exp original = inStack.get(n).originalExp();
-                Var v;
-                if (e instanceof Top) {
-                    n++;
-                    e = inStack.get(n).e();
-                }
-
-                if (original instanceof StackPhi phi) {
-                    v = phi.getWriteOutVar();
-                } else if (e instanceof Var v1) {
-                    v = v1;
-                } else {
-                    v = null;
-                }
-                if (v != null) {
-                    Type t = FrontendTypeSystem.fromAsmFrameType(frame.stack.get(i));
-                    consumer.accept(v, t);
-                }
-                n++;
-            }
-        }
-    }
-
-    private void buildFrameLocalType() {
-        frameLocalType = frame.local;
-        boolean copied = false;
-        for (int i = 0; i < frame.local.size(); i++) {
-            Object o = frame.local.get(i);
-            // is long or double
-            if (o instanceof Integer && ((Integer) o == 3 || (Integer) o == 4)) {
-                if (!copied) {
-                    frameLocalType = new ArrayList<>(frame.local.size() + 1);
-                    for (int j = 0; j < i; j++) {
-                        frameLocalType.add(frame.local.get(j));
-                    }
-                    copied = true;
-                }
-                frameLocalType.add(o);
-                frameLocalType.add(0); // place top
-            } else if (copied) {
-                frameLocalType.add(o);
-            }
-        }
-    }
-
-
-    private void ensureLocalType() {
-        if (frameLocalType == null) {
-            buildFrameLocalType();
-        }
-    }
-
-    boolean isLocalExistInFrame(int slot) {
-        ensureLocalType();
-        if (slot >= frameLocalType.size()) {
-            return false;
-        }
-        Object o = frameLocalType.get(slot);
-        return ! (o instanceof Integer i && i == 0);
-    }
-
-    public List<Object> getFrameLocalType() {
-        ensureLocalType();
-        return frameLocalType;
-    }
-
     void setFrame(FrameNode frame) {
         assert frame != null;
         this.frame = frame;
@@ -268,52 +175,6 @@ public final class BytecodeBlock implements IBasicBlock {
             exceptionHandlerTypes = new ArrayList<>();
         }
         exceptionHandlerTypes.add(type);
-    }
-
-    @Deprecated
-    private void tryCorrectFrame(int size) {
-        if (instr.isEmpty()) {
-            return;
-        }
-        AbstractInsnNode last = instr.get(instr.size() - 1);
-        if (!(Utils.isReturn(last) || Utils.isThrow(last)) || isInTry) {
-            return;
-        }
-        // the last node is return
-
-        boolean[] hits = new boolean[size];
-        Arrays.fill(hits, false);
-        boolean[] redefines = new boolean[size];
-        Arrays.fill(redefines, false);
-
-        for (AbstractInsnNode insnNode : instr) {
-            if (insnNode instanceof VarInsnNode varInsnNode) {
-                int var = varInsnNode.var;
-                if (var >= size) {
-                    continue;
-                }
-                if (Utils.isVarStore(varInsnNode)) {
-                    redefines[var] = true;
-                } else {
-                    if (!redefines[var]) {
-                        hits[var] = true;
-                    }
-                }
-            } else if (insnNode instanceof IincInsnNode iincInsnNode) {
-                int var = iincInsnNode.var;
-                if (var >= size) {
-                    continue;
-                }
-                redefines[var] = true;
-                hits[var] = true;
-            }
-        }
-
-        for (int i = 0; i < frameLocalType.size(); ++i) {
-            if (!hits[i]) {
-                frameLocalType.set(i, 0);
-            }
-        }
     }
 
     boolean isLoopHeader() {
