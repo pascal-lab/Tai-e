@@ -71,7 +71,7 @@ public class Dominator<N> {
 
     public Dominator(IndexedGraph<N> graph) {
         this.graph = graph;
-        this.entry = graph.getIntEntry();
+        this.entry = graph.getEntryIndex();
         postIndex = new int[graph.size()];
         postOrder = new int[graph.size()];
         Arrays.fill(postOrder, UNDEFINED);
@@ -126,14 +126,14 @@ public class Dominator<N> {
             }
         };
         for (int i = 0; i < graph.size(); ++i) {
-            int size = graph.getMergedInEdgesCount(i);
-            if (size >= 2 || i == graph.getIntEntry()) {
+            int size = graph.getInDegreeEx(i);
+            if (size >= 2 || i == graph.getEntryIndex()) {
                 /*
                 i == graph.getIntEntry for that we do not have pseudo entry, so we have to
                 force dominator frontier calculator to calculate df for the actual entry.
                  */
                 for (int j = 0; j < size; ++j) {
-                    int runner = graph.getMergedInEdge(i, j);
+                    int runner = graph.getPredEx(i, j);
                     while (runner != dom[i] && runner != -1) {
                         df.get(runner).add(i);
                         runner = dom[runner];
@@ -201,8 +201,8 @@ public class Dominator<N> {
     int post;
     private void dfs(int node, boolean[] visited) {
         visited[node] = true;
-        for (int i = graph.getMergedOutEdgesCount(node) - 1; i >= 0; i--) {
-            int succ = graph.getMergedOutEdge(node, i);
+        for (int i = graph.getOutDegreeEx(node) - 1; i >= 0; i--) {
+            int succ = graph.getSuccEx(node, i);
             if (!visited[succ]) {
                 dfs(succ, visited);
             }
@@ -225,13 +225,13 @@ public class Dominator<N> {
     }
 
     boolean processNode(int[] dom, int node) {
-        int prevCount = graph.getMergedInEdgesCount(node);
+        int prevCount = graph.getInDegreeEx(node);
         if (prevCount == 0 || dom[node] == entry) {
             return false;
         }
         int newIdom = UNDEFINED;
         for (int i = 0; i < prevCount; ++i) {
-            int p = graph.getMergedInEdge(node, i);
+            int p = graph.getPredEx(node, i);
             if (dom[p] == UNDEFINED) {
                 continue;
             }

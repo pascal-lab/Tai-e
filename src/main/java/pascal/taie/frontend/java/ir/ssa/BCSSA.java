@@ -339,10 +339,10 @@ public class BCSSA<Block extends BasicBlock> {
             // and should be labeled as 0, 1, 2, 3, ... in the du index
             varReachDef[i] = i;
             // if the param is used in a phi node, we need to update the reaching def
-            if (!phis.has(graph.getIntEntry())) {
+            if (!phis.has(graph.getEntryIndex())) {
                 continue;
             }
-            for (SemiPhi phi : phis.get(graph.getIntEntry())) {
+            for (SemiPhi phi : phis.get(graph.getEntryIndex())) {
                 if (phi.var == i) {
                     phi.addInDefs(null, i);
                 }
@@ -359,8 +359,8 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
             info.visit(current, varDUVisitor);
-            for (int i = 0; i < graph.getMergedOutEdgesCount(node); i++) {
-                int succIndex = graph.getMergedOutEdge(node, i);
+            for (int i = 0; i < graph.getOutDegreeEx(node); i++) {
+                int succIndex = graph.getSuccEx(node, i);
                 if (!phis.has(succIndex)) {
                     continue;
                 }

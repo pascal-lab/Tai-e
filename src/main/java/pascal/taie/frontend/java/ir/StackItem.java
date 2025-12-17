@@ -91,8 +91,8 @@ final class StackItem {
         return origin;
     }
 
-    void lift(Var v) {
-        this.exp = v;
+    void lift(Var var) {
+        this.exp = var;
     }
 
     @Override

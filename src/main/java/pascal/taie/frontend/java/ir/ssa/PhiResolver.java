@@ -73,7 +73,7 @@ public class PhiResolver<T extends BasicBlock> {
             effect. So we have to find the next non-empty block and get its first stmt.
             */
             while (block.getStmts().isEmpty()) {
-                List<T> outEdges = graph.normalOutEdges(block);
+                List<T> outEdges = graph.getSuccs(block);
                 assert outEdges.size() == 1;
                 block = outEdges.get(0);
             }

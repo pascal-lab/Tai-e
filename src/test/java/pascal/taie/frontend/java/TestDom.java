@@ -213,17 +213,17 @@ public class TestDom {
         return new IndexedGraph<>() {
 
             @Override
-            public List<Integer> inEdges(Integer node) {
+            public List<Integer> getPredsEx(Integer node) {
                 return inEdges.get(node);
             }
 
             @Override
-            public List<Integer> outEdges(Integer node) {
+            public List<Integer> getSuccsEx(Integer node) {
                 return directedGraph.get(node);
             }
 
             @Override
-            public List<Integer> normalOutEdges(Integer node) {
+            public List<Integer> getSuccs(Integer node) {
                 throw new UnsupportedOperationException();
             }
 

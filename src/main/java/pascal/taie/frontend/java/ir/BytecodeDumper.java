@@ -73,8 +73,8 @@ class BytecodeDumper {
                     .append("\"];\n");
         }
         for (BytecodeBlock block : graph.getSortedBlockList()) {
-            for (int i = 0; i < graph.getOutEdgesCount(block.getIndex()); i++) {
-                int succIndex = graph.getOutEdge(block.getIndex(), i);
+            for (int i = 0; i < graph.getOutDegree(block.getIndex()); i++) {
+                int succIndex = graph.getSucc(block.getIndex(), i);
                 BytecodeBlock succ = graph.getNode(succIndex);
                 sb.append(getBlockName(block))
                         .append(" -> ")

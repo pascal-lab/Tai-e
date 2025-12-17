@@ -34,26 +34,26 @@ import java.util.List;
  */
 public interface IndexedGraph<N> {
 
-    List<N> inEdges(N node);
+    List<N> getPredsEx(N node);
 
-    List<N> outEdges(N node);
+    List<N> getSuccsEx(N node);
 
-    List<N> normalOutEdges(N node);
+    List<N> getSuccs(N node);
 
-    default int getMergedInEdgesCount(int node) {
-        return inEdges(getNode(node)).size();
+    default int getInDegreeEx(int node) {
+        return getPredsEx(getNode(node)).size();
     }
 
-    default int getMergedOutEdgesCount(int node) {
-        return outEdges(getNode(node)).size();
+    default int getOutDegreeEx(int node) {
+        return getSuccsEx(getNode(node)).size();
     }
 
-    default int getMergedInEdge(int node, int index) {
-        return getIndex(inEdges(getNode(node)).get(index));
+    default int getPredEx(int node, int index) {
+        return getIndex(getPredsEx(getNode(node)).get(index));
     }
 
-    default int getMergedOutEdge(int node, int index) {
-        return getIndex(outEdges(getNode(node)).get(index));
+    default int getSuccEx(int node, int index) {
+        return getIndex(getSuccsEx(getNode(node)).get(index));
     }
 
     N getNode(int index);
@@ -64,7 +64,7 @@ public interface IndexedGraph<N> {
 
     N getEntry();
 
-    default int getIntEntry() {
+    default int getEntryIndex() {
         int entry = getIndex(getEntry());
         assert entry == 0;
         return entry;
