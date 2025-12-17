@@ -23,37 +23,36 @@
 package pascal.taie.util.collection;
 
 /**
- * <p>A lazy initialization array.</p>
- * <p>A typical use case is to store sparse data.</p>
- * @param <T> The type of element
+ * An abstract class representing an array with lazy initialization semantics.
+ * It is designed to efficiently support sparse data by creating elements
+ * only when they are first accessed via the {@link #get(int)} method.
+ * Subclasses must implement the {@link #createElement()} method to define
+ * how elements are constructed.
+ *
+ * @param <T> the type of the elements held in this array
  */
 public abstract class LazyArray<T> {
 
-    private final Object[] items;
+    private final Object[] elements;
 
-    public LazyArray(int initialCapacity) {
-        items = new Object[initialCapacity];
+    protected LazyArray(int initialCapacity) {
+        elements = new Object[initialCapacity];
     }
 
     @SuppressWarnings("unchecked")
     public T get(int index) {
-        if (index < 0 || index >= items.length) {
+        if (index < 0 || index >= elements.length) {
             throw new IndexOutOfBoundsException();
         }
-        if (items[index] == null) {
-            items[index] = createInstance();
+        if (elements[index] == null) {
+            elements[index] = createElement();
         }
-        return (T) items[index];
+        return (T) elements[index];
     }
 
-    public boolean has(int index) {
-        return index >= 0 && index < items.length && items[index] != null;
+    public boolean contains(int index) {
+        return index >= 0 && index < elements.length && elements[index] != null;
     }
 
-    protected abstract T createInstance();
-
-    public Object[] getItems() {
-        return items;
-    }
+    protected abstract T createElement();
 }
-

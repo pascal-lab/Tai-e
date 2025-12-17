@@ -23,47 +23,41 @@
 package pascal.taie.util.collection;
 
 /**
- * Similar to {@link java.util.ArrayList}, but optimized for primitive type <code>int</code>
- * Current implementation is quite naive, but is enough for our main purpose: used in frontend
+ * A simple and efficient list implementation for storing primitive int values.
  */
 public class IntList {
 
-    private int[] items;
+    private int[] ints;
 
     private int size;
 
     public IntList(int initialCapacity) {
-        items = new int[initialCapacity];
+        ints = new int[initialCapacity];
         size = 0;
     }
 
     public void add(int item) {
         ensureCapacity();
-        items[size] = item;
+        ints[size] = item;
         size++;
+    }
+
+    private void ensureCapacity() {
+        if (size == ints.length) {
+            int[] newItems = new int[ints.length * 2];
+            System.arraycopy(ints, 0, newItems, 0, ints.length);
+            ints = newItems;
+        }
     }
 
     public int get(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        return items[index];
+        return ints[index];
     }
 
     public int size() {
         return size;
     }
-
-    public int[] getItems() {
-        return items;
-    }
-
-    private void ensureCapacity() {
-        if (size == items.length) {
-            int[] newItems = new int[items.length * 2];
-            System.arraycopy(items, 0, newItems, 0, items.length);
-            items = newItems;
-        }
-    }
 }
-

@@ -965,7 +965,7 @@ public class BytecodeIRBuilder {
                 continue;
             }
             if (!isSSA) {
-                if (stackMergeStmts.has(bb.getIndex())) {
+                if (stackMergeStmts.contains(bb.getIndex())) {
                     List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
                     appendStackMergeStmts(bb, stmts);
                 }
@@ -998,7 +998,7 @@ public class BytecodeIRBuilder {
         if (!isSSA) {
             stackMergeStmts = new LazyArray<>(cfg.size()) {
                 @Override
-                protected List<Stmt> createInstance() {
+                protected List<Stmt> createElement() {
                     return new ArrayList<>();
                 }
             };
@@ -1406,7 +1406,7 @@ public class BytecodeIRBuilder {
         int maxLocal = source.maxLocals;
         LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(maxLocal) {
             @Override
-            protected List<BytecodeBlock> createInstance() {
+            protected List<BytecodeBlock> createElement() {
                 return new ArrayList<>();
             }
         };

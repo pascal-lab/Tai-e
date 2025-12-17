@@ -24,7 +24,7 @@ package pascal.taie.frontend.java.ir.ssa;
 
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
-import pascal.taie.util.collection.SparseSet;
+import pascal.taie.util.collection.SparseIntSet;
 
 import java.util.Arrays;
 
@@ -78,8 +78,8 @@ public class Dominator<N> {
         dfsTrav();
     }
 
-    public record DominatorFrontiers(LazyArray<SparseSet> res) {
-        public SparseSet get(int index) {
+    public record DominatorFrontiers(LazyArray<SparseIntSet> res) {
+        public SparseIntSet get(int index) {
             return res.get(index);
         }
     }
@@ -119,10 +119,10 @@ public class Dominator<N> {
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
         int gSize = graph.size();
-        LazyArray<SparseSet> df = new LazyArray<>(gSize) {
+        LazyArray<SparseIntSet> df = new LazyArray<>(gSize) {
             @Override
-            protected SparseSet createInstance() {
-                return new SparseSet(gSize, gSize);
+            protected SparseIntSet createElement() {
+                return new SparseIntSet(gSize);
             }
         };
         for (int i = 0; i < graph.size(); ++i) {
@@ -170,7 +170,7 @@ public class Dominator<N> {
     private void dfsDomTree(int[] dfsSeq, IntGraph domTree, int now) {
         dfsSeq[forward++] = now;
         timeIn[now] = time++;
-        if (domTree.has(now)) {
+        if (domTree.contains(now)) {
             IntList out = domTree.get(now);
             for (int i = 0; i < out.size(); ++i) {
                 int succ = out.get(i);

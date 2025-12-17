@@ -161,7 +161,7 @@ public class BCSSA<Block extends BasicBlock> {
         this.info = info;
         this.phis = new LazyArray<>(graph.size()) {
             @Override
-            protected List<SemiPhi> createInstance() {
+            protected List<SemiPhi> createElement() {
                 return new ArrayList<>();
             }
         };
@@ -203,7 +203,7 @@ public class BCSSA<Block extends BasicBlock> {
     void pruneAndRenaming(int phiCount) {
         // pass 1: prune, or spreading `used` flag
         for (int i = 0; i < graph.size(); i++) {
-            if (!phis.has(i)) {
+            if (!phis.contains(i)) {
                 continue;
             }
             for (SemiPhi phi : phis.get(i)) {
@@ -221,7 +221,7 @@ public class BCSSA<Block extends BasicBlock> {
             boolean[] visited = new boolean[phiCount];
             Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
             for (int i = 0; i < graph.size(); i++) {
-                if (!phis.has(i)) {
+                if (!phis.contains(i)) {
                     continue;
                 }
                 for (SemiPhi phi : phis.get(i)) {
@@ -339,7 +339,7 @@ public class BCSSA<Block extends BasicBlock> {
             // and should be labeled as 0, 1, 2, 3, ... in the du index
             varReachDef[i] = i;
             // if the param is used in a phi node, we need to update the reaching def
-            if (!phis.has(graph.getEntryIndex())) {
+            if (!phis.contains(graph.getEntryIndex())) {
                 continue;
             }
             for (SemiPhi phi : phis.get(graph.getEntryIndex())) {
@@ -350,7 +350,7 @@ public class BCSSA<Block extends BasicBlock> {
         }
         for (int node : domTreeDfsSeq) {
             Block current = graph.getNode(node);
-            if (phis.has(node)) {
+            if (phis.contains(node)) {
                 for (SemiPhi phi : phis.get(node)) {
                     int phiIndex = getPhiDuIndex(phi.index);
                     updateReachingDef(phi.var, phiIndex, varReachDef);
@@ -361,7 +361,7 @@ public class BCSSA<Block extends BasicBlock> {
             info.visit(current, varDUVisitor);
             for (int i = 0; i < graph.getOutDegreeEx(node); i++) {
                 int succIndex = graph.getSuccEx(node, i);
-                if (!phis.has(succIndex)) {
+                if (!phis.contains(succIndex)) {
                     continue;
                 }
                 for (SemiPhi phi : phis.get(succIndex)) {
@@ -470,7 +470,7 @@ public class BCSSA<Block extends BasicBlock> {
     }
 
     private boolean isInserted(int node, int v) {
-        if (!phis.has(node)) {
+        if (!phis.contains(node)) {
             return false;
         }
         for (SemiPhi phi : phis.get(node)) {
@@ -514,7 +514,7 @@ public class BCSSA<Block extends BasicBlock> {
 
     public void visitLivePhis(Block b, Consumer<SemiPhi> consumer) {
         int index = graph.getIndex(b);
-        if (!phis.has(index)) {
+        if (!phis.contains(index)) {
             return;
         }
         for (SemiPhi phi : phis.get(index)) {

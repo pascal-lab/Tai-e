@@ -36,14 +36,14 @@ class IntGraph extends LazyArray<IntList> {
     }
 
     @Override
-    protected IntList createInstance() {
+    protected IntList createElement() {
         return new IntList(4);
     }
 
     /**
-     * Add an edge from {@code from} to {@code to}.
+     * Add an edge from {@code source} to {@code target}.
      */
-    void addEdge(int from, int to) {
-        get(from).add(to);
+    void addEdge(int source, int target) {
+        get(source).add(target);
     }
 }

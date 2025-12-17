@@ -36,8 +36,8 @@ public class TestDom {
         assertArrayEquals(new int[]{0, 0, 0, 0}, idom);
         Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         assertEquals(0, df.get(0).size());
-        assertEquals(List.of(3), df.get(1).toList());
-        assertEquals(List.of(3), df.get(2).toList());
+        assertArrayEquals(new int[]{3}, df.get(1).toArray());
+        assertArrayEquals(new int[]{3}, df.get(2).toArray());
         assertEquals(0, df.get(3).size());
     }
 
@@ -56,11 +56,11 @@ public class TestDom {
         assertArrayEquals(new int[]{0, 0, 1, 1, 1, 1}, idom);
         Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         assertEquals(0, df.get(0).size());
-        assertEquals(List.of(1), df.get(1).toList());
-        assertEquals(List.of(4), df.get(2).toList());
-        assertEquals(List.of(4, 5), df.get(3).toList());
-        assertEquals(List.of(1, 5), df.get(4).toList());
-        assertEquals(List.of(), df.get(5).toList());
+        assertArrayEquals(new int[]{1}, df.get(1).toArray());
+        assertArrayEquals(new int[]{4}, df.get(2).toArray());
+        assertArrayEquals(new int[]{4, 5}, df.get(3).toArray());
+        assertArrayEquals(new int[]{1, 5}, df.get(4).toArray());
+        assertArrayEquals(new int[]{}, df.get(5).toArray());
     }
 
     @Test
@@ -83,16 +83,16 @@ public class TestDom {
         assertArrayEquals(new int[]{0, 0, 1, 2, 2, 2, 5, 2, 7, 8, 1}, idom);
         Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         assertEquals(0, df.get(0).size());
-        assertEquals(List.of(1), df.get(1).toList());
-        assertEquals(List.of(1), df.get(2).toList());
-        assertEquals(List.of(4), df.get(3).toList());
-        assertEquals(List.of(5), df.get(4).toList());
-        assertEquals(List.of(1, 4), df.get(5).toList());
-        assertEquals(List.of(1), df.get(6).toList());
-        assertEquals(List.of(5, 7), df.get(7).toList());
-        assertEquals(List.of(5, 7), df.get(8).toList());
-        assertEquals(List.of(7), df.get(9).toList());
-        assertEquals(List.of(), df.get(10).toList());
+        assertArrayEquals(new int[]{1}, df.get(1).toArray());
+        assertArrayEquals(new int[]{1}, df.get(2).toArray());
+        assertArrayEquals(new int[]{4}, df.get(3).toArray());
+        assertArrayEquals(new int[]{5}, df.get(4).toArray());
+        assertArrayEquals(new int[]{1, 4}, df.get(5).toArray());
+        assertArrayEquals(new int[]{1}, df.get(6).toArray());
+        assertArrayEquals(new int[]{5, 7}, df.get(7).toArray());
+        assertArrayEquals(new int[]{5, 7}, df.get(8).toArray());
+        assertArrayEquals(new int[]{7}, df.get(9).toArray());
+        assertArrayEquals(new int[]{}, df.get(10).toArray());
     }
 
     @Test
@@ -110,11 +110,11 @@ public class TestDom {
         assertArrayEquals(new int[]{0, 0, 0, 0, 0, 0}, idom);
         Dominator.DominatorFrontiers df = new Dominator<>(loadTest(g)).getDF();
         assertEquals(0, df.get(0).size());
-        assertEquals(List.of(3), df.get(1).toList());
-        assertEquals(List.of(4, 5), df.get(2).toList());
-        assertEquals(List.of(4), df.get(3).toList());
-        assertEquals(List.of(3, 5), df.get(4).toList());
-        assertEquals(List.of(4), df.get(5).toList());
+        assertArrayEquals(new int[]{3}, df.get(1).toArray());
+        assertArrayEquals(new int[]{4, 5}, df.get(2).toArray());
+        assertArrayEquals(new int[]{4}, df.get(3).toArray());
+        assertArrayEquals(new int[]{3, 5}, df.get(4).toArray());
+        assertArrayEquals(new int[]{4}, df.get(5).toArray());
 
     }
 
