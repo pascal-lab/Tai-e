@@ -43,7 +43,7 @@ public final class BytecodeBlock implements BasicBlock {
 
     private int index = -1;
 
-    private BytecodeListSlice instr;
+    private InsnListSlice instr;
 
     private Stack<StackItem> inStack;
 
@@ -65,11 +65,11 @@ public final class BytecodeBlock implements BasicBlock {
         this.stmts = new ArrayList<>();
     }
 
-    BytecodeListSlice instr() {
+    InsnListSlice instr() {
         return instr;
     }
 
-    void setInstr(BytecodeListSlice instr) {
+    void setInstr(InsnListSlice instr) {
         this.instr = instr;
     }
 

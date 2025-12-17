@@ -823,7 +823,7 @@ public class BytecodeIRBuilder {
 
     private void ensureBlockNotEmpty(BytecodeBlock block) {
         boolean blockEmpty = true;
-        BytecodeListSlice instr = block.instr();
+        InsnListSlice instr = block.instr();
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
             int current = start + i;
@@ -1120,7 +1120,7 @@ public class BytecodeIRBuilder {
 
     private void outputIR(BytecodeBlock block) {
         List<Stmt> blockStmt = block.getStmts();
-        BytecodeListSlice instr = block.instr();
+        InsnListSlice instr = block.instr();
         int counter = 0;
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {

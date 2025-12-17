@@ -48,7 +48,7 @@ import java.util.ListIterator;
  * @see BytecodeBlock
  * @see BytecodeIRBuilder
  */
-class BytecodeListSlice implements List<AbstractInsnNode> {
+class InsnListSlice implements List<AbstractInsnNode> {
 
     /**
      * The backing instruction list from which this slice is derived.
@@ -65,7 +65,7 @@ class BytecodeListSlice implements List<AbstractInsnNode> {
      */
     private final int end;
 
-    BytecodeListSlice(InsnList list, int start, int end) {
+    InsnListSlice(InsnList list, int start, int end) {
         this.list = list;
         this.start = start;
         this.end = end;
@@ -216,9 +216,5 @@ class BytecodeListSlice implements List<AbstractInsnNode> {
 
     int getStart() {
         return start;
-    }
-
-    int getEnd() {
-        return end;
     }
 }
