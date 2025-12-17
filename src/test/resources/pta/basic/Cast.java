@@ -1,8 +1,13 @@
 class Cast {
     public static void main(String[] args) {
-        Object o = new A();
-        o = new B();
-        o = new C();
+        Object o;
+        if (args.length == 0) {
+            o = new A();
+        } else if (args.length == 1) {
+            o = new B();
+        } else {
+            o = new C();
+        }
         A a = (A) o;
         PTAAssert.notEquals(a, o);
         B b = (B) o;
