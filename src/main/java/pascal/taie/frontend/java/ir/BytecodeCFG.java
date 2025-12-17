@@ -25,6 +25,7 @@ package pascal.taie.frontend.java.ir;
 import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,9 +62,9 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
      */
     private static final int SLOT_SIZE = 1 + INLINE_CAPACITY;
 
-    private final BytecodeBlock entry;
+    private final List<BytecodeBlock> blocks;
 
-    private final List<BytecodeBlock> sortedBlockList;
+    private final BytecodeBlock entry;
 
     /**
      * Mapping from instruction index to block.
@@ -95,13 +96,11 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
      *
      * @param maxBlockSize    The maximum number of blocks in the graph.
      * @param entry           The entry block of the CFG.
-     * @param sortedBlockList The list of blocks sorted in bytecode order.
      * @param insn2Block       Mapping from instruction index to block.
      */
-    BytecodeCFG(int maxBlockSize, BytecodeBlock entry,
-                List<BytecodeBlock> sortedBlockList, BytecodeBlock[] insn2Block) {
+    BytecodeCFG(int maxBlockSize, BytecodeBlock entry, BytecodeBlock[] insn2Block) {
+        blocks = new ArrayList<>(maxBlockSize);
         this.entry = entry;
-        this.sortedBlockList = sortedBlockList;
         this.insn2Block = insn2Block;
 
         preds = new int[maxBlockSize * SLOT_SIZE];
@@ -119,8 +118,18 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         exceptionOutDegree = new int[maxBlockSize];
     }
 
-    List<BytecodeBlock> getSortedBlockList() {
-        return sortedBlockList;
+    public List<BytecodeBlock> getBlocks() {
+        return Collections.unmodifiableList(blocks);
+    }
+
+    /**
+     * Adds a block to this CFG, and returns the index of given block.
+     */
+    int addBlock(BytecodeBlock block) {
+        int index = blocks.size();
+        block.setIndex(index);
+        blocks.add(block);
+        return index;
     }
 
     /**
@@ -252,7 +261,7 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     @Override
     public BytecodeBlock getNode(int index) {
-        return sortedBlockList.get(index);
+        return blocks.get(index);
     }
 
     @Override
@@ -262,7 +271,7 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     @Override
     public int size() {
-        return sortedBlockList.size();
+        return blocks.size();
     }
 
     @Override
@@ -300,7 +309,7 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
      */
     BytecodeBlock getPred(BytecodeBlock block, int index) {
         int sourceIndex = getPred(block.getIndex(), index);
-        return sortedBlockList.get(sourceIndex);
+        return blocks.get(sourceIndex);
     }
 
     /**

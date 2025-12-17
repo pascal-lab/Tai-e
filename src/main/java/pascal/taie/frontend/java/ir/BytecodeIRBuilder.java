@@ -183,11 +183,6 @@ public class BytecodeIRBuilder {
     private final JSRInlinerAdapter source;
 
     /**
-     * Blocks that are sorted in bytecode order
-     */
-    public List<BytecodeBlock> sortedBlockList;
-
-    /**
      * Entry block
      */
     private BytecodeBlock entry;
@@ -307,24 +302,6 @@ public class BytecodeIRBuilder {
                 method.toString());
     }
 
-    BytecodeBlock getEntryBlock() {
-        return entry;
-    }
-
-    public List<Stmt> getAllStmts() {
-        return sortedBlockList.stream()
-                .flatMap(block -> block.getStmts().stream())
-                .toList();
-    }
-
-    public List<BytecodeBlock> getAllBlocks() {
-        return sortedBlockList;
-    }
-
-    public List<ExceptionEntry> getExceptionEntries() {
-        return exceptionEntries;
-    }
-
     private void verify() {
         for (Var v : manager.getVars()) {
             assert verifyAllInStmts(v.getInvokes());
@@ -406,8 +383,8 @@ public class BytecodeIRBuilder {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = cfg.searchForValidBlock(getIndex(label));
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = sortedBlockList.get(cfg.getSucc(block.getIndex(), 0));
-            BytecodeBlock next2 = sortedBlockList.get(block.getIndex() + 1);
+            BytecodeBlock next1 = cfg.getNode(cfg.getSucc(block.getIndex(), 0));
+            BytecodeBlock next2 = cfg.getNode(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
@@ -463,7 +440,7 @@ public class BytecodeIRBuilder {
                 stmts.add(curr);
             }
         }
-        for (BytecodeBlock block : sortedBlockList) {
+        for (BytecodeBlock block : cfg.getBlocks()) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
@@ -974,7 +951,7 @@ public class BytecodeIRBuilder {
     }
 
     private void solveAllPhiAndOutput() {
-        for (BytecodeBlock bb : sortedBlockList) {
+        for (BytecodeBlock bb : cfg.getBlocks()) {
             fillInLoopHeaderStackPhis(bb);
             if (isSSA) {
                 addLocalPhiInDefs(bb);
@@ -982,7 +959,7 @@ public class BytecodeIRBuilder {
         }
         propagatePhiUsed();
         resolveStackPhi();
-        for (BytecodeBlock bb : sortedBlockList) {
+        for (BytecodeBlock bb : cfg.getBlocks()) {
             // unreachable
             if (bb.getOutStack() == null) {
                 continue;
@@ -1019,7 +996,7 @@ public class BytecodeIRBuilder {
 
     private void resolveStackPhi() {
         if (!isSSA) {
-            stackMergeStmts = new LazyArray<>(sortedBlockList.size()) {
+            stackMergeStmts = new LazyArray<>(cfg.size()) {
                 @Override
                 protected List<Stmt> createInstance() {
                     return new ArrayList<>();
@@ -1537,7 +1514,7 @@ public class BytecodeIRBuilder {
     /**
      * Build CFG from ASM instructions using {@link BytecodeCFGBuilder}.
      */
-    private BytecodeCFG cfg;
+    public BytecodeCFG cfg;
 
     private void buildCFG() {
         rwCount = getParamWriteSize();
@@ -1552,7 +1529,6 @@ public class BytecodeIRBuilder {
         if (cfg == null) {
             return;
         }
-        sortedBlockList = cfg.getSortedBlockList();
         entry = cfg.getEntry();
         dom = new Dominator<>(cfg);
         postProcess();
@@ -1577,7 +1553,7 @@ public class BytecodeIRBuilder {
         int[] postOrder = dom.getPostOrder();
         for (int i = postOrder.length - 1; i >= 0; --i) {
             int current = postOrder[i];
-            BytecodeBlock bb = sortedBlockList.get(current);
+            BytecodeBlock bb = cfg.getNode(current);
             buildBlockStmt(bb);
         }
         solveAllPhiAndOutput();

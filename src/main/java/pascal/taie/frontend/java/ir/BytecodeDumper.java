@@ -64,7 +64,7 @@ class BytecodeDumper {
     private static String toDot(BytecodeCFG graph, Indexer<AbstractInsnNode> insnIndex) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
-        for (BytecodeBlock block : graph.getSortedBlockList()) {
+        for (BytecodeBlock block : graph.getBlocks()) {
             sb.append(getBlockName(block))
                     .append(" [label=\"")
                     .append(getBlockDisplayName(block))
@@ -72,7 +72,7 @@ class BytecodeDumper {
                     .append(getContents(block, insnIndex))
                     .append("\"];\n");
         }
-        for (BytecodeBlock block : graph.getSortedBlockList()) {
+        for (BytecodeBlock block : graph.getBlocks()) {
             for (int i = 0; i < graph.getOutDegree(block.getIndex()); i++) {
                 int succIndex = graph.getSucc(block.getIndex(), i);
                 BytecodeBlock succ = graph.getNode(succIndex);

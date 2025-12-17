@@ -36,7 +36,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Pair;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -265,9 +264,8 @@ final class BytecodeCFGBuilder {
             }
         }
 
-        // Step 2: Build sorted block list and add fall-through edges
-        List<BytecodeBlock> sortedBlockList = new ArrayList<>(size / 4);
-        BytecodeCFG cfg = new BytecodeCFG(maxBlockCounter, entry, sortedBlockList, insn2Block);
+        // Step 2: Build block list and add fall-through edges
+        BytecodeCFG cfg = new BytecodeCFG(maxBlockCounter, entry, insn2Block);
 
         // edgeInsn[blockIndex] = the last real instruction of that block
         // (for edge processing)
@@ -297,15 +295,13 @@ final class BytecodeCFGBuilder {
                     current = insn2Block[end];
                 } else {
                     // Process current block: assign index, record edge instruction, add to list
-                    int counter = sortedBlockList.size();
-                    current.setIndex(counter);
-                    edgeInsn[counter] = edge;
-                    sortedBlockList.add(current);
+                    int index = cfg.addBlock(current);
+                    edgeInsn[index] = edge;
                     current.setInstr(new BytecodeListSlice(source.instructions, start, end));
 
                     // Add fall-through edge if the last instruction falls through
                     if (fallThroughTable[end - 1]) {
-                        cfg.addEdge(counter, counter + 1);
+                        cfg.addEdge(index, index + 1);
                     }
                     current = insn2Block[end];
                     start = end;
@@ -317,17 +313,15 @@ final class BytecodeCFGBuilder {
         boolean emptyLast = start == size - 1
                 && source.instructions.getLast().getOpcode() == -1;
         if (!emptyLast) {
-            int counter = sortedBlockList.size();
-            current.setIndex(counter);
-            edgeInsn[counter] = source.instructions.getLast();
-            sortedBlockList.add(current);
+            int index = cfg.addBlock(current);
+            edgeInsn[index] = source.instructions.getLast();
             current.setInstr(new BytecodeListSlice(source.instructions, start, size));
         }
 
         // Step 3: Add jump/switch edges based on last instruction of each block
-        for (int i = 0; i < sortedBlockList.size(); ++i) {
+        for (int i = 0; i < cfg.size(); ++i) {
             AbstractInsnNode insn = edgeInsn[i];
-            BytecodeBlock bb = sortedBlockList.get(i);
+            BytecodeBlock bb = cfg.getNode(i);
             if (insn instanceof JumpInsnNode jmp) {
                 addEdge(cfg, bb, jmp.label);
             } else if (insn instanceof LookupSwitchInsnNode lookup) {
@@ -340,7 +334,7 @@ final class BytecodeCFGBuilder {
         }
 
         // Step 4: Add exception edges from try blocks to handlers
-        addExceptionEdges(cfg, sortedBlockList);
+        addExceptionEdges(cfg);
 
         return cfg;
     }
@@ -354,11 +348,11 @@ final class BytecodeCFGBuilder {
      * [start, end) to the handler block. Also sets the exception type on the
      * handler block.
      */
-    private void addExceptionEdges(BytecodeCFG cfg, List<BytecodeBlock> sortedBlockList) {
+    private void addExceptionEdges(BytecodeCFG cfg) {
         for (TryCatchBlockNode tcb : source.tryCatchBlocks) {
             BytecodeBlock handler = searchForValidBlock(tcb.handler);
             BytecodeBlock start = searchForValidBlock(tcb.start);
-            int end = searchForValidBlockOrEnd(tcb.end, sortedBlockList.size());
+            int end = searchForValidBlockOrEnd(tcb.end, cfg.size());
             // Add exception edge from each block in [start, end) to handler
             for (int i = start.getIndex(); i < end; ++i) {
                 cfg.addExceptionEdge(i, handler.getIndex());
