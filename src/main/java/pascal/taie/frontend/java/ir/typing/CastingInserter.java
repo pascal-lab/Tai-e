@@ -144,7 +144,7 @@ class CastingInserter {
 
     void build() {
 
-        for (BytecodeBlock block : builder.cfg.getBlocks()) {
+        for (BytecodeBlock block : builder.cfg) {
 
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
 

@@ -440,7 +440,7 @@ public class BytecodeIRBuilder {
                 stmts.add(curr);
             }
         }
-        for (BytecodeBlock block : cfg.getBlocks()) {
+        for (BytecodeBlock block : cfg) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
@@ -951,7 +951,7 @@ public class BytecodeIRBuilder {
     }
 
     private void solveAllPhiAndOutput() {
-        for (BytecodeBlock bb : cfg.getBlocks()) {
+        for (BytecodeBlock bb : cfg) {
             fillInLoopHeaderStackPhis(bb);
             if (isSSA) {
                 addLocalPhiInDefs(bb);
@@ -959,7 +959,7 @@ public class BytecodeIRBuilder {
         }
         propagatePhiUsed();
         resolveStackPhi();
-        for (BytecodeBlock bb : cfg.getBlocks()) {
+        for (BytecodeBlock bb : cfg) {
             // unreachable
             if (bb.getOutStack() == null) {
                 continue;

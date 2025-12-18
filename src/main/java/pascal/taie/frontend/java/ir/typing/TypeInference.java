@@ -267,7 +267,7 @@ public class TypeInference {
     public void build() {
         addThisParam();
         ConstraintVisitor visitor = new ConstraintVisitor();
-        for (BytecodeBlock block : builder.cfg.getBlocks()) {
+        for (BytecodeBlock block : builder.cfg) {
             if (block.getExceptionHandlerTypes() != null) {
                 Var ref = null;
                 for (Stmt stmt : block.getStmts()) {

@@ -24,8 +24,9 @@ package pascal.taie.frontend.java.ir;
 
 import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -48,7 +49,8 @@ import java.util.List;
  * <p>Example: A node with 5 edges stores the first 3 in inline region,
  * and the remaining 2 in its overflow array.</p>
  */
-public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
+public class BytecodeCFG implements
+        IndexedGraph<BytecodeBlock>, Iterable<BytecodeBlock> {
 
     /**
      * Number of edges that can be stored inline per node (in flat arrays).
@@ -116,10 +118,6 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
         exceptionSuccs = new int[maxBlockSize][];
         exceptionOutDegree = new int[maxBlockSize];
-    }
-
-    public List<BytecodeBlock> getBlocks() {
-        return Collections.unmodifiableList(blocks);
     }
 
     /**
@@ -300,6 +298,12 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         } else {
             return exceptionSuccs[node][index - outDegree[node]];
         }
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<BytecodeBlock> iterator() {
+        return blocks.iterator();
     }
 
     // ==================== Block-level convenience methods ====================
