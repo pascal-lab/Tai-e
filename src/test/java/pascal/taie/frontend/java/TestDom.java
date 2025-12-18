@@ -191,7 +191,7 @@ public class TestDom {
     }
 
     static int[] runDomTest(List<List<Integer>> g) {
-        return new Dominator<>(loadTest(g)).getDomTree();
+        return new Dominator<>(loadTest(g)).getIDom();
     }
 
     static IndexedGraph<Integer> loadTest(List<List<Integer>> directedGraph) {

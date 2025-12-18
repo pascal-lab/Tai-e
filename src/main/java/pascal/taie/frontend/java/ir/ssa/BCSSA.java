@@ -332,7 +332,6 @@ public class BCSSA<Block extends BasicBlock> {
             }
         };
 
-        int[] domTreeDfsSeq = dom.getDomTreeDfsSeq();
         // before starting, we need to inject params
         for (int i = 0; i < info.getParamSize(); i++) {
             // params are always defined at the beginning of the method
@@ -348,7 +347,8 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
         }
-        for (int node : domTreeDfsSeq) {
+        int[] domTreePreOrder = dom.getDomTreePreOrder();
+        for (int node : domTreePreOrder) {
             Block current = graph.getNode(node);
             if (phis.contains(node)) {
                 for (SemiPhi phi : phis.get(node)) {

@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
+import pascal.taie.util.MutableInt;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.SparseIntSet;
@@ -29,18 +30,30 @@ import pascal.taie.util.collection.SparseIntSet;
 import java.util.Arrays;
 
 /**
- * <p> This class implements "A Simple, Fast Dominance Algorithm"
- * by Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy.
- * </p>
+ * Computes dominance information for a graph.
  *
- * <p> See <a href="https://web.cse.ohio-state.edu/~rountev.1/788/papers/cooper-spe01.pdf">The paper</a>
- * for the details.
- * </p>
+ * <p>This class implements "A Simple, Fast Dominance Algorithm"
+ * by Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy (2001).
+ *
+ * @param <N> the type of nodes in the graph
  */
 public class Dominator<N> {
+
+    /**
+     * Represents an undefined node index, used to indicate
+     * that a node's dominator has not been computed yet.
+     */
+    private static final int UNDEFINED = -1;
+
+    /**
+     * The indexed graph on which dominance analysis is performed.
+     */
     private final IndexedGraph<N> graph;
 
-    private final int[] postIndex;
+    /**
+     * The index of the entry node in the graph.
+     */
+    private final int entry;
 
     /**
      * <p>The (semi, or partial) post order of the graph.
@@ -63,19 +76,223 @@ public class Dominator<N> {
      */
     private int[] postOrder;
 
-    private int[] dom;
+    /**
+     * Reverse mapping of postOrder.
+     * {@code postIndex[nodeIndex]} gives the position of the node in the post order sequence.
+     */
+    private final int[] postIndex;
 
-    private final int entry;
+    /**
+     * iDoms[i] is the index of the immediate dominator of node i.
+     */
+    private final int[] iDom;
 
-    public static final int UNDEFINED = -1;
+    /**
+     * Entry timestamp for each node in the dominator tree DFS traversal.
+     * Used together with {@link #outClock} to determine dominance relationships in O(1) time.
+     */
+    private final int[] inClock;
 
+    /**
+     * Exit timestamp for each node in the dominator tree DFS traversal.
+     * Used together with {@link #inClock} to determine dominance relationships in O(1) time.
+     */
+    private final int[] outClock;
+
+    /**
+     * Pre-order traversal sequence of the dominator tree.
+     * {@code domTreePreOrder[i]} is the node index of the i-th node visited in pre-order.
+     */
+    private final int[] domTreePreOrder;
+
+    /**
+     * Constructs a Dominator analysis for the given indexed graph.
+     * This constructor computes the post-order, immediate dominators,
+     * and dominator tree clock values.
+     *
+     * @param graph the indexed graph to analyze
+     */
     public Dominator(IndexedGraph<N> graph) {
         this.graph = graph;
         this.entry = graph.getEntryIndex();
+
         postIndex = new int[graph.size()];
+        computePostOrder();
+
+        iDom = new int[graph.size()];
+        computeIDom();
+
+        domTreePreOrder = new int[graph.size()];
+        inClock = new int[graph.size()];
+        outClock = new int[graph.size()];
+        computeDomTreeClock();
+    }
+
+    private void computePostOrder() {
         postOrder = new int[graph.size()];
         Arrays.fill(postOrder, UNDEFINED);
-        dfsTrav();
+        boolean[] visited = new boolean[graph.size()];
+        // counter for recording post order
+        MutableInt counter = new MutableInt(0);
+        dfsGraph(entry, visited, counter);
+        if (counter.intValue() != graph.size()) {
+            postOrder = Arrays.copyOf(postOrder, counter.intValue());
+        }
+    }
+
+    private void dfsGraph(int node, boolean[] visited, MutableInt counter) {
+        visited[node] = true;
+        for (int i = graph.getOutDegreeEx(node) - 1; i >= 0; i--) {
+            int succ = graph.getSuccEx(node, i);
+            if (!visited[succ]) {
+                dfsGraph(succ, visited, counter);
+            }
+        }
+        int currentPost = counter.intValue();
+        counter.add(1);
+        postOrder[currentPost] = node;
+        postIndex[node] = currentPost;
+    }
+
+    private void computeIDom() {
+        Arrays.fill(iDom, UNDEFINED);
+        // first set entry node's idom to itself
+        iDom[entry] = entry;
+        boolean changed = true;
+        while (changed) {
+            changed = processNodes();
+        }
+    }
+
+    private boolean processNodes() {
+        // iterate nodes in reverse post order
+        boolean changed = false;
+        for (int i = postOrder.length - 1; i >= 0; --i) {
+            int node = postOrder[i];
+            changed |= processNode(node);
+        }
+        return changed;
+    }
+
+    private boolean processNode(int node) {
+        int predCount = graph.getInDegreeEx(node);
+        if (predCount == 0 || iDom[node] == entry) {
+            return false;
+        }
+        int newIDom = UNDEFINED;
+        for (int i = 0; i < predCount; ++i) {
+            int pred = graph.getPredEx(node, i);
+            if (iDom[pred] == UNDEFINED) {
+                continue;
+            }
+            if (newIDom == UNDEFINED) {
+                newIDom = pred;
+                continue;
+            }
+            newIDom = intersect(pred, newIDom);
+        }
+        if (iDom[node] != newIDom) {
+            iDom[node] = newIDom;
+            return true;
+        }
+        return false;
+    }
+
+    private int intersect(int pred, int newIDom) {
+        int finger1 = pred;
+        int finger2 = newIDom;
+        while (finger1 != finger2) {
+            while (postIndex[finger1] < postIndex[finger2]) {
+                finger1 = iDom[finger1];
+                assert finger1 != UNDEFINED;
+            }
+            while (postIndex[finger2] < postIndex[finger1]) {
+                finger2 = iDom[finger2];
+                assert finger2 != UNDEFINED;
+            }
+        }
+        return finger1;
+    }
+
+    private void computeDomTreeClock() {
+        IntTree domTree = new IntTree(graph.size());
+        for (int i = 0; i < graph.size(); ++i) {
+            if (iDom[i] != i // avoid self reference
+                    && iDom[i] != UNDEFINED) { // avoid unreachable node
+                domTree.addEdge(iDom[i], i);
+            }
+        }
+        dfsDomTree(domTree, entry, new MutableInt(0), new MutableInt(0));
+    }
+
+    private void dfsDomTree(IntTree domTree, int node,
+                            MutableInt counter, MutableInt clock) {
+        domTreePreOrder[counter.intValue()] = node;
+        counter.add(1);
+        inClock[node] = clock.intValue();
+        clock.add(1);
+        if (domTree.contains(node)) {
+            IntList out = domTree.get(node);
+            for (int i = 0; i < out.size(); ++i) {
+                int succ = out.get(i);
+                dfsDomTree(domTree, succ, counter, clock);
+            }
+        }
+        outClock[node] = clock.intValue();
+        clock.add(1);
+    }
+
+    /**
+     * A tree represented as an adjacency list.
+     */
+    private static class IntTree extends LazyArray<IntList> {
+
+        IntTree(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        @Override
+        protected IntList createElement() {
+            return new IntList(4);
+        }
+
+        /**
+         * Add an edge from {@code source} to {@code target}.
+         */
+        private void addEdge(int source, int target) {
+            get(source).add(target);
+        }
+    }
+
+    /**
+     * @param a a node index
+     * @param b a node index
+     * @return {@code true} if a dominates b
+     */
+    public boolean dominates(int a, int b) {
+        return inClock[a] <= inClock[b] && outClock[a] >= outClock[b];
+    }
+
+    /**
+     * Returns the post-order traversal sequence of the graph.
+     *
+     * @return an array where {@code postOrder[i]} is the node index of the i-th node
+     *         visited in post-order DFS traversal
+     */
+    public int[] getPostOrder() {
+        return postOrder;
+    }
+
+    /**
+     * @return the idom[] array. The value of iDom[i]
+     * is the index of the immediate dominator of node i.
+     */
+    public int[] getIDom() {
+        return iDom;
+    }
+
+    public int[] getDomTreePreOrder() {
+        return domTreePreOrder;
     }
 
     public record DominatorFrontiers(LazyArray<SparseIntSet> res) {
@@ -84,38 +301,11 @@ public class Dominator<N> {
         }
     }
 
-    // TODO: add a method to get explicit dominator tree
-
-    /**
-     * Get the idom[] array. This array is indexed by the node index.
-     * The value of idom[i] is the index of the immediate dominator of node i.
-     * @return the idom[] array
-     */
-    public int[] getDomTree() {
-        if (dom == null) {
-            boolean changed = true;
-            dom = new int[graph.size()];
-            Arrays.fill(dom, UNDEFINED);
-            int entry = graph.getIndex(graph.getEntry());
-            dom[entry] = entry;
-            while (changed) {
-                changed = loopTrav(dom);
-            }
-        }
-
-        return dom;
-    }
-
-    public int[] getPostOrder() {
-        return postOrder;
-    }
-
     /**
      * Get the dominator frontiers.
      * @return the dominator frontiers
      */
     public DominatorFrontiers getDF() {
-        int[] dom = getDomTree();
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
         int gSize = graph.size();
@@ -127,140 +317,19 @@ public class Dominator<N> {
         };
         for (int i = 0; i < graph.size(); ++i) {
             int size = graph.getInDegreeEx(i);
-            if (size >= 2 || i == graph.getEntryIndex()) {
-                /*
-                i == graph.getIntEntry for that we do not have pseudo entry, so we have to
-                force dominator frontier calculator to calculate df for the actual entry.
-                 */
+            if (size >= 2 || i == entry) {
+                // i == entry for that we do not have pseudo entry,
+                // so we have to force dominator frontier calculator
+                // to calculate df for the actual entry.
                 for (int j = 0; j < size; ++j) {
                     int runner = graph.getPredEx(i, j);
-                    while (runner != dom[i] && runner != -1) {
+                    while (runner != iDom[i] && runner >= 0) {
                         df.get(runner).add(i);
-                        runner = dom[runner];
+                        runner = iDom[runner];
                     }
                 }
             }
         }
         return new DominatorFrontiers(df);
-    }
-
-    public int[] getDomTreeDfsSeq() {
-        int[] dom = getDomTree();
-        IntGraph domTree = new IntGraph(graph.size());
-        for (int i = 0; i < graph.size(); ++i) {
-            // dom[entry] = entry, avoid circular reference
-            // dom[i] = UNDEFINED, avoid unreachable node
-            if (dom[i] != i && dom[i] != UNDEFINED) {
-                domTree.addEdge(dom[i], i);
-            }
-        }
-        int[] dfsSeq = new int[graph.size()];
-        timeIn = new int[graph.size()];
-        timeOut = new int[graph.size()];
-        forward = 0;
-        time = 0;
-        dfsDomTree(dfsSeq, domTree, graph.getIndex(graph.getEntry()));
-        return dfsSeq;
-    }
-
-    int forward;
-    int[] timeIn;
-    int[] timeOut;
-    int time;
-    private void dfsDomTree(int[] dfsSeq, IntGraph domTree, int now) {
-        dfsSeq[forward++] = now;
-        timeIn[now] = time++;
-        if (domTree.contains(now)) {
-            IntList out = domTree.get(now);
-            for (int i = 0; i < out.size(); ++i) {
-                int succ = out.get(i);
-                dfsDomTree(dfsSeq, domTree, succ);
-            }
-        }
-        timeOut[now] = time++;
-    }
-
-    /**
-     * Check if a dominates b. Should be used after {@link #getDomTree()} is called.
-     * @param a a node index
-     * @param b a node index
-     * @return {@code true} if a dominates b
-     */
-    public boolean dominates(int a, int b) {
-        return timeIn[a] <= timeIn[b] && timeOut[a] >= timeOut[b];
-    }
-
-    private void dfsTrav() {
-        boolean[] visited = new boolean[graph.size()];
-        dfs(entry, visited);
-        if (post != graph.size()) {
-            postOrder = Arrays.copyOf(postOrder, post);
-        }
-    }
-
-    int post;
-    private void dfs(int node, boolean[] visited) {
-        visited[node] = true;
-        for (int i = graph.getOutDegreeEx(node) - 1; i >= 0; i--) {
-            int succ = graph.getSuccEx(node, i);
-            if (!visited[succ]) {
-                dfs(succ, visited);
-            }
-        }
-        int currentPost = post++;
-        postOrder[currentPost] = node;
-        postIndex[node] = currentPost;
-    }
-
-    private boolean loopTrav(int[] dom) {
-        boolean changed = false;
-        // first set entry node's idom to itself
-        dom[entry] = entry;
-        // reverse post order
-        for (int i = postOrder.length - 1; i >= 0; --i) {
-            int node = postOrder[i];
-            changed |= processNode(dom, node);
-        }
-        return changed;
-    }
-
-    boolean processNode(int[] dom, int node) {
-        int prevCount = graph.getInDegreeEx(node);
-        if (prevCount == 0 || dom[node] == entry) {
-            return false;
-        }
-        int newIdom = UNDEFINED;
-        for (int i = 0; i < prevCount; ++i) {
-            int p = graph.getPredEx(node, i);
-            if (dom[p] == UNDEFINED) {
-                continue;
-            }
-            if (newIdom == UNDEFINED) {
-                newIdom = p;
-                continue;
-            }
-            newIdom = intersect(dom, p, newIdom);
-        }
-        if (dom[node] != newIdom) {
-            dom[node] = newIdom;
-            return true;
-        }
-        return false;
-    }
-
-    int intersect(int[] dom, int p, int newIdom) {
-        int finger1 = p;
-        int finger2 = newIdom;
-        while (finger1 != finger2) {
-            while (postIndex[finger1] < postIndex[finger2]) {
-                finger1 = dom[finger1];
-                assert finger1 != UNDEFINED;
-            }
-            while (postIndex[finger2] < postIndex[finger1]) {
-                finger2 = dom[finger2];
-                assert finger2 != UNDEFINED;
-            }
-        }
-        return finger1;
     }
 }

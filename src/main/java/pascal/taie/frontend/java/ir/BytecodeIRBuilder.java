@@ -1443,7 +1443,6 @@ public class BytecodeIRBuilder {
             end[curr.getIndex()] = counter;
         }
 
-
         int finalCounter = counter;
         GenericDUInfo<BytecodeBlock> genericDUInfo = new GenericDUInfo<>() {
             @Override
@@ -1590,23 +1589,11 @@ public class BytecodeIRBuilder {
         return ir;
     }
 
-    boolean isFastProcessVar(int v) {
-        return isSSA || splitting.canFastProcess(v);
-    }
-
-    public int[] getPostOrder() {
-        return dom.getPostOrder();
-    }
-
     public boolean isSSA() {
         return isSSA;
     }
 
-    Dominator<BytecodeBlock> getDom() {
-        return dom;
-    }
-
-    public BytecodeCFG getCFG() {
-        return cfg;
+    boolean isFastProcessVar(int v) {
+        return isSSA || splitting.canFastProcess(v);
     }
 }
