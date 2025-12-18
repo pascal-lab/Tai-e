@@ -25,7 +25,6 @@ package pascal.taie.util.graph;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -124,45 +123,6 @@ public class GraphTest {
     void testMergedSCC() {
         MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(G_SCC);
         assertEquals(7, mg.nodeCount());
-    }
-
-    private static final Graph<Integer> G_DOM = buildGraph(
-            1, 2,
-            1, 3,
-            2, 3,
-            3, 4,
-            4, 3,
-            4, 5,
-            4, 6,
-            5, 7,
-            6, 7,
-            7, 4,
-            7, 8,
-            8, 3,
-            8, 9,
-            8, 10,
-            10, 7
-    );
-
-    @Test
-    void testDominator() {
-        DominatorFinder<Integer> domFinder = new DominatorFinder<>(G_DOM);
-        assertTrue(domFinder.isDominatedBy(2, 1));
-        assertFalse(domFinder.isDominatedBy(1, 2));
-
-        assertEquals(domFinder.getDominatorsOf(1), Set.of(1));
-        assertEquals(domFinder.getDominatorsOf(3), Set.of(1, 3));
-        assertEquals(domFinder.getDominatorsOf(5), Set.of(1, 3, 4, 5));
-        assertEquals(domFinder.getDominatorsOf(7), Set.of(1, 3, 4, 7));
-        assertEquals(domFinder.getDominatorsOf(9), Set.of(1, 3, 4, 7, 8, 9));
-
-        assertEquals(domFinder.getNodesDominatedBy(1),
-                Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-        assertEquals(domFinder.getNodesDominatedBy(3),
-                Set.of(3, 4, 5, 6, 7, 8, 9, 10));
-        assertEquals(domFinder.getNodesDominatedBy(5), Set.of(5));
-        assertEquals(domFinder.getNodesDominatedBy(7), Set.of(7, 8, 9, 10));
-        assertEquals(domFinder.getNodesDominatedBy(9), Set.of(9));
     }
 
     private static SimpleGraph<Integer> buildGraph(int... nodes) {

@@ -293,16 +293,16 @@ public class Dominators<N> {
         return postOrder;
     }
 
+    public int[] getDomTreePreOrder() {
+        return domTreePreOrder;
+    }
+
     /**
      * @return the idom[] array. The value of iDom[i]
      * is the index of the immediate dominator of node i.
      */
     int[] getIDom() {
         return iDom;
-    }
-
-    public int[] getDomTreePreOrder() {
-        return domTreePreOrder;
     }
 
     public record DominatorFrontiers(LazyArray<SparseIntSet> res) {
