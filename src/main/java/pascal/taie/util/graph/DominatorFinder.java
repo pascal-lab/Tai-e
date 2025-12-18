@@ -86,7 +86,7 @@ public class DominatorFinder<N> {
         this.indexer = indexer;
         this.isSparse = isSparse;
         this.heads = Sets.newSet();
-        this.node2Doms = new IndexMap<>(indexer, graph.getNumberOfNodes());
+        this.node2Doms = new IndexMap<>(indexer, graph.nodeCount());
         findDominators();
     }
 
@@ -155,7 +155,7 @@ public class DominatorFinder<N> {
     }
 
     private void findDominatedNodes() {
-        dom2Nodes = new IndexMap<>(indexer, graph.getNumberOfNodes());
+        dom2Nodes = new IndexMap<>(indexer, graph.nodeCount());
         for (N node : graph) {
             for (N dom : node2Doms.get(node)) {
                 dom2Nodes.computeIfAbsent(dom,

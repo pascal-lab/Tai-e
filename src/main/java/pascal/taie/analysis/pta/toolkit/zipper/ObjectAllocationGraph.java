@@ -65,7 +65,7 @@ class ObjectAllocationGraph extends SimpleGraph<Obj> {
         objIndexer = pta.getBase().getObjectIndexer();
         computeAllocatees(pta);
         objIndexer = null;
-        assert getNumberOfNodes() == pta.getBase().getObjects().size();
+        assert nodeCount() == pta.getBase().getObjects().size();
     }
 
     Set<Obj> getAllocateesOf(Type type) {

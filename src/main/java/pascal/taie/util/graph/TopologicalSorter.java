@@ -86,8 +86,8 @@ public class TopologicalSorter<N> {
 
     private void initialize(Graph<N> graph) {
         this.graph = graph;
-        this.sortedList = new ArrayList<>(graph.getNumberOfNodes());
-        this.visited = Sets.newSet(graph.getNumberOfNodes());
+        this.sortedList = new ArrayList<>(graph.nodeCount());
+        this.visited = Sets.newSet(graph.nodeCount());
     }
 
     private void visit(N node) {

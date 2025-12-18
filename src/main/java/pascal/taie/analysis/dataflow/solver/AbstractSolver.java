@@ -52,8 +52,8 @@ abstract class AbstractSolver<Node, Fact> implements Solver<Node, Fact> {
         CFG<Node> cfg = analysis.getCFG();
         var indexer = new CFGNodeIndexer<>(cfg);
         DataflowResult<Node, Fact> result = new DataflowResult<>(
-                new IndexMap<>(indexer, cfg.getNumberOfNodes()),
-                new IndexMap<>(indexer, cfg.getNumberOfNodes()));
+                new IndexMap<>(indexer, cfg.nodeCount()),
+                new IndexMap<>(indexer, cfg.nodeCount()));
         if (analysis.isForward()) {
             initializeForward(analysis, result);
         } else {

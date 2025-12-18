@@ -42,7 +42,7 @@ public class GraphTest {
 
     @Test
     void testSimpleGraph() {
-        assertEquals(6, G_SIMPLE.getNumberOfNodes());
+        assertEquals(6, G_SIMPLE.nodeCount());
         assertTrue(G_SIMPLE.hasNode(1));
         assertFalse(G_SIMPLE.hasNode(10));
         assertTrue(G_SIMPLE.hasEdge(3, 6));
@@ -51,7 +51,7 @@ public class GraphTest {
     @Test
     void testSimpleGraphCopy() {
         SimpleGraph<Integer> copy = new SimpleGraph<>(G_SIMPLE);
-        assertEquals(G_SIMPLE.getNumberOfNodes(), copy.getNumberOfNodes());
+        assertEquals(G_SIMPLE.nodeCount(), copy.nodeCount());
         for (Integer node : G_SIMPLE) {
             for (Integer succ : G_SIMPLE.getSuccsOf(node)) {
                 assertTrue(copy.hasEdge(node, succ));
@@ -62,12 +62,12 @@ public class GraphTest {
     @Test
     void testSimpleGraphRemove() {
         SimpleGraph<Integer> g = new SimpleGraph<>(G_SIMPLE);
-        assertEquals(6, g.getNumberOfNodes());
+        assertEquals(6, g.nodeCount());
         assertTrue(g.hasEdge(1, 3));
         assertTrue(g.hasEdge(1, 5));
 
         g.removeNode(1);
-        assertEquals(5, g.getNumberOfNodes());
+        assertEquals(5, g.nodeCount());
         assertFalse(g.hasEdge(1, 3));
         assertFalse(g.hasEdge(1, 5));
 
@@ -123,7 +123,7 @@ public class GraphTest {
     @Test
     void testMergedSCC() {
         MergedSCCGraph<Integer> mg = new MergedSCCGraph<>(G_SCC);
-        assertEquals(7, mg.getNumberOfNodes());
+        assertEquals(7, mg.nodeCount());
     }
 
     private static final Graph<Integer> G_DOM = buildGraph(
