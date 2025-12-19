@@ -1,24 +1,11 @@
 package pascal.taie.util.graph;
 
 import org.junit.jupiter.api.Test;
-import pascal.taie.util.Indexer;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DominatorTest {
-
-    private static final Indexer<Integer> INDEXER = new Indexer<>() {
-        @Override
-        public int getIndex(Integer o) {
-            return o;
-        }
-
-        @Override
-        public Integer getObject(int index) {
-            return index;
-        }
-    };
 
     private static final Integer ENTRY = 0;
 
@@ -218,13 +205,33 @@ public class DominatorTest {
     }
 
     private static Dominators<Integer> buildDominators(int[][] succs) {
-        SimpleGraph<Integer> graph = new SimpleGraph<>();
+        SimpleIndexedGraph graph = new SimpleIndexedGraph();
         for (int node = 0; node < succs.length; node++) {
             graph.addNode(node);
             for (int i = 0; i < succs[node].length; i++) {
                 graph.addEdge(node, succs[node][i]);
             }
         }
-        return new Dominators<>(graph, INDEXER, ENTRY);
+        return new Dominators<>(graph);
+    }
+
+    private static class SimpleIndexedGraph
+            extends SimpleGraph<Integer>
+            implements IndexedGraph<Integer> {
+
+        @Override
+        public Integer getEntry() {
+            return ENTRY;
+        }
+
+        @Override
+        public int getIndex(Integer o) {
+            return o;
+        }
+
+        @Override
+        public Integer getObject(int index) {
+            return index;
+        }
     }
 }

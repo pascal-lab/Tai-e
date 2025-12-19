@@ -24,7 +24,7 @@ package pascal.taie.analysis.graph.cfg;
 
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.graph.Graph;
+import pascal.taie.util.graph.IndexedGraph;
 
 import java.util.Set;
 
@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @param <N> type of CFG nodes.
  */
-public interface CFG<N> extends Graph<N> {
+public interface CFG<N> extends IndexedGraph<N> {
 
     /**
      * @return the IR of the method this CFG represents.
@@ -44,11 +44,6 @@ public interface CFG<N> extends Graph<N> {
      * @return the method this CFG represents.
      */
     JMethod getMethod();
-
-    /**
-     * @return the entry node of this CFG.
-     */
-    N getEntry();
 
     /**
      * @return the exit node of this CFG.
@@ -64,16 +59,6 @@ public interface CFG<N> extends Graph<N> {
      * @return true if the given node is the exit of this CFG, otherwise false.
      */
     boolean isExit(N node);
-
-    /**
-     * @return a unique index for given node in this CFG.
-     */
-    int getIndex(N node);
-
-    /**
-     * @return the corresponding node specified by the given index.
-     */
-    N getNode(int index);
 
     /**
      * @return incoming edges of the given node.

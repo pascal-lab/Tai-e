@@ -20,24 +20,19 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.graph.cfg;
+package pascal.taie.util.graph;
 
 import pascal.taie.util.Indexer;
 
 /**
- * Indexer for nodes in a CFG.
+ * Representation of a directed graph with an entry node and indexed nodes.
  *
- * @param <Node> type of CFG nodes.
+ * @param <N> type of nodes
  */
-public record CFGNodeIndexer<Node>(CFG<Node> cfg) implements Indexer<Node> {
+public interface IndexedGraph<N> extends Graph<N>, Indexer<N> {
 
-    @Override
-    public int getIndex(Node node) {
-        return cfg.getIndex(node);
-    }
-
-    @Override
-    public Node getObject(int index) {
-        return cfg.getNode(index);
-    }
+    /**
+     * @return the entry node of this graph.
+     */
+    N getEntry();
 }

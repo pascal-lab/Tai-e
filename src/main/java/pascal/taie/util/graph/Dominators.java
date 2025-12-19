@@ -22,7 +22,6 @@
 
 package pascal.taie.util.graph;
 
-import pascal.taie.util.Indexer;
 import pascal.taie.util.MutableInt;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
@@ -36,8 +35,6 @@ import java.util.Set;
  *
  * <p>This class implements "A Simple, Fast Dominance Algorithm"
  * by Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy (2001).
- * For efficiency, this class requires an {@link Indexer<N>}
- * to map nodes to integers.
  *
  * @param <N> the type of nodes in the graph
  */
@@ -52,12 +49,7 @@ public class Dominators<N> {
     /**
      * The graph on which dominance analysis is performed.
      */
-    private final Graph<N> graph;
-
-    /**
-     * The indexer for mapping nodes to integers.
-     */
-    private final Indexer<N> indexer;
+    private final IndexedGraph<N> graph;
 
     /**
      * The index of the entry node in the graph.
@@ -121,10 +113,9 @@ public class Dominators<N> {
      *
      * @param graph the indexed graph to analyze
      */
-    public Dominators(Graph<N> graph, Indexer<N> indexer, N entry) {
+    public Dominators(IndexedGraph<N> graph) {
         this.graph = graph;
-        this.indexer = indexer;
-        this.entryI = indexer.getIndex(entry);
+        this.entryI = graph.getIndex(graph.getEntry());
 
         postIndex = new int[graph.nodeCount()];
         computePostOrder();
@@ -152,8 +143,8 @@ public class Dominators<N> {
 
     private void dfsGraph(int node, boolean[] visited, MutableInt counter) {
         visited[node] = true;
-        for (N succ : graph.getSuccsOf(indexer.getObject(node))) {
-            int succI = indexer.getIndex(succ);
+        for (N succ : graph.getSuccsOf(graph.getObject(node))) {
+            int succI = graph.getIndex(succ);
             if (!visited[succI]) {
                 dfsGraph(succI, visited, counter);
             }
@@ -185,13 +176,13 @@ public class Dominators<N> {
     }
 
     private boolean processNode(int node) {
-        Set<N> preds = graph.getPredsOf(indexer.getObject(node));
+        Set<N> preds = graph.getPredsOf(graph.getObject(node));
         if (preds.isEmpty() || iDom[node] == entryI) {
             return false;
         }
         int newIDom = UNDEFINED;
         for (N pred : preds) {
-            int predI = indexer.getIndex(pred);
+            int predI = graph.getIndex(pred);
             if (iDom[predI] == UNDEFINED) {
                 continue;
             }
@@ -326,13 +317,13 @@ public class Dominators<N> {
         };
         for (N node : graph) {
             Set<N> preds = graph.getPredsOf(node);
-            int nodeI = indexer.getIndex(node);
+            int nodeI = graph.getIndex(node);
             if (preds.size() >= 2 || nodeI == entryI) {
                 // nodeI == entry for that we do not have pseudo entry,
                 // so we have to force dominator frontier calculator
                 // to calculate df for the actual entry.
                 for (N pred : preds) {
-                    int runner = indexer.getIndex(pred);
+                    int runner = graph.getIndex(pred);
                     while (runner != iDom[nodeI]) {
                         df.get(runner).add(nodeI);
                         runner = iDom[runner];
