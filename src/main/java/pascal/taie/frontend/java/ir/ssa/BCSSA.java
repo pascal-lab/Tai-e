@@ -159,7 +159,7 @@ public class BCSSA<Block extends BasicBlock> {
         this.dom = dom;
         this.df = dom.getDF();
         this.info = info;
-        this.phis = new LazyArray<>(graph.size()) {
+        this.phis = new LazyArray<>(graph.nodeCount()) {
             @Override
             protected List<SemiPhi> createElement() {
                 return new ArrayList<>();
@@ -171,8 +171,8 @@ public class BCSSA<Block extends BasicBlock> {
         this.used = new boolean[info.getMaxDuIndex()];
         Arrays.fill(renames, UNDEFINED);
 
-        for (int i = 0; i < graph.size(); i++) {
-            Block b = graph.getNode(i);
+        for (int i = 0; i < graph.nodeCount(); i++) {
+            Block b = graph.getObject(i);
             assert b.getIndex() == graph.getIndex(b);
         }
 
@@ -202,7 +202,7 @@ public class BCSSA<Block extends BasicBlock> {
 
     void pruneAndRenaming(int phiCount) {
         // pass 1: prune, or spreading `used` flag
-        for (int i = 0; i < graph.size(); i++) {
+        for (int i = 0; i < graph.nodeCount(); i++) {
             if (!phis.contains(i)) {
                 continue;
             }
@@ -220,7 +220,7 @@ public class BCSSA<Block extends BasicBlock> {
             int varIndex = 0;
             boolean[] visited = new boolean[phiCount];
             Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
-            for (int i = 0; i < graph.size(); i++) {
+            for (int i = 0; i < graph.nodeCount(); i++) {
                 if (!phis.contains(i)) {
                     continue;
                 }
@@ -349,7 +349,7 @@ public class BCSSA<Block extends BasicBlock> {
         }
         int[] domTreePreOrder = dom.getDomTreePreOrder();
         for (int node : domTreePreOrder) {
-            Block current = graph.getNode(node);
+            Block current = graph.getObject(node);
             if (phis.contains(node)) {
                 for (SemiPhi phi : phis.get(node)) {
                     int phiIndex = getPhiDuIndex(phi.index);
@@ -454,10 +454,10 @@ public class BCSSA<Block extends BasicBlock> {
                 current.add(block.getIndex());
             }
             while (!current.isEmpty()) {
-                Block block = graph.getNode(current.poll());
+                Block block = graph.getObject(current.poll());
                 for (int node : df.get(block.getIndex())) {
                     if (!isInserted(node, v)) {
-                        SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getNode(node), phiCount++);
+                        SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getObject(node), phiCount++);
                         phis.get(node).add(phi);
                         allPhis.add(phi);
                         assert phiCount == allPhis.size();

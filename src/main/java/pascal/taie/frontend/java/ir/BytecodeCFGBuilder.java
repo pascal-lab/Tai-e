@@ -319,9 +319,9 @@ final class BytecodeCFGBuilder {
         }
 
         // Step 3: Add jump/switch edges based on last instruction of each block
-        for (int i = 0; i < cfg.size(); ++i) {
+        for (int i = 0; i < cfg.nodeCount(); ++i) {
             AbstractInsnNode insn = edgeInsn[i];
-            BytecodeBlock bb = cfg.getNode(i);
+            BytecodeBlock bb = cfg.getObject(i);
             if (insn instanceof JumpInsnNode jmp) {
                 addEdge(cfg, bb, jmp.label);
             } else if (insn instanceof LookupSwitchInsnNode lookup) {
@@ -352,7 +352,7 @@ final class BytecodeCFGBuilder {
         for (TryCatchBlockNode tcb : source.tryCatchBlocks) {
             BytecodeBlock handler = searchForValidBlock(tcb.handler);
             BytecodeBlock start = searchForValidBlock(tcb.start);
-            int end = searchForValidBlockOrEnd(tcb.end, cfg.size());
+            int end = searchForValidBlockOrEnd(tcb.end, cfg.nodeCount());
             // Add exception edge from each block in [start, end) to handler
             for (int i = start.getIndex(); i < end; ++i) {
                 cfg.addExceptionEdge(i, handler.getIndex());

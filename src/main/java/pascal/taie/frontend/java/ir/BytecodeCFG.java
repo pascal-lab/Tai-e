@@ -232,7 +232,7 @@ public class BytecodeCFG implements
         List<BytecodeBlock> preds = new ArrayList<>();
         int index = block.getIndex();
         for (int i = 0; i < getInDegreeEx(index); ++i) {
-            preds.add(getNode(getPredEx(index, i)));
+            preds.add(getObject(getPredEx(index, i)));
         }
         return preds;
     }
@@ -242,7 +242,7 @@ public class BytecodeCFG implements
         List<BytecodeBlock> succs = new ArrayList<>();
         int index = block.getIndex();
         for (int i = 0; i < getOutDegreeEx(index); ++i) {
-            succs.add(getNode(getSuccEx(index, i)));
+            succs.add(getObject(getSuccEx(index, i)));
         }
         return succs;
     }
@@ -252,13 +252,13 @@ public class BytecodeCFG implements
         List<BytecodeBlock> preds = new ArrayList<>();
         int index = block.getIndex();
         for (int i = 0; i < outDegree[index]; i++) {
-            preds.add(getNode(getSucc(index, i)));
+            preds.add(getObject(getSucc(index, i)));
         }
         return preds;
     }
 
     @Override
-    public BytecodeBlock getNode(int index) {
+    public BytecodeBlock getObject(int index) {
         return blocks.get(index);
     }
 
@@ -268,7 +268,7 @@ public class BytecodeCFG implements
     }
 
     @Override
-    public int size() {
+    public int nodeCount() {
         return blocks.size();
     }
 

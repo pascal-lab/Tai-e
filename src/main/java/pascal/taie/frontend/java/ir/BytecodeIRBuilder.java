@@ -382,8 +382,8 @@ public class BytecodeIRBuilder {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = cfg.searchForValidBlock(getIndex(label));
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = cfg.getNode(cfg.getSucc(block.getIndex(), 0));
-            BytecodeBlock next2 = cfg.getNode(block.getIndex() + 1);
+            BytecodeBlock next1 = cfg.getObject(cfg.getSucc(block.getIndex(), 0));
+            BytecodeBlock next2 = cfg.getObject(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
@@ -995,7 +995,7 @@ public class BytecodeIRBuilder {
 
     private void resolveStackPhi() {
         if (!isSSA) {
-            stackMergeStmts = new LazyArray<>(cfg.size()) {
+            stackMergeStmts = new LazyArray<>(cfg.nodeCount()) {
                 @Override
                 protected List<Stmt> createElement() {
                     return new ArrayList<>();
@@ -1399,8 +1399,8 @@ public class BytecodeIRBuilder {
         int counter = 0;
         IndexedGraph<BytecodeBlock> graph = cfg;
         BytecodeBlock entry = graph.getEntry();
-        start = new int[graph.size()];
-        end = new int[graph.size()];
+        start = new int[graph.nodeCount()];
+        end = new int[graph.nodeCount()];
 
         int maxLocal = source.maxLocals;
         LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(maxLocal) {
@@ -1416,8 +1416,8 @@ public class BytecodeIRBuilder {
             counter++;
         }
 
-        for (int n = 0; n < graph.size(); ++n) {
-            BytecodeBlock curr = graph.getNode(n);
+        for (int n = 0; n < graph.nodeCount(); ++n) {
+            BytecodeBlock curr = graph.getObject(n);
             start[curr.getIndex()] = counter;
             int size = curr.instr().size();
             int start1 = curr.instr().getStart();
@@ -1551,7 +1551,7 @@ public class BytecodeIRBuilder {
         int[] postOrder = dom.getPostOrder();
         for (int i = postOrder.length - 1; i >= 0; --i) {
             int current = postOrder[i];
-            BytecodeBlock bb = cfg.getNode(current);
+            BytecodeBlock bb = cfg.getObject(current);
             buildBlockStmt(bb);
         }
         solveAllPhiAndOutput();

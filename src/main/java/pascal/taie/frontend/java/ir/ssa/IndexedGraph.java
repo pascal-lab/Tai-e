@@ -41,26 +41,26 @@ public interface IndexedGraph<N> {
     List<N> getSuccs(N node);
 
     default int getInDegreeEx(int node) {
-        return getPredsEx(getNode(node)).size();
+        return getPredsEx(getObject(node)).size();
     }
 
     default int getOutDegreeEx(int node) {
-        return getSuccsEx(getNode(node)).size();
+        return getSuccsEx(getObject(node)).size();
     }
 
     default int getPredEx(int node, int index) {
-        return getIndex(getPredsEx(getNode(node)).get(index));
+        return getIndex(getPredsEx(getObject(node)).get(index));
     }
 
     default int getSuccEx(int node, int index) {
-        return getIndex(getSuccsEx(getNode(node)).get(index));
+        return getIndex(getSuccsEx(getObject(node)).get(index));
     }
 
-    N getNode(int index);
+    N getObject(int index);
 
     int getIndex(N node);
 
-    int size();
+    int nodeCount();
 
     N getEntry();
 

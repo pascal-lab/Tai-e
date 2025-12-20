@@ -228,7 +228,7 @@ public class TestDom {
             }
 
             @Override
-            public Integer getNode(int index) {
+            public Integer getObject(int index) {
                 return index;
             }
 
@@ -238,7 +238,7 @@ public class TestDom {
             }
 
             @Override
-            public int size() {
+            public int nodeCount() {
                 return directedGraph.size();
             }
 

@@ -324,7 +324,7 @@ public class Dominators<N> {
                 // to calculate df for the actual entry.
                 for (N pred : preds) {
                     int runner = graph.getIndex(pred);
-                    while (runner != iDom[nodeI]) {
+                    while (runner != iDom[nodeI] && runner >= 0) {
                         df.get(runner).add(nodeI);
                         runner = iDom[runner];
                     }

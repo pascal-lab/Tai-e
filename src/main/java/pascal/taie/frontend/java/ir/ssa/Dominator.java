@@ -116,26 +116,26 @@ public class Dominator<N> {
         this.graph = graph;
         this.entry = graph.getEntryIndex();
 
-        postIndex = new int[graph.size()];
+        postIndex = new int[graph.nodeCount()];
         computePostOrder();
 
-        iDom = new int[graph.size()];
+        iDom = new int[graph.nodeCount()];
         computeIDom();
 
-        domTreePreOrder = new int[graph.size()];
-        inClock = new int[graph.size()];
-        outClock = new int[graph.size()];
+        domTreePreOrder = new int[graph.nodeCount()];
+        inClock = new int[graph.nodeCount()];
+        outClock = new int[graph.nodeCount()];
         computeDomTreeClock();
     }
 
     private void computePostOrder() {
-        postOrder = new int[graph.size()];
+        postOrder = new int[graph.nodeCount()];
         Arrays.fill(postOrder, UNDEFINED);
-        boolean[] visited = new boolean[graph.size()];
+        boolean[] visited = new boolean[graph.nodeCount()];
         // counter for recording post order
         MutableInt counter = new MutableInt(0);
         dfsGraph(entry, visited, counter);
-        if (counter.intValue() != graph.size()) {
+        if (counter.intValue() != graph.nodeCount()) {
             postOrder = Arrays.copyOf(postOrder, counter.intValue());
         }
     }
@@ -215,8 +215,8 @@ public class Dominator<N> {
     }
 
     private void computeDomTreeClock() {
-        IntTree domTree = new IntTree(graph.size());
-        for (int i = 0; i < graph.size(); ++i) {
+        IntTree domTree = new IntTree(graph.nodeCount());
+        for (int i = 0; i < graph.nodeCount(); ++i) {
             if (iDom[i] != i // avoid self reference
                     && iDom[i] != UNDEFINED) { // avoid unreachable node
                 domTree.addEdge(iDom[i], i);
@@ -308,14 +308,14 @@ public class Dominator<N> {
     public DominatorFrontiers getDF() {
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
-        int gSize = graph.size();
+        int gSize = graph.nodeCount();
         LazyArray<SparseIntSet> df = new LazyArray<>(gSize) {
             @Override
             protected SparseIntSet createElement() {
                 return new SparseIntSet(gSize);
             }
         };
-        for (int i = 0; i < graph.size(); ++i) {
+        for (int i = 0; i < graph.nodeCount(); ++i) {
             int size = graph.getInDegreeEx(i);
             if (size >= 2 || i == entry) {
                 // i == entry for that we do not have pseudo entry,
