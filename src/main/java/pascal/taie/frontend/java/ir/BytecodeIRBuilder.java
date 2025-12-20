@@ -53,7 +53,6 @@ import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
 import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
-import pascal.taie.frontend.java.ir.ssa.PhiResolver;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
@@ -455,7 +454,7 @@ public class BytecodeIRBuilder {
         }
 
         if (isLastTime) {
-            PhiResolver<? extends BasicBlock> resolver = new PhiResolver<>(cfg);
+            PhiResolver resolver = new PhiResolver(cfg);
             // Make PhiStmts using stmt.index as the value source.
             for (FrontendPhiStmt p : frontendPhiStmts) {
                 int index = p.getIndex();

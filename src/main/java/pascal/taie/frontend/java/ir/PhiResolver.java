@@ -20,9 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.ir.ssa;
+package pascal.taie.frontend.java.ir;
 
-import pascal.taie.frontend.java.ir.BasicBlock;
+import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
@@ -36,12 +36,12 @@ import java.util.List;
 /**
  * Used to convert a {@link FrontendPhiExp} to a {@link PhiExp}
  */
-public class PhiResolver<T extends BasicBlock> {
+public class PhiResolver {
 
-    private final IndexedGraph<T> graph;
+    private final BytecodeCFG cfg;
 
-    public PhiResolver(IndexedGraph<T> graph) {
-        this.graph = graph;
+    public PhiResolver(BytecodeCFG cfg) {
+        this.cfg = cfg;
     }
 
     public List<Pair<Stmt, Var>> resolvePhi(FrontendPhiExp exp) {
@@ -50,7 +50,7 @@ public class PhiResolver<T extends BasicBlock> {
         for (Pair<Var, BasicBlock> p : usesAndInBlocks) {
             Var v = p.first();
             BasicBlock b = p.second();
-            Stmt stmt = getSourceIndex((T) b);
+            Stmt stmt = getSourceIndex((BytecodeBlock) b);
             Pair<Stmt, Var> np = new Pair<>(stmt, v);
             if (!sourceAndVar.contains(np)) {
                 sourceAndVar.add(np);
@@ -60,7 +60,7 @@ public class PhiResolver<T extends BasicBlock> {
         return Collections.unmodifiableList(sourceAndVar);
     }
 
-    private Stmt getSourceIndex(T block) {
+    private Stmt getSourceIndex(BytecodeBlock block) {
         if (block == null) {
             return PhiExp.METHOD_ENTRY;
         }
@@ -73,7 +73,7 @@ public class PhiResolver<T extends BasicBlock> {
             effect. So we have to find the next non-empty block and get its first stmt.
             */
             while (block.getStmts().isEmpty()) {
-                List<T> outEdges = graph.getSuccs(block);
+                List<BytecodeBlock> outEdges = cfg.getSuccs(block);
                 assert outEdges.size() == 1;
                 block = outEdges.get(0);
             }

@@ -53,7 +53,7 @@ public class FrontendPhiExp implements RValue {
         usesAndInBlocks.add(new Pair<>(v, block));
     }
 
-    List<Pair<Var, BasicBlock>> getUsesAndInBlocks() {
+    public List<Pair<Var, BasicBlock>> getUsesAndInBlocks() {
         return usesAndInBlocks;
     }
 
