@@ -48,11 +48,9 @@ import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.BCSSA;
 import pascal.taie.frontend.java.ir.ssa.DUInfo;
-import pascal.taie.frontend.java.ir.ssa.Dominator;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
-import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
@@ -116,6 +114,8 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Pair;
+import pascal.taie.util.graph.Dominators;
+import pascal.taie.util.graph.IndexedGraph;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -246,7 +246,7 @@ public class BytecodeIRBuilder {
     /**
      * Dominator and dominator frontier computed for bytecode block graph
      */
-    private Dominator<BytecodeBlock> dom;
+    private Dominators<BytecodeBlock> dom;
 
     BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method,
                       AsmMethodSource methodSource) {
@@ -1528,7 +1528,7 @@ public class BytecodeIRBuilder {
             return;
         }
         entry = cfg.getEntry();
-        dom = new Dominator<>(cfg);
+        dom = new Dominators<>(cfg);
         postProcess();
     }
 

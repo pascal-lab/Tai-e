@@ -22,12 +22,12 @@
 
 package pascal.taie.frontend.java.ir;
 
-import pascal.taie.frontend.java.ir.ssa.IndexedGraph;
+import pascal.taie.util.collection.Lists;
+import pascal.taie.util.graph.IndexedGraph;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>Bytecode control flow graph representation optimized for performance.</p>
@@ -49,8 +49,7 @@ import java.util.List;
  * <p>Example: A node with 5 edges stores the first 3 in inline region,
  * and the remaining 2 in its overflow array.</p>
  */
-public class BytecodeCFG implements
-        IndexedGraph<BytecodeBlock>, Iterable<BytecodeBlock> {
+public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     /**
      * Number of edges that can be stored inline per node (in flat arrays).
@@ -228,26 +227,26 @@ public class BytecodeCFG implements
      * Only for debug propose. The performance will be very bad.
      */
     @Override
-    public List<BytecodeBlock> getPredsEx(BytecodeBlock block) {
+    public Set<BytecodeBlock> getPredsOf(BytecodeBlock node) {
         List<BytecodeBlock> preds = new ArrayList<>();
-        int index = block.getIndex();
+        int index = getIndex(node);
         for (int i = 0; i < getInDegreeEx(index); ++i) {
             preds.add(getObject(getPredEx(index, i)));
         }
-        return preds;
+        return Lists.asSet(preds);
     }
 
     @Override
-    public List<BytecodeBlock> getSuccsEx(BytecodeBlock block) {
+    public Set<BytecodeBlock> getSuccsOf(BytecodeBlock node) {
         List<BytecodeBlock> succs = new ArrayList<>();
-        int index = block.getIndex();
+        int index = getIndex(node);
         for (int i = 0; i < getOutDegreeEx(index); ++i) {
             succs.add(getObject(getSuccEx(index, i)));
         }
-        return succs;
+        return Lists.asSet(succs);
     }
 
-    @Override
+    //@Override
     public List<BytecodeBlock> getSuccs(BytecodeBlock block) {
         List<BytecodeBlock> preds = new ArrayList<>();
         int index = block.getIndex();
@@ -272,7 +271,7 @@ public class BytecodeCFG implements
         return blocks.size();
     }
 
-    @Override
+    //@Override
     public int getInDegreeEx(int node) {
         return inDegree[node] + exceptionInDegree[node];
     }
@@ -282,7 +281,7 @@ public class BytecodeCFG implements
         return outDegree[node] + exceptionOutDegree[node];
     }
 
-    @Override
+    //@Override
     public int getPredEx(int node, int index) {
         if (index < inDegree[node]) {
             return getPred(node, index);
@@ -300,10 +299,9 @@ public class BytecodeCFG implements
         }
     }
 
-    @Nonnull
     @Override
-    public Iterator<BytecodeBlock> iterator() {
-        return blocks.iterator();
+    public Set<BytecodeBlock> getNodes() {
+        return Lists.asSet(blocks);
     }
 
     // ==================== Block-level convenience methods ====================

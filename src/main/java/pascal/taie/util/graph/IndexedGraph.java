@@ -35,4 +35,14 @@ public interface IndexedGraph<N> extends Graph<N>, Indexer<N> {
      * @return the entry node of this graph.
      */
     N getEntry();
+
+    // Temporary APIs for compatibility with ir.ssa.IndexedGraph,
+    // will be deleted after fixing the inconsistency bug.
+    default int getOutDegreeEx(int node) {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getSuccEx(int node, int index) {
+        throw new UnsupportedOperationException();
+    }
 }

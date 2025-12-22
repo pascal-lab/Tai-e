@@ -26,6 +26,8 @@ import pascal.taie.frontend.java.ir.BasicBlock;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
+import pascal.taie.util.graph.Dominators;
+import pascal.taie.util.graph.IndexedGraph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -119,9 +121,9 @@ public class BCSSA<Block extends BasicBlock> {
 
     private final IndexedGraph<Block> graph;
 
-    private final Dominator.DominatorFrontiers df;
+    private final Dominators.DominatorFrontiers df;
 
-    private final Dominator<Block> dom;
+    private final Dominators<Block> dom;
 
     private final LazyArray<List<SemiPhi>> phis;
 
@@ -153,11 +155,11 @@ public class BCSSA<Block extends BasicBlock> {
                  int varSize,
                  GenericDUInfo<Block> info,
                  boolean useSSA,
-                 Dominator<Block> dom) {
+                 Dominators<Block> dom) {
         this.graph = graph;
         this.varSize = varSize;
         this.dom = dom;
-        this.df = dom.getDF();
+        this.df = dom.getDomFront();
         this.info = info;
         this.phis = new LazyArray<>(graph.nodeCount()) {
             @Override
@@ -338,10 +340,10 @@ public class BCSSA<Block extends BasicBlock> {
             // and should be labeled as 0, 1, 2, 3, ... in the du index
             varReachDef[i] = i;
             // if the param is used in a phi node, we need to update the reaching def
-            if (!phis.contains(graph.getEntryIndex())) {
+            if (!phis.contains(graph.getIndex(graph.getEntry()))) {
                 continue;
             }
-            for (SemiPhi phi : phis.get(graph.getEntryIndex())) {
+            for (SemiPhi phi : phis.get(graph.getIndex(graph.getEntry()))) {
                 if (phi.var == i) {
                     phi.addInDefs(null, i);
                 }
