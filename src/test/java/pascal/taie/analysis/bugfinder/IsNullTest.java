@@ -32,14 +32,13 @@ public class IsNullTest {
 
     private static final String folderPath = "src/test/resources/bugfinder";
 
-    // FIXME: newfrontend testcase failed
-//    @ParameterizedTest
-//    @ValueSource(strings = {
-//            "NullDeref",
-//            "NullDeref2",
-//    })
-//    void testIsNullValue(String inputClass) {
-//        Tests.testInput(inputClass, folderPath, IsNullAnalysis.ID);
-//    }
+    @ParameterizedTest
+    @ValueSource(strings = {
+//            "NullDeref",    // FIXME: newfrontend testcase failed
+            "NullDeref2",
+    })
+    void testIsNullValue(String inputClass) {
+        Tests.testInput(inputClass, folderPath, IsNullAnalysis.ID);
+    }
 
 }
