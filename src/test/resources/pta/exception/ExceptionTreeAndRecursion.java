@@ -21,6 +21,7 @@ public class ExceptionTreeAndRecursion {
             m1();
             throw new IllegalStateException();
         } catch (ArithmeticException e1) {
+            e1.printStackTrace();
         }
     }
 }
