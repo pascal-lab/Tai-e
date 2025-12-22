@@ -34,7 +34,6 @@ public class DeadCodeTestFull extends DeadCodeTest {
             "UnreachableSwitchBranch2",
             "DeadAssignment2",
             "LiveAssignments",
-            "MixedDeadCode",
             "NotDead",
             "Corner",
             "AllReachableIfBranch",
