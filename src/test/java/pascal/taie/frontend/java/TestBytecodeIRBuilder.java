@@ -53,7 +53,7 @@ public class TestBytecodeIRBuilder {
         // Collections.addAll(args, "-a", "cfg");
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
-        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder");
+        Collections.addAll(args, "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder");
         Collections.addAll(args, "-m", mainClass);
         Main.buildWorld(args.toArray(new String[0]));
 
@@ -86,7 +86,7 @@ public class TestBytecodeIRBuilder {
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
                 "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
                 "returnInt", "exception", "monitor", "iinc");
-        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder",
+        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
                 "-java", "8",
                 "-cp", "src/test/resources/world",
                 "--main-class", "AllInOne",
@@ -144,7 +144,7 @@ public class TestBytecodeIRBuilder {
                 "-java", Integer.toString(javaVersion),
                 "-acp", worldPath,
                 "--input-classes", "AllInOne",
-                "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder",
+                "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
                 "--pre-build-ir"
                 );
         World.get()
@@ -183,7 +183,7 @@ public class TestBytecodeIRBuilder {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
                     "-acp", jrePaths(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder"
+                    "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder"
             );
 
             Timer.runAndCount(() ->
@@ -210,7 +210,7 @@ public class TestBytecodeIRBuilder {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "-java", Integer.toString(javaVersion),
-                    "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder",
+                    "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
                     "--extract-all"
             );
 
@@ -274,17 +274,6 @@ public class TestBytecodeIRBuilder {
     public void benchmarkForSootJRE() throws IOException {
         int javaVersion = 8;
         benchmarkForSoot(jrePaths(javaVersion), "", false);
-    }
-
-    @Test
-    public void benchmarkForSootCrypto() throws IOException {
-        String acp = "crypto-benchmarks/dubbo3/original-classes.jar";
-        var dependencies = TestCrypto.listRootContainers("crypto-benchmarks/dubbo3/dependencies");
-        benchmarkForSoot(
-                acp,
-                String.join(File.pathSeparator, dependencies),
-                true
-        );
     }
 
     private void benchmarkForSoot(String acp, String cp, boolean forcedToRetrieveBody) {
@@ -392,7 +381,7 @@ public class TestBytecodeIRBuilder {
         Main.buildWorld(
                 "-java", Integer.toString(javaVersion),
                 "-acp", worldPath,
-                "--world-builder", "pascal.taie.frontend.newfrontend.main.JavaWorldBuilder"
+                "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder"
         );
 
         Timer.runAndCount(() -> {

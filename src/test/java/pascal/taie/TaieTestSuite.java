@@ -33,6 +33,7 @@ import pascal.taie.analysis.pta.PTATestSuite;
 import pascal.taie.analysis.sideeffect.SideEffectTest;
 import pascal.taie.config.OptionsTest;
 import pascal.taie.frontend.cache.SerializationTest;
+import pascal.taie.frontend.java.FrontendTestSuite;
 import pascal.taie.frontend.soot.SootFrontendTest;
 import pascal.taie.language.DefaultMethodTest;
 import pascal.taie.language.FieldTest;
@@ -53,6 +54,7 @@ import pascal.taie.util.UtilTestSuite;
         DefaultMethodTest.class,
         FieldTest.class,
         SerializationTest.class,
+        FrontendTestSuite.class,
         // analysis
         BugFinderTestSuite.class,
         DataflowTestSuite.class,
