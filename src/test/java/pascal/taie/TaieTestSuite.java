@@ -27,7 +27,6 @@ import org.junit.platform.suite.api.Suite;
 import pascal.taie.analysis.bugfinder.BugFinderTestSuite;
 import pascal.taie.analysis.dataflow.DataflowTestSuite;
 import pascal.taie.analysis.deadcode.DeadCodeTestFull;
-import pascal.taie.analysis.defuse.DefUseTest;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.PTATestSuite;
 import pascal.taie.analysis.sideeffect.SideEffectTest;
@@ -59,7 +58,6 @@ import pascal.taie.util.UtilTestSuite;
         BugFinderTestSuite.class,
         DataflowTestSuite.class,
         DeadCodeTestFull.class,
-        DefUseTest.class,
         CHATestFull.class,
         PTATestSuite.class,
         SideEffectTest.class,
