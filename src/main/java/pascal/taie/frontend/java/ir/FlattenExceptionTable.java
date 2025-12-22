@@ -27,25 +27,38 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import pascal.taie.util.collection.Pair;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 
-public class FlattenExceptionTable {
-    public enum ExceptionEntryType {
+class FlattenExceptionTable {
+
+    /**
+     * Marker type indicating whether an exception entry represents
+     * the start or end of an exception handling region.
+     */
+    private enum ExceptionEntryType {
         END,
-        START
+        START,
     }
 
-    public record ExceptionEntry(int pc, ExceptionEntryType type, int handlerPc) implements Comparable<ExceptionEntry> {
-        public boolean isStart() {
-            return type == ExceptionEntryType.START;
-        }
+    /**
+     * Represents a boundary marker for an exception handling region.
+     * Each try-catch block generates two entries: one START at the beginning
+     * and one END at the end of the protected region.
+     *
+     * @param pc        the bytecode instruction index of this boundary
+     * @param type      whether this is a START or END boundary
+     * @param handlerPc the instruction index of the exception handler
+     */
+    private record ExceptionEntry(int pc, ExceptionEntryType type, int handlerPc)
+            implements Comparable<ExceptionEntry> {
 
-        public boolean isEnd() {
-            return type == ExceptionEntryType.END;
+        /**
+         * @return {@code true} if this entry marks the start of an exception region
+         */
+        private boolean isStart() {
+            return type == ExceptionEntryType.START;
         }
 
         @Override
@@ -58,9 +71,22 @@ public class FlattenExceptionTable {
         }
     }
 
-    List<ExceptionEntry> exceptionEntries;
+    /**
+     * Sorted list of exception boundary entries (both START and END markers).
+     * Sorted by PC in ascending order, with END entries before START entries
+     * at the same PC position.
+     */
+    private final List<ExceptionEntry> exceptionEntries;
 
-    public FlattenExceptionTable(JSRInlinerAdapter source) {
+    /**
+     * Constructs a flattened exception table from the given method's bytecode.
+     * <p>
+     * Extracts all try-catch blocks from the method, creates START and END
+     * boundary markers for each, and sorts them for later processing.
+     *
+     * @param source the ASM method adapter containing the bytecode and exception table
+     */
+    FlattenExceptionTable(JSRInlinerAdapter source) {
         exceptionEntries = new ArrayList<>();
         for (TryCatchBlockNode node : source.tryCatchBlocks) {
             int start = getIndex(source, node.start);
@@ -73,7 +99,14 @@ public class FlattenExceptionTable {
         Collections.sort(exceptionEntries);
     }
 
-    public Pair<int[], Integer> buildExceptionSwitches() {
+    /**
+     * Gets the instruction index for a given label node.
+     */
+    private static int getIndex(JSRInlinerAdapter source, LabelNode labelNode) {
+        return source.instructions.indexOf(labelNode);
+    }
+
+    Pair<int[], Integer> buildExceptionSwitches() {
         int[] result = new int[exceptionEntries.size()];
         int index = 0;
         int ends = 0;
@@ -91,30 +124,5 @@ public class FlattenExceptionTable {
             }
         }
         return new Pair<>(result, index);
-    }
-
-    List<Integer> currentHandlers = new ArrayList<>();
-    private Queue<ExceptionEntry> entryQueue;
-
-    public void init() {
-        entryQueue = new ArrayDeque<>(exceptionEntries);
-    }
-
-    public boolean next(int pc) {
-        boolean event = false;
-        while (!entryQueue.isEmpty() && entryQueue.peek().pc() <= pc) {
-            ExceptionEntry entry = entryQueue.poll();
-            if (entry.isStart()) {
-                currentHandlers.add(entry.handlerPc());
-            } else {
-                currentHandlers.remove((Integer) entry.handlerPc());
-            }
-            event = true;
-        }
-        return event;
-    }
-
-    private int getIndex(JSRInlinerAdapter source, LabelNode labelNode) {
-        return source.instructions.indexOf(labelNode);
     }
 }
