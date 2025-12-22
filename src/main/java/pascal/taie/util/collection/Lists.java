@@ -22,13 +22,15 @@
 
 package pascal.taie.util.collection;
 
+import javax.annotation.Nonnull;
+import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.StreamSupport;
 
 /**
  * Utility methods for {@link List}.
@@ -58,10 +60,30 @@ public final class Lists {
     }
 
     /**
-     * Converts an iterable object to a list.
+     * Returns a {@link Set} view of the specified list.
+     * The set is backed by the list, so changes to the list are reflected in the set.
+     * <b>Element uniqueness is the responsibility of the caller:</b>
+     * if the list contains duplicates, this set view will not enforce uniqueness
+     * and set operations may behave unexpectedly.
+     * The set's iteration order is the same as the list's.
+     *
+     * @param list the list to be viewed as a set
+     * @param <T> the type of elements in the list
+     * @return a set view of the specified list
      */
-    public static <T> List<T> asList(Iterable<T> iterable) {
-        return StreamSupport.stream(iterable.spliterator(), false).toList();
+    public static <T> Set<T> asSet(List<T> list) {
+        return new AbstractSet<>() {
+            @Nonnull
+            @Override
+            public Iterator<T> iterator() {
+                return list.iterator();
+            }
+
+            @Override
+            public int size() {
+                return list.size();
+            }
+        };
     }
 
     /**
