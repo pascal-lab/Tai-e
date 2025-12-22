@@ -95,9 +95,9 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
     /**
      * Constructs a new BytecodeCFG with the specified parameters.
      *
-     * @param maxBlockSize    The maximum number of blocks in the graph.
-     * @param entry           The entry block of the CFG.
-     * @param insn2Block       Mapping from instruction index to block.
+     * @param maxBlockSize The maximum number of blocks in the graph.
+     * @param entry        The entry block of the CFG.
+     * @param insn2Block   Mapping from instruction index to block.
      */
     BytecodeCFG(int maxBlockSize, BytecodeBlock entry, BytecodeBlock[] insn2Block) {
         blocks = new ArrayList<>(maxBlockSize);
@@ -146,6 +146,7 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     /**
      * Adds a control-flow edge (source -> target).
+     *
      * @param source source block
      * @param target target block
      */

@@ -27,7 +27,10 @@ import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.SparseIntSet;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -143,7 +146,14 @@ public class Dominators<N> {
 
     private void dfsGraph(int node, boolean[] visited, MutableInt counter) {
         visited[node] = true;
-        for (N succ : graph.getSuccsOf(graph.getObject(node))) {
+        // This is a temporary measure to match the behavior of the legacy
+        // post-order implementation, which processes successors backwards.
+        // While the traversal order does not affect the correctness of
+        // the algorithm, this measure ensures output consistency for now and
+        // may be changed to a natural forward order in a future refactoring.
+        List<N> succs = new ArrayList<>(graph.getSuccsOf(graph.getObject(node)));
+        Collections.reverse(succs); // FIXME: iterating successors in natural order.
+        for (N succ : succs) {
             int succI = graph.getIndex(succ);
             if (!visited[succI]) {
                 dfsGraph(succI, visited, counter);
