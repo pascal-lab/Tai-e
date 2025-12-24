@@ -146,13 +146,11 @@ public class Dominators<N> {
 
     private void dfsGraph(int node, boolean[] visited, MutableInt counter) {
         visited[node] = true;
-        // This is a temporary measure to match the behavior of the legacy
-        // post-order implementation, which processes successors backwards.
-        // While the traversal order does not affect the correctness of
-        // the algorithm, this measure ensures output consistency for now and
-        // may be changed to a natural forward order in a future refactoring.
+        // Successors are iterated in reverse to generate an RPO sequence
+        // that approximates the bytecode's order. This helps correctly
+        // propagate line number info.
         List<N> succs = new ArrayList<>(graph.getSuccsOf(graph.getObject(node)));
-        Collections.reverse(succs); // FIXME: iterating successors in natural order.
+        Collections.reverse(succs);
         for (N succ : succs) {
             int succI = graph.getIndex(succ);
             if (!visited[succI]) {
@@ -288,7 +286,7 @@ public class Dominators<N> {
      * Returns the post-order traversal sequence of the graph.
      *
      * @return an array where {@code postOrder[i]} is the node index of the i-th node
-     *         visited in post-order DFS traversal
+     * visited in post-order DFS traversal
      */
     public int[] getPostOrder() {
         return postOrder;
