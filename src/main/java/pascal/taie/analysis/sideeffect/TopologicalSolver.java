@@ -145,7 +145,7 @@ class TopologicalSolver {
             Set<Obj> mods = new IndexerBitSet<>(indexer, true);
             // add SCC direct mods
             Set<JMethod> sccNodes = Sets.newSet(scc.getNodes());
-            JMethod rep = CollectionUtils.getOne(sccNodes);
+            JMethod rep = CollectionUtils.getFirst(sccNodes);
             mods.addAll(sccDirectMods.get(rep));
             // add callees' mods
             sccNodes.forEach(m -> callGraph.getCalleesOfM(m)

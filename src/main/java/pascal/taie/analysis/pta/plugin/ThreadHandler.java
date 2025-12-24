@@ -44,7 +44,7 @@ import pascal.taie.util.collection.Sets;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
-import static pascal.taie.util.collection.CollectionUtils.getOne;
+import static pascal.taie.util.collection.CollectionUtils.getFirst;
 
 /**
  * Models initialization of system thread group, main thread group,
@@ -92,7 +92,7 @@ public class ThreadHandler implements Plugin {
                 .getThis();
         currentThread = hierarchy.getJREMethod(
                 "<java.lang.Thread: java.lang.Thread currentThread()>");
-        currentThreadReturn = getOne(requireNonNull(currentThread)
+        currentThreadReturn = getFirst(requireNonNull(currentThread)
                 .getIR()
                 .getReturnVars());
     }

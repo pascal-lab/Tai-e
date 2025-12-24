@@ -59,8 +59,17 @@ public final class CollectionUtils {
     }
 
     /**
-     * @return an arbitrary element of the given collection.
+     * @return the first element returned by the iterator of given collection.
      */
+    public static <T> T getFirst(Collection<T> c) {
+        return c.iterator().next();
+    }
+
+    /**
+     * @return an element of given collection.
+     * @deprecated use {@link #getFirst(Collection)} instead.
+     */
+    @Deprecated
     public static <T> T getOne(Collection<T> c) {
         return c.iterator().next();
     }

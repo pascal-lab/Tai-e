@@ -276,7 +276,7 @@ public class JClass extends AbstractResultHolder
         Set<JField> fields = declaredFields.get(fieldName);
         return switch (fields.size()) {
             case 0 -> null;
-            case 1 -> CollectionUtils.getOne(fields);
+            case 1 -> CollectionUtils.getFirst(fields);
             default -> throw new AmbiguousMemberException(name, fieldName);
         };
     }

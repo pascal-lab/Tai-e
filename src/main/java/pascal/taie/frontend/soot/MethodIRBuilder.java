@@ -455,7 +455,7 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
         }
         tempToAssigns.forEachSet((var, assigns) -> {
             if (assigns.size() == 1) {
-                AssignStmt assign = CollectionUtils.getOne(assigns);
+                AssignStmt assign = CollectionUtils.getFirst(assigns);
                 Value rhs = assign.getRightOp();
                 if ((rhs instanceof Constant ||
                         rhs instanceof Local ||
