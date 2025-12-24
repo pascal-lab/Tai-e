@@ -382,7 +382,7 @@ public class BytecodeIRBuilder {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = cfg.searchForValidBlock(getIndex(label));
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = cfg.getObject(cfg.getSucc(block.getIndex(), 0));
+            BytecodeBlock next1 = cfg.getNormalSuccsOf(block).get(0);
             BytecodeBlock next2 = cfg.getObject(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
@@ -839,11 +839,11 @@ public class BytecodeIRBuilder {
 
     private Stack<StackItem> getInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
-        int inEdgeCount = cfg.getInDegree(block);
-        if (cfg.hasNoIncomingEdges(block)) {
+        int inEdgeCount = cfg.getNormalInDegreeOf(block);
+        if (cfg.hasNoIncomingNormalEdges(block)) {
             inStack = null;
         } else if (inEdgeCount == 1) {
-            BytecodeBlock inEdge = cfg.getPred(block, 0);
+            BytecodeBlock inEdge = cfg.getNormalPredOf(block, 0);
             assert inEdge.getOutStack() != null;
             inStack = new Stack<>();
             inStack.addAll(inEdge.getOutStack());
@@ -859,7 +859,7 @@ public class BytecodeIRBuilder {
         List<List<StackItem>> inExps = new ArrayList<>();
         boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
-            BytecodeBlock inEdge = cfg.getPred(block, i);
+            BytecodeBlock inEdge = cfg.getNormalPredOf(block, i);
             if (inEdge.getOutStack() == null) {
                 isLoopHeader = true;
                 if (inStack != null) {
@@ -1045,14 +1045,14 @@ public class BytecodeIRBuilder {
                 // insert phi node in the first instruction
                 FrontendPhiExp phiExp = new FrontendPhiExp();
                 int unreachableOffset = 0;
-                for (int i = 0; i < cfg.getInDegree(block); ++i) {
-                    if (cfg.getPred(block, i).getOutStack() == null) {
+                for (int i = 0; i < cfg.getNormalInDegreeOf(block); ++i) {
+                    if (cfg.getNormalPredOf(block, i).getOutStack() == null) {
                         unreachableOffset++;
                         continue;
                     }
                     StackItem item = phi.getNodes().get(i - unreachableOffset);
                     stackSimulator.liftToVar(item);
-                    phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getPred(block, i));
+                    phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
                 }
                 FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
                 phi.setWriteOutVar(phi.getVar());
@@ -1075,7 +1075,7 @@ public class BytecodeIRBuilder {
         Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getNodes().size(); ++i) {
             StackItem item = phi.getNodes().get(i);
-            BytecodeBlock inEdge = cfg.getPred(phi.createPos, i + unreachableOffset);
+            BytecodeBlock inEdge = cfg.getNormalPredOf(phi.createPos, i + unreachableOffset);
             if (inEdge.getOutStack() == null) {
                 unreachableOffset++;
                 continue;
@@ -1098,8 +1098,8 @@ public class BytecodeIRBuilder {
     private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
         if (current.isLoopHeader()) {
             Stack<StackItem> inStack = current.getInStack();
-            for (int i = 0; i < cfg.getInDegree(current); ++i) {
-                BytecodeBlock outEdge = cfg.getPred(current, i);
+            for (int i = 0; i < cfg.getNormalInDegreeOf(current); ++i) {
+                BytecodeBlock outEdge = cfg.getNormalPredOf(current, i);
                 if (outEdge.getOutStack() == null) {
                     assert outEdge.getInStack() == null;
                     continue;

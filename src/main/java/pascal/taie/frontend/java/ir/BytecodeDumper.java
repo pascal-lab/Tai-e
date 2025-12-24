@@ -73,9 +73,7 @@ class BytecodeDumper {
                     .append("\"];\n");
         }
         for (BytecodeBlock block : graph) {
-            for (int i = 0; i < graph.getOutDegree(block.getIndex()); i++) {
-                int succIndex = graph.getSucc(block.getIndex(), i);
-                BytecodeBlock succ = graph.getObject(succIndex);
+            for (BytecodeBlock succ : graph.getNormalSuccsOf(block)) {
                 sb.append(getBlockName(block))
                         .append(" -> ")
                         .append(getBlockName(succ))

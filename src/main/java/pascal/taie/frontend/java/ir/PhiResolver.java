@@ -68,12 +68,11 @@ public class PhiResolver {
             List<Stmt> stmts = block.getStmts();
             return stmts.get(stmts.size() - 1);
         } else {
-            /*
-            The block is within a try block, and the bytecode in it is translated as side
-            effect. So we have to find the next non-empty block and get its first stmt.
-            */
+            // The block is within a try block, and the bytecode in it
+            // is translated as side effect. So we have to find the next
+            // non-empty block and get its first stmt.
             while (block.getStmts().isEmpty()) {
-                List<BytecodeBlock> outEdges = cfg.getSuccs(block);
+                List<BytecodeBlock> outEdges = cfg.getNormalSuccsOf(block);
                 assert outEdges.size() == 1;
                 block = outEdges.get(0);
             }

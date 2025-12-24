@@ -35,33 +35,29 @@ import java.util.Set;
  * <h2>Memory Layout Design</h2>
  * <p>The graph uses a hybrid storage strategy for edges:</p>
  * <ul>
- *   <li><b>Inline storage</b>: First 3 edges per node stored in flat arrays (most cases)</li>
+ *   <li><b>Inline storage</b>: First 4 edges per node stored in flat arrays (most cases)</li>
  *   <li><b>Overflow storage</b>: Additional edges stored in separate jagged arrays (rare cases)</li>
  * </ul>
  *
  * <h3>Inline Array Layout</h3>
  * <pre>
- * Block 0: [count, edge1, edge2, edge3] | Block 1: [count, edge1, edge2, edge3] | ...
- *           ^^^^^  ^^^^^^^^^^^^^^^^^^^             ^^^^^  ^^^^^^^^^^^^^^^^^^^
+ * Block 0: [edge1, edge2, edge3, edge4] | Block 1: [edge1, edge2, edge3, edge4] | ...
+ *           ^^^^^  ^^^^^  ^^^^^  ^^^^^             ^^^^^  ^^^^^  ^^^^^  ^^^^^
  *           slot0  slot1  slot2  slot3             slot0  slot1  slot2  slot3
  * </pre>
+ * <p>Edge count is stored separately in degree arrays (inDegree, outDegree, etc.).</p>
  *
- * <p>Example: A node with 5 edges stores the first 3 in inline region,
+ * <p>Example: A node with 6 edges stores the first 4 in inline region,
  * and the remaining 2 in its overflow array.</p>
  */
 public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     /**
      * Number of edges that can be stored inline per node (in flat arrays).
-     * Most CFG nodes have ≤ 3 edges, making inline storage efficient.
+     * Each node occupies INLINE_CAPACITY consecutive integers in the flat array.
+     * Most CFG nodes have ≤ 4 edges, making inline storage efficient.
      */
-    private static final int INLINE_CAPACITY = 3;
-
-    /**
-     * Number of slots per node in flat arrays: 1 count slot + INLINE_CAPACITY.
-     * Each node occupies SLOT_SIZE consecutive integers in the flat array.
-     */
-    private static final int SLOT_SIZE = 1 + INLINE_CAPACITY;
+    private static final int INLINE_CAPACITY = 4;
 
     private final List<BytecodeBlock> blocks;
 
@@ -104,11 +100,11 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         this.entry = entry;
         this.insn2Block = insn2Block;
 
-        preds = new int[maxBlockSize * SLOT_SIZE];
+        preds = new int[maxBlockSize * INLINE_CAPACITY];
         overflowPreds = new int[maxBlockSize][];
         inDegree = new int[maxBlockSize];
 
-        succs = new int[maxBlockSize * SLOT_SIZE];
+        succs = new int[maxBlockSize * INLINE_CAPACITY];
         overflowSuccs = new int[maxBlockSize][];
         outDegree = new int[maxBlockSize];
 
@@ -155,12 +151,17 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         addEdge(succs, overflowSuccs, outDegree, source, target);
     }
 
+    void addExceptionEdge(int source, int target) {
+        addOverflowEdge(exceptionPreds, exceptionInDegree, target, source, 0);
+        addOverflowEdge(exceptionSuccs, exceptionOutDegree, source, target, 0);
+    }
+
     private void addEdge(int[] inlineRegion, int[][] overflowRegion, int[] degree,
                          int source, int taregt) {
-        if (degree[source] < SLOT_SIZE) {
+        if (degree[source] < INLINE_CAPACITY) {
             addInlineRegionEdge(inlineRegion, degree, source, taregt);
         } else {
-            addOverflowEdge(overflowRegion, degree, source, taregt, SLOT_SIZE);
+            addOverflowEdge(overflowRegion, degree, source, taregt, INLINE_CAPACITY);
         }
     }
 
@@ -169,8 +170,8 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
      */
     private void addInlineRegionEdge(int[] inlineRegion, int[] degree,
                                      int source, int target) {
-        assert degree[source] < SLOT_SIZE;
-        int index = source * SLOT_SIZE + degree[source];
+        assert degree[source] < INLINE_CAPACITY;
+        int index = source * INLINE_CAPACITY + degree[source];
         inlineRegion[index] = target;
         degree[source]++;
     }
@@ -183,7 +184,7 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         assert degree[source] >= slotSize;
         int nextIndex = degree[source] - slotSize;
         if (overflowRegion[source] == null) {
-            overflowRegion[source] = new int[SLOT_SIZE];
+            overflowRegion[source] = new int[INLINE_CAPACITY];
         } else if (nextIndex >= overflowRegion[source].length) {
             int[] newRegion = new int[overflowRegion[source].length * 2];
             System.arraycopy(overflowRegion[source], 0, newRegion, 0,
@@ -194,72 +195,10 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         degree[source]++;
     }
 
-    void addExceptionEdge(int source, int target) {
-        addOverflowEdge(exceptionPreds, exceptionInDegree, target, source, 0);
-        addOverflowEdge(exceptionSuccs, exceptionOutDegree, source, target, 0);
-    }
-
-    int getOutDegree(int block) {
-        return outDegree[block];
-    }
-
-    int getPred(int block, int index) {
-        if (index < SLOT_SIZE) {
-            return preds[block * SLOT_SIZE + index];
-        } else {
-            return overflowPreds[block][index - SLOT_SIZE];
-        }
-    }
-
-    int getSucc(int block, int index) {
-        if (index < SLOT_SIZE) {
-            return succs[block * SLOT_SIZE + index];
-        } else {
-            return overflowSuccs[block][index - SLOT_SIZE];
-        }
-    }
-
+    // ==================== IndexedGraph interface implementations ====================
     @Override
     public BytecodeBlock getEntry() {
         return entry;
-    }
-
-    /**
-     * Only for debug propose. The performance will be very bad.
-     */
-    @Override
-    public Set<BytecodeBlock> getPredsOf(BytecodeBlock node) {
-        List<BytecodeBlock> preds = new ArrayList<>();
-        int index = getIndex(node);
-        for (int i = 0; i < getInDegreeEx(index); ++i) {
-            preds.add(getObject(getPredEx(index, i)));
-        }
-        return Lists.asSet(preds);
-    }
-
-    @Override
-    public Set<BytecodeBlock> getSuccsOf(BytecodeBlock node) {
-        List<BytecodeBlock> succs = new ArrayList<>();
-        int index = getIndex(node);
-        for (int i = 0; i < getOutDegreeEx(index); ++i) {
-            succs.add(getObject(getSuccEx(index, i)));
-        }
-        return Lists.asSet(succs);
-    }
-
-    //@Override
-    public List<BytecodeBlock> getSuccs(BytecodeBlock block) {
-        List<BytecodeBlock> preds = new ArrayList<>();
-        int index = block.getIndex();
-        for (int i = 0; i < outDegree[index]; i++) {
-            preds.add(getObject(getSucc(index, i)));
-        }
-        return preds;
-    }
-
-    @Override
-    public BytecodeBlock getObject(int index) {
-        return blocks.get(index);
     }
 
     @Override
@@ -268,35 +207,76 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
     }
 
     @Override
-    public int nodeCount() {
-        return blocks.size();
-    }
-
-    //@Override
-    public int getInDegreeEx(int node) {
-        return inDegree[node] + exceptionInDegree[node];
+    public BytecodeBlock getObject(int index) {
+        return blocks.get(index);
     }
 
     @Override
-    public int getOutDegreeEx(int node) {
-        return outDegree[node] + exceptionOutDegree[node];
+    public int getInDegreeOf(BytecodeBlock node) {
+        int index = getIndex(node);
+        return inDegree[index] + exceptionInDegree[index];
     }
 
-    //@Override
-    public int getPredEx(int node, int index) {
+    /**
+     * Only for debug propose. The performance will be very bad. TODO: really?
+     */
+    @Override
+    public Set<BytecodeBlock> getPredsOf(BytecodeBlock node) {
+        List<BytecodeBlock> preds = new ArrayList<>();
+        int index = getIndex(node);
+        int inDegree = getInDegreeOf(node);
+        for (int i = 0; i < inDegree; ++i) {
+            preds.add(getObject(getPredOf(index, i)));
+        }
+        return Lists.asSet(preds);
+    }
+
+    private int getPredOf(int node, int index) {
         if (index < inDegree[node]) {
-            return getPred(node, index);
+            return getNormalPredOf(node, index);
         } else {
             return exceptionPreds[node][index - inDegree[node]];
         }
     }
 
+    private int getNormalPredOf(int node, int index) {
+        if (index < INLINE_CAPACITY) {
+            return preds[node * INLINE_CAPACITY + index];
+        } else {
+            return overflowPreds[node][index - INLINE_CAPACITY];
+        }
+    }
+
     @Override
-    public int getSuccEx(int node, int index) {
+    public int getOutDegreeOf(BytecodeBlock node) {
+        int index = getIndex(node);
+        return outDegree[index] + exceptionOutDegree[index];
+    }
+
+    @Override
+    public Set<BytecodeBlock> getSuccsOf(BytecodeBlock node) {
+        List<BytecodeBlock> succs = new ArrayList<>();
+        int index = getIndex(node);
+        int outDegree = getOutDegreeOf(node);
+        for (int i = 0; i < outDegree; ++i) {
+            succs.add(getObject(getSuccOf(index, i)));
+        }
+        return Lists.asSet(succs);
+    }
+
+    private int getSuccOf(int node, int index) {
         if (index < outDegree[node]) {
-            return getSucc(node, index);
+            return getNormalSuccOf(node, index);
         } else {
             return exceptionSuccs[node][index - outDegree[node]];
+        }
+    }
+
+    private int getNormalSuccOf(int node, int index) {
+        if (index < INLINE_CAPACITY) {
+            return succs[node * INLINE_CAPACITY + index];
+        } else {
+            return overflowSuccs[node][index - INLINE_CAPACITY];
         }
     }
 
@@ -305,28 +285,39 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         return Lists.asSet(blocks);
     }
 
-    // ==================== Block-level convenience methods ====================
-
+    // ========== Block-level convenience methods used by other classes ==========
     /**
-     * Returns the source block of the incoming edge at the given index.
+     * @return the number of incoming normal edges for the given block.
      */
-    BytecodeBlock getPred(BytecodeBlock block, int index) {
-        int sourceIndex = getPred(block.getIndex(), index);
-        return blocks.get(sourceIndex);
-    }
-
-    /**
-     * Returns the number of incoming edges for the given block.
-     */
-    int getInDegree(BytecodeBlock block) {
+    int getNormalInDegreeOf(BytecodeBlock block) {
         return inDegree[block.getIndex()];
     }
 
     /**
-     * Checks if the block has no incoming edges.
+     * @return the source block of the incoming normal edge at the given index.
+     */
+    BytecodeBlock getNormalPredOf(BytecodeBlock block, int index) {
+        int sourceIndex = getNormalPredOf(block.getIndex(), index);
+        return blocks.get(sourceIndex);
+    }
+
+    /**
+     * @return the normal successors of given block.
+     */
+    List<BytecodeBlock> getNormalSuccsOf(BytecodeBlock block) {
+        List<BytecodeBlock> succs = new ArrayList<>();
+        int index = block.getIndex();
+        for (int i = 0; i < outDegree[index]; i++) {
+            succs.add(getObject(getNormalSuccOf(index, i)));
+        }
+        return succs;
+    }
+
+    /**
+     * Checks if the block has no incoming normal edges.
      * NOTE: catch blocks are treated as having no incoming edges for control flow purposes.
      */
-    boolean hasNoIncomingEdges(BytecodeBlock block) {
-        return block.isCatch() || getInDegree(block) == 0;
+    boolean hasNoIncomingNormalEdges(BytecodeBlock block) {
+        return block.isCatch() || getNormalInDegreeOf(block) == 0;
     }
 }

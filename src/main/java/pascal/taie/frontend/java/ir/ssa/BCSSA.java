@@ -361,12 +361,12 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
             info.visit(current, varDUVisitor);
-            for (int i = 0; i < graph.getOutDegreeEx(node); i++) {
-                int succIndex = graph.getSuccEx(node, i);
-                if (!phis.contains(succIndex)) {
+            for (Block succ : graph.getSuccsOf(graph.getObject(node))) {
+                int succI = graph.getIndex(succ);
+                if (!phis.contains(succI)) {
                     continue;
                 }
-                for (SemiPhi phi : phis.get(succIndex)) {
+                for (SemiPhi phi : phis.get(succI)) {
                     int varIndex = phi.var;
                     updateReachingDefForBlockEnd(varIndex, varReachDef, current);
                     int reachDef = varReachDef[varIndex];
