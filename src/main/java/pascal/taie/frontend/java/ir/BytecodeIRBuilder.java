@@ -1547,12 +1547,8 @@ public class BytecodeIRBuilder {
 
     private void traverseBlocks() {
         entry.setInStack(new Stack<>());
-
-        int[] postOrder = dom.getPostOrder();
-        for (int i = postOrder.length - 1; i >= 0; --i) {
-            int current = postOrder[i];
-            BytecodeBlock bb = cfg.getObject(current);
-            buildBlockStmt(bb);
+        for (BytecodeBlock block : dom.getReversePostOrder()) {
+            buildBlockStmt(block);
         }
         solveAllPhiAndOutput();
     }

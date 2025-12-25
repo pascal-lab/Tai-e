@@ -349,9 +349,8 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
         }
-        int[] domTreePreOrder = dom.getDomTreePreOrder();
-        for (int node : domTreePreOrder) {
-            Block current = graph.getObject(node);
+        for (Block current : dom.getDomTreePreOrder()) {
+            int node = graph.getIndex(current);
             if (phis.contains(node)) {
                 for (SemiPhi phi : phis.get(node)) {
                     int phiIndex = getPhiDuIndex(phi.index);
@@ -361,7 +360,7 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
             info.visit(current, varDUVisitor);
-            for (Block succ : graph.getSuccsOf(graph.getObject(node))) {
+            for (Block succ : graph.getSuccsOf(current)) {
                 int succI = graph.getIndex(succ);
                 if (!phis.contains(succI)) {
                     continue;
@@ -389,7 +388,7 @@ public class BCSSA<Block extends BasicBlock> {
         if (b == block) {
             return;
         } else {
-            while (!blockDominates(b, block)) {
+            while (!dom.dominates(b, block)) {
                 r = duReachDef[r];
                 if (r == UNDEFINED) {
                     break;
@@ -417,12 +416,8 @@ public class BCSSA<Block extends BasicBlock> {
         if (b1 == b2) {
             return isPhiDef(insnIndex1) || insnIndex1 < insnIndex2;
         } else {
-            return blockDominates(b1, b2);
+            return dom.dominates(b1, b2);
         }
-    }
-
-    private boolean blockDominates(Block b1, Block b2) {
-        return dom.dominates(b1.getIndex(), b2.getIndex());
     }
 
     private Block getDuBlocks(int udIndex) {

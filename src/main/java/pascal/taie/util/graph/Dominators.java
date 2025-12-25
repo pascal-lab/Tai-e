@@ -30,6 +30,7 @@ import pascal.taie.util.collection.SparseIntSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -274,26 +275,66 @@ public class Dominators<N> {
     }
 
     /**
-     * @param a a node index
-     * @param b a node index
-     * @return {@code true} if a dominates b
+     * @param node1 the first node
+     * @param node2 the second node
+     * @return {@code true} if node1 dominates node2
      */
-    public boolean dominates(int a, int b) {
-        return inClock[a] <= inClock[b] && outClock[a] >= outClock[b];
+    public boolean dominates(N node1, N node2) {
+        int i1 = graph.getIndex(node1);
+        int i2 = graph.getIndex(node2);
+        return inClock[i1] <= inClock[i2] && outClock[i1] >= outClock[i2];
     }
 
     /**
-     * Returns the post-order traversal sequence of the graph.
+     * Returns the reverse post-order traversal sequence of the graph.
      *
-     * @return an array where {@code postOrder[i]} is the node index of the i-th node
-     * visited in post-order DFS traversal
+     * @return an iterable sequence of nodes, in reverse post-order DFS
+     * traversal of the graph.
      */
-    public int[] getPostOrder() {
-        return postOrder;
+    public Iterable<N> getReversePostOrder() {
+        return () -> new Iterator<>() {
+            private int i = postOrder.length - 1;
+
+            @Override
+            public boolean hasNext() {
+                return i >= 0;
+            }
+
+            @Override
+            public N next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                int nodeIndex = postOrder[i--];
+                return graph.getObject(nodeIndex);
+            }
+        };
     }
 
-    public int[] getDomTreePreOrder() {
-        return domTreePreOrder;
+    /**
+     * Returns the pre-order traversal sequence of the dominator tree.
+     *
+     * @return an iterable sequence of nodes, in pre-order traversal
+     * of the dominator tree.
+     */
+    public Iterable<N> getDomTreePreOrder() {
+        return () -> new Iterator<>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < domTreePreOrder.length;
+            }
+
+            @Override
+            public N next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                int nodeIndex = domTreePreOrder[i++];
+                return graph.getObject(nodeIndex);
+            }
+        };
     }
 
     /**
