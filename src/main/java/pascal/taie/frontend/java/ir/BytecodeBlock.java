@@ -36,7 +36,7 @@ import java.util.Stack;
 /**
  * The basic block of bytecode control flow graph.
  */
-public final class BytecodeBlock implements BasicBlock {
+public final class BytecodeBlock {
 
     private final LabelNode label;
 
@@ -96,18 +96,15 @@ public final class BytecodeBlock implements BasicBlock {
         return instr.get(instr.size() - 1);
     }
 
-    @Override
     public List<Stmt> getStmts() {
         return stmts;
     }
 
     @Nullable
-    @Override
     public Stmt getLastStmt() {
         return stmts.isEmpty() ? null : stmts.get(stmts.size() - 1);
     }
 
-    @Override
     public void setStmts(List<Stmt> stmts) {
         this.stmts = stmts;
     }
@@ -126,7 +123,6 @@ public final class BytecodeBlock implements BasicBlock {
         this.index = i;
     }
 
-    @Override
     public int getIndex() {
         return this.index;
     }

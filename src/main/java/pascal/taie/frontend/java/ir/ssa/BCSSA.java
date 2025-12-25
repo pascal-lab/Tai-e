@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.BasicBlock;
+import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
@@ -37,18 +37,18 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-public class BCSSA<Block extends BasicBlock> {
+public class BCSSA {
 
     public class SemiPhi {
         final int var;
 
         final IntList inDefs;
 
-        final List<Block> inBlocks = new ArrayList<>();
+        final List<BytecodeBlock> inBlocks = new ArrayList<>();
 
         final List<SemiPhi> owned = new ArrayList<>();
 
-        final Block belongsTo;
+        final BytecodeBlock belongsTo;
 
         final int index;
 
@@ -60,14 +60,14 @@ public class BCSSA<Block extends BasicBlock> {
 
         Object realPhi;
 
-        SemiPhi(int var, IntList inDefs, Block belongsTo, int index) {
+        SemiPhi(int var, IntList inDefs, BytecodeBlock belongsTo, int index) {
             this.var = var;
             this.inDefs = inDefs;
             this.belongsTo = belongsTo;
             this.index = index;
         }
 
-        void addInDefs(Block b, int reachDef) {
+        void addInDefs(BytecodeBlock b, int reachDef) {
             inDefs.add(reachDef);
             inBlocks.add(b);
             if (isPhiDef(reachDef)) {
@@ -98,7 +98,7 @@ public class BCSSA<Block extends BasicBlock> {
             return inDefs;
         }
 
-        public List<Block> getInBlocks() {
+        public List<BytecodeBlock> getInBlocks() {
             return inBlocks;
         }
 
@@ -119,15 +119,15 @@ public class BCSSA<Block extends BasicBlock> {
         }
     }
 
-    private final IndexedGraph<Block> graph;
+    private final IndexedGraph<BytecodeBlock> graph;
 
     private final Dominators.DominatorFrontiers df;
 
-    private final Dominators<Block> dom;
+    private final Dominators<BytecodeBlock> dom;
 
     private final LazyArray<List<SemiPhi>> phis;
 
-    private final GenericDUInfo<Block> info;
+    private final GenericDUInfo info;
 
     private int[] duReachDef;
 
@@ -151,11 +151,11 @@ public class BCSSA<Block extends BasicBlock> {
 
     private final boolean[] used;
 
-    public BCSSA(IndexedGraph<Block> graph,
+    public BCSSA(IndexedGraph<BytecodeBlock> graph,
                  int varSize,
-                 GenericDUInfo<Block> info,
+                 GenericDUInfo info,
                  boolean useSSA,
-                 Dominators<Block> dom) {
+                 Dominators<BytecodeBlock> dom) {
         this.graph = graph;
         this.varSize = varSize;
         this.dom = dom;
@@ -174,7 +174,7 @@ public class BCSSA<Block extends BasicBlock> {
         Arrays.fill(renames, UNDEFINED);
 
         for (int i = 0; i < graph.nodeCount(); i++) {
-            Block b = graph.getObject(i);
+            BytecodeBlock b = graph.getObject(i);
             assert b.getIndex() == graph.getIndex(b);
         }
 
@@ -349,7 +349,7 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
         }
-        for (Block current : dom.getDomTreePreOrder()) {
+        for (BytecodeBlock current : dom.getDomTreePreOrder()) {
             int node = graph.getIndex(current);
             if (phis.contains(node)) {
                 for (SemiPhi phi : phis.get(node)) {
@@ -360,7 +360,7 @@ public class BCSSA<Block extends BasicBlock> {
                 }
             }
             info.visit(current, varDUVisitor);
-            for (Block succ : graph.getSuccsOf(current)) {
+            for (BytecodeBlock succ : graph.getSuccsOf(current)) {
                 int succI = graph.getIndex(succ);
                 if (!phis.contains(succI)) {
                     continue;
@@ -379,12 +379,12 @@ public class BCSSA<Block extends BasicBlock> {
         }
     }
 
-    public void updateReachingDefForBlockEnd(int v, int[] varReachDef, Block block) {
+    public void updateReachingDefForBlockEnd(int v, int[] varReachDef, BytecodeBlock block) {
         int r = varReachDef[v];
         if (r == UNDEFINED) {
             return;
         }
-        Block b = getDuBlocks(r);
+        BytecodeBlock b = getDuBlocks(r);
         if (b == block) {
             return;
         } else {
@@ -411,8 +411,8 @@ public class BCSSA<Block extends BasicBlock> {
      * Check if insnIndex1 dominates insnIndex2
      */
     private boolean dominates(int insnIndex1, int insnIndex2) {
-        Block b1 = getDuBlocks(insnIndex1);
-        Block b2 = getDuBlocks(insnIndex2);
+        BytecodeBlock b1 = getDuBlocks(insnIndex1);
+        BytecodeBlock b2 = getDuBlocks(insnIndex2);
         if (b1 == b2) {
             return isPhiDef(insnIndex1) || insnIndex1 < insnIndex2;
         } else {
@@ -420,7 +420,7 @@ public class BCSSA<Block extends BasicBlock> {
         }
     }
 
-    private Block getDuBlocks(int udIndex) {
+    private BytecodeBlock getDuBlocks(int udIndex) {
         if (!isPhiDef(udIndex)) {
             return info.getBlock(udIndex);
         } else {
@@ -446,12 +446,12 @@ public class BCSSA<Block extends BasicBlock> {
 
         Queue<Integer> current = new ArrayDeque<>();
         for (int v = 0; v < varSize; ++v) {
-            List<Block> defBlocks = info.getDefBlock(v);
-            for (Block block : defBlocks) {
+            List<BytecodeBlock> defBlocks = info.getDefBlock(v);
+            for (BytecodeBlock block : defBlocks) {
                 current.add(block.getIndex());
             }
             while (!current.isEmpty()) {
-                Block block = graph.getObject(current.poll());
+                BytecodeBlock block = graph.getObject(current.poll());
                 for (int node : df.get(block.getIndex())) {
                     if (!isInserted(node, v)) {
                         SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getObject(node), phiCount++);
@@ -509,7 +509,7 @@ public class BCSSA<Block extends BasicBlock> {
         return duReachDef[rwIndex];
     }
 
-    public void visitLivePhis(Block b, Consumer<SemiPhi> consumer) {
+    public void visitLivePhis(BytecodeBlock b, Consumer<SemiPhi> consumer) {
         int index = graph.getIndex(b);
         if (!phis.contains(index)) {
             return;

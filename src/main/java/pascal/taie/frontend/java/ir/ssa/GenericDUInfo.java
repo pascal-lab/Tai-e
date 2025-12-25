@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.BasicBlock;
+import pascal.taie.frontend.java.ir.BytecodeBlock;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
  * Def-use information
  * DON FORGET PARAMS (a special kind of def)
  */
-public interface GenericDUInfo<Block extends BasicBlock> {
+public interface GenericDUInfo {
 
     enum OccurType {
         USE,
@@ -42,13 +42,13 @@ public interface GenericDUInfo<Block extends BasicBlock> {
         void visit(int index, OccurType type, int v);
     }
 
-    List<Block> getDefBlock(int v);
+    List<BytecodeBlock> getDefBlock(int v);
 
     int getMaxDuIndex();
 
-    void visit(Block block, DUVisitor visitor);
+    void visit(BytecodeBlock block, DUVisitor visitor);
 
-    Block getBlock(int index);
+    BytecodeBlock getBlock(int index);
 
     int getParamSize();
 }

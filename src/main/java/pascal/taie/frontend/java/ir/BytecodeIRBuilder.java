@@ -1352,7 +1352,7 @@ public class BytecodeIRBuilder {
 
     private int rwCount;
     private int[] rwTable;
-    private BCSSA<BytecodeBlock> splitting;
+    private BCSSA splitting;
     private Var[] reachVars;
     private void writeRwTable(int[] table, int index, int var, boolean read) {
         rwCount++;
@@ -1444,7 +1444,7 @@ public class BytecodeIRBuilder {
         }
 
         int finalCounter = counter;
-        GenericDUInfo<BytecodeBlock> genericDUInfo = new GenericDUInfo<>() {
+        GenericDUInfo genericDUInfo = new GenericDUInfo() {
             @Override
             public List<BytecodeBlock> getDefBlock(int v) {
                 return defBlocks.get(v);
@@ -1490,7 +1490,7 @@ public class BytecodeIRBuilder {
             }
         };
 
-        splitting = new BCSSA<>(graph, maxLocal, genericDUInfo, isSSA, dom);
+        splitting = new BCSSA(graph, maxLocal, genericDUInfo, isSSA, dom);
         splitting.build();
         reachVars = new Var[splitting.getMaxDUCount()];
         if (!isSSA) {

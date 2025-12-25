@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import pascal.taie.frontend.java.ir.BasicBlock;
+import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.util.collection.Sets;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  * Def-use information
  */
 public class DUInfo {
-    List<Set<BasicBlock>> defBlocks; // For performance, you may change the implementation for set
+    List<Set<BytecodeBlock>> defBlocks; // For performance, you may change the implementation for set
 
     public DUInfo(int varCount) {
         defBlocks = new ArrayList<>(varCount);
@@ -43,7 +43,7 @@ public class DUInfo {
         }
     }
 
-    public void addDefBlock(Var v, BasicBlock b) {
+    public void addDefBlock(Var v, BytecodeBlock b) {
         int i = v.getIndex();
         while (i >= defBlocks.size()) {
             defBlocks.add(Sets.newSet());
@@ -51,7 +51,7 @@ public class DUInfo {
         defBlocks.get(i).add(b);
     }
 
-    public Set<BasicBlock> getDefBlock(Var v) {
+    public Set<BytecodeBlock> getDefBlock(Var v) {
         int i = v.getIndex();
         while (i >= defBlocks.size()) {
             // Maybe we can directly return an empty list?

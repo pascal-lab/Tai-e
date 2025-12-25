@@ -60,9 +60,9 @@ class PhiResolver {
         // Use LinkedHashSet to deduplicate while preserving insertion order
         LinkedHashSet<Pair<Stmt, Var>> resolvedPairs = new LinkedHashSet<>();
 
-        for (Pair<Var, BasicBlock> useAndBlock : phiExp.getUsesAndInBlocks()) {
+        for (Pair<Var, BytecodeBlock> useAndBlock : phiExp.getUsesAndInBlocks()) {
             Var var = useAndBlock.first();
-            BasicBlock block = useAndBlock.second();
+            BytecodeBlock block = useAndBlock.second();
             Stmt sourceStmt = resolveSourceStmt(block);
             resolvedPairs.add(new Pair<>(sourceStmt, var));
         }
@@ -83,10 +83,10 @@ class PhiResolver {
      *       if the block is empty (e.g., side-effect-only bytecode in try blocks)</li>
      * </ul>
      *
-     * @param block the basic block to resolve
+     * @param block the bytecode block to resolve
      * @return the source statement representing the control flow origin
      */
-    private Stmt resolveSourceStmt(BasicBlock block) {
+    private Stmt resolveSourceStmt(BytecodeBlock block) {
         if (block == null) {
             return PhiExp.METHOD_ENTRY;
         }
@@ -107,8 +107,8 @@ class PhiResolver {
      * @param emptyBlock the empty block to start from
      * @return the first statement of the next non-empty successor block
      */
-    private Stmt getFirstStmtOfNextNonEmptyBlock(BasicBlock emptyBlock) {
-        BytecodeBlock current = (BytecodeBlock) emptyBlock;
+    private Stmt getFirstStmtOfNextNonEmptyBlock(BytecodeBlock emptyBlock) {
+        BytecodeBlock current = emptyBlock;
         while (current.getStmts().isEmpty()) {
             List<BytecodeBlock> successors = cfg.getNormalSuccsOf(current);
             assert successors.size() == 1 :
