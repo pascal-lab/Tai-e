@@ -29,7 +29,6 @@ import pascal.taie.util.collection.SparseIntSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -151,9 +150,8 @@ public class Dominators<N> {
         // that approximates the bytecode's order. This helps correctly
         // propagate line number info.
         List<N> succs = new ArrayList<>(graph.getSuccsOf(graph.getObject(node)));
-        Collections.reverse(succs);
-        for (N succ : succs) {
-            int succI = graph.getIndex(succ);
+        for (int i = succs.size() - 1; i >= 0; i--) {
+            int succI = graph.getIndex(succs.get(i));
             if (!visited[succI]) {
                 dfsGraph(succI, visited, counter);
             }
