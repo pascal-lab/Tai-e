@@ -172,12 +172,6 @@ public class BCSSA {
         this.useSSA = useSSA;
         this.used = new boolean[info.getMaxDuIndex()];
         Arrays.fill(renames, UNDEFINED);
-
-        for (int i = 0; i < graph.nodeCount(); i++) {
-            BytecodeBlock b = graph.getObject(i);
-            assert b.getIndex() == graph.getIndex(b);
-        }
-
         defOwned = new IntList[info.getMaxDuIndex()];
     }
 
@@ -448,11 +442,11 @@ public class BCSSA {
         for (int v = 0; v < varSize; ++v) {
             List<BytecodeBlock> defBlocks = info.getDefBlock(v);
             for (BytecodeBlock block : defBlocks) {
-                current.add(block.getIndex());
+                current.add(graph.getIndex(block));
             }
             while (!current.isEmpty()) {
                 BytecodeBlock block = graph.getObject(current.poll());
-                for (int node : df.get(block.getIndex())) {
+                for (int node : df.get(graph.getIndex(block))) {
                     if (!isInserted(node, v)) {
                         SemiPhi phi = new SemiPhi(v, new IntList(4), graph.getObject(node), phiCount++);
                         phis.get(node).add(phi);

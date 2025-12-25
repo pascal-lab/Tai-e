@@ -297,7 +297,7 @@ final class BytecodeCFGBuilder {
                     // Process current block: assign index, record edge instruction, add to list
                     int index = cfg.addBlock(current);
                     edgeInsn[index] = edge;
-                    current.setInstr(new InsnListSlice(source.instructions, start, end));
+                    current.setInsns(new InsnListSlice(source.instructions, start, end));
 
                     // Add fall-through edge if the last instruction falls through
                     if (fallThroughTable[end - 1]) {
@@ -315,7 +315,7 @@ final class BytecodeCFGBuilder {
         if (!emptyLast) {
             int index = cfg.addBlock(current);
             edgeInsn[index] = source.instructions.getLast();
-            current.setInstr(new InsnListSlice(source.instructions, start, size));
+            current.setInsns(new InsnListSlice(source.instructions, start, size));
         }
 
         // Step 3: Add jump/switch edges based on last instruction of each block

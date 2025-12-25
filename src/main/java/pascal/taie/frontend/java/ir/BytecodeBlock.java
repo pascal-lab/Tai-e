@@ -34,25 +34,32 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * The basic block of bytecode control flow graph.
+ * Represents a basic block in the bytecode-level control flow graph.
+ *
+ * @see BytecodeCFG
  */
 public final class BytecodeBlock {
 
-    private final LabelNode label;
-
+    // ----- Basic block identity -----
     private int index = -1;
+
+    // ----- Bytecode information -----
+    private final LabelNode label;
 
     private InsnListSlice instr;
 
+    @Nullable
+    private FrameNode frame;
+
+    // ----- Stack simulation state -----
     private Stack<StackItem> inStack;
 
     private Stack<StackItem> outStack;
 
+    // ----- IR statements -----
     private List<Stmt> stmts;
 
-    private FrameNode frame;
-
-    @Nullable
+    // ----- Block properties -----
     private List<ClassType> exceptionHandlerTypes;
 
     private boolean isLoopHeader = false;
@@ -62,17 +69,41 @@ public final class BytecodeBlock {
         this.stmts = new ArrayList<>();
     }
 
-    InsnListSlice instr() {
+    // ==================== Basic Block Identity ====================
+
+    int getIndex() {
+        return this.index;
+    }
+
+    void setIndex(int i) {
+        this.index = i;
+    }
+
+    // ==================== Bytecode Information ====================
+
+    InsnListSlice getInsns() {
         return instr;
     }
 
-    void setInstr(InsnListSlice instr) {
+    void setInsns(InsnListSlice instr) {
         this.instr = instr;
     }
 
-    public boolean isCatch() {
-        return getExceptionHandlerTypes() != null;
+    AbstractInsnNode getLastInsn() {
+        return instr.get(instr.size() - 1);
     }
+
+    @Nullable
+    FrameNode getFrame() {
+        return frame;
+    }
+
+    void setFrame(FrameNode frame) {
+        assert frame != null;
+        this.frame = frame;
+    }
+
+    // ==================== Stack Simulation State ====================
 
     Stack<StackItem> getInStack() {
         return inStack;
@@ -92,17 +123,10 @@ public final class BytecodeBlock {
         this.outStack = outStack;
     }
 
-    AbstractInsnNode getLastBytecode() {
-        return instr.get(instr.size() - 1);
-    }
+    // ==================== IR Statements ====================
 
     public List<Stmt> getStmts() {
         return stmts;
-    }
-
-    @Nullable
-    public Stmt getLastStmt() {
-        return stmts.isEmpty() ? null : stmts.get(stmts.size() - 1);
     }
 
     public void setStmts(List<Stmt> stmts) {
@@ -110,21 +134,17 @@ public final class BytecodeBlock {
     }
 
     @Nullable
-    FrameNode getFrame() {
-        return frame;
+    Stmt getLastStmt() {
+        return stmts.isEmpty() ? null : stmts.get(stmts.size() - 1);
     }
 
-    void setFrame(FrameNode frame) {
-        assert frame != null;
-        this.frame = frame;
-    }
+    // ==================== Exception Handling ====================
 
-    void setIndex(int i) {
-        this.index = i;
-    }
-
-    public int getIndex() {
-        return this.index;
+    /**
+     * @return {@code true} if this block is a catch block (exception handler entry)
+     */
+    boolean isCatch() {
+        return exceptionHandlerTypes != null;
     }
 
     @Nullable
@@ -138,6 +158,8 @@ public final class BytecodeBlock {
         }
         exceptionHandlerTypes.add(type);
     }
+
+    // ==================== Loop Detection ====================
 
     /**
      * @return {@code true} if this block is a loop header, {@code false} otherwise

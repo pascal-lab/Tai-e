@@ -100,7 +100,7 @@ class BytecodeDumper {
         }
         sb.append("instr:\n");
         int count = 0;
-        for (AbstractInsnNode insn : block.instr()) {
+        for (AbstractInsnNode insn : block.getInsns()) {
             sb.append("[").append(count++)
                     .append(" @ ")
                     .append(indexer.getIndex(insn))

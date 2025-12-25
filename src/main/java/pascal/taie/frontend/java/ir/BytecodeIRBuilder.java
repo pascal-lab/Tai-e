@@ -450,7 +450,7 @@ public class BytecodeIRBuilder {
                     t.setIndex(now++);
                     stmts.add(t);
                 }
-                setJumpTargets(block.getLastBytecode(), block.getLastStmt());
+                setJumpTargets(block.getLastInsn(), block.getLastStmt());
             }
         }
 
@@ -681,7 +681,7 @@ public class BytecodeIRBuilder {
 
     private void appendStackMergeStmts(BytecodeBlock bb, List<Stmt> auxiliary) {
         if (!auxiliary.isEmpty()) {
-            AbstractInsnNode lastBytecode = bb.getLastBytecode();
+            AbstractInsnNode lastBytecode = bb.getLastInsn();
             if (isCFEdge(lastBytecode)) {
                 // last stmt may attach goto, if, switch ...
                 List<Stmt> stmts = clearStmt(lastBytecode);
@@ -712,7 +712,7 @@ public class BytecodeIRBuilder {
     private void emitSSAPhisForLocal(BytecodeBlock block) {
         assert isSSA;
         // should have at least one instruction
-        AbstractInsnNode first = block.instr().get(0);
+        AbstractInsnNode first = block.getInsns().get(0);
         splitting.visitLivePhis(block, (phi) -> {
             Var phiVar = manager.getTempVar();
             Var origin = manager.getLocal(phi.getVar());
@@ -741,7 +741,7 @@ public class BytecodeIRBuilder {
         assert inStack != null || block.isCatch();
         assert block.getOutStack() == null;
         Stack<StackItem> nowStack = new Stack<>();
-        Iterator<AbstractInsnNode> instr = block.instr().iterator();
+        Iterator<AbstractInsnNode> instr = block.getInsns().iterator();
 
         if (isSSA) {
            emitSSAPhisForLocal(block);
@@ -823,7 +823,7 @@ public class BytecodeIRBuilder {
 
     private void ensureBlockNotEmpty(BytecodeBlock block) {
         boolean blockEmpty = true;
-        InsnListSlice instr = block.instr();
+        InsnListSlice instr = block.getInsns();
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
             int current = start + i;
@@ -1064,7 +1064,7 @@ public class BytecodeIRBuilder {
     }
 
     private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
-        AbstractInsnNode first = block.instr().get(0);
+        AbstractInsnNode first = block.getInsns().get(0);
         assocStmt(first, stmt);
     }
 
@@ -1120,7 +1120,7 @@ public class BytecodeIRBuilder {
 
     private void outputIR(BytecodeBlock block) {
         List<Stmt> blockStmt = block.getStmts();
-        InsnListSlice instr = block.instr();
+        InsnListSlice instr = block.getInsns();
         int counter = 0;
         int start = instr.getStart();
         for (int i = 0; i < instr.size(); ++i) {
@@ -1420,8 +1420,8 @@ public class BytecodeIRBuilder {
         for (int n = 0; n < graph.nodeCount(); ++n) {
             BytecodeBlock curr = graph.getObject(n);
             start[curr.getIndex()] = counter;
-            int size = curr.instr().size();
-            int start1 = curr.instr().getStart();
+            int size = curr.getInsns().size();
+            int start1 = curr.getInsns().getStart();
             for (int j = 0; j < size; ++j) {
                 int i = j + start1;
                 int rw = rwTable[i];
