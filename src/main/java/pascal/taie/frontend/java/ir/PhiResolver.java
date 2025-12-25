@@ -28,55 +28,100 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * Used to convert a {@link FrontendPhiExp} to a {@link PhiExp}
+ * Converts a {@link FrontendPhiExp} to a {@link PhiExp}.
+ * <p>
+ * This resolver maps each variable-block pair in the frontend phi expression
+ * to a corresponding source statement, producing the final phi expression
+ * representation used in the IR.
  */
-public class PhiResolver {
+class PhiResolver {
 
     private final BytecodeCFG cfg;
 
-    public PhiResolver(BytecodeCFG cfg) {
+    PhiResolver(BytecodeCFG cfg) {
         this.cfg = cfg;
     }
 
-    public List<Pair<Stmt, Var>> resolvePhi(FrontendPhiExp exp) {
-        var usesAndInBlocks = exp.getUsesAndInBlocks();
-        List<Pair<Stmt, Var>> sourceAndVar = new ArrayList<>(usesAndInBlocks.size());
-        for (Pair<Var, BasicBlock> p : usesAndInBlocks) {
-            Var v = p.first();
-            BasicBlock b = p.second();
-            Stmt stmt = getSourceIndex((BytecodeBlock) b);
-            Pair<Stmt, Var> np = new Pair<>(stmt, v);
-            if (!sourceAndVar.contains(np)) {
-                sourceAndVar.add(np);
-            }
+    /**
+     * Resolves a frontend phi expression to a list of (source statement, variable) pairs.
+     * <p>
+     * Each pair represents a phi operand: the variable value and the statement
+     * from which control flow originates.
+     *
+     * @param phiExp the frontend phi expression to resolve
+     * @return an unmodifiable list of (Stmt, Var) pairs, sorted by statement index
+     */
+    List<Pair<Stmt, Var>> resolvePhi(FrontendPhiExp phiExp) {
+        // Use LinkedHashSet to deduplicate while preserving insertion order
+        LinkedHashSet<Pair<Stmt, Var>> resolvedPairs = new LinkedHashSet<>();
+
+        for (Pair<Var, BasicBlock> useAndBlock : phiExp.getUsesAndInBlocks()) {
+            Var variable = useAndBlock.first();
+            BytecodeBlock block = (BytecodeBlock) useAndBlock.second();
+            Stmt sourceStmt = resolveSourceStmt(block);
+            resolvedPairs.add(new Pair<>(sourceStmt, variable));
         }
-        sourceAndVar.sort(Comparator.comparing(p -> p.first().getIndex()));
-        return Collections.unmodifiableList(sourceAndVar);
+
+        return resolvedPairs.stream()
+                .sorted(Comparator.comparingInt(pair -> pair.first().getIndex()))
+                .toList();
     }
 
-    private Stmt getSourceIndex(BytecodeBlock block) {
+    /**
+     * Resolves the source statement for a given block.
+     * <p>
+     * The source statement is:
+     * <ul>
+     *   <li>{@link PhiExp#METHOD_ENTRY} if the block is null (method entry)</li>
+     *   <li>The last statement of the block if the block is non-empty</li>
+     *   <li>The first statement of the next non-empty successor block
+     *       if the block is empty (e.g., side-effect-only bytecode in try blocks)</li>
+     * </ul>
+     *
+     * @param block the bytecode block to resolve
+     * @return the source statement representing the control flow origin
+     */
+    private Stmt resolveSourceStmt(BytecodeBlock block) {
         if (block == null) {
             return PhiExp.METHOD_ENTRY;
         }
         if (!block.getStmts().isEmpty()) {
-            List<Stmt> stmts = block.getStmts();
-            return stmts.get(stmts.size() - 1);
-        } else {
-            // The block is within a try block, and the bytecode in it
-            // is translated as side effect. So we have to find the next
-            // non-empty block and get its first stmt.
-            while (block.getStmts().isEmpty()) {
-                List<BytecodeBlock> outEdges = cfg.getNormalSuccsOf(block);
-                assert outEdges.size() == 1;
-                block = outEdges.get(0);
-            }
-            return block.getStmts().get(0);
+            return getLastStmt(block);
         }
+        return getFirstStmtOfNextNonEmptyBlock(block);
+    }
+
+    /**
+     * Returns the last statement in the given block.
+     */
+    private static Stmt getLastStmt(BytecodeBlock block) {
+        List<Stmt> stmts = block.getStmts();
+        return stmts.get(stmts.size() - 1);
+    }
+
+    /**
+     * Finds the first statement of the next non-empty successor block.
+     * <p>
+     * This handles cases where a block within a try block has its bytecode
+     * translated as a side effect, leaving the block empty. We traverse
+     * normal successors until we find a non-empty block.
+     *
+     * @param emptyBlock the empty block to start from
+     * @return the first statement of the next non-empty successor block
+     */
+    private Stmt getFirstStmtOfNextNonEmptyBlock(BytecodeBlock emptyBlock) {
+        BytecodeBlock current = emptyBlock;
+        while (current.getStmts().isEmpty()) {
+            List<BytecodeBlock> successors = cfg.getNormalSuccsOf(current);
+            assert successors.size() == 1 :
+                    "Empty block should have exactly one normal successor";
+            current = successors.get(0);
+        }
+        return current.getStmts().get(0);
     }
 }
