@@ -217,14 +217,11 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
         return inDegree[index] + exceptionInDegree[index];
     }
 
-    /**
-     * Only for debug propose. The performance will be very bad. TODO: really?
-     */
     @Override
     public Set<BytecodeBlock> getPredsOf(BytecodeBlock node) {
-        List<BytecodeBlock> preds = new ArrayList<>();
         int index = getIndex(node);
         int inDegree = getInDegreeOf(node);
+        List<BytecodeBlock> preds = new ArrayList<>(inDegree);
         for (int i = 0; i < inDegree; ++i) {
             preds.add(getObject(getPredOf(index, i)));
         }
@@ -255,9 +252,9 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
 
     @Override
     public Set<BytecodeBlock> getSuccsOf(BytecodeBlock node) {
-        List<BytecodeBlock> succs = new ArrayList<>();
         int index = getIndex(node);
         int outDegree = getOutDegreeOf(node);
+        List<BytecodeBlock> succs = new ArrayList<>(outDegree);
         for (int i = 0; i < outDegree; ++i) {
             succs.add(getObject(getSuccOf(index, i)));
         }
@@ -302,22 +299,23 @@ public class BytecodeCFG implements IndexedGraph<BytecodeBlock> {
     }
 
     /**
-     * @return the normal successors of given block.
-     */
-    List<BytecodeBlock> getNormalSuccsOf(BytecodeBlock block) {
-        List<BytecodeBlock> succs = new ArrayList<>();
-        int index = block.getIndex();
-        for (int i = 0; i < outDegree[index]; i++) {
-            succs.add(getObject(getNormalSuccOf(index, i)));
-        }
-        return succs;
-    }
-
-    /**
      * Checks if the block has no incoming normal edges.
      * NOTE: catch blocks are treated as having no incoming edges for control flow purposes.
      */
     boolean hasNoIncomingNormalEdges(BytecodeBlock block) {
         return block.isCatch() || getNormalInDegreeOf(block) == 0;
+    }
+
+    /**
+     * @return the normal successors of given block.
+     */
+    List<BytecodeBlock> getNormalSuccsOf(BytecodeBlock block) {
+        int index = block.getIndex();
+        int outDegree = this.outDegree[index];
+        List<BytecodeBlock> succs = new ArrayList<>(outDegree);
+        for (int i = 0; i < outDegree; i++) {
+            succs.add(getObject(getNormalSuccOf(index, i)));
+        }
+        return succs;
     }
 }
