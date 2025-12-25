@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.ir;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
-import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
 
@@ -56,8 +55,6 @@ public final class BytecodeBlock implements BasicBlock {
     @Nullable
     private List<ClassType> exceptionHandlerTypes;
 
-    private int[] stmt2Asm;
-
     private boolean isLoopHeader = false;
 
     BytecodeBlock(LabelNode label) {
@@ -81,13 +78,13 @@ public final class BytecodeBlock implements BasicBlock {
         return inStack;
     }
 
-    Stack<StackItem> getOutStack() {
-        return outStack;
-    }
-
     void setInStack(Stack<StackItem> inStack) {
         assert this.inStack == null : "InStack should not be assigned multiple times.";
         this.inStack = inStack;
+    }
+
+    Stack<StackItem> getOutStack() {
+        return outStack;
     }
 
     void setOutStack(Stack<StackItem> outStack) {
@@ -99,39 +96,15 @@ public final class BytecodeBlock implements BasicBlock {
         return instr.get(instr.size() - 1);
     }
 
-    Stmt getLastStmt() {
-        assert !stmts.isEmpty();
-        return stmts.get(stmts.size() - 1);
-    }
-
+    @Override
     public List<Stmt> getStmts() {
         return stmts;
     }
 
+    @Nullable
     @Override
-    public void setStmt(Stmt stmt, int pos) {
-        stmts.set(pos, stmt);
-    }
-
-    @Override
-    public void insertStmts(List<Stmt> stmts) {
-        // if this block is a catch block,
-        // then we should insert the stmts after the first catch stmt
-        List<Stmt> temp = new ArrayList<>(stmts.size() + this.stmts.size());
-        int i = 0;
-        if (isCatch()) {
-            // if this block is a catch block, then the first stmt must be a catch stmt
-            assert this.stmts.get(0) instanceof Catch;
-            temp.add(this.stmts.get(0));
-            temp.addAll(stmts);
-            i++;
-        } else {
-            temp.addAll(stmts);
-        }
-        for (; i < this.stmts.size(); ++i) {
-            temp.add(this.stmts.get(i));
-        }
-        this.stmts = temp;
+    public Stmt getLastStmt() {
+        return stmts.isEmpty() ? null : stmts.get(stmts.size() - 1);
     }
 
     @Override
@@ -140,7 +113,7 @@ public final class BytecodeBlock implements BasicBlock {
     }
 
     @Nullable
-    public FrameNode getFrame() {
+    FrameNode getFrame() {
         return frame;
     }
 
@@ -149,18 +122,11 @@ public final class BytecodeBlock implements BasicBlock {
         this.frame = frame;
     }
 
-    void setStmt2Asm(int[] stmt2Asm) {
-        this.stmt2Asm = stmt2Asm;
-    }
-
-    public AbstractInsnNode getOrig(int index) {
-        return instr.get(stmt2Asm[index]);
-    }
-
     void setIndex(int i) {
         this.index = i;
     }
 
+    @Override
     public int getIndex() {
         return this.index;
     }
@@ -177,11 +143,17 @@ public final class BytecodeBlock implements BasicBlock {
         exceptionHandlerTypes.add(type);
     }
 
+    /**
+     * @return {@code true} if this block is a loop header, {@code false} otherwise
+     */
     boolean isLoopHeader() {
         return isLoopHeader;
     }
 
-    void setLoopHeader(boolean loopHeader) {
-        isLoopHeader = loopHeader;
+    /**
+     * Marks this block as a loop header.
+     */
+    void setLoopHeader() {
+        isLoopHeader = true;
     }
 }

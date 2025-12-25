@@ -24,6 +24,7 @@ package pascal.taie.frontend.java.ir;
 
 import pascal.taie.ir.stmt.Stmt;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface BasicBlock {
@@ -32,13 +33,13 @@ public interface BasicBlock {
 
     List<Stmt> getStmts();
 
-    void setStmt(Stmt stmt, int pos);
-
     /**
-     * Insert statements at the beginning of the block
-     * @param stmts the statements to be inserted
+     * Returns the last statement in this block.
+     *
+     * @return the last statement, or {@code null} if the block is empty
      */
-    void insertStmts(List<Stmt> stmts);
+    @Nullable
+    Stmt getLastStmt();
 
     void setStmts(List<Stmt> stmts);
 }

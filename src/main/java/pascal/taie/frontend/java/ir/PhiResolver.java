@@ -61,10 +61,10 @@ class PhiResolver {
         LinkedHashSet<Pair<Stmt, Var>> resolvedPairs = new LinkedHashSet<>();
 
         for (Pair<Var, BasicBlock> useAndBlock : phiExp.getUsesAndInBlocks()) {
-            Var variable = useAndBlock.first();
-            BytecodeBlock block = (BytecodeBlock) useAndBlock.second();
+            Var var = useAndBlock.first();
+            BasicBlock block = useAndBlock.second();
             Stmt sourceStmt = resolveSourceStmt(block);
-            resolvedPairs.add(new Pair<>(sourceStmt, variable));
+            resolvedPairs.add(new Pair<>(sourceStmt, var));
         }
 
         return resolvedPairs.stream()
@@ -83,25 +83,18 @@ class PhiResolver {
      *       if the block is empty (e.g., side-effect-only bytecode in try blocks)</li>
      * </ul>
      *
-     * @param block the bytecode block to resolve
+     * @param block the basic block to resolve
      * @return the source statement representing the control flow origin
      */
-    private Stmt resolveSourceStmt(BytecodeBlock block) {
+    private Stmt resolveSourceStmt(BasicBlock block) {
         if (block == null) {
             return PhiExp.METHOD_ENTRY;
         }
-        if (!block.getStmts().isEmpty()) {
-            return getLastStmt(block);
+        Stmt lastStmt = block.getLastStmt();
+        if (lastStmt != null) {
+            return lastStmt;
         }
         return getFirstStmtOfNextNonEmptyBlock(block);
-    }
-
-    /**
-     * Returns the last statement in the given block.
-     */
-    private static Stmt getLastStmt(BytecodeBlock block) {
-        List<Stmt> stmts = block.getStmts();
-        return stmts.get(stmts.size() - 1);
     }
 
     /**
@@ -114,8 +107,8 @@ class PhiResolver {
      * @param emptyBlock the empty block to start from
      * @return the first statement of the next non-empty successor block
      */
-    private Stmt getFirstStmtOfNextNonEmptyBlock(BytecodeBlock emptyBlock) {
-        BytecodeBlock current = emptyBlock;
+    private Stmt getFirstStmtOfNextNonEmptyBlock(BasicBlock emptyBlock) {
+        BytecodeBlock current = (BytecodeBlock) emptyBlock;
         while (current.getStmts().isEmpty()) {
             List<BytecodeBlock> successors = cfg.getNormalSuccsOf(current);
             assert successors.size() == 1 :

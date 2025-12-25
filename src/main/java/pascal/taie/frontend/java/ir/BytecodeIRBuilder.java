@@ -405,24 +405,25 @@ public class BytecodeIRBuilder {
         switchStmt.setDefaultTarget(defaultStmt);
     }
 
-    private void setJumpTargets(AbstractInsnNode node, Stmt stmt) {
+    private void setJumpTargets(AbstractInsnNode node, Stmt jumpStmt) {
+        assert jumpStmt != null;
         if (node instanceof JumpInsnNode jump) {
             Stmt first = getFirstStmt(jump.label);
-            if (stmt instanceof Goto gotoStmt) {
+            if (jumpStmt instanceof Goto gotoStmt) {
                 assert first != null;
                 gotoStmt.setTarget(first);
-            } else if (stmt instanceof If ifStmt) {
+            } else if (jumpStmt instanceof If ifStmt) {
                 assert first != null;
                 ifStmt.setTarget(first);
-            } else if (stmt instanceof Return) {
+            } else if (jumpStmt instanceof Return) {
                 return;
             } else {
                 throw new IllegalArgumentException();
             }
         } else if (node instanceof LookupSwitchInsnNode lookup) {
-            setSwitchTargets(lookup.labels, lookup.dflt, stmt);
+            setSwitchTargets(lookup.labels, lookup.dflt, jumpStmt);
         } else if (node instanceof TableSwitchInsnNode table) {
-            setSwitchTargets(table.labels, table.dflt, stmt);
+            setSwitchTargets(table.labels, table.dflt, jumpStmt);
         }
         // node is not jump, do nothing
     }
@@ -897,7 +898,7 @@ public class BytecodeIRBuilder {
                 // ignore, add inExps during phi resolving
                 inStack.set(i, createNewStackPhiItem(block, i, new ArrayList<>()));
             }
-            block.setLoopHeader(true);
+            block.setLoopHeader();
         } else {
             for (int i = 0; i < inStack.size(); ++i) {
                 if (needPhi[i]) {
