@@ -648,7 +648,7 @@ public class BytecodeIRBuilder {
 
     private void returnExp(Stack<StackItem> stack, InsnNode insn) {
         // now, empty the stack, ensure all expression with side effect is generated
-        stackSimulator.ensureStackSafety(stack, stackSimulator::mayHaveSideEffect);
+        stackSimulator.ensureStackSafety(stack, Utils::mayHaveSideEffect);
         int opcode = insn.getOpcode();
         if (opcode == Opcodes.RETURN) {
             assocStmt(insn, new Return());
@@ -1089,7 +1089,7 @@ public class BytecodeIRBuilder {
             if (e == writeOut) {
                 continue;
             }
-            if (stackSimulator.mayHaveSideEffect(e) || phi.used) {
+            if (Utils.mayHaveSideEffect(e) || phi.used) {
                 stmts.add(getAssignStmt(writeOut, e));
             }
         }
@@ -1276,14 +1276,14 @@ public class BytecodeIRBuilder {
                 case Opcodes.PUTSTATIC -> {
                     FieldAccess access = new StaticFieldAccess(ref);
                     Var v1 = stackSimulator.popVar(nowStack);
-                    stackSimulator.ensureStackSafety(nowStack, stackSimulator::mayHaveSideEffect);
+                    stackSimulator.ensureStackSafety(nowStack, Utils::mayHaveSideEffect);
                     storeExp(insn, access, v1);
                 }
                 case Opcodes.PUTFIELD -> {
                     Var value = stackSimulator.popVar(nowStack);
                     Var base = stackSimulator.popVar(nowStack);
                     FieldAccess access = new InstanceFieldAccess(ref, base);
-                    stackSimulator.ensureStackSafety(nowStack, stackSimulator::mayHaveSideEffect);
+                    stackSimulator.ensureStackSafety(nowStack, Utils::mayHaveSideEffect);
                     storeExp(insn, access, value);
                 }
                 default -> throw new UnsupportedOperationException();

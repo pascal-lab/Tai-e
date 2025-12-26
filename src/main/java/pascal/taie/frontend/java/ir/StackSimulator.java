@@ -82,8 +82,8 @@ final class StackSimulator {
      */
     void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp exp) {
         assert !(exp instanceof Top);
-        if (mayHaveSideEffect(exp)) {
-            ensureStackSafety(stack, this::mayHaveSideEffect);
+        if (Utils.mayHaveSideEffect(exp)) {
+            ensureStackSafety(stack, Utils::mayHaveSideEffect);
         }
         stack.push(new StackItem(exp, node));
         if (isDword(node, exp)) {
@@ -164,7 +164,7 @@ final class StackSimulator {
         Exp e = item.exp();
         if (e instanceof InvokeExp invokeExp) {
             stmtAssociator.accept(item.origin(), new Invoke(method, invokeExp));
-        } else if (mayHaveSideEffect(e)) {
+        } else if (Utils.mayHaveSideEffect(e)) {
             stmtAssociator.accept(item.origin(),
                     Utils.newAssignStmt(method, manager.getTempVar(), e));
         }
@@ -241,13 +241,6 @@ final class StackSimulator {
                 forceLiftToVar(item);
             }
         }
-    }
-
-    /**
-     * Checks if expression may have side effects.
-     */
-    boolean mayHaveSideEffect(Exp exp) {
-        return !(exp instanceof Var || exp instanceof StackPhi || exp instanceof Literal);
     }
 
     /**

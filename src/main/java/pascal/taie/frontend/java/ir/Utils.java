@@ -228,4 +228,11 @@ public final class Utils {
         }
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Checks if expression may have side effects.
+     */
+    static boolean mayHaveSideEffect(Exp exp) {
+        return !(exp instanceof Var || exp instanceof StackPhi || exp instanceof Literal);
+    }
 }
