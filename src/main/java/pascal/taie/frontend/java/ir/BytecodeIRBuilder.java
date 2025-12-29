@@ -44,6 +44,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.BCSSA;
@@ -126,6 +127,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+
 
 import static pascal.taie.frontend.java.ir.OpcodeUtils.isArithmeticInsn;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.isArrayLoadInsn;
@@ -223,9 +225,9 @@ public class BytecodeIRBuilder {
     private final DUInfo duInfo;
 
     /**
-     * Stack simulator for stack manipulation operations
+     * Operand stack for stack manipulation operations
      */
-    private final StackSimulator stackSimulator;
+    private OperandStack operandStack;
 
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
@@ -267,7 +269,6 @@ public class BytecodeIRBuilder {
         this.stmts = new ArrayList<>();
         this.phiList = new ArrayList<>();
         this.duInfo = new DUInfo(source.maxLocals);
-        this.stackSimulator = new StackSimulator(method, manager, this::assocStmt);
     }
 
     public void build() {
@@ -389,7 +390,7 @@ public class BytecodeIRBuilder {
                 // but may happen in real world code (this is valid bytecode)
                 logger.atTrace()
                         .log("[IR] Unreachable code reference detected in method: "
-                        + method.toString());
+                                + method.toString());
             }
             block = next2;
         }
@@ -500,25 +501,25 @@ public class BytecodeIRBuilder {
         exceptionEntries = res;
     }
 
-    private ConditionExp getIfExp(Stack<StackItem> stack, int opcode) {
+    private ConditionExp getIfExp(int opcode) {
         Var v1;
         Var v2;
         if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
-            v1 = stackSimulator.popVar(stack);
+            v1 = operandStack.popVar();
             v2 = manager.getConstVar(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
-            v1 = stackSimulator.popVar(stack);
+            v1 = operandStack.popVar();
             v2 = manager.getNullLiteral();
         } else {
-            v2 = stackSimulator.popVar(stack);
-            v1 = stackSimulator.popVar(stack);
+            v2 = operandStack.popVar();
+            v1 = operandStack.popVar();
         }
         return new ConditionExp(toCondOp(opcode), v1, v2);
     }
 
-    private BinaryExp getBinaryExp(Stack<StackItem> stack, int opcode) {
-        Var v2 = stackSimulator.popVar(stack);
-        Var v1 = stackSimulator.popVar(stack);
+    private BinaryExp getBinaryExp(int opcode) {
+        Var v2 = operandStack.popVar();
+        Var v1 = operandStack.popVar();
         if (isArithmeticInsn(opcode)) {
             return new ArithmeticExp(toArithmeticOp(opcode), v1, v2);
         } else if (isBitwiseInsn(opcode)) {
@@ -532,16 +533,16 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private CastExp getCastExp(Stack<StackItem> stack, int opcode) {
-        return getCastExp(stack, toCastType(opcode));
+    private CastExp getCastExp(int opcode) {
+        return getCastExp(toCastType(opcode));
     }
 
-    private CastExp getCastExp(Stack<StackItem> stack, Type t) {
-        Var v1 = stackSimulator.popVar(stack);
+    private CastExp getCastExp(Type t) {
+        Var v1 = operandStack.popVar();
         return new CastExp(v1, t);
     }
 
-    private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode, Stack<StackItem> stack) {
+    private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode) {
         int opcode = methodInsnNode.getOpcode();
         JClass owner = typeSystem.toJClass(methodInsnNode.owner);
         assert owner != null;
@@ -552,10 +553,10 @@ public class BytecodeIRBuilder {
 
         List<Var> args = new ArrayList<>();
         for (int i = 0; i < desc.first().size(); ++i) {
-            args.add(stackSimulator.popVar(stack));
+            args.add(operandStack.popVar());
         }
         Collections.reverse(args);
-        Var base = isStatic ? null : stackSimulator.popVar(stack);
+        Var base = isStatic ? null : operandStack.popVar();
 
         assert ref.getParameterTypes().size() == args.size();
         return switch (opcode) {
@@ -567,9 +568,9 @@ public class BytecodeIRBuilder {
         };
     }
 
-    private ArrayAccess getArrayAccess(Stack<StackItem> nowStack) {
-        Var idx = stackSimulator.popVar(nowStack);
-        Var ref = stackSimulator.popVar(nowStack);
+    private ArrayAccess getArrayAccess() {
+        Var idx = operandStack.popVar();
+        Var ref = operandStack.popVar();
         return new ArrayAccess(ref, idx);
     }
 
@@ -599,19 +600,18 @@ public class BytecodeIRBuilder {
         return v;
     }
 
-    private void storeRWVar(int rwIndex, int slot, AbstractInsnNode insn,
-                            Stack<StackItem> stack) {
+    private void storeRWVar(int rwIndex, int slot, AbstractInsnNode insn) {
         Var v;
         if (!splitting.isDefUsed(rwIndex)) {
             // this var is not used, we don't need to generate store stmt
             // still, we need to handle the side effect (e.g. invoke)
             // note: stack may contains `Top`, so don't use `popToEffect`
-            stackSimulator.automaticPopToEffect(stack);
+            operandStack.automaticPopToEffect();
             return;
         }
         if (isFastProcessVar(rwIndex)) {
             // load insn will use rwTables to get this var
-            v = stackSimulator.popVar(stack);
+            v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
             if (manager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !isSSA) {
@@ -626,18 +626,18 @@ public class BytecodeIRBuilder {
             v = manager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
-            storeExp(insn, v, stack);
+            storeExp(insn, v);
         }
         tryFixVarName(v, slot, insn);
     }
 
-    private void storeExp(VarInsnNode varInsn, Stack<StackItem> stack, BytecodeBlock block) {
+    private void storeExp(VarInsnNode varInsn, BytecodeBlock block) {
         int rwIndex = visitRW(block.getIndex(), getIndex(varInsn));
-        storeRWVar(rwIndex, varInsn.var, varInsn, stack);
+        storeRWVar(rwIndex, varInsn.var, varInsn);
     }
 
-    private void storeExp(AbstractInsnNode insn, Var v, Stack<StackItem> stack) {
-        Stmt stmt = stackSimulator.popToVar(stack, v);
+    private void storeExp(AbstractInsnNode insn, Var v) {
+        Stmt stmt = operandStack.popToVar(v);
         assocStmt(insn, stmt);
     }
 
@@ -646,21 +646,21 @@ public class BytecodeIRBuilder {
         assocStmt(insn, stmt);
     }
 
-    private void returnExp(Stack<StackItem> stack, InsnNode insn) {
+    private void returnExp(InsnNode insn) {
         // now, empty the stack, ensure all expression with side effect is generated
-        stackSimulator.ensureStackSafety(stack, Utils::mayHaveSideEffect);
+        operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
         int opcode = insn.getOpcode();
         if (opcode == Opcodes.RETURN) {
             assocStmt(insn, new Return());
         } else {
-            Var v = stackSimulator.popVar(stack);
+            Var v = operandStack.popVar();
             manager.addReturnVar(v);
             assocStmt(insn, new Return(v));
         }
     }
 
-    private void throwException(InsnNode insn, Stack<StackItem> stack) {
-        Var v = stackSimulator.popVar(stack);
+    private void throwException(InsnNode insn) {
+        Var v = operandStack.popVar();
         assocStmt(insn, new Throw(v));
     }
 
@@ -727,6 +727,7 @@ public class BytecodeIRBuilder {
     }
 
     private BytecodeBlock currentBlock;
+
     private void buildBlockStmt(BytecodeBlock block) {
         currentBlock = block;
         enter(block.getIndex());
@@ -741,10 +742,11 @@ public class BytecodeIRBuilder {
         assert inStack != null || block.isCatch();
         assert block.getOutStack() == null;
         Stack<StackItem> nowStack = new Stack<>();
+        operandStack = new OperandStack(nowStack, method, manager, this::assocStmt);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
         if (isSSA) {
-           emitSSAPhisForLocal(block);
+            emitSSAPhisForLocal(block);
         }
         // skips all non-bytecode insn
         AbstractInsnNode insn = insnIter.next();
@@ -785,8 +787,8 @@ public class BytecodeIRBuilder {
 //                        duInfo.addDefBlock(catchVar, currentBlock);
 //                    }
                     assocStmt(insn, new Catch(catchVar));
-                    stackSimulator.pushExp(insn, nowStack, catchVar);
-                    processInsn(nowStack, insn, block);
+                    operandStack.pushExp(insn, catchVar);
+                    processInsn(insn, block);
                 }
                 List<ClassType> handlerTypes = Objects.requireNonNull(block.getExceptionHandlerTypes());
                 if (handlerTypes.size() == 1) {
@@ -803,13 +805,13 @@ public class BytecodeIRBuilder {
             nowStack.addAll(inStack);
             // process the first bytecode insn
             if (insn.getOpcode() != -1) {
-                processInsn(nowStack, insn, block);
+                processInsn(insn, block);
             }
         }
 
         while (insnIter.hasNext()) {
             AbstractInsnNode currInsn = insnIter.next();
-            processInsn(nowStack, currInsn, block);
+            processInsn(currInsn, block);
         }
 
         // Temp fix. Add a nop to represent a block. Used in ssa.
@@ -938,7 +940,7 @@ public class BytecodeIRBuilder {
     }
 
     private void addLocalPhiInDefs(BytecodeBlock bb) {
-        splitting.visitLivePhis(bb, (phi) ->  {
+        splitting.visitLivePhis(bb, (phi) -> {
             FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
@@ -1052,7 +1054,7 @@ public class BytecodeIRBuilder {
                         continue;
                     }
                     StackItem item = phi.getNodes().get(i - unreachableOffset);
-                    stackSimulator.liftToVar(item);
+                    operandStack.liftToVar(item);
                     phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
                 }
                 FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
@@ -1154,16 +1156,16 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private void processInsn(Stack<StackItem> nowStack, AbstractInsnNode insn, BytecodeBlock block) {
+    private void processInsn(AbstractInsnNode insn, BytecodeBlock block) {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
                     int rwIndex = visitRW(block.getIndex(), getIndex(varInsn));
                     Var v = getRWVar(rwIndex, varInsn.var, insn);
-                    stackSimulator.pushExp(insn, nowStack, v);
+                    operandStack.pushExp(insn, v);
                 }
-                case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE ->
-                        storeExp(varInsn, nowStack, block);
+                case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
+                     Opcodes.ASTORE -> storeExp(varInsn, block);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -1172,34 +1174,34 @@ public class BytecodeIRBuilder {
             if (opcode == Opcodes.NOP) {
                 return;
             } else if (opcode == Opcodes.ARRAYLENGTH) {
-                stackSimulator.pushExp(insn, nowStack, new ArrayLengthExp(stackSimulator.popVar(nowStack)));
+                operandStack.pushExp(insn, new ArrayLengthExp(operandStack.popVar()));
             } else if (opcode == Opcodes.ATHROW) {
-                throwException(basicInsn, nowStack);
+                throwException(basicInsn);
             } else if (opcode == Opcodes.MONITORENTER) {
-                Var obj = stackSimulator.popVar(nowStack);
+                Var obj = operandStack.popVar();
                 assocStmt(insn, new Monitor(Monitor.Op.ENTER, obj));
             } else if (opcode == Opcodes.MONITOREXIT) {
-                Var obj = stackSimulator.popVar(nowStack);
+                Var obj = operandStack.popVar();
                 assocStmt(insn, new Monitor(Monitor.Op.EXIT, obj));
             } else if (isBinaryInsn(opcode)) {
-                stackSimulator.pushExp(insn, nowStack, getBinaryExp(nowStack, opcode));
+                operandStack.pushExp(insn, getBinaryExp(opcode));
             } else if (isReturnInsn(opcode)) {
-                returnExp(nowStack, basicInsn);
+                returnExp(basicInsn);
             } else if (isConstInsn(opcode)) {
-                stackSimulator.pushConst(insn, nowStack, toConstValue(basicInsn));
+                operandStack.pushConst(insn, toConstValue(basicInsn));
             } else if (isPrimCastInsn(opcode)) {
-                stackSimulator.pushExp(insn, nowStack, getCastExp(nowStack, opcode));
+                operandStack.pushExp(insn, getCastExp(opcode));
             } else if (isNegInsn(opcode)) {
-                Var v1 = stackSimulator.popVar(nowStack);
-                stackSimulator.pushExp(insn, nowStack, new NegExp(v1));
+                Var v1 = operandStack.popVar();
+                operandStack.pushExp(insn, new NegExp(v1));
             } else if (isStackInsn(opcode)) {
-                stackSimulator.performStackOp(nowStack, opcode);
+                operandStack.performStackOp(opcode);
             } else if (isArrayLoadInsn(opcode)) {
-                ArrayAccess access = getArrayAccess(nowStack);
-                stackSimulator.pushExp(insn, nowStack, access);
+                ArrayAccess access = getArrayAccess();
+                operandStack.pushExp(insn, access);
             } else if (isArrayStoreInsn(opcode)) {
-                Var value = stackSimulator.popVar(nowStack);
-                ArrayAccess access = getArrayAccess(nowStack);
+                Var value = operandStack.popVar();
+                ArrayAccess access = getArrayAccess();
                 storeExp(insn, access, value);
             } else {
                 throw new UnsupportedOperationException();
@@ -1208,20 +1210,20 @@ public class BytecodeIRBuilder {
             if (jump.getOpcode() == Opcodes.GOTO) {
                 assocStmt(jump, new Goto());
             } else {
-                ConditionExp cond = getIfExp(nowStack, jump.getOpcode());
+                ConditionExp cond = getIfExp(jump.getOpcode());
                 assocStmt(jump, new If(cond));
             }
         } else if (insn instanceof LdcInsnNode ldc) {
-            stackSimulator.pushConst(insn, nowStack, Utils.fromObject(typeSystem, ldc.cst));
+            operandStack.pushConst(insn, Utils.fromObject(typeSystem, ldc.cst));
         } else if (insn instanceof TypeInsnNode typeInsn) {
             int opcode = typeInsn.getOpcode();
             ReferenceType type = typeSystem.fromAsmInternalName(typeInsn.desc);
             if (opcode == Opcodes.CHECKCAST) {
-                stackSimulator.pushExp(insn, nowStack, getCastExp(nowStack, type));
+                operandStack.pushExp(insn, getCastExp(type));
             } else if (opcode == Opcodes.NEW) {
-                stackSimulator.pushExp(insn, nowStack, new NewInstance((ClassType) type));
+                operandStack.pushExp(insn, new NewInstance((ClassType) type));
             } else if (opcode == Opcodes.ANEWARRAY) {
-                Var length = stackSimulator.popVar(nowStack);
+                Var length = operandStack.popVar();
                 int dims = 1;
                 Type base;
                 if (type instanceof ArrayType arrayType) {
@@ -1231,17 +1233,17 @@ public class BytecodeIRBuilder {
                     base = type;
                 }
                 ArrayType arrayType = typeSystem.getArrayType(base, dims);
-                stackSimulator.pushExp(insn, nowStack, new NewArray(arrayType, length));
+                operandStack.pushExp(insn, new NewArray(arrayType, length));
             } else if (opcode == Opcodes.INSTANCEOF) {
-                Var obj = stackSimulator.popVar(nowStack);
-                stackSimulator.pushExp(insn, nowStack, new InstanceOfExp(obj, type));
+                Var obj = operandStack.popVar();
+                operandStack.pushExp(insn, new InstanceOfExp(obj, type));
             } else {
                 throw new UnsupportedOperationException();
             }
         } else if (insn instanceof IntInsnNode intInsn) {
             int opcode = intInsn.getOpcode();
             if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
-                stackSimulator.pushConst(insn, nowStack, IntLiteral.get(intInsn.operand));
+                operandStack.pushConst(insn, IntLiteral.get(intInsn.operand));
             } else if (opcode == Opcodes.NEWARRAY) {
                 PrimitiveType base = switch (intInsn.operand) {
                     case 4 -> BOOLEAN;
@@ -1255,8 +1257,8 @@ public class BytecodeIRBuilder {
                     default -> throw new IllegalArgumentException();
                 };
                 ArrayType arrayType = typeSystem.getArrayType(base, 1);
-                Var length = stackSimulator.popVar(nowStack);
-                stackSimulator.pushExp(insn, nowStack, new NewArray(arrayType, length));
+                Var length = operandStack.popVar();
+                operandStack.pushExp(insn, new NewArray(arrayType, length));
             } else {
                 assert false;
             }
@@ -1268,31 +1270,31 @@ public class BytecodeIRBuilder {
             FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                     opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
             switch (opcode) {
-                case Opcodes.GETSTATIC -> stackSimulator.pushExp(insn, nowStack, new StaticFieldAccess(ref));
+                case Opcodes.GETSTATIC -> operandStack.pushExp(insn, new StaticFieldAccess(ref));
                 case Opcodes.GETFIELD -> {
-                    Var v1 = stackSimulator.popVar(nowStack);
-                    stackSimulator.pushExp(insn, nowStack, new InstanceFieldAccess(ref, v1));
+                    Var v1 = operandStack.popVar();
+                    operandStack.pushExp(insn, new InstanceFieldAccess(ref, v1));
                 }
                 case Opcodes.PUTSTATIC -> {
                     FieldAccess access = new StaticFieldAccess(ref);
-                    Var v1 = stackSimulator.popVar(nowStack);
-                    stackSimulator.ensureStackSafety(nowStack, Utils::mayHaveSideEffect);
+                    Var v1 = operandStack.popVar();
+                    operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
                     storeExp(insn, access, v1);
                 }
                 case Opcodes.PUTFIELD -> {
-                    Var value = stackSimulator.popVar(nowStack);
-                    Var base = stackSimulator.popVar(nowStack);
+                    Var value = operandStack.popVar();
+                    Var base = operandStack.popVar();
                     FieldAccess access = new InstanceFieldAccess(ref, base);
-                    stackSimulator.ensureStackSafety(nowStack, Utils::mayHaveSideEffect);
+                    operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
                     storeExp(insn, access, value);
                 }
                 default -> throw new UnsupportedOperationException();
             }
         } else if (insn instanceof MethodInsnNode methodInsn) {
-            InvokeExp exp = getInvokeExp(methodInsn, nowStack);
-            stackSimulator.pushExp(insn, nowStack, exp);
+            InvokeExp exp = getInvokeExp(methodInsn);
+            operandStack.pushExp(insn, exp);
             if (exp.getType() == VoidType.VOID) {
-                stackSimulator.popToEffect(nowStack);
+                operandStack.popToEffect();
             }
         } else if (insn instanceof MultiANewArrayInsnNode multiArrayInsn) {
             Type type = typeSystem.fromAsmTypeDesc(multiArrayInsn.desc);
@@ -1301,19 +1303,19 @@ public class BytecodeIRBuilder {
             List<Var> lengths = new ArrayList<>();
             // ..., count1, [count2, ...] ->
             for (int i = 0; i < multiArrayInsn.dims; ++i) {
-                lengths.add(stackSimulator.popVar(nowStack));
+                lengths.add(operandStack.popVar());
             }
             Collections.reverse(lengths);
 
-            stackSimulator.pushExp(insn, nowStack, new NewMultiArray((ArrayType) type, lengths));
+            operandStack.pushExp(insn, new NewMultiArray((ArrayType) type, lengths));
         } else if (insn instanceof IincInsnNode inc) {
             int use = visitRW(block.getIndex(), getIndex(inc));
             int def = visitRW(block.getIndex(), getIndex(inc));
-            stackSimulator.pushConst(insn, nowStack, IntLiteral.get(inc.incr));
-            Var cst = stackSimulator.popVar(nowStack);
+            operandStack.pushConst(insn, IntLiteral.get(inc.incr));
+            Var cst = operandStack.popVar();
             Var v = getRWVar(use, inc.var, insn);
-            stackSimulator.pushExp(inc, nowStack, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            storeRWVar(def, inc.var, inc, nowStack);
+            operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            storeRWVar(def, inc.var, inc);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
             MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
@@ -1323,10 +1325,10 @@ public class BytecodeIRBuilder {
                     typeSystem.fromAsmMethodDesc(indyInsn.desc);
             List<Var> args = new ArrayList<>();
             for (int i = 0; i < paramRets.first().size(); ++i) {
-                args.add(stackSimulator.popVar(nowStack));
+                args.add(operandStack.popVar());
             }
             Collections.reverse(args);
-            stackSimulator.pushExp(insn, nowStack, new InvokeDynamic(
+            operandStack.pushExp(insn, new InvokeDynamic(
                     handle,
                     handle.getMethodRef(),
                     indyInsn.name,
@@ -1335,10 +1337,10 @@ public class BytecodeIRBuilder {
                     args));
 
         } else if (insn instanceof TableSwitchInsnNode tableSwitch) {
-            Var v = stackSimulator.popVar(nowStack);
+            Var v = operandStack.popVar();
             assocStmt(insn, new TableSwitch(v, tableSwitch.min, tableSwitch.max));
         } else if (insn instanceof LookupSwitchInsnNode lookupSwitch) {
-            Var v = stackSimulator.popVar(nowStack);
+            Var v = operandStack.popVar();
             assocStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
         } else if (insn instanceof LabelNode || insn instanceof FrameNode) {
             // do nothing
@@ -1354,6 +1356,7 @@ public class BytecodeIRBuilder {
     private int[] rwTable;
     private BCSSA splitting;
     private Var[] reachVars;
+
     private void writeRwTable(int[] table, int index, int var, boolean read) {
         rwCount++;
         assert var < (1 << 29);
@@ -1379,6 +1382,7 @@ public class BytecodeIRBuilder {
     int[] rwToIndex;
     int currRw;
     int paramWrite;
+
     private void enter(int block) {
         currRw = start[block];
     }
@@ -1459,7 +1463,7 @@ public class BytecodeIRBuilder {
             public void visit(BytecodeBlock block, DUVisitor visitor) {
                 int start1 = start[block.getIndex()];
                 int end1 = end[block.getIndex()];
-                for (int i = start1; i < end1;) {
+                for (int i = start1; i < end1; ) {
                     int index = rwToIndex[i];
                     int rw = rwTable[index];
                     int var = rw & ((1 << 29) - 1);

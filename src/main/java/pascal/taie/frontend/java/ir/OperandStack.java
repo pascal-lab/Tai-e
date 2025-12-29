@@ -24,6 +24,7 @@ package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
+
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
@@ -44,6 +45,7 @@ import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+
 import static pascal.taie.language.type.DoubleType.DOUBLE;
 import static pascal.taie.language.type.LongType.LONG;
 
@@ -54,12 +56,14 @@ import static pascal.taie.language.type.LongType.LONG;
  * including push/pop operations, expression lifting to variables,
  * and stack safety enforcement.
  */
-final class StackSimulator {
+final class OperandStack {
 
     /**
      * Sentinel value representing the top half of a double-word value on the stack.
      */
     private static final StackItem TOP = new StackItem(Top.TOP, null);
+
+    private final Stack<StackItem> stack;
 
     private final JMethod method;
 
@@ -70,8 +74,9 @@ final class StackSimulator {
      */
     private final BiConsumer<AbstractInsnNode, Stmt> stmtAssociator;
 
-    StackSimulator(JMethod method, VarManager manager,
-                   BiConsumer<AbstractInsnNode, Stmt> StmtAssociator) {
+    OperandStack(Stack<StackItem> initialStack, JMethod method, VarManager manager,
+                 BiConsumer<AbstractInsnNode, Stmt> StmtAssociator) {
+        this.stack = initialStack;
         this.manager = manager;
         this.method = method;
         this.stmtAssociator = StmtAssociator;
@@ -80,10 +85,10 @@ final class StackSimulator {
     /**
      * Pushes expression onto stack, ensuring stack safety for side-effecting expressions.
      */
-    void pushExp(AbstractInsnNode node, Stack<StackItem> stack, Exp exp) {
+    void pushExp(AbstractInsnNode node, Exp exp) {
         assert !(exp instanceof Top);
         if (Utils.mayHaveSideEffect(exp)) {
-            ensureStackSafety(stack, Utils::mayHaveSideEffect);
+            ensureStackSafety(Utils::mayHaveSideEffect);
         }
         stack.push(new StackItem(exp, node));
         if (isDword(node, exp)) {
@@ -94,21 +99,21 @@ final class StackSimulator {
     /**
      * Pushes a constant onto stack.
      */
-    void pushConst(AbstractInsnNode node, Stack<StackItem> stack, Literal literal) {
+    void pushConst(AbstractInsnNode node, Literal literal) {
         if (manager.peekConstVar(literal)) {
-            pushExp(node, stack, manager.getConstVar(literal));
+            pushExp(node, manager.getConstVar(literal));
         } else {
-            pushExp(node, stack, literal);
+            pushExp(node, literal);
         }
     }
 
     /**
      * Pops an expression from the stack, skipping Top markers.
      */
-    StackItem popExp(Stack<StackItem> stack) {
-        StackItem item1 = popStack(stack);
+    StackItem popExp() {
+        StackItem item1 = popStack();
         if (item1.exp() instanceof Top) {
-            StackItem item2 = popStack(stack);
+            StackItem item2 = popStack();
             assert !(item2.exp() instanceof Top);
             return item2;
         } else {
@@ -119,15 +124,15 @@ final class StackSimulator {
     /**
      * Basic pop operation.
      */
-    StackItem popStack(Stack<StackItem> stack) {
+    StackItem popStack() {
         return stack.pop();
     }
 
     /**
      * Pops from stack and ensures the result is a Var.
      */
-    Var popVar(Stack<StackItem> stack) {
-        StackItem e = popExp(stack);
+    Var popVar() {
+        StackItem e = popExp();
         liftToVar(e);
         return e.var();
     }
@@ -135,12 +140,12 @@ final class StackSimulator {
     /**
      * Pops from stack and assigns to the specified variable.
      */
-    Stmt popToVar(Stack<StackItem> stack, Var v) {
-        StackItem top = popExp(stack);
+    Stmt popToVar(Var v) {
+        StackItem top = popExp();
         if (top.exp() instanceof StackPhi) {
             liftToVar(top);
         } else {
-            ensureStackSafety(stack, e -> e == v || e.getUses().contains(v));
+            ensureStackSafety(e -> e == v || e.getUses().contains(v));
         }
         return Utils.newAssignStmt(method, v, top.exp());
     }
@@ -148,8 +153,8 @@ final class StackSimulator {
     /**
      * Pops from stack for side effects only.
      */
-    void popToEffect(Stack<StackItem> stack) {
-        StackItem item = popStack(stack);
+    void popToEffect() {
+        StackItem item = popStack();
         Exp e = item.exp();
         if (e instanceof Top) {
         } else {
@@ -160,7 +165,7 @@ final class StackSimulator {
     /**
      * Converts expression to side effect statement.
      */
-    void expToEffect(StackItem item) {
+    private void expToEffect(StackItem item) {
         Exp e = item.exp();
         if (e instanceof InvokeExp invokeExp) {
             stmtAssociator.accept(item.origin(), new Invoke(method, invokeExp));
@@ -170,8 +175,8 @@ final class StackSimulator {
         }
     }
 
-    void automaticPopToEffect(Stack<StackItem> stack) {
-        StackItem item = popExp(stack);
+    void automaticPopToEffect() {
+        StackItem item = popExp();
         expToEffect(item);
     }
 
@@ -194,7 +199,7 @@ final class StackSimulator {
      * Forces lifting to a new Var, even when expression is already a Var.
      * Emits a new ($-v = e) statement.
      */
-    void forceLiftToVar(StackItem item) {
+    private void forceLiftToVar(StackItem item) {
         Var var = toVar(item.exp(), item.origin());
         item.lift(var);
     }
@@ -231,7 +236,7 @@ final class StackSimulator {
     /**
      * Ensures stack safety by lifting expressions matching the predicate to Vars.
      */
-    void ensureStackSafety(Stack<StackItem> stack, Function<Exp, Boolean> predicate) {
+    void ensureStackSafety(Function<Exp, Boolean> predicate) {
         for (StackItem item : stack) {
             Exp exp = item.exp();
             if (exp instanceof Top || exp instanceof StackPhi) {
@@ -246,29 +251,29 @@ final class StackSimulator {
     /**
      * Performs JVM stack manipulation operations (DUP, POP, SWAP, etc.).
      */
-    void performStackOp(Stack<StackItem> stack, int opcode) {
+    void performStackOp(int opcode) {
         switch (opcode) {
-            case Opcodes.POP -> popToEffect(stack);
+            case Opcodes.POP -> popToEffect();
             case Opcodes.POP2 -> {
-                popToEffect(stack);
-                popToEffect(stack);
+                popToEffect();
+                popToEffect();
             }
             case Opcodes.DUP -> {
-                StackItem item = popStack(stack);
+                StackItem item = popStack();
                 Exp e = item.exp();
                 assert !(e instanceof Top);
                 liftToVar(item);
                 stack.push(item);
                 stack.push(item);
             }
-            case Opcodes.DUP2 -> dup(stack, 2, 0);
-            case Opcodes.DUP_X1 -> dup(stack, 1, 1);
-            case Opcodes.DUP_X2 -> dup(stack, 1, 2);
-            case Opcodes.DUP2_X1 -> dup(stack, 2, 1);
-            case Opcodes.DUP2_X2 -> dup(stack, 2, 2);
+            case Opcodes.DUP2 -> dup(2, 0);
+            case Opcodes.DUP_X1 -> dup(1, 1);
+            case Opcodes.DUP_X2 -> dup(1, 2);
+            case Opcodes.DUP2_X1 -> dup(2, 1);
+            case Opcodes.DUP2_X2 -> dup(2, 2);
             case Opcodes.SWAP -> {
-                StackItem e1 = popStack(stack);
-                StackItem e2 = popStack(stack);
+                StackItem e1 = popStack();
+                StackItem e2 = popStack();
                 assert !(e1.exp() instanceof Top) && !(e2.exp() instanceof Top);
                 stack.push(e1);
                 stack.push(e2);
@@ -281,17 +286,17 @@ final class StackSimulator {
      * Performs DUP_X* operations.
      * Takes 'takes' items, skips 'seps' items, then pushes taken items twice.
      */
-    private void dup(Stack<StackItem> stack, int takes, int seps) {
+    private void dup(int takes, int seps) {
         List<StackItem> takesList = new ArrayList<>(takes);
         for (int i = 0; i < takes; ++i) {
-            StackItem e = popStack(stack);
+            StackItem e = popStack();
             liftToVar(e);
             takesList.add(e);
         }
         Collections.reverse(takesList);
         List<StackItem> sepsList = new ArrayList<>(seps);
         for (int i = 0; i < seps; ++i) {
-            sepsList.add(popStack(stack));
+            sepsList.add(popStack());
         }
         Collections.reverse(sepsList);
         stack.addAll(takesList);
