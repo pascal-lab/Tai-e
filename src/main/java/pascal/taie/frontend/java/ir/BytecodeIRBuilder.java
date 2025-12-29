@@ -48,10 +48,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.BCSSA;
-import pascal.taie.frontend.java.ir.ssa.DUInfo;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
-import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
@@ -116,7 +114,6 @@ import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.graph.Dominators;
-import pascal.taie.util.graph.IndexedGraph;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +121,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
@@ -191,7 +187,7 @@ public class BytecodeIRBuilder {
     /**
      * Manager that manage the creation and naming of Tai-e IR variables
      */
-    public final VarManager manager;
+    public final VarManager varManager;
 
     /**
      * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Tai-e IR stmt
@@ -215,11 +211,6 @@ public class BytecodeIRBuilder {
     private List<ExceptionEntry> exceptionEntries;
 
     /**
-     * Def-use info for local variable table of bytecode
-     */
-    private final DUInfo duInfo;
-
-    /**
      * Operand stack for stack manipulation operations
      */
     private OperandStack operandStack;
@@ -240,10 +231,13 @@ public class BytecodeIRBuilder {
      */
     public final VarSSAInfo varSSAInfo;
 
+    private final SlotManager slotManager;
+
     /**
      * Dominator and dominator frontier computed for bytecode block graph
      */
     private Dominators<BytecodeBlock> dom;
+
 
     BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method,
                       AsmMethodSource methodSource) {
@@ -254,15 +248,16 @@ public class BytecodeIRBuilder {
         int insnCount = source.instructions.size();
         this.varSSAInfo = new VarSSAInfo();
         this.isSSA = World.get().getOptions().isSSA();
-        this.manager = new VarManager(method,
+        this.varManager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
+        this.slotManager = new SlotManager(method,
+                varManager, isSSA, varSSAInfo, source.maxLocals, source.instructions.size());
         this.insn2Stmt = new Stmt[insnCount];
         this.auxiliaryStmts = new ArrayList<>(insnCount);
         for (int i = 0; i < insnCount; ++i) {
             auxiliaryStmts.add(null);
         }
         this.stmts = new ArrayList<>();
-        this.duInfo = new DUInfo(source.maxLocals);
     }
 
     public void build() {
@@ -297,7 +292,7 @@ public class BytecodeIRBuilder {
     }
 
     private void verify() {
-        for (Var v : manager.getVars()) {
+        for (Var v : varManager.getVars()) {
             assert verifyAllInStmts(v.getInvokes());
             assert verifyAllInStmts(v.getLoadArrays());
             assert verifyAllInStmts(v.getStoreArrays());
@@ -305,8 +300,8 @@ public class BytecodeIRBuilder {
             assert verifyAllInStmts(v.getStoreFields());
         }
 
-        for (int i = 0; i < manager.getVars().size(); ++i) {
-            Var v = manager.getVars().get(i);
+        for (int i = 0; i < varManager.getVars().size(); ++i) {
+            Var v = varManager.getVars().get(i);
             assert v.getIndex() == i;
         }
     }
@@ -324,10 +319,6 @@ public class BytecodeIRBuilder {
     private int getIndex(AbstractInsnNode insn) {
         assert insn != null;
         return source.instructions.indexOf(insn);
-    }
-
-    private Stmt getAssignStmt(LValue lValue, Exp e) {
-        return Utils.newAssignStmt(method, lValue, e);
     }
 
     private List<Stmt> clearStmt(AbstractInsnNode insn) {
@@ -367,10 +358,10 @@ public class BytecodeIRBuilder {
     }
 
     private IR getIR() {
-        Var thisVar = manager.getThisVar();
-        List<Var> params = manager.getParams();
-        List<Var> vars = manager.getVars();
-        Set<Var> retVars = manager.getRetVars();
+        Var thisVar = varManager.getThisVar();
+        List<Var> params = varManager.getParams();
+        List<Var> vars = varManager.getVars();
+        Set<Var> retVars = varManager.getRetVars();
         return new DefaultIR(method, thisVar, params, retVars, vars, stmts, exceptionEntries);
     }
 
@@ -428,9 +419,9 @@ public class BytecodeIRBuilder {
         // Add trigger whether we process phiStmts.
         List<FrontendPhiStmt> frontendPhiStmts = isLastTime ? new ArrayList<>() : null;
         int now = 0;
-        for (Var v : manager.intConstVarCache) {
+        for (Var v : varManager.intConstVarCache) {
             if (v != null) {
-                Stmt curr = getAssignStmt(v, v.getConstValue());
+                Stmt curr = Utils.newAssignStmt(method, v, v.getConstValue());
                 curr.setIndex(now++);
                 stmts.add(curr);
             }
@@ -500,10 +491,10 @@ public class BytecodeIRBuilder {
         Var v2;
         if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             v1 = operandStack.popVar();
-            v2 = manager.getConstVar(IntLiteral.get(0));
+            v2 = varManager.getConstVar(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
             v1 = operandStack.popVar();
-            v2 = manager.getNullLiteral();
+            v2 = varManager.getNullLiteral();
         } else {
             v2 = operandStack.popVar();
             v1 = operandStack.popVar();
@@ -568,75 +559,13 @@ public class BytecodeIRBuilder {
         return new ArrayAccess(ref, idx);
     }
 
-    private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
-        if (manager.existsLocalVariableTable && VarManager.mayRename(v)) {
-            Optional<String> name = manager.getName(slot, insn);
-            name.ifPresent((n) -> {
-                String realName = manager.tryUseName(n);
-                ExpMutator.setName(v, realName);
-            });
-        }
-    }
-
-    private Var getRWVar(int rwIndex, int slot, AbstractInsnNode insn) {
-        Var v;
-        int defIndex = splitting.getReachDef(rwIndex);
-        assert defIndex != -1; // wtf? undefined variable?
-        if (isFastProcessVar(defIndex)) {
-            v = reachVars[defIndex];
-        } else {
-            int realVar = splitting.getRealLocalSlot(defIndex);
-            assert realVar != -1; // must be phi-connected insn, a local is assigned before
-            v = manager.getLocal(realVar);
-        }
-        assert v != null;
-        tryFixVarName(v, slot, insn);
-        return v;
-    }
-
-    private void storeRWVar(int rwIndex, int slot, AbstractInsnNode insn) {
-        Var v;
-        if (!splitting.isDefUsed(rwIndex)) {
-            // this var is not used, we don't need to generate store stmt
-            // still, we need to handle the side effect (e.g. invoke)
-            // note: stack may contains `Top`, so don't use `popToEffect`
-            operandStack.automaticPopToEffect();
-            return;
-        }
-        if (isFastProcessVar(rwIndex)) {
-            // load insn will use rwTables to get this var
-            v = operandStack.popVar();
-            // if this var is a local, we need create another copy
-            // in case this local var is modified later
-            if (manager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !isSSA) {
-                Var origin = v;
-                v = manager.getTempVar();
-                assocStmt(insn, getAssignStmt(v, origin));
-            }
-            reachVars[rwIndex] = v;
-        } else {
-            // still use a local var
-            int realVar = splitting.getRealLocalSlot(rwIndex);
-            v = manager.getLocal(realVar);
-            // use this to generate store stmt
-            assert v != null;
-            storeExp(insn, v);
-        }
-        tryFixVarName(v, slot, insn);
-    }
-
     private void storeExp(VarInsnNode varInsn, BytecodeBlock block) {
-        int rwIndex = visitRW(block.getIndex(), getIndex(varInsn));
-        storeRWVar(rwIndex, varInsn.var, varInsn);
-    }
-
-    private void storeExp(AbstractInsnNode insn, Var v) {
-        Stmt stmt = operandStack.popToVar(v);
-        assocStmt(insn, stmt);
+        int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
+        slotManager.storeRWVar(rwIndex, varInsn.var, varInsn, operandStack, this::assocStmt);
     }
 
     private void storeExp(AbstractInsnNode insn, LValue left, RValue right) {
-        Stmt stmt = getAssignStmt(left, right);
+        Stmt stmt = Utils.newAssignStmt(method, left, right);
         assocStmt(insn, stmt);
     }
 
@@ -648,7 +577,7 @@ public class BytecodeIRBuilder {
             assocStmt(insn, new Return());
         } else {
             Var v = operandStack.popVar();
-            manager.addReturnVar(v);
+            varManager.addReturnVar(v);
             assocStmt(insn, new Return(v));
         }
     }
@@ -707,24 +636,21 @@ public class BytecodeIRBuilder {
         assert isSSA;
         // should have at least one instruction
         AbstractInsnNode firstInsn = block.getInsns().get(0);
-        splitting.visitLivePhis(block, (phi) -> {
-            Var phiVar = manager.getTempVar();
-            Var origin = manager.getLocal(phi.getVar());
+        slotManager.splitting.visitLivePhis(block, (phi) -> {
+            Var phiVar = varManager.getTempVar();
+            Var origin = varManager.getLocal(phi.getVar());
             FrontendPhiExp phiExp = new FrontendPhiExp();
-            reachVars[phi.getDUIndex()] = phiVar;
+            slotManager.reachVars[phi.getDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
             varSSAInfo.setNonSSA(phiVar);
             assocStmt(firstInsn, frontendPhiStmt);
             phi.setRealPhi(frontendPhiStmt);
-            manager.aliasLocal(phiVar, manager.getSlot(origin));
+            varManager.aliasLocal(phiVar, varManager.getSlot(origin));
         });
     }
 
-    private BytecodeBlock currentBlock;
-
     private void buildBlockStmt(BytecodeBlock block) {
-        currentBlock = block;
-        enter(block.getIndex());
+        slotManager.enter(block.getIndex());
         operandStack.initializeStack(block);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
@@ -752,20 +678,20 @@ public class BytecodeIRBuilder {
                 // this insn stores the exception object to a local var
                 if (insn.getOpcode() == Opcodes.ASTORE) {
                     VarInsnNode varInsn = (VarInsnNode) insn;
-                    int rwIndex = visitRW(block.getIndex(), getIndex(varInsn));
+                    int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
                     // a little duplicate, any better way?
                     // see also: storeRWVar
-                    catchVar = isFastProcessVar(rwIndex)
-                            ? manager.getTempVar()
-                            : manager.getLocal(splitting.getRealLocalSlot(rwIndex));
-                    reachVars[rwIndex] = catchVar;
+                    catchVar = slotManager.isFastProcessVar(rwIndex)
+                            ? varManager.getTempVar()
+                            : varManager.getLocal(slotManager.splitting.getRealLocalSlot(rwIndex));
+                    slotManager.reachVars[rwIndex] = catchVar;
                     assocStmt(varInsn, new Catch(catchVar));
                 } else {
                     // else
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
-                    catchVar = manager.getTempVar();
+                    catchVar = varManager.getTempVar();
 //                    if (!EXPERIMENTAL) {
 //                        duInfo.addDefBlock(catchVar, currentBlock);
 //                    }
@@ -801,7 +727,7 @@ public class BytecodeIRBuilder {
         }
 
         operandStack.saveOutStackAndClear();
-        exit(block.getIndex());
+        slotManager.exit(block.getIndex());
     }
 
     private void ensureBlockNotEmpty(BytecodeBlock block) {
@@ -822,13 +748,13 @@ public class BytecodeIRBuilder {
     }
 
     private void addLocalPhiInDefs(BytecodeBlock bb) {
-        splitting.visitLivePhis(bb, (phi) -> {
+        slotManager.splitting.visitLivePhis(bb, (phi) -> {
             FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
             for (int i = 0; i < phi.getInDefs().size(); ++i) {
                 int defIndex = phi.getInDefs().get(i);
-                Var v = reachVars[defIndex];
+                Var v = slotManager.reachVars[defIndex];
                 phiExp.addUseAndCorrespondingBlocks(v, phi.getInBlocks().get(i));
             }
         });
@@ -907,12 +833,13 @@ public class BytecodeIRBuilder {
                             continue;
                         }
                         boolean useWorseSolution = hasCriticalInEdge && phi1.used;
-                        Var writeOut = useWorseSolution ? manager.getTempVar() : phi1.getVar();
+                        Var writeOut = useWorseSolution ? varManager.getTempVar() : phi1.getVar();
                         varSSAInfo.setNonSSA(writeOut);
                         if (useWorseSolution) {
                             // add `v = writeOut` before any definition (first instruction) in create pos
                             BytecodeBlock createPos = phi1.createPos;
-                            addToBlockHead(createPos, getAssignStmt(phi1.getVar(), writeOut));
+                            LValue lValue = phi1.getVar();
+                            addToBlockHead(createPos, Utils.newAssignStmt(method, lValue, writeOut));
                         }
                         phi1.setWriteOutVar(writeOut);
                     }
@@ -975,7 +902,7 @@ public class BytecodeIRBuilder {
                 continue;
             }
             if (Utils.mayHaveSideEffect(e) || phi.used) {
-                stmts.add(getAssignStmt(writeOut, e));
+                stmts.add(Utils.newAssignStmt(method, writeOut, e));
             }
         }
         phi.resolved = true;
@@ -1043,8 +970,8 @@ public class BytecodeIRBuilder {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
-                    int rwIndex = visitRW(block.getIndex(), getIndex(varInsn));
-                    Var v = getRWVar(rwIndex, varInsn.var, insn);
+                    int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
+                    Var v = slotManager.getRWVar(rwIndex, varInsn.var, insn);
                     operandStack.pushExp(insn, v);
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
@@ -1192,13 +1119,13 @@ public class BytecodeIRBuilder {
 
             operandStack.pushExp(insn, new NewMultiArray((ArrayType) type, lengths));
         } else if (insn instanceof IincInsnNode inc) {
-            int use = visitRW(block.getIndex(), getIndex(inc));
-            int def = visitRW(block.getIndex(), getIndex(inc));
+            int use = slotManager.visitRW(block.getIndex(), getIndex(inc));
+            int def = slotManager.visitRW(block.getIndex(), getIndex(inc));
             operandStack.pushConst(insn, IntLiteral.get(inc.incr));
             Var cst = operandStack.popVar();
-            Var v = getRWVar(use, inc.var, insn);
+            Var v = slotManager.getRWVar(use, inc.var, insn);
             operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            storeRWVar(def, inc.var, inc);
+            slotManager.storeRWVar(def, inc.var, inc, operandStack, this::assocStmt);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
             MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
@@ -1235,181 +1162,15 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private int rwCount;
-    private int[] rwTable;
-    private BCSSA splitting;
-    private Var[] reachVars;
-
-    private void writeRwTable(int[] table, int index, int var, boolean read) {
-        rwCount++;
-        assert var < (1 << 29);
-        int rwFlag = read ? 1 << 29 : 1 << 30;
-        table[index] = table[index] | var | rwFlag;
-    }
-
-    private int getParamWriteSize() {
-        int curr = method.isStatic() ? 0 : 1;
-        for (int i = 0; i < method.getParamTypes().size(); ++i) {
-            Type type = method.getParamTypes().get(i);
-            if (FrontendTypeSystem.isTwoWord(type)) {
-                curr += 2;
-            } else {
-                curr += 1;
-            }
-        }
-        return curr;
-    }
-
-    int[] start;
-    int[] end;
-    int[] rwToIndex;
-    int currRw;
-    int paramWrite;
-
-    private void enter(int block) {
-        currRw = start[block];
-    }
-
-    private int visitRW(int block, int index) {
-        assert rwToIndex[currRw] == index;
-        assert currRw < end[block];
-        return currRw++;
-    }
-
-    private void exit(int block) {
-        assert currRw == end[block];
-    }
-
-    private void postProcess() {
-        paramWrite = getParamWriteSize();
-        rwToIndex = new int[rwCount];
-        BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
-        int counter = 0;
-        IndexedGraph<BytecodeBlock> graph = cfg;
-        BytecodeBlock entry = graph.getEntry();
-        start = new int[graph.nodeCount()];
-        end = new int[graph.nodeCount()];
-
-        int maxLocal = source.maxLocals;
-        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(maxLocal) {
-            @Override
-            protected List<BytecodeBlock> createElement() {
-                return new ArrayList<>();
-            }
-        };
-
-        for (int i = 0; i < paramWrite; ++i) {
-            rwToIndex[counter] = -1;
-            rwToBlock[counter] = entry;
-            counter++;
-        }
-
-        for (int n = 0; n < graph.nodeCount(); ++n) {
-            BytecodeBlock curr = graph.getObject(n);
-            start[curr.getIndex()] = counter;
-            int size = curr.getInsns().size();
-            int start1 = curr.getInsns().getStart();
-            for (int j = 0; j < size; ++j) {
-                int i = j + start1;
-                int rw = rwTable[i];
-                if (rw != 0) {
-                    int var = rw & ((1 << 29) - 1);
-                    boolean read = (rw & (1 << 29)) != 0;
-                    boolean write = (rw & (1 << 30)) != 0;
-                    if (read) {
-                        rwToBlock[counter] = curr;
-                        rwToIndex[counter++] = i;
-                    }
-                    if (write) {
-                        rwToBlock[counter] = curr;
-                        rwToIndex[counter++] = i;
-                        defBlocks.get(var).add(curr);
-                    }
-                }
-            }
-            end[curr.getIndex()] = counter;
-        }
-
-        int finalCounter = counter;
-        GenericDUInfo genericDUInfo = new GenericDUInfo() {
-            @Override
-            public List<BytecodeBlock> getDefBlock(int v) {
-                return defBlocks.get(v);
-            }
-
-            @Override
-            public int getMaxDuIndex() {
-                return finalCounter;
-            }
-
-            @Override
-            public void visit(BytecodeBlock block, DUVisitor visitor) {
-                int start1 = start[block.getIndex()];
-                int end1 = end[block.getIndex()];
-                for (int i = start1; i < end1; ) {
-                    int index = rwToIndex[i];
-                    int rw = rwTable[index];
-                    int var = rw & ((1 << 29) - 1);
-                    boolean read = (rw & (1 << 29)) != 0;
-                    boolean write = (rw & (1 << 30)) != 0;
-                    // careful: the order of visit is important
-                    // and iinc can both read and write
-                    if (read) {
-                        visitor.visit(i, OccurType.USE, var);
-                        i++;
-                    }
-                    // don't use `else if`, iinc can both read and write
-                    if (write) {
-                        visitor.visit(i, OccurType.DEF, var);
-                        i++;
-                    }
-                }
-            }
-
-            @Override
-            public BytecodeBlock getBlock(int index) {
-                return rwToBlock[index];
-            }
-
-            @Override
-            public int getParamSize() {
-                return paramWrite;
-            }
-        };
-
-        splitting = new BCSSA(graph, maxLocal, genericDUInfo, isSSA, dom);
-        splitting.build();
-        reachVars = new Var[splitting.getMaxDUCount()];
-        if (!isSSA) {
-            manager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable());
-        }
-        // ensure all params is defined at beginning
-        for (int i = 0; i < paramWrite; ++i) {
-            if (isFastProcessVar(i)) {
-                reachVars[i] = manager.getLocal(i);
-                Var current = reachVars[i];
-                if (splitting.canFastProcess(i)) {
-                    varSSAInfo.setSSA(current);
-                } else {
-                    varSSAInfo.setNonSSA(current);
-                }
-            }
-        }
-    }
-
     /**
      * Build CFG from ASM instructions using {@link BytecodeCFGBuilder}.
      */
     public BytecodeCFG cfg;
 
     private void buildCFG() {
-        rwCount = getParamWriteSize();
-        int size = source.instructions.size();
-        rwTable = new int[size];
-
         // Build CFG with rwTable visitor and exception type resolver
         cfg = new BytecodeCFGBuilder(source,
-                (index, varSlot, isRead) -> writeRwTable(rwTable, index, varSlot, isRead),
+                slotManager::writeRwTable,
                 this::fromExceptionType)
                 .build();
         if (cfg == null) {
@@ -1417,7 +1178,7 @@ public class BytecodeIRBuilder {
         }
         entry = cfg.getEntry();
         dom = new Dominators<>(cfg);
-        postProcess();
+        slotManager.postProcess(cfg, dom);
     }
 
     private ClassType fromExceptionType(String internalName) {
@@ -1435,7 +1196,7 @@ public class BytecodeIRBuilder {
 
     private void traverseBlocks() {
         entry.setInStack(new Stack<>());
-        operandStack = new OperandStack(method, manager, cfg, varSSAInfo, this::assocStmt);
+        operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, this::assocStmt);
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             buildBlockStmt(block);
         }
@@ -1475,9 +1236,5 @@ public class BytecodeIRBuilder {
 
     public boolean isSSA() {
         return isSSA;
-    }
-
-    boolean isFastProcessVar(int v) {
-        return isSSA || splitting.canFastProcess(v);
     }
 }

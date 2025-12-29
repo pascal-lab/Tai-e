@@ -89,7 +89,7 @@ public class TypeInference {
     public TypeInference(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
         this.builder = builder;
-        graph = new TypingFlowGraph(builder.manager.getVars().size());
+        graph = new TypingFlowGraph(builder.varManager.getVars().size());
         this.needCasting = false;
     }
 
@@ -329,12 +329,12 @@ public class TypeInference {
     private void addThisParam() {
         JMethod m = builder.method;
         if (! builder.method.isStatic()) {
-            Var thisVar = this.builder.manager.getThisVar();
+            Var thisVar = this.builder.varManager.getThisVar();
             graph.addConstantEdge(m.getDeclaringClass().getType(), thisVar);
         }
 
         for (int i = 0; i < m.getParamCount(); ++i) {
-            Var paramI = builder.manager.getParams().get(i);
+            Var paramI = builder.varManager.getParams().get(i);
             Type typeI = m.getParamType(i);
             graph.addConstantEdge(typeI, paramI);
         }

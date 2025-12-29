@@ -108,7 +108,7 @@ class CastingInserter {
                 Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), local), Map.of());
                 return lenses.subSt(stmt);
             } else {
-                Var v1 = builder.manager.getTempVar();
+                Var v1 = builder.varManager.getTempVar();
                 ExpMutator.setType(v1, t);
                 newStmts.add(getNewCast(v1, access.getBase(), t));
                 Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), v1), Map.of());
@@ -130,7 +130,7 @@ class CastingInserter {
                     Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
                     return lenses.subSt(stmt);
                 } else {
-                    v1 = builder.manager.getTempVar();
+                    v1 = builder.varManager.getTempVar();
                     ExpMutator.setType(v1, t);
                     newStmts.add(getNewCast(base, v1, t));
                     Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
@@ -179,7 +179,7 @@ class CastingInserter {
                         stmt = (LoadArray) ensureValidArrayType(stmt.getArrayAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
-                            Var v = builder.manager.getTempVar();
+                            Var v = builder.varManager.getTempVar();
                             ExpMutator.setType(v, stmt.getRValue().getType());
                             stmt.getRValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(new LoadArray(v, stmt.getRValue()));
@@ -214,7 +214,7 @@ class CastingInserter {
                         stmt = (StoreField) ensureValidFieldAccess(stmt.getFieldAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
-                            Var v = builder.manager.getTempVar();
+                            Var v = builder.varManager.getTempVar();
                             ExpMutator.setType(v, t);
                             if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
                                 access.getBase().removeRelevantStmt(stmt);
@@ -255,7 +255,7 @@ class CastingInserter {
                                     }
                                 }
 
-                                Var v = builder.manager.getTempVar();
+                                Var v = builder.varManager.getTempVar();
                                 ExpMutator.setType(v, t);
                                 newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
                                 Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
@@ -274,7 +274,7 @@ class CastingInserter {
                                 if (v != null) {
                                     prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
                                 } else {
-                                    v = builder.manager.getTempVar();
+                                    v = builder.varManager.getTempVar();
                                     ExpMutator.setType(v, t);
                                     newStmts.add(getNewCast(v, arg, t));
                                     if (m == null) {
@@ -296,10 +296,10 @@ class CastingInserter {
                         Type t = builder.method.getReturnType();
                         if (stmt.getValue() != null &&
                                 !typeSystem.isAssignable(t, stmt.getValue().getType())) {
-                            Var v = builder.manager.getTempVar();
+                            Var v = builder.varManager.getTempVar();
                             newStmts.add(getNewCast(v, stmt.getValue(), t));
-                            builder.manager.getRetVars().remove(stmt.getValue());
-                            builder.manager.getRetVars().add(v);
+                            builder.varManager.getRetVars().remove(stmt.getValue());
+                            builder.varManager.getRetVars().add(v);
                             ExpMutator.setType(v, t);
                             return new Return(v);
                         } else {
@@ -367,7 +367,7 @@ class CastingInserter {
                 if (def instanceof Copy copy) {
                     return copy.getRValue();
                 }
-                Var v1 = builder.manager.getTempVar();
+                Var v1 = builder.varManager.getTempVar();
                 ExpMutator.setType(v1, def.getRValue().getType());
                 Lenses lenses = new Lenses(builder.method, Map.of(), Map.of(globalVar, v1));
                 newStmts.set(newInBlock.second(), lenses.subSt(def));
