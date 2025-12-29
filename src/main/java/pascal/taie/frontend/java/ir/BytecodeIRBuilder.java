@@ -47,7 +47,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.BCSSA;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
@@ -251,7 +250,7 @@ public class BytecodeIRBuilder {
         this.varManager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
         this.slotManager = new SlotManager(method,
-                varManager, isSSA, varSSAInfo, source.maxLocals, source.instructions.size());
+                varManager, isSSA, varSSAInfo, source);
         this.insn2Stmt = new Stmt[insnCount];
         this.auxiliaryStmts = new ArrayList<>(insnCount);
         for (int i = 0; i < insnCount; ++i) {
@@ -559,11 +558,6 @@ public class BytecodeIRBuilder {
         return new ArrayAccess(ref, idx);
     }
 
-    private void storeExp(VarInsnNode varInsn, BytecodeBlock block) {
-        int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
-        slotManager.storeRWVar(rwIndex, varInsn.var, varInsn, operandStack, this::assocStmt);
-    }
-
     private void storeExp(AbstractInsnNode insn, LValue left, RValue right) {
         Stmt stmt = Utils.newAssignStmt(method, left, right);
         assocStmt(insn, stmt);
@@ -650,7 +644,7 @@ public class BytecodeIRBuilder {
     }
 
     private void buildBlockStmt(BytecodeBlock block) {
-        slotManager.enter(block.getIndex());
+        slotManager.enterBlock(block);
         operandStack.initializeStack(block);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
@@ -677,24 +671,13 @@ public class BytecodeIRBuilder {
                 // for most cases, this should be a store insn
                 // this insn stores the exception object to a local var
                 if (insn.getOpcode() == Opcodes.ASTORE) {
-                    VarInsnNode varInsn = (VarInsnNode) insn;
-                    int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
-                    // a little duplicate, any better way?
-                    // see also: storeRWVar
-                    catchVar = slotManager.isFastProcessVar(rwIndex)
-                            ? varManager.getTempVar()
-                            : varManager.getLocal(slotManager.splitting.getRealLocalSlot(rwIndex));
-                    slotManager.reachVars[rwIndex] = catchVar;
-                    assocStmt(varInsn, new Catch(catchVar));
+                    catchVar = slotManager.storeCatchVar(insn, this::assocStmt);
                 } else {
                     // else
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
                     catchVar = varManager.getTempVar();
-//                    if (!EXPERIMENTAL) {
-//                        duInfo.addDefBlock(catchVar, currentBlock);
-//                    }
                     assocStmt(insn, new Catch(catchVar));
                     operandStack.pushExp(insn, catchVar);
                     processInsn(insn, block);
@@ -727,7 +710,7 @@ public class BytecodeIRBuilder {
         }
 
         operandStack.saveOutStackAndClear();
-        slotManager.exit(block.getIndex());
+        slotManager.exitBlock();
     }
 
     private void ensureBlockNotEmpty(BytecodeBlock block) {
@@ -970,12 +953,12 @@ public class BytecodeIRBuilder {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
-                    int rwIndex = slotManager.visitRW(block.getIndex(), getIndex(varInsn));
-                    Var v = slotManager.getRWVar(rwIndex, varInsn.var, insn);
+                    Var v = slotManager.readVar(varInsn.var, insn);
                     operandStack.pushExp(insn, v);
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
-                     Opcodes.ASTORE -> storeExp(varInsn, block);
+                     Opcodes.ASTORE ->
+                        slotManager.storeVar(varInsn.var, varInsn, operandStack, this::assocStmt);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -1119,13 +1102,11 @@ public class BytecodeIRBuilder {
 
             operandStack.pushExp(insn, new NewMultiArray((ArrayType) type, lengths));
         } else if (insn instanceof IincInsnNode inc) {
-            int use = slotManager.visitRW(block.getIndex(), getIndex(inc));
-            int def = slotManager.visitRW(block.getIndex(), getIndex(inc));
             operandStack.pushConst(insn, IntLiteral.get(inc.incr));
             Var cst = operandStack.popVar();
-            Var v = slotManager.getRWVar(use, inc.var, insn);
+            Var v = slotManager.readVar(inc.var, insn);
             operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            slotManager.storeRWVar(def, inc.var, inc, operandStack, this::assocStmt);
+            slotManager.storeVar(inc.var, inc, operandStack, this::assocStmt);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
             MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)

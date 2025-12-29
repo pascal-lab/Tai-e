@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
@@ -35,6 +36,7 @@ import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -43,14 +45,14 @@ import pascal.taie.util.graph.Dominators;
 
 public class SlotManager {
 
-    private int rwCount;
-    private final int[] rwTable;
     private final int paramWrite;
-
-    int[] start;
-    int[] end;
-    int[] rwToIndex;
-    int currRw;
+    private final int[] rwTable;
+    private int rwCount;
+    private int[] start;
+    private int[] end;
+    private int[] rwToInsn;
+    private int currRWIndex = -1;
+    private BytecodeBlock currBlock = null;
 
     BCSSA splitting;
     Var[] reachVars;
@@ -59,16 +61,17 @@ public class SlotManager {
     private final VarManager varManager;
     private final boolean isSSA;
     private final VarSSAInfo varSSAInfo;
-    private final int maxLocals;
+    private final JSRInlinerAdapter source;
 
-    public SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, int maxLocals, int insnSize) {
+    public SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, JSRInlinerAdapter source) {
         this.method = method;
         this.varManager = varManager;
         this.isSSA = isSSA;
         this.varSSAInfo = varSSAInfo;
-        this.maxLocals = maxLocals;
+        this.source = source;
+
         this.paramWrite = getParamWriteSize();
-        this.rwTable = new int[insnSize];
+        this.rwTable = new int[source.instructions.size()];
         this.rwCount = getParamWriteSize();
     }
 
@@ -79,28 +82,15 @@ public class SlotManager {
         rwTable[index] = rwTable[index] | var | rwFlag;
     }
 
-    private int getParamWriteSize() {
-        int curr = method.isStatic() ? 0 : 1;
-        for (int i = 0; i < method.getParamTypes().size(); ++i) {
-            Type type = method.getParamTypes().get(i);
-            if (FrontendTypeSystem.isTwoWord(type)) {
-                curr += 2;
-            } else {
-                curr += 1;
-            }
-        }
-        return curr;
-    }
-
     void postProcess(BytecodeCFG cfg, Dominators<BytecodeBlock> dom) {
-        rwToIndex = new int[rwCount];
+        rwToInsn = new int[rwCount];
         BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
         int counter = 0;
         BytecodeBlock entry = cfg.getEntry();
         start = new int[cfg.nodeCount()];
         end = new int[cfg.nodeCount()];
 
-        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(maxLocals) {
+        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(source.maxLocals) {
             @Override
             protected List<BytecodeBlock> createElement() {
                 return new ArrayList<>();
@@ -108,7 +98,7 @@ public class SlotManager {
         };
 
         for (int i = 0; i < paramWrite; ++i) {
-            rwToIndex[counter] = -1;
+            rwToInsn[counter] = -1;
             rwToBlock[counter] = entry;
             counter++;
         }
@@ -127,11 +117,11 @@ public class SlotManager {
                     boolean write = (rw & (1 << 30)) != 0;
                     if (read) {
                         rwToBlock[counter] = curr;
-                        rwToIndex[counter++] = i;
+                        rwToInsn[counter++] = i;
                     }
                     if (write) {
                         rwToBlock[counter] = curr;
-                        rwToIndex[counter++] = i;
+                        rwToInsn[counter++] = i;
                         defBlocks.get(var).add(curr);
                     }
                 }
@@ -156,7 +146,7 @@ public class SlotManager {
                 int start1 = start[block.getIndex()];
                 int end1 = end[block.getIndex()];
                 for (int i = start1; i < end1; ) {
-                    int index = rwToIndex[i];
+                    int index = rwToInsn[i];
                     int rw = rwTable[index];
                     int var = rw & ((1 << 29) - 1);
                     boolean read = (rw & (1 << 29)) != 0;
@@ -186,7 +176,7 @@ public class SlotManager {
             }
         };
 
-        splitting = new BCSSA(cfg, maxLocals, genericDUInfo, isSSA, dom);
+        splitting = new BCSSA(cfg, source.maxLocals, genericDUInfo, isSSA, dom);
         splitting.build();
         reachVars = new Var[splitting.getMaxDUCount()];
         if (!isSSA) {
@@ -206,21 +196,21 @@ public class SlotManager {
         }
     }
 
-    void enter(int block) {
-        currRw = start[block];
+    void enterBlock(BytecodeBlock block) {
+        assert currRWIndex == -1;
+        assert currBlock == null;
+        currRWIndex = start[block.getIndex()];
+        currBlock = block;
     }
 
-    int visitRW(int block, int index) {
-        assert rwToIndex[currRw] == index;
-        assert currRw < end[block];
-        return currRw++;
+    void exitBlock() {
+        assert currRWIndex == end[currBlock.getIndex()];
+        currRWIndex = -1;
+        currBlock = null;
     }
 
-    void exit(int block) {
-        assert currRw == end[block];
-    }
-
-    Var getRWVar(int rwIndex, int slot, AbstractInsnNode insn) {
+    Var readVar(int slot, AbstractInsnNode insn) {
+        int rwIndex = getRWIndex(insn);
         Var v;
         int defIndex = splitting.getReachDef(rwIndex);
         assert defIndex != -1; // wtf? undefined variable?
@@ -236,7 +226,18 @@ public class SlotManager {
         return v;
     }
 
-    void storeRWVar(int rwIndex, int slot, AbstractInsnNode insn, OperandStack operandStack, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+    Var storeCatchVar(AbstractInsnNode insn, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+        int rwIndex = getRWIndex(insn);
+        Var catchVar = isFastProcessVar(rwIndex)
+                ? varManager.getTempVar()
+                : varManager.getLocal(splitting.getRealLocalSlot(rwIndex));
+        reachVars[rwIndex] = catchVar;
+        assocStmt.accept(insn, new Catch(catchVar));
+        return catchVar;
+    }
+
+    void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+        int rwIndex = getRWIndex(insn);
         Var v;
         if (!splitting.isDefUsed(rwIndex)) {
             // this var is not used, we don't need to generate store stmt
@@ -268,7 +269,7 @@ public class SlotManager {
         tryFixVarName(v, slot, insn);
     }
 
-    boolean isFastProcessVar(int v) {
+    private boolean isFastProcessVar(int v) {
         return isSSA || splitting.canFastProcess(v);
     }
 
@@ -280,5 +281,29 @@ public class SlotManager {
                 ExpMutator.setName(v, realName);
             });
         }
+    }
+
+    private int getRWIndex(AbstractInsnNode insn) {
+        assert rwToInsn[currRWIndex] == getInsnIndex(insn);
+        assert currRWIndex < end[currBlock.getIndex()];
+        return currRWIndex++;
+    }
+
+    private int getInsnIndex(AbstractInsnNode insn) {
+        assert insn != null;
+        return source.instructions.indexOf(insn);
+    }
+
+    private int getParamWriteSize() {
+        int curr = method.isStatic() ? 0 : 1;
+        for (int i = 0; i < method.getParamTypes().size(); ++i) {
+            Type type = method.getParamTypes().get(i);
+            if (FrontendTypeSystem.isTwoWord(type)) {
+                curr += 2;
+            } else {
+                curr += 1;
+            }
+        }
+        return curr;
     }
 }
