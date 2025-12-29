@@ -43,7 +43,7 @@ class FileSystemManager {
     /**
      * Cache for created file systems.
      */
-    private static final Map<Path, FileSystem> cache = Maps.newMap();
+    private static final Map<Path, FileSystem> cache = Maps.newConcurrentMap();
 
     static FileSystem getZipFileSys(Path path) throws IOException {
         FileSystem fileSys = cache.get(path);
