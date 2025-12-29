@@ -32,6 +32,8 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.BCSSA;
+import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
+import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
 import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
@@ -45,23 +47,60 @@ import pascal.taie.util.graph.Dominators;
 
 public class SlotManager {
 
-    private final int paramWrite;
+    /**
+     * Number of implicit writes for method parameters at entry.
+     */
+    private final int paramWriteSize;
+
+    /**
+     * Records read/write operations for each bytecode instruction index.
+     */
     private final int[] rwTable;
+
+    /**
+     * Total count of variable read/write operations, including parameters.
+     */
     private int rwCount;
+
+    /**
+     * Maps BlockIndex to the starting RWIndex of its operations.
+     */
     private int[] start;
+
+    /**
+     * Maps BlockIndex to the ending RWIndex of its operations.
+     */
     private int[] end;
+
+    /**
+     * Maps RWIndex to its bytecode instruction index.
+     */
     private int[] rwToInsn;
-    private int currRWIndex = -1;
-    private BytecodeBlock currBlock = null;
 
-    BCSSA splitting;
-    Var[] reachVars;
+    /**
+     * The SSA construction engine that computes Def-Use chains.
+     */
+    private BCSSA bcssa;
 
+    /**
+     * Maps a definition's RWIndex to its corresponding Var.
+     */
+    private Var[] reachVars;
+
+    // --- Dependencies ---
     private final JMethod method;
     private final VarManager varManager;
     private final boolean isSSA;
     private final VarSSAInfo varSSAInfo;
     private final JSRInlinerAdapter source;
+
+    // --- Runtime State ---
+    private int currRWIndex = -1;
+    private BytecodeBlock currBlock = null;
+
+    // ========================================================================
+    // 1. Construction & Build Phase
+    // ========================================================================
 
     public SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, JSRInlinerAdapter source) {
         this.method = method;
@@ -70,11 +109,23 @@ public class SlotManager {
         this.varSSAInfo = varSSAInfo;
         this.source = source;
 
-        this.paramWrite = getParamWriteSize();
+        this.paramWriteSize = getParamWriteSize();
         this.rwTable = new int[source.instructions.size()];
-        this.rwCount = getParamWriteSize();
+        this.rwCount = paramWriteSize;
     }
 
+    /**
+     * Build RWIndex, BCSSA and initialized var map.
+     */
+    void build(BytecodeCFG cfg, Dominators<BytecodeBlock> dom) {
+        GenericDUInfo duInfo = buildRWIndexAndDUInfo(cfg);
+        buildBCSSA(cfg, dom, duInfo);
+        initializeVars();
+    }
+
+    /**
+     * Record read/write operations to populate the rwTable.
+     */
     void writeRwTable(int index, int var, boolean read) {
         rwCount++;
         assert var < (1 << 29);
@@ -82,120 +133,13 @@ public class SlotManager {
         rwTable[index] = rwTable[index] | var | rwFlag;
     }
 
-    void postProcess(BytecodeCFG cfg, Dominators<BytecodeBlock> dom) {
-        rwToInsn = new int[rwCount];
-        BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
-        int counter = 0;
-        BytecodeBlock entry = cfg.getEntry();
-        start = new int[cfg.nodeCount()];
-        end = new int[cfg.nodeCount()];
+    // ========================================================================
+    // 2. Execution Phase API (for processing bytecode)
+    // ========================================================================
 
-        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(source.maxLocals) {
-            @Override
-            protected List<BytecodeBlock> createElement() {
-                return new ArrayList<>();
-            }
-        };
-
-        for (int i = 0; i < paramWrite; ++i) {
-            rwToInsn[counter] = -1;
-            rwToBlock[counter] = entry;
-            counter++;
-        }
-
-        for (int n = 0; n < cfg.nodeCount(); ++n) {
-            BytecodeBlock curr = cfg.getObject(n);
-            start[curr.getIndex()] = counter;
-            int size = curr.getInsns().size();
-            int start1 = curr.getInsns().getStart();
-            for (int j = 0; j < size; ++j) {
-                int i = j + start1;
-                int rw = rwTable[i];
-                if (rw != 0) {
-                    int var = rw & ((1 << 29) - 1);
-                    boolean read = (rw & (1 << 29)) != 0;
-                    boolean write = (rw & (1 << 30)) != 0;
-                    if (read) {
-                        rwToBlock[counter] = curr;
-                        rwToInsn[counter++] = i;
-                    }
-                    if (write) {
-                        rwToBlock[counter] = curr;
-                        rwToInsn[counter++] = i;
-                        defBlocks.get(var).add(curr);
-                    }
-                }
-            }
-            end[curr.getIndex()] = counter;
-        }
-
-        int finalCounter = counter;
-        GenericDUInfo genericDUInfo = new GenericDUInfo() {
-            @Override
-            public List<BytecodeBlock> getDefBlock(int v) {
-                return defBlocks.get(v);
-            }
-
-            @Override
-            public int getMaxDuIndex() {
-                return finalCounter;
-            }
-
-            @Override
-            public void visit(BytecodeBlock block, DUVisitor visitor) {
-                int start1 = start[block.getIndex()];
-                int end1 = end[block.getIndex()];
-                for (int i = start1; i < end1; ) {
-                    int index = rwToInsn[i];
-                    int rw = rwTable[index];
-                    int var = rw & ((1 << 29) - 1);
-                    boolean read = (rw & (1 << 29)) != 0;
-                    boolean write = (rw & (1 << 30)) != 0;
-                    // careful: the order of visit is important
-                    // and iinc can both read and write
-                    if (read) {
-                        visitor.visit(i, OccurType.USE, var);
-                        i++;
-                    }
-                    // don't use `else if`, iinc can both read and write
-                    if (write) {
-                        visitor.visit(i, OccurType.DEF, var);
-                        i++;
-                    }
-                }
-            }
-
-            @Override
-            public BytecodeBlock getBlock(int index) {
-                return rwToBlock[index];
-            }
-
-            @Override
-            public int getParamSize() {
-                return paramWrite;
-            }
-        };
-
-        splitting = new BCSSA(cfg, source.maxLocals, genericDUInfo, isSSA, dom);
-        splitting.build();
-        reachVars = new Var[splitting.getMaxDUCount()];
-        if (!isSSA) {
-            varManager.enlargeLocal(splitting.getRealLocalCount(), splitting.getVarMappingTable());
-        }
-        // ensure all params is defined at beginning
-        for (int i = 0; i < paramWrite; ++i) {
-            if (isFastProcessVar(i)) {
-                reachVars[i] = varManager.getLocal(i);
-                Var current = reachVars[i];
-                if (splitting.canFastProcess(i)) {
-                    varSSAInfo.setSSA(current);
-                } else {
-                    varSSAInfo.setNonSSA(current);
-                }
-            }
-        }
-    }
-
+    /**
+     * Prepares for processing a new block.
+     */
     void enterBlock(BytecodeBlock block) {
         assert currRWIndex == -1;
         assert currBlock == null;
@@ -203,21 +147,27 @@ public class SlotManager {
         currBlock = block;
     }
 
+    /**
+     * Finalizes processing for the current block.
+     */
     void exitBlock() {
         assert currRWIndex == end[currBlock.getIndex()];
         currRWIndex = -1;
         currBlock = null;
     }
 
-    Var readVar(int slot, AbstractInsnNode insn) {
+    /**
+     * Resolves a variable load (e.g., ILOAD) to its corresponding Var.
+     */
+    Var loadVar(int slot, AbstractInsnNode insn) {
         int rwIndex = getRWIndex(insn);
         Var v;
-        int defIndex = splitting.getReachDef(rwIndex);
+        int defIndex = bcssa.getReachDef(rwIndex);
         assert defIndex != -1; // wtf? undefined variable?
         if (isFastProcessVar(defIndex)) {
             v = reachVars[defIndex];
         } else {
-            int realVar = splitting.getRealLocalSlot(defIndex);
+            int realVar = bcssa.getRealLocalSlot(defIndex);
             assert realVar != -1; // must be phi-connected insn, a local is assigned before
             v = varManager.getLocal(realVar);
         }
@@ -226,20 +176,13 @@ public class SlotManager {
         return v;
     }
 
-    Var storeCatchVar(AbstractInsnNode insn, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
-        int rwIndex = getRWIndex(insn);
-        Var catchVar = isFastProcessVar(rwIndex)
-                ? varManager.getTempVar()
-                : varManager.getLocal(splitting.getRealLocalSlot(rwIndex));
-        reachVars[rwIndex] = catchVar;
-        assocStmt.accept(insn, new Catch(catchVar));
-        return catchVar;
-    }
-
+    /**
+     * Handles a variable store (e.g., ISTORE).
+     */
     void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
         int rwIndex = getRWIndex(insn);
         Var v;
-        if (!splitting.isDefUsed(rwIndex)) {
+        if (!bcssa.isDefUsed(rwIndex)) {
             // this var is not used, we don't need to generate store stmt
             // still, we need to handle the side effect (e.g. invoke)
             // note: stack may contains `Top`, so don't use `popToEffect`
@@ -259,7 +202,7 @@ public class SlotManager {
             reachVars[rwIndex] = v;
         } else {
             // still use a local var
-            int realVar = splitting.getRealLocalSlot(rwIndex);
+            int realVar = bcssa.getRealLocalSlot(rwIndex);
             v = varManager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
@@ -269,8 +212,135 @@ public class SlotManager {
         tryFixVarName(v, slot, insn);
     }
 
+    /**
+     * A specialized store for the exception object at the start of a catch block.
+     */
+    Var storeCatchVar(AbstractInsnNode insn, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+        int rwIndex = getRWIndex(insn);
+        Var catchVar = isFastProcessVar(rwIndex)
+                ? varManager.getTempVar()
+                : varManager.getLocal(bcssa.getRealLocalSlot(rwIndex));
+        reachVars[rwIndex] = catchVar;
+        assocStmt.accept(insn, new Catch(catchVar));
+        return catchVar;
+    }
+
+    /**
+     * Emits Phi statements for slot variables at the beginning of a block.
+     */
+    void emitSSAPhisForSlot(BytecodeBlock block, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+        assert isSSA;
+        // should have at least one instruction
+        AbstractInsnNode firstInsn = block.getInsns().get(0);
+        bcssa.visitLivePhis(block, (phi) -> {
+            Var phiVar = varManager.getTempVar();
+            Var origin = varManager.getLocal(phi.getVar());
+            FrontendPhiExp phiExp = new FrontendPhiExp();
+            reachVars[phi.getDUIndex()] = phiVar;
+            FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
+            varSSAInfo.setNonSSA(phiVar);
+            assocStmt.accept(firstInsn, frontendPhiStmt);
+            phi.setRealPhi(frontendPhiStmt);
+            varManager.aliasLocal(phiVar, varManager.getSlot(origin));
+        });
+    }
+
+    /**
+     * Fills in the actual arguments for the previously emitted Phi statements.
+     */
+    void addInDefsForSlotPhis(BytecodeBlock bb) {
+        bcssa.visitLivePhis(bb, (phi) -> {
+            FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
+            assert realPhi != null;
+            FrontendPhiExp phiExp = realPhi.getRValue();
+            for (int i = 0; i < phi.getInDefs().size(); ++i) {
+                int defIndex = phi.getInDefs().get(i);
+                Var v = reachVars[defIndex];
+                phiExp.addUseAndCorrespondingBlocks(v, phi.getInBlocks().get(i));
+            }
+        });
+    }
+
+    // ========================================================================
+    // 3. Internal Implementation
+    // ========================================================================
+
+    private DUInfo buildRWIndexAndDUInfo(BytecodeCFG cfg) {
+        rwToInsn = new int[rwCount];
+        start = new int[cfg.nodeCount()];
+        end = new int[cfg.nodeCount()];
+
+        BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
+        int counter = 0;
+        BytecodeBlock entry = cfg.getEntry();
+        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(source.maxLocals) {
+            @Override
+            protected List<BytecodeBlock> createElement() {
+                return new ArrayList<>();
+            }
+        };
+
+        for (int i1 = 0; i1 < paramWriteSize; ++i1) {
+            rwToInsn[counter] = -1;
+            rwToBlock[counter] = entry;
+            counter++;
+        }
+
+        for (int n = 0; n < cfg.nodeCount(); ++n) {
+            BytecodeBlock curr = cfg.getObject(n);
+            start[curr.getIndex()] = counter;
+            int size = curr.getInsns().size();
+            int start1 = curr.getInsns().getStart();
+            for (int j = 0; j < size; ++j) {
+                int i1 = j + start1;
+                int rw = rwTable[i1];
+                if (rw != 0) {
+                    int var = rw & ((1 << 29) - 1);
+                    boolean read = (rw & (1 << 29)) != 0;
+                    boolean write = (rw & (1 << 30)) != 0;
+                    if (read) {
+                        rwToBlock[counter] = curr;
+                        rwToInsn[counter++] = i1;
+                    }
+                    if (write) {
+                        rwToBlock[counter] = curr;
+                        rwToInsn[counter++] = i1;
+                        defBlocks.get(var).add(curr);
+                    }
+                }
+            }
+            end[curr.getIndex()] = counter;
+        }
+        return new DUInfo(rwToBlock, defBlocks, counter);
+    }
+
+    private void buildBCSSA(BytecodeCFG cfg, Dominators<BytecodeBlock> dom, GenericDUInfo duInfo) {
+        bcssa = new BCSSA(cfg, source.maxLocals, duInfo, isSSA, dom);
+        bcssa.build();
+    }
+
+    private void initializeVars() {
+        reachVars = new Var[bcssa.getMaxDUCount()];
+        if (!isSSA) {
+            varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
+        }
+        // ensure all params is defined at beginning
+        for (int i = 0; i < paramWriteSize; ++i) {
+            if (isFastProcessVar(i)) {
+                reachVars[i] = varManager.getLocal(i);
+                Var current = reachVars[i];
+                if (bcssa.canFastProcess(i)) {
+                    varSSAInfo.setSSA(current);
+                } else {
+                    varSSAInfo.setNonSSA(current);
+                }
+            }
+        }
+    }
+
+
     private boolean isFastProcessVar(int v) {
-        return isSSA || splitting.canFastProcess(v);
+        return isSSA || bcssa.canFastProcess(v);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
@@ -305,5 +375,65 @@ public class SlotManager {
             }
         }
         return curr;
+    }
+
+    /**
+     * An inner class that implements the GenericDUInfo interface to bridge
+     * the gap between the manager's internal indexing and the BCSSA algorithm.
+     */
+    private class DUInfo implements GenericDUInfo {
+        private final BytecodeBlock[] rwToBlock;
+        private final LazyArray<List<BytecodeBlock>> defBlocks;
+        private final int counter;
+
+        public DUInfo(BytecodeBlock[] rwToBlock, LazyArray<List<BytecodeBlock>> defBlocks, int counter) {
+            this.rwToBlock = rwToBlock;
+            this.defBlocks = defBlocks;
+            this.counter = counter;
+        }
+
+        @Override
+        public List<BytecodeBlock> getDefBlock(int v) {
+            return defBlocks.get(v);
+        }
+
+        @Override
+        public int getMaxDuIndex() {
+            return counter;
+        }
+
+        @Override
+        public void visit(BytecodeBlock block, DUVisitor visitor) {
+            int start1 = start[block.getIndex()];
+            int end1 = end[block.getIndex()];
+            for (int i = start1; i < end1; ) {
+                int index = rwToInsn[i];
+                int rw = rwTable[index];
+                int var = rw & ((1 << 29) - 1);
+                boolean read = (rw & (1 << 29)) != 0;
+                boolean write = (rw & (1 << 30)) != 0;
+                // careful: the order of visit is important
+                // and iinc can both read and write
+                if (read) {
+                    visitor.visit(i, OccurType.USE, var);
+                    i++;
+                }
+                // don't use `else if`, iinc can both read and write
+                if (write) {
+                    visitor.visit(i, OccurType.DEF, var);
+                    i++;
+                }
+            }
+        }
+
+        @Override
+        public BytecodeBlock getBlock(int index) {
+            return rwToBlock[index];
+        }
+
+        @Override
+        public int getParamSize() {
+            return paramWriteSize;
+        }
     }
 }

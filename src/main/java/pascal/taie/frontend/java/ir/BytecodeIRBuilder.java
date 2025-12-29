@@ -179,11 +179,6 @@ public class BytecodeIRBuilder {
     private final JSRInlinerAdapter source;
 
     /**
-     * Entry block
-     */
-    private BytecodeBlock entry;
-
-    /**
      * Manager that manage the creation and naming of Tai-e IR variables
      */
     public final VarManager varManager;
@@ -262,12 +257,18 @@ public class BytecodeIRBuilder {
     public void build() {
         if (source.instructions.size() != 0) {
             buildCFG();
+            buildDom();
+            slotManager.build(cfg, dom);
             traverseBlocks();
             inferTypes();
             makeStmts(true);
             makeExceptionTable();
             this.ir = getIR();
         }
+    }
+
+    private void buildDom() {
+        dom = new Dominators<>(cfg);
     }
 
     private void inferTypes() {
@@ -626,30 +627,13 @@ public class BytecodeIRBuilder {
 //        assert target1.empty();
 //    }
 
-    private void emitSSAPhisForLocal(BytecodeBlock block) {
-        assert isSSA;
-        // should have at least one instruction
-        AbstractInsnNode firstInsn = block.getInsns().get(0);
-        slotManager.splitting.visitLivePhis(block, (phi) -> {
-            Var phiVar = varManager.getTempVar();
-            Var origin = varManager.getLocal(phi.getVar());
-            FrontendPhiExp phiExp = new FrontendPhiExp();
-            slotManager.reachVars[phi.getDUIndex()] = phiVar;
-            FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
-            varSSAInfo.setNonSSA(phiVar);
-            assocStmt(firstInsn, frontendPhiStmt);
-            phi.setRealPhi(frontendPhiStmt);
-            varManager.aliasLocal(phiVar, varManager.getSlot(origin));
-        });
-    }
-
     private void buildBlockStmt(BytecodeBlock block) {
         slotManager.enterBlock(block);
         operandStack.initializeStack(block);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
         if (isSSA) {
-            emitSSAPhisForLocal(block);
+            slotManager.emitSSAPhisForSlot(block, this::assocStmt);
         }
         // skips all non-bytecode insn
         AbstractInsnNode insn = insnIter.next();
@@ -730,25 +714,12 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private void addLocalPhiInDefs(BytecodeBlock bb) {
-        slotManager.splitting.visitLivePhis(bb, (phi) -> {
-            FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
-            assert realPhi != null;
-            FrontendPhiExp phiExp = realPhi.getRValue();
-            for (int i = 0; i < phi.getInDefs().size(); ++i) {
-                int defIndex = phi.getInDefs().get(i);
-                Var v = slotManager.reachVars[defIndex];
-                phiExp.addUseAndCorrespondingBlocks(v, phi.getInBlocks().get(i));
-            }
-        });
-    }
-
     private void solveAllPhiAndOutput() {
         List<StackPhi> stackPhiList = operandStack.getStackPhiList();
         for (BytecodeBlock bb : cfg) {
             fillInLoopHeaderStackPhis(bb);
             if (isSSA) {
-                addLocalPhiInDefs(bb);
+                slotManager.addInDefsForSlotPhis(bb);
             }
         }
         propagatePhiUsed(stackPhiList);
@@ -953,7 +924,7 @@ public class BytecodeIRBuilder {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
-                    Var v = slotManager.readVar(varInsn.var, insn);
+                    Var v = slotManager.loadVar(varInsn.var, insn);
                     operandStack.pushExp(insn, v);
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
@@ -1104,7 +1075,7 @@ public class BytecodeIRBuilder {
         } else if (insn instanceof IincInsnNode inc) {
             operandStack.pushConst(insn, IntLiteral.get(inc.incr));
             Var cst = operandStack.popVar();
-            Var v = slotManager.readVar(inc.var, insn);
+            Var v = slotManager.loadVar(inc.var, insn);
             operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
             slotManager.storeVar(inc.var, inc, operandStack, this::assocStmt);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
@@ -1154,12 +1125,6 @@ public class BytecodeIRBuilder {
                 slotManager::writeRwTable,
                 this::fromExceptionType)
                 .build();
-        if (cfg == null) {
-            return;
-        }
-        entry = cfg.getEntry();
-        dom = new Dominators<>(cfg);
-        slotManager.postProcess(cfg, dom);
     }
 
     private ClassType fromExceptionType(String internalName) {
@@ -1176,7 +1141,7 @@ public class BytecodeIRBuilder {
     }
 
     private void traverseBlocks() {
-        entry.setInStack(new Stack<>());
+        cfg.getEntry().setInStack(new Stack<>());
         operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, this::assocStmt);
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             buildBlockStmt(block);
