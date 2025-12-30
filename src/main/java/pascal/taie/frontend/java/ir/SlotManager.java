@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.ir;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -87,27 +86,38 @@ final class SlotManager {
      */
     private Var[] reachVars;
 
+    // --- Runtime State ---
+
+    /**
+     * The current RWIndex being processed within the current block
+     * Incremented as {@link SlotManager#getRWIndex}.
+     */
+    private int currRWIndex = -1;
+    /**
+     * The basic block that is currently being processed
+     */
+    private BytecodeBlock currBlock = null;
+
     // --- Dependencies ---
     private final JMethod method;
     private final VarManager varManager;
     private final boolean isSSA;
     private final VarSSAInfo varSSAInfo;
     private final JSRInlinerAdapter source;
-
-    // --- Runtime State ---
-    private int currRWIndex = -1;
-    private BytecodeBlock currBlock = null;
+    private final StmtManager stmtManager;
 
     // ========================================================================
     // 1. Construction & Build Phase
     // ========================================================================
 
-    SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, JSRInlinerAdapter source) {
+    SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo,
+                JSRInlinerAdapter source, StmtManager stmtManager) {
         this.method = method;
         this.varManager = varManager;
         this.isSSA = isSSA;
         this.varSSAInfo = varSSAInfo;
         this.source = source;
+        this.stmtManager = stmtManager;
 
         this.paramWriteSize = getParamWriteSize();
         this.rwTable = new int[source.instructions.size()];
@@ -179,7 +189,7 @@ final class SlotManager {
     /**
      * Handles a variable store (e.g., ISTORE).
      */
-    void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+    void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack) {
         int rwIndex = getRWIndex(insn);
         Var v;
         if (!bcssa.isDefUsed(rwIndex)) {
@@ -197,7 +207,7 @@ final class SlotManager {
             if (varManager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !isSSA) {
                 Var origin = v;
                 v = varManager.getTempVar();
-                assocStmt.accept(insn, Utils.newAssignStmt(method, v, origin));
+                stmtManager.associateStmt(insn, Utils.newAssignStmt(method, v, origin));
             }
             reachVars[rwIndex] = v;
         } else {
@@ -207,7 +217,7 @@ final class SlotManager {
             // use this to generate store stmt
             assert v != null;
             Stmt stmt = operandStack.popToVar(v);
-            assocStmt.accept(insn, stmt);
+            stmtManager.associateStmt(insn, stmt);
         }
         tryFixVarName(v, slot, insn);
     }
@@ -215,20 +225,20 @@ final class SlotManager {
     /**
      * A specialized store for the exception object at the start of a catch block.
      */
-    Var storeCatchVar(AbstractInsnNode insn, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+    Var storeCatchVar(AbstractInsnNode insn) {
         int rwIndex = getRWIndex(insn);
         Var catchVar = isFastProcessVar(rwIndex)
                 ? varManager.getTempVar()
                 : varManager.getLocal(bcssa.getRealLocalSlot(rwIndex));
         reachVars[rwIndex] = catchVar;
-        assocStmt.accept(insn, new Catch(catchVar));
+        stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
     }
 
     /**
      * Emits Phi statements for slot variables at the beginning of a block.
      */
-    void emitSSAPhisForSlot(BytecodeBlock block, BiConsumer<AbstractInsnNode, Stmt> assocStmt) {
+    void emitSSAPhisForSlot(BytecodeBlock block) {
         assert isSSA;
         // should have at least one instruction
         AbstractInsnNode firstInsn = block.getInsns().get(0);
@@ -239,7 +249,7 @@ final class SlotManager {
             reachVars[phi.getDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
             varSSAInfo.setNonSSA(phiVar);
-            assocStmt.accept(firstInsn, frontendPhiStmt);
+            stmtManager.associateStmt(firstInsn, frontendPhiStmt);
             phi.setRealPhi(frontendPhiStmt);
             varManager.aliasLocal(phiVar, varManager.getSlot(origin));
         });

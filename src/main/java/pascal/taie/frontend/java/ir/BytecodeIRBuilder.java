@@ -94,7 +94,6 @@ import pascal.taie.ir.stmt.Goto;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
-import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
@@ -233,9 +232,9 @@ public class BytecodeIRBuilder {
         this.isSSA = World.get().getOptions().isSSA();
         this.varManager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
-        this.slotManager = new SlotManager(method,
-                varManager, isSSA, varSSAInfo, source);
         this.stmtManager = new StmtManager(isSSA, source.instructions);
+        this.slotManager = new SlotManager(method,
+                varManager, isSSA, varSSAInfo, source, stmtManager);
         this.stmts = new ArrayList<>();
     }
 
@@ -565,7 +564,7 @@ public class BytecodeIRBuilder {
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
         if (isSSA) {
-            slotManager.emitSSAPhisForSlot(block, stmtManager::associateStmt);
+            slotManager.emitSSAPhisForSlot(block);
         }
         // skips all non-bytecode insn
         AbstractInsnNode insn = insnIter.next();
@@ -587,7 +586,7 @@ public class BytecodeIRBuilder {
                 // for most cases, this should be a store insn
                 // this insn stores the exception object to a local var
                 if (insn.getOpcode() == Opcodes.ASTORE) {
-                    catchVar = slotManager.storeCatchVar(insn, stmtManager::associateStmt);
+                    catchVar = slotManager.storeCatchVar(insn);
                 } else {
                     // else
                     // * for java source, insn should be POP *
@@ -808,7 +807,7 @@ public class BytecodeIRBuilder {
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
                      Opcodes.ASTORE ->
-                        slotManager.storeVar(varInsn.var, varInsn, operandStack, stmtManager::associateStmt);
+                        slotManager.storeVar(varInsn.var, varInsn, operandStack);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -956,7 +955,7 @@ public class BytecodeIRBuilder {
             Var cst = operandStack.popVar();
             Var v = slotManager.loadVar(inc.var, insn);
             operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            slotManager.storeVar(inc.var, inc, operandStack, stmtManager::associateStmt);
+            slotManager.storeVar(inc.var, inc, operandStack);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
             MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
@@ -1021,7 +1020,7 @@ public class BytecodeIRBuilder {
 
     private void traverseBlocks() {
         cfg.getEntry().setInStack(new Stack<>());
-        operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, stmtManager::associateStmt);
+        operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, stmtManager);
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             buildBlockStmt(block);
         }

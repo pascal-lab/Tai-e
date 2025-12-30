@@ -47,20 +47,15 @@ final class StmtManager {
      */
     private final List<List<Stmt>> additionalStmts;
 
-    /**
-     * If we build SSA IR. Read from {@link pascal.taie.config.Options}
-     */
-    private final boolean isSSA;
 
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
      */
     private int currentLineNumber;
 
-    /**
-     * A reference to the source instructions to get the index of an instruction.
-     */
+    // --- Dependencies ---
     private final org.objectweb.asm.tree.InsnList instructions;
+    private final boolean isSSA;
 
     // TODO: the 'getInsnIndex' method appears in too many classes
     StmtManager(boolean isSSA, org.objectweb.asm.tree.InsnList instructions) {
