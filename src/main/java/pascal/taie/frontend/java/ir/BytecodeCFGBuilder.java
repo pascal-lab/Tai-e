@@ -375,7 +375,7 @@ final class BytecodeCFGBuilder {
      * @return the existing or newly created block
      */
     private BytecodeBlock getOrCreateBlock(AbstractInsnNode node) {
-        int idx = getIndex(node);
+        int idx = getInsnIndex(node);
         if (insn2Block[idx] == null) {
             LabelNode labelNode = (node instanceof LabelNode ln)
                     ? ln
@@ -412,7 +412,7 @@ final class BytecodeCFGBuilder {
      * searches forward to find the actual valid target block.
      */
     private void addEdge(BytecodeCFG cfg, BytecodeBlock from, LabelNode target) {
-        BytecodeBlock to = insn2Block[getIndex(target)];
+        BytecodeBlock to = insn2Block[getInsnIndex(target)];
         assert to != null;
         if (to.getIndex() == -1) {
             // Target is an empty/merged block - find the valid successor
@@ -439,7 +439,7 @@ final class BytecodeCFGBuilder {
      * by scanning forward in the instruction array.
      */
     private BytecodeBlock searchForValidBlock(LabelNode startLabel) {
-        int idx = getIndex(startLabel);
+        int idx = getInsnIndex(startLabel);
         while (insn2Block[idx] == null || insn2Block[idx].getIndex() == -1) {
             idx++;
         }
@@ -453,7 +453,7 @@ final class BytecodeCFGBuilder {
      * Used for try-catch end boundaries, which may point past the last block.
      */
     private int searchForValidBlockOrEnd(LabelNode startLabel, int blockCount) {
-        int idx = getIndex(startLabel);
+        int idx = getInsnIndex(startLabel);
         int maxSize = insn2Block.length;
         while (idx < maxSize) {
             if (insn2Block[idx] != null && insn2Block[idx].getIndex() != -1) {
@@ -469,7 +469,7 @@ final class BytecodeCFGBuilder {
     /**
      * Gets the index of an instruction in the bytecode array.
      */
-    private int getIndex(AbstractInsnNode node) {
+    private int getInsnIndex(AbstractInsnNode node) {
         return source.instructions.indexOf(node);
     }
 }

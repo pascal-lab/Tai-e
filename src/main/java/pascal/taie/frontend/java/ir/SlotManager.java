@@ -45,7 +45,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.graph.Dominators;
 
-public class SlotManager {
+final class SlotManager {
 
     /**
      * Number of implicit writes for method parameters at entry.
@@ -102,7 +102,7 @@ public class SlotManager {
     // 1. Construction & Build Phase
     // ========================================================================
 
-    public SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, JSRInlinerAdapter source) {
+    SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo, JSRInlinerAdapter source) {
         this.method = method;
         this.varManager = varManager;
         this.isSSA = isSSA;

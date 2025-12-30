@@ -144,7 +144,6 @@ import static pascal.taie.frontend.java.ir.OpcodeUtils.toCmpOp;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.toCondOp;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.toConstValue;
 import static pascal.taie.frontend.java.ir.OpcodeUtils.toShiftOp;
-import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -184,17 +183,6 @@ public class BytecodeIRBuilder {
     public final VarManager varManager;
 
     /**
-     * A mapping from bytecode instruction index (use {@link BytecodeIRBuilder#getIndex} to obtain) to generated Tai-e IR stmt
-     */
-    final Stmt[] insn2Stmt;
-
-    /**
-     * Similar to {@link BytecodeIRBuilder#insn2Stmt}, when a bytecode instruction generate more than
-     * one Tai-e IR stmt, use this mapping to store the rest
-     */
-    final List<List<Stmt>> auxiliaryStmts;
-
-    /**
      * Generated Tai-e IR stmts
      */
     private List<Stmt> stmts;
@@ -210,22 +198,24 @@ public class BytecodeIRBuilder {
     private OperandStack operandStack;
 
     /**
-     * A <i>mutable</i> field that record current line number of visited bytecode
-     * during {@link BytecodeIRBuilder#traverseBlocks} method
-     */
-    private int currentLineNumber;
-
-    /**
      * If we build SSA IR. Read from {@link pascal.taie.config.Options}
      */
     private final boolean isSSA;
 
     /**
-     * Currently only used for test.
+     * Record whether a Var is SSA.
      */
-    public final VarSSAInfo varSSAInfo;
+    private final VarSSAInfo varSSAInfo;
 
+    /**
+     * Manages load/store operations on local variable slots and handles SSA-related transformations.
+     */
     private final SlotManager slotManager;
+
+    /**
+     * Manages the mapping from bytecode instructions to their generated IR statements.
+     */
+    private final StmtManager stmtManager;
 
     /**
      * Dominator and dominator frontier computed for bytecode block graph
@@ -239,18 +229,13 @@ public class BytecodeIRBuilder {
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
-        int insnCount = source.instructions.size();
         this.varSSAInfo = new VarSSAInfo();
         this.isSSA = World.get().getOptions().isSSA();
         this.varManager = new VarManager(method,
                 source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
         this.slotManager = new SlotManager(method,
                 varManager, isSSA, varSSAInfo, source);
-        this.insn2Stmt = new Stmt[insnCount];
-        this.auxiliaryStmts = new ArrayList<>(insnCount);
-        for (int i = 0; i < insnCount; ++i) {
-            auxiliaryStmts.add(null);
-        }
+        this.stmtManager = new StmtManager(isSSA, source.instructions);
         this.stmts = new ArrayList<>();
     }
 
@@ -316,45 +301,9 @@ public class BytecodeIRBuilder {
                 this.stmts.get(stmt.getIndex()) == stmt;
     }
 
-    private int getIndex(AbstractInsnNode insn) {
+    private int getInsnIndex(AbstractInsnNode insn) {
         assert insn != null;
         return source.instructions.indexOf(insn);
-    }
-
-    private List<Stmt> clearStmt(AbstractInsnNode insn) {
-        List<Stmt> res = new ArrayList<>();
-        int idx = getIndex(insn);
-        if (insn2Stmt[idx] != null) {
-            res.add(insn2Stmt[idx]);
-            insn2Stmt[idx] = null;
-        }
-        if (auxiliaryStmts.get(idx) != null) {
-            res.addAll(auxiliaryStmts.get(idx));
-            auxiliaryStmts.set(idx, null);
-        }
-        return res;
-    }
-
-    private void assocStmt(AbstractInsnNode insn, Stmt stmt) {
-        // TODO: remove this checking
-        if (stmt.getLineNumber() == -1) {
-            stmt.setLineNumber(currentLineNumber);
-        }
-        int idx = getIndex(insn);
-        if (insn2Stmt[idx] == null) {
-            insn2Stmt[idx] = stmt;
-        } else {
-            assocListStmt(insn, stmt);
-        }
-    }
-
-    private void assocListStmt(AbstractInsnNode insn, Stmt stmt) {
-        List<Stmt> aux = auxiliaryStmts.get(getIndex(insn));
-        if (aux == null) {
-            aux = new ArrayList<>();
-            auxiliaryStmts.set(getIndex(insn), aux);
-        }
-        aux.add(stmt);
     }
 
     private IR getIR() {
@@ -366,7 +315,7 @@ public class BytecodeIRBuilder {
     }
 
     private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = cfg.searchForValidBlock(getIndex(label));
+        BytecodeBlock block = cfg.searchForValidBlock(getInsnIndex(label));
         while (block.getStmts().isEmpty()) {
             BytecodeBlock next1 = cfg.getNormalSuccsOf(block).get(0);
             BytecodeBlock next2 = cfg.getObject(block.getIndex() + 1);
@@ -561,7 +510,7 @@ public class BytecodeIRBuilder {
 
     private void storeExp(AbstractInsnNode insn, LValue left, RValue right) {
         Stmt stmt = Utils.newAssignStmt(method, left, right);
-        assocStmt(insn, stmt);
+        stmtManager.associateStmt(insn, stmt);
     }
 
     private void returnExp(InsnNode insn) {
@@ -569,17 +518,17 @@ public class BytecodeIRBuilder {
         operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
         int opcode = insn.getOpcode();
         if (opcode == Opcodes.RETURN) {
-            assocStmt(insn, new Return());
+            stmtManager.associateStmt(insn, new Return());
         } else {
             Var v = operandStack.popVar();
             varManager.addReturnVar(v);
-            assocStmt(insn, new Return(v));
+            stmtManager.associateStmt(insn, new Return(v));
         }
     }
 
     private void throwException(InsnNode insn) {
         Var v = operandStack.popVar();
-        assocStmt(insn, new Throw(v));
+        stmtManager.associateStmt(insn, new Throw(v));
     }
 
 //    private void mergeStack1(List<Stmt> auxiliary, Stack<StackItem> nowStack, Stack<StackItem> targetStack) {
@@ -596,23 +545,6 @@ public class BytecodeIRBuilder {
 //            auxiliary.add(stmt);
 //        }
 //    }
-
-    private void appendStackMergeStmts(BytecodeBlock bb, List<Stmt> auxiliary) {
-        if (!auxiliary.isEmpty()) {
-            AbstractInsnNode lastInsn = bb.getLastInsn();
-            if (isCFEdge(lastInsn)) {
-                // last stmt may attach goto, if, switch ...
-                List<Stmt> stmts = clearStmt(lastInsn);
-                for (int i = 0; i < stmts.size() - 1; ++i) {
-                    assocStmt(lastInsn, stmts.get(i));
-                }
-                auxiliary.forEach(stmt -> assocStmt(lastInsn, stmt));
-                assocStmt(lastInsn, stmts.get(stmts.size() - 1));
-            } else {
-                auxiliary.forEach(stmt -> assocStmt(lastInsn, stmt));
-            }
-        }
-    }
 
 //    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
 //        List<Stmt> auxiliary = new ArrayList<>();
@@ -633,7 +565,7 @@ public class BytecodeIRBuilder {
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
         if (isSSA) {
-            slotManager.emitSSAPhisForSlot(block, this::assocStmt);
+            slotManager.emitSSAPhisForSlot(block, stmtManager::associateStmt);
         }
         // skips all non-bytecode insn
         AbstractInsnNode insn = insnIter.next();
@@ -642,7 +574,7 @@ public class BytecodeIRBuilder {
             if (insn instanceof FrameNode f) {
                 block.setFrame(f);
             } else if (insn instanceof LineNumberNode l) {
-                currentLineNumber = l.line;
+                stmtManager.setLineNumber(l.line);
             }
         }
         // now, insn must be:
@@ -655,14 +587,14 @@ public class BytecodeIRBuilder {
                 // for most cases, this should be a store insn
                 // this insn stores the exception object to a local var
                 if (insn.getOpcode() == Opcodes.ASTORE) {
-                    catchVar = slotManager.storeCatchVar(insn, this::assocStmt);
+                    catchVar = slotManager.storeCatchVar(insn, stmtManager::associateStmt);
                 } else {
                     // else
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
                     catchVar = varManager.getTempVar();
-                    assocStmt(insn, new Catch(catchVar));
+                    stmtManager.associateStmt(insn, new Catch(catchVar));
                     operandStack.pushExp(insn, catchVar);
                     processInsn(insn, block);
                 }
@@ -690,28 +622,11 @@ public class BytecodeIRBuilder {
 
         // Temp fix. Add a nop to represent a block. Used in ssa.
         if (isSSA) {
-            ensureBlockNotEmpty(block);
+            stmtManager.ensureBlockNotEmpty(block);
         }
 
         operandStack.saveOutStackAndClear();
         slotManager.exitBlock();
-    }
-
-    private void ensureBlockNotEmpty(BytecodeBlock block) {
-        boolean blockEmpty = true;
-        InsnListSlice insns = block.getInsns();
-        int start = insns.getStart();
-        for (int i = 0; i < insns.size(); ++i) {
-            int current = start + i;
-            Stmt stmt = insn2Stmt[current];
-            if (stmt != null) {
-                blockEmpty = false;
-                break;
-            }
-        }
-        if (blockEmpty) {
-            insn2Stmt[start + insns.size() - 1] = new Nop();
-        }
     }
 
     private void solveAllPhiAndOutput() {
@@ -732,10 +647,10 @@ public class BytecodeIRBuilder {
             if (!isSSA) {
                 if (stackMergeStmts.contains(bb.getIndex())) {
                     List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
-                    appendStackMergeStmts(bb, stmts);
+                    stmtManager.appendStackMergeStmts(bb, stmts);
                 }
             }
-            outputIR(bb);
+            stmtManager.buildBlockStmts(bb);
         }
     }
 
@@ -831,7 +746,7 @@ public class BytecodeIRBuilder {
 
     private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
         AbstractInsnNode firstInsn = block.getInsns().get(0);
-        assocStmt(firstInsn, stmt);
+        stmtManager.associateStmt(firstInsn, stmt);
     }
 
     private LazyArray<List<Stmt>> stackMergeStmts;
@@ -884,42 +799,6 @@ public class BytecodeIRBuilder {
         }
     }
 
-    private void outputIR(BytecodeBlock block) {
-        List<Stmt> blockStmt = block.getStmts();
-        InsnListSlice insns = block.getInsns();
-        int counter = 0;
-        int start = insns.getStart();
-        for (int i = 0; i < insns.size(); ++i) {
-            int current = start + i;
-            Stmt stmt = insn2Stmt[current];
-            if (stmt != null) {
-                blockStmt.add(stmt);
-            }
-
-            List<Stmt> stmts = auxiliaryStmts.get(current);
-            if (stmts != null) {
-                blockStmt.addAll(stmts);
-            }
-        }
-        if (block.isCatch() && isSSA) {
-            // adjust order for phis, put catch in the front
-            List<Stmt> stmts = new ArrayList<>();
-            Catch catchStmt = null;
-            for (Stmt stmt : blockStmt) {
-                if (stmt instanceof Catch) {
-                    assert catchStmt == null;
-                    catchStmt = (Catch) stmt;
-                } else {
-                    stmts.add(stmt);
-                }
-            }
-            assert catchStmt != null;
-            stmts.add(0, catchStmt);
-            blockStmt.clear();
-            blockStmt.addAll(stmts);
-        }
-    }
-
     private void processInsn(AbstractInsnNode insn, BytecodeBlock block) {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
@@ -929,7 +808,7 @@ public class BytecodeIRBuilder {
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
                      Opcodes.ASTORE ->
-                        slotManager.storeVar(varInsn.var, varInsn, operandStack, this::assocStmt);
+                        slotManager.storeVar(varInsn.var, varInsn, operandStack, stmtManager::associateStmt);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -943,10 +822,10 @@ public class BytecodeIRBuilder {
                 throwException(basicInsn);
             } else if (opcode == Opcodes.MONITORENTER) {
                 Var obj = operandStack.popVar();
-                assocStmt(insn, new Monitor(Monitor.Op.ENTER, obj));
+                stmtManager.associateStmt(insn, new Monitor(Monitor.Op.ENTER, obj));
             } else if (opcode == Opcodes.MONITOREXIT) {
                 Var obj = operandStack.popVar();
-                assocStmt(insn, new Monitor(Monitor.Op.EXIT, obj));
+                stmtManager.associateStmt(insn, new Monitor(Monitor.Op.EXIT, obj));
             } else if (isBinaryInsn(opcode)) {
                 operandStack.pushExp(insn, getBinaryExp(opcode));
             } else if (isReturnInsn(opcode)) {
@@ -972,10 +851,10 @@ public class BytecodeIRBuilder {
             }
         } else if (insn instanceof JumpInsnNode jump) {
             if (jump.getOpcode() == Opcodes.GOTO) {
-                assocStmt(jump, new Goto());
+                stmtManager.associateStmt(jump, new Goto());
             } else {
                 ConditionExp cond = getIfExp(jump.getOpcode());
-                assocStmt(jump, new If(cond));
+                stmtManager.associateStmt(jump, new If(cond));
             }
         } else if (insn instanceof LdcInsnNode ldc) {
             operandStack.pushConst(insn, Utils.fromObject(typeSystem, ldc.cst));
@@ -1077,7 +956,7 @@ public class BytecodeIRBuilder {
             Var cst = operandStack.popVar();
             Var v = slotManager.loadVar(inc.var, insn);
             operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            slotManager.storeVar(inc.var, inc, operandStack, this::assocStmt);
+            slotManager.storeVar(inc.var, inc, operandStack, stmtManager::associateStmt);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
             MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
@@ -1100,15 +979,15 @@ public class BytecodeIRBuilder {
 
         } else if (insn instanceof TableSwitchInsnNode tableSwitch) {
             Var v = operandStack.popVar();
-            assocStmt(insn, new TableSwitch(v, tableSwitch.min, tableSwitch.max));
+            stmtManager.associateStmt(insn, new TableSwitch(v, tableSwitch.min, tableSwitch.max));
         } else if (insn instanceof LookupSwitchInsnNode lookupSwitch) {
             Var v = operandStack.popVar();
-            assocStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
+            stmtManager.associateStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
         } else if (insn instanceof LabelNode || insn instanceof FrameNode) {
             // do nothing
             return;
         } else if (insn instanceof LineNumberNode lineNumber) {
-            this.currentLineNumber = lineNumber.line;
+            stmtManager.setLineNumber(lineNumber.line);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -1142,39 +1021,39 @@ public class BytecodeIRBuilder {
 
     private void traverseBlocks() {
         cfg.getEntry().setInStack(new Stack<>());
-        operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, this::assocStmt);
+        operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, stmtManager::associateStmt);
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             buildBlockStmt(block);
         }
         solveAllPhiAndOutput();
     }
 
-    private void setLineNumber() {
-        int currentLineNumber = -1;
-        for (var insn : source.instructions) {
-            if (!(insn instanceof LabelNode)) {
-                if (insn instanceof LineNumberNode l) {
-                    currentLineNumber = l.line;
-                } else {
-                    if (currentLineNumber == -1) {
-                        logger.atDebug().log("[IR] no line number info, method: " + method);
-                        return;
-                    }
-                    var stmt = insn2Stmt[getIndex(insn)];
-                    if (stmt != null) {
-                        stmt.setLineNumber(currentLineNumber);
-                    }
-
-                    var stmts = auxiliaryStmts.get(getIndex(insn));
-                    if (stmts != null) {
-                        for (var s : stmts) {
-                            s.setLineNumber(currentLineNumber);
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    private void setLineNumber() {
+//        int currentLineNumber = -1;
+//        for (var insn : source.instructions) {
+//            if (!(insn instanceof LabelNode)) {
+//                if (insn instanceof LineNumberNode l) {
+//                    currentLineNumber = l.line;
+//                } else {
+//                    if (currentLineNumber == -1) {
+//                        logger.atDebug().log("[IR] no line number info, method: " + method);
+//                        return;
+//                    }
+//                    var stmt = insn2Stmt[getInsnIndex(insn)];
+//                    if (stmt != null) {
+//                        stmt.setLineNumber(currentLineNumber);
+//                    }
+//
+//                    var stmts = auxiliaryStmts.get(getInsnIndex(insn));
+//                    if (stmts != null) {
+//                        for (var s : stmts) {
+//                            s.setLineNumber(currentLineNumber);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public IR getIr() {
         return ir;
