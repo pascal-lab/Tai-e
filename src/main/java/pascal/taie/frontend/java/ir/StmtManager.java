@@ -34,6 +34,10 @@ import pascal.taie.ir.stmt.Stmt;
 
 import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 
+/**
+ * Manages the mapping from bytecode instructions to their generated IR statements.
+ * It also tracks source line numbers and assembles the final ordered list of statements for each basic block.
+ */
 final class StmtManager {
 
     /**

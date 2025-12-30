@@ -44,6 +44,10 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.graph.Dominators;
 
+/**
+ * Manages operations on local variable slots, resolving slot reuse through def-use analysis.
+ * It handles load/store operations and is responsible for generating {@link FrontendPhiStmt}.
+ */
 final class SlotManager {
 
     /**

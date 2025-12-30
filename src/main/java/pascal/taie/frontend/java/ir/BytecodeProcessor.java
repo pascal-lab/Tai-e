@@ -116,12 +116,15 @@ import static pascal.taie.language.type.IntType.INT;
 import static pascal.taie.language.type.LongType.LONG;
 import static pascal.taie.language.type.ShortType.SHORT;
 
+/**
+ * Translates bytecode instructions within a single basic block into Tai-e's statements.
+ */
 final class BytecodeProcessor {
 
     // --- Dependencies ---
     private final FrontendTypeSystem typeSystem;
-    public final VarManager varManager;
-    public final JMethod method;
+    private final VarManager varManager;
+    private final JMethod method;
     private final boolean isSSA;
     private final VarSSAInfo varSSAInfo;
     private final OperandStack operandStack;
