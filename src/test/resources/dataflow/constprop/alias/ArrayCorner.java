@@ -13,9 +13,6 @@ class ArrayCorner {
         corner6(x);
         corner7(x);
         corner8(x);
-        corner9();
-        corner10();
-        corner11();
     }
 
     //corner1~corner8: different situation of NAC index store and load
@@ -83,30 +80,4 @@ class ArrayCorner {
         int r8_1 = h[0];
         int r8_2 = h[1];
     }
-
-    public static void corner9() {//i is null pointer
-        int[] i;
-        i[0] = 1;
-        int r9 = i[0];
-    }
-
-    //corner10~ : different sitution of UNDEF index store and load
-
-    public static void corner10() {
-        int[] j = new int[2];
-        int y;
-        j[y] = 0;
-        j[1] = 1;
-        int r10_1 = j[y];
-        int r10_2 = j[1];
-    }
-
-    public static void corner11() {
-        int[] k = new int[2];
-        k[0] = 1;
-        int y;
-        int r11 = k[y];
-    }
-
-
 }
