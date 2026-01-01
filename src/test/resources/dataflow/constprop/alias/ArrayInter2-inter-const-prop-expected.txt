@@ -1,18 +1,21 @@
 -------------------- <ArrayInter2: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] %intconst0 = 1; {}
-[1@L4] a = newarray int[%intconst0]; {}
-[2@L5] %intconst1 = 0; {}
-[3@L5] %intconst2 = 777; {}
-[4@L5] invokestatic <ArrayInter2: void set(int[],int,int)>(a, %intconst1, %intconst2); {}
-[5@L6] temp$0 = invokestatic <ArrayInter2: int get(int[],int)>(a, %intconst1); {}
-[6@L6] x = temp$0; {temp$0=777, x=777}
-[7@L6] return; {temp$0=777, x=777}
+[0@L-1] %ci0 = 0; {}
+[1@L-1] %ci1 = 1; {}
+[2@L4] a = newarray int[%ci1]; {}
+[3@L5] %c6 = 777; {}
+[4@L5] invokestatic <ArrayInter2: void set(int[],int,int)>(a, %ci0, %c6); {}
+[5@L7] %v7 = a[%ci0]; {%v7=777}
+[6@L7] if (%v7 <= %ci0) goto 9; {%v7=777}
+[7@L8] invokestatic <ArrayInter2: int get(int[],int)>(a, %ci0); {%v7=777}
+[8@L8] goto 10; {%v7=777}
+[9@L10] invokestatic <ArrayInter2: int get(int[],int)>(a, %ci0); {%v7=777}
+[10@L12] return; {%v7=777}
 
 -------------------- <ArrayInter2: void set(int[],int,int)> (inter-const-prop) --------------------
-[0@L10] arr[i] = v; {i=0, v=777}
-[1@L10] return; {i=0, v=777}
+[0@L15] arr[i] = v; {i=0, v=777}
+[1@L16] return; {i=0, v=777}
 
 -------------------- <ArrayInter2: int get(int[],int)> (inter-const-prop) --------------------
-[0@L13] temp$2 = arr[i]; {i=0, temp$2=777}
-[1@L14] return temp$2; {i=0, temp$2=777}
+[0@L19] %v2 = arr[i]; {%v2=777, i=0}
+[1@L19] return %v2; {%v2=777, i=0}
 
