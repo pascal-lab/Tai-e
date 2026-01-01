@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
-import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.BytecodeClassBuilder;
@@ -48,7 +47,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -59,15 +57,15 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
     private static final Logger logger = LogManager.getLogger(JavaWorldBuilder.class);
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
+    public void build(Options options) {
         try {
-            build(options);
+            runWorldBuilder(options);
         } catch (FrontendException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void build(Options options) throws FrontendException {
+    private void runWorldBuilder(Options options) throws FrontendException {
         World.reset();
         World world = new World();
         World.set(world);
