@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.ir;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
-import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
@@ -43,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 
@@ -81,17 +79,15 @@ final class OperandStack {
 
     // --- Dependencies ---
     private final JMethod method;
-    private final VarManager manager;
+    private final VarManager varManager;
     private final BytecodeCFG cfg;
-    private final VarSSAInfo ssaInfo;
     private final StmtManager stmtManager;
 
-    OperandStack(JMethod method, VarManager manager, BytecodeCFG cfg, VarSSAInfo ssaInfo, StmtManager stmtManager) {
+    OperandStack(JMethod method, VarManager varManager, BytecodeCFG cfg, StmtManager stmtManager) {
         this.cfg = cfg;
         this.stmtManager = stmtManager;
         this.phiList = new ArrayList<>();
-        this.ssaInfo = ssaInfo;
-        this.manager = manager;
+        this.varManager = varManager;
         this.method = method;
     }
 
@@ -245,8 +241,8 @@ final class OperandStack {
      */
     private StackItem createNewStackPhiItem(BytecodeBlock block, int index, List<StackItem> inExp) {
         StackPhi phi = new StackPhi(index, inExp, block);
-        phi.setVar(manager.getTempVar());
-        ssaInfo.setNonSSA(phi.getVar());
+        phi.setVar(varManager.getTempVar());
+        varManager.setNonSSA(phi.getVar());
         phiList.add(phi);
         return new StackItem(phi, null);
     }
@@ -269,8 +265,8 @@ final class OperandStack {
      * Pushes a constant onto stack.
      */
     void pushConst(AbstractInsnNode node, Literal literal) {
-        if (manager.peekConstVar(literal)) {
-            pushExp(node, manager.getConstVar(literal));
+        if (varManager.peekConstVar(literal)) {
+            pushExp(node, varManager.getConstVar(literal));
         } else {
             pushExp(node, literal);
         }
@@ -340,7 +336,7 @@ final class OperandStack {
             stmtManager.associateStmt(item.origin(), new Invoke(method, invokeExp));
         } else if (Utils.mayHaveSideEffect(e)) {
             stmtManager.associateStmt(item.origin(),
-                    Utils.newAssignStmt(method, manager.getTempVar(), e));
+                    Utils.newAssignStmt(method, varManager.getTempVar(), e));
         }
     }
 
@@ -377,7 +373,7 @@ final class OperandStack {
      * Converts expression to a Var, creating assignment statement if needed.
      */
     Var toVar(Exp e, AbstractInsnNode orig) {
-        assert !(e instanceof Var v && manager.isTempVar(v));
+        assert !(e instanceof Var v && varManager.isTempVar(v));
         if (e instanceof StackPhi phi) {
             phi.setUsed();
             assert phi.getVar() != null;
@@ -386,16 +382,16 @@ final class OperandStack {
 
         Var v;
         if (e instanceof NullLiteral) {
-            return manager.getNullLiteral();
+            return varManager.getNullLiteral();
         }
         if (e instanceof Literal l) {
-            if (manager.peekConstVar(l)) {
-                return manager.getConstVar(l);
+            if (varManager.peekConstVar(l)) {
+                return varManager.getConstVar(l);
             } else {
-                v = manager.getConstVar(l);
+                v = varManager.getConstVar(l);
             }
         } else {
-            v = manager.getTempVar();
+            v = varManager.getTempVar();
         }
         Stmt auxStmt = Utils.newAssignStmt(method, v, e);
         stmtManager.associateStmt(orig, auxStmt);

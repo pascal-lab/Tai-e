@@ -34,7 +34,6 @@ import pascal.taie.frontend.java.ir.ssa.BCSSA;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
-import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
@@ -106,7 +105,6 @@ final class SlotManager {
     private final JMethod method;
     private final VarManager varManager;
     private final boolean isSSA;
-    private final VarSSAInfo varSSAInfo;
     private final JSRInlinerAdapter source;
     private final StmtManager stmtManager;
 
@@ -114,12 +112,11 @@ final class SlotManager {
     // 1. Construction & Build Phase
     // ========================================================================
 
-    SlotManager(JMethod method, VarManager varManager, boolean isSSA, VarSSAInfo varSSAInfo,
+    SlotManager(JMethod method, VarManager varManager, boolean isSSA,
                 JSRInlinerAdapter source, StmtManager stmtManager) {
         this.method = method;
         this.varManager = varManager;
         this.isSSA = isSSA;
-        this.varSSAInfo = varSSAInfo;
         this.source = source;
         this.stmtManager = stmtManager;
 
@@ -208,7 +205,7 @@ final class SlotManager {
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (varManager.isLocal(v) && !varSSAInfo.isSSAVar(v) && !isSSA) {
+            if (varManager.isLocal(v) && !varManager.isSSAVar(v) && !isSSA) {
                 Var origin = v;
                 v = varManager.getTempVar();
                 stmtManager.associateStmt(insn, Utils.newAssignStmt(method, v, origin));
@@ -252,7 +249,7 @@ final class SlotManager {
             FrontendPhiExp phiExp = new FrontendPhiExp();
             reachVars[phi.getDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
-            varSSAInfo.setNonSSA(phiVar);
+            varManager.setNonSSA(phiVar);
             stmtManager.associateStmt(firstInsn, frontendPhiStmt);
             phi.setRealPhi(frontendPhiStmt);
             varManager.aliasLocal(phiVar, varManager.getSlot(origin));
@@ -344,9 +341,9 @@ final class SlotManager {
                 reachVars[i] = varManager.getLocal(i);
                 Var current = reachVars[i];
                 if (bcssa.canFastProcess(i)) {
-                    varSSAInfo.setSSA(current);
+                    varManager.setSSA(current);
                 } else {
-                    varSSAInfo.setNonSSA(current);
+                    varManager.setNonSSA(current);
                 }
             }
         }

@@ -36,7 +36,6 @@ import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
-import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -115,11 +114,6 @@ public class BytecodeIRBuilder {
     private final boolean isSSA;
 
     /**
-     * Record whether a Var is SSA.
-     */
-    private final VarSSAInfo varSSAInfo;
-
-    /**
      * Manages load/store operations on local variable slots and handles SSA-related transformations.
      */
     private final SlotManager slotManager;
@@ -146,13 +140,12 @@ public class BytecodeIRBuilder {
         this.method = method;
         this.source = methodSource.adapter();
         assert method.getName().equals(source.name);
-        this.varSSAInfo = new VarSSAInfo();
         this.isSSA = World.get().getOptions().isSSA();
         this.varManager = new VarManager(method,
-                source.localVariables, source.instructions, source.maxLocals, varSSAInfo);
+                source.localVariables, source.instructions, source.maxLocals);
         this.stmtManager = new StmtManager(isSSA, source.instructions);
         this.slotManager = new SlotManager(method,
-                varManager, isSSA, varSSAInfo, source, stmtManager);
+                varManager, isSSA, source, stmtManager);
         this.stmts = new ArrayList<>();
     }
 
@@ -161,9 +154,9 @@ public class BytecodeIRBuilder {
             buildCFG();
             buildDom();
             slotManager.build(cfg, dom);
-            operandStack = new OperandStack(method, varManager, cfg, varSSAInfo, stmtManager);
+            operandStack = new OperandStack(method, varManager, cfg, stmtManager);
             bytecodeProcessor = new BytecodeProcessor(typeSystem, varManager,
-                    method, isSSA, varSSAInfo, operandStack, slotManager, stmtManager);
+                    method, isSSA, operandStack, slotManager, stmtManager);
             traverseBlocks();
             inferTypes();
             makeStmts(true);
@@ -457,7 +450,7 @@ public class BytecodeIRBuilder {
                         }
                         boolean useWorseSolution = hasCriticalInEdge && phi1.used;
                         Var writeOut = useWorseSolution ? varManager.getTempVar() : phi1.getVar();
-                        varSSAInfo.setNonSSA(writeOut);
+                        varManager.setNonSSA(writeOut);
                         if (useWorseSolution) {
                             // add `v = writeOut` before any definition (first instruction) in create pos
                             BytecodeBlock createPos = phi1.createPos;

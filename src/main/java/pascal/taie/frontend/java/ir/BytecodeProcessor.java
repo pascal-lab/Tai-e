@@ -49,7 +49,6 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -126,17 +125,15 @@ final class BytecodeProcessor {
     private final VarManager varManager;
     private final JMethod method;
     private final boolean isSSA;
-    private final VarSSAInfo varSSAInfo;
     private final OperandStack operandStack;
     private final SlotManager slotManager;
     private final StmtManager stmtManager;
 
-    BytecodeProcessor(FrontendTypeSystem typeSystem, VarManager varManager, JMethod method, boolean isSSA, VarSSAInfo varSSAInfo, OperandStack operandStack, SlotManager slotManager, StmtManager stmtManager) {
+    BytecodeProcessor(FrontendTypeSystem typeSystem, VarManager varManager, JMethod method, boolean isSSA, OperandStack operandStack, SlotManager slotManager, StmtManager stmtManager) {
         this.typeSystem = typeSystem;
         this.varManager = varManager;
         this.method = method;
         this.isSSA = isSSA;
-        this.varSSAInfo = varSSAInfo;
         this.operandStack = operandStack;
         this.slotManager = slotManager;
         this.stmtManager = stmtManager;
@@ -186,7 +183,7 @@ final class BytecodeProcessor {
                     ExpMutator.setType(catchVar, handlerTypes.get(0));
                 } else {
                     // let type inference decide the type
-                    varSSAInfo.setNonSSA(catchVar);
+                    varManager.setNonSSA(catchVar);
                 }
             }
             // `insn.getOpcode() == -1` which means the last bytecode is also synthetic

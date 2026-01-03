@@ -28,8 +28,8 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
+
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.VarSSAInfo;
 import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
@@ -42,8 +42,10 @@ import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,6 +53,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
 
 import static pascal.taie.language.type.IntType.INT;
 
@@ -100,14 +103,13 @@ public class VarManager {
 
     private final Map<String, Integer> nameUsedCount = Maps.newMap();
 
-    private final VarSSAInfo info;
+    private final BitSet isSSA;
 
     @SuppressWarnings("unchecked")
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
-                      int maxLocal,
-                      VarSSAInfo info) {
+                      int maxLocal) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
@@ -119,7 +121,7 @@ public class VarManager {
         this.var2Local = Maps.newMap();
         this.vars = new ArrayList<>(maxLocal * 6);
         this.retVars = Sets.newSet();
-        this.info = info;
+        this.isSSA = new BitSet();
 
         if (existsLocalVariableTable) {
             processLocalVarTable();
@@ -207,7 +209,7 @@ public class VarManager {
 
         insnNode = insnNode.getNext();
         while ((insnNode instanceof LabelNode || insnNode instanceof FrameNode || insnNode instanceof LineNumberNode)
-               && insnNode.getNext() != null) {
+                && insnNode.getNext() != null) {
             insnNode = insnNode.getNext();
         }
         return insnNode;
@@ -215,7 +217,7 @@ public class VarManager {
 
     public Var getTempVar() {
         Var v = newVar(TEMP_PREFIX + "v" + counter);
-        info.setSSA(v);
+        setSSA(v);
         return v;
     }
 
@@ -291,7 +293,7 @@ public class VarManager {
         Var v1 = newVar(name);
         var2Local.put(v1, slot);
         local2Var[slot] = v1;
-        info.setNonSSA(v1);
+        setNonSSA(v1);
     }
 
     private String getLocalName(int slot, boolean isStatic) {
@@ -311,7 +313,7 @@ public class VarManager {
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
         // TODO: use a global counter for each name
-        if (! existsLocalVariableTable) {
+        if (!existsLocalVariableTable) {
             if (count == 1) {
                 return old;
             } else {
@@ -470,7 +472,7 @@ public class VarManager {
     private Var newConstVar(String name, Literal literal) {
         Var v = new Var(method, name, literal.getType(), counter++, literal);
         vars.add(v);
-        info.setNonSSA(v);
+        setNonSSA(v);
         return v;
     }
 
@@ -503,5 +505,17 @@ public class VarManager {
             nameUsedCount.put(name, 1);
             return name;
         }
+    }
+
+    public boolean isSSAVar(Var v) {
+        return isSSA.get(v.getIndex());
+    }
+
+    public void setSSA(Var v) {
+        isSSA.set(v.getIndex(), true);
+    }
+
+    public void setNonSSA(Var v) {
+        isSSA.set(v.getIndex(), false);
     }
 }
