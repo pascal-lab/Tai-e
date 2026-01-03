@@ -22,10 +22,12 @@
 
 package pascal.taie.frontend.java.ir;
 
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexer;
@@ -36,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+
 import static pascal.taie.frontend.java.ir.Top.TOP;
 import static pascal.taie.language.type.DoubleType.DOUBLE;
 import static pascal.taie.language.type.FloatType.FLOAT;
@@ -44,11 +47,26 @@ import static pascal.taie.language.type.LongType.LONG;
 
 /**
  * A utility class to dump the bytecode CFG to DOT graph.
- * Currently only triggered by {@link BytecodeIRBuilder#dump()}.
  */
 class BytecodeDumper {
 
-    static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
+    static void printDotFile(BytecodeCFG graph, JSRInlinerAdapter source, String name) {
+        printDotFile(graph,
+                new Indexer<>() {
+                    @Override
+                    public int getIndex(AbstractInsnNode insn) {
+                        return source.instructions.indexOf(insn);
+                    }
+
+                    @Override
+                    public AbstractInsnNode getObject(int index) {
+                        return source.instructions.get(index);
+                    }
+                },
+                name);
+    }
+
+    private static void printDotFile(BytecodeCFG graph, Indexer<AbstractInsnNode> indexer, String name) {
         try {
             if (name.length() > 200) {
                 name = name.substring(0, 200);
@@ -141,7 +159,7 @@ class BytecodeDumper {
             Object o = block.getFrame().local.get(i);
             String name = fromAsmFrameType(o).getName();
             if (name.equals(LONG.getName()) ||
-                name.equals(DOUBLE.getName())) {
+                    name.equals(DOUBLE.getName())) {
                 n++;
             }
             sb.append(n).append("->").append(name);

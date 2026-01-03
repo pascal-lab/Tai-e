@@ -173,22 +173,6 @@ public class BytecodeIRBuilder {
         new TypeInference(this, typeSystem).build();
     }
 
-    public void dump() {
-        BytecodeDumper.printDotFile(cfg,
-                new Indexer<>() {
-                    @Override
-                    public int getIndex(AbstractInsnNode insn) {
-                        return source.instructions.indexOf(insn);
-                    }
-
-                    @Override
-                    public AbstractInsnNode getObject(int index) {
-                        return source.instructions.get(index);
-                    }
-                },
-                method.toString());
-    }
-
     private void verify() {
         for (Var v : varManager.getVars()) {
             assert verifyAllInStmts(v.getInvokes());
