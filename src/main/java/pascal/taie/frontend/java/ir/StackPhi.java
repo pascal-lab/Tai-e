@@ -36,7 +36,7 @@ class StackPhi implements Exp {
     /**
      * Same order as inBlocks.
      */
-    private final List<StackItem> nodes;
+    private final List<StackItem> inExps;
 
     private Var var;
     private Var writeOutVar;
@@ -46,8 +46,8 @@ class StackPhi implements Exp {
 
     boolean resolved = false;
 
-    StackPhi(int i, List<StackItem> exps, BytecodeBlock block) {
-        this.nodes = exps;
+    StackPhi(int i, List<StackItem> inExps, BytecodeBlock block) {
+        this.inExps = inExps;
         this.height = i;
         this.createPos = block;
         used = false;
@@ -74,8 +74,8 @@ class StackPhi implements Exp {
         return this.writeOutVar;
     }
 
-    List<StackItem> getNodes() {
-        return nodes;
+    List<StackItem> getInExps() {
+        return inExps;
     }
 
     @Override

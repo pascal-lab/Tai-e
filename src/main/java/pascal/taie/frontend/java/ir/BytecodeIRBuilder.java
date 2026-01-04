@@ -55,7 +55,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.graph.Dominators;
 
@@ -394,7 +393,7 @@ public class BytecodeIRBuilder {
     }
 
     private void setStackPhiUsed(StackPhi phi) {
-        for (StackItem item : phi.getNodes()) {
+        for (StackItem item : phi.getInExps()) {
             Exp e = item.exp();
             if (e instanceof StackPhi phi1) {
                 if (!phi1.used) {
@@ -463,7 +462,7 @@ public class BytecodeIRBuilder {
                         unreachableOffset++;
                         continue;
                     }
-                    StackItem item = phi.getNodes().get(i - unreachableOffset);
+                    StackItem item = phi.getInExps().get(i - unreachableOffset);
                     operandStack.liftToVar(item);
                     phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
                 }
@@ -486,8 +485,8 @@ public class BytecodeIRBuilder {
         assert !phi.resolved;
         int unreachableOffset = 0;
         Var writeOut = phi.getWriteOutVar();
-        for (int i = 0; i < phi.getNodes().size(); ++i) {
-            StackItem item = phi.getNodes().get(i);
+        for (int i = 0; i < phi.getInExps().size(); ++i) {
+            StackItem item = phi.getInExps().get(i);
             BytecodeBlock inEdge = cfg.getNormalPredOf(phi.createPos, i + unreachableOffset);
             if (inEdge.getOutStack() == null) {
                 unreachableOffset++;
@@ -524,7 +523,7 @@ public class BytecodeIRBuilder {
                     }
                     StackPhi phi = (StackPhi) currentExp;
                     StackItem item = outEdge.getOutStack().get(j);
-                    phi.getNodes().add(item);
+                    phi.getInExps().add(item);
                 }
             }
         }

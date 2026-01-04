@@ -109,17 +109,17 @@ public class VarManager {
     public VarManager(JMethod method,
                       @Nullable List<LocalVariableNode> localVariableTable,
                       InsnList insnList,
-                      int maxLocal) {
+                      int maxLocals) {
         this.method = method;
         this.localVariableTable = localVariableTable;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = insnList;
         intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
-        this.local2Var = new Var[maxLocal];
-        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocal] : null;
+        this.local2Var = new Var[maxLocals];
+        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocals] : null;
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
-        this.vars = new ArrayList<>(maxLocal * 6);
+        this.vars = new ArrayList<>(maxLocals * 6);
         this.retVars = Sets.newSet();
         this.isSSA = new BitSet();
 
@@ -127,14 +127,14 @@ public class VarManager {
             processLocalVarTable();
         }
 
-        for (int i = 0; i < maxLocal; ++i) {
+        for (int i = 0; i < maxLocals; ++i) {
             makeLocal(i, getLocalName(i, method.isStatic()));
         }
 
         int firstParamIndex = method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
         for (int noOfParam = firstParamIndex; noOfParam < method.getParamCount() + firstParamIndex; ++noOfParam) {
-            assert slotOfCurrentParam < maxLocal;
+            assert slotOfCurrentParam < maxLocals;
             Var v = getLocal(slotOfCurrentParam);
             if (existsLocalVariableTable) {
                 // in our assumption, the parameters would occupy a certain slot during the whole method.

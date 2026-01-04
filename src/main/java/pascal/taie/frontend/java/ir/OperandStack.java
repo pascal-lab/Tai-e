@@ -102,16 +102,13 @@ final class OperandStack {
         assert stack == null;
         this.currBlock = block;
         stack = new Stack<>();
-        Stack<StackItem> inStack;
-        if (this.currBlock.getInStack() == null) {
-            inStack = getInStack(this.currBlock);
-            this.currBlock.setInStack(inStack);
-        } else {
-            inStack = this.currBlock.getInStack();
+        if (currBlock.getInStack() == null) {
+            computeInStack(currBlock);
         }
-        assert inStack != null || this.currBlock.isCatch();
-        assert this.currBlock.getOutStack() == null;
-        if (!this.currBlock.isCatch()) {
+        Stack<StackItem> inStack = currBlock.getInStack();
+        assert inStack != null || currBlock.isCatch();
+        assert currBlock.getOutStack() == null;
+        if (!currBlock.isCatch()) {
             stack.addAll(inStack);
         }
     }
@@ -135,7 +132,7 @@ final class OperandStack {
     /**
      * Computes the input stack for a block based on its predecessors in the CFG.
      */
-    private Stack<StackItem> getInStack(BytecodeBlock block) {
+    private void computeInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
         int inEdgeCount = cfg.getNormalInDegreeOf(block);
         if (cfg.hasNoIncomingNormalEdges(block)) {
@@ -146,9 +143,9 @@ final class OperandStack {
             inStack = new Stack<>();
             inStack.addAll(inEdge.getOutStack());
         } else {
-            inStack = mergeStack(block, inEdgeCount);
+            inStack = mergeStacks(block, inEdgeCount);
         }
-        return inStack;
+        block.setInStack(inStack);
     }
 
     /**
@@ -158,10 +155,10 @@ final class OperandStack {
      * a {@link StackPhi} node is created to resolve the conflict.
      * Loop headers are handled specially by creating fresh Phis to support cyclic dependencies.
      */
-    private Stack<StackItem> mergeStack(BytecodeBlock block, int inEdgeCount) {
+    private Stack<StackItem> mergeStacks(BytecodeBlock block, int inEdgeCount) {
         boolean isLoopHeader = false;
         Stack<StackItem> inStack = null;
-        List<List<StackItem>> inExps = new ArrayList<>();
+        Stack<List<StackItem>> inExpsStack = new Stack<>();
         boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
             BytecodeBlock inEdge = cfg.getNormalPredOf(block, i);
@@ -175,19 +172,19 @@ final class OperandStack {
                 if (inStack == null) {
                     // clone the first non-null stack
                     inStack = new Stack<>();
-                    inStack.addAll(inEdge.getOutStack());
+                    inStack.addAll(outStack);
                     if (isLoopHeader || inStack.isEmpty()) {
                         break;
                     }
                     for (StackItem stackItem : outStack) {
-                        List<StackItem> inExp = new ArrayList<>();
-                        inExp.add(stackItem);
-                        inExps.add(inExp);
+                        List<StackItem> inExps = new ArrayList<>();
+                        inExps.add(stackItem);
+                        inExpsStack.add(inExps);
                     }
                     needPhi = new boolean[inStack.size()];
                 } else {
                     // merge this stack with inStack
-                    mergeStackWithInEdge(inEdge, inStack, inExps, needPhi);
+                    mergeStack(outStack, inStack, inExpsStack, needPhi);
                 }
             }
         }
@@ -199,14 +196,14 @@ final class OperandStack {
                 if (e instanceof Top) {
                     continue;
                 }
-                // ignore, add inExps during phi resolving
-                inStack.set(i, createNewStackPhiItem(block, i, new ArrayList<>()));
+                // ignore, add inExpsStack during phi resolving
+                inStack.set(i, createNewStackPhi(block, i, new ArrayList<>()));
             }
             block.setLoopHeader();
         } else {
             for (int i = 0; i < inStack.size(); ++i) {
                 if (needPhi[i]) {
-                    inStack.set(i, createNewStackPhiItem(block, i, inExps.get(i)));
+                    inStack.set(i, createNewStackPhi(block, i, inExpsStack.get(i)));
                 }
             }
         }
@@ -216,31 +213,30 @@ final class OperandStack {
     /**
      * Merges a specific predecessor's stack into the accumulating merge state.
      */
-    private void mergeStackWithInEdge(BytecodeBlock inEdge, Stack<StackItem> initStack,
-                                      List<List<StackItem>> inExps, boolean[] needPhi) {
-        Stack<StackItem> currentStack = inEdge.getOutStack();
-        assert initStack.size() == currentStack.size();
-        for (int j = 0; j < initStack.size(); ++j) {
-            StackItem item = initStack.get(j);
-            Exp e = item.exp();
-            StackItem item1 = currentStack.get(j);
-            Exp e1 = item1.exp();
-            if (e instanceof Top) {
-                assert e1 instanceof Top;
+    private void mergeStack(Stack<StackItem> outStack, Stack<StackItem> inStack,
+                            Stack<List<StackItem>> inExpsStack, boolean[] needPhi) {
+        assert inStack.size() == outStack.size();
+        for (int j = 0; j < inStack.size(); ++j) {
+            StackItem inItem = inStack.get(j);
+            Exp inExp = inItem.exp();
+            StackItem outItem = outStack.get(j);
+            Exp outExp = outItem.exp();
+            if (inExp instanceof Top) {
+                assert outExp instanceof Top;
                 continue;
             }
-            List<StackItem> inExp = inExps.get(j);
-            inExp.add(item1);
-            assert !(e1 instanceof Top);
-            needPhi[j] = needPhi[j] || e != e1;
+            List<StackItem> inExps = inExpsStack.get(j);
+            inExps.add(outItem);
+            assert !(outExp instanceof Top);
+            needPhi[j] = needPhi[j] || inExp != outExp;
         }
     }
 
     /**
      * Creates a new {@link StackPhi} node for a specific stack slot and registers it.
      */
-    private StackItem createNewStackPhiItem(BytecodeBlock block, int index, List<StackItem> inExp) {
-        StackPhi phi = new StackPhi(index, inExp, block);
+    private StackItem createNewStackPhi(BytecodeBlock block, int index, List<StackItem> inExps) {
+        StackPhi phi = new StackPhi(index, inExps, block);
         phi.setVar(varManager.getTempVar());
         varManager.setNonSSA(phi.getVar());
         phiList.add(phi);
