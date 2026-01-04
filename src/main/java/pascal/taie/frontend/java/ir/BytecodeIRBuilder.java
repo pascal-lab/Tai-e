@@ -158,9 +158,10 @@ public class BytecodeIRBuilder {
                     method, isSSA, operandStack, slotManager, stmtManager);
             traverseBlocks();
             inferTypes();
-            makeStmts(true);
-            makeExceptionTable();
-            this.ir = getIR();
+            IRAssembler assembler = new IRAssembler(method, source, typeSystem, varManager, cfg);
+            assembler.makeStmts(true);
+            assembler.makeExceptionTable();
+            ir = assembler.getIR();
         }
     }
 
@@ -195,140 +196,6 @@ public class BytecodeIRBuilder {
         return stmt.getIndex() != -1 &&
                 this.stmts.size() > stmt.getIndex() &&
                 this.stmts.get(stmt.getIndex()) == stmt;
-    }
-
-    private int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return source.instructions.indexOf(insn);
-    }
-
-    private IR getIR() {
-        Var thisVar = varManager.getThisVar();
-        List<Var> params = varManager.getParams();
-        List<Var> vars = varManager.getVars();
-        Set<Var> retVars = varManager.getRetVars();
-        return new DefaultIR(method, thisVar, params, retVars, vars, stmts, exceptionEntries);
-    }
-
-    private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = cfg.searchForValidBlock(getInsnIndex(label));
-        while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = cfg.getNormalSuccsOf(block).get(0);
-            BytecodeBlock next2 = cfg.getObject(block.getIndex() + 1);
-            if (next1 != next2) {
-                // should not happen, which means refer to unreachable code
-                // but may happen in real world code (this is valid bytecode)
-                logger.atTrace()
-                        .log("[IR] Unreachable code reference detected in method: "
-                                + method.toString());
-            }
-            block = next2;
-        }
-        return block.getStmts().get(0);
-    }
-
-    private void setSwitchTargets(List<LabelNode> labels, LabelNode dflt, Stmt stmt) {
-        assert stmt instanceof SwitchStmt;
-        SwitchStmt switchStmt = (SwitchStmt) stmt;
-        List<Stmt> cases = labels.stream().map(this::getFirstStmt).toList();
-        Stmt defaultStmt = getFirstStmt(dflt);
-        switchStmt.setTargets(cases);
-        switchStmt.setDefaultTarget(defaultStmt);
-    }
-
-    private void setJumpTargets(AbstractInsnNode insn, Stmt jumpStmt) {
-        assert jumpStmt != null;
-        if (insn instanceof JumpInsnNode jump) {
-            Stmt first = getFirstStmt(jump.label);
-            if (jumpStmt instanceof Goto gotoStmt) {
-                assert first != null;
-                gotoStmt.setTarget(first);
-            } else if (jumpStmt instanceof If ifStmt) {
-                assert first != null;
-                ifStmt.setTarget(first);
-            } else if (jumpStmt instanceof Return) {
-                return;
-            } else {
-                throw new IllegalArgumentException();
-            }
-        } else if (insn instanceof LookupSwitchInsnNode lookup) {
-            setSwitchTargets(lookup.labels, lookup.dflt, jumpStmt);
-        } else if (insn instanceof TableSwitchInsnNode table) {
-            setSwitchTargets(table.labels, table.dflt, jumpStmt);
-        }
-        // insn is not jump, do nothing
-    }
-
-    private void makeStmts(boolean isLastTime) {
-        this.stmts = new ArrayList<>(source.instructions.size());
-        // Add trigger whether we process phiStmts.
-        List<FrontendPhiStmt> frontendPhiStmts = isLastTime ? new ArrayList<>() : null;
-        int now = 0;
-        for (Var v : varManager.intConstVarCache) {
-            if (v != null) {
-                Stmt curr = Utils.newAssignStmt(method, v, v.getConstValue());
-                curr.setIndex(now++);
-                stmts.add(curr);
-            }
-        }
-        for (BytecodeBlock block : cfg) {
-            List<Stmt> blockStmts = block.getStmts();
-            if (!blockStmts.isEmpty()) {
-                for (Stmt t : blockStmts) {
-                    if (isLastTime && t instanceof FrontendPhiStmt p) {
-                        frontendPhiStmts.add(p);
-                    }
-                    t.setIndex(now++);
-                    stmts.add(t);
-                }
-                setJumpTargets(block.getLastInsn(), block.getLastStmt());
-            }
-        }
-
-        if (isLastTime) {
-            FrontendPhiResolver resolver = new FrontendPhiResolver(cfg);
-            // Make PhiStmts using stmt.index as the value source.
-            for (FrontendPhiStmt p : frontendPhiStmts) {
-                int index = p.getIndex();
-                Type type = p.getLValue().getType();
-                PhiExp exp = new PhiExp(resolver.resolvePhi(p.getRValue()), type);
-                Stmt phiStmt = new PhiStmt(p.getLValue(), exp);
-                phiStmt.setIndex(index);
-                phiStmt.setLineNumber(p.getLineNumber());
-                stmts.set(index, phiStmt);
-            }
-        }
-    }
-
-    private void makeExceptionTable() {
-        List<ExceptionEntry> res = new ArrayList<>();
-        for (TryCatchBlockNode node : source.tryCatchBlocks) {
-            Stmt start = getFirstStmt(node.start);
-            Stmt end;
-            if (node.end.getNext() == null) {
-                // final bytecode
-                end = stmts.get(stmts.size() - 1);
-            } else {
-                end = getFirstStmt(node.end);
-            }
-            assert start.getIndex() != -1;
-            Stmt handler = getFirstStmt(node.handler);
-            if (!(handler instanceof Catch)) {
-                // unreachable
-                continue;
-            } else if (start == end) {
-                // same position, maybe const store
-                // ----------- start
-                // aconst_null
-                // astore x       <----   x is ssa
-                // ----------- end
-                // then it should be automatically removed (or it will not be valid bytecode)
-                continue;
-            }
-            ClassType expType = fromExceptionType(node.type);
-            res.add(new ExceptionEntry(start, end, (Catch) handler, expType));
-        }
-        exceptionEntries = res;
     }
 
 //    private void mergeStack1(List<Stmt> auxiliary, Stack<StackItem> nowStack, Stack<StackItem> targetStack) {
