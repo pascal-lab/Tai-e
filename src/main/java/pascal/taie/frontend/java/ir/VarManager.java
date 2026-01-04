@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.ir;
 
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
@@ -103,38 +104,36 @@ public class VarManager {
 
     private final Map<String, Integer> nameUsedCount = Maps.newMap();
 
-    private final BitSet isSSA;
+    private final BitSet varIsSSA;
 
     @SuppressWarnings("unchecked")
-    public VarManager(JMethod method,
-                      @Nullable List<LocalVariableNode> localVariableTable,
-                      InsnList insnList,
-                      int maxLocals) {
-        this.method = method;
-        this.localVariableTable = localVariableTable;
+    VarManager(BytecodeIRBuildContext context) {
+        JSRInlinerAdapter source = context.source;
+        this.method = context.method;
+        this.localVariableTable = source.localVariables;
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
-        this.insnList = insnList;
-        intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
-        this.local2Var = new Var[maxLocals];
-        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[maxLocals] : null;
+        this.insnList = source.instructions;
+        this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
+        this.local2Var = new Var[source.maxLocals];
+        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[source.maxLocals] : null;
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
-        this.vars = new ArrayList<>(maxLocals * 6);
+        this.vars = new ArrayList<>(source.maxLocals * 6);
         this.retVars = Sets.newSet();
-        this.isSSA = new BitSet();
+        this.varIsSSA = new BitSet();
 
         if (existsLocalVariableTable) {
             processLocalVarTable();
         }
 
-        for (int i = 0; i < maxLocals; ++i) {
+        for (int i = 0; i < source.maxLocals; ++i) {
             makeLocal(i, getLocalName(i, method.isStatic()));
         }
 
         int firstParamIndex = method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
         for (int noOfParam = firstParamIndex; noOfParam < method.getParamCount() + firstParamIndex; ++noOfParam) {
-            assert slotOfCurrentParam < maxLocals;
+            assert slotOfCurrentParam < source.maxLocals;
             Var v = getLocal(slotOfCurrentParam);
             if (existsLocalVariableTable) {
                 // in our assumption, the parameters would occupy a certain slot during the whole method.
@@ -508,14 +507,14 @@ public class VarManager {
     }
 
     public boolean isSSAVar(Var v) {
-        return isSSA.get(v.getIndex());
+        return varIsSSA.get(v.getIndex());
     }
 
     public void setSSA(Var v) {
-        isSSA.set(v.getIndex(), true);
+        varIsSSA.set(v.getIndex(), true);
     }
 
     public void setNonSSA(Var v) {
-        isSSA.set(v.getIndex(), false);
+        varIsSSA.set(v.getIndex(), false);
     }
 }

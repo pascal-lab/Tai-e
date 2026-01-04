@@ -24,9 +24,9 @@ package pascal.taie.frontend.java.ir.typing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.java.FrontendTypeSystem;
+
 import pascal.taie.frontend.java.ir.BytecodeBlock;
-import pascal.taie.frontend.java.ir.BytecodeIRBuilder;
+import pascal.taie.frontend.java.ir.BytecodeIRBuildContext;
 import pascal.taie.frontend.java.ir.Lenses;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -64,19 +64,16 @@ import java.util.Map;
 
 class CastingInserter {
 
-    private final FrontendTypeSystem typeSystem;
-
     private static final Logger logger = LogManager.getLogger(CastingInserter.class);
 
-    private final BytecodeIRBuilder builder;
+    private final BytecodeIRBuildContext context;
 
     private Stmt currentStmt;
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    CastingInserter(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
-        this.typeSystem = typeSystem;
-        this.builder = builder;
+    CastingInserter(BytecodeIRBuildContext context) {
+        this.context = context;
         this.flowTypeCache = Maps.newHybridMap();
     }
 
@@ -84,14 +81,14 @@ class CastingInserter {
         logger.atTrace().log("[CASTING] Current stmt: " + currentStmt + "\n" +
                             "          Var " + right + " With Type: " + right.getType() + "\n" +
                             "          Excepted Type: " + t + "\n" +
-                            "          In method: " + builder.method);
+                            "          In method: " + context.method);
         return new Cast(left, new CastExp(right, t));
     }
 
     private Type maySplitStmt(LValue l, RValue r) {
         Type lType = l.getType();
         Type rType = r.getType();
-        if (!typeSystem.isAssignable(lType, rType)) {
+        if (!context.typeSystem.isAssignable(lType, rType)) {
             return lType;
         } else {
             return null;
@@ -99,19 +96,19 @@ class CastingInserter {
     }
 
     private Stmt ensureValidArrayType(ArrayAccess access, Stmt stmt, BytecodeBlock block, List<Stmt> newStmts) {
-        Type t = typeSystem.getArrayType(typeSystem.objectType(), 1);
+        Type t = context.typeSystem.getArrayType(context.typeSystem.objectType(), 1);
         if (access.getBase().getType() instanceof ArrayType) {
             return stmt;
         } else {
             Var local = requireFlowTypeVar(block, access.getBase(), newStmts, t);
             if (local != null) {
-                Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), local), Map.of());
+                Lenses lenses = new Lenses(context.method, Map.of(access.getBase(), local), Map.of());
                 return lenses.subSt(stmt);
             } else {
-                Var v1 = builder.varManager.getTempVar();
+                Var v1 = context.varManager.getTempVar();
                 ExpMutator.setType(v1, t);
                 newStmts.add(getNewCast(v1, access.getBase(), t));
-                Lenses lenses = new Lenses(builder.method, Map.of(access.getBase(), v1), Map.of());
+                Lenses lenses = new Lenses(context.method, Map.of(access.getBase(), v1), Map.of());
                 return lenses.subSt(stmt);
             }
         }
@@ -121,19 +118,19 @@ class CastingInserter {
         if (access instanceof InstanceFieldAccess instance) {
             Var base = instance.getBase();
             Type t = instance.getFieldRef().getDeclaringClass().getType();
-            if (typeSystem.isAssignable(t, base.getType())) {
+            if (context.typeSystem.isAssignable(t, base.getType())) {
                 return stmt;
             } else {
                 Var v1 = requireFlowTypeVar(block, base, newStmts, t);
                 if (v1 != null) {
-                    assert typeSystem.isAssignable(t, v1.getType());
-                    Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
+                    assert context.typeSystem.isAssignable(t, v1.getType());
+                    Lenses lenses = new Lenses(context.method, Map.of(base, v1), Map.of());
                     return lenses.subSt(stmt);
                 } else {
-                    v1 = builder.varManager.getTempVar();
+                    v1 = context.varManager.getTempVar();
                     ExpMutator.setType(v1, t);
                     newStmts.add(getNewCast(base, v1, t));
-                    Lenses lenses = new Lenses(builder.method, Map.of(base, v1), Map.of());
+                    Lenses lenses = new Lenses(context.method, Map.of(base, v1), Map.of());
                     return lenses.subSt(stmt);
                 }
             }
@@ -144,7 +141,7 @@ class CastingInserter {
 
     void build() {
 
-        for (BytecodeBlock block : builder.cfg) {
+        for (BytecodeBlock block : context.cfg) {
 
             List<Stmt> newStmts = new ArrayList<>(block.getStmts().size());
 
@@ -163,7 +160,7 @@ class CastingInserter {
                                     findNewInBlock(newStmts, right);
                             if (newInBlock != null) {
                                 RValue rValue = newInBlock.first().getRValue();
-                                if (typeSystem.isAssignable(t, rValue.getType())) {
+                                if (context.typeSystem.isAssignable(t, rValue.getType())) {
                                     Var v = requireFlowTypeVar(block, right, newStmts, t);
                                     return stage1Transform(stmt, right, v);
                                 }
@@ -179,7 +176,7 @@ class CastingInserter {
                         stmt = (LoadArray) ensureValidArrayType(stmt.getArrayAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
-                            Var v = builder.varManager.getTempVar();
+                            Var v = context.varManager.getTempVar();
                             ExpMutator.setType(v, stmt.getRValue().getType());
                             stmt.getRValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(new LoadArray(v, stmt.getRValue()));
@@ -214,7 +211,7 @@ class CastingInserter {
                         stmt = (StoreField) ensureValidFieldAccess(stmt.getFieldAccess(), stmt, block, newStmts);
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
-                            Var v = builder.varManager.getTempVar();
+                            Var v = context.varManager.getTempVar();
                             ExpMutator.setType(v, t);
                             if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
                                 access.getBase().removeRelevantStmt(stmt);
@@ -240,7 +237,7 @@ class CastingInserter {
                             Type t = jClass.getType();
                             Type baseType = invokeInstanceExp.getBase().getType();
                             Var base = invokeInstanceExp.getBase();
-                            if (!typeSystem.isAssignable(t, baseType)) {
+                            if (!context.typeSystem.isAssignable(t, baseType)) {
                                 if (! (invokeInstanceExp instanceof InvokeInterface)) {
                                     // prev stmt is new
                                     // TODO: add tests for fallback
@@ -255,10 +252,10 @@ class CastingInserter {
                                     }
                                 }
 
-                                Var v = builder.varManager.getTempVar();
+                                Var v = context.varManager.getTempVar();
                                 ExpMutator.setType(v, t);
                                 newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
-                                Lenses l = new Lenses(builder.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
+                                Lenses l = new Lenses(context.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
                                 prevStmt = (Invoke) l.subSt(stmt);
                             }
                         }
@@ -269,12 +266,12 @@ class CastingInserter {
                         for (int i = 0; i < prevStmt.getInvokeExp().getArgCount(); ++i) {
                             Var arg = prevStmt.getInvokeExp().getArg(i);
                             Type t = prevStmt.getMethodRef().getParameterTypes().get(i);
-                            if (!typeSystem.isAssignable(t, arg.getType())) {
+                            if (!context.typeSystem.isAssignable(t, arg.getType())) {
                                 Var v = requireFlowTypeVar(block, arg, newStmts, t);
                                 if (v != null) {
                                     prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
                                 } else {
-                                    v = builder.varManager.getTempVar();
+                                    v = context.varManager.getTempVar();
                                     ExpMutator.setType(v, t);
                                     newStmts.add(getNewCast(v, arg, t));
                                     if (m == null) {
@@ -285,7 +282,7 @@ class CastingInserter {
                             }
                         }
                         if (m != null) {
-                            Lenses l = new Lenses(builder.method, m, Map.of());
+                            Lenses l = new Lenses(context.method, m, Map.of());
                             return l.subSt(prevStmt);
                         }
                         return prevStmt;
@@ -293,13 +290,13 @@ class CastingInserter {
 
                     @Override
                     public Stmt visit(Return stmt) {
-                        Type t = builder.method.getReturnType();
+                        Type t = context.method.getReturnType();
                         if (stmt.getValue() != null &&
-                                !typeSystem.isAssignable(t, stmt.getValue().getType())) {
-                            Var v = builder.varManager.getTempVar();
+                                !context.typeSystem.isAssignable(t, stmt.getValue().getType())) {
+                            Var v = context.varManager.getTempVar();
                             newStmts.add(getNewCast(v, stmt.getValue(), t));
-                            builder.varManager.getRetVars().remove(stmt.getValue());
-                            builder.varManager.getRetVars().add(v);
+                            context.varManager.getRetVars().remove(stmt.getValue());
+                            context.varManager.getRetVars().add(v);
                             ExpMutator.setType(v, t);
                             return new Return(v);
                         } else {
@@ -321,7 +318,7 @@ class CastingInserter {
     }
 
     private Stmt stage1Transform(Stmt stmt, Var base, Var v) {
-        Lenses l = new Lenses(builder.method, Map.of(base, v), Map.of(base, v));
+        Lenses l = new Lenses(context.method, Map.of(base, v), Map.of(base, v));
         return l.subSt(stmt);
     }
 
@@ -345,7 +342,7 @@ class CastingInserter {
      * @return offered variable with local type, maybe null
      */
     private Var requireFlowTypeVar(BytecodeBlock block, Var globalVar, List<Stmt> newStmts, Type targetType) {
-        if (builder.isSSA()) {
+        if (context.isSSA) {
             return null;
         }
         FlowTypeInfo info = new FlowTypeInfo(block, globalVar);
@@ -360,16 +357,16 @@ class CastingInserter {
             Pair<DefinitionStmt<?, ?>, Integer> newInBlock = findNewInBlock(newStmts, globalVar);
             if (newInBlock != null) {
                 DefinitionStmt<?, ?> def = newInBlock.first();
-                if (!typeSystem.isAssignable(targetType, def.getRValue().getType())) {
+                if (!context.typeSystem.isAssignable(targetType, def.getRValue().getType())) {
                     return null;
                 }
 
                 if (def instanceof Copy copy) {
                     return copy.getRValue();
                 }
-                Var v1 = builder.varManager.getTempVar();
+                Var v1 = context.varManager.getTempVar();
                 ExpMutator.setType(v1, def.getRValue().getType());
-                Lenses lenses = new Lenses(builder.method, Map.of(), Map.of(globalVar, v1));
+                Lenses lenses = new Lenses(context.method, Map.of(), Map.of(globalVar, v1));
                 newStmts.set(newInBlock.second(), lenses.subSt(def));
                 newStmts.add(newInBlock.second() + 1, new Copy(globalVar, v1));
                 flowTypeCache.put(info, v1);

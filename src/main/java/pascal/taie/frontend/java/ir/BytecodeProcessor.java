@@ -120,32 +120,22 @@ import static pascal.taie.language.type.ShortType.SHORT;
  */
 final class BytecodeProcessor {
 
-    // --- Dependencies ---
-    private final FrontendTypeSystem typeSystem;
-    private final VarManager varManager;
-    private final JMethod method;
-    private final boolean isSSA;
-    private final OperandStack operandStack;
-    private final SlotManager slotManager;
-    private final StmtManager stmtManager;
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
 
-    BytecodeProcessor(FrontendTypeSystem typeSystem, VarManager varManager, JMethod method, boolean isSSA, OperandStack operandStack, SlotManager slotManager, StmtManager stmtManager) {
-        this.typeSystem = typeSystem;
-        this.varManager = varManager;
-        this.method = method;
-        this.isSSA = isSSA;
-        this.operandStack = operandStack;
-        this.slotManager = slotManager;
-        this.stmtManager = stmtManager;
+    BytecodeProcessor(BytecodeIRBuildContext context) {
+        this.context = context;
     }
 
     void processBlock2Stmts(BytecodeBlock block) {
-        slotManager.enterBlock(block);
-        operandStack.initializeStack(block);
+        context.slotManager.enterBlock(block);
+        context.operandStack.initializeStack(block);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();
 
-        if (isSSA) {
-            slotManager.emitSSAPhisForSlot(block);
+        if (context.isSSA) {
+            context.slotManager.emitSSAPhisForSlot(block);
         }
         // skips all non-bytecode insn
         AbstractInsnNode insn = insnIter.next();
@@ -154,7 +144,7 @@ final class BytecodeProcessor {
             if (insn instanceof FrameNode f) {
                 block.setFrame(f);
             } else if (insn instanceof LineNumberNode l) {
-                stmtManager.setLineNumber(l.line);
+                context.stmtManager.setLineNumber(l.line);
             }
         }
         // now, insn must be:
@@ -167,15 +157,15 @@ final class BytecodeProcessor {
                 // for most cases, this should be a store insn
                 // this insn stores the exception object to a local var
                 if (insn.getOpcode() == Opcodes.ASTORE) {
-                    catchVar = slotManager.storeCatchVar(insn);
+                    catchVar = context.slotManager.storeCatchVar(insn);
                 } else {
                     // else
                     // * for java source, insn should be POP *
                     // 1. make a catch stmt with temp var
                     // 2. push this temp var onto stack
-                    catchVar = varManager.getTempVar();
-                    stmtManager.associateStmt(insn, new Catch(catchVar));
-                    operandStack.pushExp(insn, catchVar);
+                    catchVar = context.varManager.getTempVar();
+                    context.stmtManager.associateStmt(insn, new Catch(catchVar));
+                    context.operandStack.pushExp(insn, catchVar);
                     processInsn2Stmt(insn);
                 }
                 List<ClassType> handlerTypes = Objects.requireNonNull(block.getExceptionHandlerTypes());
@@ -183,7 +173,7 @@ final class BytecodeProcessor {
                     ExpMutator.setType(catchVar, handlerTypes.get(0));
                 } else {
                     // let type inference decide the type
-                    varManager.setNonSSA(catchVar);
+                    context.varManager.setNonSSA(catchVar);
                 }
             }
             // `insn.getOpcode() == -1` which means the last bytecode is also synthetic
@@ -201,23 +191,24 @@ final class BytecodeProcessor {
         }
 
         // Temp fix. Add a nop to represent a block. Used in ssa.
-        if (isSSA) {
-            stmtManager.ensureBlockNotEmpty(block);
+        if (context.isSSA) {
+            context.stmtManager.ensureBlockNotEmpty(block);
         }
 
-        operandStack.saveOutStackAndClear();
-        slotManager.exitBlock();
+        context.operandStack.saveOutStackAndClear();
+        context.slotManager.exitBlock();
     }
 
     private void processInsn2Stmt(AbstractInsnNode insn) {
         if (insn instanceof VarInsnNode varInsn) {
             switch (varInsn.getOpcode()) {
                 case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
-                    Var v = slotManager.loadVar(varInsn.var, insn);
-                    operandStack.pushExp(insn, v);
+                    Var v = context.slotManager.loadVar(varInsn.var, insn);
+                    context.operandStack.pushExp(insn, v);
                 }
                 case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE,
-                     Opcodes.ASTORE -> slotManager.storeVar(varInsn.var, varInsn, operandStack);
+                     Opcodes.ASTORE ->
+                        context.slotManager.storeVar(varInsn.var, varInsn, context.operandStack);
                 default -> // we can never reach here, JSRInlineAdapter should eliminate all rets
                         throw new UnsupportedOperationException();
             }
@@ -226,33 +217,33 @@ final class BytecodeProcessor {
             if (opcode == Opcodes.NOP) {
                 return;
             } else if (opcode == Opcodes.ARRAYLENGTH) {
-                operandStack.pushExp(insn, new ArrayLengthExp(operandStack.popVar()));
+                context.operandStack.pushExp(insn, new ArrayLengthExp(context.operandStack.popVar()));
             } else if (opcode == Opcodes.ATHROW) {
                 throwException(basicInsn);
             } else if (opcode == Opcodes.MONITORENTER) {
-                Var obj = operandStack.popVar();
-                stmtManager.associateStmt(insn, new Monitor(Monitor.Op.ENTER, obj));
+                Var obj = context.operandStack.popVar();
+                context.stmtManager.associateStmt(insn, new Monitor(Monitor.Op.ENTER, obj));
             } else if (opcode == Opcodes.MONITOREXIT) {
-                Var obj = operandStack.popVar();
-                stmtManager.associateStmt(insn, new Monitor(Monitor.Op.EXIT, obj));
+                Var obj = context.operandStack.popVar();
+                context.stmtManager.associateStmt(insn, new Monitor(Monitor.Op.EXIT, obj));
             } else if (isBinaryInsn(opcode)) {
-                operandStack.pushExp(insn, getBinaryExp(opcode));
+                context.operandStack.pushExp(insn, getBinaryExp(opcode));
             } else if (isReturnInsn(opcode)) {
                 returnExp(basicInsn);
             } else if (isConstInsn(opcode)) {
-                operandStack.pushConst(insn, toConstValue(basicInsn));
+                context.operandStack.pushConst(insn, toConstValue(basicInsn));
             } else if (isPrimCastInsn(opcode)) {
-                operandStack.pushExp(insn, getCastExp(toCastType(opcode)));
+                context.operandStack.pushExp(insn, getCastExp(toCastType(opcode)));
             } else if (isNegInsn(opcode)) {
-                Var v1 = operandStack.popVar();
-                operandStack.pushExp(insn, new NegExp(v1));
+                Var v1 = context.operandStack.popVar();
+                context.operandStack.pushExp(insn, new NegExp(v1));
             } else if (isStackInsn(opcode)) {
-                operandStack.performStackOp(opcode);
+                context.operandStack.performStackOp(opcode);
             } else if (isArrayLoadInsn(opcode)) {
                 ArrayAccess access = getArrayAccess();
-                operandStack.pushExp(insn, access);
+                context.operandStack.pushExp(insn, access);
             } else if (isArrayStoreInsn(opcode)) {
-                Var value = operandStack.popVar();
+                Var value = context.operandStack.popVar();
                 ArrayAccess access = getArrayAccess();
                 storeExp(insn, access, value);
             } else {
@@ -260,22 +251,22 @@ final class BytecodeProcessor {
             }
         } else if (insn instanceof JumpInsnNode jump) {
             if (jump.getOpcode() == Opcodes.GOTO) {
-                stmtManager.associateStmt(jump, new Goto());
+                context.stmtManager.associateStmt(jump, new Goto());
             } else {
                 ConditionExp cond = getIfExp(jump.getOpcode());
-                stmtManager.associateStmt(jump, new If(cond));
+                context.stmtManager.associateStmt(jump, new If(cond));
             }
         } else if (insn instanceof LdcInsnNode ldc) {
-            operandStack.pushConst(insn, Utils.fromObject(typeSystem, ldc.cst));
+            context.operandStack.pushConst(insn, Utils.fromObject(context.typeSystem, ldc.cst));
         } else if (insn instanceof TypeInsnNode typeInsn) {
             int opcode = typeInsn.getOpcode();
-            ReferenceType type = typeSystem.fromAsmInternalName(typeInsn.desc);
+            ReferenceType type = context.typeSystem.fromAsmInternalName(typeInsn.desc);
             if (opcode == Opcodes.CHECKCAST) {
-                operandStack.pushExp(insn, getCastExp(type));
+                context.operandStack.pushExp(insn, getCastExp(type));
             } else if (opcode == Opcodes.NEW) {
-                operandStack.pushExp(insn, new NewInstance((ClassType) type));
+                context.operandStack.pushExp(insn, new NewInstance((ClassType) type));
             } else if (opcode == Opcodes.ANEWARRAY) {
-                Var length = operandStack.popVar();
+                Var length = context.operandStack.popVar();
                 int dims = 1;
                 Type base;
                 if (type instanceof ArrayType arrayType) {
@@ -284,18 +275,18 @@ final class BytecodeProcessor {
                 } else {
                     base = type;
                 }
-                ArrayType arrayType = typeSystem.getArrayType(base, dims);
-                operandStack.pushExp(insn, new NewArray(arrayType, length));
+                ArrayType arrayType = context.typeSystem.getArrayType(base, dims);
+                context.operandStack.pushExp(insn, new NewArray(arrayType, length));
             } else if (opcode == Opcodes.INSTANCEOF) {
-                Var obj = operandStack.popVar();
-                operandStack.pushExp(insn, new InstanceOfExp(obj, type));
+                Var obj = context.operandStack.popVar();
+                context.operandStack.pushExp(insn, new InstanceOfExp(obj, type));
             } else {
                 throw new UnsupportedOperationException();
             }
         } else if (insn instanceof IntInsnNode intInsn) {
             int opcode = intInsn.getOpcode();
             if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
-                operandStack.pushConst(insn, IntLiteral.get(intInsn.operand));
+                context.operandStack.pushConst(insn, IntLiteral.get(intInsn.operand));
             } else if (opcode == Opcodes.NEWARRAY) {
                 PrimitiveType base = switch (intInsn.operand) {
                     case 4 -> BOOLEAN;
@@ -308,77 +299,78 @@ final class BytecodeProcessor {
                     case 11 -> LONG;
                     default -> throw new IllegalArgumentException();
                 };
-                ArrayType arrayType = typeSystem.getArrayType(base, 1);
-                Var length = operandStack.popVar();
-                operandStack.pushExp(insn, new NewArray(arrayType, length));
+                ArrayType arrayType = context.typeSystem.getArrayType(base, 1);
+                Var length = context.operandStack.popVar();
+                context.operandStack.pushExp(insn, new NewArray(arrayType, length));
             } else {
                 assert false;
             }
         } else if (insn instanceof FieldInsnNode fieldInsn) {
             int opcode = fieldInsn.getOpcode();
-            ClassType owner = (ClassType) typeSystem.fromAsmInternalName(fieldInsn.owner);
-            Type type = typeSystem.fromAsmTypeDesc(fieldInsn.desc);
+            ClassType owner = (ClassType) context.typeSystem.fromAsmInternalName(fieldInsn.owner);
+            Type type = context.typeSystem.fromAsmTypeDesc(fieldInsn.desc);
             String name = fieldInsn.name;
             FieldRef ref = FieldRef.get(owner.getJClass(), name, type,
                     opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC);
             switch (opcode) {
-                case Opcodes.GETSTATIC -> operandStack.pushExp(insn, new StaticFieldAccess(ref));
+                case Opcodes.GETSTATIC ->
+                        context.operandStack.pushExp(insn, new StaticFieldAccess(ref));
                 case Opcodes.GETFIELD -> {
-                    Var v1 = operandStack.popVar();
-                    operandStack.pushExp(insn, new InstanceFieldAccess(ref, v1));
+                    Var v1 = context.operandStack.popVar();
+                    context.operandStack.pushExp(insn, new InstanceFieldAccess(ref, v1));
                 }
                 case Opcodes.PUTSTATIC -> {
                     FieldAccess access = new StaticFieldAccess(ref);
-                    Var v1 = operandStack.popVar();
-                    operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+                    Var v1 = context.operandStack.popVar();
+                    context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
                     storeExp(insn, access, v1);
                 }
                 case Opcodes.PUTFIELD -> {
-                    Var value = operandStack.popVar();
-                    Var base = operandStack.popVar();
+                    Var value = context.operandStack.popVar();
+                    Var base = context.operandStack.popVar();
                     FieldAccess access = new InstanceFieldAccess(ref, base);
-                    operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+                    context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
                     storeExp(insn, access, value);
                 }
                 default -> throw new UnsupportedOperationException();
             }
         } else if (insn instanceof MethodInsnNode methodInsn) {
             InvokeExp exp = getInvokeExp(methodInsn);
-            operandStack.pushExp(insn, exp);
+            context.operandStack.pushExp(insn, exp);
             if (exp.getType() == VoidType.VOID) {
-                operandStack.popToEffect();
+                context.operandStack.popToEffect();
             }
         } else if (insn instanceof MultiANewArrayInsnNode multiArrayInsn) {
-            Type type = typeSystem.fromAsmTypeDesc(multiArrayInsn.desc);
+            Type type = context.typeSystem.fromAsmTypeDesc(multiArrayInsn.desc);
             assert type instanceof ArrayType;
 
             List<Var> lengths = new ArrayList<>();
             // ..., count1, [count2, ...] ->
             for (int i = 0; i < multiArrayInsn.dims; ++i) {
-                lengths.add(operandStack.popVar());
+                lengths.add(context.operandStack.popVar());
             }
             Collections.reverse(lengths);
 
-            operandStack.pushExp(insn, new NewMultiArray((ArrayType) type, lengths));
+            context.operandStack.pushExp(insn, new NewMultiArray((ArrayType) type, lengths));
         } else if (insn instanceof IincInsnNode inc) {
-            operandStack.pushConst(insn, IntLiteral.get(inc.incr));
-            Var cst = operandStack.popVar();
-            Var v = slotManager.loadVar(inc.var, insn);
-            operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
-            slotManager.storeVar(inc.var, inc, operandStack);
+            context.operandStack.pushConst(insn, IntLiteral.get(inc.incr));
+            Var cst = context.operandStack.popVar();
+            Var v = context.slotManager.loadVar(inc.var, insn);
+            context.operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
+            context.slotManager.storeVar(inc.var, inc, context.operandStack);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
-            MethodHandle handle = Utils.fromAsmHandle(typeSystem, indyInsn.bsm);
+            MethodHandle handle = Utils.fromAsmHandle(context.typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
-                    .map((o) -> Utils.fromObject(typeSystem, o)).toList();
+                    .map((o) -> Utils.fromObject(context.typeSystem, o)).toList();
             assert handle.isMethodRef();
             Pair<List<Type>, Type> paramRets =
-                    typeSystem.fromAsmMethodDesc(indyInsn.desc);
+                    context.typeSystem.fromAsmMethodDesc(indyInsn.desc);
             List<Var> args = new ArrayList<>();
             for (int i = 0; i < paramRets.first().size(); ++i) {
-                args.add(operandStack.popVar());
+                args.add(context.operandStack.popVar());
             }
             Collections.reverse(args);
-            operandStack.pushExp(insn, new InvokeDynamic(
+            context.operandStack.pushExp(insn, new InvokeDynamic(
                     handle,
                     handle.getMethodRef(),
                     indyInsn.name,
@@ -387,45 +379,45 @@ final class BytecodeProcessor {
                     args));
 
         } else if (insn instanceof TableSwitchInsnNode tableSwitch) {
-            Var v = operandStack.popVar();
-            stmtManager.associateStmt(insn, new TableSwitch(v, tableSwitch.min, tableSwitch.max));
+            Var v = context.operandStack.popVar();
+            context.stmtManager.associateStmt(insn, new TableSwitch(v, tableSwitch.min, tableSwitch.max));
         } else if (insn instanceof LookupSwitchInsnNode lookupSwitch) {
-            Var v = operandStack.popVar();
-            stmtManager.associateStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
+            Var v = context.operandStack.popVar();
+            context.stmtManager.associateStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
         } else if (insn instanceof LabelNode || insn instanceof FrameNode) {
             // do nothing
             return;
         } else if (insn instanceof LineNumberNode lineNumber) {
-            stmtManager.setLineNumber(lineNumber.line);
+            context.stmtManager.setLineNumber(lineNumber.line);
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
     private void throwException(InsnNode insn) {
-        Var v = operandStack.popVar();
-        stmtManager.associateStmt(insn, new Throw(v));
+        Var v = context.operandStack.popVar();
+        context.stmtManager.associateStmt(insn, new Throw(v));
     }
 
     private ConditionExp getIfExp(int opcode) {
         Var v1;
         Var v2;
         if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
-            v1 = operandStack.popVar();
-            v2 = varManager.getConstVar(IntLiteral.get(0));
+            v1 = context.operandStack.popVar();
+            v2 = context.varManager.getConstVar(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
-            v1 = operandStack.popVar();
-            v2 = varManager.getNullLiteral();
+            v1 = context.operandStack.popVar();
+            v2 = context.varManager.getNullLiteral();
         } else {
-            v2 = operandStack.popVar();
-            v1 = operandStack.popVar();
+            v2 = context.operandStack.popVar();
+            v1 = context.operandStack.popVar();
         }
         return new ConditionExp(toCondOp(opcode), v1, v2);
     }
 
     private BinaryExp getBinaryExp(int opcode) {
-        Var v2 = operandStack.popVar();
-        Var v1 = operandStack.popVar();
+        Var v2 = context.operandStack.popVar();
+        Var v1 = context.operandStack.popVar();
         if (isArithmeticInsn(opcode)) {
             return new ArithmeticExp(toArithmeticOp(opcode), v1, v2);
         } else if (isBitwiseInsn(opcode)) {
@@ -440,25 +432,25 @@ final class BytecodeProcessor {
     }
 
     private CastExp getCastExp(Type t) {
-        Var v1 = operandStack.popVar();
+        Var v1 = context.operandStack.popVar();
         return new CastExp(v1, t);
     }
 
     private InvokeExp getInvokeExp(MethodInsnNode methodInsnNode) {
         int opcode = methodInsnNode.getOpcode();
-        JClass owner = typeSystem.toJClass(methodInsnNode.owner);
+        JClass owner = context.typeSystem.toJClass(methodInsnNode.owner);
         assert owner != null;
-        Pair<List<Type>, Type> desc = typeSystem.fromAsmMethodDesc(methodInsnNode.desc);
+        Pair<List<Type>, Type> desc = context.typeSystem.fromAsmMethodDesc(methodInsnNode.desc);
         String name = methodInsnNode.name;
         boolean isStatic = opcode == Opcodes.INVOKESTATIC;
         MethodRef ref = MethodRef.get(owner, name, desc.first(), desc.second(), isStatic, methodInsnNode.itf);
 
         List<Var> args = new ArrayList<>();
         for (int i = 0; i < desc.first().size(); ++i) {
-            args.add(operandStack.popVar());
+            args.add(context.operandStack.popVar());
         }
         Collections.reverse(args);
-        Var base = isStatic ? null : operandStack.popVar();
+        Var base = isStatic ? null : context.operandStack.popVar();
 
         assert ref.getParameterTypes().size() == args.size();
         return switch (opcode) {
@@ -471,26 +463,26 @@ final class BytecodeProcessor {
     }
 
     private ArrayAccess getArrayAccess() {
-        Var idx = operandStack.popVar();
-        Var ref = operandStack.popVar();
+        Var idx = context.operandStack.popVar();
+        Var ref = context.operandStack.popVar();
         return new ArrayAccess(ref, idx);
     }
 
     private void storeExp(AbstractInsnNode insn, LValue left, RValue right) {
-        Stmt stmt = Utils.newAssignStmt(method, left, right);
-        stmtManager.associateStmt(insn, stmt);
+        Stmt stmt = Utils.newAssignStmt(context.method, left, right);
+        context.stmtManager.associateStmt(insn, stmt);
     }
 
     private void returnExp(InsnNode insn) {
         // now, empty the stack, ensure all expression with side effect is generated
-        operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+        context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
         int opcode = insn.getOpcode();
         if (opcode == Opcodes.RETURN) {
-            stmtManager.associateStmt(insn, new Return());
+            context.stmtManager.associateStmt(insn, new Return());
         } else {
-            Var v = operandStack.popVar();
-            varManager.addReturnVar(v);
-            stmtManager.associateStmt(insn, new Return(v));
+            Var v = context.operandStack.popVar();
+            context.varManager.addReturnVar(v);
+            context.stmtManager.associateStmt(insn, new Return(v));
         }
     }
 

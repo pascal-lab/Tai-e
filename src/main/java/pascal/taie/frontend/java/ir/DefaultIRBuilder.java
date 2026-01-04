@@ -87,7 +87,7 @@ public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
         }
         BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, source);
         builder.build();
-        IR ir = builder.getIr();
+        IR ir = builder.getIR();
         if (ir == null) {
             throw new IllegalStateException("Failed to build IR for method %s"
                     .formatted(method));

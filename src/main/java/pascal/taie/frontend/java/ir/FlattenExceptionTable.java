@@ -89,9 +89,9 @@ class FlattenExceptionTable {
     FlattenExceptionTable(JSRInlinerAdapter source) {
         exceptionEntries = new ArrayList<>();
         for (TryCatchBlockNode node : source.tryCatchBlocks) {
-            int start = getIndex(source, node.start);
-            int end = getIndex(source, node.end);
-            int handler = getIndex(source, node.handler);
+            int start = getInsnIndex(source, node.start);
+            int end = getInsnIndex(source, node.end);
+            int handler = getInsnIndex(source, node.handler);
             exceptionEntries.add(new ExceptionEntry(start, ExceptionEntryType.START, handler));
             exceptionEntries.add(new ExceptionEntry(end, ExceptionEntryType.END, handler));
         }
@@ -102,7 +102,7 @@ class FlattenExceptionTable {
     /**
      * Gets the instruction index for a given label node.
      */
-    private static int getIndex(JSRInlinerAdapter source, LabelNode labelNode) {
+    private static int getInsnIndex(JSRInlinerAdapter source, LabelNode labelNode) {
         return source.instructions.indexOf(labelNode);
     }
 

@@ -77,18 +77,14 @@ final class OperandStack {
      */
     private BytecodeBlock currBlock;
 
-    // --- Dependencies ---
-    private final JMethod method;
-    private final VarManager varManager;
-    private final BytecodeCFG cfg;
-    private final StmtManager stmtManager;
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
 
-    OperandStack(JMethod method, VarManager varManager, BytecodeCFG cfg, StmtManager stmtManager) {
-        this.cfg = cfg;
-        this.stmtManager = stmtManager;
+    OperandStack(BytecodeIRBuildContext context) {
+        this.context = context;
         this.phiList = new ArrayList<>();
-        this.varManager = varManager;
-        this.method = method;
     }
 
     /**
@@ -134,11 +130,11 @@ final class OperandStack {
      */
     private void computeInStack(BytecodeBlock block) {
         Stack<StackItem> inStack;
-        int inEdgeCount = cfg.getNormalInDegreeOf(block);
-        if (cfg.hasNoIncomingNormalEdges(block)) {
+        int inEdgeCount = context.cfg.getNormalInDegreeOf(block);
+        if (context.cfg.hasNoIncomingNormalEdges(block)) {
             inStack = null;
         } else if (inEdgeCount == 1) {
-            BytecodeBlock inBlock = cfg.getNormalPredOf(block, 0);
+            BytecodeBlock inBlock = context.cfg.getNormalPredOf(block, 0);
             assert inBlock.getOutStack() != null;
             inStack = new Stack<>();
             inStack.addAll(inBlock.getOutStack());
@@ -161,7 +157,7 @@ final class OperandStack {
         Stack<List<StackItem>> inExpsStack = new Stack<>();
         boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
-            BytecodeBlock inBlock = cfg.getNormalPredOf(block, i);
+            BytecodeBlock inBlock = context.cfg.getNormalPredOf(block, i);
             if (inBlock.getOutStack() == null) {
                 isLoopHeader = true;
                 if (inStack != null) {
@@ -237,8 +233,8 @@ final class OperandStack {
      */
     private StackItem createNewStackPhi(BytecodeBlock block, int index, List<StackItem> inExps) {
         StackPhi phi = new StackPhi(index, inExps, block);
-        phi.setVar(varManager.getTempVar());
-        varManager.setNonSSA(phi.getVar());
+        phi.setVar(context.varManager.getTempVar());
+        context.varManager.setNonSSA(phi.getVar());
         phiList.add(phi);
         return new StackItem(phi, null);
     }
@@ -261,8 +257,8 @@ final class OperandStack {
      * Pushes a constant onto stack.
      */
     void pushConst(AbstractInsnNode node, Literal literal) {
-        if (varManager.peekConstVar(literal)) {
-            pushExp(node, varManager.getConstVar(literal));
+        if (context.varManager.peekConstVar(literal)) {
+            pushExp(node, context.varManager.getConstVar(literal));
         } else {
             pushExp(node, literal);
         }
@@ -308,7 +304,7 @@ final class OperandStack {
         } else {
             ensureStackSafety(e -> e == v || e.getUses().contains(v));
         }
-        return Utils.newAssignStmt(method, v, top.exp());
+        return Utils.newAssignStmt(context.method, v, top.exp());
     }
 
     /**
@@ -329,10 +325,10 @@ final class OperandStack {
     private void expToEffect(StackItem item) {
         Exp e = item.exp();
         if (e instanceof InvokeExp invokeExp) {
-            stmtManager.associateStmt(item.origin(), new Invoke(method, invokeExp));
+            context.stmtManager.associateStmt(item.origin(), new Invoke(context.method, invokeExp));
         } else if (Utils.mayHaveSideEffect(e)) {
-            stmtManager.associateStmt(item.origin(),
-                    Utils.newAssignStmt(method, varManager.getTempVar(), e));
+            context.stmtManager.associateStmt(item.origin(),
+                    Utils.newAssignStmt(context.method, context.varManager.getTempVar(), e));
         }
     }
 
@@ -369,7 +365,7 @@ final class OperandStack {
      * Converts expression to a Var, creating assignment statement if needed.
      */
     Var toVar(Exp e, AbstractInsnNode orig) {
-        assert !(e instanceof Var v && varManager.isTempVar(v));
+        assert !(e instanceof Var v && context.varManager.isTempVar(v));
         if (e instanceof StackPhi phi) {
             phi.setUsed();
             assert phi.getVar() != null;
@@ -378,19 +374,19 @@ final class OperandStack {
 
         Var v;
         if (e instanceof NullLiteral) {
-            return varManager.getNullLiteral();
+            return context.varManager.getNullLiteral();
         }
         if (e instanceof Literal l) {
-            if (varManager.peekConstVar(l)) {
-                return varManager.getConstVar(l);
+            if (context.varManager.peekConstVar(l)) {
+                return context.varManager.getConstVar(l);
             } else {
-                v = varManager.getConstVar(l);
+                v = context.varManager.getConstVar(l);
             }
         } else {
-            v = varManager.getTempVar();
+            v = context.varManager.getTempVar();
         }
-        Stmt auxStmt = Utils.newAssignStmt(method, v, e);
-        stmtManager.associateStmt(orig, auxStmt);
+        Stmt auxStmt = Utils.newAssignStmt(context.method, v, e);
+        context.stmtManager.associateStmt(orig, auxStmt);
         return v;
     }
 

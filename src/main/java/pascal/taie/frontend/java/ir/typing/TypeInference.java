@@ -24,7 +24,7 @@ package pascal.taie.frontend.java.ir.typing;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
-import pascal.taie.frontend.java.ir.BytecodeIRBuilder;
+import pascal.taie.frontend.java.ir.BytecodeIRBuildContext;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -63,12 +63,14 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+
 
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
@@ -78,19 +80,17 @@ import static pascal.taie.language.type.IntType.INT;
  */
 public class TypeInference {
 
-    private final FrontendTypeSystem typeSystem;
 
-    final BytecodeIRBuilder builder;
+    final BytecodeIRBuildContext context;
 
     final TypingFlowGraph graph;
 
     private boolean needCasting;
 
-    public TypeInference(BytecodeIRBuilder builder, FrontendTypeSystem typeSystem) {
-        this.typeSystem = typeSystem;
-        this.builder = builder;
-        graph = new TypingFlowGraph(builder.varManager.getVars().size());
+    public TypeInference(BytecodeIRBuildContext context) {
+        this.context = context;
         this.needCasting = false;
+        this.graph = new TypingFlowGraph(context.varManager.getVars().size());
     }
 
     private Optional<Type> plusOneArray(Type t) {
@@ -106,7 +106,7 @@ public class TypeInference {
             baseType = t;
             dim = 1;
         }
-        return Optional.of(typeSystem.getArrayType(baseType, dim));
+        return Optional.of(context.typeSystem.getArrayType(baseType, dim));
     }
 
     public static Optional<Type> subOneArray(Type t) {
@@ -128,7 +128,7 @@ public class TypeInference {
         public Void visit(AssignLiteral stmt) {
             Type t;
             if (stmt.getRValue() instanceof StringLiteral) {
-                t = typeSystem.stringType();
+                t = context.typeSystem.stringType();
             } else {
                 t = stmt.getRValue().getType();
             }
@@ -246,7 +246,7 @@ public class TypeInference {
 
         @Override
         public Void visit(Return stmt) {
-            Type retType = builder.method.getReturnType();
+            Type retType = context.method.getReturnType();
             if (retType instanceof ReferenceType r) {
                 assert stmt.getValue() != null;
                 graph.addUseConstrain(stmt.getValue(), r);
@@ -267,7 +267,7 @@ public class TypeInference {
     public void build() {
         addThisParam();
         ConstraintVisitor visitor = new ConstraintVisitor();
-        for (BytecodeBlock block : builder.cfg) {
+        for (BytecodeBlock block : context.cfg) {
             if (block.getExceptionHandlerTypes() != null) {
                 Var ref = null;
                 for (Stmt stmt : block.getStmts()) {
@@ -290,7 +290,7 @@ public class TypeInference {
         graph.inferTypes();
         setTypes(graph);
         if (needCasting) {
-            CastingInserter inserter = new CastingInserter(builder, typeSystem);
+            CastingInserter inserter = new CastingInserter(context);
             inserter.build();
         }
     }
@@ -316,7 +316,7 @@ public class TypeInference {
                 }
                 if (node.initConstraints != null) {
                     for (Type t : node.initConstraints) {
-                        if (!typeSystem.isAssignable(t, target)) {
+                        if (!context.typeSystem.isAssignable(t, target)) {
                             this.needCasting = true;
                         }
                     }
@@ -327,14 +327,14 @@ public class TypeInference {
     }
 
     private void addThisParam() {
-        JMethod m = builder.method;
-        if (! builder.method.isStatic()) {
-            Var thisVar = this.builder.varManager.getThisVar();
+        JMethod m = context.method;
+        if (!context.method.isStatic()) {
+            Var thisVar = this.context.varManager.getThisVar();
             graph.addConstantEdge(m.getDeclaringClass().getType(), thisVar);
         }
 
         for (int i = 0; i < m.getParamCount(); ++i) {
-            Var paramI = builder.varManager.getParams().get(i);
+            Var paramI = context.varManager.getParams().get(i);
             Type typeI = m.getParamType(i);
             graph.addConstantEdge(typeI, paramI);
         }
@@ -629,7 +629,7 @@ public class TypeInference {
             }
             boolean ret = true;
             for (ReferenceType c : useValidConstrains) {
-                ret &= typeSystem.isAssignable(c, t);
+                ret &= context.typeSystem.isAssignable(c, t);
             }
             return ret;
         }
@@ -638,7 +638,7 @@ public class TypeInference {
             if (current == t) {
                 return t;
             }
-            Set<ReferenceType> lcas = typeSystem.lca(current, t);
+            Set<ReferenceType> lcas = context.typeSystem.lca(current, t);
             ReferenceType target = null;
             for (ReferenceType lca : lcas) {
                 if (isUseValid(lca)) {
@@ -652,13 +652,13 @@ public class TypeInference {
             } else {
                 if (lcas.isEmpty()) {
                     // normally impossible, but possible for phantom
-                    return typeSystem.objectType();
+                    return context.typeSystem.objectType();
                 }
                 ReferenceType t1 = lcas.iterator().next();
                 if (t1 instanceof ClassType) {
-                    return typeSystem.objectType();
+                    return context.typeSystem.objectType();
                 } else if (t1 instanceof ArrayType arrayType) {
-                    return typeSystem.getArrayType(typeSystem.objectType(), arrayType.dimensions());
+                    return context.typeSystem.getArrayType(context.typeSystem.objectType(), arrayType.dimensions());
                 } else {
                     throw new UnsupportedOperationException();
                 }

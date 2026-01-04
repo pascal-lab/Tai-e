@@ -34,38 +34,28 @@ import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.LazyArray;
 
 /**
  * Resolve {@link StackPhi}s into {@link FrontendPhiStmt}s (SSA mode) or explicit assignments (non-SSA mode).
  */
 class StackPhiResolver {
-    // --- Dependencies ---
-    private final JMethod method;
-    private final boolean isSSA;
-    private final OperandStack operandStack;
-    private final BytecodeCFG cfg;
-    private final StmtManager stmtManager;
-    private final VarManager varManager;
 
-    StackPhiResolver(JMethod method, boolean isSSA,
-                            OperandStack operandStack, BytecodeCFG cfg,
-                            StmtManager stmtManager, VarManager varManager) {
-        this.method = method;
-        this.isSSA = isSSA;
-        this.operandStack = operandStack;
-        this.cfg = cfg;
-        this.stmtManager = stmtManager;
-        this.varManager = varManager;
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
+
+    StackPhiResolver(BytecodeIRBuildContext context) {
+        this.context = context;
     }
 
     /**
      * Orchestrates the resolution process: computes loop header inputs, propagates usage status, and emits IR statements.
      */
     void resolveStackPhis() {
-        List<StackPhi> stackPhiList = operandStack.getStackPhiList();
-        for (BytecodeBlock block : cfg) {
+        List<StackPhi> stackPhiList = context.operandStack.getStackPhiList();
+        for (BytecodeBlock block : context.cfg) {
             addInExpsOfLoopHeaderStackPhis(block);
         }
         propagateStackPhiUsed(stackPhiList);
@@ -99,8 +89,8 @@ class StackPhiResolver {
      * Resolve {@link StackPhi} into concrete IR statements.
      */
     private void resolveStackPhis2Stmts(List<StackPhi> stackPhiList) {
-        if (!isSSA) {
-            LazyArray<List<Stmt>> preMergeAssigns = new LazyArray<>(cfg.nodeCount()) {
+        if (!context.isSSA) {
+            LazyArray<List<Stmt>> preMergeAssigns = new LazyArray<>(context.cfg.nodeCount()) {
                 @Override
                 protected List<Stmt> createElement() {
                     return new ArrayList<>();
@@ -112,14 +102,14 @@ class StackPhiResolver {
             for (StackPhi phi : stackPhiList) {
                 resolve2Assigns(phi, preMergeAssigns);
             }
-            for (BytecodeBlock block : cfg) {
+            for (BytecodeBlock block : context.cfg) {
                 // unreachable block
                 if (block.getOutStack() == null) {
                     continue;
                 }
                 if (preMergeAssigns.contains(block.getIndex())) {
                     List<Stmt> stmts = preMergeAssigns.get(block.getIndex());
-                    stmtManager.appendStmts(block, stmts);
+                    context.stmtManager.appendStmts(block, stmts);
                 }
             }
         } else {
@@ -135,14 +125,14 @@ class StackPhiResolver {
         // insert phi node in the first instruction
         FrontendPhiExp phiExp = new FrontendPhiExp();
         int unreachableOffset = 0;
-        for (int i = 0; i < cfg.getNormalInDegreeOf(block); ++i) {
-            if (cfg.getNormalPredOf(block, i).getOutStack() == null) {
+        for (int i = 0; i < context.cfg.getNormalInDegreeOf(block); ++i) {
+            if (context.cfg.getNormalPredOf(block, i).getOutStack() == null) {
                 unreachableOffset++;
                 continue;
             }
             StackItem item = phi.getInExps().get(i - unreachableOffset);
-            operandStack.liftToVar(item);
-            phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
+            context.operandStack.liftToVar(item);
+            phiExp.addUseAndCorrespondingBlocks(item.var(), context.cfg.getNormalPredOf(block, i));
         }
         FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
         phi.setWriteOutVar(phi.getVar());
@@ -156,13 +146,13 @@ class StackPhiResolver {
         }
         BytecodeBlock block = phi.createPos;
         boolean useWorseSolution = block.isLoopHeader() && phi.used;
-        Var writeOut = useWorseSolution ? varManager.getTempVar() : phi.getVar();
-        varManager.setNonSSA(writeOut);
+        Var writeOut = useWorseSolution ? context.varManager.getTempVar() : phi.getVar();
+        context.varManager.setNonSSA(writeOut);
         if (useWorseSolution) {
             // add `v = writeOut` before any definition (first instruction) in create pos
             BytecodeBlock createPos = phi.createPos;
             LValue lValue = phi.getVar();
-            addToBlockHead(createPos, Utils.newAssignStmt(method, lValue, writeOut));
+            addToBlockHead(createPos, Utils.newAssignStmt(context.method, lValue, writeOut));
         }
         phi.setWriteOutVar(writeOut);
     }
@@ -175,7 +165,7 @@ class StackPhiResolver {
         Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getInExps().size(); ++i) {
             StackItem item = phi.getInExps().get(i);
-            BytecodeBlock inBlock = cfg.getNormalPredOf(phi.createPos, i + unreachableOffset);
+            BytecodeBlock inBlock = context.cfg.getNormalPredOf(phi.createPos, i + unreachableOffset);
             if (inBlock.getOutStack() == null) {
                 unreachableOffset++;
                 continue;
@@ -189,7 +179,7 @@ class StackPhiResolver {
                 continue;
             }
             if (Utils.mayHaveSideEffect(e) || phi.used) {
-                stmts.add(Utils.newAssignStmt(method, writeOut, e));
+                stmts.add(Utils.newAssignStmt(context.method, writeOut, e));
             }
         }
         phi.resolved = true;
@@ -198,8 +188,8 @@ class StackPhiResolver {
     private void addInExpsOfLoopHeaderStackPhis(BytecodeBlock current) {
         if (current.isLoopHeader()) {
             Stack<StackItem> inStack = current.getInStack();
-            for (int i = 0; i < cfg.getNormalInDegreeOf(current); ++i) {
-                BytecodeBlock outBlock = cfg.getNormalPredOf(current, i);
+            for (int i = 0; i < context.cfg.getNormalInDegreeOf(current); ++i) {
+                BytecodeBlock outBlock = context.cfg.getNormalPredOf(current, i);
                 if (outBlock.getOutStack() == null) {
                     assert outBlock.getInStack() == null;
                     continue;
@@ -219,6 +209,6 @@ class StackPhiResolver {
 
     private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
         AbstractInsnNode firstInsn = block.getInsns().get(0);
-        stmtManager.associateStmt(firstInsn, stmt);
+        context.stmtManager.associateStmt(firstInsn, stmt);
     }
 }

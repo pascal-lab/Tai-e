@@ -41,7 +41,7 @@ import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 final class StmtManager {
 
     /**
-     * A mapping from bytecode instruction index (use {@link StmtManager#getInsnIndex} to obtain) to generated Tai-e IR stmt
+     * A mapping from bytecode instruction index (use {@link BytecodeIRBuildContext#getInsnIndex} to obtain) to generated Tai-e IR stmt
      */
     private final Stmt[] insn2Stmt;
 
@@ -56,15 +56,15 @@ final class StmtManager {
      */
     private int currentLineNumber;
 
-    // --- Dependencies ---
-    private final org.objectweb.asm.tree.InsnList instructions;
-    private final boolean isSSA;
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
 
-    // TODO: the 'getInsnIndex' method appears in too many classes
-    StmtManager(boolean isSSA, org.objectweb.asm.tree.InsnList instructions) {
-        this.isSSA = isSSA;
-        this.instructions = instructions;
-        int insnCount = instructions.size();
+    StmtManager(BytecodeIRBuildContext context) {
+        this.context = context;
+
+        int insnCount = context.source.instructions.size();
         this.insn2Stmt = new Stmt[insnCount];
         this.additionalStmts = new ArrayList<>(insnCount);
         for (int i = 0; i < insnCount; ++i) {
@@ -87,7 +87,7 @@ final class StmtManager {
         if (stmt.getLineNumber() == -1) {
             stmt.setLineNumber(currentLineNumber);
         }
-        int idx = getInsnIndex(insn);
+        int idx = context.getInsnIndex(insn);
         if (insn2Stmt[idx] == null) {
             insn2Stmt[idx] = stmt;
         } else {
@@ -99,7 +99,7 @@ final class StmtManager {
      * Associates a generated Stmt as an additional statement for a source bytecode instruction.
      */
     private void associateAdditionalStmt(AbstractInsnNode insn, Stmt stmt) {
-        int idx = getInsnIndex(insn);
+        int idx = context.getInsnIndex(insn);
         List<Stmt> additional = additionalStmts.get(idx);
         if (additional == null) {
             additional = new ArrayList<>();
@@ -163,7 +163,7 @@ final class StmtManager {
                 blockStmt.addAll(stmts);
             }
         }
-        if (block.isCatch() && isSSA) {
+        if (block.isCatch() && context.isSSA) {
             // adjust order for phis, put catch in the front
             List<Stmt> stmts = new ArrayList<>();
             Catch catchStmt = null;
@@ -182,17 +182,9 @@ final class StmtManager {
         }
     }
 
-    /**
-     * Gets the index of a bytecode instruction.
-     */
-    private int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return instructions.indexOf(insn);
-    }
-
     private List<Stmt> clearStmt(AbstractInsnNode insn) {
         List<Stmt> res = new ArrayList<>();
-        int idx = getInsnIndex(insn);
+        int idx = context.getInsnIndex(insn);
         if (insn2Stmt[idx] != null) {
             res.add(insn2Stmt[idx]);
             insn2Stmt[idx] = null;

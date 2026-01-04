@@ -101,27 +101,20 @@ final class SlotManager {
      */
     private BytecodeBlock currBlock = null;
 
-    // --- Dependencies ---
-    private final JMethod method;
-    private final VarManager varManager;
-    private final boolean isSSA;
-    private final JSRInlinerAdapter source;
-    private final StmtManager stmtManager;
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
 
     // ========================================================================
     // 1. Construction & Build Phase
     // ========================================================================
 
-    SlotManager(JMethod method, VarManager varManager, boolean isSSA,
-                JSRInlinerAdapter source, StmtManager stmtManager) {
-        this.method = method;
-        this.varManager = varManager;
-        this.isSSA = isSSA;
-        this.source = source;
-        this.stmtManager = stmtManager;
+    SlotManager(BytecodeIRBuildContext context) {
+        this.context = context;
 
         this.paramWriteSize = getParamWriteSize();
-        this.rwTable = new int[source.instructions.size()];
+        this.rwTable = new int[context.source.instructions.size()];
         this.rwCount = paramWriteSize;
     }
 
@@ -180,7 +173,7 @@ final class SlotManager {
         } else {
             int realVar = bcssa.getRealLocalSlot(defIndex);
             assert realVar != -1; // must be phi-connected insn, a local is assigned before
-            v = varManager.getLocal(realVar);
+            v = context.varManager.getLocal(realVar);
         }
         assert v != null;
         tryFixVarName(v, slot, insn);
@@ -205,20 +198,20 @@ final class SlotManager {
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (varManager.isLocal(v) && !varManager.isSSAVar(v) && !isSSA) {
+            if (context.varManager.isLocal(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
                 Var origin = v;
-                v = varManager.getTempVar();
-                stmtManager.associateStmt(insn, Utils.newAssignStmt(method, v, origin));
+                v = context.varManager.getTempVar();
+                context.stmtManager.associateStmt(insn, Utils.newAssignStmt(context.method, v, origin));
             }
             reachVars[rwIndex] = v;
         } else {
             // still use a local var
             int realVar = bcssa.getRealLocalSlot(rwIndex);
-            v = varManager.getLocal(realVar);
+            v = context.varManager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
             Stmt stmt = operandStack.popToVar(v);
-            stmtManager.associateStmt(insn, stmt);
+            context.stmtManager.associateStmt(insn, stmt);
         }
         tryFixVarName(v, slot, insn);
     }
@@ -229,10 +222,10 @@ final class SlotManager {
     Var storeCatchVar(AbstractInsnNode insn) {
         int rwIndex = getRWIndex(insn);
         Var catchVar = isFastProcessVar(rwIndex)
-                ? varManager.getTempVar()
-                : varManager.getLocal(bcssa.getRealLocalSlot(rwIndex));
+                ? context.varManager.getTempVar()
+                : context.varManager.getLocal(bcssa.getRealLocalSlot(rwIndex));
         reachVars[rwIndex] = catchVar;
-        stmtManager.associateStmt(insn, new Catch(catchVar));
+        context.stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
     }
 
@@ -240,19 +233,19 @@ final class SlotManager {
      * Emits Phi statements for slot variables at the beginning of a block.
      */
     void emitSSAPhisForSlot(BytecodeBlock block) {
-        assert isSSA;
+        assert context.isSSA;
         // should have at least one instruction
         AbstractInsnNode firstInsn = block.getInsns().get(0);
         bcssa.visitLivePhis(block, (phi) -> {
-            Var phiVar = varManager.getTempVar();
-            Var origin = varManager.getLocal(phi.getVar());
+            Var phiVar = context.varManager.getTempVar();
+            Var origin = context.varManager.getLocal(phi.getVar());
             FrontendPhiExp phiExp = new FrontendPhiExp();
             reachVars[phi.getDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
-            varManager.setNonSSA(phiVar);
-            stmtManager.associateStmt(firstInsn, frontendPhiStmt);
+            context.varManager.setNonSSA(phiVar);
+            context.stmtManager.associateStmt(firstInsn, frontendPhiStmt);
             phi.setRealPhi(frontendPhiStmt);
-            varManager.aliasLocal(phiVar, varManager.getSlot(origin));
+            context.varManager.aliasLocal(phiVar, context.varManager.getSlot(origin));
         });
     }
 
@@ -284,7 +277,7 @@ final class SlotManager {
         BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
         int counter = 0;
         BytecodeBlock entry = cfg.getEntry();
-        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(source.maxLocals) {
+        LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(context.source.maxLocals) {
             @Override
             protected List<BytecodeBlock> createElement() {
                 return new ArrayList<>();
@@ -326,24 +319,24 @@ final class SlotManager {
     }
 
     private void buildBCSSA(BytecodeCFG cfg, Dominators<BytecodeBlock> dom, GenericDUInfo duInfo) {
-        bcssa = new BCSSA(cfg, source.maxLocals, duInfo, isSSA, dom);
+        bcssa = new BCSSA(cfg, context.source.maxLocals, duInfo, context.isSSA, dom);
         bcssa.build();
     }
 
     private void initializeVars() {
         reachVars = new Var[bcssa.getMaxDUCount()];
-        if (!isSSA) {
-            varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
+        if (!context.isSSA) {
+            context.varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < paramWriteSize; ++i) {
             if (isFastProcessVar(i)) {
-                reachVars[i] = varManager.getLocal(i);
+                reachVars[i] = context.varManager.getLocal(i);
                 Var current = reachVars[i];
                 if (bcssa.canFastProcess(i)) {
-                    varManager.setSSA(current);
+                    context.varManager.setSSA(current);
                 } else {
-                    varManager.setNonSSA(current);
+                    context.varManager.setNonSSA(current);
                 }
             }
         }
@@ -351,14 +344,14 @@ final class SlotManager {
 
 
     private boolean isFastProcessVar(int v) {
-        return isSSA || bcssa.canFastProcess(v);
+        return context.isSSA || bcssa.canFastProcess(v);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
-        if (varManager.existsLocalVariableTable && VarManager.mayRename(v)) {
-            Optional<String> name = varManager.getName(slot, insn);
+        if (context.varManager.existsLocalVariableTable && VarManager.mayRename(v)) {
+            Optional<String> name = context.varManager.getName(slot, insn);
             name.ifPresent((n) -> {
-                String realName = varManager.tryUseName(n);
+                String realName = context.varManager.tryUseName(n);
                 ExpMutator.setName(v, realName);
             });
         }
@@ -372,13 +365,13 @@ final class SlotManager {
 
     private int getInsnIndex(AbstractInsnNode insn) {
         assert insn != null;
-        return source.instructions.indexOf(insn);
+        return context.source.instructions.indexOf(insn);
     }
 
     private int getParamWriteSize() {
-        int curr = method.isStatic() ? 0 : 1;
-        for (int i = 0; i < method.getParamTypes().size(); ++i) {
-            Type type = method.getParamTypes().get(i);
+        int curr = context.method.isStatic() ? 0 : 1;
+        for (int i = 0; i < context.method.getParamTypes().size(); ++i) {
+            Type type = context.method.getParamTypes().get(i);
             if (FrontendTypeSystem.isTwoWord(type)) {
                 curr += 2;
             } else {

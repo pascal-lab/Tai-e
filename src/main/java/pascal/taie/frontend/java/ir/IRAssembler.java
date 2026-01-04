@@ -62,20 +62,13 @@ import pascal.taie.language.type.Type;
 class IRAssembler {
     private static final Logger logger = LogManager.getLogger(IRAssembler.class);
 
-    // --- Dependencies ---
-    private final JMethod method;
-    private final JSRInlinerAdapter source;
-    private final FrontendTypeSystem typeSystem;
-    private final VarManager varManager;
-    private final BytecodeCFG cfg;
+    /**
+     * The shared context holding all sources and state for the IR building process.
+     */
+    private final BytecodeIRBuildContext context;
 
-    IRAssembler(JMethod method, JSRInlinerAdapter source, FrontendTypeSystem typeSystem,
-                       VarManager varManager, BytecodeCFG cfg) {
-        this.method = method;
-        this.source = source;
-        this.typeSystem = typeSystem;
-        this.varManager = varManager;
-        this.cfg = cfg;
+    IRAssembler(BytecodeIRBuildContext context) {
+        this.context = context;
     }
 
     /**
@@ -84,28 +77,28 @@ class IRAssembler {
     IR assembleIR() {
         List<Stmt> stmts = makeStmts();
         List<ExceptionEntry> exceptionEntries = buildExceptionTable(stmts);
-        Var thisVar = varManager.getThisVar();
-        List<Var> params = varManager.getParams();
-        List<Var> vars = varManager.getVars();
-        Set<Var> retVars = varManager.getRetVars();
-        return new DefaultIR(method, thisVar, params, retVars, vars, stmts, exceptionEntries);
+        Var thisVar = context.varManager.getThisVar();
+        List<Var> params = context.varManager.getParams();
+        List<Var> vars = context.varManager.getVars();
+        Set<Var> retVars = context.varManager.getRetVars();
+        return new DefaultIR(context.method, thisVar, params, retVars, vars, stmts, exceptionEntries);
     }
 
     /**
      * Collect all statements from blocks and var manager, resolve jumps along the way, and resolve phi statements.
      */
     private List<Stmt> makeStmts() {
-        List<Stmt> stmts = new ArrayList<>(source.instructions.size());
+        List<Stmt> stmts = new ArrayList<>(context.source.instructions.size());
         List<FrontendPhiStmt> frontendPhiStmts = new ArrayList<>();
         int now = 0;
-        for (Var v : varManager.intConstVarCache) {
+        for (Var v : context.varManager.intConstVarCache) {
             if (v != null) {
-                Stmt curr = Utils.newAssignStmt(method, v, v.getConstValue());
+                Stmt curr = Utils.newAssignStmt(context.method, v, v.getConstValue());
                 curr.setIndex(now++);
                 stmts.add(curr);
             }
         }
-        for (BytecodeBlock block : cfg) {
+        for (BytecodeBlock block : context.cfg) {
             List<Stmt> blockStmts = block.getStmts();
             if (!blockStmts.isEmpty()) {
                 for (Stmt t : blockStmts) {
@@ -119,8 +112,8 @@ class IRAssembler {
             }
         }
 
-        FrontendPhiResolver resolver = new FrontendPhiResolver(cfg);
-        // Make PhiStmts using stmt.index as the value source.
+        FrontendPhiResolver resolver = new FrontendPhiResolver(context.cfg);
+        // Make PhiStmts using stmt.index as the value context.source.
         for (FrontendPhiStmt p : frontendPhiStmts) {
             int index = p.getIndex();
             Type type = p.getLValue().getType();
@@ -139,7 +132,7 @@ class IRAssembler {
      */
     private List<ExceptionEntry> buildExceptionTable(List<Stmt> stmts) {
         List<ExceptionEntry> exceptionEntries = new ArrayList<>();
-        for (TryCatchBlockNode node : source.tryCatchBlocks) {
+        for (TryCatchBlockNode node : context.source.tryCatchBlocks) {
             Stmt start = getFirstStmt(node.start);
             Stmt end;
             if (node.end.getNext() == null) {
@@ -168,22 +161,17 @@ class IRAssembler {
         return exceptionEntries;
     }
 
-    private int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return source.instructions.indexOf(insn);
-    }
-
     private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = cfg.searchForValidBlock(getInsnIndex(label));
+        BytecodeBlock block = context.cfg.searchForValidBlock(context.getInsnIndex(label));
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = cfg.getNormalSuccsOf(block).get(0);
-            BytecodeBlock next2 = cfg.getObject(block.getIndex() + 1);
+            BytecodeBlock next1 = context.cfg.getNormalSuccsOf(block).get(0);
+            BytecodeBlock next2 = context.cfg.getObject(block.getIndex() + 1);
             if (next1 != next2) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
                 logger.atTrace()
-                        .log("[IR] Unreachable code reference detected in method: "
-                                + method.toString());
+                        .log("[IR] Unreachable code reference detected in context.method: "
+                                + context.method.toString());
             }
             block = next2;
         }
@@ -224,9 +212,9 @@ class IRAssembler {
 
     private ClassType fromExceptionType(String internalName) {
         if (internalName == null) {
-            return typeSystem.throwableType();
+            return context.typeSystem.throwableType();
         } else {
-            ReferenceType r = typeSystem.fromAsmInternalName(internalName);
+            ReferenceType r = context.typeSystem.fromAsmInternalName(internalName);
             if (r instanceof ClassType c) {
                 return c;
             } else {
