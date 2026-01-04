@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
@@ -38,10 +37,8 @@ import pascal.taie.ir.exp.ExpMutator;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.LazyArray;
-import pascal.taie.util.graph.Dominators;
 
 /**
  * Manages operations on local variable slots, resolving slot reuse through def-use analysis.
@@ -121,10 +118,10 @@ final class SlotManager {
     /**
      * Build RWIndex, BCSSA and initialized var map.
      */
-    void build(BytecodeCFG cfg, Dominators<BytecodeBlock> dom) {
-        GenericDUInfo duInfo = buildRWIndexAndDUInfo(cfg);
-        buildBCSSA(cfg, dom, duInfo);
-        initializeVars();
+    void initialize() {
+        GenericDUInfo duInfo = buildRWIndexAndDUInfo();
+        buildBCSSA(duInfo);
+        initializeVarsForSlots();
     }
 
     /**
@@ -252,7 +249,15 @@ final class SlotManager {
     /**
      * Fills in the actual arguments for the previously emitted Phi statements.
      */
-    void addInDefsForSlotPhis(BytecodeBlock bb) {
+    void addInDefsForSlotPhis() {
+        if (context.isSSA) {
+            for (BytecodeBlock block : context.dom.getReversePostOrder()) {
+                context.slotManager.addInDefsForSlotPhis(block);
+            }
+        }
+    }
+
+    private void addInDefsForSlotPhis(BytecodeBlock bb) {
         bcssa.visitLivePhis(bb, (phi) -> {
             FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
             assert realPhi != null;
@@ -269,14 +274,14 @@ final class SlotManager {
     // 3. Internal Implementation
     // ========================================================================
 
-    private DUInfo buildRWIndexAndDUInfo(BytecodeCFG cfg) {
+    private DUInfo buildRWIndexAndDUInfo() {
         rwToInsn = new int[rwCount];
-        start = new int[cfg.nodeCount()];
-        end = new int[cfg.nodeCount()];
+        start = new int[context.cfg.nodeCount()];
+        end = new int[context.cfg.nodeCount()];
 
         BytecodeBlock[] rwToBlock = new BytecodeBlock[rwCount];
         int counter = 0;
-        BytecodeBlock entry = cfg.getEntry();
+        BytecodeBlock entry = context.cfg.getEntry();
         LazyArray<List<BytecodeBlock>> defBlocks = new LazyArray<>(context.source.maxLocals) {
             @Override
             protected List<BytecodeBlock> createElement() {
@@ -290,8 +295,8 @@ final class SlotManager {
             counter++;
         }
 
-        for (int n = 0; n < cfg.nodeCount(); ++n) {
-            BytecodeBlock curr = cfg.getObject(n);
+        for (int n = 0; n < context.cfg.nodeCount(); ++n) {
+            BytecodeBlock curr = context.cfg.getObject(n);
             start[curr.getIndex()] = counter;
             int size = curr.getInsns().size();
             int start1 = curr.getInsns().getStart();
@@ -318,12 +323,12 @@ final class SlotManager {
         return new DUInfo(rwToBlock, defBlocks, counter);
     }
 
-    private void buildBCSSA(BytecodeCFG cfg, Dominators<BytecodeBlock> dom, GenericDUInfo duInfo) {
-        bcssa = new BCSSA(cfg, context.source.maxLocals, duInfo, context.isSSA, dom);
+    private void buildBCSSA(GenericDUInfo duInfo) {
+        bcssa = new BCSSA(context.cfg, context.source.maxLocals, duInfo, context.isSSA, context.dom);
         bcssa.build();
     }
 
-    private void initializeVars() {
+    private void initializeVarsForSlots() {
         reachVars = new Var[bcssa.getMaxDUCount()];
         if (!context.isSSA) {
             context.varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());

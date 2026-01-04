@@ -34,7 +34,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.Dominators;
 
 import java.util.List;
-import java.util.Stack;
 
 /**
  * The main class for converting bytecode to Tai-e IR.
@@ -60,29 +59,40 @@ public class BytecodeIRBuilder {
 
     public void build() {
         if (context.source.instructions.size() != 0) {
-            context.cfg = new BytecodeCFGBuilder(context.source, context.slotManager::writeRwTable, context::getExceptionType)
+            // 1. build cfg, and also construct RwTable (used in slotManager) when building CFG
+            context.cfg = new BytecodeCFGBuilder(context.source,
+                    context.slotManager::writeRwTable, context::getExceptionType)
                     .build();
             assert context.cfg != null;
+
+            // 2. build dominators
             context.dom = new Dominators<>(context.cfg);
-            context.slotManager.build(context.cfg, context.dom);
-            var bytecodeProcessor = new BytecodeProcessor(context);
-            context.cfg.getEntry().setInStack(new Stack<>());
-            for (BytecodeBlock block : context.dom.getReversePostOrder()) {
-                bytecodeProcessor.processBlock2Stmts(block);
-            }
-            for (BytecodeBlock block : context.dom.getReversePostOrder()) {
-                if (context.isSSA) {
-                    context.slotManager.addInDefsForSlotPhis(block);
-                }
-            }
+
+            // 3. initialize slotManager: compute def-use info, build BCSSA and initialize Vars
+            context.slotManager.initialize();
+
+            // 4. process bytecode blocks to statements
+            new BytecodeProcessor(context).processBlocks2Stmt();
+
+            // 5. generate all the frontend phis
+            context.slotManager.addInDefsForSlotPhis();
             new StackPhiResolver(context).resolveStackPhis();
+
+            // 6. collect stmts for each block
             for (BytecodeBlock block : context.cfg) {
                 context.stmtManager.buildBlockStmts(block);
             }
+
+            // 7. type inference
             new TypeInference(context).build();
-            IRAssembler assembler = new IRAssembler(context);
-            ir = assembler.assembleIR();
+
+            // 8. complete stmts and build exception table, finally get IR
+            ir = new IRAssembler(context).assembleIR();
         }
+    }
+
+    public IR getIR() {
+        return ir;
     }
 
     private void verify() {
@@ -108,9 +118,5 @@ public class BytecodeIRBuilder {
         return stmt.getIndex() != -1 &&
                 this.ir.getStmts().size() > stmt.getIndex() &&
                 this.ir.getStmts().get(stmt.getIndex()) == stmt;
-    }
-
-    public IR getIR() {
-        return ir;
     }
 }

@@ -34,10 +34,6 @@ import pascal.taie.util.graph.Dominators;
 
 /**
  * Holds the shared state and resources for the IR building process of a single method.
- * <p>
- * This context acts as a hub, allowing various components (like {@link BytecodeProcessor},
- * {@link StackPhiResolver}) to access core data structures (CFG, Symbol Tables, Stacks)
- * without requiring direct dependencies on each other.
  */
 public class BytecodeIRBuildContext {
 
@@ -103,7 +99,6 @@ public class BytecodeIRBuildContext {
         this.typeSystem = typeSystem;
         this.isSSA = World.get().getOptions().isSSA();
 
-        // Initialize Managers
         this.varManager = new VarManager(this);
         this.stmtManager = new StmtManager(this);
         this.slotManager = new SlotManager(this);

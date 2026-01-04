@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Stack;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -129,7 +130,14 @@ final class BytecodeProcessor {
         this.context = context;
     }
 
-    void processBlock2Stmts(BytecodeBlock block) {
+    void processBlocks2Stmt() {
+        context.cfg.getEntry().setInStack(new Stack<>());
+        for (BytecodeBlock block : context.dom.getReversePostOrder()) {
+            processBlock2Stmts(block);
+        }
+    }
+
+    private void processBlock2Stmts(BytecodeBlock block) {
         context.slotManager.enterBlock(block);
         context.operandStack.initializeStack(block);
         Iterator<AbstractInsnNode> insnIter = block.getInsns().iterator();

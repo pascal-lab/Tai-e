@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -36,7 +35,6 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -50,7 +48,6 @@ import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.SwitchStmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
@@ -75,7 +72,7 @@ class IRAssembler {
      * Make statements, build exception tables, and construct the IR object.
      */
     IR assembleIR() {
-        List<Stmt> stmts = makeStmts();
+        List<Stmt> stmts = completeStmts();
         List<ExceptionEntry> exceptionEntries = buildExceptionTable(stmts);
         Var thisVar = context.varManager.getThisVar();
         List<Var> params = context.varManager.getParams();
@@ -87,7 +84,7 @@ class IRAssembler {
     /**
      * Collect all statements from blocks and var manager, resolve jumps along the way, and resolve phi statements.
      */
-    private List<Stmt> makeStmts() {
+    private List<Stmt> completeStmts() {
         List<Stmt> stmts = new ArrayList<>(context.source.instructions.size());
         List<FrontendPhiStmt> frontendPhiStmts = new ArrayList<>();
         int now = 0;
@@ -113,7 +110,7 @@ class IRAssembler {
         }
 
         FrontendPhiResolver resolver = new FrontendPhiResolver(context.cfg);
-        // Make PhiStmts using stmt.index as the value context.source.
+        // Make PhiStmts using stmt.index as the value source.
         for (FrontendPhiStmt p : frontendPhiStmts) {
             int index = p.getIndex();
             Type type = p.getLValue().getType();
