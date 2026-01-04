@@ -117,9 +117,9 @@ final class StmtManager {
         return instructions.indexOf(insn);
     }
 
-    void appendStackMergeStmts(BytecodeBlock bb, List<Stmt> stackMergeStmts) {
+    void appendStackMergeStmts(BytecodeBlock block, List<Stmt> stackMergeStmts) {
         if (!stackMergeStmts.isEmpty()) {
-            AbstractInsnNode lastInsn = bb.getLastInsn();
+            AbstractInsnNode lastInsn = block.getLastInsn();
             if (isCFEdge(lastInsn)) {
                 // last stmt may attach goto, if, switch ...
                 List<Stmt> stmts = clearStmt(lastInsn);

@@ -132,6 +132,10 @@ public class BytecodeIRBuilder {
      */
     private Dominators<BytecodeBlock> dom;
 
+    /**
+     * Build CFG from ASM instructions using {@link BytecodeCFGBuilder}.
+     */
+    public BytecodeCFG cfg;
 
     BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method,
                       AsmMethodSource methodSource) {
@@ -286,7 +290,7 @@ public class BytecodeIRBuilder {
         }
 
         if (isLastTime) {
-            PhiResolver resolver = new PhiResolver(cfg);
+            FrontendPhiResolver resolver = new FrontendPhiResolver(cfg);
             // Make PhiStmts using stmt.index as the value source.
             for (FrontendPhiStmt p : frontendPhiStmts) {
                 int index = p.getIndex();
@@ -359,181 +363,6 @@ public class BytecodeIRBuilder {
 //        assert target1.empty();
 //    }
 
-    private void solveAllPhiAndOutput() {
-        List<StackPhi> stackPhiList = operandStack.getStackPhiList();
-        for (BytecodeBlock bb : cfg) {
-            fillInLoopHeaderStackPhis(bb);
-            if (isSSA) {
-                slotManager.addInDefsForSlotPhis(bb);
-            }
-        }
-        propagatePhiUsed(stackPhiList);
-        resolveStackPhi(stackPhiList);
-        for (BytecodeBlock bb : cfg) {
-            // unreachable
-            if (bb.getOutStack() == null) {
-                continue;
-            }
-            if (!isSSA) {
-                if (stackMergeStmts.contains(bb.getIndex())) {
-                    List<Stmt> stmts = stackMergeStmts.get(bb.getIndex());
-                    stmtManager.appendStackMergeStmts(bb, stmts);
-                }
-            }
-            stmtManager.buildBlockStmts(bb);
-        }
-    }
-
-    private void propagatePhiUsed(List<StackPhi> stackPhiList) {
-        for (StackPhi phi : stackPhiList) {
-            if (phi.used) {
-                setStackPhiUsed(phi);
-            }
-        }
-    }
-
-    private void setStackPhiUsed(StackPhi phi) {
-        for (StackItem item : phi.getInExps()) {
-            Exp e = item.exp();
-            if (e instanceof StackPhi phi1) {
-                if (!phi1.used) {
-                    phi1.used = true;
-                    setStackPhiUsed(phi1);
-                }
-            }
-        }
-    }
-
-    private void resolveStackPhi(List<StackPhi> stackPhiList) {
-        if (!isSSA) {
-            stackMergeStmts = new LazyArray<>(cfg.nodeCount()) {
-                @Override
-                protected List<Stmt> createElement() {
-                    return new ArrayList<>();
-                }
-            };
-            for (StackPhi phi : stackPhiList) {
-                if (phi.getWriteOutVar() != null) {
-                    continue;
-                }
-                BytecodeBlock block = phi.createPos;
-                boolean hasCriticalInEdge = block.isLoopHeader();
-//                for (int i = 0; i < g.getInEdgesCount(block); ++i) {
-//                    int pred = g.g.getInEdge(block.getIndex(), i);
-//                    if (g.getOutEdgesCount(pred) > 1) {
-//                        hasCriticalInEdge = true;
-//                        break;
-//                    }
-//                }
-                for (StackItem item : block.getInStack()) {
-                    Exp e = item.originalExp();
-                    if (e instanceof StackPhi phi1) {
-                        if (phi1.getWriteOutVar() != null) {
-                            continue;
-                        }
-                        boolean useWorseSolution = hasCriticalInEdge && phi1.used;
-                        Var writeOut = useWorseSolution ? varManager.getTempVar() : phi1.getVar();
-                        varManager.setNonSSA(writeOut);
-                        if (useWorseSolution) {
-                            // add `v = writeOut` before any definition (first instruction) in create pos
-                            BytecodeBlock createPos = phi1.createPos;
-                            LValue lValue = phi1.getVar();
-                            addToBlockHead(createPos, Utils.newAssignStmt(method, lValue, writeOut));
-                        }
-                        phi1.setWriteOutVar(writeOut);
-                    }
-                }
-            }
-            for (StackPhi phi : stackPhiList) {
-                if (phi.getWriteOutVar() == null || phi.resolved) {
-                    continue;
-                }
-                resolveStackPhi(phi);
-            }
-        } else {
-            // emit phi stmts for stack variable
-            for (StackPhi phi : stackPhiList) {
-                BytecodeBlock block = phi.createPos;
-                // insert phi node in the first instruction
-                FrontendPhiExp phiExp = new FrontendPhiExp();
-                int unreachableOffset = 0;
-                for (int i = 0; i < cfg.getNormalInDegreeOf(block); ++i) {
-                    if (cfg.getNormalPredOf(block, i).getOutStack() == null) {
-                        unreachableOffset++;
-                        continue;
-                    }
-                    StackItem item = phi.getInExps().get(i - unreachableOffset);
-                    operandStack.liftToVar(item);
-                    phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
-                }
-                FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
-                phi.setWriteOutVar(phi.getVar());
-                addToBlockHead(block, frontendPhiStmt);
-                phi.resolved = true;
-            }
-        }
-    }
-
-    private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
-        AbstractInsnNode firstInsn = block.getInsns().get(0);
-        stmtManager.associateStmt(firstInsn, stmt);
-    }
-
-    private LazyArray<List<Stmt>> stackMergeStmts;
-
-    private void resolveStackPhi(StackPhi phi) {
-        assert !phi.resolved;
-        int unreachableOffset = 0;
-        Var writeOut = phi.getWriteOutVar();
-        for (int i = 0; i < phi.getInExps().size(); ++i) {
-            StackItem item = phi.getInExps().get(i);
-            BytecodeBlock inEdge = cfg.getNormalPredOf(phi.createPos, i + unreachableOffset);
-            if (inEdge.getOutStack() == null) {
-                unreachableOffset++;
-                continue;
-            }
-            List<Stmt> stmts = stackMergeStmts.get(inEdge.getIndex());
-            Exp e = item.exp();
-            if (e instanceof StackPhi phi1) {
-                e = phi1.getVar();
-            }
-            if (e == writeOut) {
-                continue;
-            }
-            if (Utils.mayHaveSideEffect(e) || phi.used) {
-                stmts.add(Utils.newAssignStmt(method, writeOut, e));
-            }
-        }
-        phi.resolved = true;
-    }
-
-    private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
-        if (current.isLoopHeader()) {
-            Stack<StackItem> inStack = current.getInStack();
-            for (int i = 0; i < cfg.getNormalInDegreeOf(current); ++i) {
-                BytecodeBlock outEdge = cfg.getNormalPredOf(current, i);
-                if (outEdge.getOutStack() == null) {
-                    assert outEdge.getInStack() == null;
-                    continue;
-                }
-                for (int j = 0; j < outEdge.getOutStack().size(); ++j) {
-                    Exp currentExp = inStack.get(j).originalExp();
-                    if (currentExp instanceof Top) {
-                        continue;
-                    }
-                    StackPhi phi = (StackPhi) currentExp;
-                    StackItem item = outEdge.getOutStack().get(j);
-                    phi.getInExps().add(item);
-                }
-            }
-        }
-    }
-
-    /**
-     * Build CFG from ASM instructions using {@link BytecodeCFGBuilder}.
-     */
-    public BytecodeCFG cfg;
-
     private void buildCFG() {
         // Build CFG with rwTable visitor and exception type resolver
         cfg = new BytecodeCFGBuilder(source,
@@ -560,7 +389,10 @@ public class BytecodeIRBuilder {
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             bytecodeProcessor.processBlock2Stmts(block);
         }
-        solveAllPhiAndOutput();
+        new StackPhiResolver(method, isSSA, operandStack, slotManager, cfg, stmtManager, varManager).solveAllPhi();
+        for (BytecodeBlock block : cfg) {
+            stmtManager.buildBlockStmts(block);
+        }
     }
 
 //    private void setLineNumber() {

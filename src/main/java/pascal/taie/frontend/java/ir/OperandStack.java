@@ -138,10 +138,10 @@ final class OperandStack {
         if (cfg.hasNoIncomingNormalEdges(block)) {
             inStack = null;
         } else if (inEdgeCount == 1) {
-            BytecodeBlock inEdge = cfg.getNormalPredOf(block, 0);
-            assert inEdge.getOutStack() != null;
+            BytecodeBlock inBlock = cfg.getNormalPredOf(block, 0);
+            assert inBlock.getOutStack() != null;
             inStack = new Stack<>();
-            inStack.addAll(inEdge.getOutStack());
+            inStack.addAll(inBlock.getOutStack());
         } else {
             inStack = mergeStacks(block, inEdgeCount);
         }
@@ -161,14 +161,14 @@ final class OperandStack {
         Stack<List<StackItem>> inExpsStack = new Stack<>();
         boolean[] needPhi = null;
         for (int i = 0; i < inEdgeCount; ++i) {
-            BytecodeBlock inEdge = cfg.getNormalPredOf(block, i);
-            if (inEdge.getOutStack() == null) {
+            BytecodeBlock inBlock = cfg.getNormalPredOf(block, i);
+            if (inBlock.getOutStack() == null) {
                 isLoopHeader = true;
                 if (inStack != null) {
                     break;
                 }
             } else {
-                Stack<StackItem> outStack = inEdge.getOutStack();
+                Stack<StackItem> outStack = inBlock.getOutStack();
                 if (inStack == null) {
                     // clone the first non-null stack
                     inStack = new Stack<>();

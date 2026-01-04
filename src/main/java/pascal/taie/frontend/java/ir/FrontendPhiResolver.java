@@ -39,11 +39,11 @@ import java.util.List;
  * to a corresponding source statement, producing the final phi expression
  * representation used in the IR.
  */
-class PhiResolver {
+class FrontendPhiResolver {
 
     private final BytecodeCFG cfg;
 
-    PhiResolver(BytecodeCFG cfg) {
+    FrontendPhiResolver(BytecodeCFG cfg) {
         this.cfg = cfg;
     }
 
