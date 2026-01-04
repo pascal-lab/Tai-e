@@ -25,38 +25,21 @@ package pascal.taie.frontend.java.ir;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LookupSwitchInsnNode;
-import org.objectweb.asm.tree.TableSwitchInsnNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
-import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
-import pascal.taie.ir.stmt.Catch;
-import pascal.taie.ir.stmt.Goto;
-import pascal.taie.ir.stmt.If;
-import pascal.taie.ir.stmt.PhiStmt;
-import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
-import pascal.taie.language.type.Type;
 import pascal.taie.util.graph.Dominators;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -159,9 +142,7 @@ public class BytecodeIRBuilder {
             traverseBlocks();
             inferTypes();
             IRAssembler assembler = new IRAssembler(method, source, typeSystem, varManager, cfg);
-            assembler.makeStmts(true);
-            assembler.makeExceptionTable();
-            ir = assembler.getIR();
+            ir = assembler.assembleIR();
         }
     }
 

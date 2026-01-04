@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.ir;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,12 +37,9 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
@@ -58,8 +54,11 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.LazyArray;
 
+/**
+ * Assembles the final Tai-e IR.
+ * It resolves jump targets, converts {@link FrontendPhiStmt} to the {@link PhiStmt}, and builds the exception table.
+ */
 class IRAssembler {
     private static final Logger logger = LogManager.getLogger(IRAssembler.class);
 
@@ -70,10 +69,6 @@ class IRAssembler {
     private final VarManager varManager;
     private final BytecodeCFG cfg;
 
-    // --- Internal State ---
-    private List<Stmt> stmts;
-    private List<ExceptionEntry> exceptionEntries;
-
     public IRAssembler(JMethod method, JSRInlinerAdapter source, FrontendTypeSystem typeSystem,
                        VarManager varManager, BytecodeCFG cfg) {
         this.method = method;
@@ -83,17 +78,99 @@ class IRAssembler {
         this.cfg = cfg;
     }
 
-    private int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return source.instructions.indexOf(insn);
-    }
-
-    IR getIR() {
+    /**
+     * Make statements, build exception tables, and construct the IR object.
+     */
+    IR assembleIR() {
+        List<Stmt> stmts = makeStmts();
+        List<ExceptionEntry> exceptionEntries = buildExceptionTable(stmts);
         Var thisVar = varManager.getThisVar();
         List<Var> params = varManager.getParams();
         List<Var> vars = varManager.getVars();
         Set<Var> retVars = varManager.getRetVars();
         return new DefaultIR(method, thisVar, params, retVars, vars, stmts, exceptionEntries);
+    }
+
+    /**
+     * Collect all statements from blocks and var manager, resolve jumps along the way, and resolve phi statements.
+     */
+    private List<Stmt> makeStmts() {
+        List<Stmt> stmts = new ArrayList<>(source.instructions.size());
+        List<FrontendPhiStmt> frontendPhiStmts = new ArrayList<>();
+        int now = 0;
+        for (Var v : varManager.intConstVarCache) {
+            if (v != null) {
+                Stmt curr = Utils.newAssignStmt(method, v, v.getConstValue());
+                curr.setIndex(now++);
+                stmts.add(curr);
+            }
+        }
+        for (BytecodeBlock block : cfg) {
+            List<Stmt> blockStmts = block.getStmts();
+            if (!blockStmts.isEmpty()) {
+                for (Stmt t : blockStmts) {
+                    if (true && t instanceof FrontendPhiStmt p) {
+                        frontendPhiStmts.add(p);
+                    }
+                    t.setIndex(now++);
+                    stmts.add(t);
+                }
+                setJumpTargets(block.getLastInsn(), block.getLastStmt());
+            }
+        }
+
+        FrontendPhiResolver resolver = new FrontendPhiResolver(cfg);
+        // Make PhiStmts using stmt.index as the value source.
+        for (FrontendPhiStmt p : frontendPhiStmts) {
+            int index = p.getIndex();
+            Type type = p.getLValue().getType();
+            PhiExp exp = new PhiExp(resolver.resolvePhi(p.getRValue()), type);
+            Stmt phiStmt = new PhiStmt(p.getLValue(), exp);
+            phiStmt.setIndex(index);
+            phiStmt.setLineNumber(p.getLineNumber());
+            stmts.set(index, phiStmt);
+        }
+
+        return stmts;
+    }
+
+    /**
+     * Converts bytecode exception handlers (TryCatchBlockNode) into Tai-e's ExceptionEntry format.
+     */
+    private List<ExceptionEntry> buildExceptionTable(List<Stmt> stmts) {
+        List<ExceptionEntry> exceptionEntries = new ArrayList<>();
+        for (TryCatchBlockNode node : source.tryCatchBlocks) {
+            Stmt start = getFirstStmt(node.start);
+            Stmt end;
+            if (node.end.getNext() == null) {
+                // final bytecode
+                end = stmts.get(stmts.size() - 1);
+            } else {
+                end = getFirstStmt(node.end);
+            }
+            assert start.getIndex() != -1;
+            Stmt handler = getFirstStmt(node.handler);
+            if (!(handler instanceof Catch)) {
+                // unreachable
+                continue;
+            } else if (start == end) {
+                // same position, maybe const store
+                // ----------- start
+                // aconst_null
+                // astore x       <----   x is ssa
+                // ----------- end
+                // then it should be automatically removed (or it will not be valid bytecode)
+                continue;
+            }
+            ClassType expType = fromExceptionType(node.type);
+            exceptionEntries.add(new ExceptionEntry(start, end, (Catch) handler, expType));
+        }
+        return exceptionEntries;
+    }
+
+    private int getInsnIndex(AbstractInsnNode insn) {
+        assert insn != null;
+        return source.instructions.indexOf(insn);
     }
 
     private Stmt getFirstStmt(LabelNode label) {
@@ -143,78 +220,6 @@ class IRAssembler {
             setSwitchTargets(table.labels, table.dflt, jumpStmt);
         }
         // insn is not jump, do nothing
-    }
-
-    void makeStmts(boolean isLastTime) {
-        this.stmts = new ArrayList<>(source.instructions.size());
-        // Add trigger whether we process phiStmts.
-        List<FrontendPhiStmt> frontendPhiStmts = isLastTime ? new ArrayList<>() : null;
-        int now = 0;
-        for (Var v : varManager.intConstVarCache) {
-            if (v != null) {
-                Stmt curr = Utils.newAssignStmt(method, v, v.getConstValue());
-                curr.setIndex(now++);
-                stmts.add(curr);
-            }
-        }
-        for (BytecodeBlock block : cfg) {
-            List<Stmt> blockStmts = block.getStmts();
-            if (!blockStmts.isEmpty()) {
-                for (Stmt t : blockStmts) {
-                    if (isLastTime && t instanceof FrontendPhiStmt p) {
-                        frontendPhiStmts.add(p);
-                    }
-                    t.setIndex(now++);
-                    stmts.add(t);
-                }
-                setJumpTargets(block.getLastInsn(), block.getLastStmt());
-            }
-        }
-
-        if (isLastTime) {
-            FrontendPhiResolver resolver = new FrontendPhiResolver(cfg);
-            // Make PhiStmts using stmt.index as the value source.
-            for (FrontendPhiStmt p : frontendPhiStmts) {
-                int index = p.getIndex();
-                Type type = p.getLValue().getType();
-                PhiExp exp = new PhiExp(resolver.resolvePhi(p.getRValue()), type);
-                Stmt phiStmt = new PhiStmt(p.getLValue(), exp);
-                phiStmt.setIndex(index);
-                phiStmt.setLineNumber(p.getLineNumber());
-                stmts.set(index, phiStmt);
-            }
-        }
-    }
-
-    void makeExceptionTable() {
-        List<ExceptionEntry> res = new ArrayList<>();
-        for (TryCatchBlockNode node : source.tryCatchBlocks) {
-            Stmt start = getFirstStmt(node.start);
-            Stmt end;
-            if (node.end.getNext() == null) {
-                // final bytecode
-                end = stmts.get(stmts.size() - 1);
-            } else {
-                end = getFirstStmt(node.end);
-            }
-            assert start.getIndex() != -1;
-            Stmt handler = getFirstStmt(node.handler);
-            if (!(handler instanceof Catch)) {
-                // unreachable
-                continue;
-            } else if (start == end) {
-                // same position, maybe const store
-                // ----------- start
-                // aconst_null
-                // astore x       <----   x is ssa
-                // ----------- end
-                // then it should be automatically removed (or it will not be valid bytecode)
-                continue;
-            }
-            ClassType expType = fromExceptionType(node.type);
-            res.add(new ExceptionEntry(start, end, (Catch) handler, expType));
-        }
-        exceptionEntries = res;
     }
 
     private ClassType fromExceptionType(String internalName) {
