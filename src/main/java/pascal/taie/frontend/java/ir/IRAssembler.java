@@ -69,7 +69,7 @@ class IRAssembler {
     private final VarManager varManager;
     private final BytecodeCFG cfg;
 
-    public IRAssembler(JMethod method, JSRInlinerAdapter source, FrontendTypeSystem typeSystem,
+    IRAssembler(JMethod method, JSRInlinerAdapter source, FrontendTypeSystem typeSystem,
                        VarManager varManager, BytecodeCFG cfg) {
         this.method = method;
         this.source = source;

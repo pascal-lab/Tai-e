@@ -49,7 +49,7 @@ class StackPhiResolver {
     private final StmtManager stmtManager;
     private final VarManager varManager;
 
-    public StackPhiResolver(JMethod method, boolean isSSA,
+    StackPhiResolver(JMethod method, boolean isSSA,
                             OperandStack operandStack, BytecodeCFG cfg,
                             StmtManager stmtManager, VarManager varManager) {
         this.method = method;

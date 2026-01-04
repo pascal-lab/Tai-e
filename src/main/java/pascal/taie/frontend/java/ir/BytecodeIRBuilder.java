@@ -72,11 +72,6 @@ public class BytecodeIRBuilder {
     public final VarManager varManager;
 
     /**
-     * Generated Tai-e IR stmts
-     */
-    private List<Stmt> stmts;
-
-    /**
      * Generated Tai-e IR exception entry ({@link ExceptionEntry})
      */
     private List<ExceptionEntry> exceptionEntries;
@@ -128,30 +123,37 @@ public class BytecodeIRBuilder {
         this.stmtManager = new StmtManager(isSSA, source.instructions);
         this.slotManager = new SlotManager(method,
                 varManager, isSSA, source, stmtManager);
-        this.stmts = new ArrayList<>();
     }
 
     public void build() {
         if (source.instructions.size() != 0) {
-            buildCFG();
-            buildDom();
+            // Build CFG with rwTable visitor and exception type resolver
+            cfg = new BytecodeCFGBuilder(source,
+                    slotManager::writeRwTable,
+                    this::fromExceptionType)
+                    .build();
+            dom = new Dominators<>(cfg);
             slotManager.build(cfg, dom);
             operandStack = new OperandStack(method, varManager, cfg, stmtManager);
             bytecodeProcessor = new BytecodeProcessor(typeSystem, varManager,
                     method, isSSA, operandStack, slotManager, stmtManager);
-            traverseBlocks();
-            inferTypes();
+            cfg.getEntry().setInStack(new Stack<>());
+            for (BytecodeBlock block : dom.getReversePostOrder()) {
+                bytecodeProcessor.processBlock2Stmts(block);
+            }
+            for (BytecodeBlock block : dom.getReversePostOrder()) {
+                if (isSSA) {
+                    slotManager.addInDefsForSlotPhis(block);
+                }
+            }
+            new StackPhiResolver(method, isSSA, operandStack, cfg, stmtManager, varManager).resolveStackPhis();
+            for (BytecodeBlock block : cfg) {
+                stmtManager.buildBlockStmts(block);
+            }
+            new TypeInference(this, typeSystem).build();
             IRAssembler assembler = new IRAssembler(method, source, typeSystem, varManager, cfg);
             ir = assembler.assembleIR();
         }
-    }
-
-    private void buildDom() {
-        dom = new Dominators<>(cfg);
-    }
-
-    private void inferTypes() {
-        new TypeInference(this, typeSystem).build();
     }
 
     private void verify() {
@@ -175,44 +177,8 @@ public class BytecodeIRBuilder {
 
     private boolean verifyInStmts(Stmt stmt) {
         return stmt.getIndex() != -1 &&
-                this.stmts.size() > stmt.getIndex() &&
-                this.stmts.get(stmt.getIndex()) == stmt;
-    }
-
-//    private void mergeStack1(List<Stmt> auxiliary, Stack<StackItem> nowStack, Stack<StackItem> targetStack) {
-//        Exp v = targetStack.pop();
-//        if (v instanceof Top) {
-//            return;
-//        }
-//        assert v instanceof Var: "merge target should be var of top";
-//        Exp e = peekExp(nowStack);
-//        if (e == v) {
-//            popExp(nowStack);
-//        } else {
-//            Stmt stmt = popToVar(nowStack, (Var) v);
-//            auxiliary.add(stmt);
-//        }
-//    }
-
-//    private void mergeStack(BytecodeBlock bb, Stack<Exp> nowStack, Stack<Exp> target) {
-//        List<Stmt> auxiliary = new ArrayList<>();
-//        Stack<Exp> nowStack1 = new Stack<>();
-//        Stack<Exp> target1 = new Stack<>();
-//        nowStack1.addAll(nowStack);
-//        target1.addAll(target);
-//        while (! nowStack1.isEmpty()) {
-//            mergeStack1(auxiliary, nowStack1, target1);
-//        }
-//        appendStackMergeStmts(bb, auxiliary);
-//        assert target1.empty();
-//    }
-
-    private void buildCFG() {
-        // Build CFG with rwTable visitor and exception type resolver
-        cfg = new BytecodeCFGBuilder(source,
-                slotManager::writeRwTable,
-                this::fromExceptionType)
-                .build();
+                this.ir.getStmts().size() > stmt.getIndex() &&
+                this.ir.getStmts().get(stmt.getIndex()) == stmt;
     }
 
     private ClassType fromExceptionType(String internalName) {
@@ -227,49 +193,6 @@ public class BytecodeIRBuilder {
             }
         }
     }
-
-    private void traverseBlocks() {
-        cfg.getEntry().setInStack(new Stack<>());
-        for (BytecodeBlock block : dom.getReversePostOrder()) {
-            bytecodeProcessor.processBlock2Stmts(block);
-        }
-        for (BytecodeBlock block : dom.getReversePostOrder()) {
-            if (isSSA) {
-                slotManager.addInDefsForSlotPhis(block);
-            }
-        }
-        new StackPhiResolver(method, isSSA, operandStack, cfg, stmtManager, varManager).resolveStackPhis();
-        for (BytecodeBlock block : cfg) {
-            stmtManager.buildBlockStmts(block);
-        }
-    }
-
-//    private void setLineNumber() {
-//        int currentLineNumber = -1;
-//        for (var insn : source.instructions) {
-//            if (!(insn instanceof LabelNode)) {
-//                if (insn instanceof LineNumberNode l) {
-//                    currentLineNumber = l.line;
-//                } else {
-//                    if (currentLineNumber == -1) {
-//                        logger.atDebug().log("[IR] no line number info, method: " + method);
-//                        return;
-//                    }
-//                    var stmt = insn2Stmt[getInsnIndex(insn)];
-//                    if (stmt != null) {
-//                        stmt.setLineNumber(currentLineNumber);
-//                    }
-//
-//                    var stmts = auxiliaryStmts.get(getInsnIndex(insn));
-//                    if (stmts != null) {
-//                        for (var s : stmts) {
-//                            s.setLineNumber(currentLineNumber);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     public IR getIr() {
         return ir;
