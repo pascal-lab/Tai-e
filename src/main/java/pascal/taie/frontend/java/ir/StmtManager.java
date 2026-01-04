@@ -51,7 +51,6 @@ final class StmtManager {
      */
     private final List<List<Stmt>> additionalStmts;
 
-
     /**
      * A <i>mutable</i> field that record current line number of visited bytecode
      */
@@ -110,42 +109,25 @@ final class StmtManager {
     }
 
     /**
-     * Gets the index of a bytecode instruction.
+     * Appends a list of statements to the end of the specified bytecode block.
+     * If the block ends with a control-flow instruction, the new statements
+     * are inserted before it.
      */
-    private int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return instructions.indexOf(insn);
-    }
-
-    void appendStackMergeStmts(BytecodeBlock block, List<Stmt> stackMergeStmts) {
-        if (!stackMergeStmts.isEmpty()) {
+    void appendStmts(BytecodeBlock block, List<Stmt> stmts) {
+        if (!stmts.isEmpty()) {
             AbstractInsnNode lastInsn = block.getLastInsn();
             if (isCFEdge(lastInsn)) {
                 // last stmt may attach goto, if, switch ...
-                List<Stmt> stmts = clearStmt(lastInsn);
-                for (int i = 0; i < stmts.size() - 1; ++i) {
-                    associateStmt(lastInsn, stmts.get(i));
+                List<Stmt> originalStmts = clearStmt(lastInsn);
+                for (int i = 0; i < originalStmts.size() - 1; ++i) {
+                    associateStmt(lastInsn, originalStmts.get(i));
                 }
-                stackMergeStmts.forEach(stmt -> associateStmt(lastInsn, stmt));
-                associateStmt(lastInsn, stmts.get(stmts.size() - 1));
+                stmts.forEach(stmt -> associateStmt(lastInsn, stmt));
+                associateStmt(lastInsn, originalStmts.get(originalStmts.size() - 1));
             } else {
-                stackMergeStmts.forEach(stmt -> associateStmt(lastInsn, stmt));
+                stmts.forEach(stmt -> associateStmt(lastInsn, stmt));
             }
         }
-    }
-
-    private List<Stmt> clearStmt(AbstractInsnNode insn) {
-        List<Stmt> res = new ArrayList<>();
-        int idx = getInsnIndex(insn);
-        if (insn2Stmt[idx] != null) {
-            res.add(insn2Stmt[idx]);
-            insn2Stmt[idx] = null;
-        }
-        if (additionalStmts.get(idx) != null) {
-            res.addAll(additionalStmts.get(idx));
-            additionalStmts.set(idx, null);
-        }
-        return res;
     }
 
     void ensureBlockNotEmpty(BytecodeBlock block) {
@@ -198,5 +180,27 @@ final class StmtManager {
             blockStmt.clear();
             blockStmt.addAll(stmts);
         }
+    }
+
+    /**
+     * Gets the index of a bytecode instruction.
+     */
+    private int getInsnIndex(AbstractInsnNode insn) {
+        assert insn != null;
+        return instructions.indexOf(insn);
+    }
+
+    private List<Stmt> clearStmt(AbstractInsnNode insn) {
+        List<Stmt> res = new ArrayList<>();
+        int idx = getInsnIndex(insn);
+        if (insn2Stmt[idx] != null) {
+            res.add(insn2Stmt[idx]);
+            insn2Stmt[idx] = null;
+        }
+        if (additionalStmts.get(idx) != null) {
+            res.addAll(additionalStmts.get(idx));
+            additionalStmts.set(idx, null);
+        }
+        return res;
     }
 }

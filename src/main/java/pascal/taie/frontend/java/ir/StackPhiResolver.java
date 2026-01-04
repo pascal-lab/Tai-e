@@ -37,136 +37,140 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.LazyArray;
 
+/**
+ * Resolve {@link StackPhi}s into {@link FrontendPhiStmt}s (SSA mode) or explicit assignments (non-SSA mode).
+ */
 class StackPhiResolver {
     // --- Dependencies ---
     private final JMethod method;
     private final boolean isSSA;
     private final OperandStack operandStack;
-    private final SlotManager slotManager;
     private final BytecodeCFG cfg;
     private final StmtManager stmtManager;
     private final VarManager varManager;
 
-    // --- Internal State ---
-    private LazyArray<List<Stmt>> stackMergeStmts;
-
     public StackPhiResolver(JMethod method, boolean isSSA,
-                            OperandStack operandStack, SlotManager slotManager,
-                            BytecodeCFG cfg, StmtManager stmtManager, VarManager varManager) {
+                            OperandStack operandStack, BytecodeCFG cfg,
+                            StmtManager stmtManager, VarManager varManager) {
         this.method = method;
         this.isSSA = isSSA;
         this.operandStack = operandStack;
-        this.slotManager = slotManager;
         this.cfg = cfg;
         this.stmtManager = stmtManager;
         this.varManager = varManager;
     }
 
-    void solveAllPhi() {
+    /**
+     * Orchestrates the resolution process: computes loop header inputs, propagates usage status, and emits IR statements.
+     */
+    void resolveStackPhis() {
         List<StackPhi> stackPhiList = operandStack.getStackPhiList();
         for (BytecodeBlock block : cfg) {
-            fillInLoopHeaderStackPhis(block);
-            if (isSSA) {
-                slotManager.addInDefsForSlotPhis(block);
-            }
+            addInExpsOfLoopHeaderStackPhis(block);
         }
-        propagatePhiUsed(stackPhiList);
-        resolveStackPhi(stackPhiList);
-        for (BytecodeBlock block : cfg) {
-            // unreachable
-            if (block.getOutStack() == null) {
-                continue;
-            }
-            if (!isSSA) {
-                if (stackMergeStmts.contains(block.getIndex())) {
-                    List<Stmt> stmts = stackMergeStmts.get(block.getIndex());
-                    stmtManager.appendStackMergeStmts(block, stmts);
-                }
-            }
-        }
+        propagateStackPhiUsed(stackPhiList);
+        resolveStackPhis2Stmts(stackPhiList);
     }
 
-    private void propagatePhiUsed(List<StackPhi> stackPhiList) {
+    /**
+     * Propagates the usage status transitively.
+     */
+    private void propagateStackPhiUsed(List<StackPhi> stackPhiList) {
         for (StackPhi phi : stackPhiList) {
             if (phi.used) {
-                setStackPhiUsed(phi);
+                propagate2InPhis(phi);
             }
         }
     }
 
-    private void setStackPhiUsed(StackPhi phi) {
+    private void propagate2InPhis(StackPhi phi) {
         for (StackItem item : phi.getInExps()) {
             Exp e = item.exp();
-            if (e instanceof StackPhi phi1) {
-                if (!phi1.used) {
-                    phi1.used = true;
-                    setStackPhiUsed(phi1);
+            if (e instanceof StackPhi inPhi) {
+                if (!inPhi.used) {
+                    inPhi.used = true;
+                    propagate2InPhis(inPhi);
                 }
             }
         }
     }
 
-    private void resolveStackPhi(List<StackPhi> stackPhiList) {
+    /**
+     * Resolve {@link StackPhi} into concrete IR statements.
+     */
+    private void resolveStackPhis2Stmts(List<StackPhi> stackPhiList) {
         if (!isSSA) {
-            stackMergeStmts = new LazyArray<>(cfg.nodeCount()) {
+            LazyArray<List<Stmt>> preMergeAssigns = new LazyArray<>(cfg.nodeCount()) {
                 @Override
                 protected List<Stmt> createElement() {
                     return new ArrayList<>();
                 }
             };
             for (StackPhi phi : stackPhiList) {
-                if (phi.getWriteOutVar() != null) {
-                    continue;
-                }
-                BytecodeBlock block = phi.createPos;
-                boolean useWorseSolution = block.isLoopHeader() && phi.used;
-                Var writeOut = useWorseSolution ? varManager.getTempVar() : phi.getVar();
-                varManager.setNonSSA(writeOut);
-                if (useWorseSolution) {
-                    // add `v = writeOut` before any definition (first instruction) in create pos
-                    BytecodeBlock createPos = phi.createPos;
-                    LValue lValue = phi.getVar();
-                    addToBlockHead(createPos, Utils.newAssignStmt(method, lValue, writeOut));
-                }
-                phi.setWriteOutVar(writeOut);
+                computeWriteOutVar(phi);
             }
             for (StackPhi phi : stackPhiList) {
-                if (phi.getWriteOutVar() == null || phi.resolved) {
+                resolve2Assigns(phi, preMergeAssigns);
+            }
+            for (BytecodeBlock block : cfg) {
+                // unreachable block
+                if (block.getOutStack() == null) {
                     continue;
                 }
-                resolveStackPhi(phi);
+                if (preMergeAssigns.contains(block.getIndex())) {
+                    List<Stmt> stmts = preMergeAssigns.get(block.getIndex());
+                    stmtManager.appendStmts(block, stmts);
+                }
             }
         } else {
             // emit phi stmts for stack variable
             for (StackPhi phi : stackPhiList) {
-                BytecodeBlock block = phi.createPos;
-                // insert phi node in the first instruction
-                FrontendPhiExp phiExp = new FrontendPhiExp();
-                int unreachableOffset = 0;
-                for (int i = 0; i < cfg.getNormalInDegreeOf(block); ++i) {
-                    if (cfg.getNormalPredOf(block, i).getOutStack() == null) {
-                        unreachableOffset++;
-                        continue;
-                    }
-                    StackItem item = phi.getInExps().get(i - unreachableOffset);
-                    operandStack.liftToVar(item);
-                    phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
-                }
-                FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
-                phi.setWriteOutVar(phi.getVar());
-                addToBlockHead(block, frontendPhiStmt);
-                phi.resolved = true;
+                resolve2FrontendPhi(phi);
             }
         }
     }
 
-    private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
-        AbstractInsnNode firstInsn = block.getInsns().get(0);
-        stmtManager.associateStmt(firstInsn, stmt);
+    private void resolve2FrontendPhi(StackPhi phi) {
+        BytecodeBlock block = phi.createPos;
+        // insert phi node in the first instruction
+        FrontendPhiExp phiExp = new FrontendPhiExp();
+        int unreachableOffset = 0;
+        for (int i = 0; i < cfg.getNormalInDegreeOf(block); ++i) {
+            if (cfg.getNormalPredOf(block, i).getOutStack() == null) {
+                unreachableOffset++;
+                continue;
+            }
+            StackItem item = phi.getInExps().get(i - unreachableOffset);
+            operandStack.liftToVar(item);
+            phiExp.addUseAndCorrespondingBlocks(item.var(), cfg.getNormalPredOf(block, i));
+        }
+        FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(phi.getVar(), phi.getVar(), phiExp);
+        phi.setWriteOutVar(phi.getVar());
+        addToBlockHead(block, frontendPhiStmt);
+        phi.resolved = true;
     }
 
-    private void resolveStackPhi(StackPhi phi) {
-        assert !phi.resolved;
+    private void computeWriteOutVar(StackPhi phi) {
+        if (phi.getWriteOutVar() != null) {
+            return;
+        }
+        BytecodeBlock block = phi.createPos;
+        boolean useWorseSolution = block.isLoopHeader() && phi.used;
+        Var writeOut = useWorseSolution ? varManager.getTempVar() : phi.getVar();
+        varManager.setNonSSA(writeOut);
+        if (useWorseSolution) {
+            // add `v = writeOut` before any definition (first instruction) in create pos
+            BytecodeBlock createPos = phi.createPos;
+            LValue lValue = phi.getVar();
+            addToBlockHead(createPos, Utils.newAssignStmt(method, lValue, writeOut));
+        }
+        phi.setWriteOutVar(writeOut);
+    }
+
+    private void resolve2Assigns(StackPhi phi, LazyArray<List<Stmt>> preMergeAssigns) {
+        if (phi.getWriteOutVar() == null || phi.resolved) {
+            return;
+        }
         int unreachableOffset = 0;
         Var writeOut = phi.getWriteOutVar();
         for (int i = 0; i < phi.getInExps().size(); ++i) {
@@ -176,7 +180,7 @@ class StackPhiResolver {
                 unreachableOffset++;
                 continue;
             }
-            List<Stmt> stmts = stackMergeStmts.get(inBlock.getIndex());
+            List<Stmt> stmts = preMergeAssigns.get(inBlock.getIndex());
             Exp e = item.exp();
             if (e instanceof StackPhi inPhi) {
                 e = inPhi.getVar();
@@ -191,7 +195,7 @@ class StackPhiResolver {
         phi.resolved = true;
     }
 
-    private void fillInLoopHeaderStackPhis(BytecodeBlock current) {
+    private void addInExpsOfLoopHeaderStackPhis(BytecodeBlock current) {
         if (current.isLoopHeader()) {
             Stack<StackItem> inStack = current.getInStack();
             for (int i = 0; i < cfg.getNormalInDegreeOf(current); ++i) {
@@ -211,5 +215,10 @@ class StackPhiResolver {
                 }
             }
         }
+    }
+
+    private void addToBlockHead(BytecodeBlock block, Stmt stmt) {
+        AbstractInsnNode firstInsn = block.getInsns().get(0);
+        stmtManager.associateStmt(firstInsn, stmt);
     }
 }

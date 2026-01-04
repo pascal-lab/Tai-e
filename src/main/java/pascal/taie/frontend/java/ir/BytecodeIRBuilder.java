@@ -34,13 +34,10 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.Exp;
-import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
@@ -55,7 +52,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.graph.Dominators;
 
 import java.util.ArrayList;
@@ -389,7 +385,12 @@ public class BytecodeIRBuilder {
         for (BytecodeBlock block : dom.getReversePostOrder()) {
             bytecodeProcessor.processBlock2Stmts(block);
         }
-        new StackPhiResolver(method, isSSA, operandStack, slotManager, cfg, stmtManager, varManager).solveAllPhi();
+        for (BytecodeBlock block : dom.getReversePostOrder()) {
+            if (isSSA) {
+                slotManager.addInDefsForSlotPhis(block);
+            }
+        }
+        new StackPhiResolver(method, isSSA, operandStack, cfg, stmtManager, varManager).resolveStackPhis();
         for (BytecodeBlock block : cfg) {
             stmtManager.buildBlockStmts(block);
         }
