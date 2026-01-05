@@ -23,6 +23,7 @@
 package pascal.taie.frontend.java.ir.ssa;
 
 import pascal.taie.frontend.java.ir.BytecodeBlock;
+import pascal.taie.frontend.java.ir.DUInfo;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
@@ -127,7 +128,7 @@ public class BCSSA {
 
     private final LazyArray<List<SemiPhi>> phis;
 
-    private final GenericDUInfo info;
+    private final DUInfo info;
 
     private int[] duReachDef;
 
@@ -153,7 +154,7 @@ public class BCSSA {
 
     public BCSSA(IndexedGraph<BytecodeBlock> graph,
                  int varSize,
-                 GenericDUInfo info,
+                 DUInfo info,
                  boolean useSSA,
                  Dominators<BytecodeBlock> dom) {
         this.graph = graph;
@@ -167,12 +168,12 @@ public class BCSSA {
                 return new ArrayList<>();
             }
         };
-        this.renames = new int[info.getMaxDuIndex()];
+        this.renames = new int[info.getMaxDUIndex()];
         this.allPhis = new ArrayList<>();
         this.useSSA = useSSA;
-        this.used = new boolean[info.getMaxDuIndex()];
+        this.used = new boolean[info.getMaxDUIndex()];
         Arrays.fill(renames, UNDEFINED);
-        defOwned = new IntList[info.getMaxDuIndex()];
+        defOwned = new IntList[info.getMaxDUIndex()];
     }
 
     public void build() {
@@ -211,7 +212,7 @@ public class BCSSA {
         // pass 2: generate new names for each cluster and spreading through used phi functions
         // only needed when perform splitting instead of SSA
         if (!useSSA) {
-            paramToName = new int[info.getMaxDuIndex()];
+            paramToName = new int[info.getMaxDUIndex()];
             Arrays.fill(paramToName, UNDEFINED);
             int varIndex = 0;
             boolean[] visited = new boolean[phiCount];
@@ -303,12 +304,12 @@ public class BCSSA {
     }
 
     public void travLink(int phiCount) {
-        duReachDef = new int[info.getMaxDuIndex() + phiCount];
+        duReachDef = new int[info.getMaxDUIndex() + phiCount];
         int[] varReachDef = new int[varSize];
         Arrays.fill(duReachDef, UNDEFINED);
         Arrays.fill(varReachDef, UNDEFINED);
-        GenericDUInfo.DUVisitor varDUVisitor = (index, type, v) -> {
-            if (type == GenericDUInfo.OccurType.USE) {
+        DUInfo.DUVisitor varDUVisitor = (index, type, v) -> {
+            if (type == DUInfo.OccurType.USE) {
                 int before = varReachDef[v];
                 assert before > -100000;
                 updateReachingDef(v, index, varReachDef);
@@ -423,15 +424,15 @@ public class BCSSA {
     }
 
     private boolean isPhiDef(int duIndex) {
-        return duIndex >= info.getMaxDuIndex();
+        return duIndex >= info.getMaxDUIndex();
     }
 
     private int getPhiDuIndex(int phiIndex) {
-        return phiIndex + info.getMaxDuIndex();
+        return phiIndex + info.getMaxDUIndex();
     }
 
     private SemiPhi getPhiByIndex(int duIndex) {
-        int phiIndex = duIndex - info.getMaxDuIndex();
+        int phiIndex = duIndex - info.getMaxDUIndex();
         return allPhis.get(phiIndex);
     }
 
@@ -516,7 +517,7 @@ public class BCSSA {
     }
 
     public int getMaxDUCount() {
-        return info.getMaxDuIndex() + allPhis.size();
+        return info.getMaxDUIndex() + allPhis.size();
     }
 
     public boolean isDefUsed(int def) {
