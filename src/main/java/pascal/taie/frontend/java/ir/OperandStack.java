@@ -35,7 +35,6 @@ import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
 
 import java.util.ArrayList;
@@ -80,9 +79,9 @@ final class OperandStack {
     /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
-    OperandStack(BytecodeIRBuildContext context) {
+    OperandStack(IRBuilderContext context) {
         this.context = context;
         this.phiList = new ArrayList<>();
     }

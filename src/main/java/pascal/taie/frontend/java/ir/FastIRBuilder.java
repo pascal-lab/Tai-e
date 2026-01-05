@@ -27,6 +27,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
+
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.ir.IR;
@@ -48,7 +49,7 @@ import java.util.concurrent.ConcurrentMap;
  * building Intermediate Representations (IR) for Java methods.
  * It supports building IR for JVM bytecode in ({@link AsmMethodSource}).
  */
-public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
+public class FastIRBuilder implements pascal.taie.ir.IRBuilder {
 
     private final FrontendTypeSystem typeSystem;
 
@@ -65,7 +66,7 @@ public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
     private final ConcurrentMap<JMethod, AsmMethodSource> method2Source
             = Maps.newConcurrentMap(1024);
 
-    public DefaultIRBuilder(FrontendTypeSystem typeSystem) {
+    public FastIRBuilder(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
     }
 
@@ -81,13 +82,12 @@ public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
         AsmMethodSource source = method2Source.remove(method);
         if (source == null) {
             throw new IllegalStateException("""
-                Cannot find method source for %s,
-                most likely the method is built twice by mistake.
-                """.formatted(method));
+                    Cannot find method source for %s,
+                    most likely the method is built twice by mistake.
+                    """.formatted(method));
         }
         BytecodeIRBuilder builder = new BytecodeIRBuilder(typeSystem, method, source);
-        builder.build();
-        IR ir = builder.getIR();
+        IR ir = builder.build();
         if (ir == null) {
             throw new IllegalStateException("Failed to build IR for method %s"
                     .formatted(method));
@@ -115,6 +115,7 @@ public class DefaultIRBuilder implements pascal.taie.ir.IRBuilder {
      * Ensures that method sources for the specified class are loaded.
      * If the method sources have already been loaded, this is a no-op.
      * Uses synchronization to guard against concurrent loading.
+     *
      * @param clazz the class whose method sources should be loaded
      */
     private void loadMethodSourcesIfNeeded(JClass clazz) {

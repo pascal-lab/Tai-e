@@ -35,7 +35,7 @@ import pascal.taie.util.graph.Dominators;
 /**
  * Holds the shared state and resources for the IR building process of a single method.
  */
-public class BytecodeIRBuildContext {
+public class IRBuilderContext {
 
     // --- Immutable Resources (Input & Config) ---
 
@@ -93,7 +93,7 @@ public class BytecodeIRBuildContext {
      */
     Dominators<BytecodeBlock> dom;
 
-    BytecodeIRBuildContext(JMethod method, AsmMethodSource methodSource, FrontendTypeSystem typeSystem) {
+    IRBuilderContext(JMethod method, AsmMethodSource methodSource, FrontendTypeSystem typeSystem) {
         this.method = method;
         this.source = methodSource.adapter();
         this.typeSystem = typeSystem;

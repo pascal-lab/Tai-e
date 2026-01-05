@@ -27,7 +27,7 @@
  * <ul>
  *   <li>{@link pascal.taie.frontend.java.ir.BytecodeIRBuilder}:
  *   Converts JVM bytecode to Tai-e 3-address code IR</li>
- *   <li>{@link pascal.taie.frontend.java.ir.DefaultIRBuilder}:
+ *   <li>{@link pascal.taie.frontend.java.ir.FastIRBuilder}:
  *   Implements {@link pascal.taie.ir.IRBuilder}</li>
  *   <li>{@link pascal.taie.frontend.java.ir.BytecodeCFG} /
  *   {@link pascal.taie.frontend.java.ir.BytecodeBlock}:

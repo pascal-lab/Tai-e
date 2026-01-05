@@ -22,9 +22,8 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
-import pascal.taie.frontend.java.ir.BytecodeIRBuildContext;
+import pascal.taie.frontend.java.ir.IRBuilderContext;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -81,13 +80,13 @@ import static pascal.taie.language.type.IntType.INT;
 public class TypeInference {
 
 
-    final BytecodeIRBuildContext context;
+    final IRBuilderContext context;
 
     final TypingFlowGraph graph;
 
     private boolean needCasting;
 
-    public TypeInference(BytecodeIRBuildContext context) {
+    public TypeInference(IRBuilderContext context) {
         this.context = context;
         this.needCasting = false;
         this.graph = new TypingFlowGraph(context.varManager.getVars().size());

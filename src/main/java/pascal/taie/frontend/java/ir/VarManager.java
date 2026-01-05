@@ -107,7 +107,7 @@ public class VarManager {
     private final BitSet varIsSSA;
 
     @SuppressWarnings("unchecked")
-    VarManager(BytecodeIRBuildContext context) {
+    VarManager(IRBuilderContext context) {
         JSRInlinerAdapter source = context.source;
         this.method = context.method;
         this.localVariableTable = source.localVariables;

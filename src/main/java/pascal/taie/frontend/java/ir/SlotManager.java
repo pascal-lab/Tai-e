@@ -101,13 +101,13 @@ final class SlotManager {
     /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
     // ========================================================================
     // 1. Construction & Build Phase
     // ========================================================================
 
-    SlotManager(BytecodeIRBuildContext context) {
+    SlotManager(IRBuilderContext context) {
         this.context = context;
 
         this.paramWriteSize = getParamWriteSize();

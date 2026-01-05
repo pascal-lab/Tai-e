@@ -41,7 +41,7 @@ import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 final class StmtManager {
 
     /**
-     * A mapping from bytecode instruction index (use {@link BytecodeIRBuildContext#getInsnIndex} to obtain) to generated Tai-e IR stmt
+     * A mapping from bytecode instruction index (use {@link IRBuilderContext#getInsnIndex} to obtain) to generated Tai-e IR stmt
      */
     private final Stmt[] insn2Stmt;
 
@@ -59,9 +59,9 @@ final class StmtManager {
     /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
-    StmtManager(BytecodeIRBuildContext context) {
+    StmtManager(IRBuilderContext context) {
         this.context = context;
 
         int insnCount = context.source.instructions.size();

@@ -44,9 +44,9 @@ class StackPhiResolver {
     /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
-    StackPhiResolver(BytecodeIRBuildContext context) {
+    StackPhiResolver(IRBuilderContext context) {
         this.context = context;
     }
 

@@ -33,7 +33,7 @@ import pascal.taie.frontend.java.classes.DefaultClassLoader;
 import pascal.taie.frontend.java.classes.PhantomClassBuilder;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
 import pascal.taie.frontend.java.closedworld.ClosedWorldBuilder;
-import pascal.taie.frontend.java.ir.DefaultIRBuilder;
+import pascal.taie.frontend.java.ir.FastIRBuilder;
 import pascal.taie.frontend.java.project.OptionsProjectBuilder;
 import pascal.taie.frontend.java.project.Project;
 import pascal.taie.ir.IRBuilder;
@@ -134,7 +134,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
 
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
-        IRBuilder irBuilder = new DefaultIRBuilder(typeSystem);
+        IRBuilder irBuilder = new FastIRBuilder(typeSystem);
         world.setIRBuilder(irBuilder);
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);

@@ -62,9 +62,9 @@ class IRAssembler {
     /**
      * The shared context holding all sources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
-    IRAssembler(BytecodeIRBuildContext context) {
+    IRAssembler(IRBuilderContext context) {
         this.context = context;
     }
 

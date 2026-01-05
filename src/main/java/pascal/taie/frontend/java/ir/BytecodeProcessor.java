@@ -49,7 +49,6 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -97,7 +96,6 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.TableSwitch;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.PrimitiveType;
@@ -124,9 +122,9 @@ final class BytecodeProcessor {
     /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
-    BytecodeProcessor(BytecodeIRBuildContext context) {
+    BytecodeProcessor(IRBuilderContext context) {
         this.context = context;
     }
 

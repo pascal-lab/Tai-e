@@ -26,7 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pascal.taie.frontend.java.ir.BytecodeBlock;
-import pascal.taie.frontend.java.ir.BytecodeIRBuildContext;
+import pascal.taie.frontend.java.ir.IRBuilderContext;
 import pascal.taie.frontend.java.ir.Lenses;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -66,13 +66,13 @@ class CastingInserter {
 
     private static final Logger logger = LogManager.getLogger(CastingInserter.class);
 
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
     private Stmt currentStmt;
 
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    CastingInserter(BytecodeIRBuildContext context) {
+    CastingInserter(IRBuilderContext context) {
         this.context = context;
         this.flowTypeCache = Maps.newHybridMap();
     }

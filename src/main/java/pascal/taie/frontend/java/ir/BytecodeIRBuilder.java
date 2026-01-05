@@ -28,95 +28,58 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.IR;
-import pascal.taie.ir.exp.Var;
-import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.graph.Dominators;
-
-import java.util.List;
 
 /**
  * The main class for converting bytecode to Tai-e IR.
  */
-public class BytecodeIRBuilder {
+class BytecodeIRBuilder {
 
     private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
 
     /**
-     * Tai-e IR output
-     */
-    private IR ir;
-
-    /**
      * The shared context holding all resources and state for the IR building process.
      */
-    private final BytecodeIRBuildContext context;
+    private final IRBuilderContext context;
 
     BytecodeIRBuilder(FrontendTypeSystem typeSystem, JMethod method,
                       AsmMethodSource methodSource) {
-        this.context = new BytecodeIRBuildContext(method, methodSource, typeSystem);
+        this.context = new IRBuilderContext(method, methodSource, typeSystem);
     }
 
-    public void build() {
-        if (context.source.instructions.size() != 0) {
-            // 1. build cfg, and also construct RwTable (used in slotManager) when building CFG
-            context.cfg = new BytecodeCFGBuilder(context.source,
-                    context.slotManager::writeRwTable, context::getExceptionType)
-                    .build();
-            assert context.cfg != null;
-
-            // 2. build dominators
-            context.dom = new Dominators<>(context.cfg);
-
-            // 3. initialize slotManager: compute def-use info, build BCSSA and initialize Vars
-            context.slotManager.initialize();
-
-            // 4. process bytecode blocks to statements
-            new BytecodeProcessor(context).processBlocks2Stmt();
-
-            // 5. generate all the frontend phis
-            context.slotManager.addInDefsForSlotPhis();
-            new StackPhiResolver(context).resolveStackPhis();
-
-            // 6. collect stmts for each block
-            for (BytecodeBlock block : context.cfg) {
-                context.stmtManager.buildBlockStmts(block);
-            }
-
-            // 7. type inference
-            new TypeInference(context).build();
-
-            // 8. complete stmts and build exception table, finally get IR
-            ir = new IRAssembler(context).assembleIR();
+    IR build() {
+        if (context.source.instructions.size() == 0) {
+            return null;
         }
-    }
+        // 1. build cfg, and also construct RwTable (used in slotManager) when building CFG
+        context.cfg = new BytecodeCFGBuilder(context.source,
+                context.slotManager::writeRwTable, context::getExceptionType)
+                .build();
+        assert context.cfg != null;
 
-    public IR getIR() {
-        return ir;
-    }
+        // 2. build dominators
+        context.dom = new Dominators<>(context.cfg);
 
-    private void verify() {
-        for (Var v : context.varManager.getVars()) {
-            assert verifyAllInStmts(v.getInvokes());
-            assert verifyAllInStmts(v.getLoadArrays());
-            assert verifyAllInStmts(v.getStoreArrays());
-            assert verifyAllInStmts(v.getLoadFields());
-            assert verifyAllInStmts(v.getStoreFields());
+        // 3. initialize slotManager: compute def-use info, build BCSSA and initialize Vars
+        context.slotManager.initialize();
+
+        // 4. process bytecode blocks to statements
+        new BytecodeProcessor(context).processBlocks2Stmt();
+
+        // 5. generate all the frontend phis
+        context.slotManager.addInDefsForSlotPhis();
+        new StackPhiResolver(context).resolveStackPhis();
+
+        // 6. collect stmts for each block
+        for (BytecodeBlock block : context.cfg) {
+            context.stmtManager.buildBlockStmts(block);
         }
 
-        for (int i = 0; i < context.varManager.getVars().size(); ++i) {
-            Var v = context.varManager.getVars().get(i);
-            assert v.getIndex() == i;
-        }
-    }
+        // 7. type inference
+        new TypeInference(context).build();
 
-    private <T extends Stmt> boolean verifyAllInStmts(List<T> stmts) {
-        return stmts.stream().allMatch(this::verifyInStmts);
-    }
-
-    private boolean verifyInStmts(Stmt stmt) {
-        return stmt.getIndex() != -1 &&
-                this.ir.getStmts().size() > stmt.getIndex() &&
-                this.ir.getStmts().get(stmt.getIndex()) == stmt;
+        // 8. complete stmts and build exception table, finally get IR
+        return new IRAssembler(context).assembleIR();
     }
 }
