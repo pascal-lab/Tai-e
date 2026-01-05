@@ -58,7 +58,7 @@ import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.ComparisonExp;
 import pascal.taie.ir.exp.ConditionExp;
 import pascal.taie.ir.exp.DoubleLiteral;
-import pascal.taie.ir.exp.ExpMutator;
+import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.FloatLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -176,7 +176,7 @@ final class BytecodeProcessor {
                 }
                 List<ClassType> handlerTypes = Objects.requireNonNull(block.getExceptionHandlerTypes());
                 if (handlerTypes.size() == 1) {
-                    ExpMutator.setType(catchVar, handlerTypes.get(0));
+                    VarMutator.setType(catchVar, handlerTypes.get(0));
                 } else {
                     // let type inference decide the type
                     context.varManager.setNonSSA(catchVar);

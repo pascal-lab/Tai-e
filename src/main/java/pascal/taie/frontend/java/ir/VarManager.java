@@ -31,7 +31,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.ir.exp.ExpMutator;
+import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
@@ -145,7 +145,7 @@ public class VarManager {
                             .stream()
                             .findAny()
                             .map(k -> localVarTableForSlot.get(k).name)
-                            .ifPresent((name) -> ExpMutator.setName(v, tryUseName(name)));
+                            .ifPresent((name) -> VarMutator.setName(v, tryUseName(name)));
                 }
             }
             params.add(v);
@@ -307,7 +307,7 @@ public class VarManager {
 //        assert var.getName().startsWith(LOCAL_PREFIX);
         String sub = var.getName().substring(1);
         String[] counter = sub.split("#");
-        ExpMutator.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
+        VarMutator.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
     }
 
     public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
@@ -327,7 +327,7 @@ public class VarManager {
             String finalName = name.orElse(old.getName());
 
             if (count == 1) {
-                ExpMutator.setName(old, finalName);
+                VarMutator.setName(old, finalName);
                 return old;
             } else {
                 Var splitLocal = getSplitVar(getDefaultSplitName(finalName, count), slot);
@@ -381,7 +381,7 @@ public class VarManager {
     public Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
-            ExpMutator.setType(nullLiteral, NullType.NULL);
+            VarMutator.setType(nullLiteral, NullType.NULL);
         }
         return nullLiteral;
     }
@@ -491,7 +491,7 @@ public class VarManager {
     public void removeAndReindexVars(Predicate<Var> p) {
         vars.removeIf(p);
         for (int i = 0; i < vars.size(); i++) {
-            ExpMutator.setIndex(vars.get(i), i);
+            VarMutator.setIndex(vars.get(i), i);
         }
     }
 

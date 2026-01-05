@@ -33,7 +33,7 @@ import pascal.taie.frontend.java.ir.ssa.BCSSA;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.frontend.java.ir.ssa.GenericDUInfo;
-import pascal.taie.ir.exp.ExpMutator;
+import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
@@ -357,7 +357,7 @@ final class SlotManager {
             Optional<String> name = context.varManager.getName(slot, insn);
             name.ifPresent((n) -> {
                 String realName = context.varManager.tryUseName(n);
-                ExpMutator.setName(v, realName);
+                VarMutator.setName(v, realName);
             });
         }
     }

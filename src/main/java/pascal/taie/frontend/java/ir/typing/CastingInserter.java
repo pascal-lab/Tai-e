@@ -31,7 +31,7 @@ import pascal.taie.frontend.java.ir.Lenses;
 import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
-import pascal.taie.ir.exp.ExpMutator;
+import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.FieldAccess;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -106,7 +106,7 @@ class CastingInserter {
                 return lenses.subSt(stmt);
             } else {
                 Var v1 = context.varManager.getTempVar();
-                ExpMutator.setType(v1, t);
+                VarMutator.setType(v1, t);
                 newStmts.add(getNewCast(v1, access.getBase(), t));
                 Lenses lenses = new Lenses(context.method, Map.of(access.getBase(), v1), Map.of());
                 return lenses.subSt(stmt);
@@ -128,7 +128,7 @@ class CastingInserter {
                     return lenses.subSt(stmt);
                 } else {
                     v1 = context.varManager.getTempVar();
-                    ExpMutator.setType(v1, t);
+                    VarMutator.setType(v1, t);
                     newStmts.add(getNewCast(base, v1, t));
                     Lenses lenses = new Lenses(context.method, Map.of(base, v1), Map.of());
                     return lenses.subSt(stmt);
@@ -177,7 +177,7 @@ class CastingInserter {
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = context.varManager.getTempVar();
-                            ExpMutator.setType(v, stmt.getRValue().getType());
+                            VarMutator.setType(v, stmt.getRValue().getType());
                             stmt.getRValue().getBase().removeRelevantStmt(stmt);
                             newStmts.add(new LoadArray(v, stmt.getRValue()));
                             return getNewCast(stmt.getLValue(), v, t);
@@ -212,7 +212,7 @@ class CastingInserter {
                         Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
                         if (t != null) {
                             Var v = context.varManager.getTempVar();
-                            ExpMutator.setType(v, t);
+                            VarMutator.setType(v, t);
                             if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
                                 access.getBase().removeRelevantStmt(stmt);
                             }
@@ -253,7 +253,7 @@ class CastingInserter {
                                 }
 
                                 Var v = context.varManager.getTempVar();
-                                ExpMutator.setType(v, t);
+                                VarMutator.setType(v, t);
                                 newStmts.add(getNewCast(v, invokeInstanceExp.getBase(), t));
                                 Lenses l = new Lenses(context.method, Map.of(invokeInstanceExp.getBase(), v), Map.of());
                                 prevStmt = (Invoke) l.subSt(stmt);
@@ -272,7 +272,7 @@ class CastingInserter {
                                     prevStmt = (Invoke) stage1Transform(prevStmt, arg, v);
                                 } else {
                                     v = context.varManager.getTempVar();
-                                    ExpMutator.setType(v, t);
+                                    VarMutator.setType(v, t);
                                     newStmts.add(getNewCast(v, arg, t));
                                     if (m == null) {
                                         m = Maps.newMap();
@@ -297,7 +297,7 @@ class CastingInserter {
                             newStmts.add(getNewCast(v, stmt.getValue(), t));
                             context.varManager.getRetVars().remove(stmt.getValue());
                             context.varManager.getRetVars().add(v);
-                            ExpMutator.setType(v, t);
+                            VarMutator.setType(v, t);
                             return new Return(v);
                         } else {
                             return stmt;
@@ -365,7 +365,7 @@ class CastingInserter {
                     return copy.getRValue();
                 }
                 Var v1 = context.varManager.getTempVar();
-                ExpMutator.setType(v1, def.getRValue().getType());
+                VarMutator.setType(v1, def.getRValue().getType());
                 Lenses lenses = new Lenses(context.method, Map.of(), Map.of(globalVar, v1));
                 newStmts.set(newInBlock.second(), lenses.subSt(def));
                 newStmts.add(newInBlock.second() + 1, new Copy(globalVar, v1));

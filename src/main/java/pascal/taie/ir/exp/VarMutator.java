@@ -30,7 +30,7 @@ import pascal.taie.language.type.Type;
  * Clients should not use this modifier unless
  * they fully understand the consequence.
  */
-public class ExpMutator {
+public class VarMutator {
 
     /**
      * For Var.
