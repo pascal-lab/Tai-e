@@ -44,7 +44,7 @@ final class SlotManager {
      */
     private BCSSA bcssa;
 
-    private final DUInfo duInfo;
+    private final RWInfo RWInfo;
 
     /**
      * Maps a definition's RWIndex to its corresponding Var.
@@ -74,15 +74,16 @@ final class SlotManager {
 
     SlotManager(IRBuilderContext context) {
         this.context = context;
-        this.duInfo = new DUInfo(context.method, context.source.instructions.size());
+        // TODO: duInfo must be initialized first, because rwTable/count is needed during bytecode visit. Explain better later
+        this.RWInfo = new RWInfo(context.method, context.source.instructions.size());
     }
 
     /**
      * Build RWIndex, BCSSA and initialized var map.
      */
     void initialize() {
-        duInfo.build(context.cfg, context.source.maxLocals);
-        bcssa = new BCSSA(context.cfg, context.source.maxLocals, duInfo, context.isSSA, context.dom);
+        RWInfo.build(context.cfg, context.source.maxLocals);
+        bcssa = new BCSSA(context.cfg, context.source.maxLocals, RWInfo, context.isSSA, context.dom);
         bcssa.build();
         initializeVarsForSlots();
     }
@@ -90,8 +91,8 @@ final class SlotManager {
     /**
      * Record read/write operations to populate the rwTable.
      */
-    void writeRwTable(int index, int var, boolean read) {
-        duInfo.writeRwTable(index, var, read);
+    void writeRwTable(int insnIndex, int slot, boolean read) {
+        RWInfo.writeRwTable(insnIndex, slot, read);
     }
 
     // ========================================================================
@@ -105,14 +106,14 @@ final class SlotManager {
         assert currBlock == null;
         assert currRWIndex == -1;
         currBlock = block;
-        currRWIndex = duInfo.getBlockStartRWIndex(currBlock);
+        currRWIndex = RWInfo.getBlockStartRWIndex(currBlock);
     }
 
     /**
      * Finalizes processing for the current block.
      */
     void exitBlock() {
-        assert currRWIndex == duInfo.getBlockEndRWIndex(currBlock);
+        assert currRWIndex == RWInfo.getBlockEndRWIndex(currBlock);
         currBlock = null;
         currRWIndex = -1;
     }
@@ -124,7 +125,7 @@ final class SlotManager {
         int rwIndex = getNextRWIndex(insn);
         Var v;
         int defIndex = bcssa.getReachDef(rwIndex);
-        assert defIndex != -1; // wtf? undefined variable?
+        assert defIndex != -1;
         if (isFastProcessVar(defIndex)) {
             v = reachVars[defIndex];
         } else {
@@ -217,8 +218,8 @@ final class SlotManager {
         }
     }
 
-    private void addInDefsForSlotPhis(BytecodeBlock bb) {
-        bcssa.visitLivePhis(bb, (phi) -> {
+    private void addInDefsForSlotPhis(BytecodeBlock block) {
+        bcssa.visitLivePhis(block, (phi) -> {
             FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
@@ -240,7 +241,7 @@ final class SlotManager {
             context.varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
         }
         // ensure all params is defined at beginning
-        for (int i = 0; i < duInfo.getParamSize(); ++i) {
+        for (int i = 0; i < RWInfo.getParamSize(); ++i) {
             if (isFastProcessVar(i)) {
                 reachVars[i] = context.varManager.getLocal(i);
                 Var current = reachVars[i];
@@ -254,8 +255,8 @@ final class SlotManager {
     }
 
 
-    private boolean isFastProcessVar(int v) {
-        return context.isSSA || bcssa.canFastProcess(v);
+    private boolean isFastProcessVar(int rwIndex) {
+        return context.isSSA || bcssa.canFastProcess(rwIndex);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
@@ -273,7 +274,7 @@ final class SlotManager {
      * to be accessed in the order of rw operations within the bytecode block.
      */
     private int getNextRWIndex(AbstractInsnNode insn) {
-        duInfo.assertRWIndexValid(currRWIndex, context.getInsnIndex(insn), currBlock);
+        RWInfo.assertRWIndexValid(currRWIndex, context.getInsnIndex(insn), currBlock);
         return currRWIndex++;
     }
 }

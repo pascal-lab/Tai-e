@@ -31,18 +31,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Def-use information
+ * Records all read/write operations about slots in bytecode, use RWIndex to index them.
  */
-public class DUInfo {
+public class RWInfo {
 
+    /**
+     * Type of read/write operations.
+     */
     public enum OccurType {
-        USE,
-        DEF,
+        READ,
+        WRITE,
         PARAM
     }
 
-    public interface DUVisitor {
-        void visit(int index, OccurType type, int v);
+    /**
+     * Visitor interface for traversing read/write operations.
+     */
+    public interface RWVisitor {
+        void visit(int rwIndex, OccurType type, int slot);
     }
 
     /**
@@ -53,7 +59,7 @@ public class DUInfo {
     /**
      * Records read/write operations for each bytecode instruction index.
      */
-    private final int[] rwTable;
+    private final int[] insn2RWInfo;
 
     /**
      * Total count of variable read/write operations, including parameters.
@@ -63,96 +69,115 @@ public class DUInfo {
     /**
      * Maps BlockIndex to the starting RWIndex of its operations.
      */
-    private int[] start;
+    private int[] block2StartRW;
 
     /**
      * Maps BlockIndex to the ending RWIndex of its operations.
      */
-    private int[] end;
+    private int[] block2EndRW;
 
     /**
      * Maps RWIndex to its bytecode instruction index.
      */
-    private int[] rwToInsn;
-    private BytecodeBlock[] rwToBlock;
-    private LazyArray<List<BytecodeBlock>> defBlocks;
+    private int[] rw2Insn;
 
-    DUInfo(JMethod method, int insnSize) {
+    /**
+     * Maps RWIndex to its bytecode block.
+     */
+    private BytecodeBlock[] rw2Block;
+
+    /**
+     * Maps slot to the Blocks that define it.
+     */
+    private LazyArray<List<BytecodeBlock>> slot2DefBlocks;
+
+    /**
+     * {@link #insn2RWInfo} and {@link #rwCount} should be initialized first, and then built by {@link #writeRwTable}
+     * They should be built before {@link #build}
+     */
+    RWInfo(JMethod method, int insnSize) {
         this.paramWriteSize = getParamWriteSize(method);
-        this.rwTable = new int[insnSize];
+        this.insn2RWInfo = new int[insnSize];
         this.rwCount = paramWriteSize;
     }
 
-    public List<BytecodeBlock> getDefBlock(int v) {
-        return defBlocks.get(v);
+    public List<BytecodeBlock> getDefBlocks(int slot) {
+        return slot2DefBlocks.get(slot);
     }
 
-    // TODO: what is DUIndex???
-    public int getMaxDUIndex() {
+    public int getMaxRWIndex() {
         return rwCount;
     }
 
-    public BytecodeBlock getBlock(int index) {
-        return rwToBlock[index];
+    public BytecodeBlock getBlock(int rwIndex) {
+        return rw2Block[rwIndex];
     }
 
     public int getParamSize() {
         return paramWriteSize;
     }
 
-    public void visit(BytecodeBlock block, DUVisitor visitor) {
-        int start1 = start[block.getIndex()];
-        int end1 = end[block.getIndex()];
-        for (int i = start1; i < end1; ) {
-            int index = rwToInsn[i];
-            int rw = rwTable[index];
-            int var = rw & ((1 << 29) - 1);
+    /**
+     * Traverse read/write operations using visitor.
+     */
+    public void visit(BytecodeBlock block, RWVisitor visitor) {
+        int start1 = block2StartRW[block.getIndex()];
+        int end1 = block2EndRW[block.getIndex()];
+        for (int rwIndex = start1; rwIndex < end1; ) {
+            int insnIndex = rw2Insn[rwIndex];
+            int rw = insn2RWInfo[insnIndex];
+            int slot = rw & ((1 << 29) - 1);
             boolean read = (rw & (1 << 29)) != 0;
             boolean write = (rw & (1 << 30)) != 0;
             // careful: the order of visit is important
             // and iinc can both read and write
             if (read) {
-                visitor.visit(i, OccurType.USE, var);
-                i++;
+                visitor.visit(rwIndex, OccurType.READ, slot);
+                rwIndex++;
             }
             // don't use `else if`, iinc can both read and write
             if (write) {
-                visitor.visit(i, OccurType.DEF, var);
-                i++;
+                visitor.visit(rwIndex, OccurType.WRITE, slot);
+                rwIndex++;
             }
         }
     }
 
     /**
-     * Record read/write operations to populate the rwTable.
+     * Record read/write operations to populate the {@link #insn2RWInfo} and {@link #rwCount}.
      */
-    // TODO: rename var to slotIndex?
-    void writeRwTable(int index, int var, boolean read) {
+    void writeRwTable(int insnIndex, int slot, boolean read) {
         rwCount++;
-        assert var < (1 << 29);
+        assert slot < (1 << 29);
         int rwFlag = read ? 1 << 29 : 1 << 30;
-        rwTable[index] = rwTable[index] | var | rwFlag;
+        insn2RWInfo[insnIndex] = insn2RWInfo[insnIndex] | slot | rwFlag;
     }
 
     int getBlockStartRWIndex(BytecodeBlock block) {
-        return start[block.getIndex()];
+        return block2StartRW[block.getIndex()];
     }
 
     int getBlockEndRWIndex(BytecodeBlock block) {
-        return end[block.getIndex()];
+        return block2EndRW[block.getIndex()];
     }
 
+    /**
+     * Assert the rwIndex is corresponding to the insnIndex and block
+     */
     void assertRWIndexValid(int rwIndex, int insnIndex, BytecodeBlock block) {
-        assert rwToInsn[rwIndex] == insnIndex;
-        assert rwIndex < end[block.getIndex()];
+        assert rw2Insn[rwIndex] == insnIndex;
+        assert rwIndex < block2EndRW[block.getIndex()];
     }
 
+    /**
+     * Builds the internal indexing structures ({@link #rw2Insn}, {@link #slot2DefBlocks},  etc.)
+     */
     void build(BytecodeCFG cfg, int maxLocals) {
-        rwToInsn = new int[rwCount];
-        start = new int[cfg.nodeCount()];
-        end = new int[cfg.nodeCount()];
-        rwToBlock = new BytecodeBlock[rwCount];
-        defBlocks = new LazyArray<>(maxLocals) {
+        rw2Insn = new int[rwCount];
+        block2StartRW = new int[cfg.nodeCount()];
+        block2EndRW = new int[cfg.nodeCount()];
+        rw2Block = new BytecodeBlock[rwCount];
+        slot2DefBlocks = new LazyArray<>(maxLocals) {
             @Override
             protected List<BytecodeBlock> createElement() {
                 return new ArrayList<>();
@@ -162,49 +187,50 @@ public class DUInfo {
         int rwIndexCounter = 0;
         BytecodeBlock entry = cfg.getEntry();
 
-        for (int i1 = 0; i1 < paramWriteSize; ++i1) {
-            rwToInsn[rwIndexCounter] = -1;
-            rwToBlock[rwIndexCounter] = entry;
+        for (int i = 0; i < paramWriteSize; ++i) {
+            rw2Insn[rwIndexCounter] = -1;
+            rw2Block[rwIndexCounter] = entry;
             rwIndexCounter++;
         }
 
         for (int n = 0; n < cfg.nodeCount(); ++n) {
             BytecodeBlock curr = cfg.getObject(n);
-            start[curr.getIndex()] = rwIndexCounter;
+            block2StartRW[curr.getIndex()] = rwIndexCounter;
             int size = curr.getInsns().size();
             int start1 = curr.getInsns().getStart();
             for (int j = 0; j < size; ++j) {
-                int i1 = j + start1;
-                int rw = rwTable[i1];
+                int i = j + start1;
+                int rw = insn2RWInfo[i];
                 if (rw != 0) {
-                    int var = rw & ((1 << 29) - 1);
+                    int slot = rw & ((1 << 29) - 1);
                     boolean read = (rw & (1 << 29)) != 0;
                     boolean write = (rw & (1 << 30)) != 0;
                     if (read) {
-                        rwToBlock[rwIndexCounter] = curr;
-                        rwToInsn[rwIndexCounter++] = i1;
+                        rw2Block[rwIndexCounter] = curr;
+                        rw2Insn[rwIndexCounter++] = i;
                     }
                     if (write) {
-                        rwToBlock[rwIndexCounter] = curr;
-                        rwToInsn[rwIndexCounter++] = i1;
-                        defBlocks.get(var).add(curr);
+                        rw2Block[rwIndexCounter] = curr;
+                        rw2Insn[rwIndexCounter++] = i;
+                        slot2DefBlocks.get(slot).add(curr);
                     }
                 }
             }
-            end[curr.getIndex()] = rwIndexCounter;
+            block2EndRW[curr.getIndex()] = rwIndexCounter;
         }
+        assert rwIndexCounter == rwCount;
     }
 
     private int getParamWriteSize(JMethod method) {
-        int curr = method.isStatic() ? 0 : 1;
+        int size = method.isStatic() ? 0 : 1;
         for (int i = 0; i < method.getParamTypes().size(); ++i) {
             Type type = method.getParamTypes().get(i);
             if (FrontendTypeSystem.isTwoWord(type)) {
-                curr += 2;
+                size += 2;
             } else {
-                curr += 1;
+                size += 1;
             }
         }
-        return curr;
+        return size;
     }
 }

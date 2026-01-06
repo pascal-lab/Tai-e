@@ -23,7 +23,7 @@
 package pascal.taie.frontend.java.ir.ssa;
 
 import pascal.taie.frontend.java.ir.BytecodeBlock;
-import pascal.taie.frontend.java.ir.DUInfo;
+import pascal.taie.frontend.java.ir.RWInfo;
 import pascal.taie.util.collection.IntList;
 import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
@@ -128,7 +128,7 @@ public class BCSSA {
 
     private final LazyArray<List<SemiPhi>> phis;
 
-    private final DUInfo info;
+    private final RWInfo info;
 
     private int[] duReachDef;
 
@@ -152,9 +152,10 @@ public class BCSSA {
 
     private final boolean[] used;
 
+    // TODO: Rename var to slot?
     public BCSSA(IndexedGraph<BytecodeBlock> graph,
                  int varSize,
-                 DUInfo info,
+                 RWInfo info,
                  boolean useSSA,
                  Dominators<BytecodeBlock> dom) {
         this.graph = graph;
@@ -168,12 +169,12 @@ public class BCSSA {
                 return new ArrayList<>();
             }
         };
-        this.renames = new int[info.getMaxDUIndex()];
+        this.renames = new int[info.getMaxRWIndex()];
         this.allPhis = new ArrayList<>();
         this.useSSA = useSSA;
-        this.used = new boolean[info.getMaxDUIndex()];
+        this.used = new boolean[info.getMaxRWIndex()];
         Arrays.fill(renames, UNDEFINED);
-        defOwned = new IntList[info.getMaxDUIndex()];
+        this.defOwned = new IntList[info.getMaxRWIndex()];
     }
 
     public void build() {
@@ -212,7 +213,7 @@ public class BCSSA {
         // pass 2: generate new names for each cluster and spreading through used phi functions
         // only needed when perform splitting instead of SSA
         if (!useSSA) {
-            paramToName = new int[info.getMaxDUIndex()];
+            paramToName = new int[info.getMaxRWIndex()];
             Arrays.fill(paramToName, UNDEFINED);
             int varIndex = 0;
             boolean[] visited = new boolean[phiCount];
@@ -304,28 +305,28 @@ public class BCSSA {
     }
 
     public void travLink(int phiCount) {
-        duReachDef = new int[info.getMaxDUIndex() + phiCount];
+        duReachDef = new int[info.getMaxRWIndex() + phiCount];
         int[] varReachDef = new int[varSize];
         Arrays.fill(duReachDef, UNDEFINED);
         Arrays.fill(varReachDef, UNDEFINED);
-        DUInfo.DUVisitor varDUVisitor = (index, type, v) -> {
-            if (type == DUInfo.OccurType.USE) {
-                int before = varReachDef[v];
+        RWInfo.RWVisitor varRWVisitor = (rwIndex, type, slot) -> {
+            if (type == RWInfo.OccurType.READ) {
+                int before = varReachDef[slot];
                 assert before > -100000;
-                updateReachingDef(v, index, varReachDef);
-                int reachDef = varReachDef[v];
+                updateReachingDef(slot, rwIndex, varReachDef);
+                int reachDef = varReachDef[slot];
                 assert reachDef != UNDEFINED;
-                duReachDef[index] = reachDef;
+                duReachDef[rwIndex] = reachDef;
                 if (isPhiDef(reachDef)) {
-                    SemiPhi phi = getPhiByIndex(duReachDef[index]);
+                    SemiPhi phi = getPhiByIndex(duReachDef[rwIndex]);
                     phi.setUsed();
                 } else {
                     used[reachDef] = true;
                 }
             } else {
-                updateReachingDef(v, index, varReachDef);
-                duReachDef[index] = varReachDef[v];
-                varReachDef[v] = index;
+                updateReachingDef(slot, rwIndex, varReachDef);
+                duReachDef[rwIndex] = varReachDef[slot];
+                varReachDef[slot] = rwIndex;
             }
         };
 
@@ -354,7 +355,7 @@ public class BCSSA {
                     varReachDef[phi.var] = phiIndex;
                 }
             }
-            info.visit(current, varDUVisitor);
+            info.visit(current, varRWVisitor);
             for (BytecodeBlock succ : graph.getSuccsOf(current)) {
                 int succI = graph.getIndex(succ);
                 if (!phis.contains(succI)) {
@@ -424,15 +425,15 @@ public class BCSSA {
     }
 
     private boolean isPhiDef(int duIndex) {
-        return duIndex >= info.getMaxDUIndex();
+        return duIndex >= info.getMaxRWIndex();
     }
 
     private int getPhiDuIndex(int phiIndex) {
-        return phiIndex + info.getMaxDUIndex();
+        return phiIndex + info.getMaxRWIndex();
     }
 
     private SemiPhi getPhiByIndex(int duIndex) {
-        int phiIndex = duIndex - info.getMaxDUIndex();
+        int phiIndex = duIndex - info.getMaxRWIndex();
         return allPhis.get(phiIndex);
     }
 
@@ -441,7 +442,7 @@ public class BCSSA {
 
         Queue<Integer> current = new ArrayDeque<>();
         for (int v = 0; v < varSize; ++v) {
-            List<BytecodeBlock> defBlocks = info.getDefBlock(v);
+            List<BytecodeBlock> defBlocks = info.getDefBlocks(v);
             for (BytecodeBlock block : defBlocks) {
                 current.add(graph.getIndex(block));
             }
@@ -517,7 +518,7 @@ public class BCSSA {
     }
 
     public int getMaxDUCount() {
-        return info.getMaxDUIndex() + allPhis.size();
+        return info.getMaxRWIndex() + allPhis.size();
     }
 
     public boolean isDefUsed(int def) {
