@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.ir;
 
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
-import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -62,6 +61,7 @@ import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.TableSwitch;
@@ -223,7 +223,7 @@ public class Lenses {
     }
 
     public Stmt subSt(Stmt stmt) {
-        Stmt newStmt = stmt.accept(new FrontendStmtVisitor<>() {
+        Stmt newStmt = stmt.accept(new StmtVisitor<>() {
             @Override
             public Stmt visit(If stmt) {
                 return new If((ConditionExp) subSt(stmt.getCondition()));
@@ -260,16 +260,13 @@ public class Lenses {
             }
 
             @Override
-            public Stmt visit(FrontendPhiStmt stmt) {
-                assert useSigma.isEmpty();
-                return new FrontendPhiStmt(stmt.getBase(), defSubSt(stmt.getLValue()), stmt.getRValue());
-            }
-
-            @Override
             public Stmt visitDefault(Stmt stmt) {
-                if (stmt instanceof AssignStmt<?, ?> stmt1) {
+                if (stmt instanceof FrontendPhiStmt phi) {
+                    assert useSigma.isEmpty();
+                    return new FrontendPhiStmt(phi.getBase(), defSubSt(phi.getLValue()), phi.getRValue());
+                } else if (stmt instanceof AssignStmt<?, ?> assign) {
                     fixRelStmts(stmt);
-                    return Utils.newAssignStmt(method, leftSubSt(stmt1.getLValue()), rightSubst(stmt1.getRValue()));
+                    return Utils.newAssignStmt(method, leftSubSt(assign.getLValue()), rightSubst(assign.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {
                     fixRelStmts(stmt);
                     return new Invoke(invoke.getContainer(), (InvokeExp) subSt(invoke.getInvokeExp()),

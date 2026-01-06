@@ -54,9 +54,6 @@ public class FrontendPhiStmt extends AssignStmt<Var, FrontendPhiExp> {
 
     @Override
     public <T> T accept(StmtVisitor<T> visitor) {
-        if (visitor instanceof FrontendStmtVisitor<T> frontendVisitor) {
-            return frontendVisitor.visit(this);
-        }
-        throw new UnsupportedOperationException("Illegal visitor type: " + visitor.getClass());
+        return visitor.visitDefault(this);
     }
 }

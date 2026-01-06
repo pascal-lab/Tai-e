@@ -25,7 +25,6 @@ package pascal.taie.frontend.java.ir.typing;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.IRBuilderContext;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
-import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayLengthExp;
 import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.InstanceFieldAccess;
@@ -47,6 +46,7 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Unary;
@@ -116,7 +116,7 @@ public class TypeInference {
         }
     }
 
-    class ConstraintVisitor implements FrontendStmtVisitor<Void> {
+    class ConstraintVisitor implements StmtVisitor<Void> {
         @Override
         public Void visit(New stmt) {
             graph.addConstantEdge(stmt.getRValue().getType(), stmt.getLValue());
@@ -254,10 +254,12 @@ public class TypeInference {
         }
 
         @Override
-        public Void visit(FrontendPhiStmt stmt) {
-            Var lValue = stmt.getLValue();
-            for (RValue v : stmt.getRValue().getUses()) {
-                graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
+        public Void visitDefault(Stmt stmt) {
+            if (stmt instanceof FrontendPhiStmt phi) {
+                Var lValue = phi.getLValue();
+                for (RValue v : phi.getRValue().getUses()) {
+                    graph.addVarEdge((Var) v, lValue, EdgeKind.VAR_VAR);
+                }
             }
             return null;
         }

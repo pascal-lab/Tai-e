@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.IRBuilderContext;
 import pascal.taie.frontend.java.ir.Lenses;
-import pascal.taie.frontend.java.ir.ssa.FrontendStmtVisitor;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.VarMutator;
@@ -49,6 +48,7 @@ import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.language.classes.JClass;
@@ -147,7 +147,7 @@ class CastingInserter {
 
             for (Stmt stmt : getStmts(block)) {
                 currentStmt = stmt;
-                Stmt newStmt = stmt.accept(new FrontendStmtVisitor<>() {
+                Stmt newStmt = stmt.accept(new StmtVisitor<>() {
                     @Override
                     public Stmt visit(Copy stmt) {
                         Var right = stmt.getRValue();
