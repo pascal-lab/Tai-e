@@ -110,6 +110,11 @@ public class Dominators<N> {
     private final int[] domTreePreOrder;
 
     /**
+     * The dominator frontier.
+     */
+    private DominatorFrontiers df;
+
+    /**
      * Constructs a Dominator analysis for the given indexed graph.
      * This constructor computes the post-order, immediate dominators,
      * and dominator tree clock values.
@@ -352,9 +357,12 @@ public class Dominators<N> {
     /**
      * @return the dominator frontiers
      */
-    public DominatorFrontiers getDomFront() {
+    public DominatorFrontiers getDomFrontier() {
         // TODO: it seems that sparse set allocation consumes a considerable time,
         //       can we optimize it?
+        if (df != null) {
+            return df;
+        }
         int size = graph.nodeCount();
         LazyArray<SparseIntSet> df = new LazyArray<>(size) {
             @Override
@@ -378,6 +386,7 @@ public class Dominators<N> {
                 }
             }
         }
-        return new DominatorFrontiers(df);
+        this.df = new DominatorFrontiers(df);
+        return this.df;
     }
 }

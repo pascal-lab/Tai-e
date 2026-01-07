@@ -14,7 +14,7 @@ public class DominatorTest {
         int[][] succs = {{}};
         Dominators<Integer> dom = buildDominators(succs);
         assertArrayEquals(new int[]{0}, dom.getIDom());
-        assertEquals(0, dom.getDomFront().get(0).size());
+        assertEquals(0, dom.getDomFrontier().get(0).size());
     }
 
     @Test
@@ -30,7 +30,7 @@ public class DominatorTest {
         };
         Dominators<Integer> dom = buildDominators(succs);
         assertArrayEquals(new int[]{0, 0, 0, 0}, dom.getIDom());
-        Dominators.DominatorFrontiers df = dom.getDomFront();
+        Dominators.DominatorFrontiers df = dom.getDomFrontier();
         assertEquals(0, df.get(0).size());
         assertArrayEquals(new int[]{3}, df.get(1).toArray());
         assertArrayEquals(new int[]{3}, df.get(2).toArray());
@@ -50,7 +50,7 @@ public class DominatorTest {
         };
         Dominators<Integer> dom = buildDominators(succs);
         assertArrayEquals(new int[]{0, 0, 1, 1, 1, 1}, dom.getIDom());
-        Dominators.DominatorFrontiers df = dom.getDomFront();
+        Dominators.DominatorFrontiers df = dom.getDomFrontier();
         assertEquals(0, df.get(0).size());
         assertArrayEquals(new int[]{1}, df.get(1).toArray());
         assertArrayEquals(new int[]{4}, df.get(2).toArray());
@@ -77,7 +77,7 @@ public class DominatorTest {
         };
         Dominators<Integer> dom = buildDominators(succs);
         assertArrayEquals(new int[]{0, 0, 1, 2, 2, 2, 5, 2, 7, 8, 1}, dom.getIDom());
-        Dominators.DominatorFrontiers df = dom.getDomFront();
+        Dominators.DominatorFrontiers df = dom.getDomFrontier();
         assertEquals(0, df.get(0).size());
         assertArrayEquals(new int[]{1}, df.get(1).toArray());
         assertArrayEquals(new int[]{1}, df.get(2).toArray());
@@ -104,7 +104,7 @@ public class DominatorTest {
         };
         Dominators<Integer> dom = buildDominators(succs);
         assertArrayEquals(new int[]{0, 0, 0, 0, 0, 0}, dom.getIDom());
-        Dominators.DominatorFrontiers df = dom.getDomFront();
+        Dominators.DominatorFrontiers df = dom.getDomFrontier();
         assertEquals(0, df.get(0).size());
         assertArrayEquals(new int[]{3}, df.get(1).toArray());
         assertArrayEquals(new int[]{4, 5}, df.get(2).toArray());

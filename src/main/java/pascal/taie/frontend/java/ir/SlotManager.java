@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
 
-import pascal.taie.frontend.java.ir.ssa.BCSSA;
+import pascal.taie.frontend.java.ir.ssa.SSATransform;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.VarMutator;
@@ -35,14 +35,14 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 
 /**
- * Manages operations on local variable slots, resolving slot reuse through {@link BCSSA}.
+ * Manages operations on local variable slots, resolving slot reuse through {@link SSATransform}.
  * It handles load/store operations and is responsible for generating {@link FrontendPhiStmt}.
  */
 final class SlotManager {
     /**
      * The SSA construction engine that computes Def-Use chains.
      */
-    private BCSSA bcssa;
+    private SSATransform SSATransform;
 
     /**
      * Records all def/use operations about slots in bytecode, use DUIndex to index them.
@@ -86,8 +86,8 @@ final class SlotManager {
      */
     void initialize() {
         DUInfo.build(context.cfg, context.source.maxLocals);
-        bcssa = new BCSSA(context.cfg, context.source.maxLocals, DUInfo, context.isSSA, context.dom);
-        bcssa.build();
+        SSATransform = new SSATransform(context.cfg, context.source.maxLocals, DUInfo, context.isSSA, context.dom);
+        SSATransform.build();
         initializeVarsForSlots();
     }
 
@@ -127,12 +127,12 @@ final class SlotManager {
     Var loadVar(int slot, AbstractInsnNode insn) {
         int duIndex = getNextDUIndex(insn);
         Var v;
-        int defIndex = bcssa.getReachDef(duIndex);
+        int defIndex = SSATransform.getReachDef(duIndex);
         assert defIndex != -1;
         if (isFastProcessVar(defIndex)) {
             v = reachVars[defIndex];
         } else {
-            int realVar = bcssa.getNewSlot(defIndex);
+            int realVar = SSATransform.getNewSlot(defIndex);
             assert realVar != -1; // must be phi-connected insn, a local is assigned before
             v = context.varManager.getLocal(realVar);
         }
@@ -147,7 +147,7 @@ final class SlotManager {
     void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack) {
         int duIndex = getNextDUIndex(insn);
         Var v;
-        if (!bcssa.isDefUsed(duIndex)) {
+        if (!SSATransform.isDefUsed(duIndex)) {
             // this var is not used, we don't need to generate store stmt
             // still, we need to handle the side effect (e.g. invoke)
             // note: stack may contains `Top`, so don't use `popToEffect`
@@ -167,7 +167,7 @@ final class SlotManager {
             reachVars[duIndex] = v;
         } else {
             // still use a local var
-            int realVar = bcssa.getNewSlot(duIndex);
+            int realVar = SSATransform.getNewSlot(duIndex);
             v = context.varManager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
@@ -184,7 +184,7 @@ final class SlotManager {
         int duIndex = getNextDUIndex(insn);
         Var catchVar = isFastProcessVar(duIndex)
                 ? context.varManager.getTempVar()
-                : context.varManager.getLocal(bcssa.getNewSlot(duIndex));
+                : context.varManager.getLocal(SSATransform.getNewSlot(duIndex));
         reachVars[duIndex] = catchVar;
         context.stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
@@ -197,7 +197,7 @@ final class SlotManager {
         assert context.isSSA;
         // should have at least one instruction
         AbstractInsnNode firstInsn = block.getInsns().get(0);
-        bcssa.visitLivePhis(block, (phi) -> {
+        SSATransform.visitUsedInternalPhis(block, (phi) -> {
             Var phiVar = context.varManager.getTempVar();
             Var origin = context.varManager.getLocal(phi.getSlot());
             FrontendPhiExp phiExp = new FrontendPhiExp();
@@ -222,7 +222,7 @@ final class SlotManager {
     }
 
     private void addInDefsForSlotPhis(BytecodeBlock block) {
-        bcssa.visitLivePhis(block, (phi) -> {
+        SSATransform.visitUsedInternalPhis(block, (phi) -> {
             FrontendPhiStmt realPhi = phi.getFrontendPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
@@ -239,16 +239,16 @@ final class SlotManager {
     // ========================================================================
 
     private void initializeVarsForSlots() {
-        reachVars = new Var[bcssa.getMaxDUIndexWithPhi()];
+        reachVars = new Var[SSATransform.getMaxDUIndexWithPhi()];
         if (!context.isSSA) {
-            context.varManager.enlargeSlots(bcssa.getNewSlotSize(), bcssa.getNewSlot2Origin());
+            context.varManager.enlargeSlots(SSATransform.getNewSlotSize(), SSATransform.getNewSlot2Origin());
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < DUInfo.getParamSize(); ++i) {
             if (isFastProcessVar(i)) {
                 reachVars[i] = context.varManager.getLocal(i);
                 Var current = reachVars[i];
-                if (bcssa.canFastProcess(i)) {
+                if (SSATransform.canFastProcess(i)) {
                     context.varManager.setSSA(current);
                 } else {
                     context.varManager.setNonSSA(current);
@@ -259,7 +259,7 @@ final class SlotManager {
 
 
     private boolean isFastProcessVar(int duIndex) {
-        return context.isSSA || bcssa.canFastProcess(duIndex);
+        return context.isSSA || SSATransform.canFastProcess(duIndex);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
