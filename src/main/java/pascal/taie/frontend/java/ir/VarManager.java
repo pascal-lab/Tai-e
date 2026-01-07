@@ -98,7 +98,7 @@ public class VarManager {
 
     private final Set<Var> retVars;
 
-    private @Nullable Var thisVar;
+    private final @Nullable Var thisVar;
 
     private @Nullable Var nullLiteral;
 
@@ -220,17 +220,6 @@ public class VarManager {
         return v;
     }
 
-    public Var splitVar(Var var, int index) {
-        if (isTempVar(var)) {
-            if (index == 1) {
-                return var;
-            } else {
-                return newVar(getDefaultSplitName(var.getName(), index));
-            }
-        }
-        return splitLocal(var, index, var2Local.get(var), Stream.of());
-    }
-
     public @Nullable Var getThisVar() {
         return thisVar;
     }
@@ -240,18 +229,6 @@ public class VarManager {
      */
     public List<Var> getParams() {
         return params;
-    }
-
-    public List<Var> getParamThis() {
-        List<Var> temp;
-        if (thisVar != null) {
-            temp = new ArrayList<>(params.size() + 1);
-            temp.add(thisVar);
-            temp.addAll(params);
-        } else {
-            temp = new ArrayList<>(params);
-        }
-        return temp;
     }
 
     public List<Var> getVars() {
@@ -280,14 +257,6 @@ public class VarManager {
         return i;
     }
 
-    public Var[] getLocals() {
-        return slot2Var;
-    }
-
-    public Var[] getNonSSAVar() {
-        return vars.toArray(Var[]::new);
-    }
-
     private void makeLocal(int slot, String name) {
         Var v1 = newVar(name);
         var2Local.put(v1, slot);
@@ -300,49 +269,6 @@ public class VarManager {
             return isStatic ? LOCAL_PREFIX + slot : THIS;
         } else {
             return LOCAL_PREFIX + slot;
-        }
-    }
-
-    public void fixName(Var var, String newName) {
-//        assert var.getName().startsWith(LOCAL_PREFIX);
-        String sub = var.getName().substring(1);
-        String[] counter = sub.split("#");
-        VarMutator.setName(var, newName + (counter.length >= 2 ? "#" + counter[1] : ""));
-    }
-
-    public Var splitLocal(Var old, int count, int slot, Stream<AbstractInsnNode> origins) {
-        // TODO: use a global counter for each name
-        if (!existsLocalVariableTable) {
-            if (count == 1) {
-                return old;
-            } else {
-                return getSplitVar(getDefaultSplitName(old.getName(), count), slot);
-            }
-        } else {
-            Optional<String> name = origins
-                    .map(orig -> getName(slot, orig))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .findFirst();
-            String finalName = name.orElse(old.getName());
-
-            if (count == 1) {
-                VarMutator.setName(old, finalName);
-                return old;
-            } else {
-                Var splitLocal = getSplitVar(getDefaultSplitName(finalName, count), slot);
-                var2Local.put(splitLocal, slot);
-                return splitLocal;
-            }
-        }
-    }
-
-    public Var splitLocal(int slot, int index) {
-        Var old = slot2Var[slot];
-        if (index == 1) {
-            return old;
-        } else {
-            return getSplitVar(getDefaultSplitName(old.getName(), index), slot);
         }
     }
 
@@ -361,16 +287,6 @@ public class VarManager {
     public void aliasLocal(Var var, int slot) {
         assert !var2Local.containsKey(var);
         var2Local.put(var, slot);
-    }
-
-    private Var getSplitVar(String name, int slot) {
-        Var v = newVar(name);
-        var2Local.put(v, slot);
-        return v;
-    }
-
-    private static String getDefaultSplitName(String name, int count) {
-        return name + "#" + count;
     }
 
     public void addReturnVar(Var v) {
@@ -407,7 +323,7 @@ public class VarManager {
             }
             return intConstVarCache[index];
         } else {
-            return newConstVar(getConstVarName(literal), literal);
+            return newConstVar(getConstVarName(), literal);
         }
     }
 
@@ -420,43 +336,11 @@ public class VarManager {
                 v.getName().startsWith(LOCAL_PREFIX);
     }
 
-    public boolean isNotSpecialVar(Var v) {
-        return !v.getName().startsWith("*") && !Objects.equals(v.getName(), NULL_LITERAL);
-    }
-
-    /**
-     * can only be used before splitting
-     */
-    public boolean isLocalFast(Var v) {
-        return v.getIndex() < slot2Var.length;
-    }
-
     public boolean isLocal(Var v) {
         return var2Local.containsKey(v);
     }
 
-    private static boolean verifyDefs(List<Pair<Integer, Var>> res) {
-        var l = res.stream().map(Pair::first).toList();
-        return l.size() == l.stream().distinct().toList().size();
-    }
-
-    public void replaceParam(Var oldVar, Var newVar) {
-        if (oldVar == thisVar) {
-            thisVar = newVar;
-            return;
-        }
-        int idx = 0;
-        for (; idx < params.size(); ++idx) {
-            if (params.get(idx) == oldVar) {
-                break;
-            }
-        }
-        assert idx < params.size();
-        var2Local.put(newVar, var2Local.get(oldVar));
-        params.set(idx, newVar);
-    }
-
-    private String getConstVarName(Literal literal) {
+    private String getConstVarName() {
         return TEMP_PREFIX + "c" + counter;
     }
 
@@ -472,26 +356,6 @@ public class VarManager {
         vars.add(v);
         setNonSSA(v);
         return v;
-    }
-
-    public int[] getSlotTable() {
-        int[] res = new int[vars.size()];
-        Arrays.fill(res, -1);
-        var2Local.forEach((k, v) -> {
-            res[k.getIndex()] = v;
-        });
-        return res;
-    }
-
-    static int getSlotFast(Var var) {
-        return var.getIndex();
-    }
-
-    public void removeAndReindexVars(Predicate<Var> p) {
-        vars.removeIf(p);
-        for (int i = 0; i < vars.size(); i++) {
-            VarMutator.setIndex(vars.get(i), i);
-        }
     }
 
     public String tryUseName(String name) {
