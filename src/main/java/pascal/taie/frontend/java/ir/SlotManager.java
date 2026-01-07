@@ -35,7 +35,7 @@ import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
 
 /**
- * Manages operations on local variable slots, resolving slot reuse through def-use analysis.
+ * Manages operations on local variable slots, resolving slot reuse through {@link BCSSA}.
  * It handles load/store operations and is responsible for generating {@link FrontendPhiStmt}.
  */
 final class SlotManager {
@@ -44,10 +44,13 @@ final class SlotManager {
      */
     private BCSSA bcssa;
 
-    private final RWInfo RWInfo;
+    /**
+     * Records all def/use operations about slots in bytecode, use DUIndex to index them.
+     */
+    private final DUInfo DUInfo;
 
     /**
-     * Maps a definition's RWIndex to its corresponding Var.
+     * Maps a definition's DUIndex to its corresponding Var.
      */
     private Var[] reachVars;
 
@@ -59,10 +62,10 @@ final class SlotManager {
     // --- Runtime State ---
 
     /**
-     * The current RWIndex being processed within the current block
-     * Incremented as {@link SlotManager#getNextRWIndex}.
+     * The current DUIndex being processed within the current block
+     * Incremented as {@link SlotManager#getNextDUIndex}.
      */
-    private int currRWIndex = -1;
+    private int currDUIndex = -1;
     /**
      * The basic block that is currently being processed
      */
@@ -74,25 +77,25 @@ final class SlotManager {
 
     SlotManager(IRBuilderContext context) {
         this.context = context;
-        // TODO: duInfo must be initialized first, because rwTable/count is needed during bytecode visit. Explain better later
-        this.RWInfo = new RWInfo(context.method, context.source.instructions.size());
+        // TODO: duInfo must be initialized first, because duTable/count is needed during bytecode visit. Explain better later
+        this.DUInfo = new DUInfo(context.method, context.source.instructions.size());
     }
 
     /**
-     * Build RWIndex, BCSSA and initialized var map.
+     * Build DUIndex, BCSSA and initialized var map.
      */
     void initialize() {
-        RWInfo.build(context.cfg, context.source.maxLocals);
-        bcssa = new BCSSA(context.cfg, context.source.maxLocals, RWInfo, context.isSSA, context.dom);
+        DUInfo.build(context.cfg, context.source.maxLocals);
+        bcssa = new BCSSA(context.cfg, context.source.maxLocals, DUInfo, context.isSSA, context.dom);
         bcssa.build();
         initializeVarsForSlots();
     }
 
     /**
-     * Record read/write operations to populate the rwTable.
+     * Record def/use operations to populate the duTable.
      */
-    void writeRwTable(int insnIndex, int slot, boolean read) {
-        RWInfo.writeRwTable(insnIndex, slot, read);
+    void writeDUTable(int insnIndex, int slot, boolean read) {
+        DUInfo.writeDUTable(insnIndex, slot, read);
     }
 
     // ========================================================================
@@ -104,27 +107,27 @@ final class SlotManager {
      */
     void enterBlock(BytecodeBlock block) {
         assert currBlock == null;
-        assert currRWIndex == -1;
+        assert currDUIndex == -1;
         currBlock = block;
-        currRWIndex = RWInfo.getBlockStartRWIndex(currBlock);
+        currDUIndex = DUInfo.getBlockStartDUIndex(currBlock);
     }
 
     /**
      * Finalizes processing for the current block.
      */
     void exitBlock() {
-        assert currRWIndex == RWInfo.getBlockEndRWIndex(currBlock);
+        assert currDUIndex == DUInfo.getBlockEndDUIndex(currBlock);
         currBlock = null;
-        currRWIndex = -1;
+        currDUIndex = -1;
     }
 
     /**
      * Resolves a variable load (e.g., ILOAD) to its corresponding Var.
      */
     Var loadVar(int slot, AbstractInsnNode insn) {
-        int rwIndex = getNextRWIndex(insn);
+        int duIndex = getNextDUIndex(insn);
         Var v;
-        int defIndex = bcssa.getReachDef(rwIndex);
+        int defIndex = bcssa.getReachDef(duIndex);
         assert defIndex != -1;
         if (isFastProcessVar(defIndex)) {
             v = reachVars[defIndex];
@@ -142,17 +145,17 @@ final class SlotManager {
      * Handles a variable store (e.g., ISTORE).
      */
     void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack) {
-        int rwIndex = getNextRWIndex(insn);
+        int duIndex = getNextDUIndex(insn);
         Var v;
-        if (!bcssa.isDefUsed(rwIndex)) {
+        if (!bcssa.isDefUsed(duIndex)) {
             // this var is not used, we don't need to generate store stmt
             // still, we need to handle the side effect (e.g. invoke)
             // note: stack may contains `Top`, so don't use `popToEffect`
             operandStack.automaticPopToEffect();
             return;
         }
-        if (isFastProcessVar(rwIndex)) {
-            // load insn will use rwTables to get this var
+        if (isFastProcessVar(duIndex)) {
+            // load insn will use duTables to get this var
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
@@ -161,10 +164,10 @@ final class SlotManager {
                 v = context.varManager.getTempVar();
                 context.stmtManager.associateStmt(insn, Utils.newAssignStmt(context.method, v, origin));
             }
-            reachVars[rwIndex] = v;
+            reachVars[duIndex] = v;
         } else {
             // still use a local var
-            int realVar = bcssa.getRealLocalSlot(rwIndex);
+            int realVar = bcssa.getRealLocalSlot(duIndex);
             v = context.varManager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
@@ -178,11 +181,11 @@ final class SlotManager {
      * A specialized store for the exception object at the start of a catch block.
      */
     Var storeCatchVar(AbstractInsnNode insn) {
-        int rwIndex = getNextRWIndex(insn);
-        Var catchVar = isFastProcessVar(rwIndex)
+        int duIndex = getNextDUIndex(insn);
+        Var catchVar = isFastProcessVar(duIndex)
                 ? context.varManager.getTempVar()
-                : context.varManager.getLocal(bcssa.getRealLocalSlot(rwIndex));
-        reachVars[rwIndex] = catchVar;
+                : context.varManager.getLocal(bcssa.getRealLocalSlot(duIndex));
+        reachVars[duIndex] = catchVar;
         context.stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
     }
@@ -196,7 +199,7 @@ final class SlotManager {
         AbstractInsnNode firstInsn = block.getInsns().get(0);
         bcssa.visitLivePhis(block, (phi) -> {
             Var phiVar = context.varManager.getTempVar();
-            Var origin = context.varManager.getLocal(phi.getVar());
+            Var origin = context.varManager.getLocal(phi.getSlot());
             FrontendPhiExp phiExp = new FrontendPhiExp();
             reachVars[phi.getDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
@@ -241,7 +244,7 @@ final class SlotManager {
             context.varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
         }
         // ensure all params is defined at beginning
-        for (int i = 0; i < RWInfo.getParamSize(); ++i) {
+        for (int i = 0; i < DUInfo.getParamSize(); ++i) {
             if (isFastProcessVar(i)) {
                 reachVars[i] = context.varManager.getLocal(i);
                 Var current = reachVars[i];
@@ -255,8 +258,8 @@ final class SlotManager {
     }
 
 
-    private boolean isFastProcessVar(int rwIndex) {
-        return context.isSSA || bcssa.canFastProcess(rwIndex);
+    private boolean isFastProcessVar(int duIndex) {
+        return context.isSSA || bcssa.canFastProcess(duIndex);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
@@ -270,11 +273,11 @@ final class SlotManager {
     }
 
     /**
-     * The RWIndex is increasing within the bytecode block, so it NEEDs
-     * to be accessed in the order of rw operations within the bytecode block.
+     * The DUIndex is increasing within the bytecode block, so it NEEDs
+     * to be accessed in the order of du operations within the bytecode block.
      */
-    private int getNextRWIndex(AbstractInsnNode insn) {
-        RWInfo.assertRWIndexValid(currRWIndex, context.getInsnIndex(insn), currBlock);
-        return currRWIndex++;
+    private int getNextDUIndex(AbstractInsnNode insn) {
+        DUInfo.assertDUIndexValid(currDUIndex, context.getInsnIndex(insn), currBlock);
+        return currDUIndex++;
     }
 }
