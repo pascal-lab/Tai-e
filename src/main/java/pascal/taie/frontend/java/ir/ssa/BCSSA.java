@@ -38,47 +38,72 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
+// TODO: comment about phi duIndex. It will contains semiPhis
 public class BCSSA {
 
     public class SemiPhi {
-        final int slot;
 
-        final IntList inDefs;
+        /**
+         * the slot this phi corresponds to
+         */
+        private final int slot;
 
-        final List<BytecodeBlock> inBlocks = new ArrayList<>();
+        /**
+         * the block this phi belongs to
+         */
+        private final BytecodeBlock block;
 
-        final List<SemiPhi> owned = new ArrayList<>();
+        /**
+         * the index of this phi in allPhis list
+         */
+        private final int phiIndex;
 
-        final BytecodeBlock belongsTo;
+        /**
+         * the input defs
+         */
+        private final IntList inDefs = new IntList(4);
 
-        final int index;
+        /**
+         * the blocks of input defs
+         */
+        private final List<BytecodeBlock> inBlocks = new ArrayList<>();
 
-        boolean used = false;
+        /**
+         * the phis that use it as input
+         */
+        private final List<SemiPhi> outPhis = new ArrayList<>();
 
-        boolean valid = true;
+        /**
+         * whether this phi is used
+         */
+        private boolean used = false;
 
-        int newName;
+        /**
+         * whether this phi is valid, i.e., all its input defs are not UNDEFINED
+         */
+        private boolean valid = true;
 
-        Object realPhi;
+        private int clusterId;
 
-        SemiPhi(int slot, IntList inDefs, BytecodeBlock belongsTo, int index) {
+        private FrontendPhiStmt frontendPhi;
+
+        SemiPhi(int slot, BytecodeBlock block, int phiIndex) {
             this.slot = slot;
-            this.inDefs = inDefs;
-            this.belongsTo = belongsTo;
-            this.index = index;
+            this.block = block;
+            this.phiIndex = phiIndex;
         }
 
-        void addInDefs(BytecodeBlock b, int reachDef) {
-            inDefs.add(reachDef);
-            inBlocks.add(b);
-            if (isPhiDef(reachDef)) {
-                SemiPhi p = getPhiByIndex(reachDef);
-                p.owned.add(this);
+        void addInDefs(BytecodeBlock block, int defIndex) {
+            inDefs.add(defIndex);
+            inBlocks.add(block);
+            if (isPhiDef(defIndex)) {
+                SemiPhi p = getPhiByIndex(defIndex);
+                p.outPhis.add(this);
             } else {
-                if (def2OwnedDU[reachDef] == null) {
-                    def2OwnedDU[reachDef] = new IntList(4);
+                if (def2Phis[defIndex] == null) {
+                    def2Phis[defIndex] = new IntList(4);
                 }
-                def2OwnedDU[reachDef].add(getPhiDUIndex(index));
+                def2Phis[defIndex].add(BCSSA.this.getPhiDUIndex(phiIndex));
             }
         }
 
@@ -107,16 +132,16 @@ public class BCSSA {
             return used;
         }
 
-        public int getDUIndex() {
-            return getPhiDUIndex(index);
+        public int getPhiDUIndex() {
+            return BCSSA.this.getPhiDUIndex(phiIndex);
         }
 
-        public void setRealPhi(Object realPhi) {
-            this.realPhi = realPhi;
+        public void setFrontendPhi(FrontendPhiStmt frontendPhi) {
+            this.frontendPhi = frontendPhi;
         }
 
-        public Object getRealPhi() {
-            return realPhi;
+        public FrontendPhiStmt getFrontendPhi() {
+            return frontendPhi;
         }
     }
 
@@ -130,30 +155,44 @@ public class BCSSA {
 
     private final DUInfo duInfo;
 
-    private int[] duReachDef;
-
-    // duReachDef[i] = j, j def dom i
+    /**
+     * du2ReachDef[i] = j, if duIndex j is the reaching definition of duIndex i
+     * <ul>
+     *   <li> If duIndex i is a use, then j is the def that i will use. </li>
+     *   <li> If duIndex i is a def, then j is the previous def that i shadows. </li>
+     * </ul>
+     */
+    private int[] du2ReachDef;
 
     private static final int UNDEFINED = -1;
 
     private final int slotSize;
 
-    // TODO: better name
-    private final int[] renames;
+    private final int[] def2ClusterId;
 
-    private int newMaxLocal;
+    private final int[] param2ClusterId;
 
-    private int[] varMappingTable;
+    private int newSlotSize;
 
-    private final IntList[] def2OwnedDU;
+    private int[] clusterId2NewSlot;
+
+    private int[] newSlot2Origin;
+
+    /**
+     * def2Phis[i] = list of phi DUIndexes that use the def i
+     */
+    private final IntList[] def2Phis;
 
     private final List<SemiPhi> allPhis;
 
     private final boolean isSSA;
 
-    private final boolean[] usedDef;
+    /**
+     * defUsed[i] = true, if the def i is used.
+     * Only for non-phi defs, the usage about phis are recorded in {@link SemiPhi#used} flag.
+     */
+    private final boolean[] defUsed;
 
-    // TODO: Rename var to slot?
     public BCSSA(IndexedGraph<BytecodeBlock> cfg,
                  int slotSize,
                  DUInfo duInfo,
@@ -171,114 +210,114 @@ public class BCSSA {
             }
         };
         this.allPhis = new ArrayList<>();
-        this.renames = new int[duInfo.getMaxDUIndex()];
+        this.def2ClusterId = new int[duInfo.getMaxDUIndex()];
         this.isSSA = isSSA;
-        this.usedDef = new boolean[duInfo.getMaxDUIndex()];
-        Arrays.fill(renames, UNDEFINED);
-        this.def2OwnedDU = new IntList[duInfo.getMaxDUIndex()];
+        this.defUsed = new boolean[duInfo.getMaxDUIndex()];
+        Arrays.fill(def2ClusterId, UNDEFINED);
+        this.def2Phis = new IntList[duInfo.getMaxDUIndex()];
+        this.newSlotSize = slotSize;
+        this.param2ClusterId = new int[duInfo.getParamSize()];
+        Arrays.fill(param2ClusterId, UNDEFINED);
     }
 
     public void build() {
-        int phiCount = phiInsertion();
-        travLink(phiCount);
-        pruneAndRenaming(phiCount);
+        insertSemiPhi();
+        buildReachDefs();
+        spreadPhiUsed();
+        if (!isSSA) {
+            reSlot();
+        }
     }
 
-    private void spreadingUsed(SemiPhi phi) {
+    private void spreadPhiUsed(SemiPhi phi) {
         for (int i = 0; i < phi.inDefs.size(); ++i) {
             int def = phi.inDefs.get(i);
             if (isPhiDef(def)) {
                 SemiPhi p = getPhiByIndex(def);
-                if (!p.used) {
+                if (!p.isUsed()) {
                     p.setUsed();
-                    spreadingUsed(p);
+                    spreadPhiUsed(p);
                 }
             } else {
-                usedDef[def] = true;
+                defUsed[def] = true;
             }
         }
     }
 
-    private void pruneAndRenaming(int phiCount) {
-        // pass 1: prune, or spreading `used` flag
+    private void reSlot() {
+        // generate new slots for each cluster and spreading through used phi functions
+        int clusterIdCounter = 0;
+        boolean[] visited = new boolean[allPhis.size()];
+        Map<Integer, Integer> clusterId2OriginSlot = Maps.newMap();
         for (int i = 0; i < cfg.nodeCount(); i++) {
             if (!block2phis.contains(i)) {
                 continue;
             }
             for (SemiPhi phi : block2phis.get(i)) {
-                if (phi.used) {
-                    spreadingUsed(phi);
+                if (phi.isUsed() && !visited[phi.phiIndex]) {
+                    clusterId2OriginSlot.put(clusterIdCounter, phi.slot);
+                    findCluster(phi, visited, clusterIdCounter);
+                    clusterIdCounter++;
                 }
             }
         }
-        // pass 2: generate new names for each cluster and spreading through used phi functions
-        // only needed when perform splitting instead of SSA
-        if (!isSSA) {
-            paramToName = new int[duInfo.getMaxDUIndex()];
-            Arrays.fill(paramToName, UNDEFINED);
-            int varIndex = 0;
-            boolean[] visited = new boolean[phiCount];
-            Map<Integer, Integer> varIndexToOriginSlot = Maps.newMap();
-            for (int i = 0; i < cfg.nodeCount(); i++) {
-                if (!block2phis.contains(i)) {
-                    continue;
-                }
-                for (SemiPhi phi : block2phis.get(i)) {
-                    if (phi.used && !visited[phi.index]) {
-                        varIndexToOriginSlot.put(varIndex, phi.slot);
-                        biDfs(phi, visited, varIndex);
-                        varIndex++;
-                    }
-                }
-            }
 
-            reSlot = new int[varIndex];
-            Arrays.fill(reSlot, UNDEFINED);
-            boolean[] useOriginSlot = new boolean[slotSize];
-            for (int i = 0; i < duInfo.getParamSize(); i++) {
-                if (paramToName[i] != UNDEFINED) {
-                    reSlot[paramToName[i]] = i;
-                    useOriginSlot[i] = true;
+        clusterId2NewSlot = new int[clusterIdCounter];
+        Arrays.fill(clusterId2NewSlot, UNDEFINED);
+        boolean[] useOriginSlot = new boolean[slotSize];
+        for (int i = 0; i < duInfo.getParamSize(); i++) {
+            if (param2ClusterId[i] != UNDEFINED) {
+                clusterId2NewSlot[param2ClusterId[i]] = i;
+                useOriginSlot[i] = true;
+            }
+        }
+        Map<Integer, Integer> newSlot2Origin = Maps.newMap();
+        for (int i = 0; i < clusterIdCounter; i++) {
+            if (clusterId2NewSlot[i] == UNDEFINED) {
+                int oldSlot = clusterId2OriginSlot.get(i);
+                // param slot should not be reused
+                if (!useOriginSlot[oldSlot] && oldSlot >= duInfo.getParamSize()) {
+                    useOriginSlot[oldSlot] = true;
+                    clusterId2NewSlot[i] = oldSlot;
+                } else {
+                    clusterId2NewSlot[i] = newSlotSize++;
+                    newSlot2Origin.put(clusterId2NewSlot[i], oldSlot);
                 }
             }
-            newMaxLocal = slotSize;
-            Map<Integer, Integer> newSlotToOldSlot = Maps.newMap();
-            for (int i = 0; i < varIndex; i++) {
-                if (reSlot[i] == UNDEFINED) {
-                    int oldSlot = varIndexToOriginSlot.get(i);
-                    // param slot should not be reused
-                    if (!useOriginSlot[oldSlot] && oldSlot >= duInfo.getParamSize()) {
-                        useOriginSlot[oldSlot] = true;
-                        reSlot[i] = oldSlot;
-                    } else {
-                        reSlot[i] = newMaxLocal++;
-                        newSlotToOldSlot.put(reSlot[i], oldSlot);
-                    }
-                }
-            }
+        }
 
-            varMappingTable = new int[newMaxLocal];
-            for (int i = 0; i < newMaxLocal; i++) {
-                varMappingTable[i] = newSlotToOldSlot.getOrDefault(i, i);
+        this.newSlot2Origin = new int[newSlotSize];
+        for (int i = 0; i < newSlotSize; i++) {
+            this.newSlot2Origin[i] = newSlot2Origin.getOrDefault(i, i);
+        }
+    }
+
+    private void spreadPhiUsed() {
+        for (int i = 0; i < cfg.nodeCount(); i++) {
+            if (!block2phis.contains(i)) {
+                continue;
+            }
+            for (SemiPhi phi : block2phis.get(i)) {
+                if (phi.isUsed()) {
+                    spreadPhiUsed(phi);
+                }
             }
         }
     }
 
-    private int[] reSlot;
-
-    private int[] paramToName;
-
-    void biDfs(SemiPhi phi, boolean[] visited, int varIndex) {
-        if (!phi.used) {
+    // use biDfs
+    void findCluster(SemiPhi phi, boolean[] visited, int clusterId) {
+        if (!phi.isUsed()) {
             return;
         }
-        if (visited[phi.index]) {
+        if (visited[phi.phiIndex]) {
             return;
         }
-        visited[phi.index] = true;
-        phi.newName = varIndex;
-        for (SemiPhi p : phi.owned) {
-            biDfs(p, visited, varIndex);
+        visited[phi.phiIndex] = true;
+        phi.clusterId = clusterId;
+
+        for (SemiPhi p : phi.outPhis) {
+            findCluster(p, visited, clusterId);
         }
 
         for (int i = 0; i < phi.inDefs.size(); i++) {
@@ -286,18 +325,18 @@ public class BCSSA {
             assert def != -1;
             if (isPhiDef(def)) {
                 SemiPhi p = getPhiByIndex(def);
-                biDfs(p, visited, varIndex);
+                findCluster(p, visited, clusterId);
             } else {
-                renames[def] = varIndex;
+                def2ClusterId[def] = clusterId;
                 if (def < duInfo.getParamSize()) {
-                    paramToName[def] = varIndex;
+                    param2ClusterId[def] = clusterId;
                 }
-                if (def2OwnedDU[def] != null) {
-                    IntList ownedList = def2OwnedDU[def];
-                    for (int j = 0; j < ownedList.size(); ++j) {
-                        int owned = ownedList.get(j);
-                        if (!visited[getPhiByIndex(owned).index]) {
-                            biDfs(getPhiByIndex(owned), visited, varIndex);
+                if (def2Phis[def] != null) {
+                    IntList phis = def2Phis[def];
+                    for (int j = 0; j < phis.size(); ++j) {
+                        SemiPhi p = getPhiByIndex(phis.get(j));
+                        if (!visited[p.phiIndex]) {
+                            findCluster(p, visited, clusterId);
                         }
                     }
                 }
@@ -305,38 +344,18 @@ public class BCSSA {
         }
     }
 
-    private void travLink(int phiCount) {
-        duReachDef = new int[duInfo.getMaxDUIndex() + phiCount];
-        int[] varReachDef = new int[slotSize];
-        Arrays.fill(duReachDef, UNDEFINED);
-        Arrays.fill(varReachDef, UNDEFINED);
-        DUInfo.DUVisitor varDUVisitor = (duIndex, type, slot) -> {
-            if (type == DUInfo.OccurType.USE) {
-                int before = varReachDef[slot];
-                assert before > -100000;
-                updateReachingDef(slot, duIndex, varReachDef);
-                int reachDef = varReachDef[slot];
-                assert reachDef != UNDEFINED;
-                duReachDef[duIndex] = reachDef;
-                if (isPhiDef(reachDef)) {
-                    SemiPhi phi = getPhiByIndex(duReachDef[duIndex]);
-                    phi.setUsed();
-                } else {
-                    usedDef[reachDef] = true;
-                }
-            } else {
-                updateReachingDef(slot, duIndex, varReachDef);
-                duReachDef[duIndex] = varReachDef[slot];
-                varReachDef[slot] = duIndex;
-            }
-        };
+    private void buildReachDefs() {
+        du2ReachDef = new int[getMaxDUIndexWithPhi()];
+        int[] slot2LatestDef = new int[slotSize];
+        Arrays.fill(du2ReachDef, UNDEFINED);
+        Arrays.fill(slot2LatestDef, UNDEFINED);
 
-        // before starting, we need to inject params
+        // before starting, inject reach defs caused by params
         for (int i = 0; i < duInfo.getParamSize(); i++) {
             // params are always defined at the beginning of the method
-            // and should be labeled as 0, 1, 2, 3, ... in the du index
-            varReachDef[i] = i;
-            // if the param is used in a phi node, we need to update the reaching def
+            // and should be labeled as 0, 1, 2, 3, ... in the DUIndex
+            slot2LatestDef[i] = i;
+            // if the param is used in a phi node in entry, we need to update the reaching def
             if (!block2phis.contains(cfg.getIndex(cfg.getEntry()))) {
                 continue;
             }
@@ -346,82 +365,109 @@ public class BCSSA {
                 }
             }
         }
-        for (BytecodeBlock current : dom.getDomTreePreOrder()) {
-            int node = cfg.getIndex(current);
-            if (block2phis.contains(node)) {
-                for (SemiPhi phi : block2phis.get(node)) {
-                    int phiIndex = getPhiDUIndex(phi.index);
-                    updateReachingDef(phi.slot, phiIndex, varReachDef);
-                    duReachDef[phiIndex] = varReachDef[phi.slot];
-                    varReachDef[phi.slot] = phiIndex;
+
+        for (BytecodeBlock block : dom.getDomTreePreOrder()) {
+            // 1. make reach defs for phis in this block (phi is a def)
+            int blockIndex = cfg.getIndex(block);
+            if (block2phis.contains(blockIndex)) {
+                for (SemiPhi phi : block2phis.get(blockIndex)) {
+                    int phiDUIndex = getPhiDUIndex(phi.phiIndex);
+                    du2ReachDef[phiDUIndex] = getSlotLatestDef(phi.slot, slot2LatestDef, phiDUIndex);
+                    slot2LatestDef[phi.slot] = phiDUIndex;
                 }
             }
-            duInfo.visit(current, varDUVisitor);
-            for (BytecodeBlock succ : cfg.getSuccsOf(current)) {
-                int succI = cfg.getIndex(succ);
-                if (!block2phis.contains(succI)) {
+
+            // 2. make reach defs for normal def/use operations in this block
+            duInfo.visit(block, (duIndex, type, slot) -> {
+                int reachDef = getSlotLatestDef(slot, slot2LatestDef, duIndex);
+                if (type == DUInfo.DUType.USE) {
+                    assert reachDef != UNDEFINED;
+                    du2ReachDef[duIndex] = reachDef;
+                    if (isPhiDef(reachDef)) {
+                        SemiPhi phi = getPhiByIndex(reachDef);
+                        phi.setUsed();
+                    } else {
+                        defUsed[reachDef] = true;
+                    }
+                } else {
+                    du2ReachDef[duIndex] = reachDef;
+                    slot2LatestDef[slot] = duIndex;
+                }
+            });
+
+            // 3. add indefs to the phis in the successor blocks
+            for (BytecodeBlock succ : cfg.getSuccsOf(block)) {
+                int succIndex = cfg.getIndex(succ);
+                if (!block2phis.contains(succIndex)) {
                     continue;
                 }
-                for (SemiPhi phi : block2phis.get(succI)) {
-                    int varIndex = phi.slot;
-                    updateReachingDefForBlockEnd(varIndex, varReachDef, current);
-                    int reachDef = varReachDef[varIndex];
+                for (SemiPhi phi : block2phis.get(succIndex)) {
+                    int reachDef = getSlotLatestDef(phi.slot, slot2LatestDef, block);
                     if (reachDef == UNDEFINED) {
                         phi.setInvalid();
                     } else {
-                        phi.addInDefs(current, reachDef);
+                        phi.addInDefs(block, reachDef);
                     }
                 }
             }
         }
     }
 
-    public void updateReachingDefForBlockEnd(int v, int[] varReachDef, BytecodeBlock block) {
-        int r = varReachDef[v];
-        if (r == UNDEFINED) {
-            return;
+    /**
+     * Get the reach def for slot.
+     * We CAN NOT just return slot2LatestDef[slot].
+     * Instead, we should find the reach def that dominates the block along the def chain.
+     */
+    private int getSlotLatestDef(int slot, int[] slot2LatestDef, BytecodeBlock block) {
+        int def = slot2LatestDef[slot];
+        if (def == UNDEFINED || getBlock(def) == block) {
+            return def;
         }
-        BytecodeBlock b = getDuBlocks(r);
-        if (b == block) {
-            return;
-        } else {
-            while (!dom.dominates(b, block)) {
-                r = duReachDef[r];
-                if (r == UNDEFINED) {
-                    break;
-                }
-                b = getDuBlocks(r);
+        BytecodeBlock defBlock = getBlock(def);
+        while (!(defBlock != block && dom.dominates(defBlock, block))) {
+            def = du2ReachDef[def];
+            if (def == UNDEFINED) {
+                break;
             }
+            defBlock = getBlock(def);
         }
-        varReachDef[v] = r;
-    }
-
-    public void updateReachingDef(int v, int insnIndex, int[] varReachDef) {
-        int r = varReachDef[v];
-        while (!(r == UNDEFINED || dominates(r, insnIndex))) {
-            r = duReachDef[r];
-        }
-        varReachDef[v] = r;
+        slot2LatestDef[slot] = def;
+        return def;
     }
 
     /**
-     * Check if insnIndex1 dominates insnIndex2
+     * Get the reach def for slot.
+     * We CAN NOT just return slot2LatestDef[slot].
+     * Instead, we should find the reach def that dominates duIndex along the def chain.
      */
-    private boolean dominates(int insnIndex1, int insnIndex2) {
-        BytecodeBlock b1 = getDuBlocks(insnIndex1);
-        BytecodeBlock b2 = getDuBlocks(insnIndex2);
+    private int getSlotLatestDef(int slot, int[] slot2LatestDef, int duIndex) {
+        int def = slot2LatestDef[slot];
+        // find the reaching def that dominates duIndex, or UNDEFINED
+        while (!(def == UNDEFINED || dominates(def, duIndex))) {
+            def = du2ReachDef[def];
+        }
+        slot2LatestDef[slot] = def;
+        return def;
+    }
+
+    /**
+     * Check if duIndex1 dominates duIndex2
+     */
+    private boolean dominates(int duIndex1, int duIndex2) {
+        BytecodeBlock b1 = getBlock(duIndex1);
+        BytecodeBlock b2 = getBlock(duIndex2);
         if (b1 == b2) {
-            return isPhiDef(insnIndex1) || insnIndex1 < insnIndex2;
+            return isPhiDef(duIndex1) || duIndex1 < duIndex2;
         } else {
             return dom.dominates(b1, b2);
         }
     }
 
-    private BytecodeBlock getDuBlocks(int udIndex) {
-        if (!isPhiDef(udIndex)) {
-            return duInfo.getBlock(udIndex);
+    private BytecodeBlock getBlock(int duIndex) {
+        if (!isPhiDef(duIndex)) {
+            return duInfo.getBlock(duIndex);
         } else {
-            return getPhiByIndex(udIndex).belongsTo;
+            return getPhiByIndex(duIndex).block;
         }
     }
 
@@ -438,72 +484,70 @@ public class BCSSA {
         return allPhis.get(phiIndex);
     }
 
-    private int phiInsertion() {
-        int phiCount = 0;
-
-        Queue<Integer> current = new ArrayDeque<>();
+    private void insertSemiPhi() {
         for (int slot = 0; slot < slotSize; ++slot) {
+            // the indexes of blocks (if they have phi stmts) that define the slot (phi is also a definition)
+            Queue<Integer> worklist = new ArrayDeque<>();
             List<BytecodeBlock> defBlocks = duInfo.getDefBlocks(slot);
             for (BytecodeBlock block : defBlocks) {
-                current.add(cfg.getIndex(block));
+                worklist.add(cfg.getIndex(block));
             }
-            while (!current.isEmpty()) {
-                BytecodeBlock block = cfg.getObject(current.poll());
-                for (int node : df.get(cfg.getIndex(block))) {
-                    if (!isInserted(node, slot)) {
-                        SemiPhi phi = new SemiPhi(slot, new IntList(4), cfg.getObject(node), phiCount++);
-                        block2phis.get(node).add(phi);
+            while (!worklist.isEmpty()) {
+                BytecodeBlock block = cfg.getObject(worklist.poll());
+                for (int dfBlock : df.get(cfg.getIndex(block))) {
+                    if (!isPhiInserted(dfBlock, slot)) {
+                        SemiPhi phi = new SemiPhi(slot, cfg.getObject(dfBlock), allPhis.size());
+                        block2phis.get(dfBlock).add(phi);
                         allPhis.add(phi);
-                        assert phiCount == allPhis.size();
-                        current.add(node);
+                        worklist.add(dfBlock);
                     }
                 }
             }
         }
-        return phiCount;
     }
 
-    private boolean isInserted(int node, int v) {
-        if (!block2phis.contains(node)) {
+    private boolean isPhiInserted(int block, int slot) {
+        if (!block2phis.contains(block)) {
             return false;
         }
-        for (SemiPhi phi : block2phis.get(node)) {
-            if (phi.slot == v) {
+        for (SemiPhi phi : block2phis.get(block)) {
+            if (phi.slot == slot) {
                 return true;
             }
         }
         return false;
     }
 
-    public int getRealLocalCount() {
-        return newMaxLocal;
+    public int getNewSlotSize() {
+        return newSlotSize;
     }
 
-    public int getRealLocalName(int duIndex) {
-        if (duIndex >= renames.length) {
+    private int getClusterId(int duIndex) {
+        if (duIndex >= def2ClusterId.length) {
             // this is a phi node
-            return getPhiByIndex(duIndex).newName;
+            return getPhiByIndex(duIndex).clusterId;
         }
-        return renames[duIndex];
+        return def2ClusterId[duIndex];
     }
 
-    public int getRealLocalSlot(int duIndex) {
+    public int getNewSlot(int duIndex) {
         if (duIndex < duInfo.getParamSize()) {
             return duIndex;
         }
-        return reSlot[getRealLocalName(duIndex)];
+        return clusterId2NewSlot[getClusterId(duIndex)];
     }
 
+    // TODO: comment and improve naming (the meaning is linear? I think...)
     public boolean canFastProcess(int duIndex) {
-        return getRealLocalName(duIndex) == UNDEFINED;
+        return getClusterId(duIndex) == UNDEFINED;
     }
 
-    public int[] getVarMappingTable() {
-        return varMappingTable;
+    public int[] getNewSlot2Origin() {
+        return newSlot2Origin;
     }
 
     public int getReachDef(int duIndex) {
-        return duReachDef[duIndex];
+        return du2ReachDef[duIndex];
     }
 
     public void visitLivePhis(BytecodeBlock block, Consumer<SemiPhi> consumer) {
@@ -512,25 +556,25 @@ public class BCSSA {
             return;
         }
         for (SemiPhi phi : block2phis.get(index)) {
-            if (phi.used) {
+            if (phi.isUsed()) {
                 consumer.accept(phi);
             }
         }
     }
 
-    public int getMaxDUCount() {
+    public int getMaxDUIndexWithPhi() {
         return duInfo.getMaxDUIndex() + allPhis.size();
     }
 
     public boolean isDefUsed(int def) {
-        // we must ensure if def1 and def2 belongs to the same phi-web,
+        // we must ensure if def1 and def2 belongs to the same phi-web (or cluster),
         // they should have the same used flag
         // this will be ensured by the algorithm,
         // in stage 2, only the def has been used will be marked as used will be visited
-        if (!isPhiDef(def)) {
-            return usedDef[def];
+        if (isPhiDef(def)) {
+            return getPhiByIndex(def).isUsed();
         } else {
-            return getPhiByIndex(def).used;
+            return defUsed[def];
         }
     }
 }

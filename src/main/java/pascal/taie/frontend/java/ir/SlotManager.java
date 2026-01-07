@@ -132,7 +132,7 @@ final class SlotManager {
         if (isFastProcessVar(defIndex)) {
             v = reachVars[defIndex];
         } else {
-            int realVar = bcssa.getRealLocalSlot(defIndex);
+            int realVar = bcssa.getNewSlot(defIndex);
             assert realVar != -1; // must be phi-connected insn, a local is assigned before
             v = context.varManager.getLocal(realVar);
         }
@@ -167,7 +167,7 @@ final class SlotManager {
             reachVars[duIndex] = v;
         } else {
             // still use a local var
-            int realVar = bcssa.getRealLocalSlot(duIndex);
+            int realVar = bcssa.getNewSlot(duIndex);
             v = context.varManager.getLocal(realVar);
             // use this to generate store stmt
             assert v != null;
@@ -184,7 +184,7 @@ final class SlotManager {
         int duIndex = getNextDUIndex(insn);
         Var catchVar = isFastProcessVar(duIndex)
                 ? context.varManager.getTempVar()
-                : context.varManager.getLocal(bcssa.getRealLocalSlot(duIndex));
+                : context.varManager.getLocal(bcssa.getNewSlot(duIndex));
         reachVars[duIndex] = catchVar;
         context.stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
@@ -201,11 +201,11 @@ final class SlotManager {
             Var phiVar = context.varManager.getTempVar();
             Var origin = context.varManager.getLocal(phi.getSlot());
             FrontendPhiExp phiExp = new FrontendPhiExp();
-            reachVars[phi.getDUIndex()] = phiVar;
+            reachVars[phi.getPhiDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
             context.varManager.setNonSSA(phiVar);
             context.stmtManager.associateStmt(firstInsn, frontendPhiStmt);
-            phi.setRealPhi(frontendPhiStmt);
+            phi.setFrontendPhi(frontendPhiStmt);
             context.varManager.aliasLocal(phiVar, context.varManager.getSlot(origin));
         });
     }
@@ -223,7 +223,7 @@ final class SlotManager {
 
     private void addInDefsForSlotPhis(BytecodeBlock block) {
         bcssa.visitLivePhis(block, (phi) -> {
-            FrontendPhiStmt realPhi = (FrontendPhiStmt) phi.getRealPhi();
+            FrontendPhiStmt realPhi = phi.getFrontendPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
             for (int i = 0; i < phi.getInDefs().size(); ++i) {
@@ -239,9 +239,9 @@ final class SlotManager {
     // ========================================================================
 
     private void initializeVarsForSlots() {
-        reachVars = new Var[bcssa.getMaxDUCount()];
+        reachVars = new Var[bcssa.getMaxDUIndexWithPhi()];
         if (!context.isSSA) {
-            context.varManager.enlargeLocal(bcssa.getRealLocalCount(), bcssa.getVarMappingTable());
+            context.varManager.enlargeSlots(bcssa.getNewSlotSize(), bcssa.getNewSlot2Origin());
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < DUInfo.getParamSize(); ++i) {

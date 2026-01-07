@@ -38,7 +38,7 @@ public class DUInfo {
     /**
      * Type of def/use operations.
      */
-    public enum OccurType {
+    public enum DUType {
         USE,
         DEF,
         PARAM
@@ -48,7 +48,7 @@ public class DUInfo {
      * Visitor interface for traversing def/use operations.
      */
     public interface DUVisitor {
-        void visit(int duIndex, OccurType type, int slot);
+        void visit(int duIndex, DUType type, int slot);
     }
 
     /**
@@ -132,12 +132,12 @@ public class DUInfo {
             // careful: the order of visit is important
             // and iinc can both use and def
             if (use) {
-                visitor.visit(duIndex, OccurType.USE, slot);
+                visitor.visit(duIndex, DUType.USE, slot);
                 duIndex++;
             }
             // don't use `else if`, iinc can both use and def
             if (def) {
-                visitor.visit(duIndex, OccurType.DEF, slot);
+                visitor.visit(duIndex, DUType.DEF, slot);
                 duIndex++;
             }
         }

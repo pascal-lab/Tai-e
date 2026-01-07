@@ -85,7 +85,7 @@ public class VarManager {
 
     final Var[] intConstVarCache;
 
-    private Var[] local2Var; // slot -> Var
+    private Var[] slot2Var; // slot -> Var
 
     // parsedLocalVarTable :: slot -> (start(inclusive), end(exclusive)) -> VarNode
     private final Map<Pair<Integer, Integer>, LocalVariableNode>[] parsedLocalVarTable;
@@ -114,7 +114,7 @@ public class VarManager {
         this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
         this.insnList = source.instructions;
         this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
-        this.local2Var = new Var[source.maxLocals];
+        this.slot2Var = new Var[source.maxLocals];
         this.parsedLocalVarTable = existsLocalVariableTable ? new Map[source.maxLocals] : null;
         this.params = new ArrayList<>();
         this.var2Local = Maps.newMap();
@@ -269,7 +269,7 @@ public class VarManager {
      * @return the corresponding TIR variable
      */
     public Var getLocal(int slot) {
-        Var v = local2Var[slot];
+        Var v = slot2Var[slot];
         assert v != null;
         return v;
     }
@@ -281,7 +281,7 @@ public class VarManager {
     }
 
     public Var[] getLocals() {
-        return local2Var;
+        return slot2Var;
     }
 
     public Var[] getNonSSAVar() {
@@ -291,7 +291,7 @@ public class VarManager {
     private void makeLocal(int slot, String name) {
         Var v1 = newVar(name);
         var2Local.put(v1, slot);
-        local2Var[slot] = v1;
+        slot2Var[slot] = v1;
         setNonSSA(v1);
     }
 
@@ -338,7 +338,7 @@ public class VarManager {
     }
 
     public Var splitLocal(int slot, int index) {
-        Var old = local2Var[slot];
+        Var old = slot2Var[slot];
         if (index == 1) {
             return old;
         } else {
@@ -346,17 +346,16 @@ public class VarManager {
         }
     }
 
-    public void enlargeLocal(int newMaxLocal, int[] originMapping) {
-        assert newMaxLocal == originMapping.length;
-        Var[] newLocal2Var = new Var[newMaxLocal];
-        System.arraycopy(local2Var, 0, newLocal2Var, 0, local2Var.length);
-        int counter = 0;
-        for (int i = local2Var.length; i < originMapping.length; ++i) {
-            newLocal2Var[i] = newVar(tryUseName(newLocal2Var[originMapping[i]].getName()));
-            var2Local.put(newLocal2Var[i], originMapping[i]);
+    public void enlargeSlots(int newSlotSize, int[] newSlot2Origin) {
+        assert newSlotSize == newSlot2Origin.length;
+        Var[] newLocal2Var = new Var[newSlotSize];
+        System.arraycopy(slot2Var, 0, newLocal2Var, 0, slot2Var.length);
+        for (int i = slot2Var.length; i < newSlot2Origin.length; ++i) {
+            newLocal2Var[i] = newVar(tryUseName(newLocal2Var[newSlot2Origin[i]].getName()));
+            var2Local.put(newLocal2Var[i], newSlot2Origin[i]);
         }
 
-        local2Var = newLocal2Var;
+        slot2Var = newLocal2Var;
     }
 
     public void aliasLocal(Var var, int slot) {
@@ -429,7 +428,7 @@ public class VarManager {
      * can only be used before splitting
      */
     public boolean isLocalFast(Var v) {
-        return v.getIndex() < local2Var.length;
+        return v.getIndex() < slot2Var.length;
     }
 
     public boolean isLocal(Var v) {
