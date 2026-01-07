@@ -129,7 +129,7 @@ final class SlotManager {
         Var v;
         int defIndex = SSATransform.getReachDef(duIndex);
         assert defIndex != -1;
-        if (isFastProcessVar(defIndex)) {
+        if (canDirectlyPropagate(defIndex)) {
             v = reachVars[defIndex];
         } else {
             int realVar = SSATransform.getNewSlot(defIndex);
@@ -154,7 +154,7 @@ final class SlotManager {
             operandStack.automaticPopToEffect();
             return;
         }
-        if (isFastProcessVar(duIndex)) {
+        if (canDirectlyPropagate(duIndex)) {
             // load insn will use duTables to get this var
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
@@ -182,7 +182,7 @@ final class SlotManager {
      */
     Var storeCatchVar(AbstractInsnNode insn) {
         int duIndex = getNextDUIndex(insn);
-        Var catchVar = isFastProcessVar(duIndex)
+        Var catchVar = canDirectlyPropagate(duIndex)
                 ? context.varManager.getTempVar()
                 : context.varManager.getLocal(SSATransform.getNewSlot(duIndex));
         reachVars[duIndex] = catchVar;
@@ -211,7 +211,7 @@ final class SlotManager {
     }
 
     /**
-     * Fills in the actual arguments for the previously emitted Phi statements.
+     * Fills in the input arguments for the previously emitted Phi statements.
      */
     void addInDefsForSlotPhis() {
         if (context.isSSA) {
@@ -245,10 +245,10 @@ final class SlotManager {
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < DUInfo.getParamSize(); ++i) {
-            if (isFastProcessVar(i)) {
+            if (canDirectlyPropagate(i)) {
                 reachVars[i] = context.varManager.getLocal(i);
                 Var current = reachVars[i];
-                if (SSATransform.canFastProcess(i)) {
+                if (SSATransform.isIsolatedDef(i)) {
                     context.varManager.setSSA(current);
                 } else {
                     context.varManager.setNonSSA(current);
@@ -257,9 +257,12 @@ final class SlotManager {
         }
     }
 
-
-    private boolean isFastProcessVar(int duIndex) {
-        return context.isSSA || SSATransform.canFastProcess(duIndex);
+    /**
+     * Determines whether the variable defined at {@code duIndex} can be propagated directly:
+     * skip store and the value is returned later upon loading.
+     */
+    private boolean canDirectlyPropagate(int duIndex) {
+        return context.isSSA || SSATransform.isIsolatedDef(duIndex);
     }
 
     private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {

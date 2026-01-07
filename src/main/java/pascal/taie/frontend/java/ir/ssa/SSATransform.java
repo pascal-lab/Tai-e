@@ -180,8 +180,10 @@ public class SSATransform {
         return clusterId2NewSlot[getClusterId(duIndex)];
     }
 
-    // TODO: comment and improve naming (the meaning is linear? I think...)
-    public boolean canFastProcess(int duIndex) {
+    /**
+     * Checks if the definition is isolated (i.e., not part of any Phi-Web/Cluster).
+     */
+    public boolean isIsolatedDef(int duIndex) {
         return getClusterId(duIndex) == UNDEFINED;
     }
 
