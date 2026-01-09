@@ -324,11 +324,6 @@ public class VarManager {
                 v.getName().startsWith(LOCAL_PREFIX);
     }
 
-    void aliasForSlot(Var var) {
-        assert !slotVars.contains(var);
-        slotVars.add(var);
-    }
-
     boolean isForSlot(Var v) {
         return slotVars.contains(v);
     }

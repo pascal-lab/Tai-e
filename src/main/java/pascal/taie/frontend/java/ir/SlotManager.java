@@ -205,7 +205,6 @@ final class SlotManager {
             context.varManager.setNonSSA(phiVar);
             context.stmtManager.associateStmt(firstInsn, frontendPhiStmt);
             phi.setFrontendPhi(frontendPhiStmt);
-            context.varManager.aliasForSlot(phiVar);
         });
     }
 
