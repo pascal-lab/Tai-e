@@ -256,7 +256,7 @@ final class OperandStack {
      * Pushes a constant onto stack.
      */
     void pushConst(AbstractInsnNode node, Literal literal) {
-        if (context.varManager.peekConstVar(literal)) {
+        if (context.varManager.shouldCacheConst(literal)) {
             pushExp(node, context.varManager.getConstVar(literal));
         } else {
             pushExp(node, literal);
@@ -376,7 +376,7 @@ final class OperandStack {
             return context.varManager.getNullLiteral();
         }
         if (e instanceof Literal l) {
-            if (context.varManager.peekConstVar(l)) {
+            if (context.varManager.shouldCacheConst(l)) {
                 return context.varManager.getConstVar(l);
             } else {
                 v = context.varManager.getConstVar(l);

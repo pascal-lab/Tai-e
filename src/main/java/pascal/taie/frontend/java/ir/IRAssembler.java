@@ -76,7 +76,7 @@ class IRAssembler {
         List<ExceptionEntry> exceptionEntries = buildExceptionTable(stmts);
         Var thisVar = context.varManager.getThisVar();
         List<Var> params = context.varManager.getParams();
-        List<Var> vars = context.varManager.getVars();
+        List<Var> vars = context.varManager.getAllVars();
         Set<Var> retVars = context.varManager.getRetVars();
         return new DefaultIR(context.method, thisVar, params, retVars, vars, stmts, exceptionEntries);
     }
@@ -88,7 +88,7 @@ class IRAssembler {
         List<Stmt> stmts = new ArrayList<>(context.source.instructions.size());
         List<FrontendPhiStmt> frontendPhiStmts = new ArrayList<>();
         int now = 0;
-        for (Var v : context.varManager.intConstVarCache) {
+        for (Var v : context.varManager.getIntConstVarCache()) {
             if (v != null) {
                 Stmt curr = Utils.newAssignStmt(context.method, v, v.getConstValue());
                 curr.setIndex(now++);

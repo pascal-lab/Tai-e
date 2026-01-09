@@ -42,7 +42,7 @@ final class SlotManager {
     /**
      * The SSA construction engine that computes Def-Use chains.
      */
-    private SSATransform SSATransform;
+    private SSATransform ssaTransform;
 
     /**
      * Records all def/use operations about slots in bytecode, use DUIndex to index them.
@@ -52,7 +52,7 @@ final class SlotManager {
     /**
      * Maps a definition's DUIndex to its corresponding Var.
      */
-    private Var[] reachVars;
+    private Var[] def2Var;
 
     /**
      * The shared context holding all resources and state for the IR building process.
@@ -87,8 +87,8 @@ final class SlotManager {
      */
     void initialize() {
         DUInfo.build(context.cfg, context.source.maxLocals);
-        SSATransform = new SSATransform(context.cfg, context.source.maxLocals, DUInfo, context.isSSA, context.dom);
-        SSATransform.build();
+        ssaTransform = new SSATransform(context.cfg, context.source.maxLocals, DUInfo, context.isSSA, context.dom);
+        ssaTransform.build();
         initializeVarsForSlots();
     }
 
@@ -128,17 +128,17 @@ final class SlotManager {
     Var loadVar(int slot, AbstractInsnNode insn) {
         int duIndex = getNextDUIndex(insn);
         Var v;
-        int defIndex = SSATransform.getReachDef(duIndex);
+        int defIndex = ssaTransform.getReachDef(duIndex);
         assert defIndex != -1;
         if (canDirectlyPropagate(defIndex)) {
-            v = reachVars[defIndex];
+            v = def2Var[defIndex];
         } else {
-            int realVar = SSATransform.getNewSlot(defIndex);
-            assert realVar != -1; // must be phi-connected insn, a local is assigned before
-            v = context.varManager.getLocal(realVar);
+            int newSlot = ssaTransform.getNewSlot(defIndex);
+            assert newSlot != SSATransform.UNDEFINED; // must be phi-connected insn, a local is assigned before
+            v = context.varManager.getVar(newSlot);
         }
         assert v != null;
-        tryFixVarName(v, slot, insn);
+        tryActualVarName(v, slot, insn);
         return v;
     }
 
@@ -148,7 +148,7 @@ final class SlotManager {
     void storeVar(int slot, AbstractInsnNode insn, OperandStack operandStack) {
         int duIndex = getNextDUIndex(insn);
         Var v;
-        if (!SSATransform.isDefUsed(duIndex)) {
+        if (!ssaTransform.isDefUsed(duIndex)) {
             // this var is not used, we don't need to generate store stmt
             // still, we need to handle the side effect (e.g. invoke)
             // note: stack may contains `Top`, so don't use `popToEffect`
@@ -156,26 +156,24 @@ final class SlotManager {
             return;
         }
         if (canDirectlyPropagate(duIndex)) {
-            // load insn will use duTables to get this var
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (context.varManager.isLocal(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
+            if (context.varManager.isForSlot(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
                 Var origin = v;
                 v = context.varManager.getTempVar();
                 context.stmtManager.associateStmt(insn, Utils.newAssignStmt(context.method, v, origin));
             }
-            reachVars[duIndex] = v;
+            def2Var[duIndex] = v;
         } else {
             // still use a local var
-            int realVar = SSATransform.getNewSlot(duIndex);
-            v = context.varManager.getLocal(realVar);
-            // use this to generate store stmt
+            int newSlot = ssaTransform.getNewSlot(duIndex);
+            v = context.varManager.getVar(newSlot);
             assert v != null;
             Stmt stmt = operandStack.popToVar(v);
             context.stmtManager.associateStmt(insn, stmt);
         }
-        tryFixVarName(v, slot, insn);
+        tryActualVarName(v, slot, insn);
     }
 
     /**
@@ -185,8 +183,8 @@ final class SlotManager {
         int duIndex = getNextDUIndex(insn);
         Var catchVar = canDirectlyPropagate(duIndex)
                 ? context.varManager.getTempVar()
-                : context.varManager.getLocal(SSATransform.getNewSlot(duIndex));
-        reachVars[duIndex] = catchVar;
+                : context.varManager.getVar(ssaTransform.getNewSlot(duIndex));
+        def2Var[duIndex] = catchVar;
         context.stmtManager.associateStmt(insn, new Catch(catchVar));
         return catchVar;
     }
@@ -198,16 +196,16 @@ final class SlotManager {
         assert context.isSSA;
         // should have at least one instruction
         AbstractInsnNode firstInsn = block.getInsns().get(0);
-        SSATransform.visitUsedInternalPhis(block, (phi) -> {
+        ssaTransform.visitUsedInternalPhis(block, (phi) -> {
             Var phiVar = context.varManager.getTempVar();
-            Var origin = context.varManager.getLocal(phi.getSlot());
+            Var origin = context.varManager.getVar(phi.getSlot());
             FrontendPhiExp phiExp = new FrontendPhiExp();
-            reachVars[phi.getPhiDUIndex()] = phiVar;
+            def2Var[phi.getPhiDUIndex()] = phiVar;
             FrontendPhiStmt frontendPhiStmt = new FrontendPhiStmt(origin, phiVar, phiExp);
             context.varManager.setNonSSA(phiVar);
             context.stmtManager.associateStmt(firstInsn, frontendPhiStmt);
             phi.setFrontendPhi(frontendPhiStmt);
-            context.varManager.aliasLocal(phiVar, context.varManager.getSlot(origin));
+            context.varManager.aliasForSlot(phiVar);
         });
     }
 
@@ -223,13 +221,13 @@ final class SlotManager {
     }
 
     private void addInDefsForSlotPhis(BytecodeBlock block) {
-        SSATransform.visitUsedInternalPhis(block, (phi) -> {
+        ssaTransform.visitUsedInternalPhis(block, (phi) -> {
             FrontendPhiStmt realPhi = phi.getFrontendPhi();
             assert realPhi != null;
             FrontendPhiExp phiExp = realPhi.getRValue();
             for (int i = 0; i < phi.getInDefs().size(); ++i) {
                 int defIndex = phi.getInDefs().get(i);
-                Var v = reachVars[defIndex];
+                Var v = def2Var[defIndex];
                 phiExp.addUseAndCorrespondingBlocks(v, phi.getInBlocks().get(i));
             }
         });
@@ -240,16 +238,16 @@ final class SlotManager {
     // ========================================================================
 
     private void initializeVarsForSlots() {
-        reachVars = new Var[SSATransform.getMaxDUIndexWithPhi()];
+        def2Var = new Var[ssaTransform.getMaxDUIndexWithPhi()];
         if (!context.isSSA) {
-            context.varManager.enlargeSlots(SSATransform.getNewSlotSize(), SSATransform.getNewSlot2Origin());
+            context.varManager.makeVarsForNewSlots(ssaTransform.getNewSlotSize(), ssaTransform.getNewSlot2Origin());
         }
         // ensure all params is defined at beginning
         for (int i = 0; i < DUInfo.getParamSize(); ++i) {
             if (canDirectlyPropagate(i)) {
-                reachVars[i] = context.varManager.getLocal(i);
-                Var current = reachVars[i];
-                if (SSATransform.isIsolatedDef(i)) {
+                def2Var[i] = context.varManager.getVar(i);
+                Var current = def2Var[i];
+                if (ssaTransform.isIsolatedDef(i)) {
                     context.varManager.setSSA(current);
                 } else {
                     context.varManager.setNonSSA(current);
@@ -263,14 +261,14 @@ final class SlotManager {
      * skip store and the value is returned later upon loading.
      */
     private boolean canDirectlyPropagate(int duIndex) {
-        return context.isSSA || SSATransform.isIsolatedDef(duIndex);
+        return context.isSSA || ssaTransform.isIsolatedDef(duIndex);
     }
 
-    private void tryFixVarName(Var v, int slot, AbstractInsnNode insn) {
-        if (context.varManager.existsLocalVariableTable && VarManager.mayRename(v)) {
+    private void tryActualVarName(Var v, int slot, AbstractInsnNode insn) {
+        if (context.varManager.existLocalVariables() && VarManager.mayRename(v)) {
             Optional<String> name = context.varManager.getName(slot, insn);
             name.ifPresent((n) -> {
-                String realName = context.varManager.tryUseName(n);
+                String realName = context.varManager.nameWithSuffix(n);
                 VarMutator.setName(v, realName);
             });
         }

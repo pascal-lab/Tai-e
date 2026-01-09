@@ -48,6 +48,7 @@ public class FrontendPhiStmt extends AssignStmt<Var, FrontendPhiExp> {
      * Instead, check the segment before "#" in the variable name.
      * @return the base variable before SSA renaming.
      */
+    // TODO: is it still useful?
     public Var getBase() {
         return base;
     }

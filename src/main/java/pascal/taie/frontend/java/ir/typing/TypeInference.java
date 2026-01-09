@@ -89,7 +89,7 @@ public class TypeInference {
     public TypeInference(IRBuilderContext context) {
         this.context = context;
         this.needCasting = false;
-        this.graph = new TypingFlowGraph(context.varManager.getVars().size());
+        this.graph = new TypingFlowGraph(context.varManager.getAllVars().size());
     }
 
     private Optional<Type> plusOneArray(Type t) {

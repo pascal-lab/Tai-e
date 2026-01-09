@@ -22,10 +22,8 @@
 
 package pascal.taie.frontend.java.ir;
 
-import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
@@ -36,7 +34,6 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
@@ -45,138 +42,167 @@ import pascal.taie.util.collection.Sets;
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 
 import static pascal.taie.language.type.IntType.INT;
 
 public class VarManager {
 
-    public static final String LOCAL_PREFIX = "$";
+    private static final String LOCAL_PREFIX = "$";
 
     // TODO: use another method to avoid local var has same prefix
-    public static final String TEMP_PREFIX = "%";
+    private static final String TEMP_PREFIX = "%";
 
-    public static final String THIS = "this";
+    private static final String THIS = "this";
 
-    public static final String NULL_LITERAL = "$null";
+    private static final String NULL_LITERAL = "$null";
 
-    private final JMethod method;
 
-    private final @Nullable List<LocalVariableNode> localVariableTable;
+    private final IRBuilderContext context;
 
-    public final boolean existsLocalVariableTable;
 
-    private final InsnList insnList;
+    private final int INT_CACHE_LOW = -8;
+
+    private final int INT_CACHE_HIGH = 7;
+
+    private final Var[] intConstVarCache;
+
+    private @Nullable Var nullLiteral;
+
+
+    /**
+     * slot2Variable[slot].get(range) = local variable node.
+     * Maps from slot and range to the concrete local variable.
+     */
+    private final Map<Pair<Integer, Integer>, LocalVariableNode>[] slot2Locals;
+
+    private final BitSet varIsSSA;
+
+    private final Map<String, Integer> name2Count;
+
 
     private int counter;
 
-    final int INT_CACHE_LOW = -8;
+    private final List<Var> allVars;
 
-    final int INT_CACHE_HIGH = 7;
+    private Var[] slot2Var;
 
-    final Var[] intConstVarCache;
+    private final Set<Var> slotVars;
 
-    private Var[] slot2Var; // slot -> Var
-
-    // parsedLocalVarTable :: slot -> (start(inclusive), end(exclusive)) -> VarNode
-    private final Map<Pair<Integer, Integer>, LocalVariableNode>[] parsedLocalVarTable;
 
     private final List<Var> params;
-
-    private final Map<Var, Integer> var2Local;
-
-    private final List<Var> vars;
 
     private final Set<Var> retVars;
 
     private final @Nullable Var thisVar;
 
-    private @Nullable Var nullLiteral;
-
-    private final Map<String, Integer> nameUsedCount = Maps.newMap();
-
-    private final BitSet varIsSSA;
-
-    @SuppressWarnings("unchecked")
     VarManager(IRBuilderContext context) {
-        JSRInlinerAdapter source = context.source;
-        this.method = context.method;
-        this.localVariableTable = source.localVariables;
-        this.existsLocalVariableTable = localVariableTable != null && !localVariableTable.isEmpty();
-        this.insnList = source.instructions;
+        this.context = context;
+
         this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
-        this.slot2Var = new Var[source.maxLocals];
-        this.parsedLocalVarTable = existsLocalVariableTable ? new Map[source.maxLocals] : null;
+
+        this.counter = 0;
+        this.allVars = new ArrayList<>(context.source.maxLocals * 6);
+
         this.params = new ArrayList<>();
-        this.var2Local = Maps.newMap();
-        this.vars = new ArrayList<>(source.maxLocals * 6);
         this.retVars = Sets.newSet();
+
         this.varIsSSA = new BitSet();
+        this.slot2Locals = computeSlot2Locals();
+        this.name2Count = Maps.newMap();
 
-        if (existsLocalVariableTable) {
-            processLocalVarTable();
+        this.slot2Var = new Var[context.source.maxLocals];
+        this.slotVars = Sets.newSet();
+        for (int slot = 0; slot < context.source.maxLocals; ++slot) {
+            String name;
+            if (slot == 0) {
+                name = this.context.method.isStatic() ? LOCAL_PREFIX + slot : THIS;
+            } else {
+                name = LOCAL_PREFIX + slot;
+            }
+            Var v = newVar(name);
+            slotVars.add(v);
+            slot2Var[slot] = v;
+            setNonSSA(v);
         }
 
-        for (int i = 0; i < source.maxLocals; ++i) {
-            makeLocal(i, getLocalName(i, method.isStatic()));
-        }
-
-        int firstParamIndex = method.isStatic() ? 0 : 1;
+        int firstParamIndex = context.method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
-        for (int noOfParam = firstParamIndex; noOfParam < method.getParamCount() + firstParamIndex; ++noOfParam) {
-            assert slotOfCurrentParam < source.maxLocals;
-            Var v = getLocal(slotOfCurrentParam);
-            if (existsLocalVariableTable) {
+        for (int param = firstParamIndex; param < context.method.getParamCount() + firstParamIndex; ++param) {
+            assert slotOfCurrentParam < context.source.maxLocals;
+            Var v = getVar(slotOfCurrentParam);
+            if (existLocalVariables()) {
                 // in our assumption, the parameters would occupy a certain slot during the whole method.
-                Map<Pair<Integer, Integer>, LocalVariableNode> localVarTableForSlot =
-                        parsedLocalVarTable[slotOfCurrentParam];
-                if (localVarTableForSlot != null) {
-                    localVarTableForSlot
+                Map<Pair<Integer, Integer>, LocalVariableNode> localVariables =
+                        slot2Locals[slotOfCurrentParam];
+                if (localVariables != null) {
+                    localVariables
                             .keySet()
                             .stream()
                             .findAny()
-                            .map(k -> localVarTableForSlot.get(k).name)
-                            .ifPresent((name) -> VarMutator.setName(v, tryUseName(name)));
+                            .map(k -> localVariables.get(k).name)
+                            .ifPresent((name) -> VarMutator.setName(v, nameWithSuffix(name)));
                 }
             }
             params.add(v);
-            if (FrontendTypeSystem.isTwoWord(method.getParamType(noOfParam - firstParamIndex))) {
+            if (FrontendTypeSystem.isTwoWord(context.method.getParamType(param - firstParamIndex))) {
                 slotOfCurrentParam += 2;
             } else {
                 slotOfCurrentParam += 1;
             }
         }
 
-        if (method.isStatic()) {
+        if (context.method.isStatic()) {
             thisVar = null;
         } else {
-            thisVar = getLocal(0);
+            thisVar = getVar(0);
         }
     }
 
-    private void processLocalVarTable() {
-        assert localVariableTable != null;
-        for (LocalVariableNode node : localVariableTable) {
-            int start = insnList.indexOf(node.start);
-            int end = insnList.indexOf(getNextTrueInsnNode(node.end));
+    void makeVarsForNewSlots(int newSlotSize, int[] newSlot2Origin) {
+        assert newSlotSize == newSlot2Origin.length;
+        Var[] newSlot2Var = new Var[newSlotSize];
+        System.arraycopy(slot2Var, 0, newSlot2Var, 0, slot2Var.length);
+        for (int i = slot2Var.length; i < newSlot2Origin.length; ++i) {
+            newSlot2Var[i] = newVar(nameWithSuffix(newSlot2Var[newSlot2Origin[i]].getName()));
+            slotVars.add(newSlot2Var[i]);
+        }
+
+        slot2Var = newSlot2Var;
+    }
+
+    boolean existLocalVariables() {
+        return context.source.localVariables != null
+                && !context.source.localVariables.isEmpty();
+    }
+
+    Var[] getIntConstVarCache() {
+        return intConstVarCache;
+    }
+
+    private Map<Pair<Integer, Integer>, LocalVariableNode>[] computeSlot2Locals() {
+        if (!existLocalVariables()) {
+            return null;
+        }
+        Map<Pair<Integer, Integer>, LocalVariableNode>[] slot2Variables = new Map[context.source.maxLocals];
+        for (LocalVariableNode node : context.source.localVariables) {
+            int start = context.getInsnIndex(node.start);
+            int end = context.getInsnIndex(getNextTrueInsnNode(node.end));
             int slot = node.index;
-            if (parsedLocalVarTable[slot] == null) {
-                parsedLocalVarTable[slot] = Maps.newMap();
+            if (slot2Variables[slot] == null) {
+                slot2Variables[slot] = Maps.newMap();
             }
-            parsedLocalVarTable[slot].put(new Pair<>(start, end), node);
+            slot2Variables[slot].put(new Pair<>(start, end), node);
         }
+        return slot2Variables;
     }
 
-    public Optional<String> getName(int slot, AbstractInsnNode insnNode) {
+    Optional<String> getName(int slot, AbstractInsnNode insnNode) {
         if (Utils.isVarStore(insnNode)) {
             /*
              * for VarStore, you have to use the next InsnNode (actual JVM Bytecode)
@@ -185,16 +211,16 @@ public class VarManager {
              */
             insnNode = getNextTrueInsnNode(insnNode);
         }
-        int asmIndex = insnList.indexOf(insnNode);
-        Map<Pair<Integer, Integer>, LocalVariableNode> localVarTableForSlot =
-                parsedLocalVarTable[slot];
-        if (localVarTableForSlot == null) {
+        int insnIndex = context.getInsnIndex(insnNode);
+        Map<Pair<Integer, Integer>, LocalVariableNode> localVariables =
+                slot2Locals[slot];
+        if (localVariables == null) {
             return Optional.empty();
         }
-        return localVarTableForSlot.keySet().stream()
-                .filter(k -> k.first() <= asmIndex && asmIndex < k.second())
+        return localVariables.keySet().stream()
+                .filter(k -> k.first() <= insnIndex && insnIndex < k.second())
                 .findAny()
-                .map(k -> localVarTableForSlot.get(k).name);
+                .map(k -> localVariables.get(k).name);
     }
 
     /**
@@ -231,12 +257,16 @@ public class VarManager {
         return params;
     }
 
-    public List<Var> getVars() {
-        return vars;
+    public List<Var> getAllVars() {
+        return allVars;
     }
 
     public Set<Var> getRetVars() {
         return retVars;
+    }
+
+    void addReturnVar(Var v) {
+        this.retVars.add(v);
     }
 
     /**
@@ -245,55 +275,13 @@ public class VarManager {
      * @param slot index of variable in bytecode
      * @return the corresponding TIR variable
      */
-    public Var getLocal(int slot) {
+    Var getVar(int slot) {
         Var v = slot2Var[slot];
         assert v != null;
         return v;
     }
 
-    public int getSlot(Var local) {
-        Integer i = var2Local.get(local);
-        assert i != null;
-        return i;
-    }
-
-    private void makeLocal(int slot, String name) {
-        Var v1 = newVar(name);
-        var2Local.put(v1, slot);
-        slot2Var[slot] = v1;
-        setNonSSA(v1);
-    }
-
-    private String getLocalName(int slot, boolean isStatic) {
-        if (slot == 0) {
-            return isStatic ? LOCAL_PREFIX + slot : THIS;
-        } else {
-            return LOCAL_PREFIX + slot;
-        }
-    }
-
-    public void enlargeSlots(int newSlotSize, int[] newSlot2Origin) {
-        assert newSlotSize == newSlot2Origin.length;
-        Var[] newLocal2Var = new Var[newSlotSize];
-        System.arraycopy(slot2Var, 0, newLocal2Var, 0, slot2Var.length);
-        for (int i = slot2Var.length; i < newSlot2Origin.length; ++i) {
-            newLocal2Var[i] = newVar(tryUseName(newLocal2Var[newSlot2Origin[i]].getName()));
-            var2Local.put(newLocal2Var[i], newSlot2Origin[i]);
-        }
-
-        slot2Var = newLocal2Var;
-    }
-
-    public void aliasLocal(Var var, int slot) {
-        assert !var2Local.containsKey(var);
-        var2Local.put(var, slot);
-    }
-
-    public void addReturnVar(Var v) {
-        this.retVars.add(v);
-    }
-
-    public Var getNullLiteral() {
+    Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
             VarMutator.setType(nullLiteral, NullType.NULL);
@@ -301,25 +289,25 @@ public class VarManager {
         return nullLiteral;
     }
 
-    public boolean peekConstVar(Literal literal) {
-        // should we include $null here?
+    boolean shouldCacheConst(Literal literal) {
+        // TODO: should we include $null here?
         return literal instanceof IntLiteral intLiteral
                 && INT_CACHE_LOW <= intLiteral.getValue()
                 && intLiteral.getValue() <= INT_CACHE_HIGH;
     }
 
-    public Var getConstVar(Literal literal) {
+    Var getConstVar(Literal literal) {
         if (literal instanceof NullLiteral) {
             return getNullLiteral();
-        } else if (peekConstVar(literal)) {
+        } else if (shouldCacheConst(literal)) {
             IntLiteral intLiteral = (IntLiteral) literal;
             int value = intLiteral.getValue();
             int index = value - INT_CACHE_LOW;
             if (intConstVarCache[index] == null) {
                 String name = TEMP_PREFIX + "c" + "i" + value;
-                Var v = new Var(method, name, INT, counter++, IntLiteral.get(value));
+                Var v = new Var(context.method, name, INT, counter++, IntLiteral.get(value));
                 intConstVarCache[index] = v;
-                vars.add(intConstVarCache[index]);
+                allVars.add(intConstVarCache[index]);
             }
             return intConstVarCache[index];
         } else {
@@ -327,17 +315,22 @@ public class VarManager {
         }
     }
 
-    public boolean isTempVar(Var v) {
+    boolean isTempVar(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
-    public static boolean mayRename(Var v) {
+    static boolean mayRename(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) ||
                 v.getName().startsWith(LOCAL_PREFIX);
     }
 
-    public boolean isLocal(Var v) {
-        return var2Local.containsKey(v);
+    void aliasForSlot(Var var) {
+        assert !slotVars.contains(var);
+        slotVars.add(var);
+    }
+
+    boolean isForSlot(Var v) {
+        return slotVars.contains(v);
     }
 
     private String getConstVarName() {
@@ -345,39 +338,38 @@ public class VarManager {
     }
 
     private Var newVar(String name) {
-        name = tryUseName(name);
-        Var v = new Var(method, name, null, counter++);
-        vars.add(v);
+        Var v = new Var(context.method, name, null, counter++);
+        allVars.add(v);
         return v;
     }
 
     private Var newConstVar(String name, Literal literal) {
-        Var v = new Var(method, name, literal.getType(), counter++, literal);
-        vars.add(v);
+        Var v = new Var(context.method, name, literal.getType(), counter++, literal);
+        allVars.add(v);
         setNonSSA(v);
         return v;
     }
 
-    public String tryUseName(String name) {
-        if (nameUsedCount.containsKey(name)) {
-            int count = nameUsedCount.get(name);
-            nameUsedCount.put(name, count + 1);
+    String nameWithSuffix(String name) {
+        if (name2Count.containsKey(name)) {
+            int count = name2Count.get(name);
+            name2Count.put(name, count + 1);
             return name + "#" + count;
         } else {
-            nameUsedCount.put(name, 1);
+            name2Count.put(name, 1);
             return name;
         }
     }
 
-    public boolean isSSAVar(Var v) {
+    boolean isSSAVar(Var v) {
         return varIsSSA.get(v.getIndex());
     }
 
-    public void setSSA(Var v) {
+    void setSSA(Var v) {
         varIsSSA.set(v.getIndex(), true);
     }
 
-    public void setNonSSA(Var v) {
+    void setNonSSA(Var v) {
         varIsSSA.set(v.getIndex(), false);
     }
 }

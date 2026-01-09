@@ -74,7 +74,7 @@ public class SSATransform {
     /**
      * Undefined id (duIndex, clusterId, slot, etc.)
      */
-    private static final int UNDEFINED = -1;
+    public static final int UNDEFINED = -1;
 
     // ---------------------- Core SSA data -------------------------
 
