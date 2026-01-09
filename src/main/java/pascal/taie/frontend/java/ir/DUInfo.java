@@ -92,8 +92,8 @@ public class DUInfo {
     private LazyArray<List<BytecodeBlock>> slot2DefBlocks;
 
     /**
-     * {@link #insn2DUInfo} and {@link #duCount} should be initialized first, and then built by {@link #writeDUTable}
-     * They should be built before {@link #build}
+     * {@link #insn2DUInfo} and {@link #duCount} should be initialized first, and then built by {@link #recordDUInfo}
+     * By the way, they should be built before {@link #build}.
      */
     DUInfo(JMethod method, int insnSize) {
         this.paramWriteSize = getParamWriteSize(method);
@@ -146,7 +146,7 @@ public class DUInfo {
     /**
      * Record def/use operations to populate the {@link #insn2DUInfo} and {@link #duCount}.
      */
-    void writeDUTable(int insnIndex, int slot, boolean read) {
+    void recordDUInfo(int insnIndex, int slot, boolean read) {
         duCount++;
         assert slot < (1 << 29);
         int duFlag = read ? 1 << 29 : 1 << 30;
@@ -170,7 +170,8 @@ public class DUInfo {
     }
 
     /**
-     * Builds the internal indexing structures ({@link #du2Insn}, {@link #slot2DefBlocks},  etc.)
+     * Builds the internal indexing structures ({@link #du2Insn}, {@link #slot2DefBlocks},  etc.).
+     * The method should be called after {@link #insn2DUInfo} is built by {@link #recordDUInfo}.
      */
     void build(BytecodeCFG cfg, int maxLocals) {
         du2Insn = new int[duCount];

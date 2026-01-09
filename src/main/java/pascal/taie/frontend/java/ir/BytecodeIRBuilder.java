@@ -54,7 +54,7 @@ class BytecodeIRBuilder {
         }
         // 1. build cfg, and also construct RwTable (used in slotManager) when building CFG
         context.cfg = new BytecodeCFGBuilder(context.source,
-                context.slotManager::writeDUTable, context::getExceptionType)
+                context.slotManager::recordDUInfo, context::getExceptionType)
                 .build();
         assert context.cfg != null;
 

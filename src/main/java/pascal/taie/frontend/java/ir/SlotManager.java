@@ -77,12 +77,13 @@ final class SlotManager {
 
     SlotManager(IRBuilderContext context) {
         this.context = context;
-        // TODO: duInfo must be initialized first, because duTable/count is needed during bytecode visit. Explain better later
+        // duInfo must be initialized first, because recordDUInfo may be called before initialize.
         this.DUInfo = new DUInfo(context.method, context.source.instructions.size());
     }
 
     /**
      * Build DUIndex, BCSSA and initialized var map.
+     * The method should be called after basic du info is built by {@link #recordDUInfo}.
      */
     void initialize() {
         DUInfo.build(context.cfg, context.source.maxLocals);
@@ -92,10 +93,10 @@ final class SlotManager {
     }
 
     /**
-     * Record def/use operations to populate the duTable.
+     * Record def/use operations.
      */
-    void writeDUTable(int insnIndex, int slot, boolean read) {
-        DUInfo.writeDUTable(insnIndex, slot, read);
+    void recordDUInfo(int insnIndex, int slot, boolean read) {
+        DUInfo.recordDUInfo(insnIndex, slot, read);
     }
 
     // ========================================================================
