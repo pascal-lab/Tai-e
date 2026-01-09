@@ -34,7 +34,6 @@ import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
-import pascal.taie.language.type.NullType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
@@ -47,9 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-
-import static pascal.taie.language.type.IntType.INT;
 
 public class VarManager {
 
@@ -92,14 +88,14 @@ public class VarManager {
 
     private Var[] slot2Var;
 
-    private final Set<Var> slotVars;
+    private Set<Var> slotVars;
 
 
     private final List<Var> params;
 
     private final Set<Var> retVars;
 
-    private final @Nullable Var thisVar;
+    private @Nullable Var thisVar;
 
     VarManager(IRBuilderContext context) {
         this.context = context;
@@ -116,21 +112,12 @@ public class VarManager {
         this.slot2Locals = computeSlot2Locals();
         this.name2Count = Maps.newMap();
 
-        this.slot2Var = new Var[context.source.maxLocals];
-        this.slotVars = Sets.newSet();
-        for (int slot = 0; slot < context.source.maxLocals; ++slot) {
-            String name;
-            if (slot == 0) {
-                name = this.context.method.isStatic() ? LOCAL_PREFIX + slot : THIS;
-            } else {
-                name = LOCAL_PREFIX + slot;
-            }
-            Var v = newVar(name);
-            slotVars.add(v);
-            slot2Var[slot] = v;
-            setNonSSA(v);
-        }
+        buildSlotVars(context);
 
+        getParamsFromSlotVars(context);
+    }
+
+    private void getParamsFromSlotVars(IRBuilderContext context) {
         int firstParamIndex = context.method.isStatic() ? 0 : 1;
         int slotOfCurrentParam = firstParamIndex;
         for (int param = firstParamIndex; param < context.method.getParamCount() + firstParamIndex; ++param) {
@@ -161,6 +148,18 @@ public class VarManager {
             thisVar = null;
         } else {
             thisVar = getVar(0);
+            VarMutator.setName(thisVar, THIS);
+        }
+    }
+
+    private void buildSlotVars(IRBuilderContext context) {
+        this.slot2Var = new Var[context.source.maxLocals];
+        this.slotVars = Sets.newSet();
+        for (int slot = 0; slot < context.source.maxLocals; ++slot) {
+            Var v = newVar(LOCAL_PREFIX + slot);
+            slotVars.add(v);
+            slot2Var[slot] = v;
+            setNonSSA(v);
         }
     }
 
@@ -284,52 +283,43 @@ public class VarManager {
     Var getNullLiteral() {
         if (nullLiteral == null) {
             nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
-            VarMutator.setType(nullLiteral, NullType.NULL);
         }
         return nullLiteral;
     }
 
-    boolean shouldCacheConst(Literal literal) {
-        // TODO: should we include $null here?
+    Var getConstVar(Literal literal) {
+        return newConstVar(TEMP_PREFIX + "c" + counter, literal);
+    }
+
+    boolean isCachedInt(Literal literal) {
         return literal instanceof IntLiteral intLiteral
                 && INT_CACHE_LOW <= intLiteral.getValue()
                 && intLiteral.getValue() <= INT_CACHE_HIGH;
     }
 
-    Var getConstVar(Literal literal) {
-        if (literal instanceof NullLiteral) {
-            return getNullLiteral();
-        } else if (shouldCacheConst(literal)) {
-            IntLiteral intLiteral = (IntLiteral) literal;
-            int value = intLiteral.getValue();
-            int index = value - INT_CACHE_LOW;
-            if (intConstVarCache[index] == null) {
-                String name = TEMP_PREFIX + "c" + "i" + value;
-                Var v = new Var(context.method, name, INT, counter++, IntLiteral.get(value));
-                intConstVarCache[index] = v;
-                allVars.add(intConstVarCache[index]);
-            }
-            return intConstVarCache[index];
-        } else {
-            return newConstVar(getConstVarName(), literal);
+    Var getCachedInt(Literal literal) {
+        assert isCachedInt(literal);
+        IntLiteral intLiteral = (IntLiteral) literal;
+        int value = intLiteral.getValue();
+        int index = value - INT_CACHE_LOW;
+        if (intConstVarCache[index] == null) {
+            String name = TEMP_PREFIX + "c" + "i" + value;
+            intConstVarCache[index] = newConstVar(name, intLiteral);
         }
+        return intConstVarCache[index];
     }
 
     boolean isTempVar(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
-    static boolean mayRename(Var v) {
+    static boolean withSyntheticName(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) ||
                 v.getName().startsWith(LOCAL_PREFIX);
     }
 
     boolean isForSlot(Var v) {
         return slotVars.contains(v);
-    }
-
-    private String getConstVarName() {
-        return TEMP_PREFIX + "c" + counter;
     }
 
     private Var newVar(String name) {

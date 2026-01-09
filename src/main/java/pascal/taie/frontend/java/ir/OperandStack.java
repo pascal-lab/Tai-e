@@ -256,8 +256,9 @@ final class OperandStack {
      * Pushes a constant onto stack.
      */
     void pushConst(AbstractInsnNode node, Literal literal) {
-        if (context.varManager.shouldCacheConst(literal)) {
-            pushExp(node, context.varManager.getConstVar(literal));
+        if (context.varManager.isCachedInt(literal)) {
+            // TODO: remove it as toVar will handle it (and it's more decoupled). This will slightly change the const var name, which is reasonable.
+            pushExp(node, context.varManager.getCachedInt(literal));
         } else {
             pushExp(node, literal);
         }
@@ -372,12 +373,11 @@ final class OperandStack {
         }
 
         Var v;
-        if (e instanceof NullLiteral) {
-            return context.varManager.getNullLiteral();
-        }
         if (e instanceof Literal l) {
-            if (context.varManager.shouldCacheConst(l)) {
-                return context.varManager.getConstVar(l);
+            if (e instanceof NullLiteral) {
+                return context.varManager.getNullLiteral();
+            } else if (context.varManager.isCachedInt(l)) {
+                return context.varManager.getCachedInt(l);
             } else {
                 v = context.varManager.getConstVar(l);
             }

@@ -264,7 +264,7 @@ final class SlotManager {
     }
 
     private void tryActualVarName(Var v, int slot, AbstractInsnNode insn) {
-        if (context.varManager.existLocalVariables() && VarManager.mayRename(v)) {
+        if (context.varManager.existLocalVariables() && VarManager.withSyntheticName(v)) {
             Optional<String> name = context.varManager.getName(slot, insn);
             name.ifPresent((n) -> {
                 String realName = context.varManager.nameWithSuffix(n);

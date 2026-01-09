@@ -410,7 +410,7 @@ final class BytecodeProcessor {
         Var v2;
         if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             v1 = context.operandStack.popVar();
-            v2 = context.varManager.getConstVar(IntLiteral.get(0));
+            v2 = context.varManager.getCachedInt(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
             v1 = context.operandStack.popVar();
             v2 = context.varManager.getNullLiteral();
