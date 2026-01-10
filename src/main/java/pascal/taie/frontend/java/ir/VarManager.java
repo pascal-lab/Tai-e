@@ -47,49 +47,103 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Manages the {@link Var}s during IR construction.
+ * <p>
+ * It handles the mapping between new slots and vars, resolving var names, the constant caches,
+ * and tracking var attributes like SSA status.
+ */
 public class VarManager {
+
+    // =================================================================================
+    // Constants
+    // =================================================================================
 
     private static final String LOCAL_PREFIX = "$";
 
-    // TODO: use another method to avoid local var has same prefix
     private static final String TEMP_PREFIX = "%";
 
     private static final String THIS = "this";
 
     private static final String NULL_LITERAL = "$null";
 
+    // =================================================================================
+    // Context
+    // =================================================================================
 
+    /**
+     * The shared context holding all resources and state for the IR building process.
+     */
     private final IRBuilderContext context;
 
+    // =================================================================================
+    // Caches
+    // =================================================================================
 
+    /**
+     * Cache range for small integer constants.
+     */
     private final int INT_CACHE_LOW = -8;
 
     private final int INT_CACHE_HIGH = 7;
 
+    /**
+     * Cache for small integer constant variables.
+     */
     private final Var[] intConstVarCache;
 
+    /**
+     * Cache for the null literal variable.
+     */
     private @Nullable Var nullLiteral;
 
+    // =================================================================================
+    // Slot, Name, SSA Management (the attributes of vars)
+    // =================================================================================
 
     /**
-     * slot2Variable[slot].get(range) = local variable node.
+     * Map from new slot index to the IR Var.
+     * New slots are constructed during SSA transformation when splitting original slots.
+     * Only params and non-SSA form vars (need redef, so need slot) will use this mapping.
+     */
+    private Var[] slot2Var;
+
+    /**
+     * Set of Vars that correspond to slots (the Var set for {@link #slot2Var}).
+     */
+    private Set<Var> slotVars;
+
+    /**
+     * slot2Local[slot].get(range) = local variable node in bytecode.
      * Maps from slot and range to the concrete local variable.
+     * Used for variable name resolution.
      */
     private final Map<Pair<Integer, Integer>, LocalVariableNode>[] slot2Locals;
 
-    private final BitSet varIsSSA;
-
+    /**
+     * Tracks usage count of variable names to resolve conflicts (e.g., "name#1").
+     * Used for variable name resolution.
+     */
     private final Map<String, Integer> name2Count;
 
+    /**
+     * Tracks whether a Var is in ssa form.
+     */
+    private final BitSet varIsSSA;
 
+    // =================================================================================
+    // Var Storage
+    // =================================================================================
+
+    /**
+     * Counter for generating unique var IDs.
+     */
     private int counter;
 
+    /**
+     * List of all variables created for this method.
+     */
     private final List<Var> allVars;
-
-    private Var[] slot2Var;
-
-    private Set<Var> slotVars;
-
 
     private final List<Var> params;
 
@@ -97,24 +151,137 @@ public class VarManager {
 
     private @Nullable Var thisVar;
 
+    // =================================================================================
+    // Initialization
+    // =================================================================================
+
     VarManager(IRBuilderContext context) {
         this.context = context;
-
         this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
-
         this.counter = 0;
         this.allVars = new ArrayList<>(context.source.maxLocals * 6);
-
         this.params = new ArrayList<>();
         this.retVars = Sets.newSet();
-
         this.varIsSSA = new BitSet();
-        this.slot2Locals = computeSlot2Locals();
         this.name2Count = Maps.newMap();
-
+        // compute slot2Locals mapping for variable name resolution
+        this.slot2Locals = computeSlot2Locals();
+        // initialize vars for all slots
         buildSlotVars(context);
-
+        // initialize params and this var
         getParamsFromSlotVars(context);
+    }
+
+    // =================================================================================
+    // Var Management
+    // =================================================================================
+
+    public Var getTempVar() {
+        Var v = newVar(TEMP_PREFIX + "v" + counter);
+        setSSA(v);
+        return v;
+    }
+
+    public @Nullable Var getThisVar() {
+        return thisVar;
+    }
+
+    /**
+     * @return parameters except `this`.
+     */
+    public List<Var> getParams() {
+        return params;
+    }
+
+    public List<Var> getAllVars() {
+        return allVars;
+    }
+
+    public Set<Var> getRetVars() {
+        return retVars;
+    }
+
+    void addReturnVar(Var v) {
+        this.retVars.add(v);
+    }
+
+    Var[] getIntConstVarCache() {
+        return intConstVarCache;
+    }
+
+    Var getNullLiteral() {
+        if (nullLiteral == null) {
+            nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
+        }
+        return nullLiteral;
+    }
+
+    /**
+     * Creates a new variable for a non-cached constant literal.
+     */
+    Var getConstVar(Literal literal) {
+        assert !(literal instanceof NullLiteral);
+        assert !(isCachedInt(literal));
+        return newConstVar(TEMP_PREFIX + "c" + counter, literal);
+    }
+
+    boolean isCachedInt(Literal literal) {
+        return literal instanceof IntLiteral intLiteral
+                && INT_CACHE_LOW <= intLiteral.getValue()
+                && intLiteral.getValue() <= INT_CACHE_HIGH;
+    }
+
+    Var getCachedInt(Literal literal) {
+        assert isCachedInt(literal);
+        IntLiteral intLiteral = (IntLiteral) literal;
+        int value = intLiteral.getValue();
+        int index = value - INT_CACHE_LOW;
+        if (intConstVarCache[index] == null) {
+            String name = TEMP_PREFIX + "c" + "i" + value;
+            intConstVarCache[index] = newConstVar(name, intLiteral);
+        }
+        return intConstVarCache[index];
+    }
+
+    private Var newVar(String name) {
+        Var v = new Var(context.method, name, null, counter++);
+        allVars.add(v);
+        return v;
+    }
+
+    private Var newConstVar(String name, Literal literal) {
+        Var v = new Var(context.method, name, literal.getType(), counter++, literal);
+        allVars.add(v);
+        setNonSSA(v);
+        return v;
+    }
+
+    // =================================================================================
+    // Slot Management
+    // =================================================================================
+
+    /**
+     * Get the TIR var for the given slot.
+     */
+    Var getVar(int slot) {
+        Var v = slot2Var[slot];
+        assert v != null;
+        return v;
+    }
+
+    boolean isForSlot(Var v) {
+        return slotVars.contains(v);
+    }
+
+    private void buildSlotVars(IRBuilderContext context) {
+        this.slot2Var = new Var[context.source.maxLocals];
+        this.slotVars = Sets.newSet();
+        for (int slot = 0; slot < context.source.maxLocals; ++slot) {
+            Var v = newVar(LOCAL_PREFIX + slot);
+            slotVars.add(v);
+            slot2Var[slot] = v;
+            setNonSSA(v);
+        }
     }
 
     private void getParamsFromSlotVars(IRBuilderContext context) {
@@ -152,17 +319,9 @@ public class VarManager {
         }
     }
 
-    private void buildSlotVars(IRBuilderContext context) {
-        this.slot2Var = new Var[context.source.maxLocals];
-        this.slotVars = Sets.newSet();
-        for (int slot = 0; slot < context.source.maxLocals; ++slot) {
-            Var v = newVar(LOCAL_PREFIX + slot);
-            slotVars.add(v);
-            slot2Var[slot] = v;
-            setNonSSA(v);
-        }
-    }
-
+    /**
+     * Create new Vars for new slots after SSA transformation.
+     */
     void makeVarsForNewSlots(int newSlotSize, int[] newSlot2Origin) {
         assert newSlotSize == newSlot2Origin.length;
         Var[] newSlot2Var = new Var[newSlotSize];
@@ -175,15 +334,22 @@ public class VarManager {
         slot2Var = newSlot2Var;
     }
 
+    // =================================================================================
+    // Var Name Resolution
+    // =================================================================================
+
+    /**
+     * Checks if the LocalVariables is present in the bytecode.
+     * LocalVariables are used for var name resolution.
+     */
     boolean existLocalVariables() {
         return context.source.localVariables != null
                 && !context.source.localVariables.isEmpty();
     }
 
-    Var[] getIntConstVarCache() {
-        return intConstVarCache;
-    }
-
+    /**
+     * Parses the LocalVariables into a queryable structure.
+     */
     private Map<Pair<Integer, Integer>, LocalVariableNode>[] computeSlot2Locals() {
         if (!existLocalVariables()) {
             return null;
@@ -201,6 +367,9 @@ public class VarManager {
         return slot2Variables;
     }
 
+    /**
+     * Resolve the source name of a var at a specific slot and instruction.
+     */
     Optional<String> getName(int slot, AbstractInsnNode insnNode) {
         if (Utils.isVarStore(insnNode)) {
             /*
@@ -223,8 +392,7 @@ public class VarManager {
     }
 
     /**
-     * @param insnNode the query node
-     * @return the next true JVM Bytecode node if found, else the last insnNode of the insnList.
+     * Skips label/frame/line nodes to find the next actual bytecode instruction.
      */
     private static AbstractInsnNode getNextTrueInsnNode(AbstractInsnNode insnNode) {
         if (insnNode.getNext() == null) {
@@ -239,102 +407,17 @@ public class VarManager {
         return insnNode;
     }
 
-    public Var getTempVar() {
-        Var v = newVar(TEMP_PREFIX + "v" + counter);
-        setSSA(v);
-        return v;
-    }
-
-    public @Nullable Var getThisVar() {
-        return thisVar;
-    }
-
     /**
-     * @return parameters except `this`.
+     * Checks if a variable name is synthetic (auto-generated like $1 or %v1).
      */
-    public List<Var> getParams() {
-        return params;
-    }
-
-    public List<Var> getAllVars() {
-        return allVars;
-    }
-
-    public Set<Var> getRetVars() {
-        return retVars;
-    }
-
-    void addReturnVar(Var v) {
-        this.retVars.add(v);
-    }
-
-    /**
-     * Get the TIR var for a <code>this</code> variable, parameter or local variable
-     *
-     * @param slot index of variable in bytecode
-     * @return the corresponding TIR variable
-     */
-    Var getVar(int slot) {
-        Var v = slot2Var[slot];
-        assert v != null;
-        return v;
-    }
-
-    Var getNullLiteral() {
-        if (nullLiteral == null) {
-            nullLiteral = newConstVar(NULL_LITERAL, NullLiteral.get());
-        }
-        return nullLiteral;
-    }
-
-    Var getConstVar(Literal literal) {
-        return newConstVar(TEMP_PREFIX + "c" + counter, literal);
-    }
-
-    boolean isCachedInt(Literal literal) {
-        return literal instanceof IntLiteral intLiteral
-                && INT_CACHE_LOW <= intLiteral.getValue()
-                && intLiteral.getValue() <= INT_CACHE_HIGH;
-    }
-
-    Var getCachedInt(Literal literal) {
-        assert isCachedInt(literal);
-        IntLiteral intLiteral = (IntLiteral) literal;
-        int value = intLiteral.getValue();
-        int index = value - INT_CACHE_LOW;
-        if (intConstVarCache[index] == null) {
-            String name = TEMP_PREFIX + "c" + "i" + value;
-            intConstVarCache[index] = newConstVar(name, intLiteral);
-        }
-        return intConstVarCache[index];
-    }
-
-    boolean isTempVar(Var v) {
-        return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
-    }
-
     static boolean withSyntheticName(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) ||
                 v.getName().startsWith(LOCAL_PREFIX);
     }
 
-    boolean isForSlot(Var v) {
-        return slotVars.contains(v);
-    }
-
-    private Var newVar(String name) {
-        Var v = new Var(context.method, name, null, counter++);
-        allVars.add(v);
-        return v;
-    }
-
-    private Var newConstVar(String name, Literal literal) {
-        Var v = new Var(context.method, name, literal.getType(), counter++, literal);
-        allVars.add(v);
-        setNonSSA(v);
-        return v;
-    }
-
+    /**
+     * Generates a unique name by appending a suffix if the name is already used (e.g., "x#1").
+     */
     String nameWithSuffix(String name) {
         if (name2Count.containsKey(name)) {
             int count = name2Count.get(name);
@@ -344,6 +427,14 @@ public class VarManager {
             name2Count.put(name, 1);
             return name;
         }
+    }
+
+    // =================================================================================
+    // Var Attributes
+    // =================================================================================
+
+    boolean isTempVar(Var v) {
+        return v.getName().startsWith(TEMP_PREFIX) && v != nullLiteral;
     }
 
     boolean isSSAVar(Var v) {

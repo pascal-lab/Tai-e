@@ -257,7 +257,7 @@ final class OperandStack {
      */
     void pushConst(AbstractInsnNode node, Literal literal) {
         if (context.varManager.isCachedInt(literal)) {
-            // TODO: remove it as toVar will handle it (and it's more decoupled). This will slightly change the const var name, which is reasonable.
+            // TODO: remove this line as toVar will handle it (and now it's more coupled). This will slightly change the const var name, which is reasonable.
             pushExp(node, context.varManager.getCachedInt(literal));
         } else {
             pushExp(node, literal);
