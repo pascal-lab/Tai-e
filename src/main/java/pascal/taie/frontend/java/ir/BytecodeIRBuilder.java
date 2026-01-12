@@ -77,7 +77,7 @@ class BytecodeIRBuilder {
         }
 
         // 7. type inference
-        new TypeInference(context).build();
+        new TypeInference(context).inferTypes();
 
         // 8. complete stmts and build exception table, finally get IR
         return new IRAssembler(context).assembleIR();

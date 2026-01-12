@@ -20,14 +20,14 @@ final class TypeFlowNode {
     private final FrontendTypeSystem typeSystem;
     private final Var var;
     @Nullable
-    Set<ReferenceType> types;
+    Set<ReferenceType> candidateRefTypes;
     @Nullable
     PrimitiveType primitiveType;
 
     @Nullable
     ReferenceType referenceType;
 
-    Set<ReferenceType> useValidConstrains;
+    Set<ReferenceType> useConstraints;
 
     List<ReferenceType> initConstraints;
 
@@ -38,15 +38,15 @@ final class TypeFlowNode {
     TypeFlowNode(FrontendTypeSystem typeSystem, Var var) {
         this.typeSystem = typeSystem;
         this.var = var;
-        useValidConstrains = null;
-        inEdges = null;
-        outEdges = null;
+        this.useConstraints = null;
+        this.inEdges = null;
+        this.outEdges = null;
     }
 
-    public void setNewType(Type t) {
-        if (t instanceof PrimitiveType pType) {
-            onNewPrimitiveType(pType);
-        } else if (t instanceof ReferenceType rType) {
+    void addType(Type type) {
+        if (type instanceof PrimitiveType pType) {
+            addPrimitiveType(pType);
+        } else if (type instanceof ReferenceType rType) {
             addReferenceType(rType);
         } else {
             throw new UnsupportedOperationException();
@@ -54,21 +54,20 @@ final class TypeFlowNode {
     }
 
     /**
-     * @param t new incoming primitive type
      * @return if type changes
      */
-    public boolean onNewPrimitiveType(PrimitiveType t) {
+    boolean addPrimitiveType(PrimitiveType type) {
         // TODO: perform numeric promotion
-        assert types == null;
-        assert t != null;
+        assert candidateRefTypes == null;
+        assert type != null;
         if (this.primitiveType == null) {
-            this.primitiveType = t;
+            this.primitiveType = type;
             return true;
         } else {
-            if (this.primitiveType == t) {
+            if (this.primitiveType == type) {
                 return false;
             } else if (TypeSystem.canHoldInt(primitiveType)
-                    && TypeSystem.canHoldInt(t)) {
+                    && TypeSystem.canHoldInt(type)) {
                 return false;
             } else {
                 throw new UnsupportedOperationException();
@@ -76,16 +75,17 @@ final class TypeFlowNode {
         }
     }
 
-    public void addReferenceType(ReferenceType t) {
+    private void addReferenceType(ReferenceType t) {
         assert primitiveType == null;
-        if (types == null) {
-            types = Sets.newHybridSet();
+        if (candidateRefTypes == null) {
+            candidateRefTypes = Sets.newHybridSet();
         }
-        types.add(t);
+        candidateRefTypes.add(t);
     }
 
-    public boolean onNewReferenceType(EdgeKind kind, ReferenceType t) {
-        if (kind == EdgeKind.VAR_ARRAY
+    boolean updateReferenceType(FlowKind kind, ReferenceType t) {
+        // TODO: remove it? it is already checked......
+        if (kind == FlowKind.VAR_ARRAY
                 && t instanceof ArrayType arrayType
                 && TypeSystem.canHoldInt(arrayType.baseType())) {
             // example for that:
@@ -102,39 +102,38 @@ final class TypeFlowNode {
             referenceType = t;
             return true;
         } else {
-            ReferenceType temp = referenceType;
-            referenceType = getNextType(referenceType, t);
-            // TODO: ==?
-            return temp != referenceType;
+            ReferenceType oldRefType = referenceType;
+            referenceType = getSuitableLCA(referenceType, t);
+            return oldRefType != referenceType;
         }
     }
 
-    public void firstResolve() {
-        assert types != null;
-        for (ReferenceType r : types) {
-            onNewReferenceType(null, r);
+    void computeReferenceType() {
+        assert candidateRefTypes != null;
+        for (ReferenceType r : candidateRefTypes) {
+            updateReferenceType(null, r);
         }
     }
 
-    boolean isUseValid(ReferenceType t) {
-        if (useValidConstrains == null) {
+    boolean satisfyUseConstraints(ReferenceType t) {
+        if (useConstraints == null) {
             return true;
         }
         boolean ret = true;
-        for (ReferenceType c : useValidConstrains) {
+        for (ReferenceType c : useConstraints) {
             ret &= typeSystem.isAssignable(c, t);
         }
         return ret;
     }
 
-    private ReferenceType getNextType(ReferenceType current, ReferenceType t) {
+    private ReferenceType getSuitableLCA(ReferenceType current, ReferenceType t) {
         if (current == t) {
             return t;
         }
         Set<ReferenceType> lcas = typeSystem.lca(current, t);
         ReferenceType target = null;
         for (ReferenceType lca : lcas) {
-            if (isUseValid(lca)) {
+            if (satisfyUseConstraints(lca)) {
                 target = lca;
                 break;
             }
@@ -147,10 +146,11 @@ final class TypeFlowNode {
                 // normally impossible, but possible for phantom
                 return typeSystem.objectType();
             }
-            ReferenceType t1 = lcas.iterator().next();
-            if (t1 instanceof ClassType) {
+            // fallback to Object or Object array
+            ReferenceType lca = lcas.iterator().next();
+            if (lca instanceof ClassType) {
                 return typeSystem.objectType();
-            } else if (t1 instanceof ArrayType arrayType) {
+            } else if (lca instanceof ArrayType arrayType) {
                 return typeSystem.getArrayType(typeSystem.objectType(), arrayType.dimensions());
             } else {
                 throw new UnsupportedOperationException();
@@ -158,35 +158,35 @@ final class TypeFlowNode {
         }
     }
 
-    public void addNewOutEdge(TypeFlowEdge edge) {
+    void addOutEdge(TypeFlowEdge edge) {
         if (outEdges == null) {
             outEdges = new ArrayList<>();
         }
         outEdges.add(edge);
     }
 
-    public void addNewInEdge(TypeFlowEdge edge) {
+    void addInEdge(TypeFlowEdge edge) {
         if (inEdges == null) {
             inEdges = new ArrayList<>();
         }
         inEdges.add(edge);
     }
 
-    public boolean addNewUseConstrain(ReferenceType type) {
-        if (useValidConstrains == null) {
-            useValidConstrains = Sets.newHybridSet();
+    boolean addUseConstraint(ReferenceType type) {
+        if (useConstraints == null) {
+            useConstraints = Sets.newHybridSet();
         }
-        return useValidConstrains.add(type);
+        return useConstraints.add(type);
     }
 
-    public void addInitConstraint(ReferenceType type) {
+    void addInitConstraint(ReferenceType type) {
         if (initConstraints == null) {
             initConstraints = new ArrayList<>();
         }
         initConstraints.add(type);
     }
 
-    public Var var() {
+    Var var() {
         return var;
     }
 }

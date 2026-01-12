@@ -5,15 +5,23 @@ import java.util.Optional;
 import java.util.Queue;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
+import pascal.taie.frontend.java.ir.BytecodeBlock;
+import pascal.taie.frontend.java.ir.BytecodeCFG;
+import pascal.taie.frontend.java.ir.VarManager;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.exp.VarMutator;
+import pascal.taie.ir.stmt.Catch;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
 class TypeFlowGraph {
+
     private final FrontendTypeSystem typeSystem;
+
     private final TypeFlowNode[] nodes;
 
     TypeFlowGraph(FrontendTypeSystem typeSystem, int varSize) {
@@ -21,155 +29,138 @@ class TypeFlowGraph {
         this.nodes = new TypeFlowNode[varSize];
     }
 
-    TypeFlowNode getNode(Var var) {
+    private TypeFlowNode getNode(Var var) {
         if (nodes[var.getIndex()] == null) {
             nodes[var.getIndex()] = new TypeFlowNode(typeSystem, var);
         }
         return nodes[var.getIndex()];
     }
 
-    void addConstantEdge(Type t, Var v) {
-        assert v != null;
-        TypeFlowNode node = getNode(v);
-        node.setNewType(t);
+    void addType(Var var, Type type) {
+        assert var != null;
+        TypeFlowNode node = getNode(var);
+        node.addType(type);
     }
 
-    void addVarEdge(Var from, Var to, EdgeKind kind) {
-        if (from.getType() != null && kind != EdgeKind.VAR_ARRAY) {
-            computeFlowOutType(from.getType(), kind).ifPresent((t) -> {
-                addConstantEdge(t, to);
-            });
+    void addVarTypeFlow(Var from, Var to, FlowKind kind) {
+        // Skip VAR_ARRAY as a[0] = b can not infer the type of a from b
+        if (from.getType() != null && kind != FlowKind.VAR_ARRAY) {
+            Type type = from.getType();
+            switch (kind) {
+                case VAR_VAR -> addType(to, type);
+                case ARRAY_VAR -> TypeUtils.subOneArray(type).ifPresent(t -> addType(to, t));
+            }
         } else {
             TypeFlowNode n1 = getNode(from);
             TypeFlowNode n2 = getNode(to);
             TypeFlowEdge edge = new TypeFlowEdge(kind, n1, n2);
-            n2.addNewInEdge(edge);
-            n1.addNewOutEdge(edge);
+            n2.addInEdge(edge);
+            n1.addOutEdge(edge);
         }
     }
 
-    private Optional<Type> computeFlowOutType(Type t, EdgeKind kind) {
-        return switch (kind) {
-            case VAR_VAR -> Optional.of(t);
-            case VAR_ARRAY -> TypeInference.plusOneArray(t, typeSystem);
-            case ARRAY_VAR -> TypeInference.subOneArray(t);
-        };
+    void addUseConstraint(Var var, ReferenceType constraint) {
+        TypeFlowNode node = getNode(var);
+        node.addUseConstraint(constraint);
     }
 
-    public void addUseConstrain(Var v, ReferenceType constrain) {
-        TypeFlowNode node = getNode(v);
-        node.addNewUseConstrain(constrain);
+    void addInitConstraint(Var var, ReferenceType constraint) {
+        TypeFlowNode node = getNode(var);
+        node.addInitConstraint(constraint);
     }
 
-    public void inferTypes() {
-        inferUseConstrains();
+    void inferTypes() {
+        inferUseConstraints();
 
-        Queue<FlowType> queue = new LinkedList<>();
+        Queue<TypeFlow> queue = new LinkedList<>();
         for (TypeFlowNode node : nodes) {
             if (node == null) {
                 continue;
             }
             if (node.primitiveType != null) {
                 PrimitiveType t = node.primitiveType;
-                flowOutType(queue, node, t);
-            } else if (node.types != null) {
-                node.firstResolve();
-                flowOutType(queue, node, node.referenceType);
+                propogateType(queue, node, t);
+            } else if (node.candidateRefTypes != null) {
+                node.computeReferenceType();
+                propogateType(queue, node, node.referenceType);
             }
         }
 
         while (!queue.isEmpty()) {
-            FlowType now = queue.poll();
-            spreadingFlowType(queue, now);
+            TypeFlow flow = queue.poll();
+            if (flow.edge.kind() == FlowKind.VAR_ARRAY) {
+                continue;
+            }
+            TypeFlowNode node = flow.edge.target();
+            Optional<Type> optionalType = flow.getTargetType();
+            if (optionalType.isEmpty()) {
+                continue;
+            }
+            Type t = optionalType.get();
+            if (t instanceof PrimitiveType pType) {
+                if (node.addPrimitiveType(pType)) {
+                    propogateType(queue, node, pType);
+                }
+            } else if (t instanceof ReferenceType rType) {
+                boolean changed = node.updateReferenceType(flow.edge.kind(), rType);
+                if (changed) {
+                    propogateType(queue, node, node.referenceType);
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 
-    public void inferUseConstrains() {
-        Queue<FlowType> queue = new LinkedList<>();
+    private void inferUseConstraints() {
+        Queue<TypeFlow> queue = new LinkedList<>();
         for (TypeFlowNode node : nodes) {
             if (node == null) {
                 continue;
             }
-            if (node.useValidConstrains != null) {
-                for (ReferenceType t : node.useValidConstrains) {
-                    flowOutConstrains(queue, node, t);
+            if (node.useConstraints != null) {
+                for (ReferenceType t : node.useConstraints) {
+                    propogateConstraints(queue, node, t);
                 }
             }
         }
 
         while (!queue.isEmpty()) {
-            FlowType now = queue.poll();
-            spreadingUseConstrains(queue, now);
-        }
-    }
-
-    private void spreadingUseConstrains(Queue<FlowType> queue, FlowType type) {
-        TypeFlowNode now = type.edge.source();
-        Optional<Type> optionalType = type.getSourceType();
-        if (optionalType.isEmpty()) {
-            return;
-        }
-        Type t = optionalType.get();
-        if (t instanceof ReferenceType t1) {
-            if (now.addNewUseConstrain(t1)) {
-                flowOutConstrains(queue, now, t1);
+            TypeFlow flow = queue.poll();
+            TypeFlowNode node = flow.edge.source();
+            Optional<Type> optionalType = flow.getSourceType();
+            if (optionalType.isEmpty()) {
+                continue;
+            }
+            Type t = optionalType.get();
+            if (t instanceof ReferenceType rType) {
+                if (node.addUseConstraint(rType)) {
+                    propogateConstraints(queue, node, rType);
+                }
             }
         }
     }
 
-    private void spreadingFlowType(Queue<FlowType> queue, FlowType type) {
-        if (type.edge.kind() == EdgeKind.VAR_ARRAY) {
-            return;
-        }
-        TypeFlowNode now = type.edge.target();
-        Optional<Type> optionalType = type.getTargetType();
-        if (optionalType.isEmpty()) {
-            return;
-        }
-        Type t = optionalType.get();
-        if (t instanceof PrimitiveType pType) {
-            if (now.onNewPrimitiveType(pType)) {
-                flowOutType(queue, now, pType);
-            }
-        } else if (t instanceof ReferenceType rType) {
-            boolean needSpread = now.onNewReferenceType(type.edge.kind(), rType);
-            if (needSpread) {
-                flowOutType(queue, now, now.referenceType);
-            }
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private void flowOutType(Queue<FlowType> queue, TypeFlowNode node, PrimitiveType pType) {
+    private void propogateType(Queue<TypeFlow> queue, TypeFlowNode node, Type type) {
         if (node.outEdges == null) {
             return;
         }
         for (TypeFlowEdge e : node.outEdges) {
-            queue.add(new FlowType(typeSystem, e, pType));
+            queue.add(new TypeFlow(typeSystem, e, type));
         }
     }
 
-    private void flowOutType(Queue<FlowType> queue, TypeFlowNode node, ReferenceType type) {
-        if (node.outEdges == null) {
-            return;
-        }
-        for (TypeFlowEdge e : node.outEdges) {
-            queue.add(new FlowType(typeSystem, e, type));
-        }
-    }
-
-    private void flowOutConstrains(Queue<FlowType> queue, TypeFlowNode node, ReferenceType type) {
+    private void propogateConstraints(Queue<TypeFlow> queue, TypeFlowNode node, ReferenceType type) {
         if (node.inEdges == null) {
             return;
         }
         for (TypeFlowEdge e : node.inEdges) {
-            queue.add(new FlowType(typeSystem, e, type));
+            queue.add(new TypeFlow(typeSystem, e, type));
         }
     }
 
-    boolean setTypes() {
-        boolean needCasting = false;
+    boolean applyInferredTypes() {
+        boolean needInsertCast = false;
         for (TypeFlowNode node : nodes) {
             if (node == null) {
                 continue;
@@ -185,19 +176,60 @@ class TypeFlowGraph {
                 if (target == null) {
                     target = NullType.NULL;
                 }
-                if (!node.isUseValid(target)) {
-                    needCasting = true;
+                if (!node.satisfyUseConstraints(target)) {
+                    needInsertCast = true;
                 }
                 if (node.initConstraints != null) {
                     for (Type t : node.initConstraints) {
                         if (!typeSystem.isAssignable(t, target)) {
-                            needCasting = true;
+                            needInsertCast = true;
                         }
                     }
                 }
                 VarMutator.setType(v, target);
             }
         }
-        return needCasting;
+        return needInsertCast;
+    }
+
+    void initializeEdgesAndTypes(JMethod method, BytecodeCFG cfg, VarManager varManager) {
+        addTypesForParams(method, varManager);
+        GraphBuilder graphBuilder = new GraphBuilder(typeSystem, this, method);
+        for (BytecodeBlock block : cfg) {
+            addExceptionTypes(block);
+            for (Stmt stmt : block.getStmts()) {
+                stmt.accept(graphBuilder);
+            }
+        }
+    }
+
+    private void addExceptionTypes(BytecodeBlock block) {
+        if (block.getExceptionHandlerTypes() != null) {
+            Var exceptionRef = null;
+            for (Stmt stmt : block.getStmts()) {
+                if (stmt instanceof Catch catchStmt) {
+                    exceptionRef = catchStmt.getExceptionRef();
+                    break;
+                }
+            }
+            if (exceptionRef != null) {
+                for (ReferenceType type : block.getExceptionHandlerTypes()) {
+                    addType(exceptionRef, type);
+                }
+            }
+        }
+    }
+
+    private void addTypesForParams(JMethod method, VarManager varManager) {
+        if (!method.isStatic()) {
+            Var thisVar = varManager.getThisVar();
+            addType(thisVar, method.getDeclaringClass().getType());
+        }
+
+        for (int i = 0; i < method.getParamCount(); ++i) {
+            Var param = varManager.getParams().get(i);
+            Type type = method.getParamType(i);
+            addType(param, type);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package pascal.taie.frontend.java.ir.typing;
 
 record TypeFlowEdge(
-        EdgeKind kind,
+        FlowKind kind,
         TypeFlowNode source,
         TypeFlowNode target) {
 }

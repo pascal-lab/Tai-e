@@ -1,6 +1,6 @@
 package pascal.taie.frontend.java.ir.typing;
 
-enum EdgeKind {
+enum FlowKind {
     // v1 <- v2
     VAR_VAR,
 
@@ -9,5 +9,4 @@ enum EdgeKind {
 
     // v2 <- v1[i]
     ARRAY_VAR
-
 }
