@@ -72,206 +72,72 @@ import pascal.taie.language.classes.JMethod;
 import java.util.List;
 import java.util.Map;
 
-final class Lenses {
+final class StmtVarReplacer {
 
     private final JMethod method;
 
-    private final Map<Var, Var> useSigma;
+    private final Map<Var, Var> useReplacements;
 
-    private final Map<Var, Var> defSigma;
+    private final Map<Var, Var> defReplacements;
 
-    Lenses(JMethod method, Map<Var, Var> useSigma, Map<Var, Var> defSigma) {
+    StmtVarReplacer(JMethod method, Map<Var, Var> useReplacements, Map<Var, Var> defReplacements) {
         this.method = method;
-        this.defSigma = defSigma;
-        this.useSigma = useSigma;
+        this.defReplacements = defReplacements;
+        this.useReplacements = useReplacements;
     }
 
-    private Var subSt(Var v) {
-        return useSigma.getOrDefault(v, v);
-    }
-
-    private Var defSubSt(Var v) {
-        return defSigma.getOrDefault(v, v);
-    }
-
-    private List<Var> subSt(List<Var> l) {
-        return l.stream()
-                .map(this::subSt)
-                .toList();
-    }
-
-    private LValue leftSubSt(LValue l) {
-        if (l instanceof Var v) {
-            return defSubSt(v);
-        } else if (l instanceof ArrayAccess access) {
-            return (ArrayAccess) subSt(access);
-        } else if (l instanceof FieldAccess access) {
-            return (FieldAccess) subSt(access);
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private RValue rightSubst(RValue r) {
-        return (RValue) subSt(r);
-    }
-
-    private Exp subSt(Exp e) {
-        return e.accept(new ExpVisitor<>() {
-            @Override
-            public Exp visit(Var var) {
-                return subSt(var);
-            }
-
-            @Override
-            public Exp visit(InstanceFieldAccess fieldAccess) {
-                return new InstanceFieldAccess(fieldAccess.getFieldRef(), subSt(fieldAccess.getBase()));
-            }
-
-            @Override
-            public Exp visit(ArrayAccess arrayAccess) {
-                return new ArrayAccess(subSt(arrayAccess.getBase()), subSt(arrayAccess.getIndex()));
-            }
-
-            @Override
-            public Exp visit(NewArray newArray) {
-                return new NewArray(newArray.getType(), subSt(newArray.getLength()));
-            }
-
-            @Override
-            public Exp visit(NewMultiArray newMultiArray) {
-                return new NewMultiArray(newMultiArray.getType(), subSt(newMultiArray.getLengths()));
-            }
-
-            @Override
-            public Exp visit(InvokeInterface invoke) {
-                return new InvokeInterface(invoke.getMethodRef(), subSt(invoke.getBase()), subSt(invoke.getArgs()));
-            }
-
-            @Override
-            public Exp visit(InvokeSpecial invoke) {
-                return new InvokeSpecial(invoke.getMethodRef(), subSt(invoke.getBase()), subSt(invoke.getArgs()));
-            }
-
-            @Override
-            public Exp visit(InvokeStatic invoke) {
-                return new InvokeStatic(invoke.getMethodRef(), subSt(invoke.getArgs()));
-            }
-
-            @Override
-            public Exp visit(InvokeVirtual invoke) {
-                return new InvokeVirtual(invoke.getMethodRef(), subSt(invoke.getBase()), subSt(invoke.getArgs()));
-            }
-
-            @Override
-            public Exp visit(InvokeDynamic invoke) {
-                return new InvokeDynamic(invoke.getBootstrapMethodHandle(), invoke.getBootstrapMethodRef(),
-                        invoke.getMethodName(), invoke.getMethodType(), invoke.getBootstrapArgs(),
-                        subSt(invoke.getArgs()));
-            }
-
-            @Override
-            public Exp visit(ArrayLengthExp exp) {
-                return new ArrayLengthExp(subSt(exp.getBase()));
-            }
-
-            @Override
-            public Exp visit(NegExp exp) {
-                return new NegExp(subSt(exp.getOperand()));
-            }
-
-            @Override
-            public Exp visit(ArithmeticExp exp) {
-                return new ArithmeticExp(exp.getOperator(), subSt(exp.getOperand1()), subSt(exp.getOperand2()));
-            }
-
-            @Override
-            public Exp visit(BitwiseExp exp) {
-                return new BitwiseExp(exp.getOperator(), subSt(exp.getOperand1()), subSt(exp.getOperand2()));
-            }
-
-            @Override
-            public Exp visit(ComparisonExp exp) {
-                return new ComparisonExp(exp.getOperator(), subSt(exp.getOperand1()), subSt(exp.getOperand2()));
-            }
-
-            @Override
-            public Exp visit(ConditionExp exp) {
-                return new ConditionExp(exp.getOperator(), subSt(exp.getOperand1()), subSt(exp.getOperand2()));
-            }
-
-            @Override
-            public Exp visit(ShiftExp exp) {
-                return new ShiftExp(exp.getOperator(), subSt(exp.getOperand1()), subSt(exp.getOperand2()));
-            }
-
-            @Override
-            public Exp visit(InstanceOfExp exp) {
-                return new InstanceOfExp(subSt(exp.getValue()), exp.getCheckedType());
-            }
-
-            @Override
-            public Exp visit(CastExp exp) {
-                return new CastExp(subSt(exp.getValue()), exp.getCastType());
-            }
-
-            @Override
-            public Exp visitDefault(Exp exp) {
-                assert exp.getUses().isEmpty();
-                return exp;
-            }
-        });
-    }
-
-    Stmt subSt(Stmt stmt) {
+    /**
+     * Creates a new statement with variables replaced according to the configuration.
+     */
+    Stmt replace(Stmt stmt) {
         Stmt newStmt = stmt.accept(new StmtVisitor<>() {
             @Override
             public Stmt visit(If stmt) {
-                return new If((ConditionExp) subSt(stmt.getCondition()));
+                return new If((ConditionExp) replaceVarInExp(stmt.getCondition()));
             }
 
             @Override
             public Stmt visit(TableSwitch stmt) {
-                return new TableSwitch(subSt(stmt.getVar()), stmt.getLowIndex(), stmt.getHighIndex());
+                return new TableSwitch(replaceUse(stmt.getVar()), stmt.getLowIndex(), stmt.getHighIndex());
             }
 
             @Override
             public Stmt visit(LookupSwitch stmt) {
-                return new LookupSwitch(subSt(stmt.getVar()), stmt.getCaseValues());
+                return new LookupSwitch(replaceUse(stmt.getVar()), stmt.getCaseValues());
             }
 
             @Override
             public Stmt visit(Return stmt) {
-                return new Return(subSt(stmt.getValue()));
+                return new Return(replaceUse(stmt.getValue()));
             }
 
             @Override
             public Stmt visit(Throw stmt) {
-                return new Throw(subSt(stmt.getExceptionRef()));
+                return new Throw(replaceUse(stmt.getExceptionRef()));
             }
 
             @Override
             public Stmt visit(Catch stmt) {
-                return new Catch((Var) leftSubSt(stmt.getExceptionRef()));
+                return new Catch((Var) replaceLValue(stmt.getExceptionRef()));
             }
 
             @Override
             public Stmt visit(Monitor stmt) {
-                return new Monitor(stmt.isEnter() ? Monitor.Op.ENTER : Monitor.Op.EXIT, subSt(stmt.getObjectRef()));
+                return new Monitor(stmt.isEnter() ? Monitor.Op.ENTER : Monitor.Op.EXIT, replaceUse(stmt.getObjectRef()));
             }
 
             @Override
             public Stmt visitDefault(Stmt stmt) {
                 if (stmt instanceof FrontendPhiStmt phi) {
-                    assert useSigma.isEmpty();
-                    return new FrontendPhiStmt(phi.getBase(), defSubSt(phi.getLValue()), phi.getRValue());
+                    assert useReplacements.isEmpty();
+                    return new FrontendPhiStmt(phi.getBase(), replaceDef(phi.getLValue()), phi.getRValue());
                 } else if (stmt instanceof AssignStmt<?, ?> assign) {
-                    fixRelStmts(stmt);
-                    return Utils.newAssignStmt(method, leftSubSt(assign.getLValue()), rightSubst(assign.getRValue()));
+                    removeOldStmtFromRel(stmt);
+                    return Utils.newAssignStmt(method, replaceLValue(assign.getLValue()), replaceRValue(assign.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {
-                    fixRelStmts(stmt);
-                    return new Invoke(invoke.getContainer(), (InvokeExp) subSt(invoke.getInvokeExp()),
-                            invoke.getLValue() == null ? null : (Var) leftSubSt(invoke.getLValue()));
+                    removeOldStmtFromRel(stmt);
+                    return new Invoke(invoke.getContainer(), (InvokeExp) replaceVarInExp(invoke.getInvokeExp()),
+                            invoke.getLValue() == null ? null : (Var) replaceLValue(invoke.getLValue()));
                 } else {
                     assert stmt instanceof Nop || stmt instanceof Goto;
                     return stmt;
@@ -283,7 +149,147 @@ final class Lenses {
         return newStmt;
     }
 
-    private void fixRelStmts(Stmt oldStmt) {
+    private Var replaceUse(Var v) {
+        return useReplacements.getOrDefault(v, v);
+    }
+
+    private Var replaceDef(Var v) {
+        return defReplacements.getOrDefault(v, v);
+    }
+
+    private List<Var> replaceUses(List<Var> l) {
+        return l.stream()
+                .map(this::replaceUse)
+                .toList();
+    }
+
+    private LValue replaceLValue(LValue l) {
+        if (l instanceof Var v) {
+            return replaceDef(v);
+        } else if (l instanceof ArrayAccess access) {
+            return (ArrayAccess) replaceVarInExp(access);
+        } else if (l instanceof FieldAccess access) {
+            return (FieldAccess) replaceVarInExp(access);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private RValue replaceRValue(RValue r) {
+        return (RValue) replaceVarInExp(r);
+    }
+
+    private Exp replaceVarInExp(Exp e) {
+        return e.accept(new ExpVisitor<>() {
+            @Override
+            public Exp visit(Var var) {
+                return replaceUse(var);
+            }
+
+            @Override
+            public Exp visit(InstanceFieldAccess fieldAccess) {
+                return new InstanceFieldAccess(fieldAccess.getFieldRef(), replaceUse(fieldAccess.getBase()));
+            }
+
+            @Override
+            public Exp visit(ArrayAccess arrayAccess) {
+                return new ArrayAccess(replaceUse(arrayAccess.getBase()), replaceUse(arrayAccess.getIndex()));
+            }
+
+            @Override
+            public Exp visit(NewArray newArray) {
+                return new NewArray(newArray.getType(), replaceUse(newArray.getLength()));
+            }
+
+            @Override
+            public Exp visit(NewMultiArray newMultiArray) {
+                return new NewMultiArray(newMultiArray.getType(), replaceUses(newMultiArray.getLengths()));
+            }
+
+            @Override
+            public Exp visit(InvokeInterface invoke) {
+                return new InvokeInterface(invoke.getMethodRef(), replaceUse(invoke.getBase()), replaceUses(invoke.getArgs()));
+            }
+
+            @Override
+            public Exp visit(InvokeSpecial invoke) {
+                return new InvokeSpecial(invoke.getMethodRef(), replaceUse(invoke.getBase()), replaceUses(invoke.getArgs()));
+            }
+
+            @Override
+            public Exp visit(InvokeStatic invoke) {
+                return new InvokeStatic(invoke.getMethodRef(), replaceUses(invoke.getArgs()));
+            }
+
+            @Override
+            public Exp visit(InvokeVirtual invoke) {
+                return new InvokeVirtual(invoke.getMethodRef(), replaceUse(invoke.getBase()), replaceUses(invoke.getArgs()));
+            }
+
+            @Override
+            public Exp visit(InvokeDynamic invoke) {
+                return new InvokeDynamic(invoke.getBootstrapMethodHandle(), invoke.getBootstrapMethodRef(),
+                        invoke.getMethodName(), invoke.getMethodType(), invoke.getBootstrapArgs(),
+                        replaceUses(invoke.getArgs()));
+            }
+
+            @Override
+            public Exp visit(ArrayLengthExp exp) {
+                return new ArrayLengthExp(replaceUse(exp.getBase()));
+            }
+
+            @Override
+            public Exp visit(NegExp exp) {
+                return new NegExp(replaceUse(exp.getOperand()));
+            }
+
+            @Override
+            public Exp visit(ArithmeticExp exp) {
+                return new ArithmeticExp(exp.getOperator(), replaceUse(exp.getOperand1()), replaceUse(exp.getOperand2()));
+            }
+
+            @Override
+            public Exp visit(BitwiseExp exp) {
+                return new BitwiseExp(exp.getOperator(), replaceUse(exp.getOperand1()), replaceUse(exp.getOperand2()));
+            }
+
+            @Override
+            public Exp visit(ComparisonExp exp) {
+                return new ComparisonExp(exp.getOperator(), replaceUse(exp.getOperand1()), replaceUse(exp.getOperand2()));
+            }
+
+            @Override
+            public Exp visit(ConditionExp exp) {
+                return new ConditionExp(exp.getOperator(), replaceUse(exp.getOperand1()), replaceUse(exp.getOperand2()));
+            }
+
+            @Override
+            public Exp visit(ShiftExp exp) {
+                return new ShiftExp(exp.getOperator(), replaceUse(exp.getOperand1()), replaceUse(exp.getOperand2()));
+            }
+
+            @Override
+            public Exp visit(InstanceOfExp exp) {
+                return new InstanceOfExp(replaceUse(exp.getValue()), exp.getCheckedType());
+            }
+
+            @Override
+            public Exp visit(CastExp exp) {
+                return new CastExp(replaceUse(exp.getValue()), exp.getCastType());
+            }
+
+            @Override
+            public Exp visitDefault(Exp exp) {
+                assert exp.getUses().isEmpty();
+                return exp;
+            }
+        });
+    }
+
+    /**
+     * Remove the old statement from the vars' relevant stmts it references.
+     */
+    private void removeOldStmtFromRel(Stmt oldStmt) {
         if (oldStmt instanceof Invoke i) {
             if (i.getInvokeExp() instanceof InvokeInstanceExp exp) {
                 exp.getBase().removeRelevantStmt(oldStmt);
