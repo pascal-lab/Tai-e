@@ -16,24 +16,49 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
+/**
+ * Represents a node in the type flow graph.
+ */
 final class TypeFlowNode {
+
     private final FrontendTypeSystem typeSystem;
+
+    /**
+     * The IR var associated with this node.
+     */
     private final Var var;
+
+    /**
+     * The current inferred primitive type.
+     */
     @Nullable
-    Set<ReferenceType> candidateRefTypes;
+    private PrimitiveType primitiveType;
+
+    /**
+     * The current inferred reference type.
+     */
     @Nullable
-    PrimitiveType primitiveType;
+    private ReferenceType referenceType;
 
-    @Nullable
-    ReferenceType referenceType;
+    /**
+     * The set of candidate reference types.
+     * Caculate to {@link #referenceType} when constraint propagation is complete.
+     */
+    private Set<ReferenceType> candidateRefTypes;
 
-    Set<ReferenceType> useConstraints;
+    /**
+     * The set of types that this var must be assignable to.
+     */
+    private Set<ReferenceType> useConstraints;
 
-    List<ReferenceType> initConstraints;
+    /**
+     * The list of types required by constructor.
+     */
+    private List<ReferenceType> initConstraints;
 
-    List<TypeFlowEdge> inEdges;
+    private List<TypeFlowEdge> inEdges;
 
-    List<TypeFlowEdge> outEdges;
+    private List<TypeFlowEdge> outEdges;
 
     TypeFlowNode(FrontendTypeSystem typeSystem, Var var) {
         this.typeSystem = typeSystem;
@@ -43,22 +68,45 @@ final class TypeFlowNode {
         this.outEdges = null;
     }
 
+    /**
+     * Returns the current inferred type.
+     */
+    Type getType() {
+        if (primitiveType != null) {
+            return primitiveType;
+        } else if (referenceType != null) {
+            return referenceType;
+        } else if (candidateRefTypes != null) {
+            for (ReferenceType r : candidateRefTypes) {
+                updateReferenceType(r);
+            }
+            return referenceType;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Add an inferred type to this variable.
+     * Use {@link #addCandidateRefType} because we should NOT calculate LCA until constraint
+     * propagation is complete.
+     */
     void addType(Type type) {
         if (type instanceof PrimitiveType pType) {
-            addPrimitiveType(pType);
+            updatePrimitiveType(pType);
         } else if (type instanceof ReferenceType rType) {
-            addReferenceType(rType);
+            addCandidateRefType(rType);
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
     /**
-     * @return if type changes
+     * Updates the primitive type, returning true if it changed.
      */
-    boolean addPrimitiveType(PrimitiveType type) {
+    boolean updatePrimitiveType(PrimitiveType type) {
         // TODO: perform numeric promotion
-        assert candidateRefTypes == null;
+        assert referenceType == null && candidateRefTypes == null;
         assert type != null;
         if (this.primitiveType == null) {
             this.primitiveType = type;
@@ -75,7 +123,10 @@ final class TypeFlowNode {
         }
     }
 
-    private void addReferenceType(ReferenceType t) {
+    /**
+     * Adds a candidate reference type.
+     */
+    private void addCandidateRefType(ReferenceType t) {
         assert primitiveType == null;
         if (candidateRefTypes == null) {
             candidateRefTypes = Sets.newHybridSet();
@@ -83,6 +134,9 @@ final class TypeFlowNode {
         candidateRefTypes.add(t);
     }
 
+    /**
+     * Updates the inferred type by computing the pruned LCA, returning true if changed.
+     */
     boolean updateReferenceType(ReferenceType t) {
         if (referenceType == null) {
             referenceType = t;
@@ -94,13 +148,9 @@ final class TypeFlowNode {
         }
     }
 
-    void computeReferenceType() {
-        assert candidateRefTypes != null;
-        for (ReferenceType r : candidateRefTypes) {
-            updateReferenceType(r);
-        }
-    }
-
+    /**
+     * Checks if a type satisfies all the use constraints.
+     */
     boolean satisfyUseConstraints(ReferenceType t) {
         if (useConstraints == null) {
             return true;
@@ -112,11 +162,14 @@ final class TypeFlowNode {
         return ret;
     }
 
-    private ReferenceType getSuitableLCA(ReferenceType current, ReferenceType t) {
-        if (current == t) {
-            return t;
+    /**
+     * Computes the LCA of two types, pruning candidates that violate constraints.
+     */
+    private ReferenceType getSuitableLCA(ReferenceType type1, ReferenceType type2) {
+        if (type1 == type2) {
+            return type2;
         }
-        Set<ReferenceType> lcas = typeSystem.lca(current, t);
+        Set<ReferenceType> lcas = typeSystem.lca(type1, type2);
         ReferenceType target = null;
         for (ReferenceType lca : lcas) {
             if (satisfyUseConstraints(lca)) {
@@ -144,11 +197,40 @@ final class TypeFlowNode {
         }
     }
 
-    void addOutEdge(TypeFlowEdge edge) {
-        if (outEdges == null) {
-            outEdges = new ArrayList<>();
+    // ========================================================================
+    // Basic getter and setter methods
+    // ========================================================================
+
+    boolean addUseConstraint(ReferenceType constraint) {
+        if (useConstraints == null) {
+            useConstraints = Sets.newHybridSet();
         }
-        outEdges.add(edge);
+        return useConstraints.add(constraint);
+    }
+
+    Set<ReferenceType> getUseConstraints() {
+        if (useConstraints == null) {
+            return Set.of();
+        }
+        return useConstraints;
+    }
+
+    void addInitConstraint(ReferenceType constraint) {
+        if (initConstraints == null) {
+            initConstraints = new ArrayList<>();
+        }
+        initConstraints.add(constraint);
+    }
+
+    List<ReferenceType> getInitConstraints() {
+        if (initConstraints == null) {
+            return List.of();
+        }
+        return initConstraints;
+    }
+
+    Var var() {
+        return var;
     }
 
     void addInEdge(TypeFlowEdge edge) {
@@ -158,21 +240,24 @@ final class TypeFlowNode {
         inEdges.add(edge);
     }
 
-    boolean addUseConstraint(ReferenceType type) {
-        if (useConstraints == null) {
-            useConstraints = Sets.newHybridSet();
+    List<TypeFlowEdge> getInEdges() {
+        if (inEdges == null) {
+            return List.of();
         }
-        return useConstraints.add(type);
+        return inEdges;
     }
 
-    void addInitConstraint(ReferenceType type) {
-        if (initConstraints == null) {
-            initConstraints = new ArrayList<>();
+    void addOutEdge(TypeFlowEdge edge) {
+        if (outEdges == null) {
+            outEdges = new ArrayList<>();
         }
-        initConstraints.add(type);
+        outEdges.add(edge);
     }
 
-    Var var() {
-        return var;
+    List<TypeFlowEdge> getOutEdges() {
+        if (outEdges == null) {
+            return List.of();
+        }
+        return outEdges;
     }
 }

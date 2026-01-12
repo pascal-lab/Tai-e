@@ -37,7 +37,10 @@ import pascal.taie.language.type.Type;
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;
 
-class GraphBuilder implements StmtVisitor<Void> {
+/**
+ * Visits IR statements to construct edges, types and constraints in the type flow graph.
+ */
+final class GraphBuilder implements StmtVisitor<Void> {
     private final FrontendTypeSystem typeSystem;
     private final TypeFlowGraph graph;
     private final JMethod method;

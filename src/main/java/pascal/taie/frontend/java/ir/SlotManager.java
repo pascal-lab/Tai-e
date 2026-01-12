@@ -72,7 +72,7 @@ final class SlotManager {
     private BytecodeBlock currBlock = null;
 
     // ========================================================================
-    // 1. Construction & Build Phase
+    // 1. Build Phase
     // ========================================================================
 
     SlotManager(IRBuilderContext context) {

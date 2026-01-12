@@ -7,8 +7,15 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 
-class TypeUtils {
-    static Optional<Type> plusOneArray(Type t, FrontendTypeSystem typeSystem) {
+final class TypeUtils {
+
+    private TypeUtils() {
+    }
+
+    /**
+     * Returns a new type with one more array dimension than the input type.
+     */
+    static Optional<Type> increaseDim(Type t, FrontendTypeSystem typeSystem) {
         if (t instanceof NullType) {
             return Optional.empty();
         }
@@ -24,7 +31,10 @@ class TypeUtils {
         return Optional.of(typeSystem.getArrayType(baseType, dim));
     }
 
-    static Optional<Type> subOneArray(Type t) {
+    /**
+     * Returns a new type with one less array dimension than the input type.
+     */
+    static Optional<Type> decreaseDim(Type t) {
         if (t instanceof ArrayType at) {
             return Optional.of(at.elementType());
         } else {
