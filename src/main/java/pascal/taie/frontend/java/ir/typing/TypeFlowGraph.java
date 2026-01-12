@@ -43,8 +43,8 @@ class TypeFlowGraph {
     }
 
     void addVarTypeFlow(Var from, Var to, FlowKind kind) {
-        // Skip VAR_ARRAY as a[0] = b can not infer the type of a from b
         if (from.getType() != null && kind != FlowKind.VAR_ARRAY) {
+            // Skip VAR_ARRAY as we can not infer the type of `to` from `from` directly
             Type type = from.getType();
             switch (kind) {
                 case VAR_VAR -> addType(to, type);
@@ -88,10 +88,7 @@ class TypeFlowGraph {
 
         while (!queue.isEmpty()) {
             TypeFlow flow = queue.poll();
-            if (flow.edge.kind() == FlowKind.VAR_ARRAY) {
-                continue;
-            }
-            TypeFlowNode node = flow.edge.target();
+            TypeFlowNode node = flow.getTargetNode();
             Optional<Type> optionalType = flow.getTargetType();
             if (optionalType.isEmpty()) {
                 continue;
@@ -102,7 +99,7 @@ class TypeFlowGraph {
                     propogateType(queue, node, pType);
                 }
             } else if (t instanceof ReferenceType rType) {
-                boolean changed = node.updateReferenceType(flow.edge.kind(), rType);
+                boolean changed = node.updateReferenceType(rType);
                 if (changed) {
                     propogateType(queue, node, node.referenceType);
                 }
@@ -113,7 +110,7 @@ class TypeFlowGraph {
     }
 
     private void inferUseConstraints() {
-        Queue<TypeFlow> queue = new LinkedList<>();
+        Queue<ConstraintFlow> queue = new LinkedList<>();
         for (TypeFlowNode node : nodes) {
             if (node == null) {
                 continue;
@@ -126,9 +123,9 @@ class TypeFlowGraph {
         }
 
         while (!queue.isEmpty()) {
-            TypeFlow flow = queue.poll();
-            TypeFlowNode node = flow.edge.source();
-            Optional<Type> optionalType = flow.getSourceType();
+            ConstraintFlow flow = queue.poll();
+            TypeFlowNode node = flow.getTargetNode();
+            Optional<Type> optionalType = flow.getTargetConstraintType();
             if (optionalType.isEmpty()) {
                 continue;
             }
@@ -145,17 +142,21 @@ class TypeFlowGraph {
         if (node.outEdges == null) {
             return;
         }
-        for (TypeFlowEdge e : node.outEdges) {
-            queue.add(new TypeFlow(typeSystem, e, type));
+        for (TypeFlowEdge edge : node.outEdges) {
+            if (edge.kind() == FlowKind.VAR_ARRAY) {
+                // array is covariant, so we do not infer type from VAR_ARRAY edge
+                continue;
+            }
+            queue.add(new TypeFlow(typeSystem, edge, type));
         }
     }
 
-    private void propogateConstraints(Queue<TypeFlow> queue, TypeFlowNode node, ReferenceType type) {
+    private void propogateConstraints(Queue<ConstraintFlow> queue, TypeFlowNode node, ReferenceType type) {
         if (node.inEdges == null) {
             return;
         }
-        for (TypeFlowEdge e : node.inEdges) {
-            queue.add(new TypeFlow(typeSystem, e, type));
+        for (TypeFlowEdge edge : node.inEdges) {
+            queue.add(new ConstraintFlow(typeSystem, edge, type));
         }
     }
 
@@ -192,7 +193,7 @@ class TypeFlowGraph {
         return needInsertCast;
     }
 
-    void initializeEdgesAndTypes(JMethod method, BytecodeCFG cfg, VarManager varManager) {
+    void initialize(JMethod method, BytecodeCFG cfg, VarManager varManager) {
         addTypesForParams(method, varManager);
         GraphBuilder graphBuilder = new GraphBuilder(typeSystem, this, method);
         for (BytecodeBlock block : cfg) {

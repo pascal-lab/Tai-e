@@ -81,8 +81,15 @@ class GraphBuilder implements StmtVisitor<Void> {
     @Override
     public Void visit(StoreArray stmt) {
         Type rType = stmt.getRValue().getType();
-        // skips primitive type
         if (rType instanceof PrimitiveType) {
+            // skips primitive type
+            // example for that:
+            // 1. a = new byte[10]
+            // 2. a[1] = 1
+            // the right `IntLiteral(1)` MUST NOT infer `a` to be `int[]`
+            // i.e. we only trust the line 1., not line 2.
+            // and there must be something like line 1.,
+            // or the classfile will not pass the verification
             return null;
         }
         graph.addVarTypeFlow(stmt.getRValue(), stmt.getLValue().getBase(), FlowKind.VAR_ARRAY);
@@ -93,7 +100,6 @@ class GraphBuilder implements StmtVisitor<Void> {
     public Void visit(LoadField stmt) {
         graph.addType(stmt.getLValue(), stmt.getRValue().getType());
         if (stmt.getRValue() instanceof InstanceFieldAccess instanceFieldAccess) {
-            // TODO: maybe resolve() or can just setType() ?
             graph.addUseConstraint(instanceFieldAccess.getBase(),
                     instanceFieldAccess.getFieldRef().getDeclaringClass().getType());
         }

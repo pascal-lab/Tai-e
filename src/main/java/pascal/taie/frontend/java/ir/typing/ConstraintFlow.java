@@ -5,26 +5,26 @@ import java.util.Optional;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.language.type.Type;
 
-final class TypeFlow {
+final class ConstraintFlow {
     private final FrontendTypeSystem typeSystem;
-    final TypeFlowEdge edge;
+    private final TypeFlowEdge edge;
     private final Type type;
 
-    TypeFlow(FrontendTypeSystem typeSystem, TypeFlowEdge edge, Type type) {
+    ConstraintFlow(FrontendTypeSystem typeSystem, TypeFlowEdge edge, Type originalConstraint) {
         this.typeSystem = typeSystem;
         this.edge = edge;
-        this.type = type;
+        this.type = originalConstraint;
     }
 
     TypeFlowNode getTargetNode() {
-        return edge.target();
+        return edge.source();
     }
 
-    Optional<Type> getTargetType() {
+    Optional<Type> getTargetConstraintType() {
         return switch (edge.kind()) {
             case VAR_VAR -> Optional.of(type);
-            case VAR_ARRAY -> TypeUtils.plusOneArray(type, typeSystem);
-            case ARRAY_VAR -> TypeUtils.subOneArray(type);
+            case VAR_ARRAY -> TypeUtils.subOneArray(type);
+            case ARRAY_VAR -> TypeUtils.plusOneArray(type, typeSystem);
         };
     }
 }

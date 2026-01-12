@@ -37,7 +37,7 @@ public class TypeInference {
 
     public void inferTypes() {
         TypeFlowGraph graph = new TypeFlowGraph(context.typeSystem, context.varManager.getAllVars().size());
-        graph.initializeEdgesAndTypes(context.method, context.cfg, context.varManager);
+        graph.initialize(context.method, context.cfg, context.varManager);
         graph.inferTypes();
         boolean needInsertCast = graph.applyInferredTypes();
         if (needInsertCast) {

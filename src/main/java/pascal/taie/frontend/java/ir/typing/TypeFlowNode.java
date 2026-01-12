@@ -83,21 +83,7 @@ final class TypeFlowNode {
         candidateRefTypes.add(t);
     }
 
-    boolean updateReferenceType(FlowKind kind, ReferenceType t) {
-        // TODO: remove it? it is already checked......
-        if (kind == FlowKind.VAR_ARRAY
-                && t instanceof ArrayType arrayType
-                && TypeSystem.canHoldInt(arrayType.baseType())) {
-            // example for that:
-            // 1. a = new int[10]
-            // 2. a[1] = 1
-            // the right `ByteLiteral(1)` MUST NOT infer `a` to be `byte[]`
-            // i.e. we only trust the line 1., not line 2.
-            // and there must be something like line 1.,
-            // or the classfile will not pass the verification
-            return false;
-        }
-
+    boolean updateReferenceType(ReferenceType t) {
         if (referenceType == null) {
             referenceType = t;
             return true;
@@ -111,7 +97,7 @@ final class TypeFlowNode {
     void computeReferenceType() {
         assert candidateRefTypes != null;
         for (ReferenceType r : candidateRefTypes) {
-            updateReferenceType(null, r);
+            updateReferenceType(r);
         }
     }
 
