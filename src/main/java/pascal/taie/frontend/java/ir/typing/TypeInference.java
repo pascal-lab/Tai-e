@@ -41,7 +41,7 @@ public class TypeInference {
         graph.inferTypes();
         boolean needInsertCast = graph.applyInferredTypes();
         if (needInsertCast) {
-            CastingInserter inserter = new CastingInserter(context);
+            CastInserter inserter = new CastInserter(context);
             inserter.build();
         }
     }

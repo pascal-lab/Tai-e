@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.IRBuilderContext;
-import pascal.taie.frontend.java.ir.Lenses;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.VarMutator;
@@ -62,17 +61,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class CastingInserter {
+final class CastInserter {
 
-    private static final Logger logger = LogManager.getLogger(CastingInserter.class);
+    private static final Logger logger = LogManager.getLogger(CastInserter.class);
 
     private final IRBuilderContext context;
 
-    private Stmt currentStmt;
-
     private final Map<FlowTypeInfo, Var> flowTypeCache;
 
-    CastingInserter(IRBuilderContext context) {
+    private Stmt currentStmt;
+
+    CastInserter(IRBuilderContext context) {
         this.context = context;
         this.flowTypeCache = Maps.newHybridMap();
     }

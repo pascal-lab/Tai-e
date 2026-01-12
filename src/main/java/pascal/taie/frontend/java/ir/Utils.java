@@ -194,7 +194,7 @@ public final class Utils {
         };
     }
 
-    static Stmt newAssignStmt(JMethod method, LValue left, Exp right) {
+    public static Stmt newAssignStmt(JMethod method, LValue left, Exp right) {
         if (left instanceof Var v) {
             if (right instanceof BinaryExp binaryExp) {
                 return new Binary(v, binaryExp);

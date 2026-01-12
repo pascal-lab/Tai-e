@@ -20,8 +20,9 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.frontend.java.ir;
+package pascal.taie.frontend.java.ir.typing;
 
+import pascal.taie.frontend.java.ir.Utils;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -71,7 +72,7 @@ import pascal.taie.language.classes.JMethod;
 import java.util.List;
 import java.util.Map;
 
-public class Lenses {
+final class Lenses {
 
     private final JMethod method;
 
@@ -79,27 +80,27 @@ public class Lenses {
 
     private final Map<Var, Var> defSigma;
 
-    public Lenses(JMethod method, Map<Var, Var> useSigma, Map<Var, Var> defSigma) {
+    Lenses(JMethod method, Map<Var, Var> useSigma, Map<Var, Var> defSigma) {
         this.method = method;
         this.defSigma = defSigma;
         this.useSigma = useSigma;
     }
 
-    public Var subSt(Var v) {
+    private Var subSt(Var v) {
         return useSigma.getOrDefault(v, v);
     }
 
-    public Var defSubSt(Var v) {
+    private Var defSubSt(Var v) {
         return defSigma.getOrDefault(v, v);
     }
 
-    public List<Var> subSt(List<Var> l) {
+    private List<Var> subSt(List<Var> l) {
         return l.stream()
                 .map(this::subSt)
                 .toList();
     }
 
-    public LValue leftSubSt(LValue l) {
+    private LValue leftSubSt(LValue l) {
         if (l instanceof Var v) {
             return defSubSt(v);
         } else if (l instanceof ArrayAccess access) {
@@ -111,11 +112,11 @@ public class Lenses {
         }
     }
 
-    public RValue rightSubst(RValue r) {
+    private RValue rightSubst(RValue r) {
         return (RValue) subSt(r);
     }
 
-    public Exp subSt(Exp e) {
+    private Exp subSt(Exp e) {
         return e.accept(new ExpVisitor<>() {
             @Override
             public Exp visit(Var var) {
@@ -222,7 +223,7 @@ public class Lenses {
         });
     }
 
-    public Stmt subSt(Stmt stmt) {
+    Stmt subSt(Stmt stmt) {
         Stmt newStmt = stmt.accept(new StmtVisitor<>() {
             @Override
             public Stmt visit(If stmt) {
