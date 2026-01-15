@@ -23,6 +23,7 @@
 package pascal.taie.language.type;
 
 import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClassLoader;
 
 /**
  * Type system implementation that leverage {@link ClassHierarchy}
@@ -30,11 +31,19 @@ import pascal.taie.language.classes.ClassHierarchy;
  */
 public class FastTypeSystem extends AbstractTypeSystem {
 
-    private final ClassHierarchy hierarchy;
+    protected ClassHierarchy hierarchy;
 
     public FastTypeSystem(ClassHierarchy hierarchy) {
         super(hierarchy.getDefaultClassLoader());
         this.hierarchy = hierarchy;
+    }
+
+    /**
+     * Constructs a FastTypeSystem for deferred {@link #hierarchy} initialization.
+     * The hierarchy must be set later, before any hierarchy-related APIs like {@link #isSubtype} are called.
+     */
+    protected FastTypeSystem(JClassLoader classLoader) {
+        super(classLoader);
     }
 
     @Override

@@ -23,12 +23,12 @@
 package pascal.taie.frontend.java;
 
 import pascal.taie.ir.exp.MethodType;
-import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
-import pascal.taie.language.type.AbstractTypeSystem;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.FastTypeSystem;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
@@ -47,6 +47,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
 import static pascal.taie.language.type.CharType.CHAR;
@@ -61,7 +62,7 @@ import static pascal.taie.language.type.ShortType.SHORT;
  * It includes type conversion from ASM types, type inference utilities,
  * and subtype checking methods.
  */
-public class FrontendTypeSystem extends AbstractTypeSystem {
+public class FrontendTypeSystem extends FastTypeSystem {
 
     /**
      * All super types of array types.
@@ -79,91 +80,20 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
             = Maps.newConcurrentMap();
 
     public FrontendTypeSystem(JClassLoader defaultClassLoader) {
-        super(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
+        super(defaultClassLoader);
         arraySupers = Set.of(objectType, cloneableType, serializableType);
     }
 
-    // ==================== Type Checking Methods ====================
-
-    @Override
-    public boolean isSubtype(Type supertype, Type subtype) {
-        assert subtype != null;
-        if (subtype == supertype) {
-            return true;
-        } else if (subtype instanceof NullType) {
-            return supertype instanceof ReferenceType;
-        } else if (subtype instanceof ClassType) {
-            if (supertype instanceof ClassType) {
-                return isSubclass((ClassType) supertype, (ClassType) subtype);
-            }
-        } else if (subtype instanceof ArrayType) {
-            if (supertype instanceof ClassType) {
-                // JLS (11 Ed.), Chapter 10, Arrays
-                return supertype == objectType ||
-                        supertype == cloneableType ||
-                        supertype == serializableType;
-            } else if (supertype instanceof ArrayType superArray) {
-                ArrayType subArray = (ArrayType) subtype;
-                Type superBase = superArray.baseType();
-                Type subBase = subArray.baseType();
-                if (superArray.dimensions() == subArray.dimensions()) {
-                    if (subBase.equals(superBase)) {
-                        return true;
-                    } else if (superBase instanceof ClassType &&
-                            subBase instanceof ClassType) {
-                        return isSubclass((ClassType) superBase, (ClassType) subBase);
-                    }
-                } else if (superArray.dimensions() < subArray.dimensions()) {
-                    return superBase == objectType ||
-                            superBase == cloneableType ||
-                            superBase == serializableType;
-                }
-            }
-        }
-        return false;
+    /**
+     * Sets the {@link #hierarchy} for this type system.
+     * Once the hierarchy is set, hierarchy-related APIs like {@link #isSubtype}
+     * become fully functional.
+     */
+    public void setHierarchy(ClassHierarchy hierarchy) {
+        this.hierarchy = hierarchy;
     }
 
-    private static boolean isSubclass(ClassType supertype, ClassType subtype) {
-        JClass subClass = subtype.getJClass();
-        assert subClass != null;
-        JClass superClass = supertype.getJClass();
-        if (subClass.getName().equals(ClassNames.OBJECT)) {
-            return subClass == superClass;
-        }
-        if (!subClass.isInterface() && !superClass.isInterface()) {
-            return isSubclassOnly(subClass, superClass);
-        } else if (subClass.isInterface() && !superClass.isInterface()) {
-            return subClass.getSuperClass() == superClass;
-        } else {
-            return isSubInterfaces(subClass, superClass);
-        }
-    }
-
-    private static boolean isSubclassOnly(JClass subClass, JClass superClass) {
-        assert !subClass.isInterface() && !superClass.isInterface();
-        JClass realSuperClass = subClass.getSuperClass();
-        if (realSuperClass == null) {
-            return false;
-        }
-        return realSuperClass == superClass || isSubclassOnly(realSuperClass, superClass);
-    }
-
-    private static boolean isSubInterfaces(JClass subClass, JClass superClass) {
-        assert superClass.isInterface();
-        JClass realSuperClass = subClass.getSuperClass();
-        if (realSuperClass == null) {
-            return false;
-        }
-        if (isSubInterfaces(realSuperClass, superClass)) {
-            return true;
-        }
-        for (JClass i : subClass.getInterfaces()) {
-            if (i == superClass || isSubInterfaces(i, superClass)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // ==================== ASM Type Conversion Methods ====================
 
     /**
      * Determines if the given type occupies two words on the JVM stack.
@@ -177,8 +107,6 @@ public class FrontendTypeSystem extends AbstractTypeSystem {
     public static boolean isTwoWord(Type type) {
         return type == DOUBLE || type == LONG;
     }
-
-    // ==================== ASM Type Conversion Methods ====================
 
     /**
      * Convert ASM internal name to ReferenceType.

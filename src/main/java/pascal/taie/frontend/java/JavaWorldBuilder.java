@@ -24,6 +24,7 @@ package pascal.taie.frontend.java;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.Options;
@@ -83,6 +84,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         JClassLoader loader = new DefaultClassLoader(closedWorld);
         FrontendTypeSystem typeSystem = new FrontendTypeSystem(loader);
         // build classes
+        // the hierarchy-related API in typeSystem should not be called here, as the class hierarchy is not built
         closedWorld.parallelStream().forEach(source -> {
             JClass jclass = loader.loadClass(source.className());
             JClassBuilder builder;
@@ -97,6 +99,7 @@ public class JavaWorldBuilder extends AbstractWorldBuilder {
         });
         // create class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl(loader);
+        typeSystem.setHierarchy(hierarchy);
 
         // ============ End of building frontend components ============
 

@@ -116,7 +116,7 @@ public abstract class AbstractTypeSystem implements TypeSystem {
     }
 
     protected AbstractTypeSystem(JClassLoader defaultClassLoader) {
-        this(defaultClassLoader, Maps.newSmallMap(), Maps.newConcurrentMap(8));
+        this(defaultClassLoader, Maps.newConcurrentMap(1024), Maps.newConcurrentMap(8));
     }
 
     @Override
