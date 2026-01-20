@@ -106,7 +106,7 @@ public class JClass extends AbstractResultHolder
      * and can be released via {@link #releaseClassSource()} to save memory.
      */
     @Nullable
-    private ClassSource classSource;
+    private transient ClassSource classSource;
 
     private int index = -1;
 
