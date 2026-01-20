@@ -109,9 +109,9 @@ public class VarManager {
     private Var[] slot2Var;
 
     /**
-     * Set of Vars that correspond to slots (the Var set for {@link #slot2Var}).
+     * Set of Vars that are used and are corresponding to slots (the used Var set for {@link #slot2Var}).
      */
-    private Set<Var> slotVars;
+    private Set<Var> usedSlotVars;
 
     /**
      * slot2Local[slot].get(range) = local variable node in bytecode.
@@ -129,7 +129,7 @@ public class VarManager {
     /**
      * Tracks whether a Var is in ssa form.
      */
-    private final BitSet varIsSSA;
+    private final Map<Var, Boolean> varIsSSA;
 
     // =================================================================================
     // Var Storage
@@ -143,7 +143,7 @@ public class VarManager {
     /**
      * List of all variables created for this method.
      */
-    private final List<Var> allVars;
+    private List<Var> allVars;
 
     private final List<Var> params;
 
@@ -162,7 +162,7 @@ public class VarManager {
         this.allVars = new ArrayList<>(context.source.maxLocals * 6);
         this.params = new ArrayList<>();
         this.retVars = Sets.newSet();
-        this.varIsSSA = new BitSet();
+        this.varIsSSA = Maps.newMap();
         this.name2Count = Maps.newMap();
         // compute slot2Locals mapping for variable name resolution
         this.slot2Locals = computeSlot2Locals();
@@ -244,13 +244,15 @@ public class VarManager {
     }
 
     private Var newVar(String name) {
-        Var v = new Var(context.method, name, null, counter++);
+        Var v = new Var(context.method, name, null, -1);
+        counter++;
         allVars.add(v);
         return v;
     }
 
     private Var newConstVar(String name, Literal literal) {
-        Var v = new Var(context.method, name, literal.getType(), counter++, literal);
+        Var v = new Var(context.method, name, literal.getType(), -1, literal);
+        counter++;
         allVars.add(v);
         setNonSSA(v);
         return v;
@@ -265,20 +267,37 @@ public class VarManager {
      */
     Var getVar(int slot) {
         Var v = slot2Var[slot];
+        usedSlotVars.add(v);
         assert v != null;
         return v;
     }
 
-    boolean isForSlot(Var v) {
-        return slotVars.contains(v);
+    boolean isSlotVar(Var v) {
+        return usedSlotVars.contains(v);
+    }
+
+    void removedUnusedSlotVars() {
+        List<Var> newAllVars = new ArrayList<>();
+        Set<Var> unusedSlotVars = Sets.newSet();
+        for (Var v : slot2Var) {
+            if (!usedSlotVars.contains(v)) {
+                unusedSlotVars.add(v);
+            }
+        }
+        for (Var v : allVars) {
+            if (!unusedSlotVars.contains(v)) {
+                VarMutator.setIndex(v, newAllVars.size());
+                newAllVars.add(v);
+            }
+        }
+        allVars = newAllVars;
     }
 
     private void buildSlotVars(IRBuilderContext context) {
         this.slot2Var = new Var[context.source.maxLocals];
-        this.slotVars = Sets.newSet();
+        this.usedSlotVars = Sets.newSet();
         for (int slot = 0; slot < context.source.maxLocals; ++slot) {
             Var v = newVar(LOCAL_PREFIX + slot);
-            slotVars.add(v);
             slot2Var[slot] = v;
             setNonSSA(v);
         }
@@ -328,7 +347,6 @@ public class VarManager {
         System.arraycopy(slot2Var, 0, newSlot2Var, 0, slot2Var.length);
         for (int i = slot2Var.length; i < newSlot2Origin.length; ++i) {
             newSlot2Var[i] = newVar(nameWithSuffix(newSlot2Var[newSlot2Origin[i]].getName()));
-            slotVars.add(newSlot2Var[i]);
         }
 
         slot2Var = newSlot2Var;
@@ -438,14 +456,14 @@ public class VarManager {
     }
 
     boolean isSSAVar(Var v) {
-        return varIsSSA.get(v.getIndex());
+        return varIsSSA.getOrDefault(v, false);
     }
 
     void setSSA(Var v) {
-        varIsSSA.set(v.getIndex(), true);
+        varIsSSA.put(v, true);
     }
 
     void setNonSSA(Var v) {
-        varIsSSA.set(v.getIndex(), false);
+        varIsSSA.put(v, false);
     }
 }

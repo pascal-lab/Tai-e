@@ -76,10 +76,13 @@ class BytecodeIRBuilder {
             context.stmtManager.buildBlockStmts(block);
         }
 
-        // 7. type inference
+        // 7. remove unused slot vars
+        context.varManager.removedUnusedSlotVars();
+
+        // 8. type inference
         new TypeInference(context).inferTypes();
 
-        // 8. complete stmts and build exception table, finally get IR
+        // 9. complete stmts and build exception table, finally get IR
         return new IRAssembler(context).assembleIR();
     }
 }

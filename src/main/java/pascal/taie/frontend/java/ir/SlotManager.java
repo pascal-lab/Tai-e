@@ -159,7 +159,7 @@ final class SlotManager {
             v = operandStack.popVar();
             // if this var is a local, we need create another copy
             // in case this local var is modified later
-            if (context.varManager.isForSlot(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
+            if (context.varManager.isSlotVar(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
                 Var origin = v;
                 v = context.varManager.getTempVar();
                 context.stmtManager.associateStmt(insn, Utils.newAssignStmt(context.method, v, origin));
