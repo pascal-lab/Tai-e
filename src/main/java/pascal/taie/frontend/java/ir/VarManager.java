@@ -244,6 +244,7 @@ public class VarManager {
     }
 
     private Var newVar(String name) {
+        name = nameWithSuffix(name);
         Var v = new Var(context.method, name, null, -1);
         counter++;
         allVars.add(v);
@@ -346,7 +347,7 @@ public class VarManager {
         Var[] newSlot2Var = new Var[newSlotSize];
         System.arraycopy(slot2Var, 0, newSlot2Var, 0, slot2Var.length);
         for (int i = slot2Var.length; i < newSlot2Origin.length; ++i) {
-            newSlot2Var[i] = newVar(nameWithSuffix(newSlot2Var[newSlot2Origin[i]].getName()));
+            newSlot2Var[i] = newVar(newSlot2Var[newSlot2Origin[i]].getName());
         }
 
         slot2Var = newSlot2Var;
