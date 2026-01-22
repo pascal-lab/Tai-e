@@ -41,7 +41,7 @@ import pascal.taie.util.collection.Sets;
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.BitSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,10 +87,16 @@ public class VarManager {
 
     private final int INT_CACHE_HIGH = 7;
 
+    private final int UNDEFINED_LINE_NUMBER = -1;
+
+    private final int CONFLICT_LINE_NUMBER = -2;
+
     /**
      * Cache for small integer constant variables.
      */
     private final Var[] intConstVarCache;
+
+    private final int[] intConstVarLineNumbers;
 
     /**
      * Cache for the null literal variable.
@@ -158,6 +164,8 @@ public class VarManager {
     VarManager(IRBuilderContext context) {
         this.context = context;
         this.intConstVarCache = new Var[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
+        this.intConstVarLineNumbers = new int[-INT_CACHE_LOW + 1 + INT_CACHE_HIGH];
+        Arrays.fill(intConstVarLineNumbers, UNDEFINED_LINE_NUMBER);
         this.counter = 0;
         this.allVars = new ArrayList<>(context.source.maxLocals * 6);
         this.params = new ArrayList<>();
@@ -205,8 +213,20 @@ public class VarManager {
         this.retVars.add(v);
     }
 
-    Var[] getIntConstVarCache() {
-        return intConstVarCache;
+    /**
+     * Get the integer constant var cache along with their line numbers.
+     */
+    Pair<Var, Optional<Integer>>[] getIntConstVarCache() {
+        Pair<Var, Optional<Integer>>[] intConstWithLineNumber = new Pair[this.intConstVarCache.length];
+        for (int i = 0; i < this.intConstVarCache.length; i++) {
+            Var v = this.intConstVarCache[i];
+            int lineNumber = this.intConstVarLineNumbers[i];
+            Optional<Integer> lineNumberOpt = lineNumber == UNDEFINED_LINE_NUMBER || lineNumber == CONFLICT_LINE_NUMBER
+                    ? Optional.empty()
+                    : Optional.of(lineNumber);
+            intConstWithLineNumber[i] = new Pair<>(v, lineNumberOpt);
+        }
+        return intConstWithLineNumber;
     }
 
     Var getNullLiteral() {
@@ -238,6 +258,12 @@ public class VarManager {
         if (intConstVarCache[index] == null) {
             String name = getCachedIntName(intLiteral);
             intConstVarCache[index] = newConstVar(name, intLiteral);
+        }
+        if (intConstVarLineNumbers[index] == UNDEFINED_LINE_NUMBER) {
+            intConstVarLineNumbers[index] = context.stmtManager.getLineNumber();
+        } else if (intConstVarLineNumbers[index] != context.stmtManager.getLineNumber()) {
+            // cache var defined more than once, so no line number
+            intConstVarLineNumbers[index] = CONFLICT_LINE_NUMBER;
         }
         return intConstVarCache[index];
     }

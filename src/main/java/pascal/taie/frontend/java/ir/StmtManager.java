@@ -80,6 +80,13 @@ final class StmtManager {
     }
 
     /**
+     * Get line number.
+     */
+    int getLineNumber() {
+        return currentLineNumber;
+    }
+
+    /**
      * Associates a generated Stmt with its source bytecode instruction.
      */
     void associateStmt(AbstractInsnNode insn, Stmt stmt) {
