@@ -234,13 +234,19 @@ public class VarManager {
     Var getCachedInt(Literal literal) {
         assert isCachedInt(literal);
         IntLiteral intLiteral = (IntLiteral) literal;
-        int value = intLiteral.getValue();
-        int index = value - INT_CACHE_LOW;
+        int index = intLiteral.getValue() - INT_CACHE_LOW;
         if (intConstVarCache[index] == null) {
-            String name = TEMP_PREFIX + "c" + "i" + value;
+            String name = getCachedIntName(intLiteral);
             intConstVarCache[index] = newConstVar(name, intLiteral);
         }
         return intConstVarCache[index];
+    }
+
+    String getCachedIntName(Literal literal) {
+        assert isCachedInt(literal);
+        IntLiteral intLiteral = (IntLiteral) literal;
+        int value = intLiteral.getValue();
+        return TEMP_PREFIX + "c" + "i" + value;
     }
 
     private Var newVar(String name) {
@@ -358,10 +364,49 @@ public class VarManager {
     // =================================================================================
 
     /**
+     * Try to resolve the actual name of a slot.
+     */
+    void tryActualVarName(Var v, int slot, AbstractInsnNode insn) {
+        if (existLocalVariables()) {
+            if (withSyntheticName(v)) {
+                Optional<String> name = getName(slot, insn);
+                name.ifPresent((n) -> {
+                    String realName = nameWithSuffix(n);
+                    VarMutator.setName(v, realName);
+                });
+            } else {
+                Optional<String> name = getName(slot, insn);
+                name.ifPresent((n) -> {
+                    String oldName = removeSuffix(v.getName());
+                    if (!n.equals(oldName)) {
+                        // name conflict, must because of cached const vars, use temp name
+                        if (v.isConst()) {
+                            Literal literal = v.getConstValue();
+                            if (literal instanceof NullLiteral) {
+                                VarMutator.setName(v, NULL_LITERAL);
+                            } else if (isCachedInt(literal)) {
+                                VarMutator.setName(v, getCachedIntName(literal));
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private String removeSuffix(String name) {
+        int index = name.indexOf('#');
+        if (index != -1) {
+            return name.substring(0, index);
+        }
+        return name;
+    }
+
+    /**
      * Checks if the LocalVariables is present in the bytecode.
      * LocalVariables are used for var name resolution.
      */
-    boolean existLocalVariables() {
+    private boolean existLocalVariables() {
         return context.source.localVariables != null
                 && !context.source.localVariables.isEmpty();
     }
@@ -389,7 +434,7 @@ public class VarManager {
     /**
      * Resolve the source name of a var at a specific slot and instruction.
      */
-    Optional<String> getName(int slot, AbstractInsnNode insnNode) {
+    private Optional<String> getName(int slot, AbstractInsnNode insnNode) {
         if (Utils.isVarStore(insnNode)) {
             /*
              * for VarStore, you have to use the next InsnNode (actual JVM Bytecode)
@@ -429,7 +474,7 @@ public class VarManager {
     /**
      * Checks if a variable name is synthetic (auto-generated like $1 or %v1).
      */
-    static boolean withSyntheticName(Var v) {
+    private static boolean withSyntheticName(Var v) {
         return v.getName().startsWith(TEMP_PREFIX) ||
                 v.getName().startsWith(LOCAL_PREFIX);
     }
@@ -437,7 +482,7 @@ public class VarManager {
     /**
      * Generates a unique name by appending a suffix if the name is already used (e.g., "x#1").
      */
-    String nameWithSuffix(String name) {
+    private String nameWithSuffix(String name) {
         if (name2Count.containsKey(name)) {
             int count = name2Count.get(name);
             name2Count.put(name, count + 1);

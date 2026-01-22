@@ -138,7 +138,7 @@ final class SlotManager {
             v = context.varManager.getVar(newSlot);
         }
         assert v != null;
-        tryActualVarName(v, slot, insn);
+        context.varManager.tryActualVarName(v, slot, insn);
         return v;
     }
 
@@ -173,7 +173,7 @@ final class SlotManager {
             Stmt stmt = operandStack.popToVar(v);
             context.stmtManager.associateStmt(insn, stmt);
         }
-        tryActualVarName(v, slot, insn);
+        context.varManager.tryActualVarName(v, slot, insn);
     }
 
     /**
@@ -261,16 +261,6 @@ final class SlotManager {
      */
     private boolean canDirectlyPropagate(int duIndex) {
         return context.isSSA || ssaTransform.isIsolatedDef(duIndex);
-    }
-
-    private void tryActualVarName(Var v, int slot, AbstractInsnNode insn) {
-        if (context.varManager.existLocalVariables() && VarManager.withSyntheticName(v)) {
-            Optional<String> name = context.varManager.getName(slot, insn);
-            name.ifPresent((n) -> {
-                String realName = context.varManager.nameWithSuffix(n);
-                VarMutator.setName(v, realName);
-            });
-        }
     }
 
     /**
