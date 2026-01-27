@@ -24,20 +24,25 @@ package pascal.taie.ir.proginfo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
+import pascal.taie.util.Hashes;
 import pascal.taie.util.InternalCanonicalized;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+
 
 import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
 import static pascal.taie.language.classes.ClassNames.VAR_HANDLE;
@@ -125,7 +130,9 @@ public class MethodRef extends MemberRef {
     @Nullable
     private transient JMethod method;
 
-    private boolean isDeclaredInInterface;
+    private final boolean isDeclaredInInterface;
+
+    private transient int cachedHash = 0;
 
     public static MethodRef get(
             JClass declaringClass, String name,
@@ -231,5 +238,45 @@ public class MethodRef extends MemberRef {
      * Uses as keys to identify {@link MethodRef}s in cache.
      */
     private record Key(JClass declaringClass, Subsignature subsignature) {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MethodRef that)) {
+            return false;
+        }
+        if (this.isStatic() != that.isStatic() ||
+                this.isDeclaredInInterface != that.isDeclaredInInterface) {
+            return false;
+        }
+        if (!Objects.equals(this.getDeclaringClass(), that.getDeclaringClass())) {
+            return false;
+        }
+        if (!Objects.equals(this.getName(), that.getName())) {
+            return false;
+        }
+        if (!Objects.equals(this.returnType, that.returnType)) {
+            return false;
+        }
+        return Objects.equals(this.parameterTypes, that.parameterTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        if (cachedHash == 0) {
+            int result = Hashes.hash(
+                    getDeclaringClass(),
+                    getName(),
+                    parameterTypes,
+                    returnType
+            );
+            result = 31 * result + (isStatic() ? 1 : 0);
+            result = 31 * result + (isDeclaredInInterface ? 1 : 0);
+            cachedHash = result;
+        }
+        return cachedHash;
     }
 }
