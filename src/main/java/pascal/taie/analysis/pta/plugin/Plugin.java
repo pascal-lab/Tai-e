@@ -28,6 +28,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
+import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
@@ -128,5 +129,13 @@ public interface Plugin {
      * @param invoke  the invocation site
      */
     default void onUnresolvedCall(CSObj recv, Context context, Invoke invoke) {
+    }
+
+    /**
+     * Invoked when pointer analysis discover a new PFG Edge
+     *
+     * @param edge    the new created PFG edge
+     */
+    default void onNewPFGEdge(PointerFlowEdge edge) {
     }
 }

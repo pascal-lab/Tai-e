@@ -32,8 +32,7 @@ import javax.annotation.Nullable;
 /**
  * Represents reflective call edges.
  */
-class ReflectiveCallEdge extends OtherEdge<CSCallSite, CSMethod> {
-
+public class ReflectiveCallEdge extends OtherEdge<CSCallSite, CSMethod> {
     /**
      * Variable pointing to the array argument of reflective call,
      * which contains the arguments for the reflective target method, i.e.,
@@ -49,7 +48,7 @@ class ReflectiveCallEdge extends OtherEdge<CSCallSite, CSMethod> {
     }
 
     @Nullable
-    Var getArgs() {
+    public Var getArgs() {
         return args;
     }
 }

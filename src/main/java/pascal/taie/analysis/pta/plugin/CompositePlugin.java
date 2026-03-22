@@ -76,6 +76,10 @@ public class CompositePlugin implements Plugin {
         }
     }
 
+    public final List<Plugin> getAllPlugins() {
+        return allPlugins;
+    }
+
     private void addPlugin(Plugin plugin, List<Plugin> plugins,
                            String name, Class<?>... parameterTypes) {
         try {

@@ -49,8 +49,6 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     private static final Logger logger = LogManager.getLogger(AbstractWorldBuilder.class);
 
-    protected static final String JREs = "java-benchmarks/JREs";
-
     protected static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
@@ -75,7 +73,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                     .collect(Collectors.joining(File.pathSeparator));
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs
-            File jreDir = new File(JREs);
+            File jreDir = new File(options.getLibJREPath());
             if (!jreDir.exists()) {
                 throw new RuntimeException("""
                         Failed to locate Java library.
@@ -85,7 +83,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                         then put it in Tai-e's working directory.""");
             }
             String jrePath = String.format("%s/jre1.%d",
-                    JREs, options.getJavaVersion());
+                    options.getLibJREPath(), options.getJavaVersion());
             try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
                 return Streams.concat(
                                 paths.map(Path::toString).filter(p -> p.endsWith(".jar")),

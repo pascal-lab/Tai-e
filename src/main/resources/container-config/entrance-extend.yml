@@ -1,0 +1,133 @@
+MapToMap:
+  - {signature: '<java.util.HashMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.HashMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.LinkedHashMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.TreeMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.TreeMap: void <init>(java.util.SortedMap)>', index: 0}
+  - {signature: '<java.util.TreeMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.IdentityHashMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.IdentityHashMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.AbstractMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.WeakHashMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.WeakHashMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.EnumMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.EnumMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.EnumMap: void <init>(java.util.EnumMap)>', index: 0}
+  - {signature: '<java.util.Hashtable: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.Hashtable: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.Properties: void <init>(java.util.Properties)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: void <init>(java.util.SortedMap)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: void putAll(java.util.Map)>', index: 0}
+
+  # called in Collections.synchronizedMap(...)
+  - {signature: '<java.util.Collections$SynchronizedMap: void <init>(java.util.Map)>', index: 0}
+  # called in Collections.unmodifiableMap(...)
+  - {signature: '<java.util.Collections$UnmodifiableMap: void <init>(java.util.Map)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableMap: void putAll(java.util.Map)>', index: 0}
+  # called in Collections.unmodifiableSortedMap(...)
+  - {signature: '<java.util.Collections$UnmodifiableSortedMap: void <init>(java.util.SortedMap)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedMap: void putAll(java.util.Map)>', index: 0}
+  # called in Collections.checkedMap(...)
+  - {signature: '<java.util.Collections$CheckedMap: void putAll(java.util.Map)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedMap: void <init>(java.util.Map,java.lang.Class,java.lang.Class)>', index: 0}
+  # called in Collections.checkedSortedMap(...)
+  - {signature: '<java.util.Collections$CheckedSortedMap: void <init>(java.util.SortedMap,java.lang.Class,java.lang.Class)>', index: 0}
+
+  # TreeMap subView
+  - {signature: '<java.util.TreeMap$NavigableSubMap: void <init>(java.util.TreeMap,boolean,java.lang.Object,boolean,boolean,java.lang.Object,boolean)>', index: 0}
+  - {signature: '<java.util.TreeMap$AscendingSubMap: void <init>(java.util.TreeMap,boolean,java.lang.Object,boolean,boolean,java.lang.Object,boolean)>', index: 0}
+  - {signature: '<java.util.TreeMap$DescendingSubMap: void <init>(java.util.TreeMap,boolean,java.lang.Object,boolean,boolean,java.lang.Object,boolean)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap$SubMap: void <init>(java.util.concurrent.ConcurrentSkipListMap,java.lang.Object,boolean,java.lang.Object,boolean,boolean)>', index: 0}
+
+ColToCol:
+  - {signature: '<java.util.ArrayList: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.ArrayList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.ArrayList: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.LinkedList: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.LinkedList: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.LinkedList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.Vector: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Vector: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Vector: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.ArrayDeque: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.HashSet: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.LinkedHashSet: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.TreeSet: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.TreeSet: void <init>(java.util.SortedSet)>', index: 0}
+  - {signature: '<java.util.TreeSet: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: void <init>(java.util.PriorityQueue)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: void <init>(java.util.SortedSet)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.RandomAccessSubList: void <init>(java.util.AbstractList,int,int)>', index: 0}
+  - {signature: '<java.util.SubList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.SubList: void <init>(java.util.AbstractList,int,int)>', index: 0}
+  - {signature: '<java.util.SubList: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.SubList: java.util.AbstractList access$100(java.util.SubList)>', index: 0}
+  - {signature: '<java.util.SubList: int access$000(java.util.SubList)>', index: 0}
+  - {signature: '<java.util.SubList: int access$200(java.util.SubList)>', index: 0}
+  - {signature: '<java.util.SubList: int access$210(java.util.SubList)>', index: 0}
+  - {signature: '<java.util.SubList: int access$208(java.util.SubList)>', index: 0}
+  - {signature: '<java.util.AbstractCollection: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.AbstractQueue: boolean addAll(java.util.Collection)>', index: 0}
+
+  - {signature: '<java.util.concurrent.ConcurrentLinkedQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentLinkedQueue: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListSet: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListSet: void <init>(java.util.SortedSet)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: int addAllAbsent(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArraySet: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArraySet: boolean addAll(java.util.Collection)>', index: 0}
+
+  # inner class
+  - {signature: '<java.util.ArrayList$SubList: void <init>(java.util.ArrayList,java.util.AbstractList,int,int,int)>', index: 1}
+  - {signature: '<java.util.ArrayList$SubList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.ArrayList$SubList: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.AbstractList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.AbstractSequentialList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: void <init>(java.util.concurrent.CopyOnWriteArrayList,int,int)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableCollection: void <init>(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedCollection: void <init>(java.util.Collection,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedCollection: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableSet: void <init>(java.util.Set)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedSortedSet: void <init>(java.util.SortedSet)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedSortedSet: void <init>(java.util.SortedSet,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$AsLIFOQueue: void <init>(java.util.Deque)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedSet: void <init>(java.util.Set,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedCollection: void <init>(java.util.Collection,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedCollection: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedCollection: void <init>(java.util.Collection,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedList: void <init>(java.util.List,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedSet: void <init>(java.util.Set)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedSet: void <init>(java.util.Set,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedList: void <init>(java.util.List)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedList: void <init>(java.util.List,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableRandomAccessList: void <init>(java.util.List)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedRandomAccessList: void <init>(java.util.List)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedRandomAccessList: void <init>(java.util.List,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$EmptyList: void <init>(java.util.Collections$1)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableSortedSet: void <init>(java.util.SortedSet)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedSortedSet: void <init>(java.util.SortedSet,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableList: void <init>(java.util.List)>', index: 0}
+  - {signature: '<java.util.Collections$UnmodifiableSet: void <init>(java.util.Set)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedRandomAccessList: void <init>(java.util.List,java.lang.Class)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedCollection: boolean addAll(java.util.Collection)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedList: boolean addAll(int,java.util.Collection)>', index: 1}
+  - {signature: '<java.util.Collections$CheckedList: boolean addAll(int,java.util.Collection)>', index: 1}
+
+MapKeySetToCol:
+  - {signature: '<java.util.Collections$SetFromMap: void <init>(java.util.Map)>', index: 0}
+  - # Although ConcurrentSkipListSet is collection, its iterator return ConcurrentNavigableMap.keyIter(), hence for ptsH, consider it as a map.
+  - {signature: '<java.util.concurrent.ConcurrentSkipListSet: void <init>(java.util.concurrent.ConcurrentNavigableMap)>', index: 0}

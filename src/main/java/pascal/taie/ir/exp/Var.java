@@ -22,6 +22,8 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.analysis.pta.plugin.cutshortcut.field.AbstractLoadField;
+import pascal.taie.analysis.pta.plugin.cutshortcut.field.AbstractStoreField;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -253,6 +255,8 @@ public class Var implements LValue, RValue, Indexable {
      * load array: x = v[i];
      * store array: v[i] = x;
      * invocation: v.f();
+     * abstract load field: x = absv.f; (for Cut-Shortcut analysis)
+     * abstract store field: absv.f = x; (for Cut-Shortcut analysis)
      * We use a separate class to store these relevant statements
      * (instead of directly storing them in {@link Var}) for saving space.
      * Most variables do not have any relevant statements, so these variables

@@ -26,6 +26,8 @@ import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
+import pascal.taie.analysis.pta.plugin.cutshortcut.container.enums.HostKind;
+import pascal.taie.analysis.pta.plugin.cutshortcut.field.*;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.util.collection.Maps;
 
@@ -38,7 +40,6 @@ import java.util.Queue;
  * Represents work list in pointer analysis.
  */
 final class WorkList {
-
     /**
      * Pointer entries to be processed.
      */
@@ -48,6 +49,13 @@ final class WorkList {
      * Call edges to be processed.
      */
     private final Queue<Edge<CSCallSite, CSMethod>> callEdges = new ArrayDeque<>();
+
+    // Additional work lists for cut-shortcut analysis
+    private final Queue<HostEntry> hostEntries = new ArrayDeque<>();
+
+    private final Queue<SetStmtEntry> setStmtEntries = new ArrayDeque<>();
+
+    private final Queue<GetStmtEntry>  getStmtEntries = new ArrayDeque<>();
 
     void addEntry(Pointer pointer, PointsToSet pointsToSet) {
         PointsToSet set = pointerEntries.get(pointer);
@@ -66,19 +74,27 @@ final class WorkList {
         if (!callEdges.isEmpty()) {
             // for correctness, we need to ensure that any call edges in
             // the work list must be processed prior to the pointer entries
-            return new CallEdgeEntry(callEdges.poll());
-        } else if (!pointerEntries.isEmpty()) {
+            return new WorkList.CallEdgeEntry(callEdges.poll());
+        }
+        else if (!pointerEntries.isEmpty()) {
             var it = pointerEntries.entrySet().iterator();
             var e = it.next();
             it.remove();
-            return new PointerEntry(e.getKey(), e.getValue());
-        } else {
-            throw new NoSuchElementException();
+            return new WorkList.PointerEntry(e.getKey(), e.getValue());
         }
+        else if (!setStmtEntries.isEmpty())
+            return setStmtEntries.poll();
+        else if (!getStmtEntries.isEmpty())
+            return getStmtEntries.poll();
+        else if (!hostEntries.isEmpty())
+            return hostEntries.poll();
+        else
+            throw new NoSuchElementException();
     }
 
     boolean isEmpty() {
-        return pointerEntries.isEmpty() && callEdges.isEmpty();
+        return pointerEntries.isEmpty() && hostEntries.isEmpty() && callEdges.isEmpty()
+                && setStmtEntries.isEmpty() && getStmtEntries.isEmpty();
     }
 
     interface Entry {
@@ -90,5 +106,29 @@ final class WorkList {
 
     record CallEdgeEntry(Edge<CSCallSite, CSMethod> edge)
             implements Entry {
+    }
+
+    record HostEntry(Pointer pointer, HostKind kind, PointsToSet hostSet)
+            implements WorkList.Entry {
+    }
+
+    record SetStmtEntry(CSMethod csMethod, SetStatement setStmt)
+            implements WorkList.Entry {
+    }
+
+    record GetStmtEntry(CSMethod csMethod, GetStatement getStmt)
+            implements WorkList.Entry {
+    }
+
+    void addHostEntry(Pointer pointer, HostKind kind, PointsToSet hostSet) {
+        hostEntries.add(new HostEntry(pointer, kind, hostSet));
+    }
+
+    void addSetStmtEntry(CSMethod csMethod, SetStatement setStmt) {
+        setStmtEntries.add(new SetStmtEntry(csMethod, setStmt));
+    }
+
+    void addGetStmtEntry(CSMethod csMethod, GetStatement getStmt) {
+        getStmtEntries.add(new GetStmtEntry(csMethod, getStmt));
     }
 }

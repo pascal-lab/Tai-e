@@ -163,6 +163,14 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
+    @Option(names = {"-lj", "--lib-jre"},
+            description = "JRE library path, (default: ${DEFAULT-VALUE})",
+            defaultValue = "java-benchmarks/JREs")
+    private String libJREPath;
+
+    public String getLibJREPath() { return libJREPath; }
+
+    @JsonProperty
     @Option(names = {"-ap", "--allow-phantom"},
             description = "Allow Tai-e to process phantom references, i.e.," +
                     " the referenced classes that are not found in the class paths" +

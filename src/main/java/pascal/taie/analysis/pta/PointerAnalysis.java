@@ -30,6 +30,7 @@ import pascal.taie.analysis.pta.core.cs.selector.ContextSelector;
 import pascal.taie.analysis.pta.core.cs.selector.ContextSelectorFactory;
 import pascal.taie.analysis.pta.core.heap.AllocationSiteBasedModel;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
+import pascal.taie.analysis.pta.core.solver.CutShortcutSolver;
 import pascal.taie.analysis.pta.core.solver.DefaultSolver;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.AnalysisTimer;
@@ -40,6 +41,10 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
+import pascal.taie.analysis.pta.plugin.cutshortcut.container.ContainerAccessHandler;
+import pascal.taie.analysis.pta.plugin.cutshortcut.container.MakeDefaultContainerConfig;
+import pascal.taie.analysis.pta.plugin.cutshortcut.field.FieldAccessHandler;
+import pascal.taie.analysis.pta.plugin.cutshortcut.localflow.LocalFlowHandler;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.Java9StringConcatHandler;
@@ -75,52 +80,59 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         HeapModel heapModel = new AllocationSiteBasedModel(options);
         ContextSelector selector = null;
         String advanced = options.getString("advanced");
+        String solverType = options.has("solver") ? options.getString("solver"): "default"; // which solver to use
         String cs = options.getString("cs");
         if (advanced != null) {
-            if (advanced.equals("collection")) {
+            if (advanced.equals("collection"))
                 selector = ContextSelectorFactory.makeSelectiveSelector(cs,
                         new CollectionMethods(World.get().getClassHierarchy()).get());
-            } else {
+            else {
                 // run context-insensitive analysis as pre-analysis
-                PointerAnalysisResult preResult = runAnalysis(heapModel,
-                        ContextSelectorFactory.makeCISelector());
-                if (advanced.startsWith("scaler")) {
+                PointerAnalysisResult preResult = runAnalysis(heapModel, ContextSelectorFactory.makeCISelector(), solverType);
+                if (advanced.startsWith("scaler"))
                     selector = Monitor.runAndCount(() -> ContextSelectorFactory
                                     .makeGuidedSelector(Scaler.run(preResult, advanced)),
                             "Scaler", Level.INFO);
-                } else if (advanced.startsWith("zipper")) {
+                else if (advanced.startsWith("zipper"))
                     selector = Monitor.runAndCount(() -> ContextSelectorFactory
                                     .makeSelectiveSelector(cs, Zipper.run(preResult, advanced)),
                             "Zipper", Level.INFO);
-                } else if (advanced.equals("mahjong")) {
+                else if (advanced.equals("mahjong"))
                     heapModel = Monitor.runAndCount(() -> Mahjong.run(preResult, options),
                             "Mahjong", Level.INFO);
-                } else {
+                else
                     throw new IllegalArgumentException(
                             "Illegal advanced analysis argument: " + advanced);
-                }
+
             }
         }
         if (selector == null) {
             selector = ContextSelectorFactory.makePlainSelector(cs);
         }
-        return runAnalysis(heapModel, selector);
+        return runAnalysis(heapModel, selector, solverType);
     }
 
     private PointerAnalysisResult runAnalysis(HeapModel heapModel,
-                                              ContextSelector selector) {
+                                              ContextSelector selector,
+                                              String solverType) {
         AnalysisOptions options = getOptions();
-        Solver solver = new DefaultSolver(options,
-                heapModel, selector, new MapBasedCSManager());
+        Solver solver;
+        if (solverType.equals("default"))
+            solver = new DefaultSolver(options, heapModel, selector, new MapBasedCSManager());
+        // cut-shortcut
+        else if (solverType.equals("csc"))
+            solver = new CutShortcutSolver(options, heapModel, selector, new MapBasedCSManager());
+        else
+            throw new IllegalArgumentException("Illegal solver type: " + solverType);
         // The initialization of some Plugins may read the fields in solver,
         // e.g., contextSelector or csManager, thus we initialize Plugins
-        // after setting all other fields of solver.
-        setPlugin(solver, options);
+        // after setting all other fields of solver.setPlugin(solver, options);
+        setPlugin(solver, options, solverType);
         solver.solve();
         return solver.getResult();
     }
 
-    private static void setPlugin(Solver solver, AnalysisOptions options) {
+    private static void setPlugin(Solver solver, AnalysisOptions options, String solverType) {
         CompositePlugin plugin = new CompositePlugin();
         // add builtin plugins
         // To record elapsed time precisely, AnalysisTimer should be added at first.
@@ -132,6 +144,15 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 new NativeModeller(),
                 new ExceptionAnalysis()
         );
+        if (solverType.equals("csc")) {
+            MakeDefaultContainerConfig.make();
+            plugin.addPlugin(
+                    new LocalFlowHandler(),
+                    new FieldAccessHandler(),
+                    new ContainerAccessHandler()
+            );
+        }
+
         int javaVersion = World.get().getOptions().getJavaVersion();
         if (javaVersion < 9) {
             // current reference handler doesn't support Java 9+

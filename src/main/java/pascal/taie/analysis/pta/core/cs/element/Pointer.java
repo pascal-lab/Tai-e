@@ -97,6 +97,8 @@ public interface Pointer extends Indexable {
      */
     PointerFlowEdge addEdge(PointerFlowEdge edge);
 
+    void addInEdge(PointerFlowEdge edge);
+
     /**
      * Removes out edges of this pointer if they satisfy the filter.
      * <p>
@@ -111,6 +113,11 @@ public interface Pointer extends Indexable {
      * @return out edges of this pointer in pointer flow graph.
      */
     Set<PointerFlowEdge> getOutEdges();
+
+    /**
+     * @return out edges of this pointer in pointer flow graph.
+     */
+    Set<PointerFlowEdge> getInEdges();
 
     /**
      * @return out degree of this pointer in pointer flow graph.

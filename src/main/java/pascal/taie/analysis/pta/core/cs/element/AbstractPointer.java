@@ -45,6 +45,8 @@ abstract class AbstractPointer implements Pointer {
 
     private final ArrayList<PointerFlowEdge> outEdges = new ArrayList<>(4);
 
+    private final ArrayList<PointerFlowEdge> inEdges = new ArrayList<>(4);
+
     private Set<Predicate<CSObj>> filters = Set.of();
 
     protected AbstractPointer(int index) {
@@ -95,6 +97,7 @@ abstract class AbstractPointer implements Pointer {
         assert edge.source() == this;
         if (successors.add(edge.target())) {
             outEdges.add(edge);
+            edge.target().addInEdge(edge);
             return edge;
         } else if (edge.kind() == FlowKind.OTHER) {
             for (PointerFlowEdge outEdge : outEdges) {
@@ -103,9 +106,15 @@ abstract class AbstractPointer implements Pointer {
                 }
             }
             outEdges.add(edge);
+            edge.target().addInEdge(edge);
             return edge;
         }
         return null;
+    }
+
+    public void addInEdge(PointerFlowEdge edge) {
+        assert edge.target() == this;
+        inEdges.add(edge);
     }
 
     @Override
@@ -116,6 +125,11 @@ abstract class AbstractPointer implements Pointer {
     @Override
     public Set<PointerFlowEdge> getOutEdges() {
         return Collections.unmodifiableSet(new ArraySet<>(outEdges, true));
+    }
+
+    @Override
+    public Set<PointerFlowEdge> getInEdges() {
+        return Collections.unmodifiableSet(new ArraySet<>(inEdges, true));
     }
 
     @Override

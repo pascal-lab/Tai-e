@@ -1,0 +1,159 @@
+MapValue:
+  # HashMap, LinkedHashMap, TreeMap, Hashtable, WeakHashMap, IdentityHashMap, EnumMap
+  # ConcurrentHashMap, ConcurrentSkipListMap, Properties
+  - {signature: '<java.util.AbstractMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.TreeMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.IdentityHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.WeakHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Hashtable: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.EnumMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.EnumMap: java.lang.Object put(java.lang.Enum,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Properties: java.lang.Object setProperty(java.lang.String,java.lang.String)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: java.lang.Object replace(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: boolean replace(java.lang.Object,java.lang.Object,java.lang.Object)>', index: 2}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object replace(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: boolean replace(java.lang.Object,java.lang.Object,java.lang.Object)>', index: 2}
+
+  - {signature: '<java.util.Collections$SynchronizedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$CheckedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$SingletonMap: void <init>(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.TreeMap$NavigableSubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 1}
+
+MapKey:
+  # HashMap, LinkedHashMap, TreeMap, Hashtable, WeakHashMap, IdentityHashMap, EnumMap
+  # ConcurrentHashMap, ConcurrentSkipListMap, Properties
+  - {signature: '<java.util.AbstractMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.TreeMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.IdentityHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.WeakHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Hashtable: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.EnumMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.EnumMap: java.lang.Object put(java.lang.Enum,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentHashMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 0}
+
+  - {signature: '<java.util.Collections$SynchronizedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$SingletonMap: void <init>(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>', index: 0}
+  - {signature: '<java.util.TreeMap$NavigableSubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>', index: 0}
+
+ColValue:
+  # ArrayList, LinkedList, Vector, ArrayDeque, Stack, AbstractQueue, PriorityQueue, TreeSet
+  # SynchronousQueue, ConcurrentLinkedQueue, DelayQueue, ArrayBlockingQueue, LinkedBlockingQueue, PriorityBlockingQueue
+  # ConcurrentSkipListSet, CopyOnWriteArrayList
+  - {signature: '<java.util.ArrayList: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.ArrayList: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.LinkedList: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.LinkedList: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.LinkedList: void push(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: void addFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: void addLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: boolean offerLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.LinkedList: boolean offerFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.SubList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.SubList: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Vector: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Vector: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Vector: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Vector: void addElement(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Vector: void insertElementAt(java.lang.Object,int)>', index: 0}
+  - {signature: '<java.util.Vector: void setElementAt(java.lang.Object,int)>', index: 0}
+  - {signature: '<java.util.Stack: java.lang.Object push(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.HashSet: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.TreeSet: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.PriorityQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: void addFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: void addLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: boolean offerFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: boolean offerLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.ArrayDeque: void push(java.lang.Object)>', index: 0}
+
+  - {signature: '<java.util.concurrent.ConcurrentLinkedQueue: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentLinkedQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.ArrayBlockingQueue: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingQueue: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingQueue: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.PriorityBlockingQueue: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean add(java.util.concurrent.Delayed)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean offer(java.util.concurrent.Delayed)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: void put(java.util.concurrent.Delayed)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.DelayQueue: boolean offer(java.util.concurrent.Delayed,long,java.util.concurrent.TimeUnit)>', index: 0}
+
+  - {signature: '<java.util.concurrent.SynchronousQueue: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.SynchronousQueue: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.SynchronousQueue: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offer(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void addFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void addLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void push(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offer(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offerFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offerFirst(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offerLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: boolean offerLast(java.lang.Object,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void put(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void putFirst(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.LinkedBlockingDeque: void putLast(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.ConcurrentSkipListSet: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList: boolean addIfAbsent(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.concurrent.CopyOnWriteArraySet: boolean add(java.lang.Object)>', index: 0}
+
+  # those collection variables returned by Collection.xx(..), Arrays.asList(..). UnmodifiedCollection,List do not support entrance
+  - {signature: '<java.util.Collections$CopiesList: void <init>(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$SingletonList: void <init>(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$SingletonSet: void <init>(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedCollection: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$SynchronizedCollection: boolean add(java.lang.Object)>', index: 0}
+  - {signature: '<java.util.Collections$CheckedList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$CheckedList: void add(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$SynchronizedList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.Collections$SynchronizedList: void add(int,java.lang.Object)>', index: 1}
+
+  # Arrays.asList() 返回的内部类 (固定大小列表，set可用，add会抛异常但需建模)
+  - {signature: '<java.util.Arrays$ArrayList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  # ArrayList.subList()返回的内部类
+  - {signature: '<java.util.ArrayList$SubList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.ArrayList$SubList: void add(int,java.lang.Object)>', index: 1}
+  # CopyOnWriteArrayList.subList()返回的内部类
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: java.lang.Object set(int,java.lang.Object)>', index: 1}
+  - {signature: '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: void add(int,java.lang.Object)>', index: 1}
+  # ScheduledThreadPoolExecutor内部类
+  - {signature: '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: boolean add(java.lang.Runnable)>', index: 0}
+  - {signature: '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: boolean offer(java.lang.Runnable)>', index: 0}
+  - {signature: '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: void put(java.lang.Runnable)>', index: 0}
+  - {signature: '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: boolean offer(java.lang.Runnable,long,java.util.concurrent.TimeUnit)>', index: 0}
+  - {signature: '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: void put(java.lang.Object)>', index: 0}
+

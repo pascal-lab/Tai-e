@@ -1,0 +1,342 @@
+ColValue:
+  # ArrayList, LinkedList, Vector, ArrayDeque, Stack, SubList, PriorityQueue, TreeSet
+  # SynchronousQueue, ConcurrentLinkedQueue, DelayQueue, ArrayBlockingQueue, LinkedBlockingQueue, PriorityBlockingQueue
+  # ConcurrentSkipListSet, CopyOnWriteArrayList
+  - '<java.util.AbstractList: java.lang.Object remove(int)>'
+  - '<java.util.ArrayList: java.lang.Object get(int)>'
+  - '<java.util.ArrayList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.ArrayList: java.lang.Object remove(int)>'
+  - '<java.util.LinkedList: java.lang.Object pop()>'
+  - '<java.util.LinkedList: java.lang.Object peekFirst()>'
+  - '<java.util.LinkedList: java.lang.Object peekLast()>'
+  - '<java.util.LinkedList: java.lang.Object pollFirst()>'
+  - '<java.util.LinkedList: java.lang.Object pollLast()>'
+  - '<java.util.LinkedList: java.lang.Object element()>'
+  - '<java.util.LinkedList: java.lang.Object remove()>'
+  - '<java.util.LinkedList: java.lang.Object poll()>'
+  - '<java.util.LinkedList: java.lang.Object peek()>'
+  - '<java.util.LinkedList: java.lang.Object getFirst()>'
+  - '<java.util.LinkedList: java.lang.Object getLast()>'
+  - '<java.util.LinkedList: java.lang.Object removeFirst()>'
+  - '<java.util.LinkedList: java.lang.Object removeLast()>'
+  - '<java.util.LinkedList: java.lang.Object get(int)>'
+  - '<java.util.LinkedList: java.lang.Object remove(int)>'
+  - '<java.util.SubList: java.lang.Object remove(int)>'
+  - '<java.util.SubList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.SubList: java.lang.Object get(int)>'
+  - '<java.util.Vector: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.Vector: java.lang.Object get(int)>'
+  - '<java.util.Vector: java.lang.Object elementAt(int)>'
+  - '<java.util.Vector: java.lang.Object firstElement()>'
+  - '<java.util.Vector: java.lang.Object lastElement()>'
+  - '<java.util.Vector: java.lang.Object remove(int)>'
+  - '<java.util.ArrayDeque: java.lang.Object removeFirst()>'
+  - '<java.util.ArrayDeque: java.lang.Object removeLast()>'
+  - '<java.util.ArrayDeque: java.lang.Object pollFirst()>'
+  - '<java.util.ArrayDeque: java.lang.Object pollLast()>'
+  - '<java.util.ArrayDeque: java.lang.Object getFirst()>'
+  - '<java.util.ArrayDeque: java.lang.Object getLast()>'
+  - '<java.util.ArrayDeque: java.lang.Object peekFirst()>'
+  - '<java.util.ArrayDeque: java.lang.Object peekLast()>'
+  - '<java.util.ArrayDeque: java.lang.Object remove()>'
+  - '<java.util.ArrayDeque: java.lang.Object poll()>'
+  - '<java.util.ArrayDeque: java.lang.Object element()>'
+  - '<java.util.ArrayDeque: java.lang.Object peek()>'
+  - '<java.util.ArrayDeque: java.lang.Object pop()>'
+  - '<java.util.ArrayDeque: java.lang.Object remove()>'
+  - '<java.util.Stack: java.lang.Object pop()>'
+  - '<java.util.Stack: java.lang.Object peek()>'
+  - '<java.util.Stack: java.lang.Object push(java.lang.Object)>'
+  - '<java.util.PriorityQueue: java.lang.Object peek()>'
+  - '<java.util.PriorityQueue: java.lang.Object poll()>'
+  - '<java.util.TreeSet: java.lang.Object lower(java.lang.Object)>'
+  - '<java.util.TreeSet: java.lang.Object floor(java.lang.Object)>'
+  - '<java.util.TreeSet: java.lang.Object ceiling(java.lang.Object)>'
+  - '<java.util.TreeSet: java.lang.Object higher(java.lang.Object)>'
+  - '<java.util.TreeSet: java.lang.Object pollFirst()>'
+  - '<java.util.TreeSet: java.lang.Object pollLast()>'
+  - '<java.util.TreeSet: java.lang.Object first()>'
+  - '<java.util.TreeSet: java.lang.Object last()>'
+  - '<java.util.concurrent.SynchronousQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.SynchronousQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.SynchronousQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.SynchronousQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.ConcurrentLinkedQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.ConcurrentLinkedQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.DelayQueue: java.util.concurrent.Delayed poll()>'
+  - '<java.util.concurrent.DelayQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.DelayQueue: java.util.concurrent.Delayed take()>'
+  - '<java.util.concurrent.DelayQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.DelayQueue: java.util.concurrent.Delayed poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.DelayQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.DelayQueue: java.util.concurrent.Delayed peek()>'
+  - '<java.util.concurrent.DelayQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.ArrayBlockingQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.ArrayBlockingQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.ArrayBlockingQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.ArrayBlockingQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.PriorityBlockingQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.PriorityBlockingQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.PriorityBlockingQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.PriorityBlockingQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.LinkedBlockingQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.LinkedBlockingQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.LinkedBlockingQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.LinkedBlockingQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object removeFirst()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object removeLast()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object pollFirst()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object pollLast()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object takeFirst()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object takeLast()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object pollFirst(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object pollLast(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object getFirst()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object getLast()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object peekFirst()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object peekLast()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object remove()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object poll()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object take()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object element()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object peek()>'
+  - '<java.util.concurrent.LinkedBlockingDeque: java.lang.Object pop()>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object lower(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object floor(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object ceiling(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object higher(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object pollFirst()>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object pollLast()>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object first()>'
+  - '<java.util.concurrent.ConcurrentSkipListSet: java.lang.Object last()>'
+  - '<java.util.concurrent.CopyOnWriteArrayList: java.lang.Object get(int)>'
+  - '<java.util.concurrent.CopyOnWriteArrayList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.concurrent.CopyOnWriteArrayList: java.lang.Object remove(int)>'
+  - '<java.util.Arrays$ArrayList: java.lang.Object get(int)>'
+  - '<java.util.Arrays$ArrayList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.ArrayList$SubList: java.lang.Object get(int)>'
+  - '<java.util.ArrayList$SubList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.Collections$CopiesList: java.lang.Object get(int)>'
+  - '<java.util.Collections$SingletonList: java.lang.Object get(int)>'
+  - '<java.util.Collections$CheckedList: java.lang.Object get(int)>'
+  - '<java.util.Collections$SynchronizedList: java.lang.Object get(int)>'
+  - '<java.util.Collections$EmptyList: java.lang.Object get(int)>'
+  - '<java.util.Collections$UnmodifiableList: java.lang.Object get(int)>'
+  - '<java.util.Collections$UnmodifiableList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.Collections$SynchronizedList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.Collections$CheckedList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.Collections$AsLIFOQueue: java.lang.Object poll()>'
+  - '<java.util.Collections$AsLIFOQueue: java.lang.Object remove()>'
+  - '<java.util.Collections$AsLIFOQueue: java.lang.Object peek()>'
+  - '<java.util.Collections$AsLIFOQueue: java.lang.Object element()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable poll()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable peek()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable take()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable remove()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Runnable element()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object poll(long,java.util.concurrent.TimeUnit)>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object take()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object peek()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object element()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object poll()>'
+  - '<java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue: java.lang.Object remove()>'
+  - '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: java.lang.Object set(int,java.lang.Object)>'
+  - '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: java.lang.Object get(int)>'
+  - '<java.util.concurrent.CopyOnWriteArrayList$COWSubList: java.lang.Object remove(int)>'
+
+MapValue:
+  # HashMap, LinkedHashMap, TreeMap, Hashtable, WeakHashMap, IdentityHashMap, EnumMap
+  # ConcurrentHashMap, ConcurrentSkipListMap, Properties
+  - '<java.util.AbstractMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.AbstractMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.HashMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.HashMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.LinkedHashMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.WeakHashMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.WeakHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.WeakHashMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.IdentityHashMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.IdentityHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.IdentityHashMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.Hashtable: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.Hashtable: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.Hashtable: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.EnumMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.EnumMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.EnumMap: java.lang.Object put(java.lang.Enum,java.lang.Object)>'
+  - '<java.util.EnumMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.Properties: java.lang.String getProperty(java.lang.String)>'
+  - '<java.util.Properties: java.lang.String getProperty(java.lang.String,java.lang.String)>'
+  - '<java.util.Properties: java.lang.Object setProperty(java.lang.String,java.lang.String)>'
+  - '<java.util.concurrent.ConcurrentHashMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentHashMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentHashMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentHashMap: java.lang.Object replace(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object replace(java.lang.Object,java.lang.Object)>'
+  - '<java.util.Collections$SynchronizedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.Collections$SynchronizedMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.Collections$CheckedMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.Collections$CheckedMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object remove(java.lang.Object)>'
+  # ===== 漏掉的 ConcurrentSkipListMap 子视图操作 =====
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object get(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object put(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object remove(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object replace(java.lang.Object,java.lang.Object)>'
+
+
+MapKey:
+  # TreeMap, ConcurrentSkipListMap
+  - '<java.util.TreeMap: java.lang.Object firstKey()>'
+  - '<java.util.TreeMap: java.lang.Object lastKey()>'
+  - '<java.util.TreeMap: java.lang.Object lowerKey(java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object floorKey(java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object ceilingKey(java.lang.Object)>'
+  - '<java.util.TreeMap: java.lang.Object higherKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object firstKey()>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object lastKey()>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object lowerKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object floorKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object ceilingKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap: java.lang.Object higherKey(java.lang.Object)>'
+  # inner class
+  - '<java.util.Collections$UnmodifiableSortedMap: java.lang.Object firstKey()>'
+  - '<java.util.Collections$UnmodifiableSortedMap: java.lang.Object lastKey()>'
+  - '<java.util.Collections$SynchronizedSortedMap: java.lang.Object firstKey()>'
+  - '<java.util.Collections$SynchronizedSortedMap: java.lang.Object lastKey()>'
+  - '<java.util.Collections$CheckedSortedMap: java.lang.Object firstKey()>'
+  - '<java.util.Collections$CheckedSortedMap: java.lang.Object lastKey()>'
+  - '<java.util.Collections$CheckedNavigableMap: java.lang.Object firstKey()>'
+  - '<java.util.Collections$CheckedNavigableMap: java.lang.Object lastKey()>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object ceilingKey(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object higherKey(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object floorKey(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object lowerKey(java.lang.Object)>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object firstKey()>'
+  - '<java.util.TreeMap$NavigableSubMap: java.lang.Object lastKey()>'
+  - '<java.util.TreeMap$SubMap: java.lang.Object firstKey()>'
+  - '<java.util.TreeMap$SubMap: java.lang.Object lastKey()>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object ceilingKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object lowerKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object higherKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object floorKey(java.lang.Object)>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object firstKey()>'
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap: java.lang.Object lastKey()>'
+
+
+# ArrayList, LinkedList, Vector, ArrayDeque, Stack, SubList, PriorityQueue, TreeSet
+# SynchronousQueue, ConcurrentLinkedQueue, DelayQueue, ArrayBlockingQueue, LinkedBlockingQueue, PriorityBlockingQueue
+# ConcurrentSkipListSet, CopyOnWriteArrayList
+# 注意不要包括Map.entrySet.Iterator.next方法，这一类为Transfer而不是Exit，
+# Set的iterator返回的可能是Map.keyIterator()，因此如果r = v.next()调用Map.keyIterator()，如果v是collection，那么r是Col-Value；如果是Map.keySet，那么是
+ColIter:
+  - '<java.util.AbstractList$Itr: java.lang.Object next()>' # AbstractList.iterator()
+  - '<java.util.AbstractList$ListItr: java.lang.Object previous()>' # AbstractList.listIterator()
+  - '<java.util.ArrayList$Itr: java.lang.Object next()>' # ArrayList.iterator()
+  - '<java.util.ArrayList$ListItr: java.lang.Object previous()>' # ArrayList.listIterator()
+  - '<java.util.ArrayList$SubList$1: java.lang.Object next()>' # ArrayList.SubList.listIterator(), anymous class
+  - '<java.util.ArrayList$SubList$1: java.lang.Object previous()>'
+  - '<java.util.LinkedList$ListItr: java.lang.Object next()>' # LinkedList.iterator()/listIterator()
+  - '<java.util.LinkedList$ListItr: java.lang.Object previous()>'
+  - '<java.util.LinkedList$DescendingIterator: java.lang.Object next()>' # LinkedList.descendingIterator()
+  - '<java.util.SubList$1: java.lang.Object next()>' # SubList.listIterator(), anymous class
+  - '<java.util.SubList$1: java.lang.Object previous()>'
+  - '<java.util.Vector$Itr: java.lang.Object next()>' # Vector.iterator()
+  - '<java.util.Vector$ListItr: java.lang.Object previous()>' # Vector.listIterator()
+  - '<java.util.Vector$1: java.lang.Object nextElement()>' # Vector.elements()
+  - '<java.util.PriorityQueue$Itr: java.lang.Object next()>' # PriorityDeque.iterator()
+  - '<java.util.ArrayDeque$DeqIterator: java.lang.Object next()>' # ArrayDeque.iterator()
+  - '<java.util.ArrayDeque$DescendingIterator: java.lang.Object next()>' # ArrayDeque.descendingIterator()
+  - '<java.util.AbstractMap$1$1: java.lang.Object next()>' # AbstractMap.keySet().iterator()
+  - '<java.util.AbstractMap$2$1: java.lang.Object next()>' # AbstractMap.values().iterator()
+  - '<java.util.HashMap$ValueIterator: java.lang.Object next()>' # HashMap.values().iterator()
+  - '<java.util.HashMap$KeyIterator: java.lang.Object next()>' # HashMap.keySet().iterator()/HashSet.iterator()
+  - '<java.util.HashMap$ValueIterator: java.lang.Object next()>' # HashMap.values().iterator()
+  - '<java.util.WeakHashMap$KeyIterator: java.lang.Object next()>' # WeakHashMap.keySet().iterator()
+  - '<java.util.WeakHashMap$ValueIterator: java.lang.Object next()>' # WeakHashMap.values().iterator()
+  - '<java.util.IdentityHashMap$KeyIterator: java.lang.Object next()>' # IdentityHashMap.keySet().iterator()
+  - '<java.util.IdentityHashMap$ValueIterator: java.lang.Object next()>' # IdentityHashMap.values().iterator()
+  - '<java.util.EnumMap$KeyIterator: java.lang.Object next()>' # EnumMap.keySet().iterator()
+  - '<java.util.EnumMap$ValueIterator: java.lang.Object next()>' # EnumMap.values().iterator()
+  - '<java.util.TreeMap$KeyIterator: java.lang.Object next()>' # TreeMap.keySet().iterator()/TreeSet.iterator()
+  - '<java.util.TreeMap$DescendingKeyIterator: java.lang.Object next()>' # TreeMap.keySet().descendingIterator()/TreeSet.descendingIterator()
+  - '<java.util.TreeMap$ValueIterator: java.lang.Object next()>' # TreeMap.values().iterator()
+  - '<java.util.TreeMap$NavigableSubMap$SubMapKeyIterator: java.lang.Object next()>' # TreeMap.keySet().iterator()/TreeSet.iterator()
+  - '<java.util.TreeMap$NavigableSubMap$DescendingSubMapKeyIterator: java.lang.Object next()>' # TreeMap.keySet().descendingIterator()/TreeSet.descendingIterator()
+  # Hashtable.keys() => MAP_KEY_ITR, keySet() => MAP_KEY_SET, elements() => MAP_VALUE_ITR, values() => MAP_VALUES
+  - '<java.util.Hashtable$Enumerator: java.lang.Object next()>' # HashTable.keySet()/values().iterator()
+  - '<java.util.Hashtable$Enumerator: java.lang.Object nextElement()>'
+  # ConcurrentHashMap.keys() => MAP_KEY_ITR, keySet() => MAP_KEY_SET, elements() => MAP_VALUE_ITR, values() => MAP_VALUES
+  - '<java.util.concurrent.ConcurrentHashMap$KeyIterator: java.lang.Object next()>' # ConcurrentHashMap.keySet().iterator()
+  - '<java.util.concurrent.ConcurrentHashMap$KeyIterator: java.lang.Object nextElement()>'
+  - '<java.util.concurrent.ConcurrentHashMap$ValueIterator: java.lang.Object next()>' # ConcurrentHashMap.values().iterator()
+  - '<java.util.concurrent.ConcurrentHashMap$ValueIterator: java.lang.Object nextElement()>'
+  # ConcurrentSkipListMap
+  - '<java.util.concurrent.ConcurrentSkipListMap$KeyIterator: java.lang.Object next()>' # ConcurrentSkipListMap.keySet().iterator()
+  - '<java.util.concurrent.ConcurrentSkipListMap$ValueIterator: java.lang.Object next()>' # ConcurrentSkipListMap.values().iterator()
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapKeyIterator: java.lang.Object next()>' # ConcurrentSkipListMap.subMap().keySet().iterator()
+  - '<java.util.concurrent.ConcurrentSkipListMap$SubMap$SubMapValueIterator: java.lang.Object next()>' # ConcurrentSkipListMap.subMap().values().iterator()
+  - '<java.util.concurrent.ConcurrentLinkedQueue$Itr: java.lang.Object next()>'
+  - '<java.util.concurrent.ArrayBlockingQueue$Itr: java.lang.Object next()>'
+  - '<java.util.concurrent.LinkedBlockingQueue$Itr: java.lang.Object next()>'
+  - '<java.util.concurrent.LinkedBlockingDeque$AbstractItr: java.lang.Object next()>'
+  - '<java.util.concurrent.PriorityBlockingQueue$Itr: java.lang.Object next()>'
+  - '<java.util.concurrent.DelayQueue$Itr: java.lang.Object next()>'
+  - '<java.util.concurrent.CopyOnWriteArrayList$COWIterator: java.lang.Object next()>'
+  - '<java.util.concurrent.CopyOnWriteArrayList$COWIterator: java.lang.Object previous()>'
+  - '<java.util.Collections$UnmodifiableCollection$1: java.lang.Object next()>' # Collections.unmodifiableCollection().iterator()
+  - '<java.util.Collections$UnmodifiableList$1: java.lang.Object next()>' # Collections.unmodifiableList().iterator()
+  - '<java.util.Collections$CheckedCollection$1: java.lang.Object next()>' # Collections.checkedCollection().iterator()
+  - '<java.util.Collections$CheckedList$1: java.lang.Object next()>' # Collections.checkedList().listIterator()
+  - '<java.util.Collections$1: java.lang.Object next()>' # Collections.singletonSet()/singletonList().listIterator()
+  - '<java.util.HashMap$EntryIterator: java.util.Map$Entry next()>' # HashMap.entrySet().iterator()
+  - '<java.util.WeakHashMap$EntryIterator: java.util.Map$Entry next()>' # WeakHashMap.entrySet().iterator()
+  - '<java.util.IdentityHashMap$EntryIterator: java.util.Map$Entry next()>' # IdentityHashMap.entrySet().iterator()
+  - '<java.util.TreeMap$NavigableSubMap$SubMapEntryIterator: java.util.Map$Entry next()>' # TreeMap.subMap().entrySet().iterator()
+  - '<java.util.TreeMap$NavigableSubMap$DescendingSubMapEntryIterator: java.util.Map$Entry next()>' # TreeMap.descendingMap().entrySet().iterator()
+  - '<java.util.EnumMap$EntryIterator: java.util.Map$Entry next()>' # EnumMap.entrySet().iterator()
+  - '<java.util.TreeMap$EntryIterator: java.util.Map$Entry next()>' # TreeMap.entrySet().iterator()
+
+#MapGetKey:
+#  - '<java.util.AbstractMap$SimpleEntry: java.lang.Object getKey()>'
+#  - '<java.util.AbstractMap$SimpleImmutableEntry: java.lang.Object getKey()>'
+#  - '<java.util.HashMap$Node: java.lang.Object getKey()>'
+#  - '<java.util.TreeMap$Entry: java.lang.Object getKey()>'
+#  - '<java.util.Hashtable$Entry: java.lang.Object getKey()>'
+#  - '<java.util.WeakHashMap$Entry: java.lang.Object getKey()>'
+#  - '<java.util.IdentityHashMap$EntryIterator$Entry: java.lang.Object getKey()>'
+#  - '<java.util.EnumMap$EntryIterator$Entry: java.lang.Object getKey()>'
+#  - '<java.util.concurrent.ConcurrentHashMap$Node: java.lang.Object getKey()>'
+#  - '<java.util.concurrent.ConcurrentHashMap$MapEntry: java.lang.Object getKey()>'
+#  - '<java.util.concurrent.ConcurrentSkipListMap$Node: java.lang.Object getKey()>'
+#  - '<java.util.Collections$CheckedMap$CheckedEntrySet$CheckedEntry: java.lang.Object getKey()>'
+#  - '<java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$UnmodifiableEntry: java.lang.Object getKey()>'
+#
+#MapGetValue:
+#  - '<java.util.AbstractMap$SimpleEntry: java.lang.Object getValue()>'
+#  - '<java.util.AbstractMap$SimpleImmutableEntry: java.lang.Object getValue()>'
+#  - '<java.util.HashMap$Node: java.lang.Object getValue()>'
+#  - '<java.util.TreeMap$Entry: java.lang.Object getValue()>'
+#  - '<java.util.Hashtable$Entry: java.lang.Object getValue()>'
+#  - '<java.util.WeakHashMap$Entry: java.lang.Object getValue()>'
+#  - '<java.util.IdentityHashMap$EntryIterator$Entry: java.lang.Object getValue()>'
+#  - '<java.util.EnumMap$EntryIterator$Entry: java.lang.Object getValue()>'
+#  - '<java.util.concurrent.ConcurrentHashMap$Node: java.lang.Object getValue()>'
+#  - '<java.util.concurrent.ConcurrentHashMap$MapEntry: java.lang.Object getValue()>'
+#  - '<java.util.concurrent.ConcurrentSkipListMap$Node: java.lang.Object getValue()>'
+#  - '<java.util.Collections$CheckedMap$CheckedEntrySet$CheckedEntry: java.lang.Object getValue()>'
+#  - '<java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$UnmodifiableEntry: java.lang.Object getValue()>'

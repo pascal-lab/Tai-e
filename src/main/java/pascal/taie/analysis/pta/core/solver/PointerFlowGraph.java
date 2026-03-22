@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
@@ -32,6 +33,7 @@ import pascal.taie.util.graph.Graph;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 /**
  * Represents pointer flow graph in context-sensitive pointer analysis.
@@ -59,9 +61,7 @@ public class PointerFlowGraph implements Graph<Pointer> {
     }
 
     @Override
-    public Set<? extends Edge<Pointer>> getInEdgesOf(Pointer node) {
-        throw new UnsupportedOperationException();
-    }
+    public Set<PointerFlowEdge> getInEdgesOf(Pointer node) { return node.getInEdges(); }
 
     @Override
     public Set<PointerFlowEdge> getOutEdgesOf(Pointer pointer) {
@@ -74,7 +74,8 @@ public class PointerFlowGraph implements Graph<Pointer> {
 
     @Override
     public Set<Pointer> getPredsOf(Pointer node) {
-        throw new UnsupportedOperationException();
+        return Views.toMappedSet(node.getInEdges(),
+                PointerFlowEdge::target);
     }
 
     @Override

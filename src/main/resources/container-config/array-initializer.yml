@@ -1,0 +1,4 @@
+ArrayInit:
+  - {"signature": "<java.util.Arrays$ArrayList: void <init>(java.lang.Object[])>", "src": 0, "dst": -1}
+  - {"signature": "<java.util.Collections: boolean addAll(java.util.Collection,java.lang.Object[])>", "src": 1, "dst": 0}
+  - {"signature": "<java.util.concurrent.CopyOnWriteArrayList: void <init>(java.lang.Object[])>", "src": 0, "dst": -1}

@@ -3,6 +3,7 @@
   id: pta
   options:
     cs: ci # | k-[obj|type|call][-k'h]
+    solver: default # | csc, which solver to use. Currently default or cut-shortcut
     only-app: false # only analyze application code
     implicit-entries: true # analyze implicit entries
     distinguish-string-constants: reflection # (distinguish reflection-relevant
@@ -23,6 +24,7 @@
     dump: false # whether dump points-to results (with contexts)
     dump-ci: false # whether dump points-to results (without contexts)
     dump-yaml: false # whether dump points-to results in yaml format
+    only-dump-app: false # only dump results of application code
     expected-file: null # path of expected file for comparing results
     reflection-inference: string-constant # | solar | null
     reflection-log: null # path to reflection log, required when reflection option is log

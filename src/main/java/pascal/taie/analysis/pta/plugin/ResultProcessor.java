@@ -108,16 +108,17 @@ public class ResultProcessor implements Plugin {
 
         boolean taintEnabled = options.getString("taint-config") != null
                 || !((List<String>) options.get("taint-config-providers")).isEmpty();
+        boolean onlyDumpApp = options.getBoolean("only-dump-app");
         if (options.getBoolean("dump")) {
             dumpPointsToSet(result, taintEnabled);
         }
 
         if (options.getBoolean("dump-ci")) {
-            dumpCIPointsToSet(result);
+            dumpCIPointsToSet(result, onlyDumpApp);
         }
 
         if (options.getBoolean("dump-yaml")) {
-            dumpPointsToSetInYaml(result);
+            dumpPointsToSetInYaml(result, onlyDumpApp);
         }
 
         String expectedFile = options.getString("expected-file");
@@ -198,7 +199,7 @@ public class ResultProcessor implements Plugin {
         out.println();
     }
 
-    private static void dumpPointsToSetInYaml(PointerAnalysisResult result) {
+    private static void dumpPointsToSetInYaml(PointerAnalysisResult result, boolean onlyDumpApp) {
         File outFile = new File(World.get().getOptions().getOutputDir(), RESULTS_YAML_FILE);
         logger.info("Dumping points-to set (with contexts) in YAML to {}",
                 outFile.getAbsolutePath());
@@ -220,6 +221,7 @@ public class ResultProcessor implements Plugin {
         //            - "[]:NewObj{<A: A m()>[0@L1] new A}"
         final var variables = result.getCSVars()
                 .stream()
+                .filter(csVar -> !onlyDumpApp || csVar.getVar().getMethod().isApplication())
                 .collect(Collectors.groupingBy(csVar -> csVar.getVar().getMethod().getSignature(),
                         Maps::newOrderedMap,
                         Collectors.collectingAndThen(
@@ -250,6 +252,7 @@ public class ResultProcessor implements Plugin {
         //        - "[]:NewObj{<A: A m()>[0@L1] new String}"
         final var staticFields = result.getStaticFields()
                 .stream()
+                .filter(staticField -> !onlyDumpApp || staticField.getField().isApplication())
                 .collect(Collectors.groupingBy(sField -> sField.getField().getDeclaringClass().getName(),
                         Maps::newOrderedMap,
                         Collectors.mapping(sField -> Maps.ofLinkedHashMap(
@@ -268,6 +271,7 @@ public class ResultProcessor implements Plugin {
         //            - "[]:NewObj{<A: A m()>[0@L1] new String}"
         final var instanceFields = result.getInstanceFields()
                 .stream()
+                .filter(instanceField -> !onlyDumpApp || instanceField.getField().isApplication())
                 .collect(Collectors.groupingBy(iField -> iField.getBase().getObject(),
                                 () -> Maps.newOrderedMap(objComparator),
                                 Collectors.collectingAndThen(
@@ -297,6 +301,7 @@ public class ResultProcessor implements Plugin {
         //        - "ConstantObj{java.lang.String: \"hello\"}"
         final var arrayIndexes = result.getArrayIndexes()
                 .stream()
+                .filter(arrayIndex -> !onlyDumpApp || (arrayIndex.getArray().getObject().getContainerMethod().isPresent() && arrayIndex.getArray().getObject().getContainerMethod().get().isApplication()))
                 .collect(Collectors.groupingBy(ai -> ai.getArray().getObject(),
                              () -> Maps.newOrderedMap(objComparator),
                              Collectors.collectingAndThen(
@@ -334,7 +339,7 @@ public class ResultProcessor implements Plugin {
     /**
      * Dumps points-to sets for all variables (without contexts).
      */
-    private static void dumpCIPointsToSet(PointerAnalysisResult result) {
+    private static void dumpCIPointsToSet(PointerAnalysisResult result, boolean onlyDumpApp) {
         File outFile = new File(World.get().getOptions().getOutputDir(), CI_RESULTS_FILE);
         try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
             logger.info("Dumping points-to set (without contexts) to {}",
@@ -343,6 +348,7 @@ public class ResultProcessor implements Plugin {
                     v -> v.getMethod().toString() + '/' + v.getName();
             result.getVars()
                     .stream()
+                    .filter(v -> !onlyDumpApp || v.getMethod().isApplication())
                     .sorted(Comparator.comparing(toString))
                     .forEach(v -> {
                         Set<Obj> pts = result.getPointsToSet(v);

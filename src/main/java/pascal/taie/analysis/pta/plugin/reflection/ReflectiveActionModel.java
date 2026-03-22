@@ -36,6 +36,7 @@ import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.cutshortcut.ReflectiveEdgeProperty;
 import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
@@ -53,6 +54,7 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.analysis.pta.plugin.cutshortcut.ReflectiveEdgeProperty;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -61,6 +63,8 @@ import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
+import static pascal.taie.analysis.pta.plugin.cutshortcut.ReflectiveEdgeProperty.ReflectiveCallKind.METHOD_INVOKE;
+import static pascal.taie.analysis.pta.plugin.cutshortcut.ReflectiveEdgeProperty.ReflectiveCallKind.NEW_INSTANCE;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
@@ -112,6 +116,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         this.invokesWithLog = invokesWithLog;
     }
 
+    // reflection type: r = c.newInstance(args)
     @InvokeHandler(signature = "<java.lang.Class: java.lang.Object newInstance()>", argIndexes = {BASE})
     public void classNewInstance(Context context, Invoke invoke, PointsToSet classes) {
         classes.forEach(obj -> {
@@ -124,12 +129,13 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
                 if (init != null && !typeMatcher.isUnmatched(invoke, init)) {
                     ClassType type = clazz.getType();
                     CSObj csNewObj = newReflectiveObj(context, invoke, type);
-                    addReflectiveCallEdge(context, invoke, csNewObj, init, null);
+                    addReflectiveCallEdge(context, invoke, csNewObj, init, null, NEW_INSTANCE);
                 }
             }
         });
     }
 
+    // reflection type: r = c.newInstance(args)
     @InvokeHandler(signature = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>", argIndexes = {BASE})
     public void constructorNewInstance(Context context, Invoke invoke, PointsToSet constructors) {
         constructors.forEach(obj -> {
@@ -141,7 +147,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
                 ClassType type = constructor.getDeclaringClass().getType();
                 CSObj csNewObj = newReflectiveObj(context, invoke, type);
                 addReflectiveCallEdge(context, invoke, csNewObj,
-                        constructor, invoke.getInvokeExp().getArg(0));
+                        constructor, invoke.getInvokeExp().getArg(0), NEW_INSTANCE);
             }
         });
     }
@@ -158,6 +164,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         return csNewObj;
     }
 
+    // reflection type: r = m.invoke(obj, args)
     @InvokeHandler(signature = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>", argIndexes = {BASE, 0})
     public void methodInvoke(Context context, Invoke invoke,
                              PointsToSet mtdObjs, PointsToSet recvObjs) {
@@ -168,12 +175,11 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             }
             JMethod target = CSObjs.toMethod(mtdObj);
             if (target != null && !typeMatcher.isUnmatched(invoke, target)) {
-                if (target.isStatic()) {
-                    addReflectiveCallEdge(context, invoke, null, target, argsVar);
-                } else {
+                if (target.isStatic())
+                    addReflectiveCallEdge(context, invoke, null, target, argsVar, METHOD_INVOKE);
+                else
                     recvObjs.forEach(recvObj ->
-                            addReflectiveCallEdge(context, invoke, recvObj, target, argsVar));
-                }
+                            addReflectiveCallEdge(context, invoke, recvObj, target, argsVar, METHOD_INVOKE));
             }
         });
     }
@@ -272,7 +278,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
 
     private void addReflectiveCallEdge(
             Context callerCtx, Invoke callSite,
-            @Nullable CSObj recvObj, JMethod callee, Var args) {
+            @Nullable CSObj recvObj, JMethod callee, Var args, ReflectiveEdgeProperty.ReflectiveCallKind kind) {
         if (!callee.isConstructor() && !callee.isStatic()) {
             // dispatch for instance method (except constructor)
             assert recvObj != null : "recvObj is required for instance method";
@@ -284,15 +290,16 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         }
         CSCallSite csCallSite = csManager.getCSCallSite(callerCtx, callSite);
         Context calleeCtx;
-        if (callee.isStatic()) {
+        if (callee.isStatic())
             calleeCtx = selector.selectContext(csCallSite, callee);
-        } else {
+        else {
             calleeCtx = selector.selectContext(csCallSite, recvObj, callee);
             // pass receiver object to 'this' variable of callee
             solver.addVarPointsTo(calleeCtx, callee.getIR().getThis(), recvObj);
         }
         ReflectiveCallEdge callEdge = new ReflectiveCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), args);
+        ReflectiveEdgeProperty.setReflectiveKind(callEdge, kind);
         solver.addCallEdge(callEdge);
         allTargets.put(callSite, callee); // record target
     }

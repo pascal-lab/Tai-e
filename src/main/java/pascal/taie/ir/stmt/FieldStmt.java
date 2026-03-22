@@ -32,7 +32,7 @@ import pascal.taie.ir.proginfo.FieldRef;
  */
 public abstract class FieldStmt<L extends LValue, R extends RValue> extends AssignStmt<L, R> {
 
-    FieldStmt(L lvalue, R rvalue) {
+    protected FieldStmt(L lvalue, R rvalue) {
         super(lvalue, rvalue);
     }
 
