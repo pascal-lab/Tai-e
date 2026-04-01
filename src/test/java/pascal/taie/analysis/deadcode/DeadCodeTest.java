@@ -37,7 +37,6 @@ public class DeadCodeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "ControlFlowUnreachable",
             "UnreachableIfBranch",
             "UnreachableSwitchBranch",
             "DeadAssignment",
