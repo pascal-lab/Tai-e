@@ -53,6 +53,7 @@ public class MayAliasPairTest {
         String ptaTestRoot = "src/test/resources/pta";
         String classPath = ptaTestRoot + "/" + DIR;
         List<String> args = List.of(
+                "-java", "8",
                 // for loading class PTAAssert
                 "-cp", ptaTestRoot,
                 // for loading main class
