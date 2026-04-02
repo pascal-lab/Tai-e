@@ -1,7 +1,7 @@
 class StronglyBranchLoop {
 
-    int loopBranch(int m, int n, int k) {
-        int a, i;
+    int loopBranch(int m, int n, int k, int a) {
+        int i;
         for (i = m - 1; i < k; i++) {
             if (i >= n) {
                 a = n;
@@ -11,8 +11,8 @@ class StronglyBranchLoop {
         return a;
     }
 
-    void branchLoop(int c, boolean d) {
-        int x, y, z;
+    void branchLoop(int c, boolean d, int z) {
+        int x, y;
         x = 1;
         y = 2;
         if (c > 0) {
