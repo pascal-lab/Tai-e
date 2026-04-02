@@ -17,9 +17,9 @@ class A {
         l2.add(new Object());
 
         Iterator i1 = l1.iterator();
-        Object o1 = i1.next();
+        Object o1 = i1.next(); o1.hashCode();
         Iterator i2 = l2.iterator();
-        Object o2 = i2.next();
+        Object o2 = i2.next(); o2.hashCode();
     }
 }
 
@@ -29,7 +29,7 @@ class B {
         l3.add(new Object());
 
         Iterator i3 = l3.iterator();
-        Object o3 = i3.next();
+        Object o3 = i3.next(); o3.hashCode();
     }
 }
 
