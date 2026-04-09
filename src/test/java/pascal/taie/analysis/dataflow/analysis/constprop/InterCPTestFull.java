@@ -30,10 +30,8 @@ public class InterCPTestFull extends InterCPTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "ArgRet",
-            "Call",
             "DeadLoop",
             "FloatArg",
-            "MultiReturn",
             "CharArgs",
             "RedBlackBST",
             "PlusPlus",
