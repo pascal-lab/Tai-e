@@ -24,9 +24,11 @@ package pascal.taie.frontend.java.project;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.util.PathUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -128,7 +130,7 @@ class FileLoader {
      * </p>
      *
      * @param fileSys the file system
-     * @param path path of the file system
+     * @param path    path of the file system
      */
     private record RootFileSystem(FileSystem fileSys, Path path) {
 
@@ -143,11 +145,11 @@ class FileLoader {
     /**
      * main method for loading files
      *
-     * @param root            the root file system
-     * @param path            the file to load
-     * @param rootContainer   the root container of the file
-     * @param files      when {@code path} is a file, execute {@code files.apply(path)}.
-     * @param containers when {@code path} is a directory, execute {@code containers.apply(path)}.
+     * @param root          the root file system
+     * @param path          the file to load
+     * @param rootContainer the root container of the file
+     * @param files         when {@code path} is a file, execute {@code files.apply(path)}.
+     * @param containers    when {@code path} is a directory, execute {@code containers.apply(path)}.
      * @throws IOException if an I/O error occurs
      */
     private void loadFile(RootFileSystem root,
@@ -168,7 +170,7 @@ class FileLoader {
                 if (Files.isDirectory(libsPath)) {
                     try (Stream<Path> pathStream = Files.list(libsPath)) {
                         for (Path path1 : pathStream.toList()) {
-                            loadFile(root, path1, null, null, null);
+                            loadFile(root, path1, null, null, nestedContainers);
                         }
                     }
                 }

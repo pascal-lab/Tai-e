@@ -28,6 +28,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.Utils;
 import pascal.taie.ir.exp.Literal;
@@ -61,6 +62,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import javax.annotation.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -342,10 +344,10 @@ public class BytecodeClassBuilder implements JClassBuilder {
         @Nullable
         private List<String> paramNames;
 
-        private final Map<Integer, List<Annotation>> paramAnnotations = Maps.newSmallMap();
+        private final Map<Integer, List<Annotation>> paramAnnotations = Maps.newMap();
 
         private MethodInfoVisitor(int access, String name, String descriptor,
-                          String signature, String[] exceptions) {
+                                  String signature, String[] exceptions) {
             super(Opcodes.ASM9);
             this.modifiers = Modifiers.fromAsmMethod(access);
             this.methodName = name;
@@ -396,7 +398,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
         public void visitEnd() {
             List<AnnotationHolder> paramAnnos = null;
 //            if (!paramAnnotations.isEmpty()) {
-                // convert parameter annotation map to list
+            // convert parameter annotation map to list
 //                paramAnnos = new ArrayList<>();
 //                for (int i = 0; i < paramTypes.size(); ++i) {
 //                    List<Annotation> annos = paramAnnotations.get(i);
@@ -522,10 +524,13 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
     /**
      * Convert object to tai-e Annotation representation.
+     *
      * @param o object, should be boxed primitive type OR string OR array OR ASM type
      */
     private static Element toElement(Object o) {
-        if (o instanceof Boolean b) {
+        if (o instanceof Byte b) {
+            return new IntElement(b);
+        } else if (o instanceof Boolean b) {
             return new BooleanElement(b);
         } else if (o instanceof Character c) {
             return new IntElement(c);
