@@ -32,7 +32,7 @@ import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Stmt;
 
 
-import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
+import static pascal.taie.frontend.java.ir.AsmInsnUtils.isCFEdge;
 
 /**
  * Manages the mapping from bytecode instructions to their generated IR statements.
@@ -41,7 +41,7 @@ import static pascal.taie.frontend.java.ir.Utils.isCFEdge;
 final class StmtManager {
 
     /**
-     * A mapping from bytecode instruction index (use {@link IRBuilderContext#getInsnIndex} to obtain) to generated Tai-e IR stmt
+     * A mapping from bytecode instruction index (use {@link AsmInsnUtils#getInsnIndex} to obtain) to generated Tai-e IR stmt
      */
     private final Stmt[] insn2Stmt;
 
@@ -94,7 +94,7 @@ final class StmtManager {
         if (stmt.getLineNumber() == -1) {
             stmt.setLineNumber(currentLineNumber);
         }
-        int idx = context.getInsnIndex(insn);
+        int idx = AsmInsnUtils.getInsnIndex(context.source, insn);
         if (insn2Stmt[idx] == null) {
             insn2Stmt[idx] = stmt;
         } else {
@@ -106,7 +106,7 @@ final class StmtManager {
      * Associates a generated Stmt as an additional statement for a source bytecode instruction.
      */
     private void associateAdditionalStmt(AbstractInsnNode insn, Stmt stmt) {
-        int idx = context.getInsnIndex(insn);
+        int idx = AsmInsnUtils.getInsnIndex(context.source, insn);
         List<Stmt> additional = additionalStmts.get(idx);
         if (additional == null) {
             additional = new ArrayList<>();
@@ -191,7 +191,7 @@ final class StmtManager {
 
     private List<Stmt> clearStmt(AbstractInsnNode insn) {
         List<Stmt> res = new ArrayList<>();
-        int idx = context.getInsnIndex(insn);
+        int idx = AsmInsnUtils.getInsnIndex(context.source, insn);
         if (insn2Stmt[idx] != null) {
             res.add(insn2Stmt[idx]);
             insn2Stmt[idx] = null;

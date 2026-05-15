@@ -30,7 +30,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import pascal.taie.frontend.java.FrontendTypeSystem;
-import pascal.taie.frontend.java.ir.Utils;
+import pascal.taie.frontend.java.ir.AsmValueUtils;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationElement;
@@ -303,7 +303,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
             this.gSignature = (signature == null)
                     ? null : GSignatures.toTypeSig(signature);
             this.constantValue = (value == null)
-                    ? null : Utils.fromObject(typeSystem, value);
+                    ? null : AsmValueUtils.fromObject(typeSystem, value);
         }
 
         @Override

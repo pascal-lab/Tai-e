@@ -263,7 +263,7 @@ final class BytecodeProcessor {
                 context.stmtManager.associateStmt(jump, new If(cond));
             }
         } else if (insn instanceof LdcInsnNode ldc) {
-            context.operandStack.pushConst(insn, Utils.fromObject(context.typeSystem, ldc.cst));
+            context.operandStack.pushConst(insn, AsmValueUtils.fromObject(context.typeSystem, ldc.cst));
         } else if (insn instanceof TypeInsnNode typeInsn) {
             int opcode = typeInsn.getOpcode();
             ReferenceType type = context.typeSystem.fromAsmInternalName(typeInsn.desc);
@@ -328,14 +328,14 @@ final class BytecodeProcessor {
                 case Opcodes.PUTSTATIC -> {
                     FieldAccess access = new StaticFieldAccess(ref);
                     Var v1 = context.operandStack.popVar();
-                    context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+                    context.operandStack.ensureStackSafety(IRUtils::mayHaveSideEffect);
                     storeExp(insn, access, v1);
                 }
                 case Opcodes.PUTFIELD -> {
                     Var value = context.operandStack.popVar();
                     Var base = context.operandStack.popVar();
                     FieldAccess access = new InstanceFieldAccess(ref, base);
-                    context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+                    context.operandStack.ensureStackSafety(IRUtils::mayHaveSideEffect);
                     storeExp(insn, access, value);
                 }
                 default -> throw new UnsupportedOperationException();
@@ -365,9 +365,9 @@ final class BytecodeProcessor {
             context.operandStack.pushExp(inc, new ArithmeticExp(ArithmeticExp.Op.ADD, v, cst));
             context.slotManager.storeVar(inc.var, inc, context.operandStack);
         } else if (insn instanceof InvokeDynamicInsnNode indyInsn) {
-            MethodHandle handle = Utils.fromAsmHandle(context.typeSystem, indyInsn.bsm);
+            MethodHandle handle = AsmValueUtils.fromAsmHandle(context.typeSystem, indyInsn.bsm);
             List<Literal> bootArgs = Arrays.stream(indyInsn.bsmArgs)
-                    .map((o) -> Utils.fromObject(context.typeSystem, o)).toList();
+                    .map((o) -> AsmValueUtils.fromObject(context.typeSystem, o)).toList();
             assert handle.isMethodRef();
             Pair<List<Type>, Type> paramRets =
                     context.typeSystem.fromAsmMethodDesc(indyInsn.desc);
@@ -475,13 +475,13 @@ final class BytecodeProcessor {
     }
 
     private void storeExp(AbstractInsnNode insn, LValue left, RValue right) {
-        Stmt stmt = Utils.newAssignStmt(context.method, left, right);
+        Stmt stmt = IRUtils.newAssignStmt(context.method, left, right);
         context.stmtManager.associateStmt(insn, stmt);
     }
 
     private void returnExp(InsnNode insn) {
         // now, empty the stack, ensure all expression with side effect is generated
-        context.operandStack.ensureStackSafety(Utils::mayHaveSideEffect);
+        context.operandStack.ensureStackSafety(IRUtils::mayHaveSideEffect);
         int opcode = insn.getOpcode();
         if (opcode == Opcodes.RETURN) {
             context.stmtManager.associateStmt(insn, new Return());

@@ -22,14 +22,11 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.Optional;
-
 import org.objectweb.asm.tree.AbstractInsnNode;
 
 import pascal.taie.frontend.java.ir.ssa.SSATransform;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
-import pascal.taie.ir.exp.VarMutator;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Stmt;
@@ -162,7 +159,7 @@ final class SlotManager {
             if (context.varManager.isSlotVar(v) && !context.varManager.isSSAVar(v) && !context.isSSA) {
                 Var origin = v;
                 v = context.varManager.getTempVar();
-                context.stmtManager.associateStmt(insn, Utils.newAssignStmt(context.method, v, origin));
+                context.stmtManager.associateStmt(insn, IRUtils.newAssignStmt(context.method, v, origin));
             }
             def2Var[duIndex] = v;
         } else {
@@ -268,7 +265,7 @@ final class SlotManager {
      * to be accessed in the order of du operations within the bytecode block.
      */
     private int getNextDUIndex(AbstractInsnNode insn) {
-        DUInfo.assertDUIndexValid(currDUIndex, context.getInsnIndex(insn), currBlock);
+        DUInfo.assertDUIndexValid(currDUIndex, AsmInsnUtils.getInsnIndex(context.source, insn), currBlock);
         return currDUIndex++;
     }
 }

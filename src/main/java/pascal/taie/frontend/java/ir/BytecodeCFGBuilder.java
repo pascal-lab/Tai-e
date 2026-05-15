@@ -22,6 +22,10 @@
 
 package pascal.taie.frontend.java.ir;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -33,14 +37,12 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.VarInsnNode;
+
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Pair;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
 
-import static pascal.taie.frontend.java.ir.Utils.isVarStore;
+import static pascal.taie.frontend.java.ir.AsmInsnUtils.isVarStore;
 
 /**
  * Builds a {@link BytecodeCFG} from ASM bytecode instructions.

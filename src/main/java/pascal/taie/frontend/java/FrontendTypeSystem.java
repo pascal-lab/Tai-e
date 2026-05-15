@@ -22,6 +22,15 @@
 
 package pascal.taie.frontend.java;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import pascal.taie.ir.exp.MethodType;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -37,15 +46,6 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
@@ -117,6 +117,23 @@ public class FrontendTypeSystem extends FastTypeSystem {
         }
         return (ReferenceType) fromAsmType(
                 org.objectweb.asm.Type.getObjectType(internalName));
+    }
+
+
+    /**
+     * Gets the Tai-e exception type corresponding to the internal name.
+     */
+    public ClassType getExceptionType(String internalName) {
+        if (internalName == null) {
+            return throwableType();
+        } else {
+            ReferenceType r = fromAsmInternalName(internalName);
+            if (r instanceof ClassType c) {
+                return c;
+            } else {
+                throw new UnsupportedOperationException("Unsupported exception type: " + r);
+            }
+        }
     }
 
     /**

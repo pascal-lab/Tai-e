@@ -23,13 +23,10 @@
 package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-import org.objectweb.asm.tree.AbstractInsnNode;
 
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.ClassType;
-import pascal.taie.language.type.ReferenceType;
 import pascal.taie.util.graph.Dominators;
 
 /**
@@ -103,29 +100,5 @@ public class IRBuilderContext {
         this.stmtManager = new StmtManager(this);
         this.slotManager = new SlotManager(this);
         this.operandStack = new OperandStack(this);
-    }
-
-    /**
-     * Gets the index of a bytecode instruction.
-     */
-    int getInsnIndex(AbstractInsnNode insn) {
-        assert insn != null;
-        return source.instructions.indexOf(insn);
-    }
-
-    /**
-     * Gets the Tai-e exception type corresponding to the internal name.
-     */
-    ClassType getExceptionType(String internalName) {
-        if (internalName == null) {
-            return typeSystem.throwableType();
-        } else {
-            ReferenceType r = typeSystem.fromAsmInternalName(internalName);
-            if (r instanceof ClassType c) {
-                return c;
-            } else {
-                throw new UnsupportedOperationException("Unsupported exception type: " + r);
-            }
-        }
     }
 }

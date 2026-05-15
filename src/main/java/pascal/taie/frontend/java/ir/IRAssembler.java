@@ -93,7 +93,7 @@ class IRAssembler {
         for (Pair<Var, Optional<Integer>> p : context.varManager.getIntConstVarCache()) {
             Var v = p.first();
             if (v != null) {
-                Stmt curr = Utils.newAssignStmt(context.method, v, v.getConstValue());
+                Stmt curr = IRUtils.newAssignStmt(context.method, v, v.getConstValue());
                 if (p.second().isPresent()) {
                     curr.setLineNumber(p.second().get());
                 }
@@ -165,7 +165,7 @@ class IRAssembler {
     }
 
     private Stmt getFirstStmt(LabelNode label) {
-        BytecodeBlock block = context.cfg.searchForValidBlock(context.getInsnIndex(label));
+        BytecodeBlock block = context.cfg.searchForValidBlock(AsmInsnUtils.getInsnIndex(context.source, label));
         while (block.getStmts().isEmpty()) {
             BytecodeBlock next1 = context.cfg.getNormalSuccsOf(block).get(0);
             BytecodeBlock next2 = context.cfg.getObject(block.getIndex() + 1);

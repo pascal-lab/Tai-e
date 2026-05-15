@@ -22,7 +22,7 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import pascal.taie.frontend.java.ir.Utils;
+import pascal.taie.frontend.java.ir.IRUtils;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArithmeticExp;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -133,7 +133,7 @@ final class StmtVarReplacer {
                     return new FrontendPhiStmt(phi.getBase(), replaceDef(phi.getLValue()), phi.getRValue());
                 } else if (stmt instanceof AssignStmt<?, ?> assign) {
                     removeOldStmtFromRel(stmt);
-                    return Utils.newAssignStmt(method, replaceLValue(assign.getLValue()), replaceRValue(assign.getRValue()));
+                    return IRUtils.newAssignStmt(method, replaceLValue(assign.getLValue()), replaceRValue(assign.getRValue()));
                 } else if (stmt instanceof Invoke invoke) {
                     removeOldStmtFromRel(stmt);
                     return new Invoke(invoke.getContainer(), (InvokeExp) replaceVarInExp(invoke.getInvokeExp()),

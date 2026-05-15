@@ -152,7 +152,7 @@ class StackPhiResolver {
             // add `v = writeOut` before any definition (first instruction) in create pos
             BytecodeBlock createPos = phi.createPos;
             LValue lValue = phi.getVar();
-            addToBlockHead(createPos, Utils.newAssignStmt(context.method, lValue, writeOut));
+            addToBlockHead(createPos, IRUtils.newAssignStmt(context.method, lValue, writeOut));
         }
         phi.setWriteOutVar(writeOut);
     }
@@ -178,8 +178,8 @@ class StackPhiResolver {
             if (e == writeOut) {
                 continue;
             }
-            if (Utils.mayHaveSideEffect(e) || phi.used) {
-                stmts.add(Utils.newAssignStmt(context.method, writeOut, e));
+            if (IRUtils.mayHaveSideEffect(e) || phi.used) {
+                stmts.add(IRUtils.newAssignStmt(context.method, writeOut, e));
             }
         }
         phi.resolved = true;

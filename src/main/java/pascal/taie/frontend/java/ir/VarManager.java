@@ -446,8 +446,8 @@ public class VarManager {
         }
         Map<Pair<Integer, Integer>, LocalVariableNode>[] slot2Variables = new Map[context.source.maxLocals];
         for (LocalVariableNode node : context.source.localVariables) {
-            int start = context.getInsnIndex(node.start);
-            int end = context.getInsnIndex(getNextTrueInsnNode(node.end));
+            int start = AsmInsnUtils.getInsnIndex(context.source, node.start);
+            int end = AsmInsnUtils.getInsnIndex(context.source, getNextTrueInsnNode(node.end));
             int slot = node.index;
             if (slot2Variables[slot] == null) {
                 slot2Variables[slot] = Maps.newMap();
@@ -461,7 +461,7 @@ public class VarManager {
      * Resolve the source name of a var at a specific slot and instruction.
      */
     private Optional<String> getName(int slot, AbstractInsnNode insnNode) {
-        if (Utils.isVarStore(insnNode)) {
+        if (AsmInsnUtils.isVarStore(insnNode)) {
             /*
              * for VarStore, you have to use the next InsnNode (actual JVM Bytecode)
              * as the program point to query for the variable that being stored.
@@ -469,7 +469,7 @@ public class VarManager {
              */
             insnNode = getNextTrueInsnNode(insnNode);
         }
-        int insnIndex = context.getInsnIndex(insnNode);
+        int insnIndex = AsmInsnUtils.getInsnIndex(context.source, insnNode);
         Map<Pair<Integer, Integer>, LocalVariableNode> localVariables =
                 slot2Locals[slot];
         if (localVariables == null) {

@@ -243,8 +243,8 @@ final class OperandStack {
      */
     void pushExp(AbstractInsnNode node, Exp exp) {
         assert !(exp instanceof Top);
-        if (Utils.mayHaveSideEffect(exp)) {
-            ensureStackSafety(Utils::mayHaveSideEffect);
+        if (IRUtils.mayHaveSideEffect(exp)) {
+            ensureStackSafety(IRUtils::mayHaveSideEffect);
         }
         stack.push(new StackItem(exp, node));
         if (isDword(node, exp)) {
@@ -304,7 +304,7 @@ final class OperandStack {
         } else {
             ensureStackSafety(e -> e == v || e.getUses().contains(v));
         }
-        return Utils.newAssignStmt(context.method, v, top.exp());
+        return IRUtils.newAssignStmt(context.method, v, top.exp());
     }
 
     /**
@@ -326,9 +326,9 @@ final class OperandStack {
         Exp e = item.exp();
         if (e instanceof InvokeExp invokeExp) {
             context.stmtManager.associateStmt(item.origin(), new Invoke(context.method, invokeExp));
-        } else if (Utils.mayHaveSideEffect(e)) {
+        } else if (IRUtils.mayHaveSideEffect(e)) {
             context.stmtManager.associateStmt(item.origin(),
-                    Utils.newAssignStmt(context.method, context.varManager.getTempVar(), e));
+                    IRUtils.newAssignStmt(context.method, context.varManager.getTempVar(), e));
         }
     }
 
@@ -384,7 +384,7 @@ final class OperandStack {
         } else {
             v = context.varManager.getTempVar();
         }
-        Stmt auxStmt = Utils.newAssignStmt(context.method, v, e);
+        Stmt auxStmt = IRUtils.newAssignStmt(context.method, v, e);
         context.stmtManager.associateStmt(orig, auxStmt);
         return v;
     }
