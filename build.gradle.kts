@@ -29,10 +29,12 @@ dependencies {
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use asm to read class file
-    implementation("org.ow2.asm:asm:9.5")
-    implementation("org.ow2.asm:asm-commons:9.5")
-    implementation("org.ow2.asm:asm-tree:9.5")
-    implementation("org.ow2.asm:asm-util:9.5")
+    val asmVersion = "9.8"
+    implementation("org.ow2.asm:asm:$asmVersion")
+    implementation("org.ow2.asm:asm-commons:$asmVersion")
+    implementation("org.ow2.asm:asm-tree:$asmVersion")
+    implementation("org.ow2.asm:asm-util:$asmVersion")
+
 
     testImplementation(platform("org.junit:junit-bom:5.13.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
