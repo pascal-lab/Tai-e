@@ -1,6 +1,7 @@
 package pascal.taie.frontend.java;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
@@ -66,7 +67,7 @@ public class TestIRGen {
             "Varargs");
 
     private static void buildWorld(String mainClass) {
-        Main.main(new String[]{"-cp", path, "--input-classes", mainClass, "-pp", "-a", "cfg" });
+        Main.main(new String[]{"-cp", path, "--input-classes", mainClass, "-a", "cfg"});
     }
 
     private void outputIr(String klass, String path) {

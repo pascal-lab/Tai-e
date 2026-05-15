@@ -23,6 +23,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
@@ -37,7 +38,7 @@ public class IRTest {
     private static final List<String> targets = List.of("AllInOne");
 
     private static void buildWorld(String mainClass) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", mainClass);
+        Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", mainClass);
     }
 
     @Test
@@ -46,7 +47,7 @@ public class IRTest {
         Main.buildWorld("-ap", "-cp", "src/test/resources/world",
                 "--input-classes", clzName);
         World.get().getClassHierarchy().getClass(clzName)
-             .getDeclaredMethod("initActionAsync").getIR();
+                .getDeclaredMethod("initActionAsync").getIR();
     }
 
     @Test

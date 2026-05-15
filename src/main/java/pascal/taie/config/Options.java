@@ -22,6 +22,7 @@
 
 package pascal.taie.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -36,8 +37,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
@@ -150,23 +153,20 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = "-java",
             description = "Java version used by the program being analyzed" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "6")
-    private int javaVersion;
+                    " (default: ${DEFAULT-VALUE})")
+    private Integer javaVersion;
 
     public int getJavaVersion() {
+        if (javaVersion == null) {
+            throw new ConfigException("javaVersion config has not been resolved");
+        }
         return javaVersion;
     }
 
-    @JsonProperty
-    @Option(names = {"-pp", "--prepend-JVM"},
-            description = "Prepend class path of current JVM to Tai-e's class path" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
-    private boolean prependJVM;
+    private boolean useCurrentJRE = false;
 
-    public boolean isPrependJVM() {
-        return prependJVM;
+    public boolean useCurrentJRE() {
+        return useCurrentJRE;
     }
 
     @JsonProperty
@@ -294,12 +294,11 @@ public class Options implements Serializable {
         return keepResult;
     }
 
-    // TODO: the relationship between (--jre-dir, --java, --prepend-JVM) need to be clarified
-    //       Currently, --prepend-JVM has max priority, then --jre-dir, and finally --java.
     @JsonProperty
     @Option(names = {"--jre-dir"},
-            description = "Specify a JRE directory to be used for analysis," +
-                    "accepts one of the following:" +
+            description = "Specify a JRE directory to be used for analysis. " +
+                    "When this option is specified, -java must also be specified. " +
+                    "The directory accepts one of the following: " +
                     "(1) a JAVA_HOME like dir, which contains lib/ dir or jre/lib/ dir" +
                     "(2) a dir contain rt.jar and related files (Java 1.6-8)" +
                     "(3) a dir contain jrt-fs.jar and modules (JIMAGE) file (Java 9+)")
@@ -340,7 +339,11 @@ public class Options implements Serializable {
             // and instead read options from the file.
             options = readRawOptions(options.optionsFile);
         }
-        if (options.prependJVM) {
+        if (options.jreDir != null && options.javaVersion == null) {
+            throw new ConfigException("Missing option: -java must be specified when --jre-dir is used");
+        }
+        if (options.jreDir == null && options.javaVersion == null) {
+            options.useCurrentJRE = true;
             options.javaVersion = getCurrentJavaVersion();
         }
         if (!options.analyses.isEmpty() && options.planFile != null) {
@@ -534,7 +537,7 @@ public class Options implements Serializable {
             filePath = workingDir.relativize(filePath);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to get relative path of {}," +
-                            " use its absolute path in options file", file);
+                    " use its absolute path in options file", file);
         }
         return filePath.toString().replace('\\', '/');
     }
@@ -611,7 +614,6 @@ public class Options implements Serializable {
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
                 ", javaVersion=" + javaVersion +
-                ", prependJVM=" + prependJVM +
                 ", allowPhantom=" + allowPhantom +
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", outputDir='" + outputDir + '\'' +

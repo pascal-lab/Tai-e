@@ -24,12 +24,14 @@ package pascal.taie.frontend.java.project;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.config.Options;
 import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -78,7 +80,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
                     Sets.newSet(getInputClasses(options)),
                     getAppContainers(appClassPaths),
                     getLibContainers(libClassPaths, options.getJreDir(),
-                            options.isPrependJVM(), options.getJavaVersion()),
+                            options.useCurrentJRE(), options.getJavaVersion()),
                     options.getJavaVersion()
             );
         } catch (IOException e) {
@@ -121,27 +123,27 @@ public class OptionsProjectBuilder implements ProjectBuilder {
 
     private List<FileContainer> getLibContainers(
             List<String> libClassPaths, @Nullable String jrePath,
-            boolean isPrependJVM, int javaVersion) throws IOException {
+            boolean useCurrentJRE, int javaVersion) throws IOException {
         List<FileContainer> libs = loader.loadRootContainers(
                 Lists.map(libClassPaths, Path::of));
         // add jre
-        List<FileContainer> jre = getJREContainers(jrePath, isPrependJVM, javaVersion);
+        List<FileContainer> jre = getJREContainers(jrePath, useCurrentJRE, javaVersion);
         return Lists.concatDistinct(libs, jre);
     }
 
     private List<FileContainer> getJREContainers(
-            @Nullable String jrePath, boolean isPrependJVM, int javaVersion)
+            @Nullable String jrePath, boolean useCurrentJRE, int javaVersion)
             throws IOException {
-        if (isPrependJVM) {
+        if (useCurrentJRE) {
             // if prependJVM is set, we use jrt:/ to load JRE
             FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
             return processModulesFile(fs.getPath("/modules"));
-        } else if (jrePath == null) {
-            // if jrePath is not set, we use java-benchmarks to load JRE
-            return getJREFromJavaBenchmarks(javaVersion);
-        } else {
+        } else if (jrePath != null) {
             // otherwise, load jre from the specified path
             return parseJREPath(jrePath);
+        } else {
+            // if jrePath is not set, we use java-benchmarks to load JRE
+            return getJREFromJavaBenchmarks(javaVersion);
         }
     }
 
@@ -157,6 +159,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
      *     <li>A directory with {@code modules} file and {@code jrt-fs.jar} file.</li>
      * </ul>
      * </p>
+     *
      * @throws IOException when the JRE path is invalid or cannot be read.
      */
     private List<FileContainer> parseJREPath(String jrePath) throws IOException {
@@ -184,14 +187,14 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         } else {
             throw new IOException(String.format(
                     """
-                    We don't know how to read %s (--jre-dir)
-                    It must be a directory with one of the following:
-                    1. A JAVA_HOME like directory. For java 9 and above,
-                       it should contain a lib/modules and lib/jrt-fs.jar file.
-                       For java 8 and below, it should contain a jre/lib directory.
-                    2. A directory with rt.jar and related jars.
-                    3. A directory with modules file.
-                    """, jrePath));
+                            We don't know how to read %s (--jre-dir)
+                            It must be a directory with one of the following:
+                            1. A JAVA_HOME like directory. For java 9 and above,
+                               it should contain a lib/modules and lib/jrt-fs.jar file.
+                               For java 8 and below, it should contain a jre/lib directory.
+                            2. A directory with rt.jar and related jars.
+                            3. A directory with modules file.
+                            """, jrePath));
         }
     }
 

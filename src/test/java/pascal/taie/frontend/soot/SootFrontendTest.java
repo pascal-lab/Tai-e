@@ -23,6 +23,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
@@ -36,6 +37,7 @@ import soot.SootMethod;
 
 import java.util.Comparator;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,7 +46,7 @@ public class SootFrontendTest {
 
     @Test
     void testWorldBuilder() {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", "AllInOne");
+        Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", "AllInOne");
         World.get()
                 .getClassHierarchy()
                 .allClasses()

@@ -78,7 +78,7 @@ public class JarTransformer {
         }
 
         // Load the input JAR into Tai-e
-        Main.buildWorld("-pp", "-acp", inputJar.toString(), "--allow-phantom");
+        Main.buildWorld( "-acp", inputJar.toString(), "--allow-phantom");
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");

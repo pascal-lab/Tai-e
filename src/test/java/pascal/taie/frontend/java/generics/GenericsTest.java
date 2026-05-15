@@ -24,6 +24,7 @@ package pascal.taie.frontend.java.generics;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -40,6 +41,7 @@ import pascal.taie.language.generics.TypeParameter;
 import pascal.taie.language.generics.TypeVariableGSignature;
 
 import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -63,7 +65,7 @@ public class GenericsTest {
     }
 
     private void buildWorld(String... inputClasses) {
-        Main.buildWorld("-pp", "-cp", CP, "--input-classes",
+        Main.buildWorld("-cp", CP, "--input-classes",
                 String.join(",", inputClasses));
     }
 

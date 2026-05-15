@@ -3,11 +3,13 @@ package pascal.taie.frontend.java;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.LoggerConfigs;
@@ -40,6 +42,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static soot.SootClass.HIERARCHY;
 
@@ -49,7 +52,6 @@ public class TestBytecodeIRBuilder {
         String worldPath = "src/test/resources/world";
 
         List<String> args = new ArrayList<>();
-         Collections.addAll(args, "-pp");
         // Collections.addAll(args, "-a", "cfg");
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
@@ -64,7 +66,7 @@ public class TestBytecodeIRBuilder {
         classHierarchy.allClasses()
                 .forEach(c -> c.getDeclaredMethods()
                         .forEach(m -> {
-                            if (! m.isAbstract()) {
+                            if (!m.isAbstract()) {
                                 m.getIR();
                             }
                         }));
@@ -86,7 +88,7 @@ public class TestBytecodeIRBuilder {
                 "arrayAccess", "newArray", "assign", "binary", "binaryMixedType",
                 "copy", "instanceOf", "cast", "ifStmt", "gotoStmt", "switchStmt", "invoke",
                 "returnInt", "exception", "monitor", "iinc");
-        Main.main(new String[]{ "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
+        Main.main(new String[]{"--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
                 "-java", "8",
                 "-cp", "src/test/resources/world",
                 "--main-class", "AllInOne",
@@ -146,7 +148,7 @@ public class TestBytecodeIRBuilder {
                 "--input-classes", "AllInOne",
                 "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder",
                 "--pre-build-ir"
-                );
+        );
         World.get()
                 .getClassHierarchy()
                 .applicationClasses()
@@ -187,14 +189,14 @@ public class TestBytecodeIRBuilder {
             );
 
             Timer.runAndCount(() ->
-            World.get()
-                    .getClassHierarchy()
-                    .allClasses()
-                    .forEach(c -> c.getDeclaredMethods().forEach(m -> {
-                        if (!m.isAbstract()) {
-                            m.getIR();
-                        }
-                    })), "Get All IR");
+                    World.get()
+                            .getClassHierarchy()
+                            .allClasses()
+                            .forEach(c -> c.getDeclaredMethods().forEach(m -> {
+                                if (!m.isAbstract()) {
+                                    m.getIR();
+                                }
+                            })), "Get All IR");
         };
 
         Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
@@ -251,7 +253,6 @@ public class TestBytecodeIRBuilder {
     public void benchmarkForNewFrontEnd17() {
         Runnable newFrontend = () -> {
             Main.buildWorld(
-                    "-pp",
                     "--extract-all"
             );
 
@@ -368,12 +369,11 @@ public class TestBytecodeIRBuilder {
         List<String> args = new ArrayList<>();
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-process-dir", worldPath);
-        Collections.addAll(args, "-pp");
         Collections.addAll(args, "Multi");
 
         Timer.runAndCount(() -> runSoot(args.toArray(new String[0])),
                 "Try to make soot type inference consume tons of time & memory \n" +
-                         "(just build ir for one class with < 30 lines of java source)");
+                        "(just build ir for one class with < 30 lines of java source)");
 
         System.out.println("Let new frontend build this class");
 
@@ -411,7 +411,7 @@ public class TestBytecodeIRBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        if (options.isPrependJVM()) {
+        if (options.useCurrentJRE()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
@@ -469,6 +469,7 @@ public class TestBytecodeIRBuilder {
     }
 
     private static final String BASIC_CLASSES = "basic-classes.yml";
+
     private static void addBasicClasses(Scene scene) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
@@ -485,8 +486,9 @@ public class TestBytecodeIRBuilder {
     }
 
     protected static final String JREs = "java-benchmarks/JREs";
+
     protected static String getClassPath(Options options) {
-        if (options.isPrependJVM()) {
+        if (options.useCurrentJRE()) {
             return String.join(File.pathSeparator, options.getClassPath());
         } else { // when prependJVM is not set, we manually specify JRE jars
             // check existence of JREs

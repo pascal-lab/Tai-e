@@ -2,6 +2,7 @@ package pascal.taie.backend.vm;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.util.MultiStringsSource;
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +23,7 @@ public class VMTest {
 
     @Test
     void testExceptionDate() {
-        Main.buildWorld("-pp", "-cp", CP, "-m", "ExceptionDate");
+        Main.buildWorld("-cp", CP, "-m", "ExceptionDate");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
         VM vm = new VM(World.get());
@@ -37,7 +39,7 @@ public class VMTest {
     @MultiStringsSource({"SwapExample2", "0\n1\n"})
     @MultiStringsSource({"SwapExample3", "0\n1\n"})
     void testCornerCases(String mainClass, String... expected) {
-        Main.buildWorld("-pp", "-cp", CP, "-m", mainClass);
+        Main.buildWorld("-cp", CP, "-m", mainClass);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
         VM vm = new VM(World.get());
@@ -53,7 +55,7 @@ public class VMTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
         try {
-            Main.buildWorld("-pp", "-cp", CP, "-m", "CornerCaseMayBeNotRunnable");
+            Main.buildWorld( "-cp", CP, "-m", "CornerCaseMayBeNotRunnable");
             VM vm = new VM(World.get());
             vm.exec();
         } catch (Exception ignored) {
@@ -62,6 +64,6 @@ public class VMTest {
                 .replaceAll("\\r\\n|\\r|\\n", "\n")
                 .split("\n");
         String[] last2lines = Arrays.copyOfRange(lines, lines.length - 2, lines.length);
-        assertArrayEquals(new String[] {"11", "6"}, last2lines);
+        assertArrayEquals(new String[]{"11", "6"}, last2lines);
     }
 }

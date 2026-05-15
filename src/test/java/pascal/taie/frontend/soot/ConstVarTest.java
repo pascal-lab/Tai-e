@@ -23,6 +23,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
@@ -35,7 +36,7 @@ public class ConstVarTest {
     @Test
     void test() {
         String main = "ConstVar";
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", main);
+        Main.buildWorld("-cp", "src/test/resources/world", "--input-classes", main);
         JClass jclass = World.get().getClassHierarchy().getClass(main);
         jclass.getDeclaredMethods().forEach(m -> {
             IR ir = m.getIR();

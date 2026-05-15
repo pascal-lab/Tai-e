@@ -23,6 +23,7 @@
 package pascal.taie.analysis.exception;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
@@ -57,7 +58,7 @@ public class ExceptionTest {
 
     private static void test(String exception, String... methodNames) {
         Main.main(
-                "-pp", "-cp", CP, "-m", MAIN,
+                "-cp", CP, "-m", MAIN,
                 "-a", ThrowAnalysis.ID + "=exception:" + exception
         );
         JClass c = World.get().getClassHierarchy().getClass(MAIN);

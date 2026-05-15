@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
@@ -36,6 +37,7 @@ import pascal.taie.language.type.ClassType;
 
 import java.util.Collection;
 
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,7 +45,7 @@ public class Java9StringConcatTest {
 
     @Test
     void test() {
-        Main.main("-pp",
+        Main.main(
                 "-cp", "src/test/resources/pta/invokedynamic",
                 "-m", "Java9StringConcatenation",
                 "-a", "pta=implicit-entries:false",

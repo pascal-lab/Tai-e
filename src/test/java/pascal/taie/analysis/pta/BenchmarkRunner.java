@@ -78,7 +78,6 @@ public class BenchmarkRunner {
         int jdkVersion = jdk != 0 ? jdk : info.jdk();
         Collections.addAll(args,
                 //"-java", Integer.toString(jdkVersion),
-                "-pp",
                 "-acp", buildClassPath(info.apps()),
                 "-cp", buildClassPath(info.libs()),
                 //"-wc",
