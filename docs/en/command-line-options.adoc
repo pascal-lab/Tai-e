@@ -52,9 +52,6 @@ These options specify the Java program (say _P_) and library to be analyzed.
 * JRE directory (--jre-dir): `--jre-dir <dir>`
 ** Specify a JRE directory to be used for analysis. This option must be used together with `-java`.
 
-* Allow phantom references (-ap, --allow-phantom)
-** Allow Tai-e to process phantom references, i.e., the referenced classes that are not found in the class paths.
-
 
 == Analysis Options
 

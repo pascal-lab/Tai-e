@@ -82,9 +82,6 @@ public class BenchmarkRunner {
                 "-cp", buildClassPath(info.libs()),
                 //"-wc",
                 "-m", info.main());
-        if (info.allowPhantom()) {
-            args.add("--allow-phantom");
-        }
         Map<String, String> ptaArgs = Map.of(
                 "distinguish-string-constants", "null",
                 "merge-string-objects", "false",

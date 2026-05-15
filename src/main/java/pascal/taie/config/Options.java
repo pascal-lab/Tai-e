@@ -169,18 +169,6 @@ public class Options implements Serializable {
         return useCurrentJRE;
     }
 
-    @JsonProperty
-    @Option(names = {"-ap", "--allow-phantom"},
-            description = "Allow Tai-e to process phantom references, i.e.," +
-                    " the referenced classes that are not found in the class paths" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
-    private boolean allowPhantom;
-
-    public boolean isAllowPhantom() {
-        return allowPhantom;
-    }
-
     // ---------- general analysis options ----------
     @JsonProperty
     @Option(names = "--world-builder",
@@ -614,7 +602,6 @@ public class Options implements Serializable {
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
                 ", javaVersion=" + javaVersion +
-                ", allowPhantom=" + allowPhantom +
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", outputDir='" + outputDir + '\'' +
                 ", preBuildIR=" + preBuildIR +

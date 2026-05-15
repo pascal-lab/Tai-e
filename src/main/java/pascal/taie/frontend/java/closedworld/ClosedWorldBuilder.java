@@ -22,15 +22,6 @@
 
 package pascal.taie.frontend.java.closedworld;
 
-import pascal.taie.World;
-import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.project.ClassFile;
-import pascal.taie.frontend.java.project.ClassIndex;
-import pascal.taie.frontend.java.project.Project;
-import pascal.taie.language.classes.ClassSource;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,10 +37,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.frontend.java.FrontendException;
+import pascal.taie.frontend.java.project.ClassFile;
+import pascal.taie.frontend.java.project.ClassIndex;
+import pascal.taie.frontend.java.project.Project;
+import pascal.taie.language.classes.ClassSource;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
+
 /**
  * Build the closed world via reference analysis.
  */
 public class ClosedWorldBuilder {
+
+    private static final Logger logger = LogManager.getLogger(ClosedWorldBuilder.class);
 
     private static final Set<String> BASIC_CLASSES = Set.of(
             // For simulating the FileSystem class, we need the implementation
@@ -124,12 +128,12 @@ public class ClosedWorldBuilder {
 
         // this loop will satisfy:
         // deltaCount_{before} < deltaCount_{after} \/ tempDeltaCount == 0
-        while (! workList.isEmpty() || deltaCount > 0) {
+        while (!workList.isEmpty() || deltaCount > 0) {
 
             // first, poll all classes from workList
             // They will be built in parallel
             int tempDeltaCount = 0;
-            while (! workList.isEmpty()) {
+            while (!workList.isEmpty()) {
                 String className = workList.poll();
                 if (!founded.contains(className)) {
                     founded.add(className);
@@ -174,17 +178,14 @@ public class ClosedWorldBuilder {
                 // e.g. only load one of the three concrete FileSystem.
                 return null;
             }
-            if (World.get().getOptions().isAllowPhantom()) {
-                ResolveResult result = DependencyResolver.resolvePhantom(className);
-                addClassSource(result);
-                return result;
-            }
-            throw new FrontendException(
-                    className + " is not found in the given classpath");
+            logger.warn("Failed to resolve class {}; resolving phantom class instead.", className);
+            ResolveResult result = DependencyResolver.resolvePhantom(className);
+            addClassSource(result);
+            return result;
         } else {
-             ResolveResult result = DependencyResolver.resolve(project, classFile);
-             addClassSource(result);
-             return result;
+            ResolveResult result = DependencyResolver.resolve(project, classFile);
+            addClassSource(result);
+            return result;
         }
     }
 

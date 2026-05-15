@@ -22,15 +22,6 @@
 
 package pascal.taie.backend.bytecode;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.MethodTooLargeException;
-import org.objectweb.asm.Opcodes;
-import pascal.taie.Main;
-import pascal.taie.World;
-import pascal.taie.language.classes.JClass;
-
-import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -44,6 +35,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.MethodTooLargeException;
+import org.objectweb.asm.Opcodes;
+
+import pascal.taie.Main;
+import pascal.taie.World;
+import pascal.taie.language.classes.JClass;
 
 /**
  * This class is responsible for processing a given JAR file by
@@ -78,7 +80,7 @@ public class JarTransformer {
         }
 
         // Load the input JAR into Tai-e
-        Main.buildWorld( "-acp", inputJar.toString(), "--allow-phantom");
+        Main.buildWorld("-acp", inputJar.toString());
         List<JClass> classes = World.get().getClassHierarchy().allClasses().toList();
         try {
             Path tempDir = Files.createTempDirectory("jar-dumper");

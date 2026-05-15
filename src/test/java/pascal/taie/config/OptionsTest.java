@@ -50,7 +50,7 @@ public class OptionsTest {
     }
 
     @Test
-    void testPrependJVM() {
+    void testUseCurrentJRE() {
         Options options = Options.parse();
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
@@ -60,14 +60,6 @@ public class OptionsTest {
     void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         assertEquals("Main", options.getMainClass());
-    }
-
-    @Test
-    void testAllowPhantom() {
-        Options options = Options.parse();
-        assertFalse(options.isAllowPhantom());
-        options = Options.parse("--allow-phantom");
-        assertTrue(options.isAllowPhantom());
     }
 
     @Test

@@ -23,6 +23,7 @@
 package pascal.taie.language;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -30,14 +31,14 @@ import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PhantomTest {
     @Test
     void testPhantomField() {
         Main.buildWorld("-cp", "src/test/resources/world",
-                "--main-class", "PhantomField",
-                "--allow-phantom");
+                "--main-class", "PhantomField");
         JMethod main = World.get().getMainMethod();
         for (Stmt stmt : main.getIR()) {
             if (stmt instanceof LoadField loadField) {

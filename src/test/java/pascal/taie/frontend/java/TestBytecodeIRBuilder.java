@@ -1,8 +1,16 @@
 package pascal.taie.frontend.java;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +18,9 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.config.LoggerConfigs;
@@ -29,18 +40,6 @@ import soot.Scene;
 import soot.SootResolver;
 import soot.jimple.AssignStmt;
 import soot.jimple.Constant;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -415,9 +414,7 @@ public class TestBytecodeIRBuilder {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
-        if (options.isAllowPhantom()) {
-            soot.options.Options.v().set_allow_phantom_refs(true);
-        }
+        soot.options.Options.v().set_allow_phantom_refs(true);
         if (options.isPreBuildIR()) {
             // we need to set this option to false when pre-building IRs,
             // otherwise Soot throws RuntimeException saying

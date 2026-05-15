@@ -22,6 +22,9 @@
 
 package pascal.taie.frontend.soot;
 
+import java.util.Comparator;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import pascal.taie.Main;
@@ -29,9 +32,6 @@ import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-
-import java.util.Comparator;
-import java.util.List;
 
 public class IRTest {
 
@@ -44,7 +44,7 @@ public class IRTest {
     @Test
     void testBottomType() {
         String clzName = "android$widget$RemoteViews$BaseReflectionAction";
-        Main.buildWorld("-ap", "-cp", "src/test/resources/world",
+        Main.buildWorld("-cp", "src/test/resources/world",
                 "--input-classes", clzName);
         World.get().getClassHierarchy().getClass(clzName)
                 .getDeclaredMethod("initActionAsync").getIR();

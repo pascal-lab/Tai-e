@@ -22,11 +22,21 @@
 
 package pascal.taie.frontend.soot;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.Options;
@@ -41,14 +51,6 @@ import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -101,9 +103,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
-        if (options.isAllowPhantom()) {
-            soot.options.Options.v().set_allow_phantom_refs(true);
-        }
+        soot.options.Options.v().set_allow_phantom_refs(true);
         if (options.isPreBuildIR()) {
             // we need to set this option to false when pre-building IRs,
             // otherwise Soot throws RuntimeException saying
@@ -158,7 +158,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         SootClassLoader loader = new SootClassLoader(
-                scene, hierarchy, options.isAllowPhantom());
+                scene, hierarchy, true);
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);
