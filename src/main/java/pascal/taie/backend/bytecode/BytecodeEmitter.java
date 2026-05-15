@@ -125,8 +125,8 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.ArrayType;
+import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
@@ -964,7 +964,7 @@ public class BytecodeEmitter {
         if (type instanceof ClassType ct) {
             noticeInnerClass(ct.getJClass());
         }
-        return StringReps.toBytecodeDescriptor(type);
+        return BytecodeDescriptors.toBytecodeDescriptor(type);
     }
 
     private String getTypeDescriptorByName(String typeName) {

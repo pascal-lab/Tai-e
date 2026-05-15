@@ -41,10 +41,10 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.generics.GSignatures;
 import pascal.taie.language.generics.MethodGSignature;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
+import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
@@ -274,7 +274,7 @@ class Converter {
 
     private static Annotation convertAnnotation(AnnotationTag tag) {
         // AnnotationTag is the class that represent an annotation in Soot
-        String annotationType = StringReps.toTaieTypeDesc(tag.getType());
+        String annotationType = BytecodeDescriptors.toTaieTypeDesc(tag.getType());
         Map<String, Element> elements = Maps.newHybridMap();
         // converts all elements in tag
         tag.getElems().forEach(e -> {
@@ -298,7 +298,7 @@ class Converter {
                 className = className.replace("java/lang/Class<", "")
                         .replace(">", "");
             }
-            return new ClassElement(StringReps.toTaieTypeDesc(className));
+            return new ClassElement(BytecodeDescriptors.toTaieTypeDesc(className));
         } else if (elem instanceof AnnotationAnnotationElem e) {
             return new AnnotationElement(convertAnnotation(e.getValue()));
         } else if (elem instanceof AnnotationArrayElem e) {
@@ -306,7 +306,7 @@ class Converter {
                     Converter::convertAnnotationElement));
         } else if (elem instanceof AnnotationEnumElem e) {
             return new EnumElement(
-                    StringReps.toTaieTypeDesc(e.getTypeName()),
+                    BytecodeDescriptors.toTaieTypeDesc(e.getTypeName()),
                     e.getConstantName());
         } else if (elem instanceof AnnotationIntElem e) {
             return new IntElement(e.getValue());

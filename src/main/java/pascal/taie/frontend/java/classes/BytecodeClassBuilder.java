@@ -51,11 +51,11 @@ import pascal.taie.language.classes.JClassLoader;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Modifier;
-import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.generics.GSignatures;
 import pascal.taie.language.generics.MethodGSignature;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
+import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
@@ -439,7 +439,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         private AnnotationInfoVisitor(String descriptor, Consumer<Annotation> onComplete) {
             super(Opcodes.ASM9);
-            this.type = StringReps.toTaieTypeDesc(descriptor);
+            this.type = BytecodeDescriptors.toTaieTypeDesc(descriptor);
             this.onComplete = onComplete;
         }
 
@@ -453,7 +453,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         @Override
         public void visitEnum(String name, String descriptor, String value) {
-            String enumType = StringReps.toTaieTypeDesc(descriptor);
+            String enumType = BytecodeDescriptors.toTaieTypeDesc(descriptor);
             elements.put(name, new EnumElement(enumType, value));
         }
 
@@ -506,7 +506,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         @Override
         public void visitEnum(String name, String descriptor, String value) {
-            String enumType = StringReps.toTaieTypeDesc(descriptor);
+            String enumType = BytecodeDescriptors.toTaieTypeDesc(descriptor);
             elements.add(new EnumElement(enumType, value));
         }
 
@@ -578,7 +578,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
             // a valid descriptor and cannot be passed to StringReps#toTaieTypeDesc.
             return new ClassElement("void");
         } else {
-            return new ClassElement(StringReps.toTaieTypeDesc(c.getDescriptor()));
+            return new ClassElement(BytecodeDescriptors.toTaieTypeDesc(c.getDescriptor()));
         }
     }
 }

@@ -35,7 +35,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassSource;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
@@ -173,7 +173,7 @@ public class FastIRBuilder implements pascal.taie.ir.IRBuilder {
         for (JMethod method : clazz.getDeclaredMethods()) {
             AsmMethodSource methodSource = methodSources.get(new MethodKey(
                     method.getName(),
-                    StringReps.toBytecodeDescriptor(method)));
+                    BytecodeDescriptors.toBytecodeDescriptor(method)));
             if (methodSource == null) {
                 throw new IllegalStateException(
                         "Cannot find method source for %s".formatted(method));
