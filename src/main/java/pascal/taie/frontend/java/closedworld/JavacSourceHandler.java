@@ -25,6 +25,7 @@ package pascal.taie.frontend.java.closedworld;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,6 @@ import pascal.taie.frontend.java.project.FileResource;
 import pascal.taie.frontend.java.project.Resource;
 import pascal.taie.util.PathUtils;
 
-// TODO: check concurrent behavior, compile() may be called concurrently.
-
 /**
  * This class handles Java source files using the Java Compiler API.
  * It provides methods to compile Java source files, collect diagnostics,
@@ -60,7 +59,7 @@ class JavacSourceHandler {
     /**
      * Temporary output directory for compiled class files.
      */
-    private static final Path tempOutDir = Path.of(System.getProperty("java.io.tmpdir"))
+    private static final Path tempOutRoot = Path.of(System.getProperty("java.io.tmpdir"))
             .resolve("tai-e");
 
     /**
@@ -85,6 +84,8 @@ class JavacSourceHandler {
         Iterable<? extends JavaFileObject> compilationUnits =
                 fileManager.getJavaFileObjectsFromFiles(List.of(javaFile));
 
+        Files.createDirectories(tempOutRoot);
+        Path tempOutDir = Files.createTempDirectory(tempOutRoot, "javac-");
         List<String> options = List.of("-classpath", cp,
                 "-d", tempOutDir.toAbsolutePath().toString(),
                 "--release", Integer.toString(javaVersion),
@@ -110,7 +111,7 @@ class JavacSourceHandler {
 
         List<DotClassFile> compileResults = getCompiledFiles(output.toString())
                 .stream()
-                .map(JavacSourceHandler::createCompiledClassFile)
+                .map(path -> createCompiledClassFile(tempOutDir, path))
                 .toList();
         if (compileResults.isEmpty()) {
             throw new FrontendException(
@@ -139,7 +140,7 @@ class JavacSourceHandler {
         return files;
     }
 
-    private static DotClassFile createCompiledClassFile(String outputPath) {
+    private static DotClassFile createCompiledClassFile(Path tempOutDir, String outputPath) {
         Path output = Path.of(outputPath);
         Path relative = tempOutDir.relativize(output);
         String className = PathUtils.toClassName(relative);
