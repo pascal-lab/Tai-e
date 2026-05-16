@@ -22,6 +22,12 @@
 
 package pascal.taie.ir.proginfo;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,16 +38,7 @@ import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
-import pascal.taie.util.InternalCanonicalized;
-import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 
 import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
@@ -50,13 +47,9 @@ import static pascal.taie.language.classes.ClassNames.VAR_HANDLE;
 /**
  * Represents method references in IR.
  */
-@InternalCanonicalized
 public class MethodRef extends MemberRef {
 
     private static final Logger logger = LogManager.getLogger(MethodRef.class);
-
-    private static final ConcurrentMap<Key, MethodRef> map =
-            Maps.newConcurrentMap(4096);
 
     /**
      * Records the MethodRef that fails to be resolved.
@@ -65,7 +58,6 @@ public class MethodRef extends MemberRef {
             Sets.newConcurrentSet();
 
     static {
-        World.registerResetCallback(map::clear);
         World.registerResetCallback(resolveFailures::clear);
     }
 
@@ -138,30 +130,27 @@ public class MethodRef extends MemberRef {
             JClass declaringClass, String name,
             List<Type> parameterTypes, Type returnType,
             boolean isStatic, boolean isDeclaredInInterface) {
-//        Subsignature subsignature = Subsignature.get(
-//                name, parameterTypes, returnType);
-//        Key key = new Key(declaringClass, subsignature);
-//        return map.computeIfAbsent(key, k ->
-//                new MethodRef(k, name, parameterTypes, returnType, isStatic));
-        return new MethodRef(new Key(declaringClass, null),
-                name, parameterTypes, returnType, isStatic, isDeclaredInInterface);
+        return new MethodRef(declaringClass, name, parameterTypes, returnType,
+                isStatic, isDeclaredInInterface);
     }
+
 
     public static MethodRef get(
             JClass declaringClass, String name,
             List<Type> parameterTypes, Type returnType,
             boolean isStatic) {
-        return get(declaringClass, name, parameterTypes, returnType, isStatic, declaringClass.isInterface());
+        return get(declaringClass, name, parameterTypes, returnType,
+                isStatic, declaringClass.isInterface());
     }
 
     private MethodRef(
-            Key key, String name, List<Type> parameterTypes, Type returnType,
+            JClass declaringClass, String name,
+            List<Type> parameterTypes, Type returnType,
             boolean isStatic, boolean isDeclaredInInterface) {
-        super(key.declaringClass, name, isStatic);
+        super(declaringClass, name, isStatic);
         this.parameterTypes = List.copyOf(parameterTypes);
         this.returnType = returnType;
         this.isDeclaredInInterface = isDeclaredInInterface;
-//        this.subsignature = key.subsignature;
     }
 
     public List<Type> getParameterTypes() {
@@ -234,12 +223,6 @@ public class MethodRef extends MemberRef {
                 parameterTypes, returnType);
     }
 
-    /**
-     * Uses as keys to identify {@link MethodRef}s in cache.
-     */
-    private record Key(JClass declaringClass, Subsignature subsignature) {
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -248,20 +231,12 @@ public class MethodRef extends MemberRef {
         if (!(o instanceof MethodRef that)) {
             return false;
         }
-        if (this.isStatic() != that.isStatic() ||
-                this.isDeclaredInInterface != that.isDeclaredInInterface) {
-            return false;
-        }
-        if (!Objects.equals(this.getDeclaringClass(), that.getDeclaringClass())) {
-            return false;
-        }
-        if (!Objects.equals(this.getName(), that.getName())) {
-            return false;
-        }
-        if (!Objects.equals(this.returnType, that.returnType)) {
-            return false;
-        }
-        return Objects.equals(this.parameterTypes, that.parameterTypes);
+        return isStatic() == that.isStatic()
+                && isDeclaredInInterface == that.isDeclaredInInterface
+                && Objects.equals(getDeclaringClass(), that.getDeclaringClass())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(parameterTypes, that.parameterTypes)
+                && Objects.equals(returnType, that.returnType);
     }
 
     @Override

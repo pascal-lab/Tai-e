@@ -22,31 +22,28 @@
 
 package pascal.taie.ir.proginfo;
 
+import java.util.Objects;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.InternalCanonicalized;
-import pascal.taie.util.collection.Maps;
+import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Sets;
-
-import javax.annotation.Nullable;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Represents field references in IR.
  */
-@InternalCanonicalized
 public class FieldRef extends MemberRef {
 
     private static final Logger logger = LogManager.getLogger(FieldRef.class);
-
-    private static final ConcurrentMap<Key, FieldRef> map =
-            Maps.newConcurrentMap(4096);
 
     /**
      * Records the FieldRef that fails to be resolved.
@@ -55,7 +52,6 @@ public class FieldRef extends MemberRef {
             Sets.newConcurrentSet();
 
     static {
-        World.registerResetCallback(map::clear);
         World.registerResetCallback(resolveFailures::clear);
     }
 
@@ -71,15 +67,16 @@ public class FieldRef extends MemberRef {
     @Nullable
     private transient JField field;
 
+    private transient int cachedHash = 0;
+
     public static FieldRef get(
             JClass declaringClass, String name, Type type, boolean isStatic) {
-        Key key = new Key(declaringClass, name, type);
-        return map.computeIfAbsent(key, k -> new FieldRef(k, isStatic));
+        return new FieldRef(declaringClass, name, type, isStatic);
     }
 
-    private FieldRef(Key key, boolean isStatic) {
-        super(key.declaringClass, key.name, isStatic);
-        this.type = key.type;
+    private FieldRef(JClass declaringClass, String name, Type type, boolean isStatic) {
+        super(declaringClass, name, isStatic);
+        this.type = type;
     }
 
     public Type getType() {
@@ -118,9 +115,31 @@ public class FieldRef extends MemberRef {
                 getDeclaringClass(), getName(), type);
     }
 
-    /**
-     * Uses as keys to identify {@link FieldRef}s in cache.
-     */
-    private record Key(JClass declaringClass, String name, Type type) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FieldRef that)) {
+            return false;
+        }
+        return this.isStatic() == that.isStatic()
+                && Objects.equals(this.getDeclaringClass(), that.getDeclaringClass())
+                && Objects.equals(this.getName(), that.getName())
+                && Objects.equals(this.type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        if (cachedHash == 0) {
+            int result = Hashes.hash(
+                    getDeclaringClass(),
+                    getName(),
+                    type
+            );
+            result = 31 * result + (isStatic() ? 1 : 0);
+            cachedHash = result;
+        }
+        return cachedHash;
     }
 }
