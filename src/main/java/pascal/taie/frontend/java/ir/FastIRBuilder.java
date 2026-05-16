@@ -22,6 +22,11 @@
 
 package pascal.taie.frontend.java.ir;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -38,11 +43,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class implements the IRBuilder interface and is responsible for
@@ -63,7 +63,7 @@ public class FastIRBuilder implements pascal.taie.ir.IRBuilder {
      * Maps methods to their bytecode sources (adapters).
      * Populated during class parsing and consumed during IR building.
      */
-    private final ConcurrentMap<JMethod, AsmMethodSource> method2Source
+    private transient final ConcurrentMap<JMethod, AsmMethodSource> method2Source
             = Maps.newConcurrentMap(1024);
 
     public FastIRBuilder(FrontendTypeSystem typeSystem) {
