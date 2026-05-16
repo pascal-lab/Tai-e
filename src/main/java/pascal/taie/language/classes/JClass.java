@@ -96,9 +96,14 @@ public class JClass extends AbstractResultHolder
 
     private boolean isPhantom;
 
-    private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
+//    private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
 
-    private final ReentrantReadWriteLock phantomFieldsLock = new ReentrantReadWriteLock();
+//    private final ReentrantReadWriteLock phantomFieldsLock = new ReentrantReadWriteLock();
+
+    private final Map<FieldKey, JField> phantomFields = Maps.newConcurrentMap();
+
+    private record FieldKey(String name, Type type) {
+    }
 
     private final Map<Subsignature, JMethod> phantomMethods = Maps.newConcurrentMap();
 
@@ -392,33 +397,12 @@ public class JClass extends AbstractResultHolder
     @Nullable
     public JField getPhantomField(String fieldName, Type fieldType, boolean isStatic) {
         assert isPhantom();
-        phantomFieldsLock.readLock().lock();
-        try {
-            for (JField field : phantomFields.get(fieldName)) {
-                if (field.getType().equals(fieldType)) {
-                    return field;
-                }
-            }
-        } finally {
-            phantomFieldsLock.readLock().unlock();
-        }
-        // Not found. Add concurrently.
-        phantomFieldsLock.writeLock().lock();
-        try {
-            // Make sure that no other thread added the field.
-            for (JField field : phantomFields.get(fieldName)) {
-                if (field.getType().equals(fieldType)) {
-                    return field;
-                }
-            }
+        FieldKey key = new FieldKey(fieldName, fieldType);
+        return phantomFields.computeIfAbsent(key, k -> {
             Set<Modifier> modifiers = isStatic ? Set.of(Modifier.STATIC) : Set.of();
-            JField field = new JField(this, name, modifiers,
-                    type, null, AnnotationHolder.emptyHolder(), null);
-            phantomFields.put(fieldName, field);
-            return field;
-        } finally {
-            phantomFieldsLock.writeLock().unlock();
-        }
+            return new JField(this, k.name(), modifiers,
+                    k.type(), null, AnnotationHolder.emptyHolder(), null);
+        });
     }
 
     /**
