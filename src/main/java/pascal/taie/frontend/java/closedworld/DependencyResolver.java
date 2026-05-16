@@ -22,7 +22,12 @@
 
 package pascal.taie.frontend.java.closedworld;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.asm.ClassReader;
+
 import pascal.taie.frontend.java.FrontendException;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
@@ -31,10 +36,6 @@ import pascal.taie.frontend.java.project.DotClassFile;
 import pascal.taie.frontend.java.project.DotJavaFile;
 import pascal.taie.frontend.java.project.Project;
 import pascal.taie.language.classes.ClassSource;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Resolves all class dependencies (i.e., the referenced classes) of a class.
@@ -54,9 +55,7 @@ class DependencyResolver {
 
     static ResolveResult resolvePhantom(String className) {
         return new ResolveResult(List.of(),
-                // by default, we consider phantom classes as app classes
-                // TODO: consider a better way to decide if a phantom class
-                //  is app class or lib class
+                // phantom classes should not be jre classes, so we consider it as app classes
                 List.of(new PhantomClassSource(className, true)));
     }
 
@@ -84,7 +83,6 @@ class DependencyResolver {
     private static ResolveResult resolveClassFile(DotClassFile classFile, boolean isApp)
             throws IOException, FrontendException {
         byte[] content = classFile.getResource().getContent();
-        assert content != null;
         classFile.getResource().release();
         ClassReader reader = new ClassReader(content);
         // 6 is the offset of class file version

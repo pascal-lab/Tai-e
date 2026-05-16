@@ -33,13 +33,13 @@ abstract class AbstractFileContainer implements FileContainer {
 
     private final List<ClassFile> files;
 
-    private final List<FileContainer> containers;
+    private final List<FileContainer> subContainers;
 
     AbstractFileContainer(String name,
-                          List<ClassFile> files, List<FileContainer> containers) {
+                          List<ClassFile> files, List<FileContainer> subContainers) {
         this.name = name;
         this.files = files;
-        this.containers = containers;
+        this.subContainers = subContainers;
     }
 
     @Override
@@ -54,7 +54,7 @@ abstract class AbstractFileContainer implements FileContainer {
 
     @Override
     public List<FileContainer> getSubContainers() {
-        return containers;
+        return subContainers;
     }
 
     @Override

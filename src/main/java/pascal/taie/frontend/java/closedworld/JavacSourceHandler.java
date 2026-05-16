@@ -22,19 +22,6 @@
 
 package pascal.taie.frontend.java.closedworld;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.project.DotClassFile;
-import pascal.taie.frontend.java.project.FileResource;
-import pascal.taie.frontend.java.project.Resource;
-import pascal.taie.util.PathUtils;
-
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -43,6 +30,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.frontend.java.FrontendException;
+import pascal.taie.frontend.java.project.DotClassFile;
+import pascal.taie.frontend.java.project.FileResource;
+import pascal.taie.frontend.java.project.Resource;
+import pascal.taie.util.PathUtils;
 
 // TODO: check concurrent behavior, compile() may be called concurrently.
 
@@ -113,12 +115,12 @@ class JavacSourceHandler {
         if (compileResults.isEmpty()) {
             throw new FrontendException(
                     String.format("""
-                    Failed to process .java file due to javac compilation errors for %s.
-                    Insufficient information was found to determine the cause.
-                    Please check the following potential reasons:
-                    1) Ensure JAVA_TOOL_OPTIONS is properly set. Refer to the warning message for guidance.
-                    2) Verify that your JDK version meets the requirement: Java 17 or higher.
-                    3) This might be a Tai-e bug, consider submit a bug report at %s""",
+                                    Failed to process .java file due to javac compilation errors for %s.
+                                    Insufficient information was found to determine the cause.
+                                    Please check the following potential reasons:
+                                    1) Ensure JAVA_TOOL_OPTIONS is properly set. Refer to the warning message for guidance.
+                                    2) Verify that your JDK version meets the requirement: Java 17 or higher.
+                                    3) This might be a Tai-e bug, consider submit a bug report at %s""",
                             javaSourceFile, FrontendException.TAIE_ISSUES));
         }
         return compileResults;
@@ -155,9 +157,9 @@ class JavacSourceHandler {
             case "ja" -> Pattern.compile("\\[(.*\\.class)を書込み完了]");
             default -> {
                 logger.warn("""
-                    Unknown language: {}
-                    JavacSourceHandler may not work properly with javac.
-                    Possible fix: add 'JAVA_TOOL_OPTIONS=-Duser.language=en' to env""", lang);
+                        Unknown language: {}
+                        JavacSourceHandler may not work properly with javac.
+                        Possible fix: add 'JAVA_TOOL_OPTIONS=-Duser.language=en' to env""", lang);
                 yield Pattern.compile("\\[wrote (.*\\.class)]");
             }
         };

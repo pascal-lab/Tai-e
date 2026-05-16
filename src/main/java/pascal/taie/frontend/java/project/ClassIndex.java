@@ -23,17 +23,19 @@
 // Java
 package pascal.taie.frontend.java.project;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Pair;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Pair;
 
 /**
  * Maintains an index of class files for quick lookup based on the class names.
@@ -56,7 +58,8 @@ public class ClassIndex {
     /**
      * A record to represent a duplicate class definition.
      */
-    private record DuplicateClass(String className, Pair<FileContainer, FileContainer> containers) {}
+    private record DuplicateClass(String className, Pair<FileContainer, FileContainer> containers) {
+    }
 
     /**
      * The list of duplicate classes found during indexing.
@@ -72,6 +75,7 @@ public class ClassIndex {
         classPriority = project.classPriority();
         project.appRootContainers().forEach(this::traverse);
         project.libRootContainers().forEach(this::traverse);
+        project.jreRootContainers().forEach(this::traverse);
         logDuplicateClasses();
     }
 
@@ -138,7 +142,7 @@ public class ClassIndex {
      * Truncate the information about duplicate classes for better display.
      *
      * @param containers the pair of file containers containing the duplicates
-     * @param classes the set of classes duplicated between the containers
+     * @param classes    the set of classes duplicated between the containers
      * @return the formatted message
      */
     private static String truncateDuplicates(Pair<FileContainer, FileContainer> containers,
@@ -149,12 +153,12 @@ public class ClassIndex {
                 new ArrayList<>(classes).subList(0, 4),
                 classes.size() - 4);
         return String.format(
-               """
-               Duplicate classes (total %d) introduced by %s and %s,
-               %s is founded in both containers
-               """,
-               classes.size(),
-               containers.first(), containers.second(),
-               classList);
+                """
+                        Duplicate classes (total %d) introduced by %s and %s,
+                        %s is founded in both containers
+                        """,
+                classes.size(),
+                containers.first(), containers.second(),
+                classList);
     }
 }

@@ -22,16 +22,6 @@
 
 package pascal.taie.frontend.java.project;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pascal.taie.config.Options;
-import pascal.taie.util.ClassNameExtractor;
-import pascal.taie.util.collection.Lists;
-import pascal.taie.util.collection.Sets;
-
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -43,6 +33,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.config.Options;
+import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Lists;
+import pascal.taie.util.collection.Sets;
 
 public class OptionsProjectBuilder implements ProjectBuilder {
 
@@ -79,8 +79,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
                     options.getMainClass(),
                     Sets.newSet(getInputClasses(options)),
                     getAppContainers(appClassPaths),
-                    getLibContainers(libClassPaths, options.getJreDir(),
-                            options.useCurrentJRE(), options.getJavaVersion()),
+                    getLibContainers(libClassPaths),
+                    getJREContainers(options.getJreDir(), options.useCurrentJRE(), options.getJavaVersion()),
                     options.getJavaVersion()
             );
         } catch (IOException e) {
@@ -121,14 +121,8 @@ public class OptionsProjectBuilder implements ProjectBuilder {
         return loader.loadRootContainers(Lists.map(appClassPaths, Path::of));
     }
 
-    private List<FileContainer> getLibContainers(
-            List<String> libClassPaths, @Nullable String jrePath,
-            boolean useCurrentJRE, int javaVersion) throws IOException {
-        List<FileContainer> libs = loader.loadRootContainers(
-                Lists.map(libClassPaths, Path::of));
-        // add jre
-        List<FileContainer> jre = getJREContainers(jrePath, useCurrentJRE, javaVersion);
-        return Lists.concatDistinct(libs, jre);
+    private List<FileContainer> getLibContainers(List<String> libClassPaths) {
+        return loader.loadRootContainers(Lists.map(libClassPaths, Path::of));
     }
 
     private List<FileContainer> getJREContainers(

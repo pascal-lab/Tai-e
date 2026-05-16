@@ -32,6 +32,7 @@ public record Project(String classPath,
                       String mainClass, Set<String> inputClasses,
                       List<FileContainer> appRootContainers,
                       List<FileContainer> libRootContainers,
+                      List<FileContainer> jreRootContainers,
                       int javaVersion) {
 
     /**
@@ -44,11 +45,10 @@ public record Project(String classPath,
 
     /**
      * @return if given class file represents an application class.
+     * Now, treat all non-JRE classes as app classes (the same as soot frontend).
      */
     public boolean isApp(ClassFile file) {
-        return appRootContainers.contains(file.getRootContainer())
-                || inputClasses.contains(file.getClassName())
-                || file.getClassName().equals(mainClass);
+        return !jreRootContainers.contains(file.getRootContainer());
     }
 
     /**
