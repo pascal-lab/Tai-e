@@ -314,6 +314,7 @@ final class OperandStack {
         StackItem item = popStack();
         Exp e = item.exp();
         if (e instanceof Top) {
+            // skip Top
         } else {
             expToEffect(item);
         }
@@ -344,6 +345,7 @@ final class OperandStack {
     void liftToVar(StackItem item) {
         Exp exp = item.exp();
         if (exp instanceof Top) {
+            // skip Top
         } else if (exp instanceof Var var) {
             item.lift(var);
         } else {

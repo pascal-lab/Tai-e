@@ -1,3 +1,25 @@
+/*
+ * Tai-e: A Static Analysis Framework for Java
+ *
+ * Copyright (C) 2022 Tian Tan <tiantan@nju.edu.cn>
+ * Copyright (C) 2022 Yue Li <yueli@nju.edu.cn>
+ *
+ * This file is part of Tai-e.
+ *
+ * Tai-e is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Tai-e is distributed in the hope that it will be useful,but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package pascal.taie.frontend.java;
 
 import java.io.File;
@@ -309,7 +331,9 @@ public class TestBytecodeIRBuilder {
                         var l = new ArrayList<>(scene.getClasses());
                         l.forEach(c -> // can we use paralleledStream?
                                 c.getMethods().forEach(m -> {
-                                    if (!m.isConcrete()) return;
+                                    if (!m.isConcrete()) {
+                                        return;
+                                    }
                                     m.retrieveActiveBody();
                                 })
                         );
@@ -329,7 +353,9 @@ public class TestBytecodeIRBuilder {
         l.parallelStream().forEach(c -> {
             c.getMethods().forEach(m -> {
                 methodCount.addAndGet(1);
-                if (!m.isConcrete()) return;
+                if (!m.isConcrete()) {
+                    return;
+                }
                 Body body = m.retrieveActiveBody();
                 if (includeAssignLiteral) {
                     stmtCount.addAndGet(body.getUnits().size());
@@ -521,6 +547,7 @@ public class TestBytecodeIRBuilder {
                 try (Stream<String> lines = Files.lines(Path.of(value))) {
                     lines.forEach(classes::add);
                 } catch (IOException e) {
+                    // do nothing
                 }
             } else {
                 // value is a class name

@@ -22,15 +22,16 @@
 
 package pascal.taie.frontend.java.ir;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Pair;
-
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
+import pascal.taie.util.collection.Sets;
 
 /**
  * Converts a {@link FrontendPhiExp} to a {@link PhiExp}.
@@ -58,7 +59,7 @@ class FrontendPhiResolver {
      */
     List<Pair<Stmt, Var>> resolvePhi(FrontendPhiExp phiExp) {
         // Use LinkedHashSet to deduplicate while preserving insertion order
-        LinkedHashSet<Pair<Stmt, Var>> resolvedPairs = new LinkedHashSet<>();
+        Set<Pair<Stmt, Var>> resolvedPairs = Sets.newLinkedSet();
 
         for (Pair<Var, BytecodeBlock> useAndBlock : phiExp.getUsesAndInBlocks()) {
             Var var = useAndBlock.first();

@@ -63,7 +63,7 @@ public class FastIRBuilder implements pascal.taie.ir.IRBuilder {
      * Maps methods to their bytecode sources (adapters).
      * Populated during class parsing and consumed during IR building.
      */
-    private transient final ConcurrentMap<JMethod, AsmMethodSource> method2Source
+    private final transient ConcurrentMap<JMethod, AsmMethodSource> method2Source
             = Maps.newConcurrentMap(1024);
 
     public FastIRBuilder(FrontendTypeSystem typeSystem) {

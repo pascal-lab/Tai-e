@@ -30,8 +30,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -66,10 +66,14 @@ public class OptionsProjectBuilder implements ProjectBuilder {
 
     @Override
     public Project build() {
-        List<String> appClassPaths =
-                new ArrayList<>(new LinkedHashSet<>(options.getAppClassPath()));
-        List<String> libClassPaths =
-                new ArrayList<>(new LinkedHashSet<>(options.getClassPath()));
+        Set<String> appClassPathSet = Sets.newLinkedSet();
+        appClassPathSet.addAll(options.getAppClassPath());
+        List<String> appClassPaths = new ArrayList<>(appClassPathSet);
+
+        Set<String> libClassPathSet = Sets.newLinkedSet();
+        libClassPathSet.addAll(options.getClassPath());
+        List<String> libClassPaths = new ArrayList<>(libClassPathSet);
+
         libClassPaths.removeAll(appClassPaths);
         try {
             return new Project(

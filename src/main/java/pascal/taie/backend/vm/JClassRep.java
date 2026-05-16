@@ -47,7 +47,7 @@ class JClassRep {
 
     private final ClassType type;
 
-    private final Map<String, JValue> staticFields = Maps.newMap();;
+    private final Map<String, JValue> staticFields = Maps.newMap();
 
     JClassRep(ClassType type) {
         this.type = type;

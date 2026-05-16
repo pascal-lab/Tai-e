@@ -36,7 +36,7 @@ public class InternalPhi {
     /**
      * Constructs SSA (reach def info) for bytecode to resolve local variable reuse.
      */
-    private final SSATransform SSATransform;
+    private final SSATransform ssaTransform;
 
     /**
      * the slot this phi corresponds to
@@ -88,8 +88,8 @@ public class InternalPhi {
      */
     private FrontendPhiStmt frontendPhi;
 
-    InternalPhi(SSATransform SSATransform, int slot, BytecodeBlock block, int phiIndex) {
-        this.SSATransform = SSATransform;
+    InternalPhi(SSATransform ssaTransform, int slot, BytecodeBlock block, int phiIndex) {
+        this.ssaTransform = ssaTransform;
         this.slot = slot;
         this.block = block;
         this.phiIndex = phiIndex;
@@ -101,14 +101,14 @@ public class InternalPhi {
     void addInDefs(BytecodeBlock defblock, int defIndex) {
         inDefs.add(defIndex);
         inBlocks.add(defblock);
-        if (SSATransform.isPhiDef(defIndex)) {
-            InternalPhi p = SSATransform.getPhiByIndex(defIndex);
+        if (ssaTransform.isPhiDef(defIndex)) {
+            InternalPhi p = ssaTransform.getPhiByIndex(defIndex);
             p.outPhis.add(this);
         } else {
-            if (SSATransform.def2OutPhis[defIndex] == null) {
-                SSATransform.def2OutPhis[defIndex] = new IntList(4);
+            if (ssaTransform.def2OutPhis[defIndex] == null) {
+                ssaTransform.def2OutPhis[defIndex] = new IntList(4);
             }
-            SSATransform.def2OutPhis[defIndex].add(SSATransform.getPhiDUIndex(phiIndex));
+            ssaTransform.def2OutPhis[defIndex].add(ssaTransform.getPhiDUIndex(phiIndex));
         }
     }
 
@@ -138,7 +138,7 @@ public class InternalPhi {
     }
 
     public int getPhiDUIndex() {
-        return SSATransform.getPhiDUIndex(phiIndex);
+        return ssaTransform.getPhiDUIndex(phiIndex);
     }
 
     int getPhiIndex() {

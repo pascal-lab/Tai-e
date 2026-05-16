@@ -22,6 +22,15 @@
 
 package pascal.taie.backend.bytecode;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -43,6 +52,7 @@ import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+
 import pascal.taie.World;
 import pascal.taie.analysis.misc.IRDumper;
 import pascal.taie.config.AnalysisConfig;
@@ -136,15 +146,6 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A class that converts a given {@link JClass} into a byte array
@@ -439,25 +440,25 @@ public class BytecodeEmitter {
                     }
                     nodeList.add(
                             new MultiANewArrayInsnNode(getDescriptor(arrayType),
-                            newMultiArray.getLengthCount()));
+                                    newMultiArray.getLengthCount()));
                 } else if (newExp instanceof NewArray newArray) {
                     ArrayType arrayType = newArray.getType();
                     emitMayConstLoad(newArray.getLength(), nodeList);
                     if (arrayType.elementType() instanceof PrimitiveType) {
                         nodeList.add(new IntInsnNode(Opcodes.NEWARRAY,
                                 switch (arrayType.elementType().getName()) {
-                            case "int" -> Opcodes.T_INT;
-                            case "long" -> Opcodes.T_LONG;
-                            case "float" -> Opcodes.T_FLOAT;
-                            case "double" -> Opcodes.T_DOUBLE;
-                            case "byte" -> Opcodes.T_BYTE;
-                            case "char" -> Opcodes.T_CHAR;
-                            case "short" -> Opcodes.T_SHORT;
-                            case "boolean" -> Opcodes.T_BOOLEAN;
-                            default ->
-                                    throw new IllegalArgumentException("Unknown primitive type: "
-                                            + arrayType.elementType());
-                        }));
+                                    case "int" -> Opcodes.T_INT;
+                                    case "long" -> Opcodes.T_LONG;
+                                    case "float" -> Opcodes.T_FLOAT;
+                                    case "double" -> Opcodes.T_DOUBLE;
+                                    case "byte" -> Opcodes.T_BYTE;
+                                    case "char" -> Opcodes.T_CHAR;
+                                    case "short" -> Opcodes.T_SHORT;
+                                    case "boolean" -> Opcodes.T_BOOLEAN;
+                                    default ->
+                                            throw new IllegalArgumentException("Unknown primitive type: "
+                                                    + arrayType.elementType());
+                                }));
                     } else if (arrayType.elementType() instanceof ReferenceType) {
                         nodeList.add(new TypeInsnNode(Opcodes.ANEWARRAY,
                                 getInternalName(arrayType.elementType())));
@@ -649,7 +650,6 @@ public class BytecodeEmitter {
                     ref.getName(),
                     getDescriptor(ref),
                     ref.isDeclaredInInterface()));
-
         }
     }
 
@@ -684,35 +684,35 @@ public class BytecodeEmitter {
         BinaryExp.Op op = binaryExp.getOperator();
         int size = getSize(op1.getType());
         if (op instanceof ArithmeticExp.Op aop) {
-            nodeList.add(new InsnNode(ARITHMETIC_OPS[
-                    switch (aop) {
-                        case ADD -> 0;
-                        case SUB -> 1;
-                        case MUL -> 2;
-                        case DIV -> 3;
-                        case REM -> 4;
-                    }][size]));
+            int opIndex = switch (aop) {
+                case ADD -> 0;
+                case SUB -> 1;
+                case MUL -> 2;
+                case DIV -> 3;
+                case REM -> 4;
+            };
+            nodeList.add(new InsnNode(ARITHMETIC_OPS[opIndex][size]));
         } else if (op instanceof BitwiseExp.Op bop) {
-            nodeList.add(new InsnNode(BITWISE_OPS[
-                    switch (bop) {
-                        case AND -> 0;
-                        case OR -> 1;
-                        case XOR -> 2;
-                    }][size]));
+            int opIndex = switch (bop) {
+                case AND -> 0;
+                case OR -> 1;
+                case XOR -> 2;
+            };
+            nodeList.add(new InsnNode(BITWISE_OPS[opIndex][size]));
         } else if (op instanceof ShiftExp.Op sop) {
-            nodeList.add(new InsnNode(BITWISE_OPS[
-                    switch (sop) {
-                        case SHL -> 3;
-                        case SHR -> 4;
-                        case USHR -> 5;
-                    }][size]));
+            int opIndex = switch (sop) {
+                case SHL -> 3;
+                case SHR -> 4;
+                case USHR -> 5;
+            };
+            nodeList.add(new InsnNode(BITWISE_OPS[opIndex][size]));
         } else if (op instanceof ComparisonExp.Op comprOp) {
-            nodeList.add(new InsnNode(COMPARISON_OPS[
-                    switch (comprOp) {
-                        case CMP -> 0;
-                        case CMPL -> 1;
-                        case CMPG -> 2;
-                    }][size]));
+            int opIndex = switch (comprOp) {
+                case CMP -> 0;
+                case CMPL -> 1;
+                case CMPG -> 2;
+            };
+            nodeList.add(new InsnNode(COMPARISON_OPS[opIndex][size]));
         } else if (op instanceof ConditionExp.Op) {
             throw new IllegalArgumentException("Condition expression in (v := exp) is not supported");
         } else {
@@ -1077,7 +1077,7 @@ public class BytecodeEmitter {
             return s.value();
         } else if (element instanceof ClassElement c) {
             return org.objectweb.asm.Type.getType(c.classDescriptor());
-        }  else {
+        } else {
             throw new IllegalArgumentException("Unknown element: " + element);
         }
     }
