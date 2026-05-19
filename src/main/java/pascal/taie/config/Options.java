@@ -37,10 +37,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.android.util.AndroidJavaVersionInfer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import soot.jimple.infoflow.android.manifest.ProcessManifest;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,29 +70,6 @@ public class Options implements Serializable {
     private static final String OPTIONS_FILE = "options.yml";
 
     private static final String DEFAULT_OUTPUT_DIR = "output";
-
-    private static final Map<Integer, Integer> SDK_TO_JDK = Map.ofEntries(
-            Map.entry(34, 17),
-            Map.entry(33, 11),
-            Map.entry(32, 11),
-            Map.entry(31, 11),
-            Map.entry(30, 8),
-            Map.entry(29, 8),
-            Map.entry(28, 8),
-            Map.entry(27, 8),
-            Map.entry(26, 8),
-            Map.entry(25, 8),
-            Map.entry(24, 8),
-            Map.entry(23, 7),
-            Map.entry(22, 7),
-            Map.entry(21, 6),
-            Map.entry(20, 6),
-            Map.entry(19, 6),
-            Map.entry(18, 6),
-            Map.entry(17, 6),
-            Map.entry(16, 6),
-            Map.entry(15, 6)
-    );
 
     // ---------- file-based options ----------
     @JsonProperty
@@ -366,15 +343,13 @@ public class Options implements Serializable {
                 throw new ConfigException("Missing options: apk is missing" +
                         " (should be specified by -cp)");
             }
+
             // always allow phantom in Android mode
             options.allowPhantom = true;
-            // parse apk configuration
+
+            // infer Java version from Android target SDK
             String apkPath = options.classPath.get(0);
-            try (ProcessManifest manifest = new ProcessManifest(apkPath)) {
-                options.javaVersion = SDK_TO_JDK.getOrDefault(manifest.getTargetSdkVersion(), 6);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            options.javaVersion = AndroidJavaVersionInfer.inferFromApk(apkPath);
         } else { // analyze Java program
             if (options.getClassPath().isEmpty()
                     && options.mainClass == null

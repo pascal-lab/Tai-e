@@ -31,9 +31,7 @@ import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
-import pascal.taie.android.info.ApkInfo;
-import pascal.taie.android.info.RawApkInfo;
-import pascal.taie.android.util.LayoutFileParser;
+import pascal.taie.android.info.ApkInfoCreator;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -49,8 +47,6 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
-import soot.jimple.infoflow.android.manifest.ProcessManifest;
-import soot.jimple.infoflow.android.resources.ARSCFileParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -244,7 +240,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         // set apkInfo
         if (options.isAndroidMode()) {
-            world.setApkInfo(getApkInfo(options, hierarchy));
+            world.setApkInfo(ApkInfoCreator.create(options, hierarchy));
         }
     }
 
@@ -252,39 +248,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         // TODO: parallelize?
         new ArrayList<>(scene.getClasses()).forEach(c ->
                 hierarchy.getDefaultClassLoader().loadClass(c.getName()));
-    }
-
-    private static ApkInfo getApkInfo(Options options, ClassHierarchy hierarchy) {
-        RawApkInfo rawApkInfo = getRawApkInfo(options);
-        ApkInfo.ApkInfoConverter apkInfoConverter = new ApkInfo.ApkInfoConverter(rawApkInfo, hierarchy);
-        return new ApkInfo(apkInfoConverter.convertApplication(),
-                apkInfoConverter.convertExportedActivities(),
-                apkInfoConverter.convertExportedServices(),
-                apkInfoConverter.convertExportedBroadcastReceivers(),
-                apkInfoConverter.convertExportedContentProviders(),
-                apkInfoConverter.convertEnabledActivities(),
-                apkInfoConverter.convertEnabledServices(),
-                apkInfoConverter.convertEnabledBroadcastReceivers(),
-                apkInfoConverter.convertEnabledContentProviders(),
-                apkInfoConverter.convertLayoutCallbacks(),
-                apkInfoConverter.convertLayoutFragments(),
-                apkInfoConverter.convertLayoutViews(),
-                apkInfoConverter.convertAndroidCallbacks(),
-                apkInfoConverter.convertComponentFilterInfo(),
-                rawApkInfo);
-    }
-
-    private static RawApkInfo getRawApkInfo(Options options) {
-        try {
-            String apkPath = options.getClassPath().get(0);
-            ARSCFileParser resources = new ARSCFileParser();
-            resources.parse(apkPath);
-            ProcessManifest manifest = new ProcessManifest(new File(apkPath), resources);
-            LayoutFileParser layoutFile = new LayoutFileParser(manifest.getPackageName(), apkPath, resources);
-            return new RawApkInfo(manifest, layoutFile, resources);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static void buildForJava(Options options) {
