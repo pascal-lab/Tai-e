@@ -27,12 +27,14 @@ import org.junit.platform.suite.api.Suite;
 import pascal.taie.frontend.java.closeworld.DependencyAnalysisTest;
 import pascal.taie.frontend.java.generics.GenericsTest;
 import pascal.taie.frontend.java.project.ProjectTest;
+import pascal.taie.frontend.java.roundtrip.RoundTripTest;
 
 @Suite
 @SelectClasses({
         ProjectTest.class,
         DependencyAnalysisTest.class,
         GenericsTest.class,
+        RoundTripTest.class,
 })
 public class FrontendTestSuite {
 }
