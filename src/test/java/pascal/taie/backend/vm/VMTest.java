@@ -30,6 +30,7 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import pascal.taie.Main;
 import pascal.taie.World;
@@ -70,6 +71,28 @@ public class VMTest {
         String output = outputStream.toString()
                 .replaceAll("\\r\\n|\\r|\\n", "\n");
         assertEquals(expected[0], output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "SSABranch",
+            "SSALoop",
+            "SSANestedBranch",
+    })
+    void testSSA(String mainClass) {
+        Main.buildWorld("--ssa", "-cp", CP, "-m", mainClass);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        try {
+            System.setOut(new PrintStream(outputStream));
+            VM vm = new VM(World.get());
+            vm.exec();
+        } finally {
+            System.setOut(originalOut);
+        }
+        String output = outputStream.toString()
+                .replaceAll("\\r\\n|\\r|\\n", "\n");
+        assertEquals("OK\n", output);
     }
 
     @Test
