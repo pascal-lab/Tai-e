@@ -38,7 +38,7 @@ public final class Configs {
      * File name of analysis configuration.
      * TODO: the path of configuration file is hardcoded, make it configurable?
      */
-    private static final String CONFIG = "tai-e-android-analyses.yml";
+    private static final String CONFIG = "tai-e-analyses.yml";
 
     /**
      * @return the content of analysis configuration.

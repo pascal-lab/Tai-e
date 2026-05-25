@@ -71,7 +71,7 @@ public class AnalysisOptions {
      * @throws IllegalArgumentException if exists a key of given AnalysisOptions
      *                                  not in this AnalysisOptions.
      */
-    void update(AnalysisOptions options) {
+    public void update(AnalysisOptions options) {
         for (String key : options.options.keySet()) {
             if (!this.options.containsKey(key)) {
                 throw new IllegalArgumentException("Illegal key of option '"
