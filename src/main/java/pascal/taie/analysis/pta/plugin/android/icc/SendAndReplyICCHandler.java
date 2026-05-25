@@ -28,13 +28,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.android.info.IntentDataInfo;
-import pascal.taie.android.info.IntentFilterAttribute;
-import pascal.taie.android.info.UriData;
-import pascal.taie.android.util.IntentAttributeMatcher;
-import pascal.taie.ir.exp.ClassLiteral;
-import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
@@ -42,16 +35,10 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static pascal.taie.android.util.IntentAttributeMatcher.normalizeMimeType;
-import static pascal.taie.android.util.IntentAttributeMatcher.normalizeScheme;
 
 /**
  * Resolves recorded ICC facts into call/pfg edges.
@@ -63,8 +50,6 @@ import static pascal.taie.android.util.IntentAttributeMatcher.normalizeScheme;
  */
 public class SendAndReplyICCHandler extends ICCHandler {
 
-    private static final String DEFAULT_CATEGORY = "android.intent.category.DEFAULT";
-
     private final JMethod onNewIntent =
             hierarchy.getMethod("<android.app.Activity: void onNewIntent(android.content.Intent)>");
 
@@ -75,11 +60,11 @@ public class SendAndReplyICCHandler extends ICCHandler {
      */
     private final Set<ICCInfo> processedICCInfos = Sets.newSet();
 
-    private final IntentAttributeMatcher intentAttributeMatcher;
+    private final IntentTargetResolver intentTargetResolver;
 
     public SendAndReplyICCHandler(ICCContext context) {
         super(context);
-        this.intentAttributeMatcher = new IntentAttributeMatcher(context.apkInfo());
+        this.intentTargetResolver = new IntentTargetResolver(context, solver, hierarchy);
     }
 
     @Override
@@ -299,7 +284,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
     }
 
     private Set<JClass> getTargetComponents(CSObj csObj, boolean isStartActivity) {
-        return getMatchResult(transferIntentAttribute(handlerContext.intent2IntentAttribute().get(csObj), isStartActivity));
+        return intentTargetResolver.getTargetComponents(csObj, isStartActivity);
     }
 
     private void clearICCInfos() {
@@ -323,151 +308,4 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
-
-    private IntentFilterAttribute transferDynamicIntentFilterAttribute(Set<IntentAttribute> infos) {
-        IntentFilterAttribute dynamicFilterAttribute = transferIntentAttribute(infos, false);
-        Set<String> schemes = Sets.newSet();
-        Set<String> hosts = Sets.newSet();
-        Set<String> ports = Sets.newSet();
-        Set<String> paths = Sets.newSet();
-        Set<String> mimeTypes = Sets.newSet();
-        for (IntentAttribute info : infos) {
-            switch (info.kind()) {
-                case DATA_SCHEME -> schemes.addAll(transferConstantObj(info.csVar().get(0)));
-                case DATA_HOST -> hosts.addAll(transferConstantObj(info.csVar().get(0)));
-                case DATA_PORT -> ports.addAll(transferConstantObj(info.csVar().get(0)));
-                case DATA_PATH -> paths.addAll(transferConstantObj(info.csVar().get(0)));
-                case MIME_TYPE -> mimeTypes.addAll(transferConstantObj(info.csVar().get(0)));
-            }
-        }
-        return new IntentFilterAttribute(
-                dynamicFilterAttribute.classNames(),
-                dynamicFilterAttribute.actions(),
-                dynamicFilterAttribute.categories(),
-                new IntentDataInfo(
-                        schemes,
-                        hosts,
-                        ports,
-                        paths,
-                        Sets.newSet(),
-                        Sets.newSet(),
-                        Sets.newSet(),
-                        Sets.newSet(),
-                        mimeTypes).convertToDataSet());
-    }
-
-    private IntentFilterAttribute transferIntentAttribute(Set<IntentAttribute> infos, boolean isStartActivity) {
-        Set<String> classNames = Sets.newSet();
-        Set<String> actions = Sets.newSet();
-        Set<String> categories = Sets.newSet();
-        Set<UriData> data = Sets.newSet();
-        for (IntentAttribute info : infos) {
-            switch (info.kind()) {
-                case CLASS -> classNames.addAll(transferConstantObj(info.csVar().get(0)));
-                case COMPONENT_NAME -> classNames.addAll(transferComponentName(info.csVar().get(0)));
-                case ACTION -> actions.addAll(transferConstantObj(info.csVar().get(0)));
-                case CATEGORY -> categories.addAll(transferConstantObj(info.csVar().get(0)));
-                case DATA, NORMALIZE_DATA, MIME_TYPE, NORMALIZE_MIME_TYPE -> data.addAll(transferData(info.csVar().get(0), info.kind()));
-                // Data and MIME type are conjunctive Intent constraints, so merge them into one data set.
-                case DATA_AND_MIME_TYPE ->
-                        data.addAll(intentAttributeMatcher.mergeData(
-                                transferData(info.csVar().get(0), IntentAttributeKind.DATA),
-                                transferData(info.csVar().get(1), IntentAttributeKind.MIME_TYPE)));
-                case NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE ->
-                        data.addAll(intentAttributeMatcher.mergeData(
-                                transferData(info.csVar().get(0), IntentAttributeKind.NORMALIZE_DATA),
-                                transferData(info.csVar().get(1), IntentAttributeKind.NORMALIZE_MIME_TYPE)));
-            }
-        }
-
-        if (isStartActivity) {
-            categories.add(DEFAULT_CATEGORY);
-        }
-        return new IntentFilterAttribute(classNames, actions, categories, data);
-    }
-
-    private Set<JClass> getMatchResult(IntentFilterAttribute userFilterAttribute) {
-        return intentAttributeMatcher.getMatchResult(userFilterAttribute,
-                        getDynamicReceiverMatch(userFilterAttribute))
-                .stream()
-                .map(hierarchy::getClass)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    private Set<String> getDynamicReceiverMatch(IntentFilterAttribute userFilterAttribute) {
-        return handlerContext.intentFiltersByDynamicReceiver()
-                .entrySet()
-                .stream()
-                .flatMap(entry -> solver.getPointsToSetOf(entry.getValue()).getObjects().stream()
-                        .filter(csObj -> intentAttributeMatcher.matchIntentFilter(
-                                transferDynamicIntentFilterAttribute(handlerContext.intentFilter2Attribute().get(csObj)),
-                                userFilterAttribute))
-                        .map(csObj -> entry.getKey().getName()))
-                .collect(Collectors.toSet());
-    }
-
-    private Set<String> transferComponentName(CSVar component) {
-        return solver.getPointsToSetOf(component)
-                .objects()
-                .flatMap(csObj -> handlerContext.componentName2Info().get(csObj).stream())
-                .flatMap(csVar -> transferConstantObj(csVar).stream())
-                .collect(Collectors.toSet());
-    }
-
-    private Set<String> transferConstantObj(CSVar csVar) {
-        return solver.getPointsToSetOf(csVar)
-                .objects()
-                .map(CSObj::getObject)
-                .map(Obj::getAllocation)
-                .map(allocation -> {
-                    if (allocation instanceof StringLiteral stringLiteral) {
-                        return stringLiteral.getString();
-                    } else if (allocation instanceof ClassLiteral classLiteral) {
-                        return classLiteral.getTypeValue().getName();
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    private Set<UriData> transferData(CSVar csVar, IntentAttributeKind kind) {
-        Set<UriData> data = Sets.newSet();
-        // <scheme>://<host>:<port>[<path>|<pathPrefix>|<pathPattern>|<pathAdvancedPattern>|<pathSuffix>]
-        transferConstantObj(csVar).forEach(uriData -> {
-            try {
-                UriData uriDatum = null;
-                if (kind == IntentAttributeKind.DATA || kind == IntentAttributeKind.NORMALIZE_DATA) {
-                    URI uri = new URI(uriData);
-                    String scheme = uri.getScheme();
-                    if (scheme != null && kind == IntentAttributeKind.NORMALIZE_DATA) {
-                        scheme = normalizeScheme(scheme);
-                    }
-                    String host = uri.getHost().isEmpty() ? null : uri.getHost();
-                    String port = uri.getPort() == -1 ? null : String.valueOf(uri.getPort());
-                    String path = uri.getPath().isEmpty() ? null : uri.getPath();
-                    uriDatum = UriData.builder()
-                            .scheme(scheme)
-                            .host(host)
-                            .port(port)
-                            .path(path)
-                            .build();
-                } else if (kind == IntentAttributeKind.MIME_TYPE || kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
-                    String mimeType = kind == IntentAttributeKind.NORMALIZE_MIME_TYPE
-                            ? normalizeMimeType(uriData) : uriData;
-                    uriDatum = UriData.builder()
-                            .mimeType(mimeType)
-                            .build();
-                }
-
-                if (uriDatum != null) {
-                    data.add(uriDatum);
-                }
-            } catch (URISyntaxException ignored) {
-            }
-        });
-        return data;
-    }
-
 }
