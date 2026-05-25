@@ -22,11 +22,11 @@
 
 package pascal.taie.android.info;
 
-import pascal.taie.android.util.LayoutFileParser;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
+import soot.jimple.infoflow.android.resources.LayoutFileParser;
 
 import java.io.File;
 
@@ -54,7 +54,7 @@ public final class ApkInfoCreator {
                 converter.convertLayoutFragments(),
                 converter.convertLayoutViews(),
                 converter.convertAndroidCallbacks(),
-                converter.convertComponentFilterInfo(),
+                converter.convertComponentFilterAttribute(),
                 rawApkInfo
         );
     }
@@ -63,7 +63,6 @@ public final class ApkInfoCreator {
         try {
             ARSCFileParser resources = new ARSCFileParser();
             resources.parse(new File(apkPath));
-//            resources.parse(apkPath);
             ProcessManifest manifest = new ProcessManifest(new File(apkPath), resources);
             LayoutFileParser layoutFile = new LayoutFileParser(manifest.getPackageName(), apkPath, resources);
             return new RawApkInfo(manifest, layoutFile, resources);
