@@ -20,25 +20,16 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.android.icc;
+package pascal.taie.android.info;
 
-import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.analysis.pta.plugin.android.AndroidContext;
+import java.util.Set;
 
-public class ICCAnalysis extends CompositePlugin {
+public record IntentFilterAttribute(Set<String> classNames,
+                                    Set<String> actions,
+                                    Set<String> categories,
+                                    Set<UriData> data) {
 
-    public ICCAnalysis(AndroidContext androidContext) {
-        ICCContext iccContext = new ICCContext(androidContext);
-        addPlugin(
-                new ComponentICCHandler(iccContext),
-                new ComponentNameInfoModel(iccContext),
-                new StartICCModel(iccContext),
-                new IntentAttributeHandler(iccContext),
-                new IntentFilterAttributeModel(iccContext),
-                new MessageHandler(iccContext),
-                new AidlHandler(iccContext),
-                new SendAndReplyICCHandler(iccContext)
-        );
+    public boolean emptyAttribute() {
+        return actions.isEmpty() && categories.isEmpty() && data.isEmpty();
     }
-
 }

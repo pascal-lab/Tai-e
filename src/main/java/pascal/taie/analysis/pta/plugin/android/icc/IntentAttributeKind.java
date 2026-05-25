@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.android.icc;
 
-public enum IntentInfoKind {
+public enum IntentAttributeKind {
 
     CLASS,
 

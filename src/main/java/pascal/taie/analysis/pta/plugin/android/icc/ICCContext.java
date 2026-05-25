@@ -25,7 +25,6 @@ package pascal.taie.analysis.pta.plugin.android.icc;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.android.AndroidContext;
-import pascal.taie.android.util.IntentInfoMatcher;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -35,56 +34,65 @@ import pascal.taie.util.collection.MultiMap;
  */
 public class ICCContext extends AndroidContext {
 
-    private final IntentInfoMatcher intentInfoMatcher;
-
+    /** Component-level ICC graph derived from matched source/target components. */
     private final MultiMap<JClass, JClass> componentICCGraph = Maps.newMultiMap();
 
-    private final MultiMap<CSObj, IntentInfo> intent2IntentInfo = Maps.newMultiMap();
+    /** Intent object -> attributes written by Intent constructors/setters. */
+    private final MultiMap<CSObj, IntentAttribute> intent2IntentAttribute = Maps.newMultiMap();
 
+    /** ComponentName object -> variable carrying its class-name component. */
     private final MultiMap<CSObj, CSVar> componentName2Info = Maps.newMultiMap();
 
-    private final MultiMap<CSObj, IntentInfo> intentFilter2IntentInfo = Maps.newMultiMap();
+    /** IntentFilter object -> dynamically-added filter attributes. */
+    private final MultiMap<CSObj, IntentAttribute> intentFilter2Attribute = Maps.newMultiMap();
 
+    /** Messenger object -> Handler variable passed to Messenger(Handler). */
     private final MultiMap<CSObj, CSVar> messenger2Handler = Maps.newMultiMap();
 
+    /** Messenger object -> IBinder variable passed to Messenger(IBinder). */
     private final MultiMap<CSObj, CSVar> messenger2IBinder = Maps.newMultiMap();
 
+    /** Dispatch object -> Message send facts. */
     private final MultiMap<CSObj, ICCInfo> sendMessage = Maps.newMultiMap();
 
+    /** Dispatch object -> Handler.handleMessage target facts. */
     private final MultiMap<CSObj, ICCInfo> handleMessage = Maps.newMultiMap();
 
+    /** Source component variable -> outgoing ICC facts. */
     private final MultiMap<CSVar, ICCInfo> sourceComponent2ICCInfo = Maps.newMultiMap();
 
+    /** Target component variable -> incoming ICC facts. */
     private final MultiMap<CSVar, ICCInfo> targetComponent2ICCInfo = Maps.newMultiMap();
 
+    /** Service component variable -> Messenger variables returned from onBind(...). */
     private final MultiMap<CSVar, CSVar> serviceComponent2Messenger = Maps.newMultiMap();
 
+    /** Service component variable -> IBinder objects returned from onBind(...). */
     private final MultiMap<CSVar, CSObj> serviceComponent2IBinder = Maps.newMultiMap();
 
+    /** bindService Intent variable -> onServiceConnected IBinder parameter variable. */
     private final MultiMap<CSVar, CSVar> intent2IBinder = Maps.newMultiMap();
 
+    /** bindService Intent variable -> ServiceConnection argument variable. */
     private final MultiMap<CSVar, CSVar> intents2ServiceConnection = Maps.newMultiMap();
 
+    /** IBinder variable -> generated AIDL proxy variable returned from Stub.asInterface(...). */
     private final MultiMap<CSVar, CSVar> iBinder2AidlInvoke = Maps.newMultiMap();
-
-    public IntentInfoMatcher intentInfoMatcher() {
-        return intentInfoMatcher;
-    }
 
     public MultiMap<JClass, JClass> componentICCGraph() {
         return componentICCGraph;
     }
 
-    public MultiMap<CSObj, IntentInfo> intent2IntentInfo() {
-        return intent2IntentInfo;
+    public MultiMap<CSObj, IntentAttribute> intent2IntentAttribute() {
+        return intent2IntentAttribute;
     }
 
     public MultiMap<CSObj, CSVar> componentName2Info() {
         return componentName2Info;
     }
 
-    public MultiMap<CSObj, IntentInfo> intentFilter2IntentInfo() {
-        return intentFilter2IntentInfo;
+    public MultiMap<CSObj, IntentAttribute> intentFilter2Attribute() {
+        return intentFilter2Attribute;
     }
 
     public MultiMap<CSObj, CSVar> messenger2Handler() {
@@ -133,7 +141,6 @@ public class ICCContext extends AndroidContext {
 
     public ICCContext(AndroidContext context) {
         super(context);
-        this.intentInfoMatcher = new IntentInfoMatcher(context.apkInfo());
     }
 
 }

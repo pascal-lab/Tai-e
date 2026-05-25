@@ -50,7 +50,7 @@ public class AidlHandler extends ICCHandler {
         Invoke callSite = csCallSite.getCallSite();
         if (callSite.isStatic() && callee.getSignature().contains(AS_INTERFACE)) {
             Context context = csCallSite.getContext();
-            CSObj aidlObj = generateInvokeResultObj(context, callSite);
+            CSObj aidlObj = addResultObjectForInvoke(context, callSite);
             if (aidlObj != null) {
                 CSVar iBinderArg = csManager.getCSVar(context, InvokeUtils.getVar(callSite, 0));
                 CSVar aidl = csManager.getCSVar(context, InvokeUtils.getVar(callSite, InvokeUtils.RESULT));

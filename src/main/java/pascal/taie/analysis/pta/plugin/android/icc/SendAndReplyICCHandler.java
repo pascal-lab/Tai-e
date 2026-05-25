@@ -29,9 +29,10 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.android.info.TransferDataInfo;
-import pascal.taie.android.info.TransferFilterInfo;
+import pascal.taie.android.info.IntentDataInfo;
+import pascal.taie.android.info.IntentFilterAttribute;
 import pascal.taie.android.info.UriData;
+import pascal.taie.android.util.IntentAttributeMatcher;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.language.classes.JClass;
@@ -48,45 +49,57 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.android.util.IntentInfoMatcher.normalizeMimeType;
-import static pascal.taie.android.util.IntentInfoMatcher.normalizeScheme;
+import static pascal.taie.android.util.IntentAttributeMatcher.normalizeMimeType;
+import static pascal.taie.android.util.IntentAttributeMatcher.normalizeScheme;
 
 /**
- * Handles send and reply icc.
+ * Resolves recorded ICC facts into call/pfg edges.
+ *
+ * <p>Other ICC handlers only record source-side and target-side facts in
+ * {@link ICCContext}. This handler runs at phase finish, matches Intents
+ * against target components/filters, connects lifecycle parameters, and handles
+ * special reply channels such as startActivityForResult, Messenger, and AIDL.
  */
 public class SendAndReplyICCHandler extends ICCHandler {
 
     private static final String DEFAULT_CATEGORY = "android.intent.category.DEFAULT";
 
-    private static final Subsignature ON_NEW_INTENT_SUB_SIG = Subsignature.get("void onNewIntent(android.content.Intent)");
+    private final JMethod onNewIntent =
+            hierarchy.getMethod("<android.app.Activity: void onNewIntent(android.content.Intent)>");
 
     /**
-     * Sets from the ICCInfo has been processed.
+     * ICC facts already materialized during the current phase. Processed facts
+     * are cleared from context maps at the end of the phase to avoid duplicate
+     * edges in later phases.
      */
     private final Set<ICCInfo> processedICCInfos = Sets.newSet();
 
+    private final IntentAttributeMatcher intentAttributeMatcher;
+
     public SendAndReplyICCHandler(ICCContext context) {
         super(context);
+        this.intentAttributeMatcher = new IntentAttributeMatcher(context.apkInfo());
     }
 
     @Override
     public void onPhaseFinish() {
-        // process source intent to target intent
+        // Resolve normal source Intent facts to matched target components.
         handlerContext.sourceComponent2ICCInfo().forEach((sourceComponent, sourceICCInfo) -> {
             if (!processedICCInfos.contains(sourceICCInfo)) {
-                boolean isStartActivity = sourceICCInfo.kind() == ICCInfoKind.START_ACTIVITY || sourceICCInfo.kind() == ICCInfoKind.START_ACTIVITY_FOR_RESULT;
+                boolean isStartActivity = sourceICCInfo.kind() == ICCInfoKind.START_ACTIVITY
+                        || sourceICCInfo.kind() == ICCInfoKind.START_ACTIVITY_FOR_RESULT;
                 solver.getPointsToSetOf(sourceICCInfo.info()).forEach(csObj -> {
                     Set<JClass> targetComponents = getTargetComponents(csObj, isStartActivity);
                     addICCGraph(transferVarToClass(sourceComponent), targetComponents);
-                    targetComponents.forEach(targetComponent -> processICC(targetComponent, sourceICCInfo));
+                    targetComponents.forEach(targetComponent -> dispatchICCToTarget(targetComponent, sourceICCInfo));
                 });
             }
         });
 
-        // process reply intent
+        // Resolve special reply channels after normal component matching has updated the ICC graph.
         processActivityReplyIntent();
         processHandlerSendMsgOrMessengerReplyMsg();
-        // clear up the processed icc info
+        // Drop consumed facts; unresolved facts stay in the context for later phases.
         clearICCInfos();
     }
 
@@ -116,15 +129,15 @@ public class SendAndReplyICCHandler extends ICCHandler {
         );
     }
 
-    private void processICC(JClass targetComponent, ICCInfo sourceICCInfo) {
+    private void dispatchICCToTarget(JClass targetComponent, ICCInfo sourceICCInfo) {
         if (sourceICCInfo.kind().equals(ICCInfoKind.BIND_SERVICE)) {
-            processComplexICC(targetComponent, sourceICCInfo);
+            dispatchServiceBindingICC(targetComponent, sourceICCInfo);
         } else {
-            processCommonICC(targetComponent, sourceICCInfo);
+            dispatchCommonICC(targetComponent, sourceICCInfo);
         }
     }
 
-    private void processCommonICC(JClass targetComponent, ICCInfo sourceICCInfo) {
+    private void dispatchCommonICC(JClass targetComponent, ICCInfo sourceICCInfo) {
         handlerContext.targetComponent2ICCInfo().forEach((component, targetICCInfo) -> {
             if (sourceICCInfo.kind().equals(targetICCInfo.kind())
                     && transferVarToClass(component).contains(targetComponent)) {
@@ -133,7 +146,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
                         processedICCInfos.add(sourceICCInfo);
                         solver.addPFGEdge(new ICCEdge(sourceICCInfo.info(), targetICCInfo.info()), targetICCInfo.info().getType());
 
-                        JMethod callee = handlerContext.lifecycleHelper().getLifeCycleMethod(targetComponent, ON_NEW_INTENT_SUB_SIG);
+                        JMethod callee = hierarchy.dispatch(targetComponent, onNewIntent.getRef());
                         if (callee != null) {
                             addICCCallEdge(targetComponent, sourceICCInfo, callee);
                         }
@@ -145,7 +158,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
         });
     }
 
-    private void processComplexICC(JClass targetComponent, ICCInfo sourceICCInfo) {
+    private void dispatchServiceBindingICC(JClass targetComponent, ICCInfo sourceICCInfo) {
         sendMessage(transferSendMsg(sourceICCInfo), transferHandlerMsg(targetComponent));
         processOther(targetComponent, sourceICCInfo);
     }
@@ -283,7 +296,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
     }
 
     private Set<JClass> getTargetComponents(CSObj csObj, boolean isStartActivity) {
-        return getMatchResult(transferIntentInfo(handlerContext.intent2IntentInfo().get(csObj), isStartActivity));
+        return getMatchResult(transferIntentAttribute(handlerContext.intent2IntentAttribute().get(csObj), isStartActivity));
     }
 
     private void clearICCInfos() {
@@ -308,14 +321,14 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 .collect(Collectors.toSet());
     }
 
-    private TransferFilterInfo transferDynamicIntentFilterInfo(Set<IntentInfo> infos) {
-        TransferFilterInfo dynamicFilterInfo = transferIntentInfo(infos, false);
+    private IntentFilterAttribute transferDynamicIntentFilterAttribute(Set<IntentAttribute> infos) {
+        IntentFilterAttribute dynamicFilterAttribute = transferIntentAttribute(infos, false);
         Set<String> schemes = Sets.newSet();
         Set<String> hosts = Sets.newSet();
         Set<String> ports = Sets.newSet();
         Set<String> paths = Sets.newSet();
         Set<String> mimeTypes = Sets.newSet();
-        for (IntentInfo info : infos) {
+        for (IntentAttribute info : infos) {
             switch (info.kind()) {
                 case DATA_SCHEME -> schemes.addAll(transferConstantObj(info.csVar().get(0)));
                 case DATA_HOST -> hosts.addAll(transferConstantObj(info.csVar().get(0)));
@@ -324,11 +337,11 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 case MIME_TYPE -> mimeTypes.addAll(transferConstantObj(info.csVar().get(0)));
             }
         }
-        return new TransferFilterInfo(
-                dynamicFilterInfo.classNames(),
-                dynamicFilterInfo.actions(),
-                dynamicFilterInfo.categories(),
-                new TransferDataInfo(
+        return new IntentFilterAttribute(
+                dynamicFilterAttribute.classNames(),
+                dynamicFilterAttribute.actions(),
+                dynamicFilterAttribute.categories(),
+                new IntentDataInfo(
                         schemes,
                         hosts,
                         ports,
@@ -340,57 +353,53 @@ public class SendAndReplyICCHandler extends ICCHandler {
                         mimeTypes).convertToDataSet());
     }
 
-    private TransferFilterInfo transferIntentInfo(Set<IntentInfo> infos, boolean isStartActivity) {
+    private IntentFilterAttribute transferIntentAttribute(Set<IntentAttribute> infos, boolean isStartActivity) {
         Set<String> classNames = Sets.newSet();
         Set<String> actions = Sets.newSet();
         Set<String> categories = Sets.newSet();
         Set<UriData> data = Sets.newSet();
-        for (IntentInfo info : infos) {
+        for (IntentAttribute info : infos) {
             switch (info.kind()) {
                 case CLASS -> classNames.addAll(transferConstantObj(info.csVar().get(0)));
                 case COMPONENT_NAME -> classNames.addAll(transferComponentName(info.csVar().get(0)));
                 case ACTION -> actions.addAll(transferConstantObj(info.csVar().get(0)));
                 case CATEGORY -> categories.addAll(transferConstantObj(info.csVar().get(0)));
                 case DATA, NORMALIZE_DATA, MIME_TYPE, NORMALIZE_MIME_TYPE -> data.addAll(transferData(info.csVar().get(0), info.kind()));
+                // Data and MIME type are conjunctive Intent constraints, so merge them into one data set.
                 case DATA_AND_MIME_TYPE ->
-                    // data and mimeType need to be satisfied at the same time, so needs to merge the information
-                        data.addAll(handlerContext.intentInfoMatcher().mergeData(
-                                transferData(info.csVar().get(0), IntentInfoKind.DATA),
-                                transferData(info.csVar().get(1), IntentInfoKind.MIME_TYPE)));
+                        data.addAll(intentAttributeMatcher.mergeData(
+                                transferData(info.csVar().get(0), IntentAttributeKind.DATA),
+                                transferData(info.csVar().get(1), IntentAttributeKind.MIME_TYPE)));
                 case NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE ->
-                    // data and mimeType need to be satisfied at the same time, so needs to merge the information
-                        data.addAll(handlerContext.intentInfoMatcher().mergeData(
-                                transferData(info.csVar().get(0), IntentInfoKind.NORMALIZE_DATA),
-                                transferData(info.csVar().get(1), IntentInfoKind.NORMALIZE_MIME_TYPE)));
+                        data.addAll(intentAttributeMatcher.mergeData(
+                                transferData(info.csVar().get(0), IntentAttributeKind.NORMALIZE_DATA),
+                                transferData(info.csVar().get(1), IntentAttributeKind.NORMALIZE_MIME_TYPE)));
             }
         }
-        // Final strategy has not yet been determined
+
         if (isStartActivity) {
             categories.add(DEFAULT_CATEGORY);
         }
-//        if (isStartActivity && (!actions.isEmpty() || !categories.isEmpty() || !data.isEmpty())) {
-//            categories.add(DEFAULT_CATEGORY);
-//        }
-        return new TransferFilterInfo(classNames, actions, categories, data);
+        return new IntentFilterAttribute(classNames, actions, categories, data);
     }
 
-    private Set<JClass> getMatchResult(TransferFilterInfo userFilterInfo) {
-        return handlerContext.intentInfoMatcher().getMatchResult(userFilterInfo,
-                        getDynamicReceiverMatch(userFilterInfo))
+    private Set<JClass> getMatchResult(IntentFilterAttribute userFilterAttribute) {
+        return intentAttributeMatcher.getMatchResult(userFilterAttribute,
+                        getDynamicReceiverMatch(userFilterAttribute))
                 .stream()
                 .map(hierarchy::getClass)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    private Set<String> getDynamicReceiverMatch(TransferFilterInfo userFilterInfo) {
-        return handlerContext.dynamicReceiver2IntentFilter()
+    private Set<String> getDynamicReceiverMatch(IntentFilterAttribute userFilterAttribute) {
+        return handlerContext.intentFiltersByDynamicReceiver()
                 .entrySet()
                 .stream()
                 .flatMap(entry -> solver.getPointsToSetOf(entry.getValue()).getObjects().stream()
-                        .filter(csObj -> handlerContext.intentInfoMatcher().matchIntentFilter(
-                                transferDynamicIntentFilterInfo(handlerContext.intentFilter2IntentInfo().get(csObj)),
-                                userFilterInfo))
+                        .filter(csObj -> intentAttributeMatcher.matchIntentFilter(
+                                transferDynamicIntentFilterAttribute(handlerContext.intentFilter2Attribute().get(csObj)),
+                                userFilterAttribute))
                         .map(csObj -> entry.getKey().getName()))
                 .collect(Collectors.toSet());
     }
@@ -407,7 +416,6 @@ public class SendAndReplyICCHandler extends ICCHandler {
         return solver.getPointsToSetOf(csVar)
                 .objects()
                 .map(CSObj::getObject)
-//                .filter(object -> object instanceof ConstantObj)
                 .map(Obj::getAllocation)
                 .map(allocation -> {
                     if (allocation instanceof StringLiteral stringLiteral) {
@@ -421,16 +429,16 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 .collect(Collectors.toSet());
     }
 
-    private Set<UriData> transferData(CSVar csVar, IntentInfoKind kind) {
+    private Set<UriData> transferData(CSVar csVar, IntentAttributeKind kind) {
         Set<UriData> data = Sets.newSet();
         // <scheme>://<host>:<port>[<path>|<pathPrefix>|<pathPattern>|<pathAdvancedPattern>|<pathSuffix>]
         transferConstantObj(csVar).forEach(uriData -> {
             try {
                 UriData d = null;
-                if (kind == IntentInfoKind.DATA || kind == IntentInfoKind.NORMALIZE_DATA) {
+                if (kind == IntentAttributeKind.DATA || kind == IntentAttributeKind.NORMALIZE_DATA) {
                     URI uri = new URI(uriData);
                     String scheme = uri.getScheme();
-                    if (scheme != null && kind == IntentInfoKind.NORMALIZE_DATA) {
+                    if (scheme != null && kind == IntentAttributeKind.NORMALIZE_DATA) {
                         scheme = normalizeScheme(scheme);
                     }
                     String host = uri.getHost().isEmpty() ? null : uri.getHost();
@@ -442,9 +450,9 @@ public class SendAndReplyICCHandler extends ICCHandler {
                             .port(port)
                             .path(path)
                             .build();
-                } else if (kind == IntentInfoKind.MIME_TYPE || kind == IntentInfoKind.NORMALIZE_MIME_TYPE) {
+                } else if (kind == IntentAttributeKind.MIME_TYPE || kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
                     String mimeType = uriData;
-                    if (kind == IntentInfoKind.NORMALIZE_MIME_TYPE) {
+                    if (kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
                         mimeType = normalizeMimeType(mimeType);
                     }
                     d = UriData.builder()

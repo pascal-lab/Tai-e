@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.android.icc;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
@@ -31,7 +32,7 @@ import pascal.taie.ir.stmt.Invoke;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
- * Models componentName init methods.
+ * Models ComponentName constructors by recording the class-name argument carried by each ComponentName object.
  */
 public class ComponentNameInfoModel extends ICCHandler {
 
@@ -44,11 +45,11 @@ public class ComponentNameInfoModel extends ICCHandler {
             "<android.content.ComponentName: void <init>(android.content.Context,java.lang.String)>",
             "<android.content.ComponentName: void <init>(android.content.Context,java.lang.Class)>"},
             argIndexes = {BASE})
-    public void componentNameInit(Context context, Invoke invoke, PointsToSet pts) {
-        pts.forEach(csObj -> {
-            Var arg = invoke.getInvokeExp().getArg(1);
-            handlerContext.componentName2Info().put(csObj, csManager.getCSVar(context, arg));
-        });
+    public void componentNameInit(Context context, Invoke invoke, PointsToSet componentNameObjs) {
+        Var classNameArg = invoke.getInvokeExp().getArg(1);
+        CSVar className = csManager.getCSVar(context, classNameArg);
+        componentNameObjs.forEach(componentNameObj ->
+                handlerContext.componentName2Info().put(componentNameObj, className));
     }
 
 }

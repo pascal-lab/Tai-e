@@ -91,7 +91,7 @@ public class StartICCModel extends ICCHandler {
                     case SEND_BROADCAST_SUB_SIG -> iccInfo = new ICCInfo(intent, ICCInfoKind.SEND_BROADCAST, null, csCallSite);
                     case BIND_SERVICE_SUB_SIG -> {
                         iccInfo = new ICCInfo(intent, ICCInfoKind.BIND_SERVICE, null, csCallSite);
-                        Var serviceConnectionArg= invoke.getInvokeExp().getArg(1);
+                        Var serviceConnectionArg = invoke.getInvokeExp().getArg(1);
                         handlerContext.intents2ServiceConnection().put(intent, csManager.getCSVar(context, serviceConnectionArg));
                     }
                     case START_SERVICE_SUB_SIG -> iccInfo = new ICCInfo(intent, ICCInfoKind.START_SERVICE, null, csCallSite);

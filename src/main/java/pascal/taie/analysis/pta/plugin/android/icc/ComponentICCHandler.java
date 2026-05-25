@@ -47,7 +47,13 @@ import static pascal.taie.android.AndroidClassNames.BROADCAST_RECEIVER;
 import static pascal.taie.android.AndroidClassNames.SERVICE;
 
 /**
- * Handles icc related invoke.
+ * Records incoming component lifecycle entry points and service-binding facts.
+ *
+ * <p>Source-side ICC calls are recorded by {@link StartICCModel}. This handler
+ * records target-side lifecycle parameters such as Activity.getIntent(),
+ * Service.onBind(...), Service.onStartCommand(...), and
+ * BroadcastReceiver.onReceive(...). {@link SendAndReplyICCHandler} later joins
+ * the two sides.
  */
 public class ComponentICCHandler extends ICCHandler {
 
@@ -67,7 +73,11 @@ public class ComponentICCHandler extends ICCHandler {
 
     private static final String GET_INTENT = "<android.app.Activity: android.content.Intent getIntent()>";
 
-    private static final MultiMap<CSObj, CSVar> onBindResult2Messenger = Maps.newMultiMap();
+    /**
+     * Maps IBinder objects returned by Service.onBind(...) back to the Messenger
+     * object whose getBinder() result produced that binder.
+     */
+    private final MultiMap<CSObj, CSVar> onBindResult2Messenger = Maps.newMultiMap();
 
     public ComponentICCHandler(ICCContext context) {
         super(context);
@@ -75,14 +85,14 @@ public class ComponentICCHandler extends ICCHandler {
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
-        // process serviceConnection var
+        // A bindService(...) ServiceConnection object may become available after the call is seen.
         handlerContext.intents2ServiceConnection().forEach((intent, serviceConnection) -> {
             if (serviceConnection.equals(csVar)) {
                 pts.forEach(thisObj -> processServiceConnectionVar(intent, thisObj.getObject()));
             }
         });
 
-        // process onBind method return var
+        // onBind(...) return objects connect the service component to IBinder/Messenger facts.
         processOnBindMethodReturnVar(csVar, pts);
     }
 
@@ -98,10 +108,10 @@ public class ComponentICCHandler extends ICCHandler {
         }
 
         CSVar callerThisCSVar = csManager.getCSVar(callerCtx, caller.getIR().getThis());
-        // process getIntent invoke in activityClass
+        // Activity.getIntent() is the target-side Intent receiver for activity ICC.
         if (callee.getSignature().equals(GET_INTENT) && callSite.getResult() != null) {
             CSVar intent = csManager.getCSVar(callerCtx, callSite.getResult());
-            // The getIntent can come START_ACTIVITY_FOR_RESULT and START_ACTIVITY
+            // The same getIntent() result may receive either startActivity or startActivityForResult intents.
             handlerContext.targetComponent2ICCInfo().put(callerThisCSVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY_FOR_RESULT, null, null));
             handlerContext.targetComponent2ICCInfo().put(callerThisCSVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY, null, null));
         }
@@ -115,41 +125,51 @@ public class ComponentICCHandler extends ICCHandler {
             return;
         }
 
-        CSVar thisCSVar = csManager.getCSVar(context, method.getIR().getThis());
+        CSVar component = csManager.getCSVar(context, method.getIR().getThis());
         CSVar intent = null;
         ICCInfoKind kind = ICCInfoKind.OTHER;
-        // process onActivityResult in activity component
         if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, ACTIVITY, ON_ACTIVITY_RESULT_SUB_SIG)) {
+            // Activity.onActivityResult receives the reply Intent produced by setResult(...).
             intent = csManager.getCSVar(context, method.getIR().getParam(2));
             kind = ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY;
-        }// process onBind CSMethod in service component
-        else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_BIND_SUB_SIG)) {
-            processOnBindMethod(context, method);
+        } else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_BIND_SUB_SIG)) {
+            // Service.onBind receives the binding Intent and may return an IBinder.
+            // process onBind CSMethod in service component
+            processGetBinder(context, method);
             intent = csManager.getCSVar(context, method.getIR().getParam(0));
             kind = ICCInfoKind.BIND_SERVICE;
-        }// process onStartCommand CSMethod in service component
-        else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_START_COMMAND)) {
+        } else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_START_COMMAND)) {
+            // Service starts receive their Intent through onStartCommand/onHandleIntent.
             intent = csManager.getCSVar(context, method.getIR().getParam(0));
             kind = ICCInfoKind.START_SERVICE;
         } else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_HANDLE_INTENT)) {
             intent = csManager.getCSVar(context, method.getIR().getParam(0));
             kind = ICCInfoKind.START_SERVICE;
-        } // process onReceive CSMethod in receiverClass
-        else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, BROADCAST_RECEIVER, ON_RECEIVE)) {
+        } else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, BROADCAST_RECEIVER, ON_RECEIVE)) {
+            // Broadcast receivers receive broadcast Intents through onReceive(...).
             intent = csManager.getCSVar(context, method.getIR().getParam(1));
             kind = ICCInfoKind.SEND_BROADCAST;
         }
         if (intent != null) {
-            addComponentIntent(thisCSVar, new ICCInfo(intent, kind, null, null));
+            recordTargetSideICC(component, new ICCInfo(intent, kind, null, null));
         }
     }
 
-    private void addComponentIntent(CSVar csVar, ICCInfo iccInfo) {
-        (iccInfo.kind().equals(ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY) ?
-                handlerContext.sourceComponent2ICCInfo() : handlerContext.targetComponent2ICCInfo()).put(csVar, iccInfo);
+    private void recordTargetSideICC(CSVar component, ICCInfo iccInfo) {
+        // For replay intents, the target component corresponds to the original sender (source component).
+        if (iccInfo.kind().equals(ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY)) {
+            handlerContext.sourceComponent2ICCInfo().put(component, iccInfo);
+        } else {
+            handlerContext.targetComponent2ICCInfo().put(component, iccInfo);
+        }
     }
 
-    private void processOnBindMethod(Context context, JMethod onBind) {
+    /**
+     * Finds Messenger.getBinder() results inside Service.onBind(...). When the
+     * returned IBinder object later appears in the return points-to set, we can
+     * recover the Messenger associated with the service component.
+     */
+    private void processGetBinder(Context context, JMethod onBind) {
         onBind.getIR().getStmts()
                 .stream()
                 .filter(stmt -> stmt instanceof Invoke invoke && !invoke.isDynamic() && !invoke.isStatic())
@@ -159,7 +179,7 @@ public class ComponentICCHandler extends ICCHandler {
                     Var base = InvokeUtils.getVar(invoke, BASE);
                     if (resolve != null && resolve.getSignature().equals(GET_BINDER)) {
                         CSVar messengerCSVar = csManager.getCSVar(context, base);
-                        CSObj result = generateInvokeResultObj(context, invoke);
+                        CSObj result = addResultObjectForInvoke(context, invoke);
                         if (result != null) {
                             onBindResult2Messenger.put(result, messengerCSVar);
                         }
@@ -167,6 +187,10 @@ public class ComponentICCHandler extends ICCHandler {
                 });
     }
 
+    /**
+     * Adds ServiceConnection lifecycle entry points and records the IBinder
+     * parameter of onServiceConnected(...) as the binding result for the Intent.
+     */
     private void processServiceConnectionVar(CSVar intent, Obj thisObj) {
         if (thisObj.getType() instanceof ClassType classType) {
             handlerContext.lifecycleHelper()
@@ -174,7 +198,7 @@ public class ComponentICCHandler extends ICCHandler {
                     .forEach(serviceConnectionMethod -> {
                         Map<Integer, Obj> paramIndex = Maps.newMap();
                         if (serviceConnectionMethod.getSubsignature().equals(ON_SERVICE_CONNECTED_SUB_SIG)) {
-                            Obj param = handlerContext.androidObjManager().getLifecycleMethodParamObj(serviceConnectionMethod, serviceConnectionMethod.getIR().getParam(1));
+                            Obj param = handlerContext.androidObjManager().mockLifecycleMethodParamObj(serviceConnectionMethod, serviceConnectionMethod.getIR().getParam(1));
                             paramIndex.put(1, param);
                             handlerContext.intent2IBinder().put(intent, csManager.getCSVar(emptyContext, serviceConnectionMethod.getIR().getParam(1)));
                         }
@@ -183,6 +207,11 @@ public class ComponentICCHandler extends ICCHandler {
         }
     }
 
+    /**
+     * Connects Service.onBind(...) return objects to the service component. The
+     * result may be consumed directly as an IBinder or indirectly through
+     * Messenger.getBinder().
+     */
     private void processOnBindMethodReturnVar(CSVar csVar, PointsToSet pts) {
         Context context = csVar.getContext();
         Var var = csVar.getVar();

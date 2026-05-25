@@ -30,10 +30,11 @@ import javax.annotation.Nullable;
 
 /**
  * ICC related info.
- * @param info ICC related intent or message
- * @param kind ICC Kind
+ *
+ * @param info variable holding the Intent or Message object being sent.
+ * @param kind ICC sent Kind
  * @param handlerObj it is valid only if info is messenger init with android.os.Handler
- * @param iccCSCallSite it is valid only if it needs to add ICCCallEdge
+ * @param iccCSCallSite it is valid only if it needs to add {@link ICCCallEdge}
  */
 public record ICCInfo(CSVar info,
                       ICCInfoKind kind,

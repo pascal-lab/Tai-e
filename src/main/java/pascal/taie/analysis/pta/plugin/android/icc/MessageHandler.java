@@ -29,7 +29,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.Var;
@@ -45,7 +45,11 @@ import java.util.Set;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
- * Models message related methods.
+ * Models Handler/Messenger based ICC.
+ *
+ * <p>Handler.sendMessage(...) and Messenger.send(...) are treated as ICC-like
+ * dispatches. This handler records message sources and handler targets;
+ * {@link SendAndReplyICCHandler} later joins matching send/handle facts.
  */
 public class MessageHandler extends ICCHandler {
 
@@ -71,21 +75,21 @@ public class MessageHandler extends ICCHandler {
         Invoke callSite = csCallSite.getCallSite();
         switch (callee.getSignature()) {
             case MESSAGE_OBTAIN -> {
-                CSObj messageObj = generateInvokeResultObj(context, callSite);
+                CSObj messageObj = addResultObjectForInvoke(context, callSite);
                 JField field = hierarchy.getField("<android.os.Message: int arg1>");
                 if (field != null && messageObj != null) {
                     InstanceField instField = csManager.getInstanceField(messageObj, field);
                     CSVar arg = csManager.getCSVar(context, callSite.getInvokeExp().getArg(2));
-                    solver.addPFGEdge(new AndroidTransferEdge(arg, instField));
+                    solver.addPFGEdge(new AndroidModelEdge(arg, instField));
                 }
             }
             case MESSAGE_OBTAIN2 -> {
-                CSObj messageObj = generateInvokeResultObj(context, callSite);
+                CSObj messageObj = addResultObjectForInvoke(context, callSite);
                 JField field = hierarchy.getField("<android.os.Message: java.lang.Object obj>");
                 if (field != null && messageObj != null) {
                     InstanceField instField = csManager.getInstanceField(messageObj, field);
                     CSVar arg = csManager.getCSVar(context, callSite.getInvokeExp().getArg(2));
-                    solver.addPFGEdge(new AndroidTransferEdge(arg, instField));
+                    solver.addPFGEdge(new AndroidModelEdge(arg, instField));
                 }
             }
         }

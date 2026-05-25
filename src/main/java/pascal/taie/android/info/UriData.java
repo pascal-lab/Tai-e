@@ -25,38 +25,39 @@ package pascal.taie.android.info;
 import javax.annotation.Nullable;
 import java.util.List;
 
+
 /**
- * Contains information about data in intent-filter.
+ * Models the data constraints of Android intent filter.
+ *
+ * <p>The same record is used on both sides of ICC resolution: manifest filters
+ * provide the accepted URI/MIME constraints, while caller-created intents provide
+ * the queried URI/MIME values.
  */
-public record UriData(@Nullable
-                   String scheme,
-                      @Nullable
-                   String host,
-                      @Nullable
-                   String port,
-                      @Nullable
-                   String path,
-                      @Nullable
-                   String pathPrefix,
-                      @Nullable
-                   String pathSuffix,
-                      @Nullable
-                   String pathPattern,
-                      @Nullable
-                   String pathAdvancedPattern,
-                      @Nullable
-                   String mimeType) {
+public record UriData(@Nullable String scheme,
+                      @Nullable String host,
+                      @Nullable String port,
+                      @Nullable String path,
+                      @Nullable String pathPrefix,
+                      @Nullable String pathSuffix,
+                      @Nullable String pathPattern,
+                      @Nullable String pathAdvancedPattern,
+                      @Nullable String mimeType) {
 
-    private static final List<String> PASS_SCHEMES = List.of("http", "https");
+    private static final List<String> DEFAULT_MIME_SCHEMES = List.of("content", "file");
 
-    private static final List<String> DEFAULT_SCHEMES = List.of("content", "file");
+    /**
+     * Preserves the previous behavior: when an intent has an HTTP(S) URI but no
+     * explicit port, a filter-side port constraint is treated as matched.
+     */
+    private static final List<String> IMPLICIT_PORT_SCHEMES = List.of("http", "https");
 
     public static Builder builder() {
         return new Builder();
     }
 
     private static UriData of(Builder builder) {
-        return new UriData(builder.scheme,
+        return new UriData(
+                builder.scheme,
                 builder.host,
                 builder.port,
                 builder.path,
@@ -68,7 +69,8 @@ public record UriData(@Nullable
     }
 
     /**
-     * Builder for building data info.
+     * Builder for {@link UriData}. All fields are optional because Android allows
+     * partial data declarations, e.g., MIME-only or scheme-only filters.
      */
     public static class Builder {
 
@@ -138,6 +140,10 @@ public record UriData(@Nullable
             return this;
         }
 
+        /**
+         * Copies all fields from an existing {@link UriData}. Kept as {@code data}
+         * for source compatibility with existing callers such as data merging.
+         */
         public Builder data(UriData uriData) {
             this.scheme = uriData.scheme;
             this.host = uriData.host;
@@ -158,104 +164,110 @@ public record UriData(@Nullable
     }
 
     /**
-     * matching rule refers
-     * <a href="https://developer.android.com/guide/topics/manifest/data-element?hl=zh-cn">...</a>
-     * <a href="https://developer.android.com/guide/components/intents-filters?hl=zh-cn">...</a>
+     * Returns whether this filter-side data declaration can match the given
+     * intent-side data.
+     *
+     * <p>The matching rule follows Android's intent-filter data matching order:
+     *
+     * @see <a href="https://developer.android.com/guide/topics/manifest/data-element">Android data element</a>
+     * @see <a href="https://developer.android.com/guide/components/intents-filters">Android intents and filters</a>
      */
     public boolean match(UriData uriData) {
-        boolean uriMatch = hasURI(uriData);
-        boolean mimeTypeMatch = hasMimeType(uriData.mimeType);
+        boolean uriMatches = matchesUri(uriData);
+        boolean mimeTypeMatches = matchesMimeType(uriData.mimeType);
 
         if (uriData.scheme != null && uriData.host != null && uriData.mimeType != null) {
-            return (uriMatch || DEFAULT_SCHEMES.contains(uriData.scheme)) && mimeTypeMatch;
+            return (uriMatches || DEFAULT_MIME_SCHEMES.contains(uriData.scheme)) && mimeTypeMatches;
         } else {
-            return uriData.mimeType == null ? uriMatch && this.mimeType == null : emptyUri() && mimeTypeMatch;
+            return uriData.mimeType == null ?
+                    uriMatches && this.mimeType == null :
+                    emptyUri() && mimeTypeMatches;
         }
     }
 
-    private boolean hasURI(UriData uriData) {
-        boolean hasScheme = hasScheme(uriData.scheme);
-        boolean hasAuthority = !emptyScheme() && hasHost(uriData.host) && hasPort(uriData.scheme, uriData.port);
-        boolean hasPath = !emptyScheme() && !emptyAuthority() && pathMatch(uriData.path);
-        return (hasScheme && emptyAuthority() && emptyPath())
-                || (hasScheme && hasAuthority && emptyPath())
-                || (hasScheme && hasAuthority && hasPath);
+    private boolean matchesUri(UriData uriData) {
+        boolean schemeMatches = matchesScheme(uriData.scheme);
+        boolean authorityMatches = hasSchemeConstraint() && matchesHost(uriData.host) && matchesPort(uriData.scheme, uriData.port);
+        boolean pathMatches = hasSchemeConstraint() && hasAuthorityConstraint() && matchesPath(uriData.path);
+        return (schemeMatches && !hasAuthorityConstraint() && !hasPathConstraint())
+                || (schemeMatches && authorityMatches && !hasPathConstraint())
+                || (schemeMatches && authorityMatches && pathMatches);
     }
 
     private boolean emptyUri() {
-        return this.scheme == null && emptyAuthority() && emptyPath();
+        return this.scheme == null && !hasAuthorityConstraint() && !hasPathConstraint();
     }
 
-    private boolean hasScheme(String scheme) {
+    private boolean hasSchemeConstraint() {
+        return this.scheme != null;
+    }
+
+    private boolean hasAuthorityConstraint() {
+        return this.host != null || this.port != null;
+    }
+
+    private boolean hasPathConstraint() {
+        return this.path != null
+                || this.pathPrefix != null
+                || this.pathPattern != null
+                || this.pathSuffix != null
+                || this.pathAdvancedPattern != null;
+    }
+
+    private boolean matchesScheme(String scheme) {
         return this.scheme != null && this.scheme.equals(scheme);
     }
 
-    private boolean hasHost(String host) {
+    private boolean matchesHost(String host) {
         return this.host == null || (host != null
                 && (this.host.equals(host)
                 || (this.host.startsWith("*")
                 && host.matches(this.host.replaceFirst("^\\*", ".*")))));
     }
 
-    private boolean hasPort(String scheme, String port) {
-        return (port == null && scheme != null && PASS_SCHEMES.contains(scheme))
+    private boolean matchesPort(String scheme, String port) {
+        return (port == null && scheme != null && IMPLICIT_PORT_SCHEMES.contains(scheme))
                 || (this.port != null && this.port.equals(port));
     }
 
-    private boolean pathMatch(String path) {
-        return emptyPath() || path == null
-                || hasPath(path)
-                || hasPathPrefix(path)
-                || hasPathSuffix(path)
-                || hasPathPattern(path)
-                || hasPathAdvancedPattern(path);
+    private boolean matchesPath(String path) {
+        return !hasPathConstraint() || path == null
+                || matchesExactPath(path)
+                || matchesPathPrefix(path)
+                || matchesPathSuffix(path)
+                || matchesPathPattern(path)
+                || matchesPathAdvancedPattern(path);
     }
 
-    private boolean emptyScheme() {
-        return this.scheme == null;
-    }
-
-    private boolean emptyAuthority() {
-        return this.host == null && this.port == null;
-    }
-
-    private boolean emptyPath() {
-        return this.path == null
-                && this.pathPrefix == null
-                && this.pathPattern == null
-                && this.pathSuffix == null
-                && this.pathAdvancedPattern == null;
-    }
-
-    private boolean hasPath(String path) {
+    private boolean matchesExactPath(String path) {
         return path.equals(this.path);
     }
 
-    private boolean hasPathPrefix(String path) {
+    private boolean matchesPathPrefix(String path) {
         return this.pathPrefix != null && path.startsWith(this.pathPrefix);
     }
 
-    private boolean hasPathSuffix(String path) {
+    private boolean matchesPathSuffix(String path) {
         return this.pathSuffix != null && path.endsWith(this.pathSuffix);
     }
 
-    private boolean hasPathPattern(String path) {
-        return this.pathPattern != null && pathMatch(path, this.pathPattern);
+    private boolean matchesPathPattern(String path) {
+        return this.pathPattern != null && matchesPathPattern(path, this.pathPattern);
     }
 
-    private boolean hasPathAdvancedPattern(String path) {
-        return this.pathAdvancedPattern != null && pathMatch(path, this.pathAdvancedPattern);
+    private boolean matchesPathAdvancedPattern(String path) {
+        return this.pathAdvancedPattern != null && matchesPathPattern(path, this.pathAdvancedPattern);
     }
 
-    private boolean hasMimeType(String mimeType) {
-        return mimeType != null && this.mimeType != null && mimeTypeMatch(mimeType, this.mimeType);
+    private boolean matchesMimeType(String mimeType) {
+        return mimeType != null && this.mimeType != null && matchesMimeTypePattern(mimeType, this.mimeType);
     }
 
-    private boolean pathMatch(String path, String regex) {
+    private boolean matchesPathPattern(String path, String regex) {
         return path.matches(regex);
     }
 
-    private boolean mimeTypeMatch(String mimeType, String fakeRegex) {
+    private boolean matchesMimeTypePattern(String mimeType, String fakeRegex) {
         return fakeRegex.equals(mimeType) || mimeType.matches(fakeRegex.replace("*", ".*"));
     }
 }

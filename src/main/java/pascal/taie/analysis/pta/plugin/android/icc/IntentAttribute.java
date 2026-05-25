@@ -26,7 +26,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 
 import java.util.List;
 
-public record IntentInfo(List<CSVar> csVar,
-                         IntentInfoKind kind) {
+public record IntentAttribute(List<CSVar> csVar,
+                              IntentAttributeKind kind) {
 
 }
