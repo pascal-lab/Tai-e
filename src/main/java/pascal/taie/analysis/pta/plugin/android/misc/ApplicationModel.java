@@ -33,8 +33,8 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 public class ApplicationModel extends AndroidMiscHandler {
 
-    public ApplicationModel(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public ApplicationModel(AndroidMiscContext context) {
+        super(context);
     }
 
     @InvokeHandler(signature = {

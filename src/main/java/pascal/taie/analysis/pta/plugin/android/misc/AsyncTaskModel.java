@@ -53,8 +53,8 @@ public class AsyncTaskModel extends AndroidMiscHandler {
     private static final Subsignature ON_POST_EXECUTE_SUB_SIG =
             Subsignature.get("void onPostExecute(java.lang.Object)");
 
-    public AsyncTaskModel(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public AsyncTaskModel(AndroidMiscContext context) {
+        super(context);
     }
 
     @InvokeHandler(signature = {

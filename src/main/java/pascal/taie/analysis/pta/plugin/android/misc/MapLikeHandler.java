@@ -41,7 +41,7 @@ import java.util.Set;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
- * Models Android map-like containers.
+ * Models Android keyed map-like containers.
  *
  * <p>For example, this handler models key-value data flow through
  * {@code Intent} extras, {@code Bundle}, and {@code SharedPreferences}.
@@ -73,25 +73,13 @@ public class MapLikeHandler extends AndroidMiscHandler {
      */
     private final MultiMap<CSObj, CSCallSite> impreciseGetsByMap = Maps.newMultiMap();
 
-    /**
-     * Values written to container-like APIs that store a single logical value per base object
-     * in this model, e.g., TextView.setHint(...) and Intent.putExtras(...).
-     */
-    private final MultiMap<CSObj, CSVar> singleValueWrites = Maps.newMultiMap();
-
-    /**
-     * Results of getter APIs that should receive values previously written to the same base object.
-     */
-    private final MultiMap<CSObj, CSVar> pendingSingleValueReads = Maps.newMultiMap();
-
-    public MapLikeHandler(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public MapLikeHandler(AndroidMiscContext context) {
+        super(context);
     }
 
     @Override
     public void onPhaseFinish() {
         resolvePendingGetInvokes();
-        resolvePendingSingleValueReads();
     }
 
     @InvokeHandler(signature = {
@@ -286,33 +274,6 @@ public class MapLikeHandler extends AndroidMiscHandler {
         mapObjs.forEach(map -> pendingGetsByMap.put(map, csCallSite));
     }
 
-    @InvokeHandler(signature = {
-            "<android.widget.TextView: void setHint(java.lang.CharSequence)>",
-            "<android.content.Intent: android.content.Intent putExtras(android.os.Bundle)>"
-    }, argIndexes = {BASE})
-    public void writeSingleValue(Context context, Invoke invoke, PointsToSet baseObjs) {
-        CSVar value = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
-        baseObjs.forEach(baseObj -> singleValueWrites.put(baseObj, value));
-    }
-
-
-    /**
-     * Model map-like single-value reads,
-     * The returned value is associated with the base container object.
-     */
-    @InvokeHandler(signature = {
-            "<android.widget.TextView: java.lang.CharSequence getHint()>",
-            "<android.content.Intent: android.os.Bundle getExtras()>"
-    }, argIndexes = {BASE})
-    public void readSingleValue(Context context, Invoke invoke, PointsToSet baseObjs) {
-        Var result = invoke.getResult();
-        if (result == null) {
-            return;
-        }
-        CSVar csResult = csManager.getCSVar(context, result);
-        baseObjs.forEach(baseObj -> pendingSingleValueReads.put(baseObj, csResult));
-    }
-
     /**
      * SharedPreferences editors are modeled as the same abstract object as the
      * corresponding SharedPreferences instance. Therefore a put* on the editor
@@ -424,10 +385,4 @@ public class MapLikeHandler extends AndroidMiscHandler {
         }
     }
 
-    // Resolve get-style results to values written earlier/later on the same modeled base object.
-    private void resolvePendingSingleValueReads() {
-        pendingSingleValueReads.forEach((baseObj, csResult) ->
-                singleValueWrites.get(baseObj).forEach(v -> solver.addPFGEdge(new AndroidModelEdge(v, csResult)))
-        );
-    }
 }

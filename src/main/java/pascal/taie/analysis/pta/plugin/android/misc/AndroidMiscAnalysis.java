@@ -32,6 +32,7 @@ public class AndroidMiscAnalysis extends CompositePlugin {
 
         addPlugin(
                 new MapLikeHandler(miscContext),
+                new SingleValueFlowHandler(miscContext),
                 new OtherMiscModel(miscContext),
                 new SharedPreferencesModel(miscContext),
                 new ApplicationModel(miscContext),

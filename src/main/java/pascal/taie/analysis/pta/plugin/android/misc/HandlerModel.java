@@ -33,8 +33,8 @@ public class HandlerModel extends AndroidMiscHandler {
     private final JMethod runnableRun =
             hierarchy.getJREMethod("<java.lang.Runnable: void run()>");
 
-    public HandlerModel(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public HandlerModel(AndroidMiscContext context) {
+        super(context);
     }
 
     @InvokeHandler(signature = {
