@@ -69,6 +69,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      */
     private static final String BASIC_CLASSES = "basic-classes.yml";
 
+    private static final String ANDROID_BASIC_CLASSES = "android/android-basic-classes.yml";
+
     @Override
     public void build(Options options, List<AnalysisConfig> analyses) {
         initSoot(options, analyses, this);
@@ -115,9 +117,11 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
 
         Scene scene = G.v().soot_Scene();
-        addBasicClasses(scene);
+        addBasicClasses(scene, BASIC_CLASSES);
         addReflectionLogClasses(analyses, scene);
-
+        if (options.isAndroidMode()) {
+            addBasicClasses(scene, ANDROID_BASIC_CLASSES);
+        }
 
         // Configure Soot transformer
         Transform transform = new Transform(
@@ -133,17 +137,17 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     }
 
     /**
-     * Reads basic classes specified by file {@link #BASIC_CLASSES} and
+     * Reads basic classes specified by file {@link #ANDROID_BASIC_CLASSES} and
      * adds them to {@code scene}.
      */
-    private static void addBasicClasses(Scene scene) {
+    private static void addBasicClasses(Scene scene, String path) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, String.class);
         try {
             InputStream content = SootWorldBuilder.class
                     .getClassLoader()
-                    .getResourceAsStream(BASIC_CLASSES);
+                    .getResourceAsStream(path);
             List<String> classNames = mapper.readValue(content, type);
             classNames.forEach(name -> scene.addBasicClass(name, HIERARCHY));
         } catch (IOException e) {
