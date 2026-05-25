@@ -25,7 +25,7 @@ package pascal.taie.analysis.pta.plugin.android.lifecycle;
 import pascal.taie.analysis.pta.plugin.android.AndroidContext;
 
 /**
- * Contains information used by Lifecycle analysis handlers.
+ * Context shared by Android lifecycle analysis handlers.
  */
 public class LifecycleContext extends AndroidContext {
 

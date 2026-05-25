@@ -41,13 +41,16 @@ import pascal.taie.language.type.ClassType;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
+/**
+ * Models SharedPreferences objects, editors, and change listeners.
+ */
 public class SharedPreferencesModel extends AndroidMiscHandler {
 
     private static final String ON_SHARED_PREFERENCE_CHANGED =
             "onSharedPreferenceChanged";
 
-    public SharedPreferencesModel(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public SharedPreferencesModel(AndroidMiscContext context) {
+        super(context);
     }
 
     @InvokeHandler(signature = {
@@ -65,7 +68,8 @@ public class SharedPreferencesModel extends AndroidMiscHandler {
                     && constantObj.getAllocation() instanceof StringLiteral stringLiteral) {
                 Obj sharedPreferences = handlerContext.androidObjManager()
                         .getSharedPreferencesObj(stringLiteral.getString(), result);
-                // sharedPreferences obj must be global share
+                // Canonicalize SharedPreferences objects by file name so later
+                // reads, writes, and listener callbacks meet on the same object.
                 solver.addVarPointsTo(context, result, sharedPreferences);
             }
         });

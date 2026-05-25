@@ -26,7 +26,7 @@ import pascal.taie.analysis.pta.plugin.android.AndroidHandler;
 import pascal.taie.language.classes.Subsignature;
 
 /**
- * Abstract class for android lifecycle handlers.
+ * Base class for Android lifecycle handlers.
  */
 public abstract class LifecycleHandler extends AndroidHandler {
 

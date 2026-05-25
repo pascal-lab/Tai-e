@@ -28,6 +28,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Manifest-style intent data attributes before they are expanded into concrete
+ * {@link UriData} combinations.
+ */
 public record IntentDataInfo(Set<String> schemes,
                              Set<String> hosts,
                              Set<String> ports,
@@ -38,6 +42,10 @@ public record IntentDataInfo(Set<String> schemes,
                              Set<String> pathAdvancedPatterns,
                              Set<String> mimeTypes) {
 
+    /**
+     * Expands the configured attribute sets into concrete {@link UriData}
+     * combinations used by intent-filter matching.
+     */
     public Set<UriData> convertToDataSet() {
         return convertToDataSet(0,
                 schemes,
@@ -57,19 +65,18 @@ public record IntentDataInfo(Set<String> schemes,
             return Collections.emptySet();
         }
 
-        // Recursively process the next set
-        Set<UriData> subResult = convertToDataSet(index + 1, sets);
+        Set<UriData> suffixDataSet = convertToDataSet(index + 1, sets);
         if (sets[index].isEmpty()) {
-            return subResult;
+            return suffixDataSet;
         }
-        if (subResult.isEmpty()) {
+        if (suffixDataSet.isEmpty()) {
             return generateDataSet(
                     value -> Stream.of(createDataWithNulls(index, value, UriData.builder().build())),
                     sets[index]);
         }
 
         return generateDataSet(
-                value -> subResult.stream().map(data -> createDataWithNulls(index, value, data)),
+                value -> suffixDataSet.stream().map(data -> createDataWithNulls(index, value, data)),
                 sets[index]);
     }
 

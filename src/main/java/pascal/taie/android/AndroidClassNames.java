@@ -23,7 +23,7 @@
 package pascal.taie.android;
 
 /**
- * Provides names of android system classes.
+ * Provides names of Android framework classes used by the analysis.
  */
 public final class AndroidClassNames {
 

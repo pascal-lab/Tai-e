@@ -29,10 +29,13 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 /**
- * Contains information used by android other specific analysis handlers.
+ * Context shared by miscellaneous Android analysis handlers.
  */
 public class AndroidMiscContext extends AndroidContext {
 
+    /**
+     * SharedPreferences object -> registered change callbacks.
+     */
     private final MultiMap<CSObj, CSMethod> sharedPreferences2Callback = Maps.newMultiMap();
 
     public MultiMap<CSObj, CSMethod> sharedPreferences2Callback() {

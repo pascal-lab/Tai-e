@@ -110,7 +110,13 @@ public class IntentAttributeHandler extends ICCHandler {
 
     private static final String GET_TYPE = "<android.content.Intent: java.lang.String getType()>";
 
-    private final TwoKeyMap<CSObj, CSVar, List<IntentAttributeKind>> IntentAttributeGet = Maps.newTwoKeyMap();
+    /**
+     * Pending Intent attribute getter results grouped by receiver object and result
+     * variable. Getter results are resolved at phase finish so they can observe
+     * attributes written before or after the getter call.
+     */
+    private final TwoKeyMap<CSObj, CSVar, List<IntentAttributeKind>> pendingIntentAttributeGets =
+            Maps.newTwoKeyMap();
 
     public IntentAttributeHandler(ICCContext context) {
         super(context);
@@ -125,9 +131,9 @@ public class IntentAttributeHandler extends ICCHandler {
         Var result = callSite.getResult();
         if (result != null && callee.getSignature().equals(URI_PARSE)) {
             // Uri.parse(String) preserves the string value for later Intent data matching.
-            CSVar from = csManager.getCSVar(callerCtx, callSite.getInvokeExp().getArg(0));
-            CSVar to = csManager.getCSVar(callerCtx, result);
-            solver.addPFGEdge(new AndroidModelEdge(from, to));
+            CSVar source = csManager.getCSVar(callerCtx, callSite.getInvokeExp().getArg(0));
+            CSVar target = csManager.getCSVar(callerCtx, result);
+            solver.addPFGEdge(new AndroidModelEdge(source, target));
         }
     }
 
@@ -257,14 +263,14 @@ public class IntentAttributeHandler extends ICCHandler {
         }
         if (!kinds.isEmpty()) {
             intentObjs.forEach(intentObj ->
-                IntentAttributeGet.put(intentObj, target, kinds)
+                    pendingIntentAttributeGets.put(intentObj, target, kinds)
             );
         }
     }
 
     @Override
     public void onPhaseFinish() {
-        IntentAttributeGet.entrySet().forEach(entry -> {
+        pendingIntentAttributeGets.entrySet().forEach(entry -> {
             CSObj intentObj = entry.key1();
             CSVar target = entry.key2();
             List<IntentAttributeKind> kinds = entry.value();

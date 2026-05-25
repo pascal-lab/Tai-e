@@ -107,13 +107,13 @@ public class ComponentICCHandler extends ICCHandler {
             return;
         }
 
-        CSVar callerThisCSVar = csManager.getCSVar(callerCtx, caller.getIR().getThis());
+        CSVar callerThisVar = csManager.getCSVar(callerCtx, caller.getIR().getThis());
         // Activity.getIntent() is the target-side Intent receiver for activity ICC.
         if (callee.getSignature().equals(GET_INTENT) && callSite.getResult() != null) {
             CSVar intent = csManager.getCSVar(callerCtx, callSite.getResult());
             // The same getIntent() result may receive either startActivity or startActivityForResult intents.
-            handlerContext.targetComponent2ICCInfo().put(callerThisCSVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY_FOR_RESULT, null, null));
-            handlerContext.targetComponent2ICCInfo().put(callerThisCSVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY, null, null));
+            handlerContext.targetComponent2ICCInfo().put(callerThisVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY_FOR_RESULT, null, null));
+            handlerContext.targetComponent2ICCInfo().put(callerThisVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY, null, null));
         }
     }
 
@@ -134,7 +134,6 @@ public class ComponentICCHandler extends ICCHandler {
             kind = ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY;
         } else if (handlerContext.lifecycleHelper().isLifeCycleMethod(method, SERVICE, ON_BIND_SUB_SIG)) {
             // Service.onBind receives the binding Intent and may return an IBinder.
-            // process onBind CSMethod in service component
             processGetBinder(context, method);
             intent = csManager.getCSVar(context, method.getIR().getParam(0));
             kind = ICCInfoKind.BIND_SERVICE;
@@ -178,10 +177,10 @@ public class ComponentICCHandler extends ICCHandler {
                     JMethod resolve = invoke.getMethodRef().resolveNullable();
                     Var base = InvokeUtils.getVar(invoke, BASE);
                     if (resolve != null && resolve.getSignature().equals(GET_BINDER)) {
-                        CSVar messengerCSVar = csManager.getCSVar(context, base);
+                        CSVar messengerVar = csManager.getCSVar(context, base);
                         CSObj result = addResultObjectForInvoke(context, invoke);
                         if (result != null) {
-                            onBindResult2Messenger.put(result, messengerCSVar);
+                            onBindResult2Messenger.put(result, messengerVar);
                         }
                     }
                 });
@@ -196,13 +195,13 @@ public class ComponentICCHandler extends ICCHandler {
             handlerContext.lifecycleHelper()
                     .getLifeCycleMethods(classType.getJClass())
                     .forEach(serviceConnectionMethod -> {
-                        Map<Integer, Obj> paramIndex = Maps.newMap();
+                        Map<Integer, Obj> paramObjsByIndex = Maps.newMap();
                         if (serviceConnectionMethod.getSubsignature().equals(ON_SERVICE_CONNECTED_SUB_SIG)) {
                             Obj param = handlerContext.androidObjManager().mockLifecycleMethodParamObj(serviceConnectionMethod, serviceConnectionMethod.getIR().getParam(1));
-                            paramIndex.put(1, param);
+                            paramObjsByIndex.put(1, param);
                             handlerContext.intent2IBinder().put(intent, csManager.getCSVar(emptyContext, serviceConnectionMethod.getIR().getParam(1)));
                         }
-                        addEntryPoint(serviceConnectionMethod, thisObj, paramIndex);
+                        addEntryPoint(serviceConnectionMethod, thisObj, paramObjsByIndex);
                     });
         }
     }
@@ -217,12 +216,12 @@ public class ComponentICCHandler extends ICCHandler {
         Var var = csVar.getVar();
         JMethod container = var.getMethod();
         if (handlerContext.lifecycleHelper().isLifeCycleMethod(container, SERVICE, ON_BIND_SUB_SIG) && container.getIR().getReturnVars().contains(var)) {
-            CSVar thisCSVar = csManager.getCSVar(context, container.getIR().getThis());
+            CSVar thisVar = csManager.getCSVar(context, container.getIR().getThis());
             pts.forEach(csObj -> {
                 if (onBindResult2Messenger.containsKey(csObj)) {
-                    handlerContext.serviceComponent2Messenger().putAll(thisCSVar, onBindResult2Messenger.get(csObj));
+                    handlerContext.serviceComponent2Messenger().putAll(thisVar, onBindResult2Messenger.get(csObj));
                 }
-                handlerContext.serviceComponent2IBinder().put(thisCSVar, csObj);
+                handlerContext.serviceComponent2IBinder().put(thisVar, csObj);
             });
         }
     }

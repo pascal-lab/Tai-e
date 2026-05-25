@@ -25,7 +25,7 @@ package pascal.taie.analysis.pta.plugin.android.icc;
 import pascal.taie.analysis.pta.plugin.android.AndroidHandler;
 
 /**
- * Abstract class for android icc-handlers.
+ * Base class for Android ICC handlers.
  */
 public abstract class ICCHandler extends AndroidHandler {
 

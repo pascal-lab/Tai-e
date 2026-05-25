@@ -106,15 +106,15 @@ public class SendAndReplyICCHandler extends ICCHandler {
     @Override
     public void onNewCallEdge(Edge<CSCallSite, CSMethod> edge) {
         if (edge instanceof ICCCallEdge iccCallEdge) {
-            // pass argument
+            // Propagate the recorded source value to type-compatible callee parameters.
             ICCInfo sourceICCInfo = iccCallEdge.getICCInfo();
-            CSVar source = sourceICCInfo.info();
+            CSVar sourceVar = sourceICCInfo.info();
             CSMethod csCallee = edge.getCallee();
             Context calleeCtx = csCallee.getContext();
             JMethod callee = csCallee.getMethod();
             callee.getIR().getParams().forEach(param -> {
-                if (param.getType().equals(source.getType())) {
-                    solver.addPFGEdge(new ICCEdge(source, csManager.getCSVar(calleeCtx, param)), param.getType());
+                if (param.getType().equals(sourceVar.getType())) {
+                    solver.addPFGEdge(new ICCEdge(sourceVar, csManager.getCSVar(calleeCtx, param)), param.getType());
                 }
             });
             processedICCInfos.add(sourceICCInfo);
@@ -190,7 +190,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
 
     private void processOther(JClass targetComponent, ICCInfo sourceICCInfo) {
         // intent -> iBinder -> aidl
-        Set<CSVar> aidlCSVars = handlerContext.intent2IBinder().get(sourceICCInfo.info()).stream()
+        Set<CSVar> aidlVars = handlerContext.intent2IBinder().get(sourceICCInfo.info()).stream()
                 .flatMap(iBinder -> solver.getPointsToSetOf(iBinder).objects())
                 .flatMap(iBinder ->
                         handlerContext.iBinder2Aidl()
@@ -200,17 +200,17 @@ public class SendAndReplyICCHandler extends ICCHandler {
                                 .map(Map.Entry::getValue)
                 ).collect(Collectors.toSet());
 
-        Set<CSVar> iBinderVars = handlerContext.intent2IBinder().get(sourceICCInfo.info());
+        Set<CSVar> binderVars = handlerContext.intent2IBinder().get(sourceICCInfo.info());
 
         // target component -> iBinder -> iBinderObj
-        Set<CSObj> iBinderCSObjs = handlerContext.serviceComponent2IBinder().entrySet().stream()
+        Set<CSObj> binderObjs = handlerContext.serviceComponent2IBinder().entrySet().stream()
                 .filter(entry -> transferVarToClass(entry.getKey()).contains(targetComponent))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toSet());
 
-        aidlCSVars.forEach(aidl -> iBinderCSObjs.forEach(csObj -> solver.addPointsTo(aidl, csObj)));
-        iBinderVars.forEach(iBinder -> iBinderCSObjs.forEach(csObj -> solver.addPointsTo(iBinder, csObj)));
-        if ((!aidlCSVars.isEmpty() || !iBinderVars.isEmpty()) && !iBinderCSObjs.isEmpty()) {
+        aidlVars.forEach(aidl -> binderObjs.forEach(binderObj -> solver.addPointsTo(aidl, binderObj)));
+        binderVars.forEach(iBinder -> binderObjs.forEach(binderObj -> solver.addPointsTo(iBinder, binderObj)));
+        if ((!aidlVars.isEmpty() || !binderVars.isEmpty()) && !binderObjs.isEmpty()) {
             processedICCInfos.add(sourceICCInfo);
         }
     }
@@ -222,12 +222,14 @@ public class SendAndReplyICCHandler extends ICCHandler {
     }
 
     private void processActivityReplyIntent() {
-        // targetComponent is the sourceComponent of the reply intent
+        // The callee component of the original startActivityForResult becomes
+        // the source component of the reply Intent.
         handlerContext.targetComponent2ICCInfo().forEach((targetVar, sourceICCInfo) -> {
             if (!processedICCInfos.contains(sourceICCInfo)
                     && sourceICCInfo.kind().equals(ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY)) {
                 Set<JClass> replyTargetComponents = getSourceComponentByTargetComponent(transferVarToClass(targetVar));
-                // sourceComponent is the targetComponent of the reply intent
+                // The original caller becomes the target component that
+                // receives onActivityResult(...).
                 replyTargetComponents.forEach(replyTargetComponent ->
                         handlerContext.sourceComponent2ICCInfo().forEach((component, targetICCInfo) -> {
                             if (targetICCInfo.kind().equals(ICCInfoKind.START_ACTIVITY_FOR_RESULT_REPLY)
@@ -257,11 +259,11 @@ public class SendAndReplyICCHandler extends ICCHandler {
         }
     }
 
-    private void addICCCallEdge(ICCInfo sourceICCInfo, CSMethod callee, CSObj recvObj) {
-        // build call edge
+    private void addICCCallEdge(ICCInfo sourceICCInfo, CSMethod callee, CSObj receiverObj) {
+        // Build the synthetic call edge created by the ICC resolution.
         solver.addCallEdge(new ICCCallEdge(sourceICCInfo, callee));
-        // pass receiver object to *this* variable
-        solver.addVarPointsTo(callee.getContext(), callee.getMethod().getIR().getThis(), recvObj);
+        // Pass the modeled component instance to the callee receiver.
+        solver.addVarPointsTo(callee.getContext(), callee.getMethod().getIR().getThis(), receiverObj);
     }
 
     private Set<JClass> transferVarToClass(CSVar component) {
@@ -434,7 +436,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
         // <scheme>://<host>:<port>[<path>|<pathPrefix>|<pathPattern>|<pathAdvancedPattern>|<pathSuffix>]
         transferConstantObj(csVar).forEach(uriData -> {
             try {
-                UriData d = null;
+                UriData uriDatum = null;
                 if (kind == IntentAttributeKind.DATA || kind == IntentAttributeKind.NORMALIZE_DATA) {
                     URI uri = new URI(uriData);
                     String scheme = uri.getScheme();
@@ -444,7 +446,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
                     String host = uri.getHost().isEmpty() ? null : uri.getHost();
                     String port = uri.getPort() == -1 ? null : String.valueOf(uri.getPort());
                     String path = uri.getPath().isEmpty() ? null : uri.getPath();
-                    d = UriData.builder()
+                    uriDatum = UriData.builder()
                             .scheme(scheme)
                             .host(host)
                             .port(port)
@@ -455,13 +457,13 @@ public class SendAndReplyICCHandler extends ICCHandler {
                     if (kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
                         mimeType = normalizeMimeType(mimeType);
                     }
-                    d = UriData.builder()
+                    uriDatum = UriData.builder()
                             .mimeType(mimeType)
                             .build();
                 }
 
-                if (d != null) {
-                    data.add(d);
+                if (uriDatum != null) {
+                    data.add(uriDatum);
                 }
             } catch (Exception ignored) {
             }

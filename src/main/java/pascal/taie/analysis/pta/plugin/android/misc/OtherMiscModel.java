@@ -55,6 +55,10 @@ import java.util.List;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
+/**
+ * Models assorted Android framework behaviors that do not fit the dedicated
+ * lifecycle, ICC, or map-like handlers.
+ */
 public class OtherMiscModel extends AndroidMiscHandler {
 
     private static final List<String> CAST_PASSTHROUGH_TYPES = List.of(
@@ -71,8 +75,8 @@ public class OtherMiscModel extends AndroidMiscHandler {
      */
     private final MultiMap<CSVar, CSVar> castPassthroughs = Maps.newMultiMap();
 
-    public OtherMiscModel(AndroidMiscContext specificContext) {
-        super(specificContext);
+    public OtherMiscModel(AndroidMiscContext context) {
+        super(context);
     }
 
     @Override
@@ -141,7 +145,8 @@ public class OtherMiscModel extends AndroidMiscHandler {
         castPassthroughs.get(csVar).forEach(to -> solver.addPointsTo(to, pointsToSet));
     }
 
-    // Model Class.getName() for resolving ICC targets such as XXXActivity.class.getName().
+    // Preserve the concrete class-name string for ICC patterns such as
+    // XXXActivity.class.getName().
     @InvokeHandler(signature = "<java.lang.Class: java.lang.String getName()>", argIndexes = {BASE})
     public void classGetName(Context context, Invoke invoke, PointsToSet classes) {
         Var result = invoke.getResult();
@@ -178,8 +183,7 @@ public class OtherMiscModel extends AndroidMiscHandler {
     }
 
     /**
-     * Model Intent.getExtras():
-     * propagate the whole Bundle object.
+     * Models {@code Intent.getExtras()} by propagating the whole Bundle object.
      */
     @InvokeHandler(signature = {
             "<android.content.Intent: android.os.Bundle getExtras()>"},

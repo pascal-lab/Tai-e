@@ -86,7 +86,7 @@ public class AndroidObjManager {
      * <p>These objects model values produced by Android framework behavior,
      * such as lifecycle parameters and modeled invoke results.
      */
-    private final Map<Var, Obj> androidSpecificObj = Maps.newMap();
+    private final Map<Var, Obj> androidSpecificObjs = Maps.newMap();
 
     AndroidObjManager(HeapModel heapModel) {
         this.heapModel = heapModel;
@@ -141,7 +141,7 @@ public class AndroidObjManager {
     }
 
     public Obj mockAndroidSpecificObj(Var result, Invoke invoke) {
-        return androidSpecificObj.computeIfAbsent(result,
+        return androidSpecificObjs.computeIfAbsent(result,
                 v -> heapModel.getMockObj(
                         ANDROID_SPECIFIC_DESC,
                         invoke,
@@ -152,7 +152,11 @@ public class AndroidObjManager {
     }
 
     /**
-     * Component lifecycle method parameter obj must be unique.
+     * Returns a distinct abstract object for a lifecycle parameter.
+     *
+     * <p>The object identity includes the declaring component or lifecycle
+     * method together with the parameter position, so different lifecycle
+     * callbacks do not accidentally share parameter abstractions.
      */
     public Obj mockLifecycleMethodParamObj(JClass component, Var param) {
         return mockLifecycleMethodParamObj((Object) component, param);
@@ -164,7 +168,7 @@ public class AndroidObjManager {
 
 
     private Obj mockLifecycleMethodParamObj(Object owner, Var param) {
-        return androidSpecificObj.computeIfAbsent(param,
+        return androidSpecificObjs.computeIfAbsent(param,
                 p -> heapModel.getMockObj(
                         ANDROID_SPECIFIC_DESC,
                         new LifecycleMethodParam(

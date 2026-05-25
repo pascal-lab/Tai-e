@@ -25,7 +25,7 @@ package pascal.taie.analysis.pta.plugin.android.misc;
 import pascal.taie.analysis.pta.plugin.android.AndroidHandler;
 
 /**
- * Abstract class for android other specific handlers.
+ * Base class for miscellaneous Android analysis handlers.
  */
 public abstract class AndroidMiscHandler extends AndroidHandler {
 
