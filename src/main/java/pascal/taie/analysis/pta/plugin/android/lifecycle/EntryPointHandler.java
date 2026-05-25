@@ -23,16 +23,21 @@
 package pascal.taie.analysis.pta.plugin.android.lifecycle;
 
 import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
-import java.util.Set;
 
 import static pascal.taie.android.AndroidClassNames.BUNDLE;
 
 /**
- * Initializes android entry points for pointer analysis.
+ * Initializes Android lifecycle entry points for pointer analysis.
+ *
+ * <p>This handler seeds lifecycle methods of manifest-declared entry-point
+ * classes, e.g., enabled activities, services, broadcast receivers, content
+ * providers, and the application class.
  */
 public class EntryPointHandler extends LifecycleHandler {
 
@@ -42,21 +47,65 @@ public class EntryPointHandler extends LifecycleHandler {
 
     @Override
     public void onStart() {
-        Set<JClass> entryClasses = handlerContext.apkInfo().getEntrypointClasses();
-        // process android lifecycle method
-        for (JClass ec : entryClasses) {
-            Obj thisObj = handlerContext.androidObjManager().getComponentObj(ec);
-            handlerContext.lifecycleHelper().getLifeCycleMethods(ec).forEach(em -> {
-                Map<Integer, Obj> paramIndex = Maps.newMap();
-                for (int i = 0; i < em.getParamCount(); i++) {
-                    // android.os.Bundle stores component context information
-                    if (em.getParamType(i).getName().equals(BUNDLE)) {
-                        paramIndex.put(i, handlerContext.androidObjManager().getLifecycleMethodParamObj(ec, em.getIR().getParam(i)));
-                    }
-                }
-                addEntryPoint(em, thisObj, paramIndex);
-            });
-        }
+        handlerContext.apkInfo()
+                .getEntrypointClasses()
+                .forEach(this::addComponentLifecycleEntryPoints);
     }
 
+    /**
+     * Adds lifecycle methods of the given Android component as PTA entry points.
+     *
+     * <p>The receiver object of these lifecycle methods is the canonical
+     * component object managed by {@link pascal.taie.analysis.pta.plugin.android.AndroidObjManager}.
+     */
+    private void addComponentLifecycleEntryPoints(JClass componentClass) {
+        Obj componentObj = handlerContext.androidObjManager()
+                .getComponentObj(componentClass);
+
+        handlerContext.lifecycleHelper()
+                .getLifeCycleMethods(componentClass)
+                .forEach(lifecycleMethod ->
+                        addLifecycleEntryPoint(
+                                componentClass,
+                                componentObj,
+                                lifecycleMethod
+                        ));
+    }
+
+    private void addLifecycleEntryPoint(JClass componentClass,
+                                        Obj componentObj,
+                                        JMethod lifecycleMethod) {
+        addEntryPoint(
+                lifecycleMethod,
+                componentObj,
+                getLifecycleParamObjs(componentClass, lifecycleMethod)
+        );
+    }
+
+    /**
+     * Creates parameter objects for lifecycle method parameters that should be
+     * explicitly modeled.
+     *
+     * <p>Currently, {@code android.os.Bundle} parameters are modeled because
+     * they may carry component state supplied by the Android framework.
+     */
+    private Map<Integer, Obj> getLifecycleParamObjs(JClass componentClass,
+                                                    JMethod lifecycleMethod) {
+        Map<Integer, Obj> paramObjsByIndex = Maps.newMap();
+
+        for (int i = 0; i < lifecycleMethod.getParamCount(); ++i) {
+            if (isBundleParam(lifecycleMethod, i)) {
+                Var param = lifecycleMethod.getIR().getParam(i);
+                Obj paramObj = handlerContext.androidObjManager()
+                        .mockLifecycleMethodParamObj(componentClass, param);
+                paramObjsByIndex.put(i, paramObj);
+            }
+        }
+
+        return paramObjsByIndex;
+    }
+
+    private static boolean isBundleParam(JMethod method, int index) {
+        return BUNDLE.equals(method.getParamType(index).getName());
+    }
 }

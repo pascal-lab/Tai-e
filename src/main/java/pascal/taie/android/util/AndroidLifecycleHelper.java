@@ -22,7 +22,6 @@
 
 package pascal.taie.android.util;
 
-import com.google.common.collect.Maps;
 import pascal.taie.android.config.AndroidLifecycleConfig;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
@@ -36,33 +35,52 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Resolves Android lifecycle/callback methods according to the Android
+ * lifecycle configuration.
+ *
+ * <p>For example, given an Activity subclass, this helper finds lifecycle
+ * methods such as {@code onCreate}, {@code onStart}, and {@code onResume}
+ * that are actually implemented by the analyzed application class hierarchy.
+ */
 public class AndroidLifecycleHelper {
 
-    private final Map<JClass, List<JMethod>> config;
-
-    private final Map<JClass, List<JMethod>> componentMethods;
+    /**
+     * Configured lifecycle/callback methods grouped by Android component base
+     * class.
+     *
+     * <p>
+     * component base class -> configured lifecycle/callback methods
+     */
+    private final Map<JClass, List<JMethod>> configuredCallbacks;
 
     private final ClassHierarchy hierarchy;
 
     public AndroidLifecycleHelper(ClassHierarchy hierarchy) {
-        this.config = AndroidLifecycleConfig.loadAndroidLifecycleConfig()
-                .stream()
-                .collect(
-                        Collectors.toMap(
-                                config -> hierarchy.getClass(config.className()),
-                                config -> config.callbackMethodSubSigs()
-                                        .stream()
-                                        .map(subSig -> hierarchy.getMethod("<" + config.className() + ": " + subSig + ">"))
-                                        .filter(Objects::nonNull)
-                                        .toList()
-                        )
-                );
-        this.componentMethods = Maps.newHashMap();
+        this.configuredCallbacks = loadConfiguredCallbacks(hierarchy);
         this.hierarchy = hierarchy;
     }
 
-    public boolean isLifeCycleMethod(JMethod method, String component, Subsignature methodSubSig) {
-        return isComponent(component, method.getDeclaringClass()) && method.getSubsignature().equals(methodSubSig);
+    private static Map<JClass, List<JMethod>> loadConfiguredCallbacks(
+            ClassHierarchy hierarchy) {
+        return AndroidLifecycleConfig.loadAndroidLifecycleConfig()
+                .stream()
+                .collect(Collectors.toMap(
+                        config -> hierarchy.getClass(config.className()),
+                        config -> config.callbackMethodSubSigs()
+                                .stream()
+                                .map(subSig -> hierarchy.getMethod(
+                                        "<" + config.className() + ": " + subSig + ">"))
+                                .filter(Objects::nonNull)
+                                .toList()
+                ));
+    }
+
+    public boolean isLifeCycleMethod(JMethod method,
+                                     String component,
+                                     Subsignature methodSubSig) {
+        return isComponent(component, method.getDeclaringClass())
+                && method.getSubsignature().equals(methodSubSig);
     }
 
     public boolean isComponent(String component, JClass current) {
@@ -78,31 +96,45 @@ public class AndroidLifecycleHelper {
         if (!entryClass.isApplication()) {
             return lifecycleMethods;
         }
-        JMethod init = entryClass.getDeclaredMethod(Subsignature.get(Subsignature.NO_ARG_INIT));
-        if (init != null) {
-            lifecycleMethods.add(init);
-        }
-        getLifecycleMethods(entryClass).forEach(lifecycleMethod -> {
-            JMethod m = hierarchy.dispatch(entryClass, lifecycleMethod.getRef());
-            if (m != null && m.isApplication()) {
-                lifecycleMethods.add(m);
-            }
-        });
-        componentMethods.put(entryClass, lifecycleMethods);
+
+        addDefaultConstructor(entryClass, lifecycleMethods);
+        addConfiguredCallbacks(entryClass, lifecycleMethods);
+
         return lifecycleMethods;
     }
 
-    public JMethod getLifeCycleMethod(JClass entryClass, Subsignature subSig) {
-        return componentMethods.computeIfAbsent(entryClass, __ -> new ArrayList<>()).stream()
-                .filter(method -> method.getSubsignature().equals(subSig))
-                .findFirst()
-                .orElse(null);
+    /**
+     * Adds the no-argument constructor as a lifecycle entry if it exists.
+     */
+    private static void addDefaultConstructor(JClass entryClass,
+                                              List<JMethod> lifecycleMethods) {
+        JMethod init = entryClass.getDeclaredMethod(
+                Subsignature.get(Subsignature.NO_ARG_INIT)
+        );
+        if (init != null) {
+            lifecycleMethods.add(init);
+        }
     }
 
-    private Set<JMethod> getLifecycleMethods(JClass entryClass) {
-        return config.keySet().stream()
+    /**
+     * Dispatches configured lifecycle/callback methods to {@code entryClass}
+     * and keeps only application methods.
+     */
+    private void addConfiguredCallbacks(JClass entryClass,
+                                        List<JMethod> lifecycleMethods) {
+        getConfiguredCallbacksOf(entryClass).forEach(callback -> {
+            JMethod dispatchedMethod =
+                    hierarchy.dispatch(entryClass, callback.getRef());
+            if (dispatchedMethod != null && dispatchedMethod.isApplication()) {
+                lifecycleMethods.add(dispatchedMethod);
+            }
+        });
+    }
+
+    private Set<JMethod> getConfiguredCallbacksOf(JClass entryClass) {
+        return configuredCallbacks.keySet().stream()
                 .filter(component -> isComponent(component, entryClass))
-                .flatMap(component -> config.get(component).stream())
+                .flatMap(component -> configuredCallbacks.get(component).stream())
                 .collect(Collectors.toSet());
     }
 

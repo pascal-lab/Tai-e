@@ -25,20 +25,23 @@ package pascal.taie.analysis.pta.plugin.android.lifecycle;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.android.info.ApkInfo;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Sets;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +49,16 @@ import java.util.stream.Stream;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.RESULT;
 
+/**
+ * Models layout-related Android framework APIs.
+ *
+ * <p>For example, this model handles resource strings returned by
+ * {@code Context.getString(int)}, callbacks declared in layout files,
+ * and fragments/views introduced by layout inflation.
+ */
 public class LayoutModel extends LifecycleHandler {
+
+    private static final String DEFAULT_PACKAGE_RESOURCE_SEPARATOR = ".";
 
     public LayoutModel(LifecycleContext context) {
         super(context);
@@ -61,49 +73,58 @@ public class LayoutModel extends LifecycleHandler {
         if (result == null) {
             return;
         }
-        Integer id = getInteger(invoke);
-        String name = getString(id);
 
-        // transfer name
-        if (name == null && id != null) {
+        Integer id = getIntegerArgument(invoke, 0);
+        String className = getStringFromResourceId(id);
+
+        // Heuristically resolves the class name from the resource name.
+        if (className == null && id != null) {
             ARSCFileParser.AbstractResource resource = handlerContext.apkInfo().findResource(id);
             if (resource != null) {
                 if (resource.getResourceName().equals("button")) {
-                    generateInvokeResultObj(context, invoke);
+                    addResultObjectForInvoke(context, invoke);
                 }
-                name = handlerContext.apkInfo().getPackageName() + "." + toCamelCase(resource.getResourceName());
+                className = handlerContext.apkInfo().getPackageName() +
+                        DEFAULT_PACKAGE_RESOURCE_SEPARATOR +
+                        toCamelCase(resource.getResourceName());
             }
         }
 
-        if (name != null) {
-            JClass jClass = hierarchy.getClass(name);
+        if (className != null) {
+            JClass jClass = hierarchy.getClass(className);
             if (jClass != null) {
-                Obj fragment = handlerContext.androidObjManager().getComponentObj(jClass);
-                solver.addVarPointsTo(context, result, fragment);
+                Obj componentObj = handlerContext.androidObjManager().getComponentObj(jClass);
+                solver.addVarPointsTo(context, result, componentObj);
             }
         }
     }
 
     @InvokeHandler(signature = "<android.app.Activity: void setContentView(int)>", argIndexes = {BASE})
     public void setContentView(Context context, Invoke invoke, PointsToSet pts) {
-        Var base = InvokeUtils.getVar(invoke, BASE);
-        if (base.getType() instanceof ClassType classType) {
-            JClass decl = classType.getJClass();
-            Set<String> layoutFileNames = Sets.newSet();
-            String fileName = getString(getInteger(invoke));
-            if (fileName != null) {
-                layoutFileNames.add(fileName);
-            }
-            if (layoutFileNames.isEmpty()) {
-                layoutFileNames.addAll(Stream.of(handlerContext.apkInfo().layoutCallbacks().keySet(),
-                        handlerContext.apkInfo().layoutFragments().keySet(),
-                        handlerContext.apkInfo().layoutViews().keySet()).flatMap(Set::stream).collect(Collectors.toSet()));
-            }
-            layoutFileNames.forEach(layoutFileName -> {
-                processButton(decl, pts, layoutFileName);
-                processFragmentAndView(csManager.getCSVar(context, base), layoutFileName);
-            });
+        Var activity = InvokeUtils.getVar(invoke, BASE);
+        if (activity == null || !(activity.getType() instanceof ClassType classType)) {
+            return;
         }
+
+        JClass activityClass = classType.getJClass();
+        CSVar csActivity = csManager.getCSVar(context, activity);
+
+        Set<String> layoutFileNames = Sets.newSet();
+        String fileName = getStringFromResourceId(getIntegerArgument(invoke, 0));
+        if (fileName != null) {
+            layoutFileNames.add(fileName);
+        }
+
+        // If the concrete layout cannot be resolved, conservatively process
+        // all known layout files.
+        if (layoutFileNames.isEmpty()) {
+            layoutFileNames.addAll(getAllKnownLayoutFileNames(handlerContext.apkInfo()));
+        }
+
+        layoutFileNames.forEach(layoutFileName -> {
+            addLayoutCallback(activityClass, pts, layoutFileName);
+            addLayoutComponent(csActivity, layoutFileName);
+        });
     }
 
     @InvokeHandler(signature = "<android.content.Context: java.lang.String getString(int)>", argIndexes = {BASE})
@@ -112,63 +133,122 @@ public class LayoutModel extends LifecycleHandler {
         if (result == null) {
             return;
         }
-        String name = getString(getInteger(invoke));
-        if (name != null) {
-            Obj nameObj = handlerContext.androidObjManager().getAndroidStringObj(StringLiteral.get(name), result);
-            solver.addVarPointsTo(context, result, nameObj);
+        String value = getStringFromResourceId(getIntegerArgument(invoke, 0));
+        if (value != null) {
+            Obj stringObj = handlerContext.androidObjManager()
+                    .mockObjByString(StringLiteral.get(value), result);
+            solver.addVarPointsTo(context, result, stringObj);
         }
     }
 
-    public String getString(Integer id) {
-        if (id != null) {
-            ARSCFileParser.AbstractResource resource = handlerContext.apkInfo().findResource(id);
-            if (resource instanceof ARSCFileParser.StringResource stringResource) {
-                return stringResource.getValue();
-            }
+    /**
+     * Compatibility helper for existing code paths that resolve string
+     * resources directly from a resource id.
+     */
+    @Nullable
+    private String getStringFromResourceId(Integer id) {
+        if (id == null) {
+            return null;
         }
-        return null;
+
+        ARSCFileParser.AbstractResource resource =
+                handlerContext.apkInfo().findResource(id);
+        return resource instanceof ARSCFileParser.StringResource stringResource
+                ? stringResource.getValue()
+                : null;
     }
 
-    private Integer getInteger(Invoke invoke) {
-        Var arg = invoke.getInvokeExp().getArg(0);
-        if(arg.isConst() && arg.getConstValue() instanceof IntLiteral intLiteral) {
+    @Nullable
+    private Integer getIntegerArgument(Invoke invoke, int index) {
+        Var arg = invoke.getInvokeExp().getArg(index);
+        if (arg.isConst() && arg.getConstValue() instanceof IntLiteral intLiteral) {
             return intLiteral.getValue();
         }
         return null;
     }
 
-    private void processButton(JClass decl, PointsToSet pts, String layoutFileName) {
-        handlerContext.apkInfo().layoutCallbacks().get(layoutFileName).forEach(callbackSubSig -> {
-            JMethod callbackMethod = decl.getDeclaredMethod(callbackSubSig);
-            // TODO: transfer getDeclaredMethod to dispatch
-            if (callbackMethod != null){
-                pts.forEach(thisObj ->  addEntryPoint(callbackMethod, thisObj.getObject()));
-            }
-        });
+    private static Set<String> getAllKnownLayoutFileNames(ApkInfo apkInfo) {
+        return Stream.of(
+                        apkInfo.layoutCallbacks().keySet(),
+                        apkInfo.layoutFragments().keySet(),
+                        apkInfo.layoutViews().keySet())
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
     }
 
-    private void processFragmentAndView(CSVar activity, String layoutFileName) {
-        Stream.concat(
-                handlerContext.apkInfo().layoutFragments().entrySet().stream(),
-                handlerContext.apkInfo().layoutViews().entrySet().stream())
-                .collect(Collectors.toSet())
-                .forEach(map -> {
-                    if (map.getKey().equals(layoutFileName)) {
-                        JClass c = map.getValue();
-                        Obj thisObj = handlerContext.androidObjManager().getComponentObj(c);
-                        handlerContext.lifecycleHelper()
-                                .getLifeCycleMethods(c)
-                                .forEach(em -> {
-                                    addEntryPoint(em, thisObj);
-                                    if (em.getSubsignature().equals(ON_ATTACH)) {
-                                        CSVar paramVar = csManager.getCSVar(emptyContext, em.getIR().getParam(0));
-                                        solver.addPFGEdge(new AndroidTransferEdge(activity, paramVar), paramVar.getType());
-                                    }
-                                });
+    /**
+     * Adds layout-declared callback methods, e.g., methods referenced by
+     * {@code android:onClick}, as entry points of the hosting activity.
+     */
+    private void addLayoutCallback(JClass activityClass,
+                                   PointsToSet activityObjs,
+                                   String layoutFileName) {
+        handlerContext.apkInfo()
+                .layoutCallbacks()
+                .get(layoutFileName)
+                .forEach(callbackSubSig -> {
+                    JMethod callbackMethod =
+                            resolveCallbackMethod(activityClass, callbackSubSig);
+                    if (callbackMethod != null) {
+                        activityObjs.forEach(thisObj ->
+                                addEntryPoint(callbackMethod, thisObj.getObject()));
                     }
                 });
     }
 
+    /**
+     * Resolves a layout callback method from the activity class hierarchy.
+     *
+     * <p>Layout callbacks may be declared in a superclass of the concrete
+     * activity class.
+     */
+    private JMethod resolveCallbackMethod(JClass activityClass, Subsignature callbackSubSig) {
+        JClass cur = activityClass;
+
+        while (cur != null) {
+            JMethod method = cur.getDeclaredMethod(callbackSubSig);
+            if (method != null) {
+                return method;
+            }
+
+            cur = cur.getSuperClass();
+        }
+
+        return null;
+    }
+
+    /**
+     * Adds lifecycle entry points for fragments/views declared in the given
+     * layout file.
+     */
+    private void addLayoutComponent(CSVar activity, String layoutFileName) {
+        Stream.concat(
+                handlerContext.apkInfo().layoutFragments().entrySet().stream(),
+                handlerContext.apkInfo().layoutViews().entrySet().stream())
+                .filter(entry -> layoutFileName.equals(entry.getKey()))
+                .forEach(map -> {
+                    JClass componentClass = map.getValue();
+                    Obj componentObj = handlerContext.androidObjManager().getComponentObj(componentClass);
+                    handlerContext.lifecycleHelper()
+                            .getLifeCycleMethods(componentClass)
+                            .forEach(lifecycleMethod -> {
+                                addEntryPoint(lifecycleMethod, componentObj);
+                                if (lifecycleMethod.getSubsignature().equals(ON_ATTACH)) {
+                                    CSVar paramVar = csManager.getCSVar(
+                                            emptyContext,
+                                            lifecycleMethod.getIR().getParam(0));
+                                    solver.addPFGEdge(
+                                            new AndroidModelEdge(activity, paramVar),
+                                            paramVar.getType());
+                                }
+                            });
+                });
+    }
+
+    /**
+     * Converts Android resource names such as {@code main_activity} to
+     * Java-style class names such as {@code MainActivity}.
+     */
     private static String toCamelCase(String input) {
         StringBuilder result = new StringBuilder();
 

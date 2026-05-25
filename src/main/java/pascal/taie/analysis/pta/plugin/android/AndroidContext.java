@@ -32,19 +32,51 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 /**
- * Contains information used by android analysis handlers.
+ * Shared context for Android analysis handlers.
  */
 public class AndroidContext {
 
     private final Solver solver;
 
+    /**
+     * Manager for Android-specific abstract objects.
+     */
     private final AndroidObjManager androidObjManager;
 
+    /**
+     * Parsed APK information used by Android analyses.
+     */
     private final ApkInfo apkInfo;
 
+    /**
+     * Helper utilities for Android lifecycle modeling.
+     */
     private final AndroidLifecycleHelper lifecycleHelper;
 
-    private final MultiMap<JClass, CSVar> dynamicReceiver2IntentFilter;
+    /**
+     * Records dynamically registered broadcast receivers together with
+     * the corresponding intent-filter variables.
+     *
+     * <p>
+     * dynamic receiver class -> intent-filter variables
+     */
+    private final MultiMap<JClass, CSVar> intentFiltersByDynamicReceiver;
+
+    public AndroidContext(Solver solver) {
+        this.solver = solver;
+        this.androidObjManager = new AndroidObjManager(solver.getHeapModel());
+        this.apkInfo = World.get().getApkInfo();
+        this.lifecycleHelper = new AndroidLifecycleHelper(solver.getHierarchy());
+        this.intentFiltersByDynamicReceiver = Maps.newMultiMap();
+    }
+
+    public AndroidContext(AndroidContext context) {
+        this.solver = context.solver;
+        this.androidObjManager = context.androidObjManager;
+        this.apkInfo = context.apkInfo;
+        this.lifecycleHelper = context.lifecycleHelper;
+        this.intentFiltersByDynamicReceiver = context.intentFiltersByDynamicReceiver;
+    }
 
     public Solver solver() {
         return solver;
@@ -62,24 +94,9 @@ public class AndroidContext {
         return lifecycleHelper;
     }
 
-    public MultiMap<JClass, CSVar> dynamicReceiver2IntentFilter() {
-        return dynamicReceiver2IntentFilter;
+    public MultiMap<JClass, CSVar> intentFiltersByDynamicReceiver() {
+        return intentFiltersByDynamicReceiver;
     }
 
-    public AndroidContext(AndroidContext androidContext) {
-        this.solver = androidContext.solver;
-        this.androidObjManager = androidContext.androidObjManager;
-        this.apkInfo = androidContext.apkInfo;
-        this.lifecycleHelper = androidContext.lifecycleHelper;
-        this.dynamicReceiver2IntentFilter = androidContext.dynamicReceiver2IntentFilter;
-    }
-
-    public AndroidContext(Solver solver) {
-        this.solver = solver;
-        this.androidObjManager = new AndroidObjManager(solver.getHeapModel());
-        this.apkInfo = World.get().getApkInfo();
-        this.lifecycleHelper = new AndroidLifecycleHelper(solver.getHierarchy());
-        this.dynamicReceiver2IntentFilter = Maps.newMultiMap();
-    }
 }
 

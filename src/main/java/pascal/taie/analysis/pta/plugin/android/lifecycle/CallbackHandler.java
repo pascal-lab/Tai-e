@@ -33,15 +33,23 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
-import pascal.taie.util.collection.Pair;
 
-import java.util.stream.IntStream;
+import java.util.Set;
 
 public class CallbackHandler extends LifecycleHandler {
 
-    private final MultiMap<Var, JMethod> callbackMethods = Maps.newMultiMap();
+    /**
+     * Records callback methods associated with argument variables whose
+     * corresponding formal parameter types are Android callback types.
+     *
+     * <p>When objects flow to such an argument variable, the corresponding
+     * callback methods may be dispatched on the object's runtime class and
+     * added as entry points.
+     */
+    private final MultiMap<Var, JMethod> callbackMethodsByArg = Maps.newMultiMap();
 
     public CallbackHandler(LifecycleContext context) {
         super(context);
@@ -50,38 +58,64 @@ public class CallbackHandler extends LifecycleHandler {
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pts) {
         Var var = csVar.getVar();
-        pts.forEach(thisObj -> {
-            if (thisObj.getObject().getType() instanceof ClassType classType) {
-                callbackMethods.get(var).forEach(callbackMethod ->
-                        addCallback(classType.getJClass(), callbackMethod, thisObj.getObject()));
-            }
-        });
+
+        if (!callbackMethodsByArg.containsKey(var)) {
+            return;
+        }
+
+        pts.forEach(obj -> addCallbacksForObject(
+                obj.getObject(),
+                callbackMethodsByArg.get(var)
+        ));
     }
 
     @Override
     public void onNewStmt(Stmt stmt, JMethod container) {
         if (stmt instanceof Invoke invoke && !invoke.isDynamic()) {
-            processCallback(invoke);
+            recordCallbackArguments(invoke);
         }
     }
 
-    private void addCallback(JClass callbackClass, JMethod callbackMethod, Obj thisObj) {
-        JMethod callback = hierarchy.dispatch(callbackClass, callbackMethod.getRef());
-        if (callback != null) {
-            addEntryPoint(callback, thisObj);
-        }
-    }
-
-    private void processCallback(Invoke invoke) {
+    private void recordCallbackArguments(Invoke invoke) {
         MethodRef methodRef = invoke.getMethodRef();
-        JMethod resolve = methodRef.resolveNullable();
-        if (resolve != null) {
-            InvokeExp invokeExp = invoke.getInvokeExp();
-            IntStream.range(0, invokeExp.getArgCount())
-                    .mapToObj(i -> new Pair<>(invokeExp.getArg(i), methodRef.getParameterTypes().get(i)))
-                    .filter(pair -> handlerContext.apkInfo().androidCallbacks().containsKey(pair.second()))
-                    .forEach(pair -> callbackMethods.putAll(pair.first(), handlerContext.apkInfo().androidCallbacks().get(pair.second())));
+
+        if (methodRef.resolveNullable() == null) {
+            return;
+        }
+
+        InvokeExp invokeExp = invoke.getInvokeExp();
+        MultiMap<Type, JMethod> androidCallbacks =
+                handlerContext.apkInfo().androidCallbacks();
+
+        for (int i = 0; i < invokeExp.getArgCount(); ++i) {
+            Var arg = invokeExp.getArg(i);
+            Type paramType = methodRef.getParameterTypes().get(i);
+
+            if (androidCallbacks.containsKey(paramType)) {
+                callbackMethodsByArg.putAll(arg, androidCallbacks.get(paramType));
+            }
         }
     }
 
+    private void addCallbacksForObject(
+            Obj object,
+            Set<JMethod> callbackMethods) {
+        if (object.getType() instanceof ClassType classType) {
+            JClass callbackClass = classType.getJClass();
+            callbackMethods.forEach(callbackMethod ->
+                    addCallback(callbackClass, callbackMethod, object));
+        }
+    }
+
+    private void addCallback(
+            JClass callbackClass,
+            JMethod callbackMethod,
+            Obj thisObj) {
+        JMethod dispatchedCallback =
+                hierarchy.dispatch(callbackClass, callbackMethod.getRef());
+
+        if (dispatchedCallback != null) {
+            addEntryPoint(dispatchedCallback, thisObj);
+        }
+    }
 }

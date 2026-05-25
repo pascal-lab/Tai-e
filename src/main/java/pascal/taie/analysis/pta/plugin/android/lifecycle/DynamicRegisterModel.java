@@ -25,24 +25,49 @@ package pascal.taie.analysis.pta.plugin.android.lifecycle;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
+/**
+ * Models Android APIs that dynamically register lifecycle-related objects.
+ *
+ * <p>This model currently handles:
+ *
+ * <ul>
+ *     <li>dynamic broadcast receiver registration via {@code registerReceiver}</li>
+ *     <li>dynamic fragment registration via {@code FragmentTransaction}</li>
+ *     <li>activity propagation to fragment {@code onAttach(Activity)}</li>
+ * </ul>
+ */
 public class DynamicRegisterModel extends LifecycleHandler {
 
-    private final MultiMap<CSObj, CSVar> fragmentManager2Activity = Maps.newMultiMap();
+    /**
+     * Records which activity variables produce a fragment manager object.
+     *
+     * <p>
+     * FragmentManager object -> activity variables
+     */
+    private final MultiMap<CSObj, CSVar> activitiesByFragmentManager = Maps.newMultiMap();
 
-    private final MultiMap<CSObj, CSVar> fragmentTransaction2Activity = Maps.newMultiMap();
+    /**
+     * Records which activity variables are associated with a fragment
+     * transaction object.
+     *
+     * <p>
+     * FragmentTransaction object -> activity variables
+     */
+    private final MultiMap<CSObj, CSVar> activitiesByFragmentTransaction = Maps.newMultiMap();
 
     public DynamicRegisterModel(LifecycleContext context) {
         super(context);
@@ -59,7 +84,7 @@ public class DynamicRegisterModel extends LifecycleHandler {
             if (receiverObj.getObject().getType() instanceof ClassType classType) {
                 JClass receiverClass = classType.getJClass();
 
-                handlerContext.dynamicReceiver2IntentFilter().put(receiverClass, intentFilter);
+                handlerContext.intentFiltersByDynamicReceiver().put(receiverClass, intentFilter);
                 handlerContext.lifecycleHelper()
                         .getLifeCycleMethods(receiverClass)
                         .forEach(receiverMethod -> addEntryPoint(receiverMethod, receiverObj.getObject()));
@@ -80,7 +105,7 @@ public class DynamicRegisterModel extends LifecycleHandler {
                                         Invoke invoke,
                                         PointsToSet fragmentTransactionObjs,
                                          PointsToSet fragmentObjs) {
-        addFragment(fragmentTransactionObjs, fragmentObjs);
+        registerFragments(fragmentTransactionObjs, fragmentObjs);
     }
 
     @InvokeHandler(signature = {
@@ -88,21 +113,21 @@ public class DynamicRegisterModel extends LifecycleHandler {
             "<android.app.FragmentTransaction: android.app.FragmentTransaction add(android.app.Fragment,java.lang.String)>",
             "<androidx.fragment.app.FragmentTransaction: androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment,java.lang.String)>"},
             argIndexes = {BASE, 0})
-    public void dynamicRegisterFragment2(Context context,
+    public void dynamicRegisterFragmentByTag(Context context,
                                         Invoke invoke,
                                         PointsToSet fragmentTransactionObjs,
                                         PointsToSet fragmentObjs) {
-        addFragment(fragmentTransactionObjs, fragmentObjs);
+        registerFragments(fragmentTransactionObjs, fragmentObjs);
     }
 
     @InvokeHandler(signature = {
             "<android.support.v4.app.DialogFragment: int show(android.support.v4.app.FragmentTransaction,java.lang.String)>"},
             argIndexes = {BASE, 0})
-    public void dynamicRegisterFragment3(Context context,
+    public void showDialogFragment(Context context,
                                          Invoke invoke,
                                          PointsToSet fragmentObjs,
                                          PointsToSet fragmentTransactionObjs) {
-        addFragment(fragmentTransactionObjs, fragmentObjs);
+        registerFragments(fragmentTransactionObjs, fragmentObjs);
     }
 
     @InvokeHandler(signature = {
@@ -112,9 +137,9 @@ public class DynamicRegisterModel extends LifecycleHandler {
             argIndexes = {BASE})
     public void getFragmentManager(Context context, Invoke invoke, PointsToSet pts) {
         CSVar csVar = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
-        CSObj result = generateInvokeResultObj(context, invoke);
+        CSObj result = addResultObjectForInvoke(context, invoke);
         if (result != null) {
-            fragmentManager2Activity.put(result, csVar);
+            activitiesByFragmentManager.put(result, csVar);
         }
     }
 
@@ -123,39 +148,63 @@ public class DynamicRegisterModel extends LifecycleHandler {
             "<android.app.FragmentManager: android.app.FragmentTransaction beginTransaction()>",
             "<androidx.fragment.app.FragmentManager: androidx.fragment.app.FragmentTransaction beginTransaction()>"},
             argIndexes = {BASE})
-    public void beginTransaction(Context context, Invoke invoke, PointsToSet pts) {
-        pts.forEach(csObj -> {
-            if (fragmentManager2Activity.containsKey(csObj)) {
-                CSObj result = generateInvokeResultObj(context, invoke);
-                if (result != null) {
-                    fragmentTransaction2Activity.putAll(result, fragmentManager2Activity.get(csObj));
+    public void beginTransaction(Context context, Invoke invoke, PointsToSet managerObjs) {
+        managerObjs.forEach(fragmentManager -> {
+            if (activitiesByFragmentManager.containsKey(fragmentManager)) {
+                CSObj fragmentTransaction = addResultObjectForInvoke(context, invoke);
+                if (fragmentTransaction != null) {
+                    activitiesByFragmentTransaction.putAll(fragmentTransaction, activitiesByFragmentManager.get(fragmentManager));
                 }
             }
         });
     }
 
-    private void addFragment(PointsToSet fragmentTransactionObjs, PointsToSet fragmentObjs) {
-        fragmentTransactionObjs.forEach(fragmentTransactionObj -> {
-            fragmentObjs.forEach(fragmentObj -> {
-                if (fragmentObj.getObject().getType() instanceof ClassType classType) {
+    private void registerFragments(PointsToSet fragmentTransactionObjs, PointsToSet fragmentObjs) {
+        fragmentTransactionObjs.forEach(fragmentTransaction -> {
+            fragmentObjs.forEach(fragment -> {
+                if (fragment.getObject().getType() instanceof ClassType classType) {
                     JClass fragmentClass = classType.getJClass();
 
                     handlerContext.lifecycleHelper()
                             .getLifeCycleMethods(fragmentClass)
                             .forEach(fragmentMethod -> {
-                                addEntryPoint(fragmentMethod, fragmentObj.getObject());
-                                if (fragmentMethod.getSubsignature().equals(ON_ATTACH) && fragmentTransaction2Activity.containsKey(fragmentTransactionObj)) {
-                                    CSVar paramVar = csManager.getCSVar(emptyContext, fragmentMethod.getIR().getParam(0));
-                                    fragmentTransaction2Activity
-                                            .get(fragmentTransactionObj)
-                                            .forEach(activity ->
-                                                    solver.addPFGEdge(new AndroidTransferEdge(activity, paramVar), paramVar.getType())
-                                            );
-                                }
+                                addEntryPoint(fragmentMethod, fragment.getObject());
+                                propagateActivityToOnAttach(
+                                        fragmentTransaction,
+                                        fragmentMethod
+                                );
                             });
                 }
             });
         });
+    }
+
+    /**
+     * Propagates the activity associated with a FragmentTransaction to the
+     * first parameter of {@code Fragment.onAttach(Activity)}.
+     *
+     * <p>This models the framework behavior that the hosting activity is
+     * passed to fragments when they are attached.
+     */
+    private void propagateActivityToOnAttach(CSObj fragmentTransaction,
+                                             JMethod fragmentMethod) {
+        if (!fragmentMethod.getSubsignature().equals(ON_ATTACH)
+        || !activitiesByFragmentTransaction.containsKey(fragmentTransaction)) {
+            return;
+        }
+
+        CSVar activityParam = csManager.getCSVar(
+                emptyContext,
+                fragmentMethod.getIR().getParam(0)
+        );
+
+        activitiesByFragmentTransaction
+                .get(fragmentTransaction)
+                .forEach(activity ->
+                        solver.addPFGEdge(
+                                new AndroidModelEdge(activity, activityParam),
+                                activityParam.getType()
+                        ));
     }
 
 }

@@ -39,7 +39,7 @@ import java.util.List;
 public record AndroidLifecycleConfig(@JsonProperty String className,
                                      @JsonProperty List<String> callbackMethodSubSigs) {
 
-    private static final String CONFIG = "android-lifecycle.yml";
+    private static final String CONFIG = "android/android-lifecycle.yml";
 
     /**
      * Used by deserialization from configuration file.

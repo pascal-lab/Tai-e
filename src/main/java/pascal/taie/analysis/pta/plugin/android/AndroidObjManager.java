@@ -35,36 +35,72 @@ import pascal.taie.util.collection.Maps;
 
 import java.util.Map;
 
+/**
+ * Manages Android-specific abstract heap objects used in PTA.
+ *
+ * <p>This manager creates and canonicalizes abstract objects that represent
+ * Android framework/runtime entities which do not naturally correspond to
+ * normal allocation sites in application code.
+ */
 public class AndroidObjManager {
 
-    private static final Descriptor COMPONENT_DESC = () -> "ComponentObj";
+    private static final Descriptor COMPONENT_DESC =
+            () -> "ComponentObj";
 
-    private static final Descriptor SHARED_PREFERENCES_DESC = () -> "SharedPreferencesObj";
+    private static final Descriptor SHARED_PREFERENCES_DESC =
+            () -> "SharedPreferencesObj";
 
-    private static final Descriptor LAYOUT_NAME_DESC = () -> "LayoutNameObj";
+    private static final Descriptor STRING_DESC =
+            () -> "StringObjFromAndroid";
 
-    private static final Descriptor ANDROID_SPECIFIC_DESC = () -> "AndroidSpecificObj";
+    private static final Descriptor ANDROID_SPECIFIC_DESC =
+            () -> "AndroidSpecificObj";
 
     private final HeapModel heapModel;
 
-    private final Map<JClass, Obj> componentObj = Maps.newMap();
+    /**
+     * Component objects are canonicalized by component class.
+     *
+     * <p>This allows different lifecycle callbacks of the same component to
+     * share the same receiver object.
+     */
+    private final Map<JClass, Obj> componentObjs = Maps.newMap();
 
-    private final Map<String, Obj> sharedPreferencesObj = Maps.newMap();
+    /**
+     * SharedPreferences objects are canonicalized by preference file name.
+     */
+    private final Map<String, Obj> sharedPreferencesObjs = Maps.newMap();
 
+    /**
+     * String resource objects are canonicalized by resolved string literal.
+     *
+     * <p>These objects model string values resolved from Android resources,
+     * e.g., values in {@code strings.xml} returned by
+     * {@code Context.getString(int)}.
+     */
+    private final Map<StringLiteral, Obj> stringObjs = Maps.newMap();
+
+    /**
+     * Synthetic framework objects keyed by the variable that receives them.
+     *
+     * <p>These objects model values produced by Android framework behavior,
+     * such as lifecycle parameters and modeled invoke results.
+     */
     private final Map<Var, Obj> androidSpecificObj = Maps.newMap();
-
-    private final Map<StringLiteral, Obj> layoutStringObj = Maps.newMap();
 
     AndroidObjManager(HeapModel heapModel) {
         this.heapModel = heapModel;
     }
 
-    private record LifecycleMethodParam(Object object, Type type, int index) {
+    /**
+     * Identifier for lifecycle parameter abstractions.
+     */
+    private record LifecycleMethodParam(Object owner, Type type, int index) {
 
         @Override
         public String toString() {
             return "LifecycleMethodParam{" +
-                    "object=" + object +
+                    "owner=" + owner +
                     ", type=" + type +
                     ", index=" + index +
                     '}';
@@ -72,13 +108,13 @@ public class AndroidObjManager {
     }
 
     public Obj getComponentObj(JClass component) {
-        return componentObj.computeIfAbsent(component,
+        return componentObjs.computeIfAbsent(component,
                 c -> heapModel.getMockObj(COMPONENT_DESC, c, c.getType())
         );
     }
 
     public Obj getSharedPreferencesObj(String fileName, Var result) {
-        return sharedPreferencesObj.computeIfAbsent(fileName,
+        return sharedPreferencesObjs.computeIfAbsent(fileName,
                 f -> heapModel.getMockObj(
                         SHARED_PREFERENCES_DESC,
                         f,
@@ -88,18 +124,24 @@ public class AndroidObjManager {
         );
     }
 
-    public Obj getAndroidStringObj(StringLiteral name, Var result) {
-        return layoutStringObj.computeIfAbsent(name,
+    /**
+     * Returns an abstract object for a string value resolved from Android app.
+     *
+     * <p>String objects are canonicalized by their resolved string
+     * literal value.
+     */
+    public Obj mockObjByString(StringLiteral name, Var result) {
+        return stringObjs.computeIfAbsent(name,
                 f -> heapModel.getMockObj(
-                        LAYOUT_NAME_DESC,
+                        STRING_DESC,
                         f,
                         result.getType()
                 )
         );
     }
 
-    public Obj getAndroidSpecificObj(Var var, Invoke invoke) {
-        return androidSpecificObj.computeIfAbsent(var,
+    public Obj mockAndroidSpecificObj(Var result, Invoke invoke) {
+        return androidSpecificObj.computeIfAbsent(result,
                 v -> heapModel.getMockObj(
                         ANDROID_SPECIFIC_DESC,
                         invoke,
@@ -110,21 +152,26 @@ public class AndroidObjManager {
     }
 
     /**
-     * component lifecycle method parameter obj must be unique.
+     * Component lifecycle method parameter obj must be unique.
      */
-    public Obj getLifecycleMethodParamObj(JClass component, Var param) {
-        return getLifecycleMethodParamObj((Object) component, param);
+    public Obj mockLifecycleMethodParamObj(JClass component, Var param) {
+        return mockLifecycleMethodParamObj((Object) component, param);
     }
 
-    public Obj getLifecycleMethodParamObj(JMethod lifecycleMethod, Var param) {
-        return getLifecycleMethodParamObj((Object) lifecycleMethod, param);
+    public Obj mockLifecycleMethodParamObj(JMethod lifecycleMethod, Var param) {
+        return mockLifecycleMethodParamObj((Object) lifecycleMethod, param);
     }
 
-    public Obj getLifecycleMethodParamObj(Object object, Var param) {
+
+    private Obj mockLifecycleMethodParamObj(Object owner, Var param) {
         return androidSpecificObj.computeIfAbsent(param,
-                v -> heapModel.getMockObj(
+                p -> heapModel.getMockObj(
                         ANDROID_SPECIFIC_DESC,
-                        new LifecycleMethodParam(object, param.getType(), param.getIndex()),
+                        new LifecycleMethodParam(
+                                owner,
+                                param.getType(),
+                                param.getIndex()
+                        ),
                         param.getType(),
                         param.getMethod()
                 )

@@ -33,10 +33,11 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * Abstract class for android handlers.
+ * Base class for Android analysis handlers.
  */
 public abstract class AndroidHandler extends AnalysisModelPlugin {
 
@@ -51,22 +52,28 @@ public abstract class AndroidHandler extends AnalysisModelPlugin {
         addEntryPoint(entry, thisObj, null);
     }
 
-    protected void addEntryPoint(JMethod entry, Obj thisObj, Map<Integer, Obj> paramIndex) {
+    protected void addEntryPoint(
+            JMethod entryPoint,
+            Obj thisObj,
+            @Nullable Map<Integer, Obj> paramObjsByIndex) {
         SpecifiedParamProvider.Builder builder =
-                new SpecifiedParamProvider.Builder(entry);
+                new SpecifiedParamProvider.Builder(entryPoint);
         builder.addThisObj(thisObj)
-                .setDelegate(new DeclaredParamProvider(entry, solver.getHeapModel()));
-        if (paramIndex != null) {
-            paramIndex.forEach(builder::addParamObj);
+                .setDelegate(new DeclaredParamProvider(entryPoint, solver.getHeapModel()));
+        if (paramObjsByIndex != null) {
+            paramObjsByIndex.forEach(builder::addParamObj);
         }
-        solver.addEntryPoint(new EntryPoint(entry, builder.build()));
+        solver.addEntryPoint(new EntryPoint(entryPoint, builder.build()));
     }
 
-    protected CSObj generateInvokeResultObj(Context context, Invoke invoke) {
+    @Nullable
+    protected CSObj addResultObjectForInvoke(Context context, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
-            CSObj resultCSObj = csManager.getCSObj(context, handlerContext.androidObjManager()
-                    .getAndroidSpecificObj(result, invoke));
+            Obj resultObj = handlerContext.androidObjManager()
+                    .mockAndroidSpecificObj(result, invoke);
+
+            CSObj resultCSObj = csManager.getCSObj(context, resultObj);
             solver.addVarPointsTo(context, result, resultCSObj);
             return resultCSObj;
         }
