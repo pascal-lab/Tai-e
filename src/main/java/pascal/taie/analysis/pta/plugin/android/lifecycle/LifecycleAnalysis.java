@@ -33,7 +33,8 @@ public class LifecycleAnalysis extends CompositePlugin {
                 new EntryPointHandler(lifeCycleContext),
                 new CallbackHandler(lifeCycleContext),
                 new LayoutModel(lifeCycleContext),
-                new DynamicRegisterModel(lifeCycleContext)
+                new DynamicFragmentModel(lifeCycleContext),
+                new DynamicReceiverModel(lifeCycleContext)
         );
     }
 
