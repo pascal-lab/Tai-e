@@ -23,10 +23,12 @@
 package pascal.taie.analysis.pta.plugin.android.misc;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.ConstantObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -41,6 +43,9 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 public class SharedPreferencesModel extends AndroidMiscHandler {
 
+    private static final String ON_SHARED_PREFERENCE_CHANGED =
+            "onSharedPreferenceChanged";
+
     public SharedPreferencesModel(AndroidMiscContext specificContext) {
         super(specificContext);
     }
@@ -49,28 +54,36 @@ public class SharedPreferencesModel extends AndroidMiscHandler {
             "<android.content.Context: android.content.SharedPreferences getSharedPreferences(java.lang.String,int)>",
             "<android.content.ContextWrapper: android.content.SharedPreferences getSharedPreferences(java.lang.String,int)>"},
             argIndexes = {0})
-    public void getSharedPreferences(Context context, Invoke invoke, PointsToSet stringObjs) {
+    public void getSharedPreferences(Context context, Invoke invoke, PointsToSet fileNameObjs) {
         Var result = invoke.getResult();
         if (result == null) {
             return;
         }
 
-        stringObjs.forEach(csObj -> {
-            if (csObj.getObject() instanceof ConstantObj constantObj
+        fileNameObjs.forEach(fileName -> {
+            if (fileName.getObject() instanceof ConstantObj constantObj
                     && constantObj.getAllocation() instanceof StringLiteral stringLiteral) {
-                Obj sharedPreferences = handlerContext.androidObjManager().getSharedPreferencesObj(stringLiteral.getString(), result);
+                Obj sharedPreferences = handlerContext.androidObjManager()
+                        .getSharedPreferencesObj(stringLiteral.getString(), result);
                 // sharedPreferences obj must be global share
                 solver.addVarPointsTo(context, result, sharedPreferences);
             }
         });
     }
 
+    /**
+     * Models SharedPreferences.edit() by reusing the same abstract object for the editor.
+     *
+     * <p>This keeps editor writes and SharedPreferences reads/callbacks connected in
+     * {@link MapLikeHandler}, which stores key-value writes by receiver object.
+     */
     @InvokeHandler(signature = "<android.content.SharedPreferences: android.content.SharedPreferences$Editor edit()>",
             argIndexes = {BASE})
-    public void sharedPreferencesEdit(Context context, Invoke invoke, PointsToSet baseObjs) {
+    public void sharedPreferencesEdit(Context context, Invoke invoke, PointsToSet sharedPreferencesObjs) {
         Var result = invoke.getResult();
         if (result != null) {
-            baseObjs.forEach(csObj -> solver.addVarPointsTo(context, result, csObj));
+            sharedPreferencesObjs.forEach(sharedPreferencesObj ->
+                    solver.addVarPointsTo(context, result, sharedPreferencesObj));
         }
     }
 
@@ -80,19 +93,53 @@ public class SharedPreferencesModel extends AndroidMiscHandler {
                                                          Invoke invoke,
                                                          PointsToSet sharedPreferencesObjs,
                                                          PointsToSet listenerObjs) {
-        CSVar csVar = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
+        CSVar sharedPreferencesVar = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
+        listenerObjs.forEach(listenerObj ->
+                registerListenerObject(context, sharedPreferencesVar, sharedPreferencesObjs, listenerObj));
+    }
+
+    private void registerListenerObject(Context registrationContext,
+                                        CSVar sharedPreferencesVar,
+                                        PointsToSet sharedPreferencesObjs,
+                                        CSObj listenerObj) {
+        JMethod callbackMethod = getOnSharedPreferenceChanged(listenerObj);
+        if (callbackMethod == null) {
+            return;
+        }
+
+        CSMethod csCallback = csManager.getCSMethod(registrationContext, callbackMethod);
         sharedPreferencesObjs.forEach(sharedPreferencesObj ->
-                listenerObjs.forEach(listenerObj -> {
-                    if (listenerObj.getObject().getType() instanceof ClassType classType) {
-                        JClass callback = classType.getJClass();
-                        JMethod onSharedPreferenceChanged = callback.getDeclaredMethod("onSharedPreferenceChanged");
-                        if (onSharedPreferenceChanged != null) {
-                            Var param = onSharedPreferenceChanged.getIR().getParam(0);
-                            handlerContext.sharedPreferences2Callback().put(sharedPreferencesObj, csManager.getCSMethod(context, onSharedPreferenceChanged));
-                            solver.addPFGEdge(new AndroidTransferEdge(csVar, csManager.getCSVar(emptyContext, param)), param.getType());
-                        }
-                    }}
-                )
-        );
+                recordCallback(sharedPreferencesObj, csCallback));
+        connectSharedPreferencesArg(sharedPreferencesVar, csCallback);
+    }
+
+    private JMethod getOnSharedPreferenceChanged(CSObj listenerObj) {
+        if (listenerObj.getObject().getType() instanceof ClassType classType) {
+            JClass listenerClass = classType.getJClass();
+            return listenerClass.getDeclaredMethod(ON_SHARED_PREFERENCE_CHANGED);
+        }
+        return null;
+    }
+
+    /**
+     * Records which callback method should be notified when a preference object is written.
+     *
+     * <p>{@link MapLikeHandler} later uses this mapping to propagate the changed key
+     * from editor {@code put*()} calls to callback parameter 1.
+     */
+    private void recordCallback(CSObj sharedPreferencesObj, CSMethod csCallback) {
+        handlerContext.sharedPreferences2Callback().put(sharedPreferencesObj, csCallback);
+    }
+
+    /**
+     * Propagates the registered SharedPreferences receiver to callback parameter 0.
+     */
+    private void connectSharedPreferencesArg(CSVar sharedPreferencesVar, CSMethod csCallback) {
+        Var callbackParam = csCallback.getMethod().getIR().getParam(0);
+        solver.addPFGEdge(
+                new AndroidModelEdge(
+                        sharedPreferencesVar,
+                        csManager.getCSVar(csCallback.getContext(), callbackParam)),
+                callbackParam.getType());
     }
 }

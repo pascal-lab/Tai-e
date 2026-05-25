@@ -24,7 +24,8 @@ package pascal.taie.analysis.pta.plugin.android.misc;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
@@ -32,30 +33,25 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nullable;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
+/**
+ * Models Android {@code AsyncTask} execution.
+ *
+ * <p>For example, this model adds AsyncTask lifecycle methods as entry points
+ * and propagates data from {@code execute(Object[])} to
+ * {@code doInBackground(Object[])}, then from {@code doInBackground}'s return
+ * values to {@code onPostExecute(Object)}.
+ */
 public class AsyncTaskModel extends AndroidMiscHandler {
 
-    private static final Subsignature ON_PRE_EXECUTE = Subsignature.get("void onPreExecute()");
+    private static final Subsignature DO_IN_BACKGROUND_SUB_SIG =
+            Subsignature.get("java.lang.Object doInBackground(java.lang.Object[])");
 
-    private static final Subsignature DO_IN_BACKGROUND_SUB_SIG = Subsignature.get("java.lang.Object doInBackground(java.lang.Object[])");
-
-    private static final Subsignature ON_PROGRESS_UPDATE = Subsignature.get("void onProgressUpdate(java.lang.Object[])");
-
-    private static final Subsignature ON_POST_EXECUTE_SUB_SIG = Subsignature.get("void onPostExecute(java.lang.Object)");
-
-    private static final Subsignature ON_CANCEL = Subsignature.get("void onCancelled()");
-
-    private static final List<Subsignature> ASYNC_TASK_METHODS = List.of(
-            ON_PRE_EXECUTE,
-            DO_IN_BACKGROUND_SUB_SIG,
-            ON_PROGRESS_UPDATE,
-            // onPostExecute is handled when doInBackground is handled
-            ON_CANCEL
-    );
+    private static final Subsignature ON_POST_EXECUTE_SUB_SIG =
+            Subsignature.get("void onPostExecute(java.lang.Object)");
 
     public AsyncTaskModel(AndroidMiscContext specificContext) {
         super(specificContext);
@@ -64,35 +60,79 @@ public class AsyncTaskModel extends AndroidMiscHandler {
     @InvokeHandler(signature = {
             "<android.os.AsyncTask: android.os.AsyncTask execute(java.lang.Object[])>"},
             argIndexes = {BASE, 0})
-    public void asyncTaskExecute(Context context, Invoke invoke, PointsToSet baseObjs, PointsToSet argObjs) {
-        AtomicReference<JMethod> onPostExecute = new AtomicReference<>();
-        AtomicReference<JMethod> doInBack = new AtomicReference<>();
-        baseObjs.forEach(csObj -> {
-            if (csObj.getObject().getType() instanceof ClassType classType) {
-                handlerContext.lifecycleHelper().getLifeCycleMethods(classType.getJClass())
-                        .forEach(asyncTaskMethod -> {
-                            Subsignature subsignature = asyncTaskMethod.getSubsignature();
-                            addEntryPoint(asyncTaskMethod, csObj.getObject());
-                            // process doInBackground
-                            if (subsignature.equals(DO_IN_BACKGROUND_SUB_SIG)) {
-                                doInBack.set(asyncTaskMethod);
-                                solver.addVarPointsTo(emptyContext, asyncTaskMethod.getIR().getParam(0), argObjs);
-                            }
-                            if (subsignature.equals(ON_POST_EXECUTE_SUB_SIG)) {
-                                onPostExecute.set(asyncTaskMethod);
-                            }
-                        });
-                // process onPostExecute
-                if (onPostExecute.get() != null && doInBack.get() != null) {
-                    addEntryPoint(onPostExecute.get(), csObj.getObject());
-                    CSVar postExecuteParamVar = csManager.getCSVar(emptyContext, onPostExecute.get().getIR().getParam(0));
-                    doInBack.get().getIR().getReturnVars().forEach(returnVar -> {
-                        CSVar csReturnVar = csManager.getCSVar(emptyContext, returnVar);
-                        solver.addPFGEdge(new AndroidTransferEdge(csReturnVar, postExecuteParamVar));
-                    });
-                }
+    public void asyncTaskExecute(Context context, Invoke invoke,
+                                 PointsToSet asyncTaskObjs,
+                                 PointsToSet argObjs) {
+        asyncTaskObjs.forEach(asyncTaskObj ->
+                processAsyncTask(asyncTaskObj.getObject(), argObjs));
+    }
+
+    private void processAsyncTask(Obj asyncTaskObj, PointsToSet argObjs) {
+        if (!(asyncTaskObj.getType() instanceof ClassType classType)) {
+            return;
+        }
+
+        JMethod doInBackground = null;
+        JMethod onPostExecute = null;
+
+        for (JMethod asyncTaskMethod :
+                handlerContext.lifecycleHelper().getLifeCycleMethods(classType.getJClass())) {
+            addEntryPoint(asyncTaskMethod, asyncTaskObj);
+
+            Subsignature subSig = asyncTaskMethod.getSubsignature();
+            if (DO_IN_BACKGROUND_SUB_SIG.equals(subSig)) {
+                doInBackground = asyncTaskMethod;
+                propagateExecuteArgsToDoInBackground(doInBackground, argObjs);
+            } else if (ON_POST_EXECUTE_SUB_SIG.equals(subSig)) {
+                onPostExecute = asyncTaskMethod;
             }
-        });
+        }
+
+        processOnPostExecute(asyncTaskObj, doInBackground, onPostExecute);
+    }
+
+
+    /**
+     * Propagates arguments passed to {@code execute(Object[])} to the first
+     * parameter of {@code doInBackground(Object[])}.
+     */
+    private void propagateExecuteArgsToDoInBackground(JMethod doInBackground,
+                                                      PointsToSet argObjs) {
+        solver.addVarPointsTo(
+                emptyContext,
+                doInBackground.getIR().getParam(0),
+                argObjs
+        );
+    }
+
+    /**
+     * Propagates return values of {@code doInBackground(Object[])} to the
+     * parameter of {@code onPostExecute(Object)}.
+     */
+    private void processOnPostExecute(Obj asyncTaskObj,
+                                      @Nullable JMethod doInBackground,
+                                      @Nullable JMethod onPostExecute) {
+        if (doInBackground == null || onPostExecute == null) {
+            return;
+        }
+
+        CSVar postExecuteParamVar = csManager.getCSVar(
+                emptyContext,
+                onPostExecute.getIR().getParam(0)
+        );
+
+        doInBackground.getIR()
+                .getReturnVars()
+                .forEach(returnVar -> {
+                    CSVar csReturnVar = csManager.getCSVar(
+                            emptyContext,
+                            returnVar
+                    );
+
+                    solver.addPFGEdge(
+                            new AndroidModelEdge(csReturnVar, postExecuteParamVar)
+                    );
+                });
     }
 
 }

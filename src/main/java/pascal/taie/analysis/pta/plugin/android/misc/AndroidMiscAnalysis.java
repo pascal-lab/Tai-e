@@ -31,11 +31,12 @@ public class AndroidMiscAnalysis extends CompositePlugin {
         AndroidMiscContext miscContext = new AndroidMiscContext(androidContext);
 
         addPlugin(
-                new MapHolderHandler(miscContext),
+                new MapLikeHandler(miscContext),
                 new OtherMiscModel(miscContext),
                 new SharedPreferencesModel(miscContext),
                 new ApplicationModel(miscContext),
-                new AsyncTaskModel(miscContext));
+                new AsyncTaskModel(miscContext),
+                new HandlerModel(miscContext));
     }
 
 }

@@ -23,29 +23,27 @@
 package pascal.taie.analysis.pta.plugin.android.misc;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
-import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
-import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.NewObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.EmptyParamProvider;
 import pascal.taie.analysis.pta.core.solver.EntryPoint;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.android.AndroidClassNames;
 import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadField;
-import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -59,21 +57,19 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 public class OtherMiscModel extends AndroidMiscHandler {
 
-    private final static List<String> CAST_TYPE = List.of(
+    private static final List<String> CAST_PASSTHROUGH_TYPES = List.of(
             AndroidClassNames.VIEW,
             AndroidClassNames.TEXT_VIEW,
             AndroidClassNames.URL_CONNECTION
     );
 
-    private final JMethod RUNNABLE_RUN = hierarchy.getJREMethod("<java.lang.Runnable: void run()>");
+    private static final String ACCOUNT_MANAGER_GET_ACCOUNTS =
+            "<android.accounts.AccountManager: android.accounts.Account[] getAccounts()>";
 
-    private final String GET_ACCOUNTS = "<android.accounts.AccountManager: android.accounts.Account[] getAccounts()>";
-
-    private final MultiMap<CSObj, CSVar> singleMap = Maps.newMultiMap();
-
-    private final MultiMap<CSObj, CSVar> getSingleMap = Maps.newMultiMap();
-
-    private final MultiMap<CSVar, CSVar> castMap = Maps.newMultiMap();
+    /**
+     * Casts whose source value should be conservatively propagated to the cast result.
+     */
+    private final MultiMap<CSVar, CSVar> castPassthroughs = Maps.newMultiMap();
 
     public OtherMiscModel(AndroidMiscContext specificContext) {
         super(specificContext);
@@ -82,67 +78,81 @@ public class OtherMiscModel extends AndroidMiscHandler {
     @Override
     public void onNewCSMethod(CSMethod csMethod) {
         Context context = csMethod.getContext();
-        // propagate cast in some android system class type
-        csMethod.getMethod().getIR().getStmts().forEach(stmt -> {
-            if (stmt instanceof Cast c) {
-                CastExp cast = c.getRValue();
-                String valueType = cast.getValue().getType().getName();
-                if (CAST_TYPE.contains(valueType)) {
-                    CSVar from = csManager.getCSVar(context, cast.getValue());
-                    CSVar to = csManager.getCSVar(context, c.getLValue());
-                    castMap.put(from, to);
-                }
-            }
-            if (stmt instanceof LoadField lf && lf.getFieldAccess() instanceof InstanceFieldAccess access) {
-                JField jField = lf.getFieldRef().resolveNullable();
-                if (jField != null && jField.getDeclaringClass().getName().equals(AndroidClassNames.ACCOUNT)) {
-                    Var result = lf.getLValue();
-                    solver.addPFGEdge(new AndroidTransferEdge(
-                            csManager.getCSVar(context, access.getBase()),
-                            csManager.getCSVar(context, result))
-                    );
-                }
-            }
-            if (stmt instanceof Invoke i && !i.isDynamic()) {
-                JMethod jMethod = i.getMethodRef().resolveNullable();
-                if (jMethod != null && jMethod.getSignature().equals(GET_ACCOUNTS)) {
-                    generateInvokeResultObj(context, i);
-                }
-            }
-        });
+        csMethod.getMethod().getIR().getStmts().forEach(stmt -> processStmt(context, stmt));
+    }
 
-        // transfer account field
-        csMethod.getMethod().getIR().getStmts().stream().filter(stmt -> stmt instanceof LoadField)
-                .map(stmt -> (LoadField) stmt).forEach(stmt -> {
-                    if (stmt.getFieldAccess() instanceof InstanceFieldAccess access) {
-                        JField jField = stmt.getFieldRef().resolveNullable();
-                        if (jField != null && jField.getDeclaringClass().getName().equals(AndroidClassNames.ACCOUNT)) {
-                            Var result = stmt.getLValue();
-                            solver.addPFGEdge(new AndroidTransferEdge(
-                                    csManager.getCSVar(context, access.getBase()),
-                                    csManager.getCSVar(context, result))
-                            );
-                        }
-                    }
-                });
+    private void processStmt(Context context, Stmt stmt) {
+        if (stmt instanceof Cast cast) {
+            recordCastPassthrough(context, cast);
+        } else if (stmt instanceof LoadField loadField) {
+            modelAccountFieldRead(context, loadField);
+        } else if (stmt instanceof Invoke invoke && !invoke.isDynamic()) {
+            modelAccountManagerGetAccounts(context, invoke);
+        }
+    }
+
+    /**
+     * Some framework code casts between Android/JRE wrapper types before reading values from them.
+     * Propagating the source value to the cast result keeps these casts from breaking data flow.
+     */
+    private void recordCastPassthrough(Context context, Cast castStmt) {
+        CastExp cast = castStmt.getRValue();
+        String valueType = cast.getValue().getType().getName();
+        if (CAST_PASSTHROUGH_TYPES.contains(valueType)) {
+            CSVar from = csManager.getCSVar(context, cast.getValue());
+            CSVar to = csManager.getCSVar(context, castStmt.getLValue());
+            castPassthroughs.put(from, to);
+        }
+    }
+
+    /**
+     * Account.name/type are frequently used as string-like identifiers.
+     *
+     * Conservatively connect the Account object itself to field-read results
+     * to avoid missing flows where account identity information is propagated
+     * through Account.name or Account.type.
+     *
+     * This may introduce over-approximation. More precise handling can be
+     * refined later via taint configurations, e.g., customized transfer rules
+     * or sink modeling.
+     */
+    private void modelAccountFieldRead(Context context, LoadField loadField) {
+        if (loadField.getFieldAccess() instanceof InstanceFieldAccess access) {
+            JField field = loadField.getFieldRef().resolveNullable();
+            if (field != null && field.getDeclaringClass().getName().equals(AndroidClassNames.ACCOUNT)) {
+                solver.addPFGEdge(new AndroidModelEdge(
+                        csManager.getCSVar(context, access.getBase()),
+                        csManager.getCSVar(context, loadField.getLValue()))
+                );
+            }
+        }
+    }
+
+    private void modelAccountManagerGetAccounts(Context context, Invoke invoke) {
+        JMethod method = invoke.getMethodRef().resolveNullable();
+        if (method != null && method.getSignature().equals(ACCOUNT_MANAGER_GET_ACCOUNTS)) {
+            addResultObjectForInvoke(context, invoke);
+        }
     }
 
     @Override
     public void onNewPointsToSet(CSVar csVar, PointsToSet pointsToSet) {
         super.onNewPointsToSet(csVar, pointsToSet);
-        castMap.get(csVar).forEach(to -> solver.addPointsTo(to, pointsToSet));
+        castPassthroughs.get(csVar).forEach(to -> solver.addPointsTo(to, pointsToSet));
     }
 
-    @Override
-    public void onPhaseFinish() {
-        processGetSingleMap();
-    }
-
+    // Model Class.getName() for resolving ICC targets such as XXXActivity.class.getName().
     @InvokeHandler(signature = "<java.lang.Class: java.lang.String getName()>", argIndexes = {BASE})
     public void classGetName(Context context, Invoke invoke, PointsToSet classes) {
         Var result = invoke.getResult();
         if (result != null) {
-            classes.forEach(csObj -> solver.addVarPointsTo(context, result, csObj));
+            classes.forEach(csObj -> {
+                if (csObj.getObject().getAllocation() instanceof ClassLiteral classLiteral) {
+                    Obj className = handlerContext.androidObjManager()
+                            .mockObjByString(StringLiteral.get(classLiteral.getTypeValue().getName()), result);
+                    solver.addVarPointsTo(context, result, className);
+                }
+            });
         }
     }
 
@@ -153,7 +163,8 @@ public class OtherMiscModel extends AndroidMiscHandler {
             classes.forEach(csObj -> {
                 JMethod method = CSObjs.toMethod(csObj);
                 if (method != null) {
-                    Obj methodName = heapModel.getConstantObj(StringLiteral.get(method.getName()));
+                    Obj methodName = handlerContext.androidObjManager()
+                            .mockObjByString(StringLiteral.get(method.getName()), result);
                     solver.addVarPointsTo(context, result, methodName);
                 }
             });
@@ -166,25 +177,42 @@ public class OtherMiscModel extends AndroidMiscHandler {
         stringObjs.forEach(csObj -> solver.addPointsTo(csVar, csObj));
     }
 
+    /**
+     * Model Intent.getExtras():
+     * propagate the whole Bundle object.
+     */
+    @InvokeHandler(signature = {
+            "<android.content.Intent: android.os.Bundle getExtras()>"},
+            argIndexes = {BASE})
+    public void intentGetExtras(Context context, Invoke invoke, PointsToSet mapObjs) {
+        Var result = invoke.getResult();
+        if (result != null) {
+            mapObjs.forEach(mapObj ->
+                    solver.addVarPointsTo(context, result, mapObj));
+        }
+    }
+
+    /**
+     * Methods exposed through addJavascriptInterface may be called by JavaScript at runtime.
+     * Treat them as entry points and connect their return values back to the interface object,
+     * preserving the previous conservative behavior for array-store flows from return variables.
+     */
     @InvokeHandler(signature = {
             "<android.webkit.WebView: void addJavascriptInterface(java.lang.Object,java.lang.String)>"
     }, argIndexes = {0})
     public void addJavascriptInterface(Context context, Invoke invoke, PointsToSet argObjs) {
-        CSVar csArg = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
+        CSVar interfaceVar = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
         argObjs.forEach(argObj -> {
-            if (argObj.getObject() instanceof NewObj newObj && newObj.getType() instanceof ClassType classType) {
+            if (argObj.getObject() instanceof NewObj newObj
+                    && newObj.getType() instanceof ClassType classType) {
                 JClass jClass = classType.getJClass();
                 jClass.getDeclaredMethods().forEach(m -> {
                     if (!m.isAbstract() || m.isNative()) {
                         solver.addEntryPoint(new EntryPoint(m, EmptyParamProvider.get()));
                         for (Var returnVar : m.getIR().getReturnVars()) {
                             csManager.getCSVarsOf(returnVar).forEach(csReturnVar -> {
-                                solver.addPFGEdge(new AndroidTransferEdge(csReturnVar, csArg));
-                                for (StoreArray store : returnVar.getStoreArrays()) {
-                                    Var rvalue = store.getRValue();
-                                    CSVar from = csManager.getCSVar(context, rvalue);
-                                    solver.addPFGEdge(new AndroidTransferEdge(from, csArg));
-                                }
+                                solver.addPFGEdge(new AndroidModelEdge(csReturnVar, interfaceVar));
+                                addArrayStoreFlowsFromReturnVar(context, interfaceVar, returnVar);
                             });
                         }
                     }
@@ -193,44 +221,10 @@ public class OtherMiscModel extends AndroidMiscHandler {
         });
     }
 
-    @InvokeHandler(signature = {
-            "<android.widget.TextView: java.lang.CharSequence getHint()>",
-            "<android.content.Intent: android.os.Bundle getExtras()>"
-    }, argIndexes = {BASE})
-    public void getSingleMap(Context context, Invoke invoke, PointsToSet baseObjs) {
-        Var result = invoke.getResult();
-        if (result == null) {
-            return;
-        }
-        CSVar csResult = csManager.getCSVar(context, result);
-        baseObjs.forEach(baseObj -> getSingleMap.put(baseObj, csResult));
-    }
-
-    @InvokeHandler(signature = {
-            "<android.widget.TextView: void setHint(java.lang.CharSequence)>",
-            "<android.content.Intent: android.content.Intent putExtras(android.os.Bundle)>"
-    }, argIndexes = {BASE})
-    public void putSingleMap(Context context, Invoke invoke, PointsToSet baseObjs) {
-        CSVar value = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
-        baseObjs.forEach(baseObj -> singleMap.put(baseObj, value));
-    }
-
-    private void processGetSingleMap() {
-        getSingleMap.forEach((baseObj, csResult) ->
-                singleMap.get(baseObj).forEach(v -> solver.addPFGEdge(new AndroidTransferEdge(v, csResult)))
-        );
-    }
-
-    @InvokeHandler(signature = {
-            "<android.os.Handler: boolean postDelayed(java.lang.Runnable,long)>",
-            "<android.os.Handler: boolean post(java.lang.Runnable)>"
-    }, argIndexes = {0})
-    public void handlerPostDelayed(Context context, Invoke invoke, PointsToSet runnableObjs) {
-        runnableObjs.forEach(csObj -> {
-            JMethod dispatch = hierarchy.dispatch(csObj.getObject().getType(), RUNNABLE_RUN.getRef());
-            if (dispatch != null) {
-                addEntryPoint(dispatch, csObj.getObject());
-            }
+    private void addArrayStoreFlowsFromReturnVar(Context context, CSVar interfaceVar, Var returnVar) {
+        returnVar.getStoreArrays().forEach(store -> {
+            CSVar from = csManager.getCSVar(context, store.getRValue());
+            solver.addPFGEdge(new AndroidModelEdge(from, interfaceVar));
         });
     }
 

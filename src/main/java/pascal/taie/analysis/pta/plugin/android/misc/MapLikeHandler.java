@@ -27,7 +27,7 @@ import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.ConstantObj;
-import pascal.taie.analysis.pta.plugin.android.AndroidTransferEdge;
+import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -36,35 +36,62 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import java.util.List;
 import java.util.Set;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
-public class MapHolderHandler extends AndroidMiscHandler {
+/**
+ * Models Android map-like containers.
+ *
+ * <p>For example, this handler models key-value data flow through
+ * {@code Intent} extras, {@code Bundle}, and {@code SharedPreferences}.
+ */
+public class MapLikeHandler extends AndroidMiscHandler {
 
     /**
-     * Maps from the information stored in any map structure.
+     * Stores recorded for each map-like object.
+     *
+     * <p>
+     * map object -> key/value stores
      */
-    private final MultiMap<CSObj, MapHolder> mapHolder = Maps.newMultiMap();
+    private final MultiMap<CSObj, MapHolder> storesByMap = Maps.newMultiMap();
 
     /**
-     * Maps from the map structure get invoke.
+     * Get invocations grouped by their receiver map object.
+     *
+     * <p>These invocations are resolved at phase finish because key/value
+     * points-to information may be discovered after the invocation is seen.
      */
-    private final MultiMap<CSObj, CSCallSite> map2GetInvoke = Maps.newMultiMap();
+    private final MultiMap<CSObj, CSCallSite> pendingGetsByMap = Maps.newMultiMap();
 
     /**
-     * Maps from the map structure unresolved get invoke.
+     * Get invocations that cannot be resolved by constant keys.
+     *
+     * <p>These calls need conservative fallback: propagate every value stored in
+     * the receiver map and, for APIs that have a default-value parameter, also
+     * propagate that default value to the result.
      */
-    private final MultiMap<CSObj, CSCallSite> unresolvedMapGetInvoke = Maps.newMultiMap();
+    private final MultiMap<CSObj, CSCallSite> impreciseGetsByMap = Maps.newMultiMap();
 
-    public MapHolderHandler(AndroidMiscContext specificContext) {
+    /**
+     * Values written to container-like APIs that store a single logical value per base object
+     * in this model, e.g., TextView.setHint(...) and Intent.putExtras(...).
+     */
+    private final MultiMap<CSObj, CSVar> singleValueWrites = Maps.newMultiMap();
+
+    /**
+     * Results of getter APIs that should receive values previously written to the same base object.
+     */
+    private final MultiMap<CSObj, CSVar> pendingSingleValueReads = Maps.newMultiMap();
+
+    public MapLikeHandler(AndroidMiscContext specificContext) {
         super(specificContext);
     }
 
     @Override
     public void onPhaseFinish() {
-        processUnresolvedMapGetInvoke();
+        resolvePendingGetInvokes();
+        resolvePendingSingleValueReads();
     }
 
     @InvokeHandler(signature = {
@@ -149,31 +176,10 @@ public class MapHolderHandler extends AndroidMiscHandler {
         CSVar key = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
         CSVar value = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 1));
         mapObjs.forEach(mapObj -> {
-            // process registerOnSharedPreferenceChangeListener
-            handlerContext.sharedPreferences2Callback().get(mapObj).forEach(callback -> {
-                Context callbackCtx = callback.getContext();
-                Var indexParam = callback.getMethod().getIR().getParam(1);
-                Var indexArg = invoke.getInvokeExp().getArg(0);
-                solver.addPFGEdge(new AndroidTransferEdge(
-                        csManager.getCSVar(context, indexArg),
-                        csManager.getCSVar(callbackCtx, indexParam))
-                        , indexParam.getType());
-            });
-
-            mapHolder.put(mapObj, new MapHolder(key, value));
+            storesByMap.put(mapObj, new MapHolder(key, value));
+            notifySharedPreferenceCallbacks(context, invoke, mapObj);
         });
     }
-
-    @InvokeHandler(signature = {
-            "<android.content.Intent: android.os.Bundle getExtras()>"},
-            argIndexes = {BASE})
-    public void intentGetExtras(Context context, Invoke invoke, PointsToSet mapObjs) {
-        Var result = invoke.getResult();
-        if (result != null) {
-            mapObjs.forEach(mapObj -> solver.addVarPointsTo(context, result, mapObj));
-        }
-    }
-
 
     @InvokeHandler(signature = {
             "<android.content.Intent: java.lang.Object getExtra(java.lang.String, java.lang.Object)>",
@@ -277,60 +283,151 @@ public class MapHolderHandler extends AndroidMiscHandler {
             argIndexes = {BASE})
     public void mapHolderGet(Context context, Invoke invoke, PointsToSet mapObjs) {
         CSCallSite csCallSite = csManager.getCSCallSite(context, invoke);
-        mapObjs.forEach(map -> map2GetInvoke.put(map, csCallSite));
+        mapObjs.forEach(map -> pendingGetsByMap.put(map, csCallSite));
     }
 
-    protected void processUnresolvedMapGetInvoke() {
-        map2GetInvoke.forEach((map, csCallSite) -> {
-            CSVar key = csManager.getCSVar(csCallSite.getContext(), csCallSite.getCallSite().getInvokeExp().getArg(0));
-            processResult(solver.getPointsToSetOf(key), map, csCallSite);
-        });
+    @InvokeHandler(signature = {
+            "<android.widget.TextView: void setHint(java.lang.CharSequence)>",
+            "<android.content.Intent: android.content.Intent putExtras(android.os.Bundle)>"
+    }, argIndexes = {BASE})
+    public void writeSingleValue(Context context, Invoke invoke, PointsToSet baseObjs) {
+        CSVar value = csManager.getCSVar(context, InvokeUtils.getVar(invoke, 0));
+        baseObjs.forEach(baseObj -> singleValueWrites.put(baseObj, value));
+    }
 
-        unresolvedMapGetInvoke.forEach((map, csCallSite) -> {
-            Context context = csCallSite.getContext();
-            Invoke callSite = csCallSite.getCallSite();
-            Var result = callSite.getResult();
-            if (result != null) {
-                mapHolder.get(map).forEach(extra ->
-                        solver.addPFGEdge(new AndroidTransferEdge(extra.value(), csManager.getCSVar(context, result)), result.getType()));
-                processDefaultValue(context, callSite);
-            }
+
+    /**
+     * Model map-like single-value reads,
+     * The returned value is associated with the base container object.
+     */
+    @InvokeHandler(signature = {
+            "<android.widget.TextView: java.lang.CharSequence getHint()>",
+            "<android.content.Intent: android.os.Bundle getExtras()>"
+    }, argIndexes = {BASE})
+    public void readSingleValue(Context context, Invoke invoke, PointsToSet baseObjs) {
+        Var result = invoke.getResult();
+        if (result == null) {
+            return;
+        }
+        CSVar csResult = csManager.getCSVar(context, result);
+        baseObjs.forEach(baseObj -> pendingSingleValueReads.put(baseObj, csResult));
+    }
+
+    /**
+     * SharedPreferences editors are modeled as the same abstract object as the
+     * corresponding SharedPreferences instance. Therefore a put* on the editor
+     * can notify callbacks registered on that shared preferences object.
+     */
+    private void notifySharedPreferenceCallbacks(Context context, Invoke invoke, CSObj mapObj) {
+        handlerContext.sharedPreferences2Callback().get(mapObj).forEach(callback -> {
+            Context callbackCtx = callback.getContext();
+            Var changedKeyArg = invoke.getInvokeExp().getArg(0);
+            Var changedKeyParam = callback.getMethod().getIR().getParam(1);
+            solver.addPFGEdge(
+                    new AndroidModelEdge(
+                            csManager.getCSVar(context, changedKeyArg),
+                            csManager.getCSVar(callbackCtx, changedKeyParam)),
+                    changedKeyParam.getType());
         });
     }
 
-    protected void processResult(PointsToSet keyObjs, CSObj map, CSCallSite csCallSite) {
-        Context context = csCallSite.getContext();
+    /**
+     * Resolves all recorded get invocations after the current phase has reached
+     * a fixed point for related key/value variables.
+     */
+    protected void resolvePendingGetInvokes() {
+        pendingGetsByMap.forEach((mapObj, csCallSite) -> {
+            CSVar key = csManager.getCSVar(
+                    csCallSite.getContext(),
+                    csCallSite.getCallSite().getInvokeExp().getArg(0)
+            );
+            resolveGetInvoke(solver.getPointsToSetOf(key), mapObj, csCallSite);
+        });
+
+        impreciseGetsByMap.forEach(this::resolveImpreciseGetInvoke);
+    }
+
+    /**
+     * Resolves a get invocation by matching its key points-to set
+     *
+     * <p>When the queried key is not represented by a constant object, the map
+     * lookup cannot be matched precisely, so the call is handled later by the
+     * conservative fallback path.
+     */
+    protected void resolveGetInvoke(PointsToSet queriedKeys,
+                                    CSObj mapObj,
+                                    CSCallSite csCallSite) {
         Invoke callSite = csCallSite.getCallSite();
         Var result = callSite.getResult();
         if (result == null) {
             return;
         }
 
-        Set<MapHolder> extras = mapHolder.get(map);
-        for (CSObj keyObj : keyObjs) {
-            boolean isConstantObj = keyObj.getObject() instanceof ConstantObj;
-            List<MapHolder> filterExtras = extras
-                    .stream()
-                    .filter(e -> !isConstantObj || solver.getPointsToSetOf(e.key()).contains(keyObj))
-                    .toList();
+        Set<MapHolder> stores = storesByMap.get(mapObj);
+        for (CSObj queriedKey : queriedKeys) {
+            if (!(queriedKey.getObject() instanceof ConstantObj)) {
+                impreciseGetsByMap.put(mapObj, csCallSite);
+                return;
+            }
 
-            // if filterExtras is empty, then it must be unresolved.
-            if (filterExtras.isEmpty()) {
-                unresolvedMapGetInvoke.put(map, csCallSite);
-            } else {
-                filterExtras.forEach(extra -> {solver.addPFGEdge(new AndroidTransferEdge(extra.value(), csManager.getCSVar(context, result)), result.getType());});
-                if (isConstantObj) {
-                    unresolvedMapGetInvoke.remove(map, csCallSite);
+            boolean matched = false;
+            for (MapHolder store : stores) {
+                if (solver.getPointsToSetOf(store.key()).contains(queriedKey)) {
+                    solver.addPFGEdge(
+                            new AndroidModelEdge(
+                                    store.value(),
+                                    csManager.getCSVar(csCallSite.getContext(), result)),
+                            result.getType());
+                    matched = true;
                 }
+            }
+
+            // No matching extras found for the current key,
+            // conservatively mark this get as unresolved.
+            if (!matched) {
+                impreciseGetsByMap.put(mapObj, csCallSite);
+                return;
             }
         }
     }
 
-    private void processDefaultValue(Context context, Invoke callSite) {
+    private void resolveImpreciseGetInvoke(CSObj mapObj, CSCallSite csCallSite) {
+        Invoke callSite = csCallSite.getCallSite();
+        Var result = callSite.getResult();
+        if (result == null) {
+            return;
+        }
+
+        Context context = csCallSite.getContext();
+        storesByMap.get(mapObj).forEach(store -> solver.addPFGEdge(
+                new AndroidModelEdge(
+                        store.value(),
+                        csManager.getCSVar(context, result)
+                ),
+                result.getType()));
+        propagateDefaultValue(context, callSite);
+    }
+
+    /**
+     * For get APIs with a default-value parameter, propagates the default value
+     * to the result when the map lookup may be unresolved.
+     */
+    private void propagateDefaultValue(Context context, Invoke callSite) {
         if (callSite.getInvokeExp().getArgCount() > 1) {
             Var result = callSite.getResult();
             Var defaultValue = callSite.getInvokeExp().getArg(1);
-            solver.addPFGEdge(new AndroidTransferEdge(csManager.getCSVar(context, defaultValue), csManager.getCSVar(context, result)), result.getType());
+            solver.addPFGEdge(new AndroidModelEdge(
+                    csManager.getCSVar(context, defaultValue),
+                    csManager.getCSVar(context, result)),
+                    result.getType()
+            );
         }
+    }
+
+    // Resolve get-style results to values written earlier/later on the same modeled base object.
+    private void resolvePendingSingleValueReads() {
+        pendingSingleValueReads.forEach((baseObj, csResult) ->
+                singleValueWrites.get(baseObj).forEach(v -> solver.addPFGEdge(new AndroidModelEdge(v, csResult)))
+        );
     }
 }
