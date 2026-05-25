@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.android.icc;
+package pascal.taie.analysis.pta.plugin.android.icc.intentattribute;
 
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 

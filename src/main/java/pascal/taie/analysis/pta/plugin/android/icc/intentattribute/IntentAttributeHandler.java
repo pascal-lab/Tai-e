@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.analysis.pta.plugin.android.icc;
+package pascal.taie.analysis.pta.plugin.android.icc.intentattribute;
 
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -29,6 +29,9 @@ import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
+import pascal.taie.analysis.pta.plugin.android.icc.ICCContext;
+import pascal.taie.analysis.pta.plugin.android.icc.ICCHandler;
+import pascal.taie.analysis.pta.plugin.android.icc.SendAndReplyICCHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
@@ -44,16 +47,16 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.ACTION;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.CATEGORY;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.CLASS;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.COMPONENT_NAME;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.DATA;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.DATA_AND_MIME_TYPE;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.MIME_TYPE;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.NORMALIZE_DATA;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE;
-import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.NORMALIZE_MIME_TYPE;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.ACTION;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.CATEGORY;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.CLASS;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.COMPONENT_NAME;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.DATA;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.DATA_AND_MIME_TYPE;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.MIME_TYPE;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.NORMALIZE_DATA;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE;
+import static pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind.NORMALIZE_MIME_TYPE;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**

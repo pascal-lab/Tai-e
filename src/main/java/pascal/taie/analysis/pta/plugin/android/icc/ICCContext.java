@@ -25,6 +25,7 @@ package pascal.taie.analysis.pta.plugin.android.icc;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.android.AndroidContext;
+import pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttribute;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;

@@ -26,6 +26,8 @@ import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttribute;
+import pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeKind;
 import pascal.taie.android.info.IntentDataInfo;
 import pascal.taie.android.info.IntentFilterAttribute;
 import pascal.taie.android.info.UriData;

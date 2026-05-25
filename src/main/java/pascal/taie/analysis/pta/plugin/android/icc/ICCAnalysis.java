@@ -24,6 +24,8 @@ package pascal.taie.analysis.pta.plugin.android.icc;
 
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.analysis.pta.plugin.android.AndroidContext;
+import pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentAttributeHandler;
+import pascal.taie.analysis.pta.plugin.android.icc.intentattribute.IntentFilterAttributeModel;
 
 public class ICCAnalysis extends CompositePlugin {
 
