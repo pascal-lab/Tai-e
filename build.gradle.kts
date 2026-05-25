@@ -19,7 +19,6 @@ dependencies {
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
-//    "io.github.yaphetsh:soot:4.6.0".let {
         // Disable transitive dependencies from Soot in compile classpath
         compileOnly(it) { isTransitive = false }
         testCompileOnly(it) { isTransitive = false }
@@ -34,8 +33,10 @@ dependencies {
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use FlowDroid to parse apk
-    implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.10.0")
-//    implementation("io.github.yaphetsh:soot-infoflow-android:2.14.0")
+    implementation(files("lib/flowdroidclasses-modified.jar"))
+    implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.14.1") {
+        exclude(group = "org.soot-oss", module = "soot")
+    }
 
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
