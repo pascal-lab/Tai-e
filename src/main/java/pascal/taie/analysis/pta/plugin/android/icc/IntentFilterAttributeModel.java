@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta.plugin.android.icc;
 
 import pascal.taie.analysis.pta.core.cs.context.Context;
+import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
@@ -31,7 +32,6 @@ import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static pascal.taie.analysis.pta.plugin.android.icc.IntentAttributeKind.ACTION;
@@ -86,41 +86,33 @@ public class IntentFilterAttributeModel extends ICCHandler {
     public void intentFilterCommonInvoke(Context context, Invoke invoke, PointsToSet pts) {
         JMethod method = invoke.getMethodRef().resolve();
         InvokeExp invokeExp = invoke.getInvokeExp();
-        List<IntentAttribute> intentAttributes = new ArrayList<>();
-
-        switch (method.getSignature()) {
-            case INIT_WITH_INTENT_FILTER -> solver.addPFGEdge(
-                    new AndroidModelEdge(
-                            csManager.getCSVar(context, invokeExp.getArg(0)),
-                            csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE))
-                    ), InvokeUtils.getVar(invoke, BASE).getType());
-            case INIT_WITH_ACTION, ADD_ACTION -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    ACTION));
-            case ADD_CATEGORY -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    CATEGORY));
-            case ADD_DATA_SCHEME -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    DATA_SCHEME));
-            case ADD_DATA_PATH -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    DATA_PATH));
-            case ADD_DATA_TYPE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    MIME_TYPE));
-            case ADD_DATA_AUTHORITY -> {
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                        DATA_HOST));
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(1))),
-                        DATA_PORT));
-            }
+        IntentAttributeCollector collector =
+                new IntentAttributeCollector(context, csManager, invokeExp);
+        CSVar base = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
+        if (INIT_WITH_INTENT_FILTER.equals(method.getSignature())) {
+            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
         }
+        List<IntentAttribute> intentAttributes =
+                collectFilterAttributes(method.getSignature(), collector);
         if (!intentAttributes.isEmpty()) {
             pts.forEach(csObj -> handlerContext.intentFilter2Attribute().putAll(csObj, intentAttributes));
         }
+    }
+
+    private List<IntentAttribute> collectFilterAttributes(String signature,
+                                                          IntentAttributeCollector collector) {
+        switch (signature) {
+            case INIT_WITH_ACTION, ADD_ACTION -> collector.addSingle(0, ACTION);
+            case ADD_CATEGORY -> collector.addSingle(0, CATEGORY);
+            case ADD_DATA_SCHEME -> collector.addSingle(0, DATA_SCHEME);
+            case ADD_DATA_PATH -> collector.addSingle(0, DATA_PATH);
+            case ADD_DATA_TYPE -> collector.addSingle(0, MIME_TYPE);
+            case ADD_DATA_AUTHORITY -> {
+                collector.addSingle(0, DATA_HOST);
+                collector.addSingle(1, DATA_PORT);
+            }
+        }
+        return collector.attributes();
     }
 
 }

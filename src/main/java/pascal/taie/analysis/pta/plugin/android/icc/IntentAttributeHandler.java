@@ -39,7 +39,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -159,67 +158,14 @@ public class IntentAttributeHandler extends ICCHandler {
     public void intentCommonInvoke(Context context, Invoke invoke, PointsToSet intentObjs) {
         JMethod method = invoke.getMethodRef().resolve();
         InvokeExp invokeExp = invoke.getInvokeExp();
-        List<IntentAttribute> intentAttributes = new ArrayList<>();
         CSVar base = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
-        switch (method.getSignature()) {
-            case INIT_WITH_INTENT -> solver.addPFGEdge(
-                    new AndroidModelEdge(csManager.getCSVar(context, invokeExp.getArg(0)), base),
-                    base.getType());
-            case INIT_WITH_ACTION, SET_ACTION -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    ACTION));
-            case INIT_WITH_ACTION_AND_DATA -> {
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                        ACTION));
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(1))),
-                        DATA));
-            }
-            case INIT_WITH_ACTION_AND_DATA_AND_CLASS -> {
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                        ACTION));
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(1))),
-                        DATA));
-                intentAttributes.add(new IntentAttribute(
-                        List.of(csManager.getCSVar(context, invokeExp.getArg(3))),
-                        CLASS));
-            }
-            case INIT_WITH_TARGET_COMPONENT,
-                    SET_CLASS,
-                    SET_CLASS_NAME_WITH_CONTEXT,
-                    SET_CLASS_NAME_WITH_PACKAGE -> intentAttributes.add(new IntentAttribute(
-                            List.of(csManager.getCSVar(context, invokeExp.getArg(1))),
-                            CLASS));
-            case SET_COMPONENT -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    COMPONENT_NAME));
-            case ADD_CATEGORY -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    CATEGORY));
-            case SET_DATA -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    DATA));
-            case SET_DATA_AND_NORMALIZE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    NORMALIZE_DATA));
-            case SET_TYPE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    MIME_TYPE));
-            case SET_TYPE_AND_NORMALIZE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0))),
-                    NORMALIZE_MIME_TYPE));
-            case SET_DATA_AND_TYPE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0)),
-                            csManager.getCSVar(context, invokeExp.getArg(1))),
-                    DATA_AND_MIME_TYPE));
-            case SET_DATA_AND_TYPE_AND_NORMALIZE -> intentAttributes.add(new IntentAttribute(
-                    List.of(csManager.getCSVar(context, invokeExp.getArg(0)),
-                            csManager.getCSVar(context, invokeExp.getArg(1))),
-                    NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE));
+        IntentAttributeCollector collector =
+                new IntentAttributeCollector(context, csManager, invokeExp);
+        if (INIT_WITH_INTENT.equals(method.getSignature())) {
+            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
         }
+        List<IntentAttribute> intentAttributes =
+                collectWrittenIntentAttributes(method.getSignature(), collector);
         if (!intentAttributes.isEmpty()) {
             intentObjs.forEach(csObj -> handlerContext.intent2IntentAttribute().putAll(csObj, intentAttributes));
         }
@@ -244,23 +190,7 @@ public class IntentAttributeHandler extends ICCHandler {
         }
 
         CSVar target = csManager.getCSVar(context, result);
-        List<IntentAttributeKind> kinds = new ArrayList<>();
-        switch (method.getSignature()) {
-            case GET_ACTION -> kinds.add(ACTION);
-            case GET_CATEGORIES -> kinds.add(CATEGORY);
-            case GET_DATA -> {
-                kinds.add(DATA);
-                kinds.add(NORMALIZE_DATA);
-                kinds.add(DATA_AND_MIME_TYPE);
-                kinds.add(NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE);
-            }
-            case GET_TYPE -> {
-                kinds.add(MIME_TYPE);
-                kinds.add(NORMALIZE_MIME_TYPE);
-                kinds.add(DATA_AND_MIME_TYPE);
-                kinds.add(NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE);
-            }
-        }
+        List<IntentAttributeKind> kinds = getGetterKinds(method.getSignature());
         if (!kinds.isEmpty()) {
             intentObjs.forEach(intentObj ->
                     pendingIntentAttributeGets.put(intentObj, target, kinds)
@@ -291,5 +221,61 @@ public class IntentAttributeHandler extends ICCHandler {
     private void connectGetIntentAttribute(Set<CSVar> sources, CSVar result) {
         sources.forEach(source ->
                 solver.addPFGEdge(new AndroidModelEdge(source, result), result.getType()));
+    }
+
+    private void copyIntentArgToBaseIfNeeded(String signature,
+                                             IntentAttributeCollector collector,
+                                             CSVar base) {
+        if (INIT_WITH_INTENT.equals(signature)) {
+            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
+        }
+    }
+
+    private List<IntentAttribute> collectWrittenIntentAttributes(String signature,
+                                                                 IntentAttributeCollector collector) {
+        switch (signature) {
+            case INIT_WITH_ACTION, SET_ACTION -> collector.addSingle(0, ACTION);
+            case INIT_WITH_ACTION_AND_DATA -> {
+                collector.addSingle(0, ACTION);
+                collector.addSingle(1, DATA);
+            }
+            case INIT_WITH_ACTION_AND_DATA_AND_CLASS -> {
+                collector.addSingle(0, ACTION);
+                collector.addSingle(1, DATA);
+                collector.addSingle(3, CLASS);
+            }
+            case INIT_WITH_TARGET_COMPONENT,
+                    SET_CLASS,
+                    SET_CLASS_NAME_WITH_CONTEXT,
+                    SET_CLASS_NAME_WITH_PACKAGE -> collector.addSingle(1, CLASS);
+            case SET_COMPONENT -> collector.addSingle(0, COMPONENT_NAME);
+            case ADD_CATEGORY -> collector.addSingle(0, CATEGORY);
+            case SET_DATA -> collector.addSingle(0, DATA);
+            case SET_DATA_AND_NORMALIZE -> collector.addSingle(0, NORMALIZE_DATA);
+            case SET_TYPE -> collector.addSingle(0, MIME_TYPE);
+            case SET_TYPE_AND_NORMALIZE -> collector.addSingle(0, NORMALIZE_MIME_TYPE);
+            case SET_DATA_AND_TYPE -> collector.addPair(0, 1, DATA_AND_MIME_TYPE);
+            case SET_DATA_AND_TYPE_AND_NORMALIZE ->
+                    collector.addPair(0, 1, NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE);
+        }
+        return collector.attributes();
+    }
+
+    private static List<IntentAttributeKind> getGetterKinds(String signature) {
+        return switch (signature) {
+            case GET_ACTION -> List.of(ACTION);
+            case GET_CATEGORIES -> List.of(CATEGORY);
+            case GET_DATA -> List.of(
+                    DATA,
+                    NORMALIZE_DATA,
+                    DATA_AND_MIME_TYPE,
+                    NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE);
+            case GET_TYPE -> List.of(
+                    MIME_TYPE,
+                    NORMALIZE_MIME_TYPE,
+                    DATA_AND_MIME_TYPE,
+                    NORMALIZE_DATA_AND_NORMALIZE_MIME_TYPE);
+            default -> List.of();
+        };
     }
 }
