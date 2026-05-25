@@ -22,7 +22,6 @@
 
 package pascal.taie.util.collection;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,13 +62,6 @@ public final class Lists {
      */
     public static <T> List<T> asList(Iterable<T> iterable) {
         return StreamSupport.stream(iterable.spliterator(), false).toList();
-    }
-
-    /**
-     * Converts an array object to a list.
-     */
-    public static <T> List<T> asList(T[] objects) {
-        return Arrays.asList(objects);
     }
 
     /**
