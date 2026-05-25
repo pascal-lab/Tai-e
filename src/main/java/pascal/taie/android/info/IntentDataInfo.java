@@ -22,11 +22,9 @@
 
 package pascal.taie.android.info;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Manifest-style intent data attributes before they are expanded into concrete
@@ -47,59 +45,102 @@ public record IntentDataInfo(Set<String> schemes,
      * combinations used by intent-filter matching.
      */
     public Set<UriData> convertToDataSet() {
-        return convertToDataSet(0,
-                schemes,
-                hosts,
-                ports,
-                paths,
-                pathPrefixes,
-                pathSuffixes,
-                pathPatterns,
-                pathAdvancedPatterns,
-                mimeTypes);
+        Set<UriData> dataSet = Set.of();
+        for (AttributeValues attributeValues : attributeValues()) {
+            if (!attributeValues.values().isEmpty()) {
+                dataSet = expandDataSet(dataSet, attributeValues);
+            }
+        }
+        return dataSet;
     }
 
-    @SafeVarargs
-    private static Set<UriData> convertToDataSet(int index, Set<String>... sets) {
-        if (index < 0 || index >= sets.length) {
-            return Collections.emptySet();
-        }
-
-        Set<UriData> suffixDataSet = convertToDataSet(index + 1, sets);
-        if (sets[index].isEmpty()) {
-            return suffixDataSet;
-        }
-        if (suffixDataSet.isEmpty()) {
-            return generateDataSet(
-                    value -> Stream.of(createDataWithNulls(index, value, UriData.builder().build())),
-                    sets[index]);
-        }
-
-        return generateDataSet(
-                value -> suffixDataSet.stream().map(data -> createDataWithNulls(index, value, data)),
-                sets[index]);
+    private List<AttributeValues> attributeValues() {
+        return List.of(
+                new AttributeValues(DataAttribute.SCHEME, schemes),
+                new AttributeValues(DataAttribute.HOST, hosts),
+                new AttributeValues(DataAttribute.PORT, ports),
+                new AttributeValues(DataAttribute.PATH, paths),
+                new AttributeValues(DataAttribute.PATH_PREFIX, pathPrefixes),
+                new AttributeValues(DataAttribute.PATH_SUFFIX, pathSuffixes),
+                new AttributeValues(DataAttribute.PATH_PATTERN, pathPatterns),
+                new AttributeValues(DataAttribute.PATH_ADVANCED_PATTERN, pathAdvancedPatterns),
+                new AttributeValues(DataAttribute.MIME_TYPE, mimeTypes));
     }
 
-    private static Set<UriData> generateDataSet(Function<String, Stream<UriData>> mapper, Set<String> set) {
-        return set
+    private static Set<UriData> expandDataSet(Set<UriData> dataSet,
+                                              AttributeValues attributeValues) {
+        Set<UriData> baseDataSet = dataSet.isEmpty() ?
+                Set.of(UriData.builder().build()) :
+                dataSet;
+        return baseDataSet
                 .stream()
-                .flatMap(mapper)
+                .flatMap(data -> attributeValues.values()
+                        .stream()
+                        .map(value -> attributeValues.attribute().withValue(data, value)))
                 .collect(Collectors.toSet());
     }
 
-    private static UriData createDataWithNulls(int index, String value, UriData uriData) {
-        return switch (index) {
-            case 0 -> UriData.builder().data(uriData).scheme(value).build();
-            case 1 -> UriData.builder().data(uriData).host(value).build();
-            case 2 -> UriData.builder().data(uriData).port(value).build();
-            case 3 -> UriData.builder().data(uriData).path(value).build();
-            case 4 -> UriData.builder().data(uriData).pathPrefix(value).build();
-            case 5 -> UriData.builder().data(uriData).pathSuffix(value).build();
-            case 6 -> UriData.builder().data(uriData).pathPattern(value).build();
-            case 7 -> UriData.builder().data(uriData).pathAdvancedPattern(value).build();
-            case 8 -> UriData.builder().data(uriData).mimeType(value).build();
-            default -> throw new IllegalArgumentException("Invalid index");
+    private record AttributeValues(DataAttribute attribute, Set<String> values) {
+    }
+
+    private enum DataAttribute {
+
+        SCHEME {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).scheme(value).build();
+            }
+        },
+        HOST {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).host(value).build();
+            }
+        },
+        PORT {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).port(value).build();
+            }
+        },
+        PATH {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).path(value).build();
+            }
+        },
+        PATH_PREFIX {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).pathPrefix(value).build();
+            }
+        },
+        PATH_SUFFIX {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).pathSuffix(value).build();
+            }
+        },
+        PATH_PATTERN {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).pathPattern(value).build();
+            }
+        },
+        PATH_ADVANCED_PATTERN {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).pathAdvancedPattern(value).build();
+            }
+        },
+        MIME_TYPE {
+            @Override
+            UriData withValue(UriData data, String value) {
+                return UriData.builder().data(data).mimeType(value).build();
+            }
         };
+
+        abstract UriData withValue(UriData data, String value);
     }
 
 }
