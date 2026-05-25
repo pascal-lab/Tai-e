@@ -43,6 +43,7 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -453,10 +454,8 @@ public class SendAndReplyICCHandler extends ICCHandler {
                             .path(path)
                             .build();
                 } else if (kind == IntentAttributeKind.MIME_TYPE || kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
-                    String mimeType = uriData;
-                    if (kind == IntentAttributeKind.NORMALIZE_MIME_TYPE) {
-                        mimeType = normalizeMimeType(mimeType);
-                    }
+                    String mimeType = kind == IntentAttributeKind.NORMALIZE_MIME_TYPE
+                            ? normalizeMimeType(uriData) : uriData;
                     uriDatum = UriData.builder()
                             .mimeType(mimeType)
                             .build();
@@ -465,7 +464,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 if (uriDatum != null) {
                     data.add(uriDatum);
                 }
-            } catch (Exception ignored) {
+            } catch (URISyntaxException ignored) {
             }
         });
         return data;
