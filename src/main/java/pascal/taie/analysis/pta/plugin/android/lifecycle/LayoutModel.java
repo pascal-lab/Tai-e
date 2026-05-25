@@ -26,11 +26,10 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.plugin.android.AndroidModelEdge;
+import pascal.taie.analysis.pta.plugin.android.lifecycle.LayoutResourceResolver.LayoutLookup;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.android.info.ApkInfo;
-import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.StringLiteral;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
@@ -38,12 +37,7 @@ import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
-import pascal.taie.util.collection.Sets;
-import soot.jimple.infoflow.android.resources.ARSCFileParser;
-
-import javax.annotation.Nullable;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
@@ -58,10 +52,11 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.RESULT;
  */
 public class LayoutModel extends LifecycleHandler {
 
-    private static final String DEFAULT_PACKAGE_RESOURCE_SEPARATOR = ".";
+    private final LayoutResourceResolver resourceResolver;
 
     public LayoutModel(LifecycleContext context) {
         super(context);
+        this.resourceResolver = new LayoutResourceResolver(context.apkInfo(), hierarchy);
     }
 
     @InvokeHandler(signature = {
@@ -74,28 +69,14 @@ public class LayoutModel extends LifecycleHandler {
             return;
         }
 
-        Integer id = getIntegerArgument(invoke, 0);
-        String className = getStringFromResourceId(id);
-
-        // Heuristically resolves the class name from the resource name.
-        if (className == null && id != null) {
-            ARSCFileParser.AbstractResource resource = handlerContext.apkInfo().findResource(id);
-            if (resource != null) {
-                if (resource.getResourceName().equals("button")) {
-                    addResultObjectForInvoke(context, invoke);
-                }
-                className = handlerContext.apkInfo().getPackageName() +
-                        DEFAULT_PACKAGE_RESOURCE_SEPARATOR +
-                        toCamelCase(resource.getResourceName());
-            }
+        LayoutLookup lookup = resourceResolver.resolveComponentLookup(
+                resourceResolver.getIntegerArgument(invoke, 0));
+        if (lookup.requiresSyntheticResult()) {
+            addResultObjectForInvoke(context, invoke);
         }
-
-        if (className != null) {
-            JClass jClass = hierarchy.getClass(className);
-            if (jClass != null) {
-                Obj componentObj = handlerContext.androidObjManager().getComponentObj(jClass);
-                solver.addVarPointsTo(context, result, componentObj);
-            }
+        if (lookup.componentClass() != null) {
+            Obj componentObj = handlerContext.androidObjManager().getComponentObj(lookup.componentClass());
+            solver.addVarPointsTo(context, result, componentObj);
         }
     }
 
@@ -109,19 +90,7 @@ public class LayoutModel extends LifecycleHandler {
         JClass activityClass = classType.getJClass();
         CSVar csActivity = csManager.getCSVar(context, activity);
 
-        Set<String> layoutFileNames = Sets.newSet();
-        String fileName = getStringFromResourceId(getIntegerArgument(invoke, 0));
-        if (fileName != null) {
-            layoutFileNames.add(fileName);
-        }
-
-        // If the concrete layout cannot be resolved, conservatively process
-        // all known layout files.
-        if (layoutFileNames.isEmpty()) {
-            layoutFileNames.addAll(getAllKnownLayoutFileNames(handlerContext.apkInfo()));
-        }
-
-        layoutFileNames.forEach(layoutFileName -> {
+        resolveLayoutFileNames(invoke).forEach(layoutFileName -> {
             addLayoutCallback(activityClass, pts, layoutFileName);
             addLayoutComponent(csActivity, layoutFileName);
         });
@@ -133,7 +102,8 @@ public class LayoutModel extends LifecycleHandler {
         if (result == null) {
             return;
         }
-        String value = getStringFromResourceId(getIntegerArgument(invoke, 0));
+        String value = resourceResolver.getStringResource(
+                resourceResolver.getIntegerArgument(invoke, 0));
         if (value != null) {
             Obj stringObj = handlerContext.androidObjManager()
                     .mockObjByString(StringLiteral.get(value), result);
@@ -141,39 +111,11 @@ public class LayoutModel extends LifecycleHandler {
         }
     }
 
-    /**
-     * Compatibility helper for existing code paths that resolve string
-     * resources directly from a resource id.
-     */
-    @Nullable
-    private String getStringFromResourceId(Integer id) {
-        if (id == null) {
-            return null;
-        }
-
-        ARSCFileParser.AbstractResource resource =
-                handlerContext.apkInfo().findResource(id);
-        return resource instanceof ARSCFileParser.StringResource stringResource
-                ? stringResource.getValue()
-                : null;
-    }
-
-    @Nullable
-    private Integer getIntegerArgument(Invoke invoke, int index) {
-        Var arg = invoke.getInvokeExp().getArg(index);
-        if (arg.isConst() && arg.getConstValue() instanceof IntLiteral intLiteral) {
-            return intLiteral.getValue();
-        }
-        return null;
-    }
-
-    private static Set<String> getAllKnownLayoutFileNames(ApkInfo apkInfo) {
-        return Stream.of(
-                        apkInfo.layoutCallbacks().keySet(),
-                        apkInfo.layoutFragments().keySet(),
-                        apkInfo.layoutViews().keySet())
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+    private Set<String> resolveLayoutFileNames(Invoke invoke) {
+        // If the concrete layout cannot be resolved, conservatively process
+        // all known layout files.
+        return resourceResolver.resolveLayoutFileNames(
+                resourceResolver.getIntegerArgument(invoke, 0));
     }
 
     /**
@@ -243,29 +185,6 @@ public class LayoutModel extends LifecycleHandler {
                                 }
                             });
                 });
-    }
-
-    /**
-     * Converts Android resource names such as {@code main_activity} to
-     * Java-style class names such as {@code MainActivity}.
-     */
-    private static String toCamelCase(String input) {
-        StringBuilder result = new StringBuilder();
-
-        boolean convertNext = true;
-        for (char ch : input.toCharArray()) {
-            if (ch == '_') {
-                convertNext = true;
-            } else {
-                if (convertNext) {
-                    result.append(Character.toUpperCase(ch));
-                    convertNext = false;
-                } else {
-                    result.append(ch);
-                }
-            }
-        }
-        return result.toString();
     }
 
 }
