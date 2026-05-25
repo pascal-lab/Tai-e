@@ -33,7 +33,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.manifest.IAndroidApplication;
 import soot.jimple.infoflow.android.manifest.IAndroidComponent;
@@ -44,7 +43,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -135,36 +133,6 @@ public record ApkInfo(@Nullable JClass application,
 
         private static final String ANDROID_CALLBACKS = "android/android-callbacks.yml";
 
-        private static final String TAG_ACTION = "action";
-
-        private static final String TAG_CATEGORY = "category";
-
-        private static final String TAG_DATA = "data";
-
-        private static final String TAG_INTENT_FILTER = "intent-filter";
-
-        private static final String ATTR_ENABLED = "enabled";
-
-        private static final String ATTR_NAME = "name";
-
-        private static final String DATA_SCHEME = "scheme";
-
-        private static final String DATA_HOST = "host";
-
-        private static final String DATA_PORT = "port";
-
-        private static final String DATA_PATH = "path";
-
-        private static final String DATA_PATH_PREFIX = "pathPrefix";
-
-        private static final String DATA_PATH_SUFFIX = "pathSuffix";
-
-        private static final String DATA_PATH_PATTERN = "pathPattern";
-
-        private static final String DATA_PATH_ADVANCED_PATTERN = "pathAdvancedPattern";
-
-        private static final String DATA_MIME_TYPE = "mimeType";
-
         private final RawApkInfo rawApkInfo;
 
         private final ProcessManifest manifest;
@@ -175,19 +143,6 @@ public record ApkInfo(@Nullable JClass application,
             this.rawApkInfo = rawApkInfo;
             this.manifest = rawApkInfo.manifest();
             this.hierarchy = hierarchy;
-        }
-
-        @Nullable
-        private static String getAttributeValue(AXmlNode node) {
-            return getAttributeValue(node.getAttribute(ApkInfoConverter.ATTR_NAME));
-        }
-
-        @Nullable
-        private static String getAttributeValue(@Nullable AXmlAttribute<?> attribute) {
-            if (attribute == null || attribute.getValue() == null) {
-                return null;
-            }
-            return attribute.getValue().toString();
         }
 
         @Nullable
@@ -292,102 +247,8 @@ public record ApkInfo(@Nullable JClass application,
          * Collects intent-filter information keyed by the declaring component.
          */
         public MultiMap<JClass, IntentFilterAttribute> convertComponentFilterAttribute() {
-            return Maps.newMultiMap(manifest
-                    .getAXml()
-                    .getNodesWithTag(TAG_INTENT_FILTER)
-                    .stream()
-                    .filter(this::isEnabled)
-                    .filter(intentFilter -> {
-                        String componentName = getParentName(intentFilter);
-                        return componentName != null && hierarchy.getClass(componentName) != null;
-                    })
-                    .collect(Collectors.groupingBy(
-                            intentFilter -> Objects.requireNonNull(hierarchy.getClass(getParentName(intentFilter))),
-                            Collectors.mapping(
-                                    intentFilter -> new IntentFilterAttribute(
-                                            Set.of(Objects.requireNonNull(getParentName(intentFilter))),
-                                            extractActions(intentFilter),
-                                            extractCategories(intentFilter),
-                                            createIntentDataInfo(extractDataMap(intentFilter))),
-                                    Collectors.toSet()
-                            )
-                    )));
-        }
-
-        /**
-         * Intent-filters of disabled components should not participate in
-         * component matching.
-         */
-        private boolean isEnabled(AXmlNode intentFilter) {
-            AXmlNode component = intentFilter.getParent();
-            if (component == null) {
-                return false;
-            }
-            AXmlAttribute<?> enabled = component.getAttribute(ATTR_ENABLED);
-            return enabled == null || enabled.asBoolean(rawApkInfo.resources());
-        }
-
-        private Set<String> extractActions(AXmlNode intentFilter) {
-            return extractChildNames(intentFilter, TAG_ACTION);
-        }
-
-        private Set<String> extractCategories(AXmlNode intentFilter) {
-            return extractChildNames(intentFilter, TAG_CATEGORY);
-        }
-
-        /**
-         * Extracts the values of {@code android:name} from children with the
-         * given tag, e.g., {@code <action>} and {@code <category>}.
-         */
-        private Set<String> extractChildNames(AXmlNode parent, String tag) {
-            return parent.getChildren()
-                    .stream()
-                    .filter(node -> tag.equals(node.getTag()))
-                    .map(ApkInfoConverter::getAttributeValue)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-        }
-
-        /**
-         * Groups all attributes of {@code <data>} nodes by attribute name, so
-         * they can be converted to {@link IntentDataInfo}.
-         */
-        private MultiMap<String, String> extractDataMap(AXmlNode intentFilter) {
-            return Maps.newMultiMap(intentFilter.getChildren()
-                    .stream()
-                    .filter(node -> node.getTag().equals("data"))
-                    .flatMap(node -> node.getAttributes().entrySet().stream())
-                    .filter(entry -> entry.getValue() != null)
-                    .collect(
-                            Collectors.groupingBy(
-                                    Map.Entry::getKey,
-                                    Collectors.mapping(entry -> entry.getValue().getValue().toString(), Collectors.toSet())
-                            )
-                    ));
-        }
-
-        /**
-         * Converts flattened data attributes in manifest to structured URI data
-         * used by intent matching.
-         */
-        private Set<UriData> createIntentDataInfo(MultiMap<String, String> dataMap) {
-            return new IntentDataInfo(
-                    dataMap.get(DATA_SCHEME),
-                    dataMap.get(DATA_HOST),
-                    dataMap.get(DATA_PORT),
-                    dataMap.get(DATA_PATH),
-                    dataMap.get(DATA_PATH_PREFIX),
-                    dataMap.get(DATA_PATH_SUFFIX),
-                    dataMap.get(DATA_PATH_PATTERN),
-                    dataMap.get(DATA_PATH_ADVANCED_PATTERN),
-                    dataMap.get(DATA_MIME_TYPE)).convertToDataSet();
-        }
-
-        @Nullable
-        private String getParentName(AXmlNode intentFilter) {
-            AXmlNode parent = intentFilter.getParent();
-            String name = parent == null ? null : getAttributeValue(parent);
-            return name == null ? null : manifest.expandClassName(name);
+            return new ManifestIntentFilterResolver(rawApkInfo, manifest, hierarchy)
+                    .convert();
         }
 
         /**
