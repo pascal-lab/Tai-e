@@ -73,7 +73,6 @@ public class TestBytecodeIRBuilder {
         String worldPath = "src/test/resources/world";
 
         List<String> args = new ArrayList<>();
-        // Collections.addAll(args, "-a", "cfg");
         Collections.addAll(args, "-cp", worldPath);
         Collections.addAll(args, "-java", Integer.toString(javaVersion));
         Collections.addAll(args, "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder");
@@ -177,7 +176,6 @@ public class TestBytecodeIRBuilder {
                     for (JMethod m : c.getDeclaredMethods()) {
                         if (!m.isAbstract()) {
                             IR ir = m.getIR();
-//                            IRPrinter.print(ir, System.out);
                             for (Stmt s : ir) {
                                 assertEquals(s, ir.getObject(s.getIndex()));
                             }
@@ -448,8 +446,6 @@ public class TestBytecodeIRBuilder {
             // TODO: figure out the reason of "No method source"
             soot.options.Options.v().set_drop_bodies_after_load(false);
         }
-//        soot.options.Options.v().set_process_jar_dir(List.of("java-benchmarks/JREs/jre1.8"));
-//        soot.options.Options.v().set_process_jar_dir(List.of("crypto-benchmarks/dubbo3/"));
         soot.options.Options.v().set_process_dir(List.of("crypto-benchmarks/dubbo3/original-classes"));
 
         Scene scene = G.v().soot_Scene();
@@ -554,13 +550,6 @@ public class TestBytecodeIRBuilder {
                 classes.add(value);
             }
         });
-        // process --app-class-path
-//        String appClassPath = options.getAppClassPath();
-//        if (appClassPath != null) {
-//            for (String path : appClassPath.split(File.pathSeparator)) {
-//                classes.addAll(ClassNameExtractor.extract(path));
-//            }
-//        }
         return classes;
     }
 

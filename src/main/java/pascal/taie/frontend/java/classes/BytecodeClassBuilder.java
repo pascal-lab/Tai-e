@@ -397,16 +397,6 @@ public class BytecodeClassBuilder implements JClassBuilder {
         @Override
         public void visitEnd() {
             List<AnnotationHolder> paramAnnos = null;
-//            if (!paramAnnotations.isEmpty()) {
-            // convert parameter annotation map to list
-//                paramAnnos = new ArrayList<>();
-//                for (int i = 0; i < paramTypes.size(); ++i) {
-//                    List<Annotation> annos = paramAnnotations.get(i);
-//                    AnnotationHolder holder = (annos == null) ?
-//                            null : AnnotationHolder.make(annos);
-//                    paramAnnos.add(holder);
-//                }
-//            }
             JMethod method = new JMethod(jClass, methodName, modifiers,
                     paramTypes, retType, exceptions, gSignature,
                     AnnotationHolder.make(annotations), paramAnnos,

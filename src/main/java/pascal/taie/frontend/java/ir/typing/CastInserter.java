@@ -286,17 +286,6 @@ final class CastInserter {
 
         @Override
         public Stmt visit(StoreArray stmt) {
-            // stmt = (StoreArray) ensureValidArrayType(stmt.getArrayAccess(), stmt, block, newStmts);
-            // Type t = maySplitStmt(stmt.getLValue(), stmt.getRValue());
-            // if (t != null) {
-            //     Var v = builder.manager.getTempVar();
-            //     v.setType(t);
-            //     stmt.getLValue().getBase().removeRelevantStmt(stmt);
-            //     newStmts.add(getNewCast(v, stmt.getRValue(), t));
-            //     return new StoreArray(stmt.getLValue(), v);
-            // } else {
-            //     return stmt;
-            // }
             // Ignore array store for now
             // because it will throw `ArrayStoreException`,
             // instead of `ClassCastException`,
@@ -343,7 +332,6 @@ final class CastInserter {
                         if (v != null) {
                             // if this file is a valid bytecode class, then it's checked
                             // which means flowType is always assignable to required type
-                            // assert isAssignable(t, v.getType());
                             return replaceVarInStmt(stmt, base, v);
                         } else {
                             logger.atTrace().log("[CASTING] fallback solution for stage1");

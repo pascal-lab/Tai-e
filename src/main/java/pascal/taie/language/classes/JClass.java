@@ -96,10 +96,6 @@ public class JClass extends AbstractResultHolder
 
     private boolean isPhantom;
 
-//    private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
-
-//    private final ReentrantReadWriteLock phantomFieldsLock = new ReentrantReadWriteLock();
-
     private final Map<FieldKey, JField> phantomFields = Maps.newConcurrentMap();
 
     private record FieldKey(String name, Type type) {

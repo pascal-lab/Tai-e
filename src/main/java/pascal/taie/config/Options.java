@@ -340,14 +340,14 @@ public class Options implements Serializable {
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
-//        if (options.getClassPath() != null
-//                && options.mainClass == null
-//                && options.inputClasses.isEmpty()
-//                && options.getAppClassPath() == null) {
-//            throw new ConfigException("Missing options: " +
-//                    "at least one of --main-class, --input-classes " +
-//                    "or --app-class-path should be specified");
-//        }
+        if (options.getClassPath() != null
+                && options.mainClass == null
+                && options.inputClasses.isEmpty()
+                && options.getAppClassPath() == null) {
+            throw new ConfigException("Missing options: " +
+                    "at least one of --main-class, --input-classes " +
+                    "or --app-class-path should be specified");
+        }
 
         if (options.analyses.containsKey(PointerAnalysis.ID)
                 && options.analyses.get(PointerAnalysis.ID).has("reflection-log")) {

@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.exp;
 
+import java.util.Set;
+
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
-
-import java.util.Set;
 
 /**
  * Representation of array access expression, e.g., a[i].
@@ -39,7 +39,6 @@ public class ArrayAccess implements LValue, RValue {
     public ArrayAccess(Var base, Var index) {
         this.base = base;
         this.index = index;
-        // assert base.getType() instanceof ArrayType;
     }
 
     public Var getBase() {
