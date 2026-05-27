@@ -1,0 +1,191 @@
+[[android-analysis]]
+include::attributes.adoc[]
+
+= How to Use Android Analysis?
+
+Tai-e supports analyzing Android APKs.
+Android mode is enabled by option `-am`.
+The current implementation is designed as a plugin of the pointer analysis framework.
+Therefore, when analyzing Android programs, the main entry is still `pta`, and Android-specific modeling is enabled automatically in Android mode.
+
+Similar to <<taint-analysis#taint-analysis,Taint Analysis>>, this design allows Android analysis to directly reuse the capabilities provided by the pointer analysis framework, including various context-sensitivity and heap-abstraction techniques, as well as support for complex language features such as reflection and lambda expressions.
+As a result, Android analysis does not work in isolation.
+It is built on top of pointer analysis results, and in turn augments pointer analysis with Android framework semantics.
+This helps Tai-e build more reasonable call graphs, points-to relations, and taint propagation results for APKs.
+
+Currently, Tai-e's Android analysis mainly models the following kinds of Android framework semantics:
+
+* lifecycle and callback semantics
+* inter-component communication (ICC)
+* several common Android framework behaviors
+
+This document aims to help users quickly start Android analysis in Tai-e and gain an overall understanding of the Android semantics currently supported.
+
+== Enabling Android Analysis
+
+This section introduces the prerequisites, the basic command-line form, and a minimal example.
+
+=== Prerequisites
+
+Before running Android analysis, make sure that the following submodules have been fetched:
+
+* `java-benchmarks`
+* `android-benchmarks`
+
+You can fetch them in the project root directory by running:
+
+[source,shell]
+----
+git submodule update --init --recursive
+----
+
+Here:
+
+* `java-benchmarks` provides the Java libraries required by Tai-e analyses.
+* `android-benchmarks` provides Android benchmark APKs and the taint configuration files used in the examples below.
+
+If these two submodules are missing, subsequent builds and example commands may fail.
+
+=== Basic Form
+
+To analyze an Android program, you need to enable Android mode, run pointer analysis, and provide the target APK as input.
+The typical form is:
+
+[source]
+----
+-cp <path/to/apk> -am -a pta=...
+----
+
+Here:
+
+* `-cp <path/to/apk>` specifies the APK to analyze.
+* `-am` enables Android mode.
+* `-a pta=...` runs pointer analysis; Android analysis is enabled automatically as a pointer-analysis plugin.
+
+If you want to learn more about `pta` options, precision settings, and the plugin mechanism, please refer to
+<<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
+
+NOTE: In Android mode, Tai-e automatically infers the target Java version from the APK and automatically enables phantom references.
+
+=== Minimal Example
+
+The following is a minimal example that runs Android pointer analysis and constructs a call graph for a DroidBench APK in this repository.
+Only the analysis arguments are shown here.
+For how to actually launch Tai-e, please refer to
+<<command-line-options#,How to Run Tai-e (command-line options)?>>.
+
+[source,shell,subs="verbatim"]
+----
+-cp android-benchmarks/DroidBench/apk/Lifecycle/ActivityLifecycle1.apk \
+-am \
+-a "pta=cs:ci" \
+-a cg=algorithm:pta
+----
+
+This example does not enable taint analysis, but it already enables Android lifecycle, callback, and ICC modeling.
+If you further want to run taint analysis on Android programs, see
+<<android-with-taint,Using Android Analysis with Taint Analysis>> below.
+
+=== Relationship to Pointer Analysis
+
+In the current implementation, Android analysis is not a standalone top-level analysis id.
+Instead, it is attached to `pta`.
+That is:
+
+* if `pta` is not run, Android-specific modeling is not enabled
+* as long as `pta` runs in Android mode, Tai-e automatically loads Android analysis
+
+This also means that the precision and cost of Android analysis are directly affected by the pointer-analysis configuration, such as context sensitivity, heap abstraction, and string-object distinction.
+From another perspective, this is also an important benefit of building Android analysis on top of the pointer analysis framework: users can directly tune `pta` to obtain different precision/efficiency tradeoffs, without designing a separate mechanism for Android analysis.
+
+In addition, in Android mode, Tai-e currently applies the following Android-specific default options to `pta`:
+
+* `implicit-entries:false`
+* `distinguish-string-constants:app`
+* `propagate-types:[reference,int,long,double,char,float]`
+
+[[android-with-taint]]
+== Using Android Analysis with Taint Analysis
+
+This section explains how Android analysis works together with taint analysis.
+
+Android analysis is most commonly used together with taint analysis.
+Android analysis itself is built on the pointer analysis framework, and Tai-e's existing taint analysis plugin is built on the same framework.
+Therefore, when users want to perform taint analysis on Android programs, they can naturally reuse the taint-analysis capabilities already provided by Tai-e, such as the source / sink / transfer configuration mechanism, as well as pointer-analysis-supported object propagation, call dispatch, and handling of complex language features.
+Android analysis further complements these capabilities with Android framework semantics, such as lifecycle dispatch, callback registration, asynchronous execution, and ICC target resolution.
+As a result, source, sink, and intermediate propagation paths in Android programs can be connected more completely.
+Without such Android framework modeling, taint analysis results are often significantly incomplete.
+
+=== Running Taint Analysis on Android Programs
+
+If you want to run taint analysis on Android programs, the usage is similar to ordinary Java programs: provide `taint-config` in the `pta` options:
+
+[source]
+----
+-cp <path/to/app.apk> \
+-am \
+-a "pta=...;taint-config:<path/to/taint-config.yml>;..."
+----
+
+For example, you can use the following DroidBench APK and test configuration from this repository:
+
+[source,shell,subs="verbatim"]
+----
+-cp android-benchmarks/DroidBench/apk/Callbacks/Button1.apk \
+-am \
+-a "pta=cs:ci;taint-config:android-benchmarks/taint-config-micro.yml" \
+-a cg=algorithm:pta
+----
+
+=== Available Taint Configurations
+
+The current Android tests in this project use the following ready-to-use configurations:
+
+* `android-benchmarks/taint-config-micro.yml`
+* `android-benchmarks/taint-config-real.yml`
+
+For the semantics and syntax of taint configurations, please refer to
+<<taint-analysis#taint-analysis,How to Use Taint Analysis?>>.
+
+== What Android Behaviors Are Currently Modeled?
+
+This section summarizes the Android behaviors currently modeled by the implementation.
+
+=== Lifecycle and Callbacks
+
+Tai-e extracts information from the APK manifest, layout files, resource files, and Android callback configuration, and uses it to supplement analysis entry points.
+The current coverage mainly includes:
+
+* lifecycle methods of `Application`, `Activity`, `Service`, `BroadcastReceiver`, and other components
+* Android framework callbacks
+* callback / fragment / view information declared in layout XML files
+* dynamically registered `BroadcastReceiver`s
+* dynamically added `Fragment`s
+
+The goal of this modeling is to make the analysis see Android framework dispatch behaviors that are not triggered by ordinary Java calls.
+
+=== Inter-Component Communication (ICC)
+
+Tai-e currently models several common ICC scenarios, including:
+
+* `startActivity(...)`
+* `startActivityForResult(...)` and its reply path
+* `sendBroadcast(...)`
+* `startService(...)`
+* `bindService(...)`
+* `Intent` / `IntentFilter` attribute matching
+* `Messenger`-based communication and partial AIDL-related object propagation
+
+The analysis combines explicit `Intent` information, implicit `Intent` attributes, manifest-declared `intent-filter`s, and filter information of dynamically registered receivers to infer possible target components.
+
+=== Other Common Android Framework Behaviors
+
+Besides lifecycle and ICC, the current implementation also models several common Android framework behaviors that significantly affect points-to propagation, for example:
+
+* `SharedPreferences` and its listener callbacks
+* `Handler`
+* `AsyncTask`
+* several map-like Android containers
+* some string resources, framework return objects, and simple value flows
+
+The purpose of this modeling is to reduce information loss caused by framework behaviors that store and later retrieve values without explicit ordinary call relations in the program.
