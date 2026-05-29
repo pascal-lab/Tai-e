@@ -1,11 +1,11 @@
--------------------- <Assign: void assign()> (const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L-1] %ci2 = 2; {}
-[2@L-1] %ci3 = 3; {}
-[3@L-1] x = 4; {}
-[4@L9] return; {}
-
 -------------------- <Assign: void <init>()> (const-prop) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
+
+-------------------- <Assign: void assign()> (const-prop) --------------------
+[0@L4] %ci1 = 1; {}
+[1@L5] %ci2 = 2; {}
+[2@L6] %ci3 = 3; {}
+[3@L7] x = 4; {}
+[4@L9] return; {}
 

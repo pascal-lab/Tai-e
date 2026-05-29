@@ -1,20 +1,6 @@
--------------------- <NullDeref2: void possibleNullOnSplit()> (is-null) --------------------
-[0@L-1] %ci1 = 1; {this=NONNULL}
-[1@L4] a = null; {a=NULL, this=NONNULL}
-[2@L5] if (a != $null) goto 11; {a=NULL, this=NONNULL}
-[3@L7] %v5 = <java.lang.System: java.io.PrintStream out>; {%v5=NCP, a=CHECKED_NULL, this=NONNULL}
-[4@L7] invokevirtual %v5.<java.io.PrintStream: void println(int)>(%ci1); {%v5=NO_KABOOM_NN, a=CHECKED_NULL, this=NONNULL}
-[5@L10] goto 8; {%v5=NO_KABOOM_NN, a=CHECKED_NULL, this=NONNULL}
-[6@L8] catch %v6; {}
-[7@L9] a = "notNull"; {a=NONNULL}
-[8@L12] %v7 = <java.lang.System: java.io.PrintStream out>; {%v5=NO_KABOOM_NN, %v7=NCP, a=NSP, this=NONNULL}
-[9@L12] %v8 = invokevirtual a.<java.lang.Object: java.lang.Class getClass()>(); {%v5=NO_KABOOM_NN, %v7=NCP, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
-[10@L12] invokevirtual %v7.<java.io.PrintStream: void println(java.lang.Object)>(%v8); {%v5=NO_KABOOM_NN, %v7=NO_KABOOM_NN, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
-[11@L14] return; {%v5=NO_KABOOM_NN, %v7=NO_KABOOM_NN, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
-
 -------------------- <NullDeref2: boolean same0(java.lang.Object,java.lang.Object)> (is-null) --------------------
 [0@L-1] %ci0 = 0; {a=UNKNOWN, b=UNKNOWN}
-[1@L-1] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
+[1@L18] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
 [2@L17] if (a != $null) goto 4; {a=UNKNOWN, b=UNKNOWN}
 [3@L17] if (b == $null) goto 6; {a=CHECKED_NULL, b=UNKNOWN}
 [4@L17] %v3 = invokevirtual b.<java.lang.Object: boolean equals(java.lang.Object)>(a); {a=NSP, b=NONNULL}
@@ -43,7 +29,7 @@
 
 -------------------- <NullDeref2: boolean same2(java.lang.Object,java.lang.Object)> (is-null) --------------------
 [0@L-1] %ci0 = 0; {a=UNKNOWN, b=UNKNOWN}
-[1@L-1] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
+[1@L39] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
 [2@L38] if ($null != a) goto 4; {a=UNKNOWN, b=UNKNOWN}
 [3@L38] if ($null == b) goto 6; {a=CHECKED_NULL, b=UNKNOWN}
 [4@L38] %v3 = invokevirtual a.<java.lang.Object: boolean equals(java.lang.Object)>(b); {a=CHECKED_NN, b=UNKNOWN}
@@ -53,7 +39,7 @@
 
 -------------------- <NullDeref2: boolean same3(java.lang.Object,java.lang.Object)> (is-null) --------------------
 [0@L-1] %ci0 = 0; {a=UNKNOWN, b=UNKNOWN}
-[1@L-1] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
+[1@L46] %ci1 = 1; {a=UNKNOWN, b=UNKNOWN}
 [2@L45] if (a != $null) goto 4; {a=UNKNOWN, b=UNKNOWN}
 [3@L45] if (b == $null) goto 6; {a=CHECKED_NULL, b=UNKNOWN}
 [4@L45] %v3 = invokevirtual a.<java.lang.Object: boolean equals(java.lang.Object)>(b); {a=CHECKED_NN, b=UNKNOWN}
@@ -64,4 +50,18 @@
 -------------------- <NullDeref2: void <init>()> (is-null) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {this=NONNULL}
 [1@L1] return; {this=NONNULL}
+
+-------------------- <NullDeref2: void possibleNullOnSplit()> (is-null) --------------------
+[0@L7] %ci1 = 1; {this=NONNULL}
+[1@L4] a = null; {a=NULL, this=NONNULL}
+[2@L5] if (a != $null) goto 11; {a=NULL, this=NONNULL}
+[3@L7] %v5 = <java.lang.System: java.io.PrintStream out>; {%v5=NCP, a=CHECKED_NULL, this=NONNULL}
+[4@L7] invokevirtual %v5.<java.io.PrintStream: void println(int)>(%ci1); {%v5=NO_KABOOM_NN, a=CHECKED_NULL, this=NONNULL}
+[5@L10] goto 8; {%v5=NO_KABOOM_NN, a=CHECKED_NULL, this=NONNULL}
+[6@L8] catch %v6; {}
+[7@L9] a = "notNull"; {a=NONNULL}
+[8@L12] %v7 = <java.lang.System: java.io.PrintStream out>; {%v5=NO_KABOOM_NN, %v7=NCP, a=NSP, this=NONNULL}
+[9@L12] %v8 = invokevirtual a.<java.lang.Object: java.lang.Class getClass()>(); {%v5=NO_KABOOM_NN, %v7=NCP, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
+[10@L12] invokevirtual %v7.<java.io.PrintStream: void println(java.lang.Object)>(%v8); {%v5=NO_KABOOM_NN, %v7=NO_KABOOM_NN, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
+[11@L14] return; {%v5=NO_KABOOM_NN, %v7=NO_KABOOM_NN, %v8=UNKNOWN, a=NO_KABOOM_NN, this=NONNULL}
 

@@ -1,14 +1,3 @@
--------------------- <StronglyBranchLoop: int loopBranch(int,int,int,int)> (live-var) --------------------
-[0@L-1] %ci1 = 1; [%ci1, a, k, m, n]
-[1@L5] i = m - %ci1; [%ci1, a, i, k, n]
-[2@L5] if (i >= k) goto 8; [%ci1, a, i, k, n]
-[3@L6] if (i < n) goto 5; [%ci1, a, i, k, n]
-[4@L7] a = n; [%ci1, a, i, k, n]
-[5@L9] a = a + i; [%ci1, a, i, k, n]
-[6@L5] i = i + %ci1; [%ci1, a, i, k, n]
-[7@L5] goto 2; [%ci1, a, i, k, n]
-[8@L11] return a; []
-
 -------------------- <StronglyBranchLoop: void branchLoop(int,boolean,int)> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, c, d, z]
 [1@L-1] %ci1 = 1; [%ci0, %ci1, c, d, z]
@@ -28,4 +17,15 @@
 -------------------- <StronglyBranchLoop: void <init>()> (live-var) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L1] return; []
+
+-------------------- <StronglyBranchLoop: int loopBranch(int,int,int,int)> (live-var) --------------------
+[0@L5] %ci1 = 1; [%ci1, a, k, m, n]
+[1@L5] i = m - %ci1; [%ci1, a, i, k, n]
+[2@L5] if (i >= k) goto 8; [%ci1, a, i, k, n]
+[3@L6] if (i < n) goto 5; [%ci1, a, i, k, n]
+[4@L7] a = n; [%ci1, a, i, k, n]
+[5@L9] a = a + i; [%ci1, a, i, k, n]
+[6@L5] i = i + %ci1; [%ci1, a, i, k, n]
+[7@L5] goto 2; [%ci1, a, i, k, n]
+[8@L11] return a; []
 

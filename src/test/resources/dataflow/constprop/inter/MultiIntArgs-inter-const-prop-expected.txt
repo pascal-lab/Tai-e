@@ -1,11 +1,11 @@
 -------------------- <MultiIntArgs: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L-1] a = 2; {}
-[1@L-1] b = 3; {}
-[2@L-1] r = 4; {}
-[3@L-1] s = 5; {}
-[4@L15] c = invokestatic <MultiIntArgs: int goo(int,int)>(a, b); {}
+[0@L-1] x = 2; {}
+[1@L-1] y = 3; {}
+[2@L24] r = 4; {}
+[3@L25] s = 5; {}
+[4@L15] c = invokestatic <MultiIntArgs: int goo(int,int)>(x, y); {}
 [5@L16] invokestatic <MultiIntArgs: void use(int)>(c); {c=5}
-[6@L21] z = invokestatic <MultiIntArgs: int foo(int,int)>(a, b); {c=5}
+[6@L21] z = invokestatic <MultiIntArgs: int foo(int,int)>(x, y); {c=5}
 [7@L22] invokestatic <MultiIntArgs: void use(int)>(z); {c=5, z=NAC}
 [8@L26] t = invokestatic <MultiIntArgs: int foo(int,int)>(r, s); {c=5, z=NAC}
 [9@L27] invokestatic <MultiIntArgs: void use(int)>(t); {c=5, t=NAC, z=NAC}

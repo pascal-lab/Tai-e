@@ -1,7 +1,14 @@
+-------------------- <Fibonacci: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] %ci0 = 0; {}
+[1@L3] n = 5; {}
+[2@L5] z = invokestatic <Fibonacci: int getFibonacci(int)>(n); {}
+[3@L6] invokestatic <Fibonacci: void use(int)>(z); {z=NAC}
+[4@L7] return; {z=NAC}
+
 -------------------- <Fibonacci: int getFibonacci(int)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {n=NAC}
+[0@L10] %ci0 = 0; {n=NAC}
 [1@L-1] %ci1 = 1; {n=NAC}
-[2@L-1] %ci2 = 2; {n=NAC}
+[2@L13] %ci2 = 2; {n=NAC}
 [3@L10] if (n == %ci0) goto 5; {n=NAC}
 [4@L10] if (n != %ci1) goto 6; {n=NAC}
 [5@L11] return n; {n=NAC}
@@ -11,13 +18,6 @@
 [9@L13] %v7 = invokestatic <Fibonacci: int getFibonacci(int)>(%v6); {%v3=NAC, %v5=NAC, %v6=NAC, n=NAC}
 [10@L13] %v8 = %v5 + %v7; {%v3=NAC, %v5=NAC, %v6=NAC, %v7=NAC, %v8=NAC, n=NAC}
 [11@L13] return %v8; {%v3=NAC, %v5=NAC, %v6=NAC, %v7=NAC, %v8=NAC, n=NAC}
-
--------------------- <Fibonacci: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L-1] n = 5; {}
-[2@L5] z = invokestatic <Fibonacci: int getFibonacci(int)>(n); {}
-[3@L6] invokestatic <Fibonacci: void use(int)>(z); {z=NAC}
-[4@L7] return; {z=NAC}
 
 -------------------- <Fibonacci: void use(int)> (inter-const-prop) --------------------
 [0@L17] return; {n=NAC}

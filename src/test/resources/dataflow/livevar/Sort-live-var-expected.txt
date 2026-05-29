@@ -1,6 +1,10 @@
+-------------------- <Sort: void <init>()> (live-var) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
+
 -------------------- <Sort: void sort(java.lang.Comparable[])> (live-var) --------------------
-[0@L-1] %ci0 = 0; [%ci0, a]
-[1@L-1] %ci1 = 1; [%ci0, %ci1, a]
+[0@L5] %ci0 = 0; [%ci0, a]
+[1@L5] %ci1 = 1; [%ci0, %ci1, a]
 [2@L4] %v2 = a.length; [%ci0, %ci1, %v2, a]
 [3@L4] aux = newarray java.lang.Comparable[%v2]; [%ci0, %ci1, a, aux]
 [4@L5] %v6 = a.length; [%ci0, %ci1, %v6, a, aux]
@@ -9,8 +13,8 @@
 [7@L6] return; []
 
 -------------------- <Sort: void mergeSort(java.lang.Comparable[],java.lang.Comparable[],int,int)> (live-var) --------------------
-[0@L-1] %ci1 = 1; [%ci1, a, aux, hi, lo]
-[1@L-1] %ci2 = 2; [%ci1, %ci2, a, aux, hi, lo]
+[0@L13] %ci1 = 1; [%ci1, a, aux, hi, lo]
+[1@L11] %ci2 = 2; [%ci1, %ci2, a, aux, hi, lo]
 [2@L9] if (hi > lo) goto 4; [%ci1, %ci2, a, aux, hi, lo]
 [3@L10] return; []
 [4@L11] %v6 = hi - lo; [%ci1, %ci2, %v6, a, aux, hi, lo]
@@ -23,7 +27,7 @@
 [11@L15] return; []
 
 -------------------- <Sort: void merge(java.lang.Comparable[],java.lang.Comparable[],int,int,int)> (live-var) --------------------
-[0@L-1] %ci0 = 0; [%ci0, a, aux, hi, lo, mid]
+[0@L27] %ci0 = 0; [%ci0, a, aux, hi, lo, mid]
 [1@L-1] %ci1 = 1; [%ci0, %ci1, a, aux, hi, lo, mid]
 [2@L18] k = lo; [%ci0, %ci1, a, aux, hi, k, lo, mid]
 [3@L18] if (k > hi) goto 8; [%ci0, %ci1, a, aux, hi, k, lo, mid]
@@ -65,16 +69,12 @@
 [39@L32] return; []
 
 -------------------- <Sort: boolean less(java.lang.Comparable,java.lang.Comparable)> (live-var) --------------------
-[0@L-1] %ci0 = 0; [%ci0, v, w]
-[1@L-1] %ci1 = 1; [%ci0, %ci1, v, w]
+[0@L35] %ci0 = 0; [%ci0, v, w]
+[1@L35] %ci1 = 1; [%ci0, %ci1, v, w]
 [2@L35] %v2 = invokeinterface v.<java.lang.Comparable: int compareTo(java.lang.Object)>(w); [%ci0, %ci1, %v2]
 [3@L35] if (%v2 >= %ci0) goto 6; [%ci0, %ci1]
 [4@L35] %v5 = %ci1; [%v5]
 [5@L35] goto 7; [%v5]
 [6@L35] %v5 = %ci0; [%v5]
 [7@L35] return %v5; []
-
--------------------- <Sort: void <init>()> (live-var) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L1] return; []
 

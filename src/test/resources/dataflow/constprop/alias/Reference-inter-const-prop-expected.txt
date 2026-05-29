@@ -1,14 +1,14 @@
--------------------- <Reference: int one()> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L4] return %ci1; {}
-
--------------------- <Reference: int zero()> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L8] return %ci0; {}
-
 -------------------- <Reference: void <init>()> (inter-const-prop) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
+
+-------------------- <Reference: int one()> (inter-const-prop) --------------------
+[0@L4] %ci1 = 1; {}
+[1@L4] return %ci1; {}
+
+-------------------- <Reference: int zero()> (inter-const-prop) --------------------
+[0@L8] %ci0 = 0; {}
+[1@L8] return %ci0; {}
 
 -------------------- <Reference: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L12] %v3 = invokestatic <Reference: int one()>(); {}

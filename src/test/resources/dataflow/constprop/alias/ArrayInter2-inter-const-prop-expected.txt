@@ -1,6 +1,6 @@
 -------------------- <ArrayInter2: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
+[1@L4] %ci1 = 1; {}
 [2@L4] a = newarray int[%ci1]; {}
 [3@L5] %c6 = 777; {}
 [4@L5] invokestatic <ArrayInter2: void set(int[],int,int)>(a, %ci0, %c6); {}

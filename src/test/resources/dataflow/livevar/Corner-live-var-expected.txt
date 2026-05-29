@@ -1,11 +1,3 @@
--------------------- <Corner: int exit()> (live-var) --------------------
-[0@L-1] %ci1 = 1; [%ci1]
-[1@L3] return %ci1; []
-
--------------------- <Corner: void exit2()> (live-var) --------------------
-[0@L-1] %ci1 = 1; []
-[1@L8] return; []
-
 -------------------- <Corner: int deadLoop()> (live-var) --------------------
 [0@L-1] %ci1 = 1; [%ci1]
 [1@L15] a = %ci1; [%ci1, a]
@@ -17,6 +9,14 @@
 -------------------- <Corner: void <init>()> (live-var) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L1] return; []
+
+-------------------- <Corner: int exit()> (live-var) --------------------
+[0@L3] %ci1 = 1; [%ci1]
+[1@L3] return %ci1; []
+
+-------------------- <Corner: void exit2()> (live-var) --------------------
+[0@L7] %ci1 = 1; []
+[1@L8] return; []
 
 -------------------- <Corner: void exit3()> (live-var) --------------------
 [0@L12] return; []

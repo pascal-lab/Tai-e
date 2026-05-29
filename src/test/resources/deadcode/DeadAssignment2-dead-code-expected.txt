@@ -1,17 +1,17 @@
+-------------------- <DeadAssignment2: void <init>()> (dead-code) --------------------
+
+-------------------- <DeadAssignment2: void use(int)> (dead-code) --------------------
+
+-------------------- <DeadAssignment2: void deadAssign1()> (dead-code) --------------------
+
 -------------------- <DeadAssignment2: void deadAssign2()> (dead-code) --------------------
 [3@L13] %v7 = x + %ci2;
 
 -------------------- <DeadAssignment2: void deadAssign3(int,int)> (dead-code) --------------------
 
 -------------------- <DeadAssignment2: int deadAssign4()> (dead-code) --------------------
-[0@L-1] %ci0 = 0;
-[1@L-1] %ci1 = 1;
-
--------------------- <DeadAssignment2: void <init>()> (dead-code) --------------------
-
--------------------- <DeadAssignment2: void use(int)> (dead-code) --------------------
-
--------------------- <DeadAssignment2: void deadAssign1()> (dead-code) --------------------
+[0@L33] %ci0 = 0;
+[1@L34] %ci1 = 1;
 
 -------------------- <DeadAssignment2: int ten()> (dead-code) --------------------
 

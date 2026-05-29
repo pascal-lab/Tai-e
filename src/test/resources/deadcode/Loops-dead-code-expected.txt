@@ -1,8 +1,8 @@
+-------------------- <Loops: void <init>()> (dead-code) --------------------
+
 -------------------- <Loops: void deadLoop()> (dead-code) --------------------
 [6@L10] invokevirtual this.<Loops: void dead()>();
 [7@L11] return;
-
--------------------- <Loops: void <init>()> (dead-code) --------------------
 
 -------------------- <Loops: void dead()> (dead-code) --------------------
 

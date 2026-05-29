@@ -34,11 +34,11 @@
 -------------------- <List: Iterator iterator()> (side-effect) --------------------
 [2@L39] invokespecial %v1.<ListItr: void <init>(Cell)>(%v2); [NewObj{<List: Iterator iterator()>[0@L39] new ListItr}]
 
--------------------- <ListItr: boolean hasNext()> (side-effect) --------------------
-
 -------------------- <ListItr: void <init>(Cell)> (side-effect) --------------------
 [0@L58] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L59] this.<ListItr: Cell cell> = head; [NewObj{<List: Iterator iterator()>[0@L39] new ListItr}]
+
+-------------------- <ListItr: boolean hasNext()> (side-effect) --------------------
 
 -------------------- <ListItr: java.lang.Object next()> (side-effect) --------------------
 [4@L67] this.<ListItr: Cell cell> = %v5; [NewObj{<List: Iterator iterator()>[0@L39] new ListItr}]

@@ -1,5 +1,9 @@
+-------------------- <ReachDef: void <init>()> (reach-def) --------------------
+[0@L4] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L4] return; []
+
 -------------------- <ReachDef: int foo(int,int,int)> (reach-def) --------------------
-[0@L-1] %ci0 = 0; [%ci0 = 0]
+[0@L8] %ci0 = 0; [%ci0 = 0]
 [1@L8] if (a <= %ci0) goto 4; [%ci0 = 0]
 [2@L9] x = a; [%ci0 = 0, x = a]
 [3@L9] goto 5; [%ci0 = 0, x = a]
@@ -7,16 +11,12 @@
 [5@L15] return c; [%ci0 = 0, x = a, x = b]
 
 -------------------- <ReachDef: int loop(int,int)> (reach-def) --------------------
-[0@L-1] %ci-1 = -1; [%ci-1 = -1]
-[1@L-1] %ci0 = 0; [%ci-1 = -1, %ci0 = 0]
+[0@L22] %ci-1 = -1; [%ci-1 = -1]
+[1@L19] %ci0 = 0; [%ci-1 = -1, %ci0 = 0]
 [2@L19] c = %ci0; [%ci-1 = -1, %ci0 = 0, c = %ci0]
 [3@L20] if (a <= b) goto 7; [%ci-1 = -1, %ci0 = 0, a = a + %ci-1, c = %ci0, c = b]
 [4@L21] c = b; [%ci-1 = -1, %ci0 = 0, a = a + %ci-1, c = b]
 [5@L22] a = a + %ci-1; [%ci-1 = -1, %ci0 = 0, a = a + %ci-1, c = b]
 [6@L22] goto 3; [%ci-1 = -1, %ci0 = 0, a = a + %ci-1, c = b]
 [7@L24] return c; [%ci-1 = -1, %ci0 = 0, a = a + %ci-1, c = %ci0, c = b]
-
--------------------- <ReachDef: void <init>()> (reach-def) --------------------
-[0@L4] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L4] return; []
 

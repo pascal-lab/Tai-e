@@ -1,8 +1,8 @@
--------------------- <AllReachableIfBranch: int branch2(int,int)> (dead-code) --------------------
-[2@L13] %v5 = x + y;
-
 -------------------- <AllReachableIfBranch: void <init>()> (dead-code) --------------------
 
 -------------------- <AllReachableIfBranch: int branch(int,int)> (dead-code) --------------------
 [0@L3] %v4 = x + y;
+
+-------------------- <AllReachableIfBranch: int branch2(int,int)> (dead-code) --------------------
+[2@L13] %v5 = x + y;
 

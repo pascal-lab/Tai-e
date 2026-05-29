@@ -1,13 +1,17 @@
+-------------------- <SimpleBinary: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
 -------------------- <SimpleBinary: int arithmetic()> (const-prop) --------------------
-[0@L-1] x = 1; {}
-[1@L-1] y = 2; {}
+[0@L4] x = 1; {}
+[1@L4] y = 2; {}
 [2@L5] z = x + y; {z=3}
 [3@L6] return z; {z=3}
 
 -------------------- <SimpleBinary: boolean condition()> (const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
+[0@L11] %ci0 = 0; {}
 [1@L-1] x = 1; {}
-[2@L-1] y = 2; {}
+[2@L10] y = 2; {}
 [3@L11] if (x != y) goto 6; {}
 [4@L12] z = x; {z=1}
 [5@L11] goto 7; {z=1}
@@ -15,23 +19,19 @@
 [7@L12] return z; {z=NAC}
 
 -------------------- <SimpleBinary: int shift()> (const-prop) --------------------
-[0@L-1] x = 1; {}
-[1@L-1] y = 2; {}
+[0@L16] x = 1; {}
+[1@L16] y = 2; {}
 [2@L17] z = x << y; {z=4}
 [3@L18] return z; {z=4}
 
 -------------------- <SimpleBinary: int bitwise()> (const-prop) --------------------
-[0@L-1] x = 1; {}
-[1@L-1] y = 2; {}
+[0@L22] x = 1; {}
+[1@L22] y = 2; {}
 [2@L23] z = x | y; {z=3}
 [3@L24] return z; {z=3}
 
 -------------------- <SimpleBinary: int nac(int)> (const-prop) --------------------
-[0@L-1] x = 1; {p=NAC}
+[0@L28] x = 1; {p=NAC}
 [1@L29] z = x * p; {p=NAC, z=NAC}
 [2@L30] return z; {p=NAC, z=NAC}
-
--------------------- <SimpleBinary: void <init>()> (const-prop) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
 

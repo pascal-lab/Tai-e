@@ -1,6 +1,6 @@
 -------------------- <Graph: void <init>(int)> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, V, this]
-[1@L-1] %ci1 = 1; [%ci0, %ci1, V, this]
+[1@L15] %ci1 = 1; [%ci0, %ci1, V, this]
 [2@L11] invokespecial this.<java.lang.Object: void <init>()>(); [%ci0, %ci1, V, this]
 [3@L12] this.<Graph: int V> = V; [%ci0, %ci1, V, this]
 [4@L13] this.<Graph: int E> = %ci0; [%ci0, %ci1, V, this]
@@ -16,24 +16,9 @@
 [14@L15] goto 8; [%ci1, V, this, v]
 [15@L18] return; []
 
--------------------- <Graph: void addEdge(int,int)> (live-var) --------------------
-[0@L-1] %ci1 = 1; [%ci1, this, v, w]
-[1@L21] %v4 = this.<Graph: int E>; [%ci1, %v4, this, v, w]
-[2@L21] %v5 = %v4 + %ci1; [%v5, this, v, w]
-[3@L21] this.<Graph: int E> = %v5; [this, v, w]
-[4@L22] %v6 = this.<Graph: java.util.List[] adj>; [%v6, this, v, w]
-[5@L22] %v7 = %v6[v]; [%v7, this, v, w]
-[6@L22] %v8 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(w); [%v7, %v8, this, v, w]
-[7@L22] invokeinterface %v7.<java.util.List: boolean add(java.lang.Object)>(%v8); [this, v, w]
-[8@L23] %v9 = this.<Graph: java.util.List[] adj>; [%v9, v, w]
-[9@L23] %v10 = %v9[w]; [%v10, v]
-[10@L23] %v11 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(v); [%v10, %v11]
-[11@L23] invokeinterface %v10.<java.util.List: boolean add(java.lang.Object)>(%v11); []
-[12@L24] return; []
-
 -------------------- <Graph: java.lang.String toString()> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, this]
-[1@L-1] %ci1 = 1; [%ci0, %ci1, this]
+[1@L29] %ci1 = 1; [%ci0, %ci1, this]
 [2@L27] s = new java.lang.StringBuilder; [%ci0, %ci1, s, this]
 [3@L27] invokespecial s.<java.lang.StringBuilder: void <init>()>(); [%ci0, %ci1, s, this]
 [4@L28] %v6 = this.<Graph: int V>; [%ci0, %ci1, %v6, s, this]
@@ -69,4 +54,19 @@
 [1@L5] %v1 = invokestatic <java.lang.System: java.lang.String getProperty(java.lang.String)>(%c0); [%v1]
 [2@L5] <Graph: java.lang.String NEWLINE> = %v1; []
 [3@L5] return; []
+
+-------------------- <Graph: void addEdge(int,int)> (live-var) --------------------
+[0@L21] %ci1 = 1; [%ci1, this, v, w]
+[1@L21] %v4 = this.<Graph: int E>; [%ci1, %v4, this, v, w]
+[2@L21] %v5 = %v4 + %ci1; [%v5, this, v, w]
+[3@L21] this.<Graph: int E> = %v5; [this, v, w]
+[4@L22] %v6 = this.<Graph: java.util.List[] adj>; [%v6, this, v, w]
+[5@L22] %v7 = %v6[v]; [%v7, this, v, w]
+[6@L22] %v8 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(w); [%v7, %v8, this, v, w]
+[7@L22] invokeinterface %v7.<java.util.List: boolean add(java.lang.Object)>(%v8); [this, v, w]
+[8@L23] %v9 = this.<Graph: java.util.List[] adj>; [%v9, v, w]
+[9@L23] %v10 = %v9[w]; [%v10, v]
+[10@L23] %v11 = invokestatic <java.lang.Integer: java.lang.Integer valueOf(int)>(v); [%v10, %v11]
+[11@L23] invokeinterface %v10.<java.util.List: boolean add(java.lang.Object)>(%v11); []
+[12@L24] return; []
 

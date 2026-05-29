@@ -116,8 +116,19 @@
 [26@L49] goto 2; [%ci1, i, p, this]
 [27@L55] return; []
 
+-------------------- <GaussianElimination: void swap(int,int)> (live-var) --------------------
+[0@L43] %v4 = this.<GaussianElimination: double[][] a>; [%v4, row1, row2, this]
+[1@L43] temp = %v4[row1]; [row1, row2, temp, this]
+[2@L44] %v6 = this.<GaussianElimination: double[][] a>; [%v6, row1, row2, temp, this]
+[3@L44] %v7 = this.<GaussianElimination: double[][] a>; [%v6, %v7, row1, row2, temp, this]
+[4@L44] %v8 = %v7[row2]; [%v6, %v8, row1, row2, temp, this]
+[5@L44] %v6[row1] = %v8; [row2, temp, this]
+[6@L45] %v9 = this.<GaussianElimination: double[][] a>; [%v9, row2, temp]
+[7@L45] %v9[row2] = temp; []
+[8@L46] return; []
+
 -------------------- <GaussianElimination: double[] primal()> (live-var) --------------------
-[0@L-1] %ci-1 = -1; [$null, %ci-1, this]
+[0@L59] %ci-1 = -1; [$null, %ci-1, this]
 [1@L-1] %ci0 = 0; [$null, %ci-1, %ci0, this]
 [2@L-1] %ci1 = 1; [$null, %ci-1, %ci0, %ci1, this]
 [3@L58] %v9 = this.<GaussianElimination: int n>; [$null, %ci-1, %ci0, %ci1, %v9, this]
@@ -198,15 +209,4 @@
 [78@L71] i#1 = i#1 + %ci1; [$null, %ci0, %ci1, i#1, this, x]
 [79@L71] goto 54; [$null, %ci0, %ci1, i#1, this, x]
 [80@L79] return x; []
-
--------------------- <GaussianElimination: void swap(int,int)> (live-var) --------------------
-[0@L43] %v4 = this.<GaussianElimination: double[][] a>; [%v4, row1, row2, this]
-[1@L43] temp = %v4[row1]; [row1, row2, temp, this]
-[2@L44] %v6 = this.<GaussianElimination: double[][] a>; [%v6, row1, row2, temp, this]
-[3@L44] %v7 = this.<GaussianElimination: double[][] a>; [%v6, %v7, row1, row2, temp, this]
-[4@L44] %v8 = %v7[row2]; [%v6, %v8, row1, row2, temp, this]
-[5@L44] %v6[row1] = %v8; [row2, temp, this]
-[6@L45] %v9 = this.<GaussianElimination: double[][] a>; [%v9, row2, temp]
-[7@L45] %v9[row2] = temp; []
-[8@L46] return; []
 

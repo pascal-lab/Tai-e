@@ -1,8 +1,8 @@
 Points-to sets of all variables
-[]:<ClassObj: void main(java.lang.String[])>/%classconst0 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
-[]:<ClassObj: void main(java.lang.String[])>/r0 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
-[]:<ClassObj: void main(java.lang.String[])>/r1 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
-[]:<ClassObj: void main(java.lang.String[])>/r2 -> [[]:EntryPointObj{alloc=MethodParam{<ClassObj: void main(java.lang.String[])>/0},type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}]
+[]:<ClassObj: void main(java.lang.String[])>/$0 -> [[]:EntryPointObj{alloc=MethodParam{<ClassObj: void main(java.lang.String[])>/0},type=java.lang.String[] in <ClassObj: void main(java.lang.String[])>}]
+[]:<ClassObj: void main(java.lang.String[])>/%c3 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
+[]:<ClassObj: void main(java.lang.String[])>/%c4 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
+[]:<ClassObj: void main(java.lang.String[])>/%v5 -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]
 
 Points-to sets of all static fields
 <ClassObj: java.lang.Class klass> -> [[]:ConstantObj{java.lang.Class: ClassObj$A.class}]

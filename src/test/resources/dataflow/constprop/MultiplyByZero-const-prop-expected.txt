@@ -1,17 +1,17 @@
+-------------------- <MultiplyByZero: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
 -------------------- <MultiplyByZero: void multiplyNACByZero(int)> (const-prop) --------------------
-[0@L-1] zero = 0; {p=NAC}
+[0@L4] zero = 0; {p=NAC}
 [1@L5] %v6 = zero * p; {%v6=0, p=NAC}
 [2@L6] %v7 = p * zero; {%v6=0, %v7=0, p=NAC}
 [3@L7] return; {%v6=0, %v7=0, p=NAC}
 
 -------------------- <MultiplyByZero: void multiplyConstantByZero()> (const-prop) --------------------
-[0@L-1] zero = 0; {}
-[1@L-1] one = 1; {}
+[0@L11] zero = 0; {}
+[1@L10] one = 1; {}
 [2@L12] %v7 = zero * one; {%v7=0}
 [3@L13] %v8 = one * zero; {%v7=0, %v8=0}
 [4@L14] return; {%v7=0, %v8=0}
-
--------------------- <MultiplyByZero: void <init>()> (const-prop) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
 

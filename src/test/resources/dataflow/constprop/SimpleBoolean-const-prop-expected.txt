@@ -1,17 +1,17 @@
--------------------- <SimpleBoolean: void constant()> (const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
-[2@L6] return; {}
-
--------------------- <SimpleBoolean: void undefined()> (const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L11] return; {}
-
--------------------- <SimpleBoolean: void propagation()> (const-prop) --------------------
-[0@L-1] a = 1; {}
-[1@L17] return; {}
-
 -------------------- <SimpleBoolean: void <init>()> (const-prop) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
+
+-------------------- <SimpleBoolean: void constant()> (const-prop) --------------------
+[0@L5] %ci0 = 0; {}
+[1@L4] %ci1 = 1; {}
+[2@L6] return; {}
+
+-------------------- <SimpleBoolean: void undefined()> (const-prop) --------------------
+[0@L10] %ci1 = 1; {}
+[1@L11] return; {}
+
+-------------------- <SimpleBoolean: void propagation()> (const-prop) --------------------
+[0@L14] b = 1; {}
+[1@L17] return; {}
 

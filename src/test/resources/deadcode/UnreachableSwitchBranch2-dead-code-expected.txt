@@ -6,6 +6,8 @@
 [10@L14] invokevirtual this.<UnreachableSwitchBranch2: void use(int)>(%ci3);
 [11@L15] goto 13;
 
+-------------------- <UnreachableSwitchBranch2: void <init>()> (dead-code) --------------------
+
 -------------------- <UnreachableSwitchBranch2: void fallThrough()> (dead-code) --------------------
 [5@L27] invokevirtual this.<UnreachableSwitchBranch2: void use(int)>(%ci2);
 [10@L34] %c8 = 666;
@@ -21,8 +23,6 @@
 [12@L51] goto 15;
 
 -------------------- <UnreachableSwitchBranch2: void allReach(int)> (dead-code) --------------------
-
--------------------- <UnreachableSwitchBranch2: void <init>()> (dead-code) --------------------
 
 -------------------- <UnreachableSwitchBranch2: void use(int)> (dead-code) --------------------
 

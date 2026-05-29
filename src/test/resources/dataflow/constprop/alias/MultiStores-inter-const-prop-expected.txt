@@ -4,7 +4,7 @@
 
 -------------------- <MultiStores: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
+[1@L7] %ci1 = 1; {}
 [2@L3] a = new A; {}
 [3@L3] invokespecial a.<A: void <init>()>(); {}
 [4@L4] %v4 = args.length; {%v4=NAC}

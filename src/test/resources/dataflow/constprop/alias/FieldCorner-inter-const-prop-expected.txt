@@ -2,28 +2,6 @@
 [0@L39] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L39] return; {}
 
--------------------- <FieldCorner: void corner4()> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L26] d1 = new A; {}
-[2@L26] invokespecial d1.<A: void <init>()>(); {}
-[3@L27] d2 = new A; {}
-[4@L27] invokespecial d2.<A: void <init>()>(); {}
-[5@L28] d3 = new A; {}
-[6@L28] invokespecial d3.<A: void <init>()>(); {}
-[7@L34] d2.<A: int f> = %ci1; {}
-[8@L35] %v10 = d2.<A: int f>; {%v10=1}
-[9@L36] return; {%v10=1}
-
--------------------- <FieldCorner: void corner2()> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L-1] %ci2 = 2; {}
-[2@L18] b1 = new A; {}
-[3@L18] invokespecial b1.<A: void <init>()>(); {}
-[4@L19] b1.<A: int f> = %ci1; {}
-[5@L20] b1.<A: int g> = %ci2; {}
-[6@L22] %v6 = b1.<A: int g>; {%v6=2}
-[7@L23] return; {%v6=2}
-
 -------------------- <FieldCorner: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L3] invokestatic <FieldCorner: void corner1()>(); {}
 [1@L4] invokestatic <FieldCorner: void corner2()>(); {}
@@ -39,4 +17,26 @@
 [5@L14] %c7 = 666; {%v6=NAC}
 [6@L14] a1.<A: int f> = %c7; {%v6=NAC}
 [7@L15] return; {%v6=NAC}
+
+-------------------- <FieldCorner: void corner2()> (inter-const-prop) --------------------
+[0@L19] %ci1 = 1; {}
+[1@L20] %ci2 = 2; {}
+[2@L18] b1 = new A; {}
+[3@L18] invokespecial b1.<A: void <init>()>(); {}
+[4@L19] b1.<A: int f> = %ci1; {}
+[5@L20] b1.<A: int g> = %ci2; {}
+[6@L22] %v6 = b1.<A: int g>; {%v6=2}
+[7@L23] return; {%v6=2}
+
+-------------------- <FieldCorner: void corner4()> (inter-const-prop) --------------------
+[0@L34] %ci1 = 1; {}
+[1@L26] d1 = new A; {}
+[2@L26] invokespecial d1.<A: void <init>()>(); {}
+[3@L27] d2 = new A; {}
+[4@L27] invokespecial d2.<A: void <init>()>(); {}
+[5@L28] d3 = new A; {}
+[6@L28] invokespecial d3.<A: void <init>()>(); {}
+[7@L34] d2.<A: int f> = %ci1; {}
+[8@L35] %v10 = d2.<A: int f>; {%v10=1}
+[9@L36] return; {%v10=1}
 

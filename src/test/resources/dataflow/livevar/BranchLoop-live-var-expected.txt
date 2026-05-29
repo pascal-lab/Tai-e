@@ -1,16 +1,3 @@
--------------------- <BranchLoop: int loopBranch(int,int,int)> (live-var) --------------------
-[0@L-1] %ci0 = 0; [%ci0, k, m, n]
-[1@L-1] %ci1 = 1; [%ci0, %ci1, k, m, n]
-[2@L4] a = %ci0; [%ci1, a, k, m, n]
-[3@L5] i = m - %ci1; [%ci1, a, i, k, n]
-[4@L5] if (i >= k) goto 10; [%ci1, a, i, k, n]
-[5@L6] if (i < n) goto 7; [%ci1, a, i, k, n]
-[6@L7] a = n; [%ci1, a, i, k, n]
-[7@L9] a = a + i; [%ci1, a, i, k, n]
-[8@L5] i = i + %ci1; [%ci1, a, i, k, n]
-[9@L5] goto 4; [%ci1, a, i, k, n]
-[10@L11] return a; []
-
 -------------------- <BranchLoop: void branchLoop(int,boolean)> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, c, d]
 [1@L-1] %ci1 = 1; [%ci0, %ci1, c, d]
@@ -31,4 +18,17 @@
 -------------------- <BranchLoop: void <init>()> (live-var) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L1] return; []
+
+-------------------- <BranchLoop: int loopBranch(int,int,int)> (live-var) --------------------
+[0@L4] %ci0 = 0; [%ci0, k, m, n]
+[1@L5] %ci1 = 1; [%ci0, %ci1, k, m, n]
+[2@L4] a = %ci0; [%ci1, a, k, m, n]
+[3@L5] i = m - %ci1; [%ci1, a, i, k, n]
+[4@L5] if (i >= k) goto 10; [%ci1, a, i, k, n]
+[5@L6] if (i < n) goto 7; [%ci1, a, i, k, n]
+[6@L7] a = n; [%ci1, a, i, k, n]
+[7@L9] a = a + i; [%ci1, a, i, k, n]
+[8@L5] i = i + %ci1; [%ci1, a, i, k, n]
+[9@L5] goto 4; [%ci1, a, i, k, n]
+[10@L11] return a; []
 

@@ -1,8 +1,14 @@
+-------------------- <ArrayLoops: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] invokestatic <ArrayLoops: void loopConst()>(); {}
+[1@L5] invokestatic <ArrayLoops: void loopMix()>(); {}
+[2@L6] invokestatic <ArrayLoops: void loopNAC()>(); {}
+[3@L7] return; {}
+
 -------------------- <ArrayLoops: void loopConst()> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
-[2@L-1] %ci3 = 3; {}
-[3@L-1] %ci5 = 5; {}
+[0@L11] %ci0 = 0; {}
+[1@L11] %ci1 = 1; {}
+[2@L14] %ci3 = 3; {}
+[3@L10] %ci5 = 5; {}
 [4@L10] a = newarray int[%ci5]; {}
 [5@L11] i = %ci0; {i=0}
 [6@L11] %v5 = a.length; {%v5=NAC, i=NAC}
@@ -15,11 +21,11 @@
 [13@L15] return; {%v5=NAC, %v9=666, i=NAC}
 
 -------------------- <ArrayLoops: void loopMix()> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
-[2@L-1] %ci3 = 3; {}
+[0@L19] %ci0 = 0; {}
+[1@L19] %ci1 = 1; {}
+[2@L23] %ci3 = 3; {}
 [3@L-1] %ci4 = 4; {}
-[4@L-1] %ci5 = 5; {}
+[4@L18] %ci5 = 5; {}
 [5@L18] a = newarray int[%ci5]; {}
 [6@L19] i = %ci0; {i=0}
 [7@L19] %v6 = a.length; {%v6=NAC, i=NAC}
@@ -35,10 +41,10 @@
 [17@L25] return; {%v12=666, %v13=NAC, %v6=NAC, i=NAC}
 
 -------------------- <ArrayLoops: void loopNAC()> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
-[2@L-1] %ci3 = 3; {}
-[3@L-1] %ci5 = 5; {}
+[0@L29] %ci0 = 0; {}
+[1@L29] %ci1 = 1; {}
+[2@L32] %ci3 = 3; {}
+[3@L28] %ci5 = 5; {}
 [4@L28] a = newarray int[%ci5]; {}
 [5@L29] i = %ci0; {i=0}
 [6@L29] %v5 = a.length; {%v5=NAC, i=NAC}
@@ -48,10 +54,4 @@
 [10@L29] goto 6; {%v5=NAC, i=NAC}
 [11@L32] %v8 = a[%ci3]; {%v5=NAC, %v8=NAC, i=NAC}
 [12@L33] return; {%v5=NAC, %v8=NAC, i=NAC}
-
--------------------- <ArrayLoops: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] invokestatic <ArrayLoops: void loopConst()>(); {}
-[1@L5] invokestatic <ArrayLoops: void loopMix()>(); {}
-[2@L6] invokestatic <ArrayLoops: void loopNAC()>(); {}
-[3@L7] return; {}
 

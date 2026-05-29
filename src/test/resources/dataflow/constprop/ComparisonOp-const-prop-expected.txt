@@ -1,7 +1,11 @@
+-------------------- <ComparisonOp: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
 -------------------- <ComparisonOp: int fcmp(float,float)> (const-prop) --------------------
-[0@L-1] %ci-1 = -1; {}
+[0@L6] %ci-1 = -1; {}
 [1@L-1] %ci0 = 0; {}
-[2@L-1] %ci1 = 1; {}
+[2@L9] %ci1 = 1; {}
 [3@L5] %v4 = f1 cmpg f2; {%v4=NAC}
 [4@L5] if (%v4 >= %ci0) goto 6; {%v4=NAC}
 [5@L6] return %ci-1; {%v4=NAC}
@@ -15,9 +19,9 @@
 [13@L14] return %c10; {%v4=NAC, %v7=NAC, %v9=NAC}
 
 -------------------- <ComparisonOp: int dcmp(double,double)> (const-prop) --------------------
-[0@L-1] %ci-1 = -1; {}
+[0@L20] %ci-1 = -1; {}
 [1@L-1] %ci0 = 0; {}
-[2@L-1] %ci1 = 1; {}
+[2@L23] %ci1 = 1; {}
 [3@L19] %v6 = d1 cmpg d2; {%v6=NAC}
 [4@L19] if (%v6 >= %ci0) goto 6; {%v6=NAC}
 [5@L20] return %ci-1; {%v6=NAC}
@@ -30,9 +34,9 @@
 [12@L28] return %ci0; {%v11=NAC, %v6=NAC, %v9=NAC}
 
 -------------------- <ComparisonOp: int acmp(java.lang.Object,java.lang.Object)> (const-prop) --------------------
-[0@L-1] %ci-1 = -1; {}
-[1@L-1] %ci0 = 0; {}
-[2@L-1] %ci1 = 1; {}
+[0@L39] %ci-1 = -1; {}
+[1@L33] %ci0 = 0; {}
+[2@L36] %ci1 = 1; {}
 [3@L32] if (o1 != $null) goto 5; {}
 [4@L33] return %ci0; {}
 [5@L35] if (o1 != o2) goto 7; {}
@@ -41,8 +45,4 @@
 [8@L39] return %ci-1; {}
 [9@L41] %c7 = 666; {}
 [10@L41] return %c7; {}
-
--------------------- <ComparisonOp: void <init>()> (const-prop) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
 
