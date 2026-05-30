@@ -1,11 +1,10 @@
 Points-to sets of all variables
-[]:<A: void <init>()>/%this -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
-[]:<A: void <init>()>/temp$0 -> [[]:ConstantObj{java.lang.String: "A"}]
-[]:<B: void <init>()>/%this -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
-[]:<B: void <init>()>/temp$0 -> [[]:ConstantObj{java.lang.String: "B"}]
+[]:<A: void <init>()>/%c1 -> [[]:ConstantObj{java.lang.String: "A"}]
+[]:<A: void <init>()>/this -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
+[]:<B: void <init>()>/%c1 -> [[]:ConstantObj{java.lang.String: "B"}]
+[]:<B: void <init>()>/this -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
+[]:<ShadowedFields: void main(java.lang.String[])>/%v2 -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
 []:<ShadowedFields: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ShadowedFields: void main(java.lang.String[])>/0},type=java.lang.String[] in <ShadowedFields: void main(java.lang.String[])>}]
-[]:<ShadowedFields: void main(java.lang.String[])>/b -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
-[]:<ShadowedFields: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<ShadowedFields: void main(java.lang.String[])>[0@L3] new B}]
 
 Points-to sets of all static fields
 

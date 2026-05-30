@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased] - 2025-12-31
+## [Unreleased] - 2026-05-29
+
+### New Features
+- Add a simple virtual machine that could execute Tai-e IR.
+
+### Fixes
+- Fix relative path issue in serialization of Options.
 
 ## [0.5.2] - 2025-12-31
 

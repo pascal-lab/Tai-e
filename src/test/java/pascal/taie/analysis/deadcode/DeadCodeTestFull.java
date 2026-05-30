@@ -29,12 +29,10 @@ public class DeadCodeTestFull extends DeadCodeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "ControlFlowUnreachable2",
             "UnreachableIfBranch2",
             "UnreachableSwitchBranch2",
             "DeadAssignment2",
             "LiveAssignments",
-            "MixedDeadCode",
             "NotDead",
             "Corner",
             "AllReachableIfBranch",

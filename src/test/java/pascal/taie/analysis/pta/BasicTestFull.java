@@ -62,8 +62,7 @@ public class BasicTestFull extends BasicTest {
     void testZeroLengthArrayWithArraysCopyOf() {
         String ptaTestRoot = "src/test/resources/pta";
         String classPath = ptaTestRoot + "/" + DIR;
-        Main.main("-pp",
-                "-cp", ptaTestRoot,
+        Main.main("-cp", ptaTestRoot,
                 "-cp", classPath,
                 "-m", "ZeroLengthArrayWithArraysCopyOf",
                 "-a", "pta=implicit-entries:false;" +

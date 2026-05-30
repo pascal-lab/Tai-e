@@ -1,11 +1,16 @@
 class Dispatch {
 
     public static void main(String[] args) {
-        A a = new A();
-        a = new B();
-        a = new C();
+        A a;
+        if (args.length == 1) {
+            a = new A();
+        } else if (args.length == 2) {
+            a = new B();
+        } else {
+            a = new C();
+        }
         T t = a.foo();
-        PTAAssert.calls("<A: T foo()>", "<B: T foo()>", "<C: T foo()>")
+        PTAAssert.calls("<A: T foo()>", "<B: T foo()>", "<C: T foo()>");
     }
 }
 

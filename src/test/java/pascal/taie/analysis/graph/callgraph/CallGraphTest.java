@@ -50,8 +50,7 @@ public class CallGraphTest {
             "Assign2",
     })
     void test(String mainClass) {
-        Main.main("-pp",
-                "-cp", "src/test/resources/pta/basic",
+        Main.main("-cp", "src/test/resources/pta/basic",
                 "-cp", "src/test/resources/pta",
                 "-m", mainClass,
                 "-a", "pta");

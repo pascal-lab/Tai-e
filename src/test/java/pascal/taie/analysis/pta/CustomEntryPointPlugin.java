@@ -32,7 +32,6 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.core.solver.SpecifiedParamProvider;
 import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -86,7 +85,7 @@ public class CustomEntryPointPlugin implements Plugin {
         Obj p1 = heapModel.getMockObj(Descriptor.ENTRY_DESC, "MethodParam{1}",
                 specifiedParam.getParamType(1), specifiedParam);
         Obj stringObj = heapModel.getMockObj(Descriptor.ENTRY_DESC, "MethodParam{0}.s1",
-                typeSystem.getType(ClassNames.STRING), specifiedParam);
+                typeSystem.stringType(), specifiedParam);
         Obj param1Obj = heapModel.getMockObj(Descriptor.ENTRY_DESC, "MethodParam{1}[*]",
                 typeSystem.getType("Param1"), specifiedParam);
         JField s1Field = hierarchy.getField("<Param1: java.lang.String s1>");

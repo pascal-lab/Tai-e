@@ -82,6 +82,9 @@ public class MaxPQ {
         pq.insert(MAGIC_NUMBER);
         int r = pq.delMax();
         int s = pq.size();
+        if (r > 0) {
+            r = s;
+        }
     }
 
 }

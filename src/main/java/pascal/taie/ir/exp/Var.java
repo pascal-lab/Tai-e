@@ -22,17 +22,6 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.ir.stmt.LoadArray;
-import pascal.taie.ir.stmt.LoadField;
-import pascal.taie.ir.stmt.StoreArray;
-import pascal.taie.ir.stmt.StoreField;
-import pascal.taie.language.classes.JMethod;
-import pascal.taie.language.type.Type;
-import pascal.taie.util.AnalysisException;
-import pascal.taie.util.Indexable;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -41,6 +30,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadArray;
+import pascal.taie.ir.stmt.LoadField;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
+import pascal.taie.util.AnalysisException;
+import pascal.taie.util.Indexable;
 
 /**
  * Representation of method/constructor parameters, lambda parameters,
@@ -56,17 +58,17 @@ public class Var implements LValue, RValue, Indexable {
     /**
      * The name of this Var.
      */
-    private final String name;
+    private String name;
 
     /**
      * The type of this Var.
      */
-    private final Type type;
+    private Type type;
 
     /**
      * The index of this variable in {@link #method}.
      */
-    private final int index;
+    private int index;
 
     /**
      * If this variable is a (temporary) variable generated for holding
@@ -115,6 +117,13 @@ public class Var implements LValue, RValue, Indexable {
     }
 
     /**
+     * WARNING: dangerous operation which should only be called by front-end.
+     */
+    void setIndex(int newIndex) {
+        index = newIndex;
+    }
+
+    /**
      * @return name of this Var.
      */
     public String getName() {
@@ -154,6 +163,19 @@ public class Var implements LValue, RValue, Indexable {
     @Override
     public String toString() {
         return name;
+    }
+
+
+    /**
+     * Only used by frontend
+     */
+    void setName(String name) {
+        this.name = name;
+    }
+
+    void setType(Type t) {
+        assert type == null; // only set once
+        this.type = t;
     }
 
     public void addLoadField(LoadField loadField) {
@@ -214,6 +236,23 @@ public class Var implements LValue, RValue, Indexable {
      */
     public List<Invoke> getInvokes() {
         return relevantStmts.getInvokes();
+    }
+
+    /**
+     * This method should only be called by tai-e frontend
+     */
+    public void removeRelevantStmt(Stmt stmt) {
+        if (stmt instanceof Invoke invoke) {
+            relevantStmts.invokes.remove(invoke);
+        } else if (stmt instanceof LoadArray loadArray) {
+            relevantStmts.loadArrays.remove(loadArray);
+        } else if (stmt instanceof StoreArray storeArray) {
+            relevantStmts.storeArrays.remove(storeArray);
+        } else if (stmt instanceof LoadField loadField) {
+            relevantStmts.loadFields.remove(loadField);
+        } else if (stmt instanceof StoreField storeField) {
+            relevantStmts.storeFields.remove(storeField);
+        }
     }
 
     /**

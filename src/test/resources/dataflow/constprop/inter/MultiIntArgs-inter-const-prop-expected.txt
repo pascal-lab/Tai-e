@@ -1,23 +1,24 @@
+-------------------- <MultiIntArgs: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L-1] x = 2; {}
+[1@L-1] y = 3; {}
+[2@L24] r = 4; {}
+[3@L25] s = 5; {}
+[4@L15] c = invokestatic <MultiIntArgs: int goo(int,int)>(x, y); {}
+[5@L16] invokestatic <MultiIntArgs: void use(int)>(c); {c=5}
+[6@L21] z = invokestatic <MultiIntArgs: int foo(int,int)>(x, y); {c=5}
+[7@L22] invokestatic <MultiIntArgs: void use(int)>(z); {c=5, z=NAC}
+[8@L26] t = invokestatic <MultiIntArgs: int foo(int,int)>(r, s); {c=5, z=NAC}
+[9@L27] invokestatic <MultiIntArgs: void use(int)>(t); {c=5, t=NAC, z=NAC}
+[10@L29] return; {c=5, t=NAC, z=NAC}
+
 -------------------- <MultiIntArgs: int goo(int,int)> (inter-const-prop) --------------------
-[0@L3] temp$1 = x + y; {temp$1=5, x=2, y=3}
-[1@L4] return temp$1; {temp$1=5, x=2, y=3}
+[0@L4] %v2 = x + y; {%v2=5, x=2, y=3}
+[1@L4] return %v2; {%v2=5, x=2, y=3}
 
 -------------------- <MultiIntArgs: int foo(int,int)> (inter-const-prop) --------------------
-[0@L7] temp$0 = x * y; {temp$0=NAC, x=NAC, y=NAC}
-[1@L8] return temp$0; {temp$0=NAC, x=NAC, y=NAC}
+[0@L8] %v2 = x * y; {%v2=NAC, x=NAC, y=NAC}
+[1@L8] return %v2; {%v2=NAC, x=NAC, y=NAC}
 
--------------------- <MultiIntArgs: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L13] a = 2; {a=2}
-[1@L14] b = 3; {a=2, b=3}
-[2@L15] temp$0 = invokestatic <MultiIntArgs: int goo(int,int)>(a, b); {a=2, b=3}
-[3@L15] c = temp$0; {a=2, b=3, c=5, temp$0=5}
-[4@L18] x = 2; {a=2, b=3, c=5, temp$0=5, x=2}
-[5@L19] y = 3; {a=2, b=3, c=5, temp$0=5, x=2, y=3}
-[6@L20] temp$1 = invokestatic <MultiIntArgs: int foo(int,int)>(x, y); {a=2, b=3, c=5, temp$0=5, x=2, y=3}
-[7@L20] z = temp$1; {a=2, b=3, c=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
-[8@L22] r = 4; {a=2, b=3, c=5, r=4, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
-[9@L23] s = 5; {a=2, b=3, c=5, r=4, s=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
-[10@L24] temp$2 = invokestatic <MultiIntArgs: int foo(int,int)>(r, s); {a=2, b=3, c=5, r=4, s=5, temp$0=5, temp$1=NAC, x=2, y=3, z=NAC}
-[11@L24] t = temp$2; {a=2, b=3, c=5, r=4, s=5, t=NAC, temp$0=5, temp$1=NAC, temp$2=NAC, x=2, y=3, z=NAC}
-[12@L24] return; {a=2, b=3, c=5, r=4, s=5, t=NAC, temp$0=5, temp$1=NAC, temp$2=NAC, x=2, y=3, z=NAC}
+-------------------- <MultiIntArgs: void use(int)> (inter-const-prop) --------------------
+[0@L31] return; {n=NAC}
 

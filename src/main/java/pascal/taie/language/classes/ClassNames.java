@@ -28,7 +28,6 @@ package pascal.taie.language.classes;
 @StringProvider
 public final class ClassNames {
 
-    // Names of special important classes
     public static final String OBJECT = "java.lang.Object";
 
     public static final String SERIALIZABLE = "java.io.Serializable";
@@ -79,6 +78,8 @@ public final class ClassNames {
 
     public static final String EXCEPTION = "java.lang.Exception";
 
+    public static final String ANNOTATION = "java.lang.annotation.Annotation";
+
     // Names of invokedynamic-related classes
     public static final String CALL_SITE = "java.lang.invoke.CallSite";
 
@@ -89,63 +90,6 @@ public final class ClassNames {
     public static final String VAR_HANDLE = "java.lang.invoke.VarHandle";
 
     public static final String METHOD_TYPE = "java.lang.invoke.MethodType";
-
-    // Names of special exceptions
-    public static final String ABSTRACT_METHOD_ERROR = "java.lang.AbstractMethodError";
-
-    public static final String ARITHMETIC_EXCEPTION = "java.lang.ArithmeticException";
-
-    public static final String ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.ArrayIndexOutOfBoundsException";
-
-    public static final String ARRAY_STORE_EXCEPTION = "java.lang.ArrayStoreException";
-
-    public static final String CLASS_CAST_EXCEPTION = "java.lang.ClassCastException";
-
-    public static final String CLASS_NOT_FOUND_EXCEPTION = "java.lang.ClassNotFoundException";
-
-    public static final String CLONE_NOT_SUPPORTED_EXCEPTION = "java.lang.CloneNotSupportedException";
-
-    public static final String EXCEPTION_IN_INITIALIZER_ERROR = "java.lang.ExceptionInInitializerError";
-
-    public static final String ILLEGAL_ACCESS_ERROR = "java.lang.IllegalAccessError";
-
-    public static final String ILLEGAL_MONITOR_STATE_EXCEPTION = "java.lang.IllegalMonitorStateException";
-
-    public static final String INCOMPATIBLE_CLASS_CHANGE_ERROR = "java.lang.IncompatibleClassChangeError";
-
-    public static final String INDEX_OUT_OF_BOUNDS_EXCEPTION = "java.lang.IndexOutOfBoundsException";
-
-    public static final String INSTANTIATION_ERROR = "java.lang.InstantiationError";
-
-    public static final String INTERNAL_ERROR = "java.lang.InternalError";
-
-    public static final String INTERRUPTED_EXCEPTION = "java.lang.InterruptedException";
-
-    public static final String LINKAGE_ERROR = "java.lang.LinkageError";
-
-    public static final String NEGATIVE_ARRAY_SIZE_EXCEPTION = "java.lang.NegativeArraySizeException";
-
-    public static final String NO_CLASS_DEF_FOUND_ERROR = "java.lang.NoClassDefFoundError";
-
-    public static final String NO_SUCH_FIELD_ERROR = "java.lang.NoSuchFieldError";
-
-    public static final String NO_SUCH_METHOD_ERROR = "java.lang.NoSuchMethodError";
-
-    public static final String NULL_POINTER_EXCEPTION = "java.lang.NullPointerException";
-
-    public static final String OUT_OF_MEMORY_ERROR = "java.lang.OutOfMemoryError";
-
-    public static final String RUNTIME_EXCEPTION = "java.lang.RuntimeException";
-
-    public static final String STACK_OVERFLOW_ERROR = "java.lang.StackOverflowError";
-
-    public static final String UNKNOWN_ERROR = "java.lang.UnknownError";
-
-    public static final String UNSATISFIED_LINK_ERROR = "java.lang.UnsatisfiedLinkError";
-
-    public static final String VERIFY_ERROR = "java.lang.VerifyError";
-
-    public static final String ANNOTATION = "java.lang.annotation.Annotation";
 
     // Suppresses default constructor, ensuring non-instantiability.
     private ClassNames() {

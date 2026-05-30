@@ -25,12 +25,17 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
-    // Use ASM to read Java class files
-    implementation("org.ow2.asm:asm:9.4")
     // Eliminate SLF4J warning
     implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
+    // Use asm to read class file
+    val asmVersion = "9.8"
+    implementation("org.ow2.asm:asm:$asmVersion")
+    implementation("org.ow2.asm:asm-commons:$asmVersion")
+    implementation("org.ow2.asm:asm-tree:$asmVersion")
+    implementation("org.ow2.asm:asm-util:$asmVersion")
+
 
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -67,8 +72,10 @@ tasks.register<Jar>("fatJar", Jar::class) {
     }
     archiveBaseName.set("${projectArtifactId}-all")
     from(
-        configurations.runtimeClasspath.get().map {
-            if (it.isDirectory) it else zipTree(it)
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file).matching {
+                exclude("META-INF/**/*.RSA")
+            }
         }
     )
     from("COPYING", "COPYING.LESSER")
@@ -79,7 +86,6 @@ tasks.register<Jar>("fatJar", Jar::class) {
 
 tasks.jar {
     from("COPYING", "COPYING.LESSER")
-    from(zipTree("lib/sootclasses-modified.jar"))
     destinationDirectory.set(rootProject.layout.buildDirectory)
     archiveBaseName.set(projectArtifactId)
 }

@@ -45,7 +45,7 @@ import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.language.annotation.Annotation;
-import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.ExceptionNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
@@ -176,8 +176,8 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
             if (edge.getKind() == CFGEdge.Kind.CAUGHT_EXCEPTION) {
                 resultFact = nodeFact.copy();
                 for (ClassType classType : edge.getExceptions()) {
-                    if (classType.getName().equals(ClassNames.CLONE_NOT_SUPPORTED_EXCEPTION)
-                            || classType.getName().equals(ClassNames.INTERRUPTED_EXCEPTION)) {
+                    if (classType.getName().equals(ExceptionNames.CLONE_NOT_SUPPORTED_EXCEPTION)
+                            || classType.getName().equals(ExceptionNames.INTERRUPTED_EXCEPTION)) {
                         resultFact.entries()
                                 .filter(entry -> entry.getValue().isDefinitelyNull()
                                         || entry.getValue().isNullOnSomePath())
@@ -207,21 +207,23 @@ public class IsNullAnalysis extends AnalysisDriver<Stmt, IsNullFact> {
                         }
                     }
                 }
-            } else if (edge.getKind() == CFGEdge.Kind.FALL_THROUGH) {
-                // 4. handle those statements which may raise NullPointerException
+            }
+            // 4. handle those statements which may raise NullPointerException
+            // This applies to all non-exceptional edges (IF_TRUE, IF_FALSE, FALL_THROUGH, etc.)
+            if (!edge.isExceptional() && resultFact.isValid()) {
                 Stmt target = edge.target();
                 Var derefVar = target.accept(new NPEVarVisitor());
 
                 if (derefVar != null) {
-                    IsNullValue derefVal = nodeFact.get(derefVar);
+                    IsNullValue derefVal = resultFact.get(derefVar);
 
                     if (derefVal.isDefinitelyNull()) {
                         // then this edge is infeasible
-                        resultFact = nodeFact.copy();
+                        resultFact = resultFact.copy();
                         resultFact.setInvalid();
                     } else if (!derefVal.isDefinitelyNotNull()) {
                         // update the null value for the dereferenced value.
-                        resultFact = nodeFact.copy();
+                        resultFact = resultFact.copy();
                         // TODO: use pta to update more Var
                         resultFact.update(derefVar, IsNullValue.NO_KABOOM_NN);
                     }

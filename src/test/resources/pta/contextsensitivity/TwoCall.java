@@ -5,8 +5,8 @@ class TwoCall {
 
     static void m() {
         A a = new A();
-        B b = a.id(new B());
-        B c = a.id(new C());
+        B b = a.id(new B()); b.hashCode();
+        B c = a.id(new C()); c.hashCode();
     }
 }
 

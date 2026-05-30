@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static pascal.taie.util.collection.CollectionUtils.getOne;
+import static pascal.taie.util.collection.CollectionUtils.getFirst;
 
 /**
  * Special class for process the results of other analyses after they finish.
@@ -204,7 +204,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         // Classify given analysis IDs into two groups,
         // one for ClassAnalysis if present in an arbitrarily-picked class c,
         // and another for MethodAnalysis otherwise.
-        JClass c = CollectionUtils.getOne(classes);
+        JClass c = CollectionUtils.getFirst(classes);
         Map<Boolean, List<String>> groups = analyses.stream()
                 .collect(Collectors.groupingBy(c::hasResult));
         List<String> classAnalyses = groups.get(true);
@@ -338,9 +338,9 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
                 }
             }
         } else if (inputResult.size() == 1) {
-            if (!toString(result).equals(getOne(inputResult))) {
+            if (!toString(result).equals(getFirst(inputResult))) {
                 mismatches.add(String.format("%s expected: %s, given: %s",
-                        entity, getOne(inputResult), toString(result)));
+                        entity, getFirst(inputResult), toString(result)));
             }
         } else {
             logger.warn("Cannot compare result of analysis {} for {}," +

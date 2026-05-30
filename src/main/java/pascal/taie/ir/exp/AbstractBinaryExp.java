@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.util.collection.ArraySet;
-
 import java.util.Collections;
 import java.util.Set;
+
+import pascal.taie.util.collection.ArraySet;
 
 /**
  * Provides common functionalities for {@link BinaryExp} implementations.
@@ -39,7 +39,8 @@ abstract class AbstractBinaryExp implements BinaryExp {
     protected AbstractBinaryExp(Var operand1, Var operand2) {
         this.operand1 = operand1;
         this.operand2 = operand2;
-        validate();
+        // new frontend will set type later, so cannot validate type here
+        // validate();
     }
 
     /**

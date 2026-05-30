@@ -1,8 +1,16 @@
 class Reference {
 
+    static int one() {
+        return 1;
+    }
+
+    static int zero() {
+        return 0;
+    }
+
     public static void main(String[] args) {
-        Object[] a = new Object[1];
-        a[0] = new Reference();
-        Object o = a[0];
+        Object[] a = new Object[one()];
+        a[zero()] = new Reference();
+        Object o = a[zero()];
     }
 }

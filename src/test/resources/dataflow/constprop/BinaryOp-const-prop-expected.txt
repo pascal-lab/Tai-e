@@ -1,59 +1,51 @@
+-------------------- <BinaryOp: void constant3()> (const-prop) --------------------
+[0@L-1] i5 = 5; {}
+[1@L20] %ci6 = 6; {}
+[2@L19] %c6 = 77; {}
+[3@L19] x = i5 * %c6; {x=385}
+[4@L20] y = x / %ci6; {x=385, y=64}
+[5@L21] %v10 = y % i5; {%v10=4, x=385, y=64}
+[6@L22] return; {%v10=4, x=385, y=64}
+
 -------------------- <BinaryOp: void <init>()> (const-prop) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); {}
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
 
 -------------------- <BinaryOp: void constant1()> (const-prop) --------------------
-[0@L4] i0 = 0; {i0=0}
-[1@L4] i1 = 1; {i0=0, i1=1}
-[2@L4] i2 = 2; {i0=0, i1=1, i2=2}
-[3@L5] x = 3; {i0=0, i1=1, i2=2, x=3}
-[4@L6] %intconst0 = 3; {i0=0, i1=1, i2=2, x=3}
-[5@L6] y = i0 + %intconst0; {i0=0, i1=1, i2=2, x=3, y=3}
-[6@L7] z = i1 + i2; {i0=0, i1=1, i2=2, x=3, y=3, z=3}
-[7@L7] return; {i0=0, i1=1, i2=2, x=3, y=3, z=3}
+[0@L4] i0 = 0; {}
+[1@L4] i1 = 1; {}
+[2@L4] i2 = 2; {}
+[3@L-1] %ci3 = 3; {}
+[4@L6] %v11 = i0 + %ci3; {%v11=3}
+[5@L7] %v12 = i1 + i2; {%v11=3, %v12=3}
+[6@L8] return; {%v11=3, %v12=3}
 
 -------------------- <BinaryOp: void constant2()> (const-prop) --------------------
-[0@L11] i1 = 1; {i1=1}
-[1@L12] %intconst0 = 10; {i1=1}
-[2@L12] x = i1 + %intconst0; {i1=1, x=11}
-[3@L13] %intconst1 = 5; {i1=1, x=11}
-[4@L13] y = x * %intconst1; {i1=1, x=11, y=55}
-[5@L14] %intconst2 = 12; {i1=1, x=11, y=55}
-[6@L14] z = y - %intconst2; {i1=1, x=11, y=55, z=43}
-[7@L14] return; {i1=1, x=11, y=55, z=43}
-
--------------------- <BinaryOp: void constant3()> (const-prop) --------------------
-[0@L18] i5 = 5; {i5=5}
-[1@L19] %intconst0 = 77; {i5=5}
-[2@L19] x = i5 * %intconst0; {i5=5, x=385}
-[3@L20] %intconst1 = 6; {i5=5, x=385}
-[4@L20] y = x / %intconst1; {i5=5, x=385, y=64}
-[5@L21] %intconst2 = 5; {i5=5, x=385, y=64}
-[6@L21] z = y % %intconst2; {i5=5, x=385, y=64, z=4}
-[7@L21] return; {i5=5, x=385, y=64, z=4}
+[0@L11] i1 = 1; {}
+[1@L13] %ci5 = 5; {}
+[2@L12] %c6 = 10; {}
+[3@L12] x = i1 + %c6; {x=11}
+[4@L13] y = x * %ci5; {x=11, y=55}
+[5@L14] %c10 = 12; {x=11, y=55}
+[6@L14] %v11 = y - %c10; {%v11=43, x=11, y=55}
+[7@L15] return; {%v11=43, x=11, y=55}
 
 -------------------- <BinaryOp: void NAC(int)> (const-prop) --------------------
-[0@L25] x = p; {p=NAC, x=NAC}
-[1@L26] temp$0 = 1; {p=NAC, temp$0=1, x=NAC}
-[2@L26] y = temp$0 + x; {p=NAC, temp$0=1, x=NAC, y=NAC}
-[3@L26] return; {p=NAC, temp$0=1, x=NAC, y=NAC}
-
--------------------- <BinaryOp: void undefined()> (const-prop) --------------------
-[0@L31] %intconst0 = 1; {}
-[1@L31] y = x + %intconst0; {}
-[2@L31] return; {}
+[0@L26] %ci1 = 1; {p=NAC}
+[1@L26] %v5 = %ci1 + p; {%v5=NAC, p=NAC}
+[2@L27] return; {%v5=NAC, p=NAC}
 
 -------------------- <BinaryOp: void longExpressions()> (const-prop) --------------------
-[0@L35] x = 1; {x=1}
-[1@L35] y = 2; {x=1, y=2}
-[2@L35] z = 3; {x=1, y=2, z=3}
-[3@L36] temp$1 = y * z; {temp$1=6, x=1, y=2, z=3}
-[4@L36] a = x + temp$1; {a=7, temp$1=6, x=1, y=2, z=3}
-[5@L37] temp$2 = x - y; {a=7, temp$1=6, temp$2=-1, x=1, y=2, z=3}
-[6@L37] b = temp$2 * z; {a=7, b=-3, temp$1=6, temp$2=-1, x=1, y=2, z=3}
-[7@L38] temp$4 = x - y; {a=7, b=-3, temp$1=6, temp$2=-1, temp$4=-1, x=1, y=2, z=3}
-[8@L38] c = temp$4 / z; {a=7, b=-3, c=0, temp$1=6, temp$2=-1, temp$4=-1, x=1, y=2, z=3}
-[9@L39] temp$7 = x + y; {a=7, b=-3, c=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
-[10@L39] d = temp$7 % z; {a=7, b=-3, c=0, d=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
-[11@L39] return; {a=7, b=-3, c=0, d=0, temp$1=6, temp$2=-1, temp$4=-1, temp$7=3, x=1, y=2, z=3}
+[0@L30] x = 1; {}
+[1@L30] y = 2; {}
+[2@L30] z = 3; {}
+[3@L31] %v11 = y * z; {%v11=6}
+[4@L31] %v12 = x + %v11; {%v11=6, %v12=7}
+[5@L32] %v13 = x - y; {%v11=6, %v12=7, %v13=-1}
+[6@L32] %v14 = %v13 * z; {%v11=6, %v12=7, %v13=-1, %v14=-3}
+[7@L33] %v15 = x - y; {%v11=6, %v12=7, %v13=-1, %v14=-3, %v15=-1}
+[8@L33] %v16 = %v15 / z; {%v11=6, %v12=7, %v13=-1, %v14=-3, %v15=-1, %v16=0}
+[9@L34] %v17 = x + y; {%v11=6, %v12=7, %v13=-1, %v14=-3, %v15=-1, %v16=0, %v17=3}
+[10@L34] %v18 = %v17 % z; {%v11=6, %v12=7, %v13=-1, %v14=-3, %v15=-1, %v16=0, %v17=3, %v18=0}
+[11@L35] return; {%v11=6, %v12=7, %v13=-1, %v14=-3, %v15=-1, %v16=0, %v17=3, %v18=0}
 

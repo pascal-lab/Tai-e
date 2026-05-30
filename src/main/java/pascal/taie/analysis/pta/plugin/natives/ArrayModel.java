@@ -22,6 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
+import java.util.List;
+
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
@@ -39,13 +41,10 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
-
-import java.util.List;
 
 public class ArrayModel {
 
@@ -98,7 +97,7 @@ public class ArrayModel {
 
         IRModel(Solver solver) {
             super(solver);
-            objType = typeSystem.getClassType(ClassNames.OBJECT);
+            objType = typeSystem.objectType();
             objArrayType = typeSystem.getArrayType(objType, 1);
         }
 

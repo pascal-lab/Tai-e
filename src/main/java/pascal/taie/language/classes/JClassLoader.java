@@ -29,5 +29,7 @@ public interface JClassLoader extends Serializable {
 
     JClass loadClass(String name);
 
+    JClass loadClass(String name, boolean allowPhantom);
+
     Collection<JClass> getLoadedClasses();
 }

@@ -44,7 +44,7 @@ public class ReflectiveAction {
     }
 
     static void arraynew() throws Exception {
-        Class<?> uClass = new U().getClass();
+        Class<?> uClass = Class.forName("U");
         U[] arr = (U[]) Array.newInstance(uClass, 10);
         arr[0] = new U();
     }

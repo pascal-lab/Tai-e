@@ -25,19 +25,19 @@ package pascal.taie.analysis.pta.core.heap;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
-import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.NumberLiteral;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.util.Predicates;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.function.Predicates;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -48,10 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
 import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
-import static pascal.taie.language.classes.ClassNames.THROWABLE;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -113,10 +111,10 @@ public abstract class AbstractHeapModel implements HeapModel {
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
         typeSystem = World.get().getTypeSystem();
-        string = typeSystem.getClassType(STRING);
+        string = typeSystem.stringType();
         stringBuilder = typeSystem.getClassType(STRING_BUILDER);
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
-        throwable = typeSystem.getClassType(THROWABLE);
+        throwable = typeSystem.throwableType();
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
     }
 

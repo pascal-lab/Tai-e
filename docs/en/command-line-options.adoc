@@ -46,14 +46,11 @@ These options specify the Java program (say _P_) and library to be analyzed.
 ** The `<inputClass>` should follow the format of fully-qualified name in Java, e.g., `org.package.MyClass`.
 
 * Java version (-java): `-java <version>`
-** _Default value_: 6
-** Specify the version of Java library used in the analyses. When this option is given, Tai-e will locate the corresponding Java library in submodule `java-benchmarks` and add it to the class paths. Currently, we provide libraries for Java versions 3, 4, 5, 6, 7, and 8. Support for newer Java versions is under development.
+** Specify the version of Java library used in the analyses. If `--jre-dir` is given, Tai-e uses the library in that directory; otherwise, Tai-e locates the corresponding library in submodule `java-benchmarks`.
+** If `-java` is not given, Tai-e uses the current Java runtime.
 
-* Prepend JVM Class Path (-pp, --prepend-JVM)
-** Prepend the class path of the JVM (which runs Tai-e) to the analysis class path. This means that if you run Tai-e with Java 17, then you can use Tai-e to analyze the library of Java 17. Note that this option will disable `-java` option.
-
-* Allow phantom references (-ap, --allow-phantom)
-** Allow Tai-e to process phantom references, i.e., the referenced classes that are not found in the class paths.
+* JRE directory (--jre-dir): `--jre-dir <dir>`
+** Specify a JRE directory to be used for analysis. This option must be used together with `-java`.
 
 
 == Analysis Options

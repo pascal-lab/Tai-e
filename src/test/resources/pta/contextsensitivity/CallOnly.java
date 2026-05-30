@@ -29,10 +29,8 @@ class Outer2 {
     C c;
 
     Outer2(C c) {
-        this.c = c
+        this.c = c;
     }
-
-    ;
 
     A get(Inner inner) {
         return inner.identity(this.c);

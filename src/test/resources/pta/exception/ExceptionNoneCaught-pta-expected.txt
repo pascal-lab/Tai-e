@@ -1,6 +1,6 @@
 Points-to sets of all variables
-[]:<ExceptionNoneCaught: void m()>/temp$0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
-[]:<ExceptionNoneCaught: void m1()>/temp$0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
+[]:<ExceptionNoneCaught: void m()>/%v0 -> [[]:MergedObj{<Merged java.lang.ArithmeticException>}]
+[]:<ExceptionNoneCaught: void m1()>/%v0 -> [[]:MergedObj{<Merged java.lang.IllegalStateException>}]
 []:<ExceptionNoneCaught: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<ExceptionNoneCaught: void main(java.lang.String[])>/0},type=java.lang.String[] in <ExceptionNoneCaught: void main(java.lang.String[])>}]
 
 Points-to sets of all static fields

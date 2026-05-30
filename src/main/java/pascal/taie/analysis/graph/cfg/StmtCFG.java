@@ -59,7 +59,7 @@ class StmtCFG extends AbstractCFG<Stmt> {
     }
 
     @Override
-    public Stmt getNode(int index) {
+    public Stmt getObject(int index) {
         if (index == 0) {
             return getEntry();
         } else if (index == ir.getStmts().size() + 1) {

@@ -25,12 +25,12 @@ package pascal.taie.util;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 import pascal.taie.util.collection.CollectionTestSuite;
-import pascal.taie.util.graph.GraphTest;
+import pascal.taie.util.graph.GraphTestSuite;
 
 @Suite
 @SelectClasses({
         CollectionTestSuite.class,
-        GraphTest.class,
+        GraphTestSuite.class,
         IndexerTest.class,
 })
 public class UtilTestSuite {

@@ -1,7 +1,7 @@
 class BranchLoop {
 
     int loopBranch(int m, int n, int k) {
-        int a, i;
+        int a = 0, i;
         for (i = m - 1; i < k; i++) {
             if (i >= n) {
                 a = n;
@@ -15,6 +15,7 @@ class BranchLoop {
         int x, y, z;
         x = 1;
         y = 2;
+        z = 0;
         if (c > 0) {
             do {
                 x = y + 1;

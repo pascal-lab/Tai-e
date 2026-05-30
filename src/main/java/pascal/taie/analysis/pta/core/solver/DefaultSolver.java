@@ -53,6 +53,7 @@ import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Literal;
@@ -64,6 +65,7 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -678,6 +680,19 @@ public class DefaultSolver implements Solver {
                     CSVar from = csManager.getCSVar(context, rvalue);
                     CSVar to = csManager.getCSVar(context, stmt.getLValue());
                     addPFGEdge(from, to, FlowKind.LOCAL_ASSIGN);
+                }
+                return null;
+            }
+
+            @Override
+            public Void visit(PhiStmt stmt) {
+                PhiExp rvalue = stmt.getRValue();
+                if (propTypes.isAllowed(rvalue)) {
+                    CSVar to = csManager.getCSVar(context, stmt.getLValue());
+                    rvalue.getSourceAndVar().forEach(pair -> {
+                        CSVar from = csManager.getCSVar(context, pair.second());
+                        addPFGEdge(from, to, FlowKind.LOCAL_ASSIGN);
+                    });
                 }
                 return null;
             }

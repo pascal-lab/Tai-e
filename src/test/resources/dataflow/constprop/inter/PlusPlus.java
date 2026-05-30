@@ -8,6 +8,7 @@ class PlusPlus {
         x = 1;
         ++x;
         y = ++x;
+        use(y);
     }
 
     static void test2(int x, int y) {
@@ -15,6 +16,11 @@ class PlusPlus {
         ++x;
         x++;
         y = ++x;
+        use(y);
         y = x++;
+        use(y);
     }
+
+    public static void use(int n) {}
+
 }

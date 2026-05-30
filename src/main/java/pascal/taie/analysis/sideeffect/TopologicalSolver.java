@@ -22,6 +22,10 @@
 
 package pascal.taie.analysis.sideeffect;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -39,19 +43,9 @@ import pascal.taie.util.collection.IndexerBitSet;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.TwoKeyMap;
-import pascal.taie.util.graph.Graph;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
+import pascal.taie.util.graph.TopologicalSorter;
 
 /**
  * Computes side-effect information (which objects might be modified) based on pointer analysis
@@ -111,12 +105,12 @@ class TopologicalSolver {
             // Handle field store
             if (!base.getStoreFields().isEmpty()) {
                 for (Stmt stmt : base.getStoreFields()) {
-                    // Rule: x.f = y, o ∈ pts(x) => o ∈ modify(stmt)
+                    // Rule: x.f = y, o in pts(x) => o in modify(stmt)
                     stmtDirectMods.computeIfAbsent(stmt, context,
                                     (s, c) -> Sets.newSet())
                             .addAll(baseObjs);
                 }
-                // Rule: x.f = y, o ∈ pts(x) => o ∈ modify(method)
+                // Rule: x.f = y, o in pts(x) => o in modify(method)
                 methodDirectMods.computeIfAbsent(method, context,
                                 (m, c) -> Sets.newSet())
                         .addAll(baseObjs);
@@ -125,12 +119,12 @@ class TopologicalSolver {
             // Handle array store
             if (!base.getStoreArrays().isEmpty()) {
                 for (Stmt stmt : base.getStoreArrays()) {
-                    // Rule: x[*] = y, o ∈ pts(x) => o ∈ modify(stmt)
+                    // Rule: x[*] = y, o in pts(x) => o in modify(stmt)
                     stmtDirectMods.computeIfAbsent(stmt, context,
                                     (s, c) -> Sets.newSet())
                             .addAll(baseObjs);
                 }
-                // Rule: x[*] = y, o ∈ pts(x) => o ∈ modify(method)
+                // Rule: x[*] = y, o in pts(x) => o in modify(method)
                 methodDirectMods.computeIfAbsent(method, context,
                                 (m, c) -> Sets.newSet())
                         .addAll(baseObjs);
@@ -189,14 +183,14 @@ class TopologicalSolver {
             TwoKeyMap<JMethod, Context, Set<Obj>> sccDirectMods) {
         TwoKeyMap<JMethod, Context, Set<Obj>> methodMods = Maps.newTwoKeyMap();
 
-        // Process SCCs in reverse topological order
-        // This ensures that when processing an SCC, all its callees have been processed
-        for (MergedNode<CSMethod> scc : reverseTopologicalSort(mg)) {
+        // Process SCCs in reverse topological order.
+        // This ensures that when processing an SCC, all its callees have been processed.
+        for (MergedNode<CSMethod> scc : new TopologicalSorter<>(mg, true).get()) {
             Set<Obj> mods = new IndexerBitSet<>(objIndexer, true);
 
             // Pick a representative method from the SCC
             Set<CSMethod> sccNodes = Sets.newSet(scc.getNodes());
-            CSMethod rep = CollectionUtils.getOne(sccNodes);
+            CSMethod rep = CollectionUtils.getFirst(sccNodes);
             Context repContext = rep.getContext();
             JMethod repMethod = rep.getMethod();
 
@@ -204,7 +198,7 @@ class TopologicalSolver {
             mods.addAll(sccDirectMods.getOrDefault(repMethod, repContext, Set.of()));
 
             // Add modified objects from callees
-            // Rule: i: x = y.foo(...) ->call j, j ∈ m, o ∈ modify(j) => o ∈ modify(i)
+            // Rule: i: x = y.foo(...) -> call j, j in m, o in modify(j) => o in modify(i)
             sccNodes.stream().map(callGraph::getCalleesOfM).flatMap(Collection::stream)
                     .distinct()
                     // Avoid redundantly adding SCC direct mods (already added above)
@@ -225,46 +219,5 @@ class TopologicalSolver {
             }
         }
         return methodMods;
-    }
-
-    /**
-     * Performs reverse topological sorting on a directed acyclic graph (DAG) using BFS.
-     * This implementation is optimized for side-effect analysis by avoiding redundant traversals.
-     * <p>
-     * The reverse topological order ensures that when processing a node,
-     * all its successors (callees) have already been processed.
-     *
-     * @param <N>   type of nodes in the graph
-     * @param graph the graph to sort
-     * @return list of nodes in reverse topological order
-     */
-    private static <N> List<N> reverseTopologicalSort(Graph<N> graph) {
-        // Map to track in-degree of each node
-        Map<N, Long> inDegreeMap = Maps.newMap();
-        Queue<N> queue = new ArrayDeque<>();
-        for (N node : graph.getNodes()) {
-            long inDegree = graph.getInDegreeOf(node);
-            inDegreeMap.put(node, inDegree);
-            if (inDegree == 0) {
-                queue.add(node);
-            }
-        }
-
-        List<N> result = new ArrayList<>(graph.getNumberOfNodes());
-        while (!queue.isEmpty()) {
-            N curr = queue.poll();
-            result.add(curr);
-            for (N pred : graph.getSuccsOf(curr)) {
-                long inDegree = inDegreeMap.get(pred) - 1;
-                inDegreeMap.put(pred, inDegree);
-                if (inDegree == 0) {
-                    queue.add(pred);
-                }
-            }
-        }
-
-        // Reverse to get reverse topological order
-        Collections.reverse(result);
-        return Collections.unmodifiableList(result);
     }
 }

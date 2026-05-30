@@ -7,7 +7,7 @@ class ForLoops {
             use(y);
             return;
         }
-        use(y)
+        use(y);
     }
 
     void dead2() {
@@ -17,7 +17,7 @@ class ForLoops {
             use(y);
             return;
         }
-        use(y)
+        use(y);
     }
 
     void use(int x) {

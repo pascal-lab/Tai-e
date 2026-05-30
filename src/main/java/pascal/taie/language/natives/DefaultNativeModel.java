@@ -63,8 +63,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static pascal.taie.language.classes.ClassNames.OBJECT;
-import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.util.collection.Maps.newMap;
 
 public class DefaultNativeModel implements NativeModel {
@@ -128,7 +126,7 @@ public class DefaultNativeModel implements NativeModel {
 
         // <java.lang.Class: java.lang.Class[] getDeclaredClasses0()>
         register("<java.lang.Class: java.lang.Class[] getDeclaredClasses0()>", m ->
-                allocateArray(m, typeSystem.getClassType(ClassNames.CLASS))
+                allocateArray(m, typeSystem.classType())
         );
 
         // --------------------------------------------------------------------
@@ -172,7 +170,7 @@ public class DefaultNativeModel implements NativeModel {
             IRBuildHelper helper = new IRBuildHelper(m);
             Var src = helper.getParam(0);
             Var dest = helper.getParam(2);
-            Type objType = typeSystem.getClassType(OBJECT);
+            Type objType = typeSystem.objectType();
             Type arrayType = typeSystem.getArrayType(objType, 1);
             Var srcArray = helper.newTempVar(arrayType);
             Var destArray = helper.newTempVar(arrayType);
@@ -258,7 +256,7 @@ public class DefaultNativeModel implements NativeModel {
             // <java.io.*FileSystem: java.lang.String[] list(java.io.File)>
             register("<" + fsName + ": java.lang.String[] list(java.io.File)>", m -> {
                 IRBuildHelper helper = new IRBuildHelper(m);
-                ClassType string = typeSystem.getClassType(STRING);
+                ClassType string = typeSystem.stringType();
                 ArrayType stringArray = typeSystem.getArrayType(string, 1);
                 Var str = helper.newTempVar(string);
                 Var arr = helper.getReturnVar();
@@ -350,7 +348,7 @@ public class DefaultNativeModel implements NativeModel {
         // Generic model for Unsafe.put/get is impossible here due to
         // strong typing of ArrayAccess. It can be modeled in Plugin system.
         Type objArrayType = typeSystem.getArrayType(
-                typeSystem.getClassType(OBJECT), 1);
+                typeSystem.objectType(), 1);
         // <sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>
         register("<sun.misc.Unsafe: boolean compareAndSwapObject(java.lang.Object,long,java.lang.Object,java.lang.Object)>", m -> {
             IRBuildHelper helper = new IRBuildHelper(m);

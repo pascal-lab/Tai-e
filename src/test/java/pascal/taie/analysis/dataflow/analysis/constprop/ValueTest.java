@@ -38,7 +38,7 @@ public class ValueTest {
         Value v1 = Value.makeConstant(10);
         assertTrue(v1.isConstant());
         assertFalse(v1.isNAC() || v1.isUndef());
-        assertEquals(v1.getConstant(), 10);
+        assertEquals(10, v1.getConstant());
         Value v2 = Value.makeConstant(1);
         Value v3 = Value.makeConstant(10);
         assertNotEquals(v1, v2);

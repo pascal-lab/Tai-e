@@ -57,8 +57,7 @@ class SootClassLoader implements JClassLoader {
             SootClass sootClass = scene.getSootClassUnsafe(name, false);
             if (sootClass != null && (!sootClass.isPhantom() || allowPhantom)) {
                 // TODO: handle phantom class more comprehensively
-                jclass = new JClass(this, sootClass.getName(),
-                        sootClass.moduleName);
+                jclass = new JClass(this, sootClass.getName(), sootClass.moduleName);
                 // New class must be put into classes map at first,
                 // at build(jclass) may also trigger the loading of
                 // the new created class. Not putting the class into classes
@@ -70,6 +69,11 @@ class SootClassLoader implements JClassLoader {
         }
         // TODO: add warning for missing classes
         return jclass;
+    }
+
+    @Override
+    public JClass loadClass(String name, boolean allowPhantom) {
+        return loadClass(name); // current workaround. The second argument has no effect here.
     }
 
     @Override

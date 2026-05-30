@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
 import pascal.taie.Main;
 import pascal.taie.analysis.Tests;
 import pascal.taie.util.MultiStringsSource;
@@ -113,7 +114,6 @@ public class TaintTest {
                 "taint-config-providers:[pascal.taie.analysis.pta.MockTaintConfigProvider]"
         );
         Main.main(
-                "-pp",
                 "-cp", "src/test/resources/pta/taint",
                 "-m", mainClass,
                 "-a", "pta=" + String.join(";", ptaArgs)

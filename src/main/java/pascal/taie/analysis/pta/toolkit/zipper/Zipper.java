@@ -165,7 +165,7 @@ public class Zipper {
 
     private void analyze(Type type) {
         PrecisionFlowGraph pfg = new PFGBuilder(pta, ofg, oag, pce, type).build();
-        totalPFGNodes.addAndGet(pfg.getNumberOfNodes());
+        totalPFGNodes.addAndGet(pfg.nodeCount());
         totalPFGEdges.addAndGet(pfg.getNodes()
                 .stream()
                 .mapToInt(pfg::getOutDegreeOf)

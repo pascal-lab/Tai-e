@@ -61,25 +61,44 @@ public class NullPointerDetection extends MethodAnalysis<Set<BugInstance>> {
         CFG<Stmt> cfg = ir.getResult(CFGBuilder.ID);
         for (Stmt stmt : cfg.getNodes()) {
             Var derefVar = stmt.accept(new NPEVarVisitor());
-            if (derefVar != null) {
-                IsNullFact prevFact = null;
-                for (CFGEdge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
-                    if (inEdge.getKind() == CFGEdge.Kind.FALL_THROUGH) {
-                        prevFact = nullValues.getOutFact(inEdge.source());
+            if (derefVar == null) {
+                continue;
+            }
+            // Merge null values from all non-exceptional in-edges
+            IsNullValue mergedValue = null;
+            for (CFGEdge<Stmt> inEdge : cfg.getInEdgesOf(stmt)) {
+                if (inEdge.isExceptional()) {
+                    continue;
+                }
+                IsNullFact sourceFact = nullValues.getOutFact(inEdge.source());
+                if (sourceFact == null || !sourceFact.isValid()) {
+                    continue;
+                }
+                IsNullValue edgeValue = sourceFact.get(derefVar);
+                // Apply condition decision for IF_TRUE/IF_FALSE edges
+                if (inEdge.getKind() == CFGEdge.Kind.IF_TRUE
+                        || inEdge.getKind() == CFGEdge.Kind.IF_FALSE) {
+                    IsNullConditionDecision decision = sourceFact.getDecision();
+                    if (decision != null) {
+                        if (!decision.isEdgeFeasible(inEdge.getKind())) {
+                            continue; // Skip infeasible edge
+                        }
+                        if (decision.getVarTested() == derefVar) {
+                            edgeValue = decision.getDecision(inEdge.getKind());
+                        }
                     }
                 }
-                if (prevFact != null && prevFact.isValid()) {
-                    IsNullValue derefVarValue = prevFact.get(derefVar);
-                    if (derefVarValue.isDefinitelyNull()) {
-                        nullDerefs.add(new BugInstance(
-                                BugType.NP_ALWAYS_NULL, Severity.BLOCKER, ir.getMethod())
-                                .setSourceLine(stmt.getLineNumber()));
-                    } else if (derefVarValue.isNullOnSomePath()) {
-                        nullDerefs.add(new BugInstance(
-                                BugType.NP_MAY_NULL, Severity.CRITICAL, ir.getMethod())
-                                .setSourceLine(stmt.getLineNumber()));
-                    }
-                }
+                mergedValue = (mergedValue == null) ? edgeValue
+                        : IsNullValue.merge(mergedValue, edgeValue);
+            }
+            if (mergedValue != null && mergedValue.isDefinitelyNull()) {
+                nullDerefs.add(new BugInstance(
+                        BugType.NP_ALWAYS_NULL, Severity.BLOCKER, ir.getMethod())
+                        .setSourceLine(stmt.getLineNumber()));
+            } else if (mergedValue != null && mergedValue.isNullOnSomePath()) {
+                nullDerefs.add(new BugInstance(
+                        BugType.NP_MAY_NULL, Severity.CRITICAL, ir.getMethod())
+                        .setSourceLine(stmt.getLineNumber()));
             }
         }
         return nullDerefs;

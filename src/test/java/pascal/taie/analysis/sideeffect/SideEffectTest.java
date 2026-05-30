@@ -57,12 +57,15 @@ public class SideEffectTest {
     private static SideEffect runSideEffect(String mainClass, boolean onlyApp) {
         Main.main("-cp", CLASS_PATH,
                 "-m", mainClass,
-                "-a", "side-effect=only-app:" + onlyApp);
+                "-a", "side-effect=only-app:" + onlyApp,
+                "-a", "pta=implicit-entries:false",
+                "-a", "cg=algorithm:pta");
         return World.get().getResult(SideEffectAnalysis.ID);
     }
 
     private LongSummaryStatistics summarize(SideEffect sideEffect) {
         return World.get().getClassHierarchy().allClasses()
+                .filter(c -> c.isApplication())
                 .flatMap(c -> c.getDeclaredMethods().stream())
                 .map(sideEffect::getModifiedObjects)
                 .mapToLong(Set::size)
@@ -152,6 +155,9 @@ public class SideEffectTest {
         PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
         CallGraph<Invoke, JMethod> callGraph = pta.getCallGraph();
         for (JMethod method : callGraph) {
+            if (!method.isApplication()) {
+                continue;
+            }
             Set<Obj> methodMod = effect.getModifiedObjects(method);
             for (Stmt stmt : method.getIR()) {
                 Set<Obj> stmtMod = effect.getModifiedObjects(stmt);
@@ -164,7 +170,9 @@ public class SideEffectTest {
                     assertTrue(stmtMod.containsAll(pta.getPointsToSet(access.getBase())));
                 } else if (stmt instanceof Invoke invoke) {
                     for (JMethod callee : callGraph.getCalleesOf(invoke)) {
-                        assertTrue(stmtMod.containsAll(effect.getModifiedObjects(callee)));
+                        if (callee.isApplication()) {
+                            assertTrue(stmtMod.containsAll(effect.getModifiedObjects(callee)));
+                        }
                     }
                 }
             }

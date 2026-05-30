@@ -1,38 +1,38 @@
+-------------------- <MaxPQ: int delMax()> (cg) --------------------
+[4@L103] %v2 = invokevirtual this.<MaxPQ: boolean isEmpty()>(); [<MaxPQ: boolean isEmpty()>]
+[13@L106] invokevirtual this.<MaxPQ: void exch(int,int)>(%ci1, %v8); [<MaxPQ: void exch(int,int)>]
+[14@L107] invokevirtual this.<MaxPQ: void sink(int)>(%ci1); [<MaxPQ: void sink(int)>]
+[31@L109] invokevirtual this.<MaxPQ: void resize(int)>(%v24); [<MaxPQ: void resize(int)>]
+
+-------------------- <MaxPQ: void insert(int)> (cg) --------------------
+[10@L88] invokevirtual this.<MaxPQ: void resize(int)>(%v10); [<MaxPQ: void resize(int)>]
+[17@L92] invokevirtual this.<MaxPQ: void swim(int)>(%v14); [<MaxPQ: void swim(int)>]
+
+-------------------- <MaxPQ: void sink(int)> (cg) --------------------
+[10@L129] %v9 = invokevirtual this.<MaxPQ: boolean less(int,int)>(j, %v8); [<MaxPQ: boolean less(int,int)>]
+[13@L130] %v11 = invokevirtual this.<MaxPQ: boolean less(int,int)>(k, j); [<MaxPQ: boolean less(int,int)>]
+[16@L131] invokevirtual this.<MaxPQ: void exch(int,int)>(k, j); [<MaxPQ: void exch(int,int)>]
+
 -------------------- <MaxPQ: void <init>(int)> (cg) --------------------
-[0@L10] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[2@L10] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <MaxPQ: void <init>()> (cg) --------------------
-[1@L19] invokespecial %this.<MaxPQ: void <init>(int)>(%intconst0); [<MaxPQ: void <init>(int)>]
+[1@L19] invokespecial this.<MaxPQ: void <init>(int)>(%ci1); [<MaxPQ: void <init>(int)>]
 
 -------------------- <MaxPQ: boolean isEmpty()> (cg) --------------------
 
 -------------------- <MaxPQ: void resize(int)> (cg) --------------------
 
--------------------- <MaxPQ: void insert(int)> (cg) --------------------
-[12@L88] invokevirtual %this.<MaxPQ: void resize(int)>(temp$6); [<MaxPQ: void resize(int)>]
-[20@L92] invokevirtual %this.<MaxPQ: void swim(int)>(temp$11); [<MaxPQ: void swim(int)>]
-
--------------------- <MaxPQ: int delMax()> (cg) --------------------
-[0@L103] temp$0 = invokevirtual %this.<MaxPQ: boolean isEmpty()>(); [<MaxPQ: boolean isEmpty()>]
-[16@L106] invokevirtual %this.<MaxPQ: void exch(int,int)>(%intconst2, temp$4); [<MaxPQ: void exch(int,int)>]
-[17@L107] invokevirtual %this.<MaxPQ: void sink(int)>(%intconst2); [<MaxPQ: void sink(int)>]
-[41@L109] invokevirtual %this.<MaxPQ: void resize(int)>(temp$18); [<MaxPQ: void resize(int)>]
-
 -------------------- <MaxPQ: void swim(int)> (cg) --------------------
-[7@L120] temp$1 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(temp$0, k); [<MaxPQ: boolean less(int,int)>]
-[14@L121] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, temp$2); [<MaxPQ: void exch(int,int)>]
-
--------------------- <MaxPQ: void sink(int)> (cg) --------------------
-[14@L129] temp$6 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(j, temp$5); [<MaxPQ: boolean less(int,int)>]
-[22@L130] temp$9 = invokevirtual %this.<MaxPQ: boolean less(int,int)>(k, j); [<MaxPQ: boolean less(int,int)>]
-[28@L131] invokevirtual %this.<MaxPQ: void exch(int,int)>(k, j); [<MaxPQ: void exch(int,int)>]
+[5@L120] %v5 = invokevirtual this.<MaxPQ: boolean less(int,int)>(%v4, k); [<MaxPQ: boolean less(int,int)>]
+[8@L121] invokevirtual this.<MaxPQ: void exch(int,int)>(k, %v7); [<MaxPQ: void exch(int,int)>]
 
 -------------------- <MaxPQ: boolean less(int,int)> (cg) --------------------
 
 -------------------- <MaxPQ: void exch(int,int)> (cg) --------------------
 
 -------------------- <MaxPQ: void main(java.lang.String[])> (cg) --------------------
-[1@L178] invokespecial temp$0.<MaxPQ: void <init>()>(); [<MaxPQ: void <init>()>]
-[4@L179] invokevirtual pq.<MaxPQ: void insert(int)>(%intconst0); [<MaxPQ: void insert(int)>]
-[5@L180] invokevirtual pq.<MaxPQ: int delMax()>(); [<MaxPQ: int delMax()>]
+[1@L178] invokespecial pq.<MaxPQ: void <init>()>(); [<MaxPQ: void <init>()>]
+[3@L179] invokevirtual pq.<MaxPQ: void insert(int)>(%c3); [<MaxPQ: void insert(int)>]
+[4@L180] invokevirtual pq.<MaxPQ: int delMax()>(); [<MaxPQ: int delMax()>]
 

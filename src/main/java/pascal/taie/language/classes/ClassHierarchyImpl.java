@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
-import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
@@ -90,6 +89,15 @@ public class ClassHierarchyImpl implements ClassHierarchy {
      * Cache results of {@link #getAllSubclassesOf(JClass)}.
      */
     private final Map<JClass, Set<JClass>> allSubclasses = Maps.newConcurrentMap();
+
+    public ClassHierarchyImpl() {
+    }
+
+    public ClassHierarchyImpl(JClassLoader defaultLoader) {
+        setDefaultClassLoader(defaultLoader);
+        setBootstrapClassLoader(defaultLoader);
+        defaultLoader.getLoadedClasses().forEach(this::addClass);
+    }
 
     @Override
     public void setDefaultClassLoader(JClassLoader loader) {
@@ -180,9 +188,22 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     @Override
     @Nullable
+    public JClass getClass(JClassLoader loader, String name, boolean allowPhantom) {
+        return loader.loadClass(name, allowPhantom);
+    }
+
+    @Override
+    @Nullable
     public JClass getClass(String name) {
         // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name);
+    }
+
+    @Override
+    @Nullable
+    public JClass getClass(String name, boolean allowPhantom) {
+        // TODO: add warning for missing class loader
+        return getClass(getDefaultClassLoader(), name, allowPhantom);
     }
 
     @Override
@@ -218,7 +239,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     @Override
     @Nullable
     public JClass getJREClass(String name) {
-        return getClass(getBootstrapClassLoader(), name);
+        return getClass(getBootstrapClassLoader(), name, false);
     }
 
     @Override
@@ -273,19 +294,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         JField field;
         // 0. First, check and handle phantom fields
         if (jclass.isPhantom()) {
-            field = jclass.getPhantomField(name, type);
-            if (field == null) {
-                Set<Modifier> modifiers;
-                if (isStatic) {
-                    modifiers = Set.of(Modifier.STATIC);
-                } else {
-                    modifiers = Set.of();
-                }
-                field = new JField(jclass, name, modifiers,
-                        type, null, AnnotationHolder.emptyHolder());
-                jclass.addPhantomField(name, type, field);
-            }
-            return field;
+            return jclass.getPhantomField(name, type, isStatic);
         }
         // JVM Spec. (11 Ed.), 5.4.3.2 Field Resolution
         // 1. If C declares a field with the name and descriptor (type) specified
@@ -359,7 +368,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
         // 2. Otherwise, method resolution attempts to locate the
         // referenced method in C and its superclasses
         for (JClass c = jclass; c != null; c = c.getSuperClass()) {
-            JMethod method = c.getDeclaredMethod(subsignature);
+            JMethod method;
+            if (c.isPhantom()) {
+                return c.getPhantomMethod(subsignature);
+            }
+            method = c.getDeclaredMethod(subsignature);
             if (method != null && (allowAbstract || !method.isAbstract())) {
                 return method;
             }
@@ -384,7 +397,11 @@ public class ClassHierarchyImpl implements ClassHierarchy {
 
     private JMethod lookupMethodFromSuperinterfaces(
             JClass jclass, Subsignature subsignature, boolean allowAbstract) {
-        JMethod method = jclass.getDeclaredMethod(subsignature);
+        JMethod method;
+        if (jclass.isPhantom()) {
+            return jclass.getPhantomMethod(subsignature);
+        }
+        method = jclass.getDeclaredMethod(subsignature);
         if (method != null && (allowAbstract || !method.isAbstract())) {
             return method;
         }

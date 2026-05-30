@@ -68,7 +68,7 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
     );
 
     protected static String getClassPath(Options options) {
-        if (options.isPrependJVM()) {
+        if (options.useCurrentJRE()) {
             return Streams.concat(
                             options.getAppClassPath().stream(),
                             options.getClassPath().stream())

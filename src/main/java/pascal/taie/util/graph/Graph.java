@@ -24,6 +24,7 @@ package pascal.taie.util.graph;
 
 import pascal.taie.util.collection.Views;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
@@ -105,10 +106,20 @@ public interface Graph<N> extends Iterable<N>, Serializable {
     /**
      * @return the number of the nodes in this graph.
      */
-    default int getNumberOfNodes() {
+    default int nodeCount() {
         return getNodes().size();
     }
 
+    /**
+     * @return the number of the nodes in this graph.
+     * @deprecated Use {@link #nodeCount()} instead.
+     */
+    @Deprecated
+    default int getNumberOfNodes() {
+        return nodeCount();
+    }
+
+    @Nonnull
     @Override
     default Iterator<N> iterator() {
         return getNodes().iterator();

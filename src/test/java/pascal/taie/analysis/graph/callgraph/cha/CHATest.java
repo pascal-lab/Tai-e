@@ -59,8 +59,7 @@ public class CHATest {
 
     @Test
     void testArray() {
-        Main.main("-pp",
-                "-cp", CLASS_PATH,
+        Main.main("-cp", CLASS_PATH,
                 "-m", "Array",
                 "-a", "cg=algorithm:cha-full");
         CallGraph<Invoke, JMethod> callGraph = World.get().getResult(CallGraphBuilder.ID);

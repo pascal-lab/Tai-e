@@ -1,35 +1,34 @@
 -------------------- <ArrayInter: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] %intconst0 = 3; {}
-[1@L4] a = newarray int[%intconst0]; {}
-[2@L5] %intconst1 = 123; {}
-[3@L5] invokestatic <ArrayInter: void set0(int[],int)>(a, %intconst1); {}
-[4@L6] %intconst2 = 666; {}
-[5@L6] invokestatic <ArrayInter: void set1(int[],int)>(a, %intconst2); {}
-[6@L7] %intconst3 = 987; {}
-[7@L7] invokestatic <ArrayInter: void set2(int[],int)>(a, %intconst3); {}
-[8@L8] b = a; {}
-[9@L9] %intconst4 = 555; {}
-[10@L9] invokestatic <ArrayInter: void set2(int[],int)>(b, %intconst4); {}
-[11@L10] temp$1 = 0; {temp$1=0}
-[12@L10] x = a[temp$1]; {temp$1=0, x=123}
-[13@L11] temp$3 = 1; {temp$1=0, temp$3=1, x=123}
-[14@L11] y = a[temp$3]; {temp$1=0, temp$3=1, x=123, y=666}
-[15@L12] temp$5 = 2; {temp$1=0, temp$3=1, temp$5=2, x=123, y=666}
-[16@L12] z = a[temp$5]; {temp$1=0, temp$3=1, temp$5=2, x=123, y=666, z=NAC}
-[17@L12] return; {temp$1=0, temp$3=1, temp$5=2, x=123, y=666, z=NAC}
+[0@L10] %ci0 = 0; {}
+[1@L11] %ci1 = 1; {}
+[2@L12] %ci2 = 2; {}
+[3@L4] %ci3 = 3; {}
+[4@L4] a = newarray int[%ci3]; {}
+[5@L5] %c8 = 123; {}
+[6@L5] invokestatic <ArrayInter: void set0(int[],int)>(a, %c8); {}
+[7@L6] %c9 = 666; {}
+[8@L6] invokestatic <ArrayInter: void set1(int[],int)>(a, %c9); {}
+[9@L7] %c10 = 987; {}
+[10@L7] invokestatic <ArrayInter: void set2(int[],int)>(a, %c10); {}
+[11@L9] %c11 = 555; {}
+[12@L9] invokestatic <ArrayInter: void set2(int[],int)>(a, %c11); {}
+[13@L10] %v13 = a[%ci0]; {%v13=123}
+[14@L11] %v15 = a[%ci1]; {%v13=123, %v15=666}
+[15@L12] %v17 = a[%ci2]; {%v13=123, %v15=666, %v17=NAC}
+[16@L13] return; {%v13=123, %v15=666, %v17=NAC}
 
 -------------------- <ArrayInter: void set0(int[],int)> (inter-const-prop) --------------------
-[0@L16] temp$1 = 0; {temp$1=0, v=123}
-[1@L16] arr[temp$1] = v; {temp$1=0, v=123}
-[2@L16] return; {temp$1=0, v=123}
+[0@L16] %ci0 = 0; {v=123}
+[1@L16] arr[%ci0] = v; {v=123}
+[2@L17] return; {v=123}
 
 -------------------- <ArrayInter: void set1(int[],int)> (inter-const-prop) --------------------
-[0@L20] temp$1 = 1; {temp$1=1, v=666}
-[1@L20] arr[temp$1] = v; {temp$1=1, v=666}
-[2@L20] return; {temp$1=1, v=666}
+[0@L20] %ci1 = 1; {v=666}
+[1@L20] arr[%ci1] = v; {v=666}
+[2@L21] return; {v=666}
 
 -------------------- <ArrayInter: void set2(int[],int)> (inter-const-prop) --------------------
-[0@L24] temp$1 = 2; {temp$1=2, v=NAC}
-[1@L24] arr[temp$1] = v; {temp$1=2, v=NAC}
-[2@L24] return; {temp$1=2, v=NAC}
+[0@L24] %ci2 = 2; {v=NAC}
+[1@L24] arr[%ci2] = v; {v=NAC}
+[2@L25] return; {v=NAC}
 

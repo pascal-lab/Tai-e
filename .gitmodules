@@ -1,4 +1,4 @@
 [submodule "java-benchmarks"]
 	path = java-benchmarks
 	url = ../java-benchmarks.git
-	branch = master
+	branch = jre11/17

@@ -22,14 +22,6 @@
 
 package pascal.taie.frontend.cache;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.World;
-import pascal.taie.WorldBuilder;
-import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Options;
-import pascal.taie.util.Monitor;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -39,6 +31,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.World;
+import pascal.taie.WorldBuilder;
+import pascal.taie.config.Options;
+import pascal.taie.util.Monitor;
 
 /**
  * A {@link WorldBuilder} that caches the built World on disk,
@@ -69,12 +69,12 @@ public class CachedWorldBuilder implements WorldBuilder {
     }
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
+    public void build(Options options) {
         File worldCacheFile = getWorldCacheFile(options);
         if (loadCache(options, worldCacheFile)) {
             return;
         }
-        runWorldBuilder(options, analyses);
+        runWorldBuilder(options);
         saveCache(worldCacheFile);
     }
 
@@ -111,11 +111,11 @@ public class CachedWorldBuilder implements WorldBuilder {
         return false;
     }
 
-    private void runWorldBuilder(Options options, List<AnalysisConfig> analyses) {
+    private void runWorldBuilder(Options options) {
         logger.info("Running the WorldBuilder ...");
         Monitor monitor = new Monitor("Run the WorldBuilder");
         monitor.start();
-        delegate.build(options, analyses);
+        delegate.build(options);
         monitor.stop();
         logger.info(monitor);
     }
@@ -151,8 +151,7 @@ public class CachedWorldBuilder implements WorldBuilder {
         result = 31 * result + (options.getInputClasses() != null
                 ? options.getInputClasses().hashCode() : 0);
         result = 31 * result + options.getJavaVersion();
-        result = 31 * result + (options.isPrependJVM() ? 1 : 0);
-        result = 31 * result + (options.isAllowPhantom() ? 1 : 0);
+        result = 31 * result + (options.useCurrentJRE() ? 1 : 0);
         result = 31 * result + (options.getWorldBuilderClass() != null
                 ? options.getWorldBuilderClass().getName().hashCode() : 0);
         // add the timestamp to the cache key calculation

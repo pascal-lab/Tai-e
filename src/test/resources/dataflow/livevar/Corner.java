@@ -13,7 +13,7 @@ class Corner {
 
     int deadLoop() {
         int a = 1;
-        while (true) {
+        while (a >= 1) {
             a += 1;
         }
         return a;

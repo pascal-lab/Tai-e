@@ -10,15 +10,6 @@ class BranchNAC {
         int y = x;
     }
 
-    void NAC2(boolean b, int p) {
-        int x, undef;
-        if (b) {
-            x = undef;
-        } else {
-            x = p;
-        }
-        int y = x;
-    }
 
     void nonDistributivity(boolean b) {
         int x, y;

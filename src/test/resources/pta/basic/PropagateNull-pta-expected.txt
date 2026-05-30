@@ -1,20 +1,17 @@
 Points-to sets of all variables
-[]:<A: void <init>()>/%this -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}]
-[]:<PropagateNull: java.lang.String foo(A)>/a -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}, []:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: java.lang.String foo(A)>/nn -> [[]:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: java.lang.String foo(A)>/o -> [[]:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: java.lang.String foo(A)>/s -> [[]:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: java.lang.String foo(A)>/temp$0 -> [[]:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: void main(java.lang.String[])>/a -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}, []:NullObj{alloc=null,type=null-type}]
+[]:<A: void <init>()>/this -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[4@L6] new A}]
+[]:<PropagateNull: java.lang.String foo(A)>/%v5 -> []
+[]:<PropagateNull: java.lang.String foo(A)>/a -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[4@L6] new A}, []:NullObj{alloc=null,type=null-type}]
+[]:<PropagateNull: java.lang.String foo(A)>/o -> []
+[]:<PropagateNull: java.lang.String foo(A)>/s -> []
+[]:<PropagateNull: void main(java.lang.String[])>/%v5 -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[4@L6] new A}]
+[]:<PropagateNull: void main(java.lang.String[])>/a -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[4@L6] new A}, []:NullObj{alloc=null,type=null-type}]
 []:<PropagateNull: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<PropagateNull: void main(java.lang.String[])>/0},type=java.lang.String[] in <PropagateNull: void main(java.lang.String[])>}]
-[]:<PropagateNull: void main(java.lang.String[])>/s -> [[]:NullObj{alloc=null,type=null-type}]
-[]:<PropagateNull: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}]
-[]:<PropagateNull: void main(java.lang.String[])>/temp$2 -> [[]:NullObj{alloc=null,type=null-type}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<PropagateNull: void main(java.lang.String[])>[6@L6] new A}.<A: java.lang.Object f> -> [[]:NullObj{alloc=null,type=null-type}]
+[]:NewObj{<PropagateNull: void main(java.lang.String[])>[4@L6] new A}.<A: java.lang.Object f> -> []
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<PropagateNull: void main(java.lang.String[])>/0},type=java.lang.String[] in <PropagateNull: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<PropagateNull: void main(java.lang.String[])>/0}[*],type=java.lang.String in <PropagateNull: void main(java.lang.String[])>}]

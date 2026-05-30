@@ -171,7 +171,7 @@ public class SignatureMatcherTest {
         assertEquals(Set.of(x_x1, x_e1_x1, y_x1, y_e1_x1, XFather_x1, XFather_e1_x1, e1_x1_x_x1),
                 matcher.getFields("<*: *X1 *>"));
         assertEquals(Set.of(x_e1_x, y_e1_x, XFather_e1_x, e1_x1_x_x),
-                matcher.getFields("<*: *X *>"));
+                matcher.getFields("<com.example*.*: *X *>"));
         assertEquals(Set.of(x_XFather, x_x1, y_XFather, y_x1, XFather_XFather, XFather_x1),
                 matcher.getFields("<*: com.example.XFather^ *>"));
         assertEquals(Set.of(y_y),

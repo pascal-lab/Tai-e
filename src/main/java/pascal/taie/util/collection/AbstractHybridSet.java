@@ -165,7 +165,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
             if (set == null) {
                 if (maxNewSize == 1) {
                     assert singleton == null;
-                    E e = CollectionUtils.getOne(c);
+                    E e = CollectionUtils.getFirst(c);
                     singleton = Objects.requireNonNull(e, NULL_MESSAGE);
                     return true;
                 } else if (maxNewSize <= threshold) {

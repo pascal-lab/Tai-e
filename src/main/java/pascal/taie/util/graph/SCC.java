@@ -70,8 +70,8 @@ public class SCC<N> {
         // use iterative (non-recursive) algorithm to avoid stack overflow
         // for large graph
         int index = 0;
-        Map<N, Integer> indexes = Maps.newMap(graph.getNumberOfNodes());
-        Map<N, Integer> lows = Maps.newMap(graph.getNumberOfNodes());
+        Map<N, Integer> indexes = Maps.newMap(graph.nodeCount());
+        Map<N, Integer> lows = Maps.newMap(graph.nodeCount());
         Deque<N> stack = new ArrayDeque<>();
         Set<N> inStack = Sets.newSet();
         for (N curr : graph) {
@@ -143,7 +143,7 @@ public class SCC<N> {
      * equal to the number of nodes in the given graph.
      */
     private void validate(Graph<N> graph, List<List<N>> components) {
-        assert graph.getNumberOfNodes() ==
+        assert graph.nodeCount() ==
                 components.stream().mapToInt(List::size).sum();
     }
 

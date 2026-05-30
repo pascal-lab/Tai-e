@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,12 +46,12 @@ public class OptionsTest {
     @Test
     void testJavaVersion() {
         Options options = Options.parse("-java=8");
-        assertEquals(options.getJavaVersion(), 8);
+        assertEquals(8, options.getJavaVersion());
     }
 
     @Test
-    void testPrependJVM() {
-        Options options = Options.parse("-pp");
+    void testUseCurrentJRE() {
+        Options options = Options.parse();
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
     }
@@ -59,14 +60,6 @@ public class OptionsTest {
     void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         assertEquals("Main", options.getMainClass());
-    }
-
-    @Test
-    void testAllowPhantom() {
-        Options options = Options.parse();
-        assertFalse(options.isAllowPhantom());
-        options = Options.parse("--allow-phantom");
-        assertTrue(options.isAllowPhantom());
     }
 
     @Test

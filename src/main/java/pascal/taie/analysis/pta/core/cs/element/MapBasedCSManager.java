@@ -27,7 +27,6 @@ import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
-import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.Type;
@@ -221,9 +220,9 @@ public class MapBasedCSManager implements CSManager {
 
         private final TypeSystem typeSystem = World.get().getTypeSystem();
 
-        private final Type throwable = typeSystem.getClassType(ClassNames.THROWABLE);
+        private final Type throwable = typeSystem.throwableType();
 
-        private final Type string = typeSystem.getClassType(ClassNames.STRING);
+        private final Type string = typeSystem.stringType();
 
         /**
          * Counter for assign unique indexes to throwable objects.

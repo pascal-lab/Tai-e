@@ -23,7 +23,7 @@
 package pascal.taie.util.collection;
 
 import pascal.taie.util.TriFunction;
-import pascal.taie.util.function.SSupplier;
+import pascal.taie.util.function.SerializableSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,11 +49,11 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     /**
      * Factory function for creating new maps.
      */
-    private final SSupplier<Map<K2, V>> mapFactory;
+    private final SerializableSupplier<Map<K2, V>> mapFactory;
 
     private int size = 0;
 
-    public MapMapTwoKeyMap(Map<K1, Map<K2, V>> map, SSupplier<Map<K2, V>> mapFactory) {
+    public MapMapTwoKeyMap(Map<K1, Map<K2, V>> map, SerializableSupplier<Map<K2, V>> mapFactory) {
         this.map = map;
         this.mapFactory = mapFactory;
     }

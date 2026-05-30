@@ -2,7 +2,6 @@ class FieldCorner {
     public static void main(String args[]) {
         corner1();
         corner2();
-        corner3();
         corner4();
     }
 
@@ -21,13 +20,6 @@ class FieldCorner {
         b1.g = 2;
         A b2 = b1;
         int r2 = b2.g;
-
-    }
-
-    public static void corner3() {//c1 is null pointer
-        A c1;
-        c1.f = 2;
-        int r3 = c1.f;
     }
 
     public static void corner4() {//pts overlap
