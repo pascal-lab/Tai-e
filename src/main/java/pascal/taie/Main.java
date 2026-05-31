@@ -34,6 +34,8 @@ import pascal.taie.config.Options;
 import pascal.taie.config.Plan;
 import pascal.taie.config.PlanConfig;
 import pascal.taie.config.Scope;
+import pascal.taie.android.config.AndroidPTAOptions;
+import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
 import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.Timer;
@@ -87,6 +89,10 @@ public class Main {
         if (!options.getAnalyses().isEmpty()) {
             // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);
+            if (options.isAndroidMode()) {
+                manager.overwriteOptions(List.of(
+                        new PlanConfig(PointerAnalysis.ID, AndroidPTAOptions.get())));
+            }
             manager.overwriteOptions(planConfigs);
             Plan plan = planner.expandPlan(
                     planConfigs, reachableScope);
@@ -104,6 +110,10 @@ public class Main {
         } else if (options.getPlanFile() != null) {
             // Analyses are specified by file
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options.getPlanFile());
+            if (options.isAndroidMode()) {
+                manager.overwriteOptions(List.of(
+                        new PlanConfig(PointerAnalysis.ID, AndroidPTAOptions.get())));
+            }
             manager.overwriteOptions(planConfigs);
             return planner.makePlan(planConfigs, reachableScope);
         }

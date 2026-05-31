@@ -52,7 +52,6 @@ import pascal.taie.analysis.pta.toolkit.CollectionMethods;
 import pascal.taie.analysis.pta.toolkit.mahjong.Mahjong;
 import pascal.taie.analysis.pta.toolkit.scaler.Scaler;
 import pascal.taie.analysis.pta.toolkit.zipper.Zipper;
-import pascal.taie.android.config.AndroidPTAOptions;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
@@ -74,9 +73,6 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
     @Override
     public PointerAnalysisResult analyze() {
         AnalysisOptions options = getOptions();
-        if (World.get().getOptions().isAndroidMode()) {
-           new AndroidPTAOptions().apply(options);
-        }
         HeapModel heapModel = new AllocationSiteBasedModel(options);
         ContextSelector selector = null;
         String advanced = options.getString("advanced");

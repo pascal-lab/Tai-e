@@ -29,10 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-public class AndroidPTAOptions extends AnalysisOptions {
+public final class AndroidPTAOptions {
 
-    public AndroidPTAOptions() {
-        super(createOptions());
+    private static final AnalysisOptions DEFAULT_OPTIONS =
+            new AnalysisOptions(createOptions());
+
+    private AndroidPTAOptions() {
     }
 
     private static Map<String, Object> createOptions() {
@@ -45,7 +47,7 @@ public class AndroidPTAOptions extends AnalysisOptions {
         return options;
     }
 
-    public void apply(AnalysisOptions options) {
-        options.update(this);
+    public static AnalysisOptions get() {
+        return DEFAULT_OPTIONS;
     }
 }
