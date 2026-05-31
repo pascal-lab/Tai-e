@@ -34,6 +34,7 @@ import pascal.taie.frontend.java.syntax.JavaVersionSyntaxTest;
 @SelectClasses({
         ProjectTest.class,
         DependencyAnalysisTest.class,
+        AnnotationTest.class,
         GenericsTest.class,
         RoundTripTest.class,
         JavaVersionSyntaxTest.class,
