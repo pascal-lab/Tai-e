@@ -35,16 +35,19 @@ import java.util.List;
 import java.util.Map;
 
 public record AndroidBenchmarkInfo(String id,
-                            String apk,
-                            int expected) {
+                                   String apk,
+                                   int expected,
+                                   Integer groundTruth) {
     @JsonCreator
     public AndroidBenchmarkInfo(
             @JsonProperty("id") String id,
             @JsonProperty("apk") String apk,
-            @JsonProperty("expected") int expected) {
+            @JsonProperty("expected") int expected,
+            @JsonProperty("groundTruth") Integer groundTruth) {
         this.id = id;
         this.apk = apk;
         this.expected = expected;
+        this.groundTruth = groundTruth;
     }
 
     public static Map<String, AndroidBenchmarkInfo> load(String parentPath, String childPath) {
