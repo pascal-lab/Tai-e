@@ -31,20 +31,21 @@ import org.junit.platform.suite.api.Suite;
         AndroidSpecificTest.class,
         ArraysAndListsTest.class,
         CallbackTest.class,
-//        DynamicLoadingTest.class,
         EmulatorDetectionTest.class,
         FieldAndObjectSensitivityTest.class,
         GeneralJavaTest.class,
-//        ImplicitFlowsTest.class,
         InterAppCommunicationTest.class,
         InterComponentCommunicationTest.class,
         LifecycleTest.class,
-//        NativeTest.class,
-//        ReflectionICCTest.class,
         ReflectionTest.class,
-//        SelfModificationTest.class,
         ThreadingTest.class,
-        UnreachableCodeTest.class
+        UnreachableCodeTest.class,
+        // The following tests are disabled temporarily due to unsupported features.
+        // DynamicLoadingTest.class,
+        // ImplicitFlowsTest.class,
+        // NativeTest.class,
+        // ReflectionICCTest.class,
+        // SelfModificationTest.class,
 })
 public class DroidBenchTestSuite {
 }
