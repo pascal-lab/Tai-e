@@ -32,11 +32,15 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    // Use FlowDroid to parse apk
+    // Use FlowDroid to parse AXML files
     implementation(files("lib/flowdroidclasses-modified.jar"))
-    implementation("de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.14.1") {
-        exclude(group = "org.soot-oss", module = "soot")
+    "de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.14.1".let {
+        // Disable transitive dependencies from FlowDroid in compile classpath
+        compileOnly(it) { isTransitive = false }
+        testCompileOnly(it) { isTransitive = false }
+        runtimeOnly(it)
     }
+    implementation("de.upb.cs.swt:axml:2.1.3")
 
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")

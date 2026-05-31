@@ -209,9 +209,9 @@ public record ApkInfo(@Nullable JClass application,
 
         public MultiMap<String, Subsignature> convertLayoutCallbacks() {
             MultiMap<String, Subsignature> layoutCallbacks = Maps.newMultiMap();
-            rawApkInfo.layoutFile().getCallbackMethods().forEach(pair ->
-                    layoutCallbacks.put(pair.getO1(),
-                            Subsignature.get("void " + pair.getO2() + "(" + VIEW + ")"))
+            rawApkInfo.layoutFile().getCallbackMethods().forEach((key, value) ->
+                    layoutCallbacks.put(key,
+                            Subsignature.get("void " + value + "(" + VIEW + ")"))
             );
             return layoutCallbacks;
         }
@@ -257,7 +257,7 @@ public record ApkInfo(@Nullable JClass application,
          * requested Android base classes.
          */
         private MultiMap<String, JClass> getLayoutComponents(
-                List<JClass> superClasses, soot.util.MultiMap<String, String> componentNames) {
+                List<JClass> superClasses, MultiMap<String, String> componentNames) {
             MultiMap<String, JClass> layoutComponents = Maps.newMultiMap();
             addLayoutComponents(layoutComponents, superClasses, componentNames);
             addLayoutComponents(layoutComponents,
@@ -267,11 +267,11 @@ public record ApkInfo(@Nullable JClass application,
 
         private void addLayoutComponents(MultiMap<String, JClass> layoutComponents,
                                          List<JClass> superClasses,
-                                         soot.util.MultiMap<String, String> componentNames) {
-            componentNames.forEach(pair -> {
-                JClass component = hierarchy.getClass(pair.getO2());
+                                         MultiMap<String, String> componentNames) {
+            componentNames.forEach((key, value) -> {
+                JClass component = hierarchy.getClass(value);
                 if (component != null && isSubclass(component, superClasses)) {
-                    layoutComponents.put(pair.getO1(), component);
+                    layoutComponents.put(key, component);
                 }
             });
         }
