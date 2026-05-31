@@ -22,13 +22,18 @@
 
 package pascal.taie.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.appender.OutputStreamAppender;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OptionsTest {
+
+    private static final String LEGACY_WORLD_BUILDER_CLASS =
+            "pascal.taie.frontend.soot.SootWorldBuilder";
 
     @Test
     void testHelp() {
@@ -137,6 +145,32 @@ public class OptionsTest {
         );
         assertEquals(List.of(".\\a.jar", "./dir\\b", "./c", "d.jar", "e.jar"),
                 options.getClassPath());
+    }
+
+    @Test
+    void testDeprecatedLegacyWorldBuilder() {
+        ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
+        OutputStreamAppender appender = OutputStreamAppender.newBuilder()
+                .setName("CapturingAppender")
+                .setTarget(logOutput)
+                .setLayout(PatternLayout.newBuilder().withPattern("%m%n").build())
+                .build();
+        org.apache.logging.log4j.core.Logger optionsLogger =
+                (org.apache.logging.log4j.core.Logger) LogManager.getLogger(Options.class);
+        appender.start();
+        optionsLogger.addAppender(appender);
+        try {
+            Options options = Options.parse(
+                    "--world-builder", LEGACY_WORLD_BUILDER_CLASS);
+            assertEquals(LEGACY_WORLD_BUILDER_CLASS,
+                    options.getWorldBuilderClass().getName());
+            String log = logOutput.toString(StandardCharsets.UTF_8);
+            assertTrue(log.contains(
+                    "DEPRECATED OPTION: Please stop using the legacy frontend"));
+        } finally {
+            optionsLogger.removeAppender(appender);
+            appender.stop();
+        }
     }
 
 }

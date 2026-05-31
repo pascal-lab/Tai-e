@@ -78,6 +78,12 @@ public class Options implements Serializable {
 
     private static final String DEFAULT_OUTPUT_DIR = "output";
 
+    private static final String DEFAULT_WORLD_BUILDER_CLASS =
+            "pascal.taie.frontend.java.JavaWorldBuilder";
+
+    private static final String LEGACY_WORLD_BUILDER_CLASS =
+            "pascal.taie.frontend.soot.SootWorldBuilder";
+
     // ---------- file-based options ----------
     @JsonProperty
     @Option(names = "--options-file",
@@ -204,7 +210,7 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = "--world-builder",
             description = "Specify world builder class (default: ${DEFAULT-VALUE})",
-            defaultValue = "pascal.taie.frontend.java.JavaWorldBuilder")
+            defaultValue = DEFAULT_WORLD_BUILDER_CLASS)
     private Class<? extends WorldBuilder> worldBuilderClass;
 
     public Class<? extends WorldBuilder> getWorldBuilderClass() {
@@ -386,6 +392,15 @@ public class Options implements Serializable {
             logger.warn("DEPRECATED OPTION: Please stop using '-ap/--allow-phantom'. "
                     + "This option will be removed in a future version; allowing "
                     + "phantom classes is now the default.");
+        }
+        if (options.worldBuilderClass != null
+                && options.worldBuilderClass.getName().equals(LEGACY_WORLD_BUILDER_CLASS)) {
+            logger.warn("DEPRECATED OPTION: Please stop using the legacy frontend "
+                    + "selected by '--world-builder'. "
+                    + "This legacy frontend will be removed in a future version; "
+                    + "the new Java frontend is now the default. Please omit "
+                    + "'--world-builder' or use '--world-builder {}' instead.",
+                    DEFAULT_WORLD_BUILDER_CLASS);
         }
         if (options.worldCacheMode) {
             options.preBuildIR = true;
