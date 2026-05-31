@@ -28,6 +28,7 @@ import pascal.taie.frontend.java.closeworld.DependencyAnalysisTest;
 import pascal.taie.frontend.java.generics.GenericsTest;
 import pascal.taie.frontend.java.project.ProjectTest;
 import pascal.taie.frontend.java.roundtrip.RoundTripTest;
+import pascal.taie.frontend.java.syntax.JavaVersionSyntaxTest;
 
 @Suite
 @SelectClasses({
@@ -35,6 +36,7 @@ import pascal.taie.frontend.java.roundtrip.RoundTripTest;
         DependencyAnalysisTest.class,
         GenericsTest.class,
         RoundTripTest.class,
+        JavaVersionSyntaxTest.class,
 })
 public class FrontendTestSuite {
 }
