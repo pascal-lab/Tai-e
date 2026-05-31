@@ -181,10 +181,10 @@ public class ExceptionAnalysis implements Plugin {
         while (!workList.isEmpty()) {
             Entry entry = workList.poll();
             CSMethod csMethod = entry.csMethod();
-            if (World.get().getOptions().isAndroidMode()) {
-                if (solver.getOptions().getBoolean("only-app") && !csMethod.getMethod().isApplication()) {
-                    continue;
-                }
+            // Temporary fix: skip non-application methods when only-app is enabled.
+            if (solver.getOptions().getBoolean("only-app")
+                    && !csMethod.getMethod().isApplication()) {
+                continue;
             }
             Stmt stmt = entry.stmt();
             Set<CSObj> exceptions = entry.exceptions();
