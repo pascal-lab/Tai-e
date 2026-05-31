@@ -11,9 +11,11 @@
 ### Breaking Changes
 - Change the default value of option `--world-builder` to
   `pascal.taie.frontend.java.JavaWorldBuilder`, i.e., the new Java frontend.
-- Remove option `-pp`/`--prepend-JVM`; when both `-java` and `--jre-dir` are omitted,
-  Tai-e uses the current Java runtime.
-- Remove option `-ap`/`--allow-phantom`; Tai-e now allows phantom classes by default and
+- Deprecate option `-pp`/`--prepend-JVM`; it is accepted with a warning and will be
+  removed in a future version. When both `-java` and `--jre-dir` are omitted, Tai-e
+  uses the current Java runtime by default.
+- Deprecate option `-ap`/`--allow-phantom`; it is accepted with a warning and will
+  be removed in a future version. Tai-e now allows phantom classes by default and
   reports them with warnings.
 
 ## [0.5.2] - 2025-12-31

@@ -85,7 +85,7 @@ class FatJarTests {
     @Test
     @DisplayName("Should write tai-e.log and options.yml files")
     void testLogFile() throws Exception {
-        ProcessResult result = jarRunner.run("-pp");
+        ProcessResult result = jarRunner.run("-java", "17");
         // Check if the process ran successfully
         assertTrue(result.isSuccess());
         // Check if the log file is created

@@ -133,7 +133,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
             @Nullable String jrePath, boolean useCurrentJRE, int javaVersion)
             throws IOException {
         if (useCurrentJRE) {
-            // if prependJVM is set, we use jrt:/ to load JRE
+            // use jrt:/ to load current JRE
             FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
             return processModulesFile(fs.getPath("/modules"));
         } else if (jrePath != null) {

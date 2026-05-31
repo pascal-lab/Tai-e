@@ -166,6 +166,40 @@ public class Options implements Serializable {
         return useCurrentJRE;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Option(names = {"-pp", "--prepend-JVM"},
+            description = "Deprecated compatibility option. Its behavior is " +
+                    "now the default when -java and --jre-dir are omitted.",
+            defaultValue = "false",
+            hidden = true)
+    private boolean prependJVM;
+
+    /**
+     * @return whether deprecated option {@code -pp}/{@code --prepend-JVM} is specified.
+     * @deprecated use {@link #useCurrentJRE()} instead.
+     */
+    @Deprecated
+    public boolean isPrependJVM() {
+        return prependJVM;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Option(names = {"-ap", "--allow-phantom"},
+            description = "Deprecated compatibility option. Phantom classes " +
+                    "are now allowed by default and reported with warnings.",
+            defaultValue = "false",
+            hidden = true)
+    private boolean allowPhantom;
+
+    /**
+     * @return true, as Tai-e now allows phantom classes by default.
+     * @deprecated phantom classes are always allowed.
+     */
+    @Deprecated
+    public boolean isAllowPhantom() {
+        return true;
+    }
+
     // ---------- general analysis options ----------
     @JsonProperty
     @Option(names = "--world-builder",
@@ -326,12 +360,32 @@ public class Options implements Serializable {
             // and instead read options from the file.
             options = readRawOptions(options.optionsFile);
         }
-        if (options.jreDir != null && options.javaVersion == null) {
-            throw new ConfigException("Missing option: -java must be specified when --jre-dir is used");
-        }
-        if (options.jreDir == null && options.javaVersion == null) {
+        if (options.prependJVM) {
+            logger.warn("DEPRECATED OPTION: Please stop using '-pp/--prepend-JVM'. "
+                    + "This option will be removed in a future version; its behavior "
+                    + "is now the default when -java and --jre-dir are omitted. Tai-e "
+                    + "will use the current Java runtime for compatibility.");
+            if (options.javaVersion != null || options.jreDir != null) {
+                throw new ConfigException("Conflict options: "
+                        + "-pp/--prepend-JVM cannot be used with -java/--jre-dir");
+            }
             options.useCurrentJRE = true;
             options.javaVersion = getCurrentJavaVersion();
+            options.jreDir = null;
+        } else {
+            if (options.jreDir != null && options.javaVersion == null) {
+                throw new ConfigException("Missing option: "
+                        + "-java must be specified when --jre-dir is used");
+            }
+            if (options.jreDir == null && options.javaVersion == null) {
+                options.useCurrentJRE = true;
+                options.javaVersion = getCurrentJavaVersion();
+            }
+        }
+        if (options.allowPhantom) {
+            logger.warn("DEPRECATED OPTION: Please stop using '-ap/--allow-phantom'. "
+                    + "This option will be removed in a future version; allowing "
+                    + "phantom classes is now the default.");
         }
         if (options.worldCacheMode) {
             options.preBuildIR = true;

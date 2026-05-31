@@ -519,7 +519,7 @@ public class TestBytecodeIRBuilder {
     protected static String getClassPath(Options options) {
         if (options.useCurrentJRE()) {
             return String.join(File.pathSeparator, options.getClassPath());
-        } else { // when prependJVM is not set, we manually specify JRE jars
+        } else { // otherwise, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
             if (!jreDir.exists()) {
