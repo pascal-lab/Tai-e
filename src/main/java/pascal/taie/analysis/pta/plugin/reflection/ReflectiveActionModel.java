@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -34,7 +33,6 @@ import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
-import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -69,7 +67,6 @@ import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.PARAMETER_PASSING;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.RETURN;
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.STATIC_STORE;
-import static pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis.IMPRECISE_THRESHOLD;
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 /**
@@ -81,6 +78,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
  *     <li>Field.get(Object)
  *     <li>Field.set(Object,Object)
  *     <li>Array.newInstance(Class,int)
+ *     <li>Array.newInstance(Class,int[])
  * </ul>
  * TODO: check accessibility
  */
@@ -266,52 +264,72 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             }
             Type baseType = CSObjs.toType(obj);
             if (baseType != null && !(baseType instanceof VoidType)) {
-                List<Integer> dimensions = new ArrayList<>();
-
-                if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType) {
-                    arrayObjs.forEach(arrayObj -> {
-                        if (arrayObj.getObject().getAllocation() instanceof New stmt
-                                && stmt.getRValue() instanceof NewArray newArray
-                                && newArray.getLength().isConst()
-                                && newArray.getLength().getConstValue() instanceof IntLiteral intLiteral) {
-                            dimensions.add(intLiteral.getValue());
-                        }
-                    });
-                } else {
-                    dimensions.add(1);
-                }
-
-                dimensions.forEach(d -> {
-                    ArrayType arrayType = typeSystem.getArrayType(baseType, d);
-                    allTargets.put(invoke, arrayType);
-                    if (allTargets.get(invoke).size() > IMPRECISE_THRESHOLD) {
-                        return;
-                    }
-                    CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
-                    solver.addVarPointsTo(context, result, csNewArray);
-                    processNewMultiArray(context, invoke, csNewArray.getObject(), arrayType, d);
-                });
-
+                resolveArrayRanks(invoke, arrayObjs).forEach(rank ->
+                        createReflectiveArray(context, invoke, baseType, rank));
             }
         });
     }
 
-    private void processNewMultiArray(
-            Context arrayContext, Invoke invoke, Obj array, ArrayType arrayType, int dimensions) {
-        Obj[] newArrays = new MockObj[dimensions - 1];
-        for (int i = 1; i < dimensions; ++i) {
-            Type type = arrayType.elementType();
-            newArrays[i - 1] = heapModel.getMockObj(REF_OBJ_DESC,
-                    invoke + "[" + (i - 1) + "]", type, invoke.getContainer());
+    private List<Integer> resolveArrayRanks(Invoke invoke, PointsToSet dimensionArrays) {
+        List<Integer> ranks = new ArrayList<>();
+        if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType) {
+            dimensionArrays.forEach(arrayObj -> {
+                Integer rank = getArrayRank(arrayObj);
+                if (rank != null) {
+                    ranks.add(rank);
+                }
+            });
+        } else {
+            ranks.add(1);
         }
-        for (Obj newArray : newArrays) {
-            Context elemContext = selector
-                    .selectHeapContext(csManager.getCSMethod(arrayContext, invoke.getContainer()), newArray);
-            CSObj arrayObj = csManager.getCSObj(arrayContext, array);
-            ArrayIndex arrayIndex = csManager.getArrayIndex(arrayObj);
-            solver.addPointsTo(arrayIndex, elemContext, newArray);
-            array = newArray;
-            arrayContext = elemContext;
+        return ranks;
+    }
+
+    @Nullable
+    private static Integer getArrayRank(CSObj arrayObj) {
+        if (arrayObj.getObject().getAllocation() instanceof New stmt
+                && stmt.getRValue() instanceof NewArray newArray
+                && newArray.getLength().isConst()
+                && newArray.getLength().getConstValue() instanceof IntLiteral intLiteral) {
+            return intLiteral.getValue();
+        }
+        return null;
+    }
+
+    private void createReflectiveArray(
+            Context context, Invoke invoke, Type baseType, int rank) {
+        if (ReflectionAnalysis.ignoreImpreciseTarget(
+                allTargets.get(invoke).size())) {
+            return;
+        }
+        ArrayType arrayType = typeSystem.getArrayType(baseType, rank);
+        CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
+        allTargets.put(invoke, arrayType);
+        if (rank > 1) {
+            connectNestedArrays(context, invoke, csNewArray, arrayType, rank);
+        }
+    }
+
+    private void connectNestedArrays(
+            Context parentContext, Invoke invoke, CSObj parentArray,
+            ArrayType parentType, int rank) {
+        ArrayIndex parentIndex = csManager.getArrayIndex(parentArray);
+        Type nestedType = parentType.elementType();
+        for (int i = 1; i < rank; ++i) {
+            Obj nestedArray = heapModel.getMockObj(
+                    REF_OBJ_DESC, invoke + "[" + (i - 1) + "]",
+                    nestedType, invoke.getContainer());
+            Context nestedContext = selector.selectHeapContext(
+                    csManager.getCSMethod(parentContext, invoke.getContainer()),
+                    nestedArray);
+            solver.addPointsTo(parentIndex, nestedContext, nestedArray);
+
+            if (nestedType instanceof ArrayType arrayType) {
+                CSObj nestedCSObj = csManager.getCSObj(parentContext, nestedArray);
+                parentIndex = csManager.getArrayIndex(nestedCSObj);
+                parentContext = nestedContext;
+                nestedType = arrayType.elementType();
+            }
         }
     }
 
@@ -327,18 +345,21 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
     private void addReflectiveCallEdge(
             Context callerCtx, Invoke callSite,
             @Nullable CSObj recvObj, JMethod callee, Var args) {
+        if (ReflectionAnalysis
+                .ignoreImpreciseTarget(allTargets.get(callSite).size())) {
+            return;
+        }
+
+        if (ReflectionAnalysis.isAndroidMode() && (!callee.isApplication())) {
+            return;
+        }
+
         if (!callee.isConstructor() && !callee.isStatic()) {
             // dispatch for instance method (except constructor)
             assert recvObj != null : "recvObj is required for instance method";
             callee = hierarchy.dispatch(recvObj.getObject().getType(),
                     callee.getRef());
             if (callee == null) {
-                return;
-            }
-        }
-        allTargets.put(callSite, callee); // record target
-        if (World.get().getOptions().isAndroidMode()) {
-            if (!callee.isApplication() || allTargets.get(callSite).size() > IMPRECISE_THRESHOLD) {
                 return;
             }
         }
@@ -354,6 +375,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         ReflectiveCallEdge callEdge = new ReflectiveCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), args);
         solver.addCallEdge(callEdge);
+        allTargets.put(callSite, callee); // record target
     }
 
     @Override

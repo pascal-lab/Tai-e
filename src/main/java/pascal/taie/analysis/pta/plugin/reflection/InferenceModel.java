@@ -39,8 +39,6 @@ import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static pascal.taie.analysis.pta.plugin.reflection.ReflectionAnalysis.IMPRECISE_THRESHOLD;
-
 /**
  * Base class for reflection inference.
  * This class provides methods to handle class- and member-retrieving APIs for
@@ -67,18 +65,21 @@ abstract class InferenceModel extends AnalysisModelPlugin {
 
     protected void classForNameKnown(
             Context context, Invoke forName, @Nullable String className) {
+        if (ReflectionAnalysis.ignoreImpreciseTarget(
+                forNameTargets.get(forName).size())) {
+            return;
+        }
         if (className != null) {
             JClass clazz = hierarchy.getClass(className);
-            if (clazz != null && clazz.isApplication()) {
-                forNameTargets.put(forName, clazz);
-                if (forNameTargets.get(forName).size() > IMPRECISE_THRESHOLD) {
-                    return;
-                }
+            if (clazz != null
+                    && (!ReflectionAnalysis.isAndroidMode()
+                    || clazz.isApplication())) {
                 solver.initializeClass(clazz);
                 Var result = forName.getResult();
                 if (result != null) {
                     Obj classObj = helper.getMetaObj(clazz);
                     solver.addVarPointsTo(context, result, classObj);
+                    forNameTargets.put(forName, clazz);
                 }
             }
         }
