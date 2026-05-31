@@ -123,23 +123,21 @@ class TFGBuilder {
         Map<Node, SourcePoint> sourceNode2SourcePoint = Maps.newMap();
         for (Obj taintObj : taintManager.getTaintObjs()) {
             SourcePoint p = taintManager.getSourcePoint(taintObj);
-            if (p.getContainer().isApplication()) {
-                if (p instanceof CallSourcePoint csp) {
-                    IndexRef indexRef = csp.indexRef();
-                    Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
-                    getNodes(var, indexRef).forEach(
-                            node ->  sourceNode2SourcePoint.put(node, p));
-                } else if (p instanceof ParamSourcePoint psp) {
-                    IndexRef indexRef = psp.indexRef();
-                    Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
-                    getNodes(var, indexRef).forEach(
-                            node ->  sourceNode2SourcePoint.put(node, p));
-                } else if (p instanceof FieldSourcePoint fsp) {
-                    Var lhs = fsp.loadField().getLValue();
-                    Node sourceNode = ofg.getVarNode(lhs);
-                    if (sourceNode != null) {
-                        sourceNode2SourcePoint.put(sourceNode, p);
-                    }
+            if (p instanceof CallSourcePoint csp) {
+                IndexRef indexRef = csp.indexRef();
+                Var var = InvokeUtils.getVar(csp.sourceCall(), indexRef.index());
+                getNodes(var, indexRef).forEach(
+                        node ->  sourceNode2SourcePoint.put(node, p));
+            } else if (p instanceof ParamSourcePoint psp) {
+                IndexRef indexRef = psp.indexRef();
+                Var var = psp.sourceMethod().getIR().getParam(indexRef.index());
+                getNodes(var, indexRef).forEach(
+                        node ->  sourceNode2SourcePoint.put(node, p));
+            } else if (p instanceof FieldSourcePoint fsp) {
+                Var lhs = fsp.loadField().getLValue();
+                Node sourceNode = ofg.getVarNode(lhs);
+                if (sourceNode != null) {
+                    sourceNode2SourcePoint.put(sourceNode, p);
                 }
             }
         }
@@ -152,12 +150,10 @@ class TFGBuilder {
         Map<Node, SinkPoint> sinkNode2SinkPoint = Maps.newMap();
         taintFlows.forEach(taintFlow -> {
             SinkPoint sinkPoint = taintFlow.sinkPoint();
-            if (sinkPoint.sinkCall().getContainer().isApplication()) {
-                IndexRef indexRef = sinkPoint.indexRef();
-                Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
-                getNodes(var, indexRef).forEach(
-                        node -> sinkNode2SinkPoint.put(node, sinkPoint));
-            }
+            IndexRef indexRef = sinkPoint.indexRef();
+            Var var = InvokeUtils.getVar(sinkPoint.sinkCall(), indexRef.index());
+            getNodes(var, indexRef).forEach(
+                    node -> sinkNode2SinkPoint.put(node, sinkPoint));
         });
         logger.info("Sink nodes:");
         sinkNode2SinkPoint.keySet().forEach(logger::info);
