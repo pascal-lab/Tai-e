@@ -63,11 +63,11 @@ public class CallGraphTest {
 
         assertEquals(csGraph.getNumberOfEdges(), csGraph.edges().count());
         assertEquals(csGraph.getNumberOfMethods(), csGraph.reachableMethods().count());
-        assertEquals(csGraph.getNumberOfNodes(), csGraph.getNumberOfMethods());
+        assertEquals(csGraph.nodeCount(), csGraph.getNumberOfMethods());
 
         assertEquals(ciGraph.getNumberOfEdges(), ciGraph.edges().count());
         assertEquals(ciGraph.getNumberOfMethods(), ciGraph.reachableMethods().count());
-        assertEquals(ciGraph.getNumberOfNodes(), ciGraph.getNumberOfMethods());
+        assertEquals(ciGraph.nodeCount(), ciGraph.getNumberOfMethods());
 
         for (CSMethod csMethod : csGraph) {
             JMethod method = csMethod.getMethod();

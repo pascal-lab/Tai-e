@@ -32,7 +32,6 @@
  *   <li>{@link pascal.taie.backend.bytecode.JarTransformer}: Packs generated class files into a JAR archive.</li>
  * </ul>
  * <p>
- * <p>
  * {@link pascal.taie.backend.bytecode.JarTransformer} provides a command-line interface for packing generated class files into a JAR archive.
  * It can be used as follows:
  * <pre>

@@ -26,6 +26,7 @@ package pascal.taie.util;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.support.ParameterDeclarations;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.lang.reflect.Method;
@@ -39,6 +40,7 @@ class MultiStringsSourceArgumentsProvider implements ArgumentsProvider {
 
     @Override
     public Stream<? extends Arguments> provideArguments(
+            ParameterDeclarations parameters,
             ExtensionContext context) {
         // check parameters' types
         Method method = context.getRequiredTestMethod();
