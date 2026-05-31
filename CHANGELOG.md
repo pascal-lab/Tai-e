@@ -1,12 +1,20 @@
 # Changelog
 
-## [Unreleased] - 2026-05-29
+## [Unreleased] - 2026-05-31
 
 ### New Features
-- Add a simple virtual machine that could execute Tai-e IR.
+- Frontend
+  - Add a new Java frontend, which is faster and more reliable than the Soot frontend.
+- Add option `--ssa` to make the Java frontend generate IR in SSA form.
+- Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
 
-### Fixes
-- Fix relative path issue in serialization of Options.
+### Breaking Changes
+- Change the default value of option `--world-builder` to
+  `pascal.taie.frontend.java.JavaWorldBuilder`, i.e., the new Java frontend.
+- Remove option `-pp`/`--prepend-JVM`; when both `-java` and `--jre-dir` are omitted,
+  Tai-e uses the current Java runtime.
+- Remove option `-ap`/`--allow-phantom`; Tai-e now allows phantom classes by default and
+  reports them with warnings.
 
 ## [0.5.2] - 2025-12-31
 
