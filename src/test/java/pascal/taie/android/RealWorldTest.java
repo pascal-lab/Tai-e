@@ -20,11 +20,10 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.android.realworld;
+package pascal.taie.android;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import pascal.taie.android.AndroidBenchTest;
 
 public class RealWorldTest extends AndroidBenchTest {
 

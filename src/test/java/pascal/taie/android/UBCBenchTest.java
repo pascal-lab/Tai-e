@@ -20,44 +20,48 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.android.iccbench;
+package pascal.taie.android;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import pascal.taie.android.AndroidBenchTest;
 
-public class ICCBenchTest extends AndroidBenchTest {
+public class UBCBenchTest extends AndroidBenchTest {
 
-    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/suite/ICC-Bench/apks/";
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/suite/UBCBench/apk/";
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "rpc_localservice",
-            "rpc_messengerservice",
-            "rpc_returnsensitive",
-            "rpc_remoteservice",
-            "icc_rpc_comprehensive",
-            "icc_dynregister1",
-            "icc_dynregister2",
-            "icc_explicit1",
-            "icc_implicit_action",
-            "icc_implicit_category",
-            "icc_implicit_data1",
-            "icc_implicit_data2",
-            "icc_implicit_mix1",
-            "icc_implicit_mix2",
-            "icc_explicit_nosrc_nosink",
-            "icc_explicit_nosrc_sink",
-            "icc_explicit_src_nosink",
-            "icc_explicit_src_sink",
-            "icc_implicit_nosrc_nosink",
-            "icc_implicit_nosrc_sink",
-            "icc_implicit_src_nosink",
-            "icc_implicit_src_sink",
-            "icc_intentservice",
-            "icc_stateful",
+            "ViewCasting",
+            "CastingForward",
+            "ConservativeModel1",
+            "ConservativeModel2",
+            "ConservativeModel3",
+            "HardCodedLocationTest",
+            "CallbacksIntentHandling",
+            "GetClass",
+            "SetContentView",
+            "CallbacksInFragment",
+            "ReflectionOverloaded",
+            "ReflectionRes",
+            "ReflectionDynamic",
+            "GetConstructor",
+            "ReturnConstructor",
+            "EventOrderingTest",
+            "ForName",
+            "LocationFieldSensitivity",
+            "SendTextMessage",
+            "SetGetHint",
+            "SharedPreference1",
+            "SharedPreference2",
+            "SharedPreference3",
+            "ContextSensitivity",
+            "FieldSensitivity",
+            "FlowSensitivity",
+            "ObjectSensitivity",
+            "PathSensitivity"
     })
     void test(String benchmark) {
         run(BENCHMARK_HOME_PREFIX, benchmark, false);
     }
+
 }
