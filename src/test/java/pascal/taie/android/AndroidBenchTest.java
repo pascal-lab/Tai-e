@@ -49,7 +49,8 @@ public class AndroidBenchTest {
 
     protected static final String TAINT_CONFIG_MICRO = "android-benchmarks/suite/taint-config.yml";
 
-    protected static final String TAINT_CONFIG_REAL = "android-benchmarks/taint-config-real.yml";
+    protected static final String TAINT_CONFIG_REAL =
+            "android-benchmarks/suite/real-world/taint-config-real-world.yml";
 
     public void run(String benchmarkPrefix, String benchmark, boolean isRealWorld) {
         System.out.println("\nAnalyzing " + benchmark);
@@ -61,7 +62,7 @@ public class AndroidBenchTest {
         if (!isRealWorld) {
             if (info.groundTruth() != null) {
                 logger.info(
-                        "[Benchmark Note] {}: current expected = {}, ground truth = {}, actual = {}.",
+                        "[Benchmark] {}: taint flow count (expected: {}, ground truth: {}, actual: {}).",
                         info.id(),
                         info.expected(),
                         info.groundTruth(),
@@ -82,7 +83,7 @@ public class AndroidBenchTest {
                         );
 
                         return String.format(
-                                "Benchmark %s failed. Expected: %d, actual: %d.%s",
+                                "Benchmark %s failed. taint flow count (expected: %d, actual: %d).%s",
                                 info.id(),
                                 info.expected(),
                                 res.size(),
