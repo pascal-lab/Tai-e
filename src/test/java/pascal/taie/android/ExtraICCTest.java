@@ -20,37 +20,19 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.android.droidbench;
+package pascal.taie.android;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class InterComponentCommunicationTest extends DroidBenchTest {
+public class ExtraICCTest extends AndroidBenchTest {
 
-    static final String CATEGORY = "InterComponentCommunication";
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/suite/extra-icc/apks/";
 
-    /**
-     * Tests for InterComponentCommunication CATEGORY apk
-     */
     @ParameterizedTest
     @ValueSource(strings = {
-            "ActivityCommunication1",
-            "ActivityCommunication2",
-            "ActivityCommunication3",
-            "ActivityCommunication4",
-            "ActivityCommunication5",
-            "ActivityCommunication6",
-            "ActivityCommunication7",
-            "ActivityCommunication8",
             "ActivityCommunication9",
-            "BroadcastTaintAndLeak1",
-            "ComponentNotInManifest1",
-            "EventOrdering1",
-            "ServiceCommunication1",
             "ServiceCommunication2",
-            "SharedPreferences1",
-            "Singletons1",
-            "UnresolvableIntent1",
             "IntentExtra",
             "ICCData",
             "ICCData2",
@@ -59,7 +41,6 @@ public class InterComponentCommunicationTest extends DroidBenchTest {
             "SecondStart2",
     })
     void test(String benchmark) {
-        run(CATEGORY, benchmark);
+        run(BENCHMARK_HOME_PREFIX, benchmark, false);
     }
-
 }

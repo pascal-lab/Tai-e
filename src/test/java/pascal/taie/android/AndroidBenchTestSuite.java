@@ -32,7 +32,8 @@ import pascal.taie.android.ubcbench.UBCBenchTest;
 @SelectClasses({
         DroidBenchTestSuite.class,
         ICCBenchTest.class,
-        UBCBenchTest.class
+        UBCBenchTest.class,
+        ExtraICCTest.class
 })
 public class AndroidBenchTestSuite {
 }
