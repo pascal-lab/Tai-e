@@ -97,7 +97,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().set_exclude(List.of("jdk.*", "apple.laf.*"));
         soot.options.Options.v().set_whole_program(true);
         soot.options.Options.v().set_no_writeout_body_releasing(true);
-        soot.options.Options.v().set_search_dex_in_archives(true);
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
@@ -114,6 +113,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             // "No method source set for method ...".
             // TODO: figure out the reason of "No method source"
             soot.options.Options.v().set_drop_bodies_after_load(false);
+        }
+        if (options.isAndroidMode()) {
+            soot.options.Options.v().set_prepend_classpath(true);
+            soot.options.Options.v().set_search_dex_in_archives(true);
         }
 
         Scene scene = G.v().soot_Scene();
