@@ -57,6 +57,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.language.classes.StringReps;
 import pascal.taie.android.util.AndroidJavaVersionInfer;
 import picocli.CommandLine;
@@ -425,8 +426,8 @@ public class Options implements Serializable {
                         " (should be specified by -cp)");
             }
 
-            // always allow phantom in Android mode
-            options.allowPhantom = true;
+            // Android analysis still uses the Soot frontend.
+            options.worldBuilderClass = SootWorldBuilder.class;
 
             // infer Java version from Android target SDK
             String apkPath = options.classPath.get(0);
