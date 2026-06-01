@@ -42,9 +42,12 @@ public class MergedNode<N> {
 
     private final Set<MergedNode<N>> succs = Sets.newHybridSet();
 
+    private final int hashCode;
+
     MergedNode(Collection<N> nodes) {
         assert !nodes.isEmpty();
         this.nodes = List.copyOf(nodes);
+        this.hashCode = nodes.hashCode();
     }
 
     void addPred(MergedNode<N> pred) {
@@ -76,12 +79,13 @@ public class MergedNode<N> {
             return false;
         }
         MergedNode<?> that = (MergedNode<?>) o;
-        return nodes.equals(that.nodes);
+        return hashCode == that.hashCode
+                && nodes.equals(that.nodes);
     }
 
     @Override
     public int hashCode() {
-        return nodes.hashCode();
+        return hashCode;
     }
 
     @Override

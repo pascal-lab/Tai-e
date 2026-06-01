@@ -73,6 +73,10 @@ public final class StringReps {
                 ">";
     }
 
+    public static String getSignatureOf(JMethod method, String subSig) {
+        return "<" + method.declaringClass + ": " + subSig + ">";
+    }
+
     public static String getSignatureOf(JField field) {
         return getFieldSignature(field.getDeclaringClass(),
                 field.getName(), field.getType());
@@ -129,13 +133,19 @@ public final class StringReps {
     }
 
     public static String toSubsignature(String name, List<Type> parameterTypes, Type returnType) {
-        return returnType + " " +
-                name +
-                "(" +
-                parameterTypes.stream()
-                        .map(Type::toString)
-                        .collect(Collectors.joining(",")) +
-                ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append(returnType.toString());
+        sb.append(" ");
+        sb.append(name);
+        sb.append("(");
+        for (int i = 0; i < parameterTypes.size(); i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(parameterTypes.get(i).toString());
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     private static void validateSignature(String signature) {
@@ -165,49 +175,6 @@ public final class StringReps {
     public static String getBaseTypeNameOf(String arrayTypeName) {
         return arrayTypeName.replace("[]", "");
     }
-
-    /**
-     * Converts type descriptor in bytecode to Tai-e's type descriptor.
-     * For example:
-     * <ul>
-     *     <li>{@code [I} to {@code int[]}.</li>
-     *     <li>{@code [[I} to {@code int[][]}.</li>
-     *     <li>{@code Ljava/lang/Object;} to {@code java.lang.Object}.</li>
-     *     <li>{@code [Ljava/lang/Object;} to {@code java.lang.Object[]}.</li>
-     * </ul>
-     */
-    public static String toTaieTypeDesc(String desc) {
-        int i = desc.lastIndexOf('[');
-        int dimensions = i + 1;
-        if (dimensions > 0) { // desc is an array descriptor
-            desc = desc.substring(i + 1);
-        }
-        String baseType;
-        if (desc.charAt(0) == 'L' &&
-                desc.charAt(desc.length() - 1) == ';') {
-            baseType = desc.substring(1, desc.length() - 1)
-                    .replace('/', '.');
-        } else {
-            baseType = switch (desc.charAt(0)) {
-                case 'Z' -> "boolean";
-                case 'B' -> "byte";
-                case 'C' -> "char";
-                case 'S' -> "short";
-                case 'I' -> "int";
-                case 'F' -> "float";
-                case 'J' -> "long";
-                case 'D' -> "double";
-                default -> throw new IllegalArgumentException(
-                        "Invalid bytecode type descriptor: " + desc);
-            };
-        }
-        if (dimensions == 0) {
-            return baseType;
-        } else {
-            return baseType + "[]".repeat(dimensions);
-        }
-    }
-
 
     /**
      * @return {@code true} if the given string is a valid Java identifier.
@@ -253,4 +220,5 @@ public final class StringReps {
         }
         return !inIdentifierStart;
     }
+
 }

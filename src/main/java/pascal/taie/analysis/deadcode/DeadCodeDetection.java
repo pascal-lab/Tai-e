@@ -76,7 +76,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
         // keep statements (dead code) sorted in the resulting set
         Set<Stmt> deadCode = Sets.newOrderedSet(Comparator.comparing(Stmt::getIndex));
         // initialize graph traversal
-        Set<Stmt> visited = Sets.newSet(cfg.getNumberOfNodes());
+        Set<Stmt> visited = Sets.newSet(cfg.nodeCount());
         Queue<Stmt> queue = new ArrayDeque<>();
         queue.add(cfg.getEntry());
         while (!queue.isEmpty()) {
@@ -96,7 +96,7 @@ public class DeadCodeDetection extends MethodAnalysis<Set<Stmt>> {
                         }
                     });
         }
-        if (visited.size() < cfg.getNumberOfNodes()) {
+        if (visited.size() < cfg.nodeCount()) {
             // this means that some nodes are not reachable during traversal
             for (Stmt s : ir) {
                 if (!visited.contains(s)) {

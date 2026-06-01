@@ -77,14 +77,11 @@ public class BenchmarkRunner {
         List<String> args = new ArrayList<>();
         int jdkVersion = jdk != 0 ? jdk : info.jdk();
         Collections.addAll(args,
-                "-java", Integer.toString(jdkVersion),
+                //"-java", Integer.toString(jdkVersion),
                 "-acp", buildClassPath(info.apps()),
                 "-cp", buildClassPath(info.libs()),
-                "-wc",
+                //"-wc",
                 "-m", info.main());
-        if (info.allowPhantom()) {
-            args.add("--allow-phantom");
-        }
         Map<String, String> ptaArgs = Map.of(
                 "distinguish-string-constants", "null",
                 "merge-string-objects", "false",
@@ -128,6 +125,6 @@ public class BenchmarkRunner {
     }
 
     private static boolean isJar(File file) {
-        return file.getName().endsWith(".jar");
+        return file.isFile() && file.getName().endsWith(".jar");
     }
 }

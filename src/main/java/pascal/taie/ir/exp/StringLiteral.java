@@ -24,8 +24,7 @@ package pascal.taie.ir.exp;
 
 import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
-
-import static pascal.taie.language.classes.ClassNames.STRING;
+import pascal.taie.util.Strings;
 
 public class StringLiteral implements ReferenceLiteral {
 
@@ -42,9 +41,7 @@ public class StringLiteral implements ReferenceLiteral {
 
     @Override
     public ClassType getType() {
-        // TODO: cache String type in a static field? Doing so
-        //  requires to reset the field when resetting World.
-        return World.get().getTypeSystem().getClassType(STRING);
+        return World.get().getTypeSystem().stringType();
     }
 
     public String getString() {
@@ -75,6 +72,6 @@ public class StringLiteral implements ReferenceLiteral {
 
     @Override
     public String toString() {
-        return "\"" + value + "\"";
+        return "\"" + Strings.escape(value) + "\"";
     }
 }

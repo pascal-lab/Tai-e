@@ -22,31 +22,35 @@
 
 package pascal.taie.frontend.soot;
 
+import java.util.Comparator;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.Comparator;
-import java.util.List;
-
 public class IRTest {
 
     private static final List<String> targets = List.of("AllInOne");
 
     private static void buildWorld(String mainClass) {
-        Main.buildWorld("-pp", "-cp", "src/test/resources/world", "--input-classes", mainClass);
+        Main.buildWorld("-cp", "src/test/resources/world",
+                "--input-classes", mainClass,
+                "--world-builder", SootWorldBuilder.class.getName());
     }
 
     @Test
     void testBottomType() {
         String clzName = "android$widget$RemoteViews$BaseReflectionAction";
-        Main.buildWorld("-ap", "-cp", "src/test/resources/world",
-                "--input-classes", clzName);
+        Main.buildWorld("-cp", "src/test/resources/world",
+                "--input-classes", clzName,
+                "--world-builder", SootWorldBuilder.class.getName());
         World.get().getClassHierarchy().getClass(clzName)
-             .getDeclaredMethod("initActionAsync").getIR();
+                .getDeclaredMethod("initActionAsync").getIR();
     }
 
     @Test

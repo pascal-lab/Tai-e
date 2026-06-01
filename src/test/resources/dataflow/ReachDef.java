@@ -16,7 +16,7 @@ class ReachDef {
     }
 
     int loop(int a, int b) {
-        int c;
+        int c = 0;
         while (a > b) {
             c = b;
             --a;

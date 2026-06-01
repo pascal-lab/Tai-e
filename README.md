@@ -10,6 +10,17 @@
 [![DOI](https://img.shields.io/badge/DOI-10.1145/3597926.3598120-blue)](https://doi.org/10.1145/3597926.3598120)
 </div>
 
+## ✨News
+
+- Our paper _"Two Approaches to Fast Bytecode Frontend for Static Analysis"_ has been accepted by <ins>OOPSLA'25</ins>. This paper presents Tai-e's new bytecode frontend, which is significantly faster and more reliable than existing frontends.
+- Our paper _"Pointer Analysis for Database-Backed Applications"_ has been accepted by <ins>PLDI'25</ins>. This paper describes an end–to–end pointer analysis for Java database–backed application developed on top of Tai-e.
+- Our paper _"PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps"_ has been accepted by <ins>ICSE'25</ins>. This work demonstrates Tai-e's new capability in Android analysis, providing a simple yet effective approach for security analysis of Apps. This work earned the **Best Artifact Award**🏅.
+- Our paper _"Bridge the Islands: Pointer Analysis for Microservice Systems"_ has been accepted by <ins>ISSTA'25</ins>. This paper describes the first pointer analysis for Java Microservice systems developed on top of Tai-e.
+- Our paper _"Interactive Cross-Language Pointer Analysis for Resolving Native Code in Java Programs"_ has been accepted by <ins>ICSE'25</ins>. This is the first cross-language pointer analysis between Java and C. This work won the **Distinguished Paper Award**🏅.
+- Our paper _"Context Sensitivity without Context: A Cut-Shortcut Approach to Fast and Precise Pointer Analysis"_ has been accepted by <ins>PLDI'23</ins>. This is the first published research work developed on top of Tai-e.
+- Our paper _"Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics"_ has been accepted by <ins>ISSTA'23</ins>. This paper describes the designs for the major components of Tai-e.
+
+
 ## Table of Contents
 
 - [What is Tai-e?](#what-is-tai-e)
@@ -74,7 +85,7 @@ For Gradle:
 
 ```kotlin
 dependencies {
-    implementation("net.pascal-lab:tai-e:0.5.1")
+    implementation("net.pascal-lab:tai-e:0.5.2")
 }
 ```
 
@@ -86,7 +97,7 @@ For Maven:
     <dependency>
         <groupId>net.pascal-lab</groupId>
         <artifactId>tai-e</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
     </dependency>
 </dependencies>
 ```
@@ -98,11 +109,11 @@ For Gradle:
 ```kotlin
 repositories {
     mavenCentral()
-    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+    maven { url = uri("https://central.sonatype.com/repository/maven-snapshots/") }
 }
 
 dependencies {
-    implementation("net.pascal-lab:tai-e:0.5.2-SNAPSHOT")
+    implementation("net.pascal-lab:tai-e:0.5.4-SNAPSHOT")
 }
 ```
 
@@ -113,7 +124,7 @@ For Maven:
     <repository>
         <id>snapshots</id>
         <name>Sonatype snapshot server</name>
-        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </repository>
 </repositories>
 
@@ -121,7 +132,7 @@ For Maven:
     <dependency>
         <groupId>net.pascal-lab</groupId>
         <artifactId>tai-e</artifactId>
-        <version>0.5.2-SNAPSHOT</version>
+        <version>0.5.4-SNAPSHOT</version>
     </dependency>
 </dependencies>
 ```

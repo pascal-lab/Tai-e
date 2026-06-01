@@ -82,6 +82,11 @@ public interface MultiMap<K, V> {
      * @return an unmodifiable view of the values associated with {@code key}
      * in this multimap, if {@code key} is absent; otherwise, this returns
      * an empty set.
+     * <p>
+     * <strong>Note:</strong> The returned set may not have the same type as
+     * the underlying set used in this multimap. This may cause performance
+     * degradation for specialized sets such as {@link GenericBitSet}.
+     * See {@link GenericBitSet#addAll(Collection)}.
      */
     Set<V> get(K key);
 

@@ -40,8 +40,6 @@ public interface JClassBuilder {
 
     Set<Modifier> getModifiers();
 
-    String getSimpleName();
-
     ClassType getClassType();
 
     JClass getSuperClass();

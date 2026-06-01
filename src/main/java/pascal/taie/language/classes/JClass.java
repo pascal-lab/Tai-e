@@ -22,6 +22,22 @@
 
 package pascal.taie.language.classes;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import pascal.taie.World;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
@@ -29,6 +45,7 @@ import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Experimental;
 import pascal.taie.util.Indexable;
@@ -37,14 +54,7 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
-
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import pascal.taie.util.collection.Triple;
 
 /**
  * Represents classes in the program. Each instance contains various
@@ -54,13 +64,15 @@ import java.util.stream.Collectors;
 public class JClass extends AbstractResultHolder
         implements Annotated, Indexable, Serializable {
 
+    private static final Logger logger = LogManager.getLogger(JClass.class);
+
     private final JClassLoader loader;
 
     private final String name;
 
-    private final String moduleName;
+    private final String simpleName;
 
-    private String simpleName;
+    private final String moduleName;
 
     private ClassType type;
 
@@ -84,30 +96,57 @@ public class JClass extends AbstractResultHolder
 
     private boolean isPhantom;
 
-    private final MultiMap<String, JField> phantomFields = Maps.newMultiMap();
+    private final Map<FieldKey, JField> phantomFields = Maps.newConcurrentMap();
+
+    private record FieldKey(String name, Type type) {
+    }
+
+    private final Map<Subsignature, JMethod> phantomMethods = Maps.newConcurrentMap();
 
     /**
      * If this class is application class.
      */
     private boolean isApplication;
 
+    /**
+     * The source (origin) of content of this class. Set during construction
+     * and can be released via {@link #releaseClassSource()} to save memory.
+     */
+    @Nullable
+    private transient ClassSource classSource;
+
     private int index = -1;
 
-    public JClass(JClassLoader loader, String name) {
-        this(loader, name, null);
+    public JClass(JClassLoader loader, String name, @Nullable ClassSource classSource) {
+        this(loader, name, null, classSource);
     }
 
-    public JClass(JClassLoader loader, String name, String moduleName) {
+    public JClass(JClassLoader loader, String name, @Nullable String moduleName) {
+        this(loader, name, moduleName, null);
+    }
+
+    private JClass(JClassLoader loader, String name, @Nullable String moduleName,
+                   @Nullable ClassSource classSource) {
         this.loader = loader;
         this.name = name;
+        this.simpleName = toSimpleName(name);
         this.moduleName = moduleName;
+        this.classSource = classSource;
+    }
+
+    private static String toSimpleName(String name) {
+        int lastIndex = name.lastIndexOf('.');
+        if (lastIndex == -1) {
+            return name;
+        } else {
+            return name.substring(lastIndex + 1);
+        }
     }
 
     /**
      * This method should be called after creating this instance.
      */
     public void build(JClassBuilder builder) {
-        simpleName = builder.getSimpleName();
         type = builder.getClassType();
         gSignature = builder.getGSignature();
         modifiers = builder.getModifiers();
@@ -133,15 +172,14 @@ public class JClass extends AbstractResultHolder
                                     (oldV, newV) -> oldV, Maps::newLinkedHashMap))
             );
         } catch (Exception e) {
-            if (World.get().getOptions().isAllowPhantom()) {
-                superClass = getClassLoader().loadClass(ClassNames.OBJECT);
-                interfaces = Collections.emptySet();
-                outerClass = null;
-                declaredFields = Maps.emptyMultiMap();
-                declaredMethods = Map.of();
-            } else {
-                throw e;
-            }
+            logger.warn("Failed to build class {}; creating phantom class instead. Cause: {}",
+                    name, e.toString());
+            logger.debug("Failed to build class {}; full exception:", name, e);
+            superClass = getClassLoader().loadClass(ClassNames.OBJECT);
+            interfaces = Collections.emptySet();
+            outerClass = null;
+            declaredFields = Maps.emptyMultiMap();
+            declaredMethods = Map.of();
         }
     }
 
@@ -244,7 +282,7 @@ public class JClass extends AbstractResultHolder
         Set<JField> fields = declaredFields.get(fieldName);
         return switch (fields.size()) {
             case 0 -> null;
-            case 1 -> CollectionUtils.getOne(fields);
+            case 1 -> CollectionUtils.getFirst(fields);
             default -> throw new AmbiguousMemberException(name, fieldName);
         };
     }
@@ -349,22 +387,59 @@ public class JClass extends AbstractResultHolder
         return isPhantom;
     }
 
+    /**
+     * @return the phantom field. If not exist yet, create one atomically.
+     */
     @Nullable
-    public JField getPhantomField(String fieldName, Type fieldType) {
+    public JField getPhantomField(String fieldName, Type fieldType, boolean isStatic) {
         assert isPhantom();
-        for (JField field : phantomFields.get(fieldName)) {
-            if (field.getType().equals(fieldType)) {
-                return field;
-            }
-        }
-        return null;
+        FieldKey key = new FieldKey(fieldName, fieldType);
+        return phantomFields.computeIfAbsent(key, k -> {
+            Set<Modifier> modifiers = isStatic ? Set.of(Modifier.STATIC) : Set.of();
+            return new JField(this, k.name(), modifiers,
+                    k.type(), null, AnnotationHolder.emptyHolder(), null);
+        });
     }
 
-    public void addPhantomField(String fieldName, Type fieldType, JField field) {
+    /**
+     * @return the phantom method by given subsignature. If not exist yet, create one atomically.
+     */
+    @Nullable
+    public JMethod getPhantomMethod(Subsignature subsignature) {
         assert isPhantom();
-        assert getPhantomField(fieldName, fieldType) == null :
-                String.format("'%s' already has phantom field '%s'", this, field);
-        phantomFields.put(fieldName, field);
+        return phantomMethods.computeIfAbsent(subsignature, k -> {
+            Triple<String, List<Type>, Type> t = parseSubsignature(subsignature);
+            return new JMethod(this, t.first(), EnumSet.noneOf(Modifier.class),
+                    t.second(), t.third(), List.of(), null, AnnotationHolder.emptyHolder(),
+                    null, null, null
+            );
+        });
+    }
+
+    /**
+     *
+     * @param subsignature the subsignature to parse
+     * @return (name, parameterTypes, returnType)
+     */
+    private static Triple<String, List<Type>, Type> parseSubsignature(Subsignature subsignature) {
+        TypeSystem typeSystem = World.get().getTypeSystem();
+        String subsig = subsignature.toString();
+        int space = subsig.indexOf(' ');
+        int leftBracket = subsig.indexOf('(');
+        Type returnType = typeSystem.getType(subsig.substring(0, space));
+        String name = subsig.substring(space + 1, leftBracket);
+        String parameterTypesStr = subsig.substring(leftBracket + 1, subsig.length() - 1);
+        List<Type> parameterTypes;
+        if (parameterTypesStr.isEmpty()) {
+            parameterTypes = List.of();
+        } else {
+            parameterTypes = Arrays.stream(parameterTypesStr.split(",")).map(typeSystem::getType).toList();
+        }
+        return new Triple<>(name, parameterTypes, returnType);
+    }
+
+    public Collection<JMethod> getPhantomMethods() {
+        return phantomMethods.values();
     }
 
     void setIndex(int index) {
@@ -376,6 +451,29 @@ public class JClass extends AbstractResultHolder
                     "index must be 0 or positive number, given: " + index);
         }
         this.index = index;
+    }
+
+    /**
+     * Gets the class source (origin) of this class.
+     *
+     * @return the ClassSource instance, or null for phantom classes
+     */
+    @Nullable
+    public ClassSource getClassSource() {
+        return classSource;
+    }
+
+    /**
+     * Releases the ClassSource to save memory.
+     *
+     * <p>ClassSource contains the bytecode ClassReader which may consume
+     * significant memory. This method should be called after IR building
+     * is complete to free up resources.
+     *
+     * <p>Note: This method is idempotent and safe to call multiple times.
+     */
+    public void releaseClassSource() {
+        this.classSource = null;
     }
 
     @Override

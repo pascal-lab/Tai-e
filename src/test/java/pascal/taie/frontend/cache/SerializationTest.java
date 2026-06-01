@@ -32,6 +32,10 @@ import pascal.taie.config.Options;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuilder;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.proginfo.FieldRef;
+import pascal.taie.ir.proginfo.MemberRef;
+import pascal.taie.ir.proginfo.MethodRef;
+import pascal.taie.ir.stmt.FieldStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
@@ -163,7 +167,17 @@ public class SerializationTest {
         World.set(world1); // World.world should be set for building IRs
         World world2 = SerializationUtils.serializedCopy(world1);
         World.set(world2); // World.world should be set for getting IRs
-        // test1: compare the size of IR, a simple and loose test
+
+        this.compareIrSize(world1, world2);
+        this.compareVarRelevantStmtsEmpty(world1, world2);
+        this.compareGSig(world1, world2);
+        this.compareMemberRef(world1, world2);
+    }
+
+    /**
+     * Compare the size of IR, a simple and loose test
+     */
+    private void compareIrSize(World world1, World world2) {
         JClass concurrentHashMapClz1 = world1.getClassHierarchy()
                 .getClass("java.util.concurrent.ConcurrentHashMap");
         JClass concurrentHashMapClz2 = world2.getClassHierarchy()
@@ -179,7 +193,12 @@ public class SerializationTest {
         assertEquals(ir1.getParams().size(), ir2.getParams().size());
         assertEquals(ir1.getStmts().size(), ir2.getStmts().size());
         assertEquals(ir1.getReturnVars().size(), ir2.getReturnVars().size());
-        // test2: compare the Var.RelevantStmts.Empty
+    }
+
+    /**
+     * Compare the Var.RelevantStmts.Empty
+     */
+    private void compareVarRelevantStmtsEmpty(World world1, World world2) {
         Var v21 = world2.getClassHierarchy()
                 .getClass("java.util.HashMap")
                 .getDeclaredMethod("hash")
@@ -197,7 +216,12 @@ public class SerializationTest {
         v22.addInvoke(new Invoke(null, null, null));
         assertEquals(0, v21.getInvokes().size()); // v21 should be not changed
         assertEquals(1, v22.getInvokes().size());
-        // test3: compare generics signature
+    }
+
+    /**
+     * Compare generics signature
+     */
+    private void compareGSig(World world1, World world2) {
         JClass enumClz1 = world1.getClassHierarchy().getClass("java.lang.Enum");
         JClass enumClz2 = world2.getClassHierarchy().getClass("java.lang.Enum");
         ClassGSignature cSig1 = enumClz1.getGSignature();
@@ -210,6 +234,10 @@ public class SerializationTest {
         if (mSig1 != null && mSig2 != null) {
             assertEquals(mSig1.toString(), mSig2.toString());
         }
+        JClass concurrentHashMapClz1 = world1.getClassHierarchy()
+                .getClass("java.util.concurrent.ConcurrentHashMap");
+        JClass concurrentHashMapClz2 = world2.getClassHierarchy()
+                .getClass("java.util.concurrent.ConcurrentHashMap");
         JField tableField1 = concurrentHashMapClz1.getDeclaredField("table");
         JField tableField2 = concurrentHashMapClz2.getDeclaredField("table");
         ReferenceTypeGSignature fSig1 = tableField1.getGSignature();
@@ -218,5 +246,48 @@ public class SerializationTest {
             assertEquals(fSig1.toString(), fSig2.toString());
         }
     }
+
+    /**
+     * Compare {@link MemberRef} after cleaning their caches
+     */
+    private void compareMemberRef(World world1, World world2) {
+        JClass hashMapClz = world2.getClassHierarchy().getClass("java.util.HashMap");
+        IR ir = hashMapClz.getDeclaredMethod("putVal").getIR();
+        // Compare MethodRef
+        Invoke invoke = ir.getStmts().stream()
+                .filter(stmt -> stmt instanceof Invoke)
+                .map(stmt -> (Invoke) stmt)
+                .findFirst()
+                .get();
+        MethodRef methodRef = invoke.getMethodRef();
+        MethodRef methodRef2 = methodRef.resolve().getRef();
+        // TODO: support methodRef.equals(methodRef2)
+        compareMethodRef(methodRef, methodRef2);
+        // Compare FieldRef
+        FieldStmt fieldStmt = ir.getStmts().stream()
+                .filter(stmt -> stmt instanceof FieldStmt)
+                .map(stmt -> (FieldStmt) stmt)
+                .findFirst()
+                .get();
+        FieldRef fieldRef = fieldStmt.getFieldRef();
+        FieldRef fieldRef2 = fieldRef.resolve().getRef();
+        // TODO: support fieldRef.equals(fieldRef2)
+        compareFieldRef(fieldRef, fieldRef2);
+    }
+
+    private void compareMethodRef(MethodRef methodRef1, MethodRef methodRef2) {
+        assertEquals(methodRef1.getDeclaringClass().getName(), methodRef2.getDeclaringClass().getName());
+        assertEquals(methodRef1.getName(), methodRef2.getName());
+        assertEquals(methodRef1.isStatic(), methodRef2.isStatic());
+        assertEquals(methodRef1.getSubsignature(), methodRef2.getSubsignature());
+    }
+
+    private void compareFieldRef(FieldRef fieldRef1, FieldRef fieldRef2) {
+        assertEquals(fieldRef1.getDeclaringClass().getName(), fieldRef2.getDeclaringClass().getName());
+        assertEquals(fieldRef1.getName(), fieldRef2.getName());
+        assertEquals(fieldRef1.isStatic(), fieldRef2.isStatic());
+        assertEquals(fieldRef1.getType().getName(), fieldRef2.getType().getName());
+    }
+
 
 }

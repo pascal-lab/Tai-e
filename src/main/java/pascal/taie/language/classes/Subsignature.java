@@ -42,6 +42,8 @@ public class Subsignature implements Serializable {
 
     public static final String NO_ARG_INIT = "void <init>()";
 
+    public static final String MAIN = "void main(java.lang.String[])";
+
     private static final ConcurrentMap<String, Subsignature> map
             = Maps.newConcurrentMap();
 
@@ -72,6 +74,10 @@ public class Subsignature implements Serializable {
      */
     public static Subsignature getClinit() {
         return get(CLINIT);
+    }
+
+    public static Subsignature getMain() {
+        return get(MAIN);
     }
 
     private Subsignature(String subsig) {

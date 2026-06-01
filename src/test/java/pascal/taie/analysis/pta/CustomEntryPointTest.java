@@ -23,6 +23,7 @@
 package pascal.taie.analysis.pta;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
@@ -33,6 +34,7 @@ import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.MultiMapCollector;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -99,8 +101,7 @@ public class CustomEntryPointTest {
 
     @Test
     void test() {
-        Main.main("-pp",
-                "-cp", "src/test/resources/pta/entrypoint",
+        Main.main("-cp", "src/test/resources/pta/entrypoint",
                 "--input-classes", "CustomEntryPoints",
                 "-a", "pta=only-app:true;implicit-entries:false;"
                         + "plugins:[pascal.taie.analysis.pta.CustomEntryPointPlugin];",

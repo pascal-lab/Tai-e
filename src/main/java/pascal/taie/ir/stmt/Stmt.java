@@ -58,7 +58,7 @@ public interface Stmt extends Indexable, Serializable {
     Optional<LValue> getDef();
 
     /**
-     * @return a list of right-value expressions used in this Stmt.
+     * @return a set of right-value expressions used in this Stmt.
      */
     Set<RValue> getUses();
 

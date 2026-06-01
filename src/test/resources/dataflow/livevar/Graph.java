@@ -11,7 +11,7 @@ public class Graph {
     public Graph(int V) {
         this.V = V;
         this.E = 0;
-        adj = new List<Integer>[V];
+        adj = new List[V];
         for (int v = 0; v < V; v++) {
             adj[v] = new ArrayList<Integer>();
         }

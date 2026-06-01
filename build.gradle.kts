@@ -1,6 +1,7 @@
 plugins {
     application
-    id("tai-e.conventions")
+    id("java.conventions")
+    id("checkstyle.conventions")
     id("maven-publish.conventions")
 }
 
@@ -10,12 +11,12 @@ version = projectVersion
 
 dependencies {
     // Process options
-    implementation("info.picocli:picocli:4.7.6")
+    implementation("info.picocli:picocli:4.7.7")
     // Logger
-    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
     // Process YAML configuration files
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
@@ -24,14 +25,16 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
-    implementation("xmlpull:xmlpull:1.1.3.4d_b4_min")
-
-    // Use ASM to read Java class files
-    implementation("org.ow2.asm:asm:9.4")
     // Eliminate SLF4J warning
     implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
+    // Use asm to read class file
+    val asmVersion = "9.8"
+    implementation("org.ow2.asm:asm:$asmVersion")
+    implementation("org.ow2.asm:asm-commons:$asmVersion")
+    implementation("org.ow2.asm:asm-tree:$asmVersion")
+    implementation("org.ow2.asm:asm-util:$asmVersion")
     // Use FlowDroid to parse AXML files
     implementation(files("lib/flowdroidclasses-modified.jar"))
     "de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.14.1".let {
@@ -44,7 +47,8 @@ dependencies {
     }
     implementation("de.upb.cs.swt:axml:2.1.3")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
 }
@@ -53,18 +57,36 @@ application {
     mainClass.set("pascal.taie.Main")
 }
 
-task("fatJar", type = Jar::class) {
+tasks.register("generateBuildInfo") {
+    group = "build"
+    description = "Generates build information properties file"
+    // write tai-e build information into META-INF/tai-e-build.properties
+    val buildPropsFile = rootProject.layout.buildDirectory.file(
+        "resources/main/META-INF/tai-e-build.properties").get().asFile
+    val versionProvider = projectVersionProvider
+    val commitProvider = projectCommitProvider
+    doFirst {
+        buildPropsFile.parentFile.mkdirs()
+        val buildProps = """
+            version=${versionProvider.get()}
+            commit=${commitProvider.get()}
+        """.trimIndent()
+        buildPropsFile.writeText(buildProps)
+    }
+}
+
+tasks.register<Jar>("fatJar", Jar::class) {
     group = "build"
     description = "Creates a single jar file including Tai-e and all dependencies"
     manifest {
         attributes["Main-Class"] = "pascal.taie.Main"
-        attributes["Tai-e-Version"] = projectVersion
-        attributes["Tai-e-Commit"] = projectCommit
     }
-    archiveBaseName.set("tai-e-all")
+    archiveBaseName.set("${projectArtifactId}-all")
     from(
-        configurations.runtimeClasspath.get().map {
-            if (it.isDirectory) it else zipTree(it)
+        configurations.runtimeClasspath.get().map { file ->
+            if (file.isDirectory) file else zipTree(file).matching {
+                exclude("META-INF/**/*.RSA")
+            }
         }
     )
     from("COPYING", "COPYING.LESSER")
@@ -75,12 +97,14 @@ task("fatJar", type = Jar::class) {
 
 tasks.jar {
     from("COPYING", "COPYING.LESSER")
-    from(zipTree("lib/sootclasses-modified.jar"))
     destinationDirectory.set(rootProject.layout.buildDirectory)
-    manifest {
-        attributes["Tai-e-Version"] = projectVersion
-        attributes["Tai-e-Commit"] = projectCommit
-    }
+    archiveBaseName.set(projectArtifactId)
+}
+
+tasks.processResources {
+    // Generate a build information properties file in resources directory,
+    // so that it can be included in the class path and JAR file.
+    finalizedBy("generateBuildInfo")
 }
 
 tasks.withType<Test> {
@@ -99,23 +123,18 @@ tasks.withType<Test> {
 }
 
 tasks.test {
-    // Excludes test suites from the default test task
-    // to avoid running some tests multiple times.
-    filter {
-        excludeTestsMatching("*TestSuite")
+    doFirst {
+        // Exclude TestSuite classes when running all tests to prevent duplicate execution
+        // Only apply this filter when no specific test patterns are specified via command line
+        val testFilter = filter as? org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter
+        val hasCommandLineIncludePatterns = testFilter
+            ?.commandLineIncludePatterns
+            ?.isNotEmpty()
+            ?: false
+        if (!hasCommandLineIncludePatterns) {
+            filter {
+                excludeTestsMatching("*TestSuite")
+            }
+        }
     }
-}
-
-task("testTaieTestSuite", type = Test::class) {
-    group = "verification"
-    description = "Runs the Tai-e test suite"
-    filter {
-        includeTestsMatching("TaieTestSuite")
-    }
-}
-
-// Automatically agree the Gradle ToS when running gradle with '--scan' option
-extensions.findByName("buildScan")?.withGroovyBuilder {
-    setProperty("termsOfServiceUrl", "https://gradle.com/terms-of-service")
-    setProperty("termsOfServiceAgree", "yes")
 }

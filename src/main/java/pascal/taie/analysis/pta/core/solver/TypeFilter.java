@@ -23,8 +23,6 @@
 package pascal.taie.analysis.pta.core.solver;
 
 import pascal.taie.analysis.pta.pts.PointsToSet;
-import pascal.taie.language.type.NullType;
-import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
@@ -55,15 +53,9 @@ public class TypeFilter implements Transfer {
     public PointsToSet apply(PointerFlowEdge edge, PointsToSet input) {
         PointsToSet result = ptsFactory.get();
         input.objects()
-                .filter(o -> isAssignable(o.getObject().getType(), type))
+                .filter(o -> typeSystem.isAssignable(type, o.getObject().getType()))
                 .forEach(result::addObject);
         return result;
-    }
-
-    private boolean isAssignable(Type from, Type to) {
-        return (from instanceof NullType)
-                ? to instanceof ReferenceType
-                : typeSystem.isSubtype(to, from);
     }
 
     @Override

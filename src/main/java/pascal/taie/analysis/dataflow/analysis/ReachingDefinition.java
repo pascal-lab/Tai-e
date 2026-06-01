@@ -24,12 +24,10 @@ package pascal.taie.analysis.dataflow.analysis;
 
 import pascal.taie.analysis.dataflow.fact.SetFact;
 import pascal.taie.analysis.graph.cfg.CFG;
-import pascal.taie.analysis.graph.cfg.CFGNodeIndexer;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
-import pascal.taie.util.Indexer;
 import pascal.taie.util.collection.IndexMap;
 import pascal.taie.util.collection.IndexerBitSet;
 
@@ -51,11 +49,6 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
     private static class Analysis extends AbstractDataflowAnalysis<Stmt, SetFact<Stmt>> {
 
         /**
-         * Indexer for stmts (nodes) in the CFG.
-         */
-        private final Indexer<Stmt> stmtIndexer;
-
-        /**
          * Maps a variable to all statements that define it.
          * This information can accelerate kill operation of live variable analysis.
          */
@@ -65,7 +58,6 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         private Analysis(CFG<Stmt> cfg) {
             super(cfg);
-            stmtIndexer = new CFGNodeIndexer<>(cfg);
             defs = computeDefs(cfg.getIR());
         }
 
@@ -98,7 +90,7 @@ public class ReachingDefinition extends AnalysisDriver<Stmt, SetFact<Stmt>> {
 
         @Override
         public SetFact<Stmt> newInitialFact() {
-            return new SetFact<>(new IndexerBitSet<>(stmtIndexer, false));
+            return new SetFact<>(new IndexerBitSet<>(cfg, false));
         }
 
         @Override

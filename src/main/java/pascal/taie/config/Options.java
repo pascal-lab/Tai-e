@@ -22,10 +22,30 @@
 
 package pascal.taie.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Predicate;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,26 +54,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.WorldBuilder;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.language.classes.StringReps;
 import pascal.taie.android.util.AndroidJavaVersionInfer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * Option class for Tai-e.
@@ -142,49 +150,55 @@ public class Options implements Serializable {
     }
 
     @JsonProperty
-    @Option(names = {"-ajs", "--android-jars"},
-            description = "Specifies the path to Android platforms required for analysis." +
-                    " This path is used to locate the necessary Android JAR files for analysis purposes." +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "android-benchmarks/android-platforms")
-    private String androidJars;
-
-    public String getAndroidJars() {
-        return androidJars;
-    }
-
-    @JsonProperty
     @Option(names = "-java",
-            description = "Java version used by the program being analyzed" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "6")
-    private int javaVersion;
+            description = "Java version used by the program being analyzed")
+    private Integer javaVersion;
 
     public int getJavaVersion() {
+        if (javaVersion == null) {
+            throw new ConfigException("javaVersion config has not been resolved");
+        }
         return javaVersion;
     }
 
-    @JsonProperty
+    private boolean useCurrentJRE = false;
+
+    public boolean useCurrentJRE() {
+        return useCurrentJRE;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Option(names = {"-pp", "--prepend-JVM"},
-            description = "Prepend class path of current JVM to Tai-e's class path" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
+            description = "Deprecated compatibility option. Its behavior is " +
+                    "now the default when -java and --jre-dir are omitted.",
+            defaultValue = "false",
+            hidden = true)
     private boolean prependJVM;
 
+    /**
+     * @return whether deprecated option {@code -pp}/{@code --prepend-JVM} is specified.
+     * @deprecated use {@link #useCurrentJRE()} instead.
+     */
+    @Deprecated
     public boolean isPrependJVM() {
         return prependJVM;
     }
 
-    @JsonProperty
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Option(names = {"-ap", "--allow-phantom"},
-            description = "Allow Tai-e to process phantom references, i.e.," +
-                    " the referenced classes that are not found in the class paths" +
-                    " (default: ${DEFAULT-VALUE})",
-            defaultValue = "false")
+            description = "Deprecated compatibility option. Phantom classes " +
+                    "are now allowed by default and reported with warnings.",
+            defaultValue = "false",
+            hidden = true)
     private boolean allowPhantom;
 
+    /**
+     * @return true, as Tai-e now allows phantom classes by default.
+     * @deprecated phantom classes are always allowed.
+     */
+    @Deprecated
     public boolean isAllowPhantom() {
-        return allowPhantom;
+        return true;
     }
 
     @JsonProperty
@@ -197,11 +211,23 @@ public class Options implements Serializable {
         return androidMode;
     }
 
+    @JsonProperty
+    @Option(names = {"-ajs", "--android-jars"},
+            description = "Specifies the path to Android platforms required for analysis." +
+                    " This path is used to locate the necessary Android JAR files for analysis purposes." +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "android-benchmarks/android-platforms")
+    private String androidJars;
+
+    public String getAndroidJars() {
+        return androidJars;
+    }
+
     // ---------- general analysis options ----------
     @JsonProperty
     @Option(names = "--world-builder",
             description = "Specify world builder class (default: ${DEFAULT-VALUE})",
-            defaultValue = "pascal.taie.frontend.soot.SootWorldBuilder")
+            defaultValue = "pascal.taie.frontend.java.JavaWorldBuilder")
     private Class<? extends WorldBuilder> worldBuilderClass;
 
     public Class<? extends WorldBuilder> getWorldBuilderClass() {
@@ -237,7 +263,9 @@ public class Options implements Serializable {
     @JsonProperty
     @Option(names = {"-wc", "--world-cache-mode"},
             description = "Enable world cache mode to save build time"
-                    + " by caching the completed built world to the disk.",
+                    + " by caching the completed built world to the disk."
+                    + " When enabled, the '--pre-build-ir' option will be"
+                    + " enabled automatically. (default: ${DEFAULT-VALUE})",
             defaultValue = "false")
     private boolean worldCacheMode;
 
@@ -282,9 +310,9 @@ public class Options implements Serializable {
             description = "Analyses to be executed",
             paramLabel = "<analysisID[=<options>]>",
             mapFallbackValue = "")
-    private Map<String, String> analyses = Map.of();
+    private Map<String, AnalysisOptions> analyses = Map.of();
 
-    public Map<String, String> getAnalyses() {
+    public Map<String, AnalysisOptions> getAnalyses() {
         return analyses;
     }
 
@@ -310,11 +338,37 @@ public class Options implements Serializable {
         return keepResult;
     }
 
+    @JsonProperty
+    @Option(names = {"--jre-dir"},
+            description = "Specify a JRE directory to be used for analysis. " +
+                    "When this option is specified, -java must also be specified. " +
+                    "The directory accepts one of the following: " +
+                    "(1) a JAVA_HOME like dir, which contains lib/ dir or jre/lib/ dir" +
+                    "(2) a dir contain rt.jar and related files (Java 1.6-8)" +
+                    "(3) a dir contain jrt-fs.jar and modules (JIMAGE) file (Java 9+)")
+    private String jreDir;
+
+    public String getJreDir() {
+        return jreDir;
+    }
+
+    @JsonProperty
+    @Option(names = {"--ssa"},
+            description = "Enable SSA (Static Single Assignment) Generation for frontend")
+    private boolean ssa;
+
+    public boolean isSSA() {
+        return ssa;
+    }
+
     /**
      * Parses arguments and return the parsed and post-processed Options.
      */
     public static Options parse(String... args) {
-        Options options = CommandLine.populateCommand(new Options(), args);
+        Options options = new Options();
+        CommandLine cmd = new CommandLine(options);
+        cmd.registerConverter(AnalysisOptions.class, new AnalysisOptionsConverter())
+                .parseArgs(args);
         return postProcess(options);
     }
 
@@ -330,7 +384,34 @@ public class Options implements Serializable {
             options = readRawOptions(options.optionsFile);
         }
         if (options.prependJVM) {
+            logger.warn("DEPRECATED OPTION: Please stop using '-pp/--prepend-JVM'. "
+                    + "This option will be removed in a future version; its behavior "
+                    + "is now the default when -java and --jre-dir are omitted. Tai-e "
+                    + "will use the current Java runtime for compatibility.");
+            if (options.javaVersion != null || options.jreDir != null) {
+                throw new ConfigException("Conflict options: "
+                        + "-pp/--prepend-JVM cannot be used with -java/--jre-dir");
+            }
+            options.useCurrentJRE = true;
             options.javaVersion = getCurrentJavaVersion();
+            options.jreDir = null;
+        } else {
+            if (options.jreDir != null && options.javaVersion == null) {
+                throw new ConfigException("Missing option: "
+                        + "-java must be specified when --jre-dir is used");
+            }
+            if (options.jreDir == null && options.javaVersion == null) {
+                options.useCurrentJRE = true;
+                options.javaVersion = getCurrentJavaVersion();
+            }
+        }
+        if (options.allowPhantom) {
+            logger.warn("DEPRECATED OPTION: Please stop using '-ap/--allow-phantom'. "
+                    + "This option will be removed in a future version; allowing "
+                    + "phantom classes is now the default.");
+        }
+        if (options.worldCacheMode) {
+            options.preBuildIR = true;
         }
         if (!options.analyses.isEmpty() && options.planFile != null) {
             // The user should choose either options or plan file to
@@ -359,6 +440,11 @@ public class Options implements Serializable {
                         "at least one of --main-class, --input-classes " +
                         "or --app-class-path should be specified");
             }
+        }
+
+        if (options.analyses.containsKey(PointerAnalysis.ID)
+                && options.analyses.get(PointerAnalysis.ID).has("reflection-log")) {
+            options.addReflectionLogClasses();
         }
         // mkdir for output dir
         if (!options.outputDir.exists()) {
@@ -519,16 +605,88 @@ public class Options implements Serializable {
     /**
      * Convert a file to a relative path using the "/" (forward slash)
      * from the working directory, thus preserving the portability of
-     * the dumped options file.
+     * the dumped options file as much as possible.
      *
      * @param file the file to be processed
-     * @return a relative path from the working directory
+     * @return the relative path from the working directory;
+     * if the file cannot be relativized, the absolute path is returned.
      */
     private static String toSerializedFilePath(String file) {
-        Path workingDir = Path.of("").toAbsolutePath();
-        Path path = Path.of(file).toAbsolutePath().normalize();
-        return workingDir.relativize(path).toString()
-                .replace('\\', '/');
+        Path workingDir = Path.of("").toAbsolutePath().normalize();
+        Path filePath = Path.of(file).toAbsolutePath().normalize();
+        try {
+            filePath = workingDir.relativize(filePath);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to get relative path of {}," +
+                    " use its absolute path in options file", file);
+        }
+        return filePath.toString().replace('\\', '/');
+    }
+
+    private static class AnalysisOptionsConverter implements CommandLine.ITypeConverter<AnalysisOptions> {
+        @Override
+        public AnalysisOptions convert(String value) {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            JavaType mapType = mapper.getTypeFactory()
+                    .constructMapType(Map.class, String.class, Object.class);
+            String optStr = toYAMLString(value);
+            try {
+                Map<String, Object> optsMap = optStr.isBlank()
+                        ? Map.of()
+                        // Leverage Jackson to parse YAML string to Map
+                        : mapper.readValue(optStr, mapType);
+                return new AnalysisOptions(optsMap);
+            } catch (JsonProcessingException e) {
+                throw new ConfigException("Invalid analysis options: " + value, e);
+            }
+        }
+
+        /**
+         * Converts option string to a valid YAML string.
+         * The option string is of format "key1:value1;key2:value2;...".
+         */
+        private static String toYAMLString(String optValue) {
+            StringJoiner joiner = new StringJoiner("\n");
+            for (String keyValue : optValue.split(";")) {
+                if (!keyValue.isBlank()) {
+                    int i = keyValue.indexOf(':'); // split keyValue
+                    if (i == -1) {
+                        throw new IllegalArgumentException("Invalid argument format '" + keyValue
+                                + "'. Expected format: 'key:value'");
+                    }
+                    joiner.add(keyValue.substring(0, i) + ": "
+                            + keyValue.substring(i + 1));
+                }
+            }
+            return joiner.toString();
+        }
+    }
+
+    /**
+     * Add classes in reflection log to the input classes.
+     * <p>
+     * TODO: this is still a tentative solution.
+     */
+    private void addReflectionLogClasses() {
+        List<String> inputClasses = new ArrayList<>(this.inputClasses);
+        String path = analyses.get(PointerAnalysis.ID).getString("reflection-log");
+        if (path != null) {
+            LogItem.load(path).forEach(item -> {
+                // add target class
+                String target = item.target;
+                String targetClass;
+                if (target.startsWith("<")) {
+                    targetClass = StringReps.getClassNameOf(target);
+                } else {
+                    targetClass = target;
+                }
+                if (StringReps.isArrayType(targetClass)) {
+                    targetClass = StringReps.getBaseTypeNameOf(target);
+                }
+                inputClasses.add(targetClass);
+            });
+        }
+        this.inputClasses = List.copyOf(inputClasses);
     }
 
     @Override
@@ -536,17 +694,15 @@ public class Options implements Serializable {
         return "Options{" +
                 "optionsFile=" + optionsFile +
                 ", printHelp=" + printHelp +
-                ", classPath=" + classPath +
-                ", appClassPath=" + appClassPath +
+                ", classPath='" + classPath + '\'' +
+                ", appClassPath='" + appClassPath + '\'' +
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
                 ", androidJars=" + androidJars +
                 ", javaVersion=" + javaVersion +
-                ", prependJVM=" + prependJVM +
-                ", allowPhantom=" + allowPhantom +
                 ", androidMode=" + androidMode +
                 ", worldBuilderClass=" + worldBuilderClass +
-                ", outputDir=" + outputDir +
+                ", outputDir='" + outputDir + '\'' +
                 ", preBuildIR=" + preBuildIR +
                 ", worldCacheMode=" + worldCacheMode +
                 ", scope=" + scope +

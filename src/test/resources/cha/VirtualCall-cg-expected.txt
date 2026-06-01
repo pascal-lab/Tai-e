@@ -1,16 +1,16 @@
 -------------------- <A: void <init>()> (cg) --------------------
-[0@L9] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L9] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <A: void foo()> (cg) --------------------
 
 -------------------- <B: void <init>()> (cg) --------------------
-[0@L14] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+[0@L14] invokespecial this.<A: void <init>()>(); [<A: void <init>()>]
 
 -------------------- <C: void foo()> (cg) --------------------
 
 -------------------- <D: void foo()> (cg) --------------------
 
 -------------------- <VirtualCall: void main(java.lang.String[])> (cg) --------------------
-[1@L4] invokespecial temp$0.<B: void <init>()>(); [<B: void <init>()>]
-[3@L5] invokevirtual b.<B: void foo()>(); [<A: void foo()>, <C: void foo()>, <D: void foo()>]
+[1@L4] invokespecial b.<B: void <init>()>(); [<B: void <init>()>]
+[2@L5] invokevirtual b.<B: void foo()>(); [<A: void foo()>, <C: void foo()>, <D: void foo()>]
 

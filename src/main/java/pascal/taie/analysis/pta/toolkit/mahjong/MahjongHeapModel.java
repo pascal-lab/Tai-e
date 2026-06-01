@@ -52,7 +52,7 @@ class MahjongHeapModel extends AbstractHeapModel {
         objGroups.stream()
                 .filter(objs -> objs.size() > 1)
                 .forEach(objs -> {
-                    Type type = CollectionUtils.getOne(objs).getType();
+                    Type type = CollectionUtils.getFirst(objs).getType();
                     MergedObj mergedObj = add(new MergedObj(type,
                             "<Mahjong-merged " + type + ">"));
                     objs.forEach(obj -> {

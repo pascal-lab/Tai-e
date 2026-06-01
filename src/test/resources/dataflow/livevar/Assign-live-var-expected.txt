@@ -1,10 +1,22 @@
+-------------------- <Assign: int assign(int,int,int)> (live-var) --------------------
+[0@L-1] %ci0 = 0; [%ci0, a, b]
+[1@L4] d = a + b; [%ci0, a, d]
+[2@L6] if (d <= %ci0) goto 5; [%ci0, a, d]
+[3@L7] b#1 = d; [%ci0, a, b#1, d]
+[4@L7] goto 6; [%ci0, a, b#1, d]
+[5@L9] b#1 = %ci0; [%ci0, a, b#1, d]
+[6@L12] if (d <= %ci0) goto 9; [%ci0, a, b#1]
+[7@L13] c#1 = a; [b#1, c#1]
+[8@L13] goto 10; [b#1, c#1]
+[9@L15] c#1 = %ci0; [b#1, c#1]
+[10@L18] invokestatic <Assign: void use(int)>(b#1); [b#1, c#1]
+[11@L19] invokestatic <Assign: void use(int)>(c#1); [b#1]
+[12@L21] return b#1; []
+
 -------------------- <Assign: void <init>()> (live-var) --------------------
-[0@L1] invokespecial %this.<java.lang.Object: void <init>()>(); []
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L1] return; []
 
--------------------- <Assign: int assign(int,int,int)> (live-var) --------------------
-[0@L4] d = a + b; [a, d]
-[1@L5] b = d; [a, b]
-[2@L6] c = a; [b]
-[3@L7] return b; []
+-------------------- <Assign: void use(int)> (live-var) --------------------
+[0@L24] return; []
 

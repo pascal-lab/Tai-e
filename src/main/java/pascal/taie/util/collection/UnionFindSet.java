@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class UnionFindSet<E> {
@@ -38,11 +39,11 @@ public class UnionFindSet<E> {
     /**
      * Number of disjoint sets.
      */
-    private int setCount;
+    private final AtomicInteger setCount = new AtomicInteger();
 
     public UnionFindSet(Collection<E> elems) {
         elems.forEach(elem -> entries.put(elem, new Entry(elem)));
-        setCount = entries.size();
+        setCount.set(entries.size());
     }
 
     /**
@@ -65,7 +66,7 @@ public class UnionFindSet<E> {
                 root2.parent = root1;
                 ++root2.rank;
             }
-            --setCount;
+            setCount.decrementAndGet();
             return true;
         }
     }
@@ -90,7 +91,7 @@ public class UnionFindSet<E> {
      * @return number of disjoint sets in this union-find set.
      */
     public int numberOfSets() {
-        return setCount;
+        return setCount.get();
     }
 
     /**

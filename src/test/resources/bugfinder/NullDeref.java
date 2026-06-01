@@ -57,7 +57,7 @@ class NullDeref {
         throw a;
     }
 
-    void nullComparison() {
+    void nullComparison() throws Throwable {
         Object a = null;
         Object[] array = null;
         if (a == null) { // report warning

@@ -227,7 +227,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
         if (map == null) {
             if (maxNewSize == 1) {
                 assert singletonKey == null;
-                var entry = CollectionUtils.getOne(m.entrySet());
+                var entry = CollectionUtils.getFirst(m.entrySet());
                 singletonKey = Objects.requireNonNull(entry.getKey(), NULL_KEY);
                 singleton_value = entry.getValue();
                 return;

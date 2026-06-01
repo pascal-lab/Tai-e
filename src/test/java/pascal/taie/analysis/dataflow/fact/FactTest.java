@@ -37,19 +37,19 @@ public class FactTest {
         SetFact<String> f1 = newSetFact("x", "y");
         SetFact<String> f2 = newSetFact("y", "z");
         SetFact<String> f3 = f1.unionWith(f2);
-        assertEquals(f3.size(), 3);
+        assertEquals(3, f3.size());
 
         // Union two disjoint sets
         f1 = newSetFact("a", "b");
         f2 = newSetFact("c", "d");
         f3 = f1.unionWith(f2);
-        assertEquals(f3.size(), 4);
+        assertEquals(4, f3.size());
 
         // Union empty set
         f1 = newSetFact();
         f2 = newSetFact("xxx", "yyy");
         f3 = f1.unionWith(f2);
-        assertEquals(f3.size(), 2);
+        assertEquals(2, f3.size());
     }
 
     @Test
@@ -58,20 +58,20 @@ public class FactTest {
         SetFact<String> f1 = newSetFact("x", "y");
         SetFact<String> f2 = newSetFact("y", "z");
         SetFact<String> f3 = f1.intersectWith(f2);
-        assertEquals(f3.size(), 1);
+        assertEquals(1, f3.size());
 
         // Intersect two disjoint sets
         f1 = newSetFact("a", "b");
         f2 = newSetFact("c", "d");
         f3 = f1.intersectWith(f2);
-        assertEquals(f3.size(), 0);
+        assertEquals(0, f3.size());
         assertTrue(f3.isEmpty());
 
         // Intersect empty set
         f1 = newSetFact();
         f2 = newSetFact("xxx", "yyy");
         f3 = f1.intersectWith(f2);
-        assertEquals(f3.size(), 0);
+        assertEquals(0, f3.size());
         assertTrue(f3.isEmpty());
     }
 

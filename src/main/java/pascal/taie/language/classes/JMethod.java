@@ -24,6 +24,7 @@ package pascal.taie.language.classes;
 
 import pascal.taie.World;
 import pascal.taie.ir.IR;
+import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -69,7 +70,7 @@ public class JMethod extends ClassMember {
      * <br>
      * Notes: This field is {@code transient} because it is not serializable.
      */
-    private final transient Object methodSource;
+    private transient Object methodSource;
 
     /**
      * Notes: This field is {@code transient} because it is serialized separately.
@@ -89,8 +90,9 @@ public class JMethod extends ClassMember {
         this.paramTypes = List.copyOf(paramTypes);
         this.returnType = returnType;
         this.exceptions = List.copyOf(exceptions);
-        this.signature = StringReps.getSignatureOf(this);
-        this.subsignature = Subsignature.get(name, paramTypes, returnType);
+        String subSig = StringReps.toSubsignature(name, paramTypes, returnType);
+        this.signature = StringReps.getSignatureOf(this, subSig);
+        this.subsignature = Subsignature.get(subSig);
         this.gSignature = gSignature;
         this.paramAnnotations = paramAnnotations;
         this.paramNames = paramNames;
@@ -180,7 +182,7 @@ public class JMethod extends ClassMember {
         return methodSource;
     }
 
-    public IR getIR() {
+    public synchronized IR getIR() {
         if (ir == null) {
             if (isAbstract()) {
                 throw new AnalysisException("Abstract method " + this +
@@ -188,8 +190,11 @@ public class JMethod extends ClassMember {
             }
             if (isNative()) {
                 ir = World.get().getNativeModel().buildNativeIR(this);
+            } else if (declaringClass.isPhantom()) {
+                ir = new IRBuildHelper(this).buildEmpty();
             } else {
                 ir = World.get().getIRBuilder().buildIR(this);
+                methodSource = null;
             }
         }
         return ir;

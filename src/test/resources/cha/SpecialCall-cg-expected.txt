@@ -1,20 +1,20 @@
 -------------------- <A: void <init>()> (cg) --------------------
-[0@L12] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L12] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <A: void <init>(B)> (cg) --------------------
-[0@L15] invokespecial %this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
+[0@L15] invokespecial this.<java.lang.Object: void <init>()>(); [<java.lang.Object: void <init>()>]
 
 -------------------- <A: void foo()> (cg) --------------------
 
 -------------------- <B: void <init>()> (cg) --------------------
-[0@L22] invokespecial %this.<A: void <init>()>(); [<A: void <init>()>]
+[0@L22] invokespecial this.<A: void <init>()>(); [<A: void <init>()>]
 
 -------------------- <C: void <init>()> (cg) --------------------
-[0@L27] invokespecial %this.<B: void <init>()>(); [<B: void <init>()>]
-[1@L28] invokespecial %this.<B: void foo()>(); [<A: void foo()>]
+[0@L27] invokespecial this.<B: void <init>()>(); [<B: void <init>()>]
+[1@L28] invokespecial this.<B: void foo()>(); [<A: void foo()>]
 
 -------------------- <SpecialCall: void main(java.lang.String[])> (cg) --------------------
-[1@L4] invokespecial temp$0.<A: void <init>()>(); [<A: void <init>()>]
-[4@L5] invokespecial temp$1.<C: void <init>()>(); [<C: void <init>()>]
-[7@L6] invokespecial temp$2.<A: void <init>(B)>(b); [<A: void <init>(B)>]
+[1@L4] invokespecial %v4.<A: void <init>()>(); [<A: void <init>()>]
+[3@L5] invokespecial b.<C: void <init>()>(); [<C: void <init>()>]
+[5@L6] invokespecial %v6.<A: void <init>(B)>(b); [<A: void <init>(B)>]
 

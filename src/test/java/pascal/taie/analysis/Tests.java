@@ -110,7 +110,6 @@ public final class Tests {
     private static void test(String clz, boolean isMainClass,
                              String classPath, String id, String... opts) {
         List<String> args = new ArrayList<>();
-        args.add("-pp");
         Collections.addAll(args, "-cp", classPath);
         Collections.addAll(args, isMainClass ? "-m" : "--input-classes", clz);
         if (DUMP_IR) {
@@ -165,7 +164,6 @@ public final class Tests {
     public static void testPTA(boolean processResult,
                                String dir, String main, String... opts) {
         List<String> args = new ArrayList<>();
-        args.add("-pp");
         // for loading class PTAAssert
         String ptaTestRoot = "src/test/resources/pta";
         Collections.addAll(args, "-cp", ptaTestRoot);

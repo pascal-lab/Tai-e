@@ -37,8 +37,6 @@ public class MergedObj extends Obj {
 
     private final String name;
 
-    private final Type type;
-
     /**
      * Set of objects represented by this merged object.
      */
@@ -51,7 +49,7 @@ public class MergedObj extends Obj {
     private Obj representative;
 
     public MergedObj(Type type, String name) {
-        this.type = type;
+        super(type);
         this.name = name;
     }
 
@@ -69,11 +67,6 @@ public class MergedObj extends Obj {
     @Override
     public Set<Obj> getAllocation() {
         return representedObjs;
-    }
-
-    @Override
-    public Type getType() {
-        return type;
     }
 
     @Override

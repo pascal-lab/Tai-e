@@ -1,38 +1,36 @@
 Points-to sets of all variables
-[]:<A: void <init>()>/%this -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
-[]:<TaintParam: void arrayParam(java.lang.String[])>/taints -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}]
-[]:<TaintParam: void arrayParam(java.lang.String[])>/temp$2 -> [[]:ConstantObj{java.lang.String: "taint"}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
+[]:<A: void <init>()>/this -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
+[]:<TaintParam: void arrayParam(java.lang.String[])>/%v2 -> [[]:ConstantObj{java.lang.String: "taint"}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
+[]:<TaintParam: void arrayParam(java.lang.String[])>/taints -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%ci1]}]
 []:<TaintParam: void fieldParam(A)>/a1 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
 []:<TaintParam: void fieldParam(A)>/taint -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
-[]:<TaintParam: void main(java.lang.String[])>/%stringconst2 -> [[]:ConstantObj{java.lang.String: "noTaint"}]
-[]:<TaintParam: void main(java.lang.String[])>/%stringconst3 -> [[]:ConstantObj{java.lang.String: "taint"}]
+[]:<TaintParam: void main(java.lang.String[])>/%c4 -> [[]:ConstantObj{java.lang.String: "noTaint"}]
+[]:<TaintParam: void main(java.lang.String[])>/%c6 -> [[]:ConstantObj{java.lang.String: "taint"}]
+[]:<TaintParam: void main(java.lang.String[])>/%v2 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[2@L3] newarray java.lang.String[%ci1]}]
+[]:<TaintParam: void main(java.lang.String[])>/%v5 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%ci1]}]
+[]:<TaintParam: void main(java.lang.String[])>/%v7 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
 []:<TaintParam: void main(java.lang.String[])>/args -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}]
-[]:<TaintParam: void main(java.lang.String[])>/temp$0 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
-[]:<TaintParam: void main(java.lang.String[])>/temp$1 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}]
-[]:<TaintParam: void main(java.lang.String[])>/temp$2 -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
 []:<TaintParam: void sink(A)>/a -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}]
 []:<TaintParam: void sink(java.lang.String)>/sa -> [[]:ConstantObj{java.lang.String: "taint"}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}, []:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
-[]:<TaintParam: void sink(java.lang.String[])>/sa -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}, []:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
-[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/noTaint -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}]
-[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/sa1 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
-[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/sa2 -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void sink(java.lang.String[])>/sa -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:NewObj{<TaintParam: void main(java.lang.String[])>[2@L3] newarray java.lang.String[%ci1]}, []:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%ci1]}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
+[]:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/noTaint -> [[]:NewObj{<TaintParam: void main(java.lang.String[])>[2@L3] newarray java.lang.String[%ci1]}]
 []:<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/taint -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}, []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}]
 
 Points-to sets of all static fields
 
 Points-to sets of all instance fields
-[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}.f -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[10@L5] new A}.<A: java.lang.String f> -> [[]:TaintObj{alloc=<TaintParam: void fieldParam(A)>/0.f,type=A}]
 
 Points-to sets of all array indexes
 []:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0},type=java.lang.String[] in <TaintParam: void main(java.lang.String[])>}[*] -> [[]:EntryPointObj{alloc=MethodParam{<TaintParam: void main(java.lang.String[])>/0}[*],type=java.lang.String in <TaintParam: void main(java.lang.String[])>}]
-[]:NewObj{<TaintParam: void main(java.lang.String[])>[1@L3] newarray java.lang.String[%intconst0]}[*] -> [[]:ConstantObj{java.lang.String: "noTaint"}]
-[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%intconst0]}[*] -> [[]:ConstantObj{java.lang.String: "taint"}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[2@L3] newarray java.lang.String[%ci1]}[*] -> [[]:ConstantObj{java.lang.String: "noTaint"}]
+[]:NewObj{<TaintParam: void main(java.lang.String[])>[6@L4] newarray java.lang.String[%ci1]}[*] -> [[]:ConstantObj{java.lang.String: "taint"}, []:TaintObj{alloc=<TaintParam: void arrayParam(java.lang.String[])>/0[*],type=java.lang.String[]}]
 []:TaintObj{alloc=<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0,type=java.lang.String[]}[*] -> []
 
 Detected 5 taint flow(s):
-TaintFlow{<TaintParam: void arrayParam(java.lang.String[])>/0[*] -> <TaintParam: void arrayParam(java.lang.String[])>[2@L16] invokestatic TaintParam.sink(temp$2)/0}
+TaintFlow{<TaintParam: void arrayParam(java.lang.String[])>/0[*] -> <TaintParam: void arrayParam(java.lang.String[])>[2@L16] invokestatic TaintParam.sink(%v2)/0}
 TaintFlow{<TaintParam: void arrayParam(java.lang.String[])>/0[*] -> <TaintParam: void arrayParam(java.lang.String[])>[3@L17] invokestatic TaintParam.sink(taints)/0[*]}
 TaintFlow{<TaintParam: void fieldParam(A)>/0.f -> <TaintParam: void fieldParam(A)>[1@L22] invokestatic TaintParam.sink(taint)/0}
 TaintFlow{<TaintParam: void fieldParam(A)>/0.f -> <TaintParam: void fieldParam(A)>[2@L23] invokestatic TaintParam.sink(a1)/0.f}
-TaintFlow{<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0 -> <TaintParam: void varParam(java.lang.String[],java.lang.String[])>[2@L11] invokestatic TaintParam.sink(sa2)/0}
+TaintFlow{<TaintParam: void varParam(java.lang.String[],java.lang.String[])>/0 -> <TaintParam: void varParam(java.lang.String[],java.lang.String[])>[0@L11] invokestatic TaintParam.sink(taint)/0}
 

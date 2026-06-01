@@ -23,13 +23,18 @@
 package pascal.taie.config;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OptionsTest {
@@ -45,12 +50,50 @@ public class OptionsTest {
     @Test
     void testJavaVersion() {
         Options options = Options.parse("-java=8");
-        assertEquals(options.getJavaVersion(), 8);
+        assertEquals(8, options.getJavaVersion());
     }
 
     @Test
-    void testPrependJVM() {
-        Options options = Options.parse("-pp");
+    void testUseCurrentJRE() {
+        Options options = Options.parse();
+        assertEquals(Options.getCurrentJavaVersion(),
+                options.getJavaVersion());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    void testDeprecatedCompatibilityOptions() {
+        Options options = Options.parse("-pp", "-ap");
+        assertTrue(options.isPrependJVM());
+        assertTrue(options.isAllowPhantom());
+        assertTrue(options.useCurrentJRE());
+        assertEquals(Options.getCurrentJavaVersion(),
+                options.getJavaVersion());
+    }
+
+    @Test
+    void testPrependJVMConflictsWithJavaOptions() {
+        assertThrows(ConfigException.class, () -> Options.parse("-java", "8", "-pp"));
+        assertThrows(ConfigException.class, () -> Options.parse(
+                "--jre-dir", "ignored",
+                "-pp"));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    void testDeprecatedCompatibilityOptionsFile(@TempDir Path tempDir)
+            throws IOException {
+        Path optionsFile = tempDir.resolve("options.yml");
+        Path outputDir = tempDir.resolve("output");
+        Files.writeString(optionsFile, """
+                prependJVM: true
+                allowPhantom: true
+                outputDir: "%s"
+                """.formatted(outputDir.toString().replace("\\", "\\\\")));
+        Options options = Options.parse("--options-file", optionsFile.toString());
+        assertTrue(options.isPrependJVM());
+        assertTrue(options.isAllowPhantom());
+        assertTrue(options.useCurrentJRE());
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
     }
@@ -59,14 +102,6 @@ public class OptionsTest {
     void testMainClass() {
         Options options = Options.parse("-cp", "path/to/cp", "-m", "Main");
         assertEquals("Main", options.getMainClass());
-    }
-
-    @Test
-    void testAllowPhantom() {
-        Options options = Options.parse();
-        assertFalse(options.isAllowPhantom());
-        options = Options.parse("--allow-phantom");
-        assertTrue(options.isAllowPhantom());
     }
 
     @Test

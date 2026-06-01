@@ -54,6 +54,11 @@
   id: poly-call
   requires: [ pta ]
 
+- description: identify variable pairs that may alias
+  analysisClass: pascal.taie.analysis.pta.client.MayAliasPair
+  id: may-alias-pair
+  requires: [ pta ]
+
 - description: find modified objects of methods and statements
   analysisClass: pascal.taie.analysis.sideeffect.SideEffectAnalysis
   id: side-effect

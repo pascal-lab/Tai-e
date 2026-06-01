@@ -29,7 +29,7 @@ import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +67,8 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
      */
     @Override
     public void buildAll(ClassHierarchy hierarchy) {
-        Timer timer = new Timer("Build IR for all methods");
-        timer.start();
+        Monitor monitor = new Monitor("Build IR for all methods");
+        monitor.start();
         int nThreads = Runtime.getRuntime().availableProcessors();
         // Group all methods by number of threads
         List<List<JMethod>> groups = new ArrayList<>();
@@ -95,7 +95,7 @@ class IRBuilder implements pascal.taie.ir.IRBuilder {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        timer.stop();
-        logger.info(timer);
+        monitor.stop();
+        logger.info(monitor);
     }
 }

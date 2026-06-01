@@ -22,14 +22,6 @@
 
 package pascal.taie.frontend.cache;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pascal.taie.World;
-import pascal.taie.WorldBuilder;
-import pascal.taie.config.AnalysisConfig;
-import pascal.taie.config.Options;
-import pascal.taie.util.Timer;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -40,9 +32,24 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import pascal.taie.World;
+import pascal.taie.WorldBuilder;
+import pascal.taie.config.Options;
+import pascal.taie.util.Monitor;
+
 /**
- * A {@link WorldBuilder} that loads the cached world if it exists, or delegates to the
- * underlying {@link WorldBuilder} otherwise.
+ * A {@link WorldBuilder} that caches the built World on disk,
+ * improving performance by loading from cache on subsequent runs.
+ * <p>
+ * The cache can be reused when {@link #getWorldCacheHash(Options)} produces
+ * the same hash value, which is computed based on program input related
+ * fields in {@link Options}. If any program input related fields change
+ * in {@link Options}, please update that method accordingly.
+ * <p>
+ * Defaults to the {@link #delegate} builder if the cache is unavailable.
  */
 public class CachedWorldBuilder implements WorldBuilder {
 
@@ -50,6 +57,10 @@ public class CachedWorldBuilder implements WorldBuilder {
 
     private static final String CACHE_DIR = "cache";
 
+    /**
+     * The delegate {@link WorldBuilder} used to build the {@link World}
+     * when the cache is unavailable.
+     */
     private final WorldBuilder delegate;
 
     public CachedWorldBuilder(WorldBuilder delegate) {
@@ -58,17 +69,12 @@ public class CachedWorldBuilder implements WorldBuilder {
     }
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
-        if (!options.isWorldCacheMode()) {
-            logger.error("Using CachedWorldBuilder,"
-                    + " but world cache mode option is not enabled");
-            System.exit(-1);
-        }
+    public void build(Options options) {
         File worldCacheFile = getWorldCacheFile(options);
         if (loadCache(options, worldCacheFile)) {
             return;
         }
-        runWorldBuilder(options, analyses);
+        runWorldBuilder(options);
         saveCache(worldCacheFile);
     }
 
@@ -78,8 +84,8 @@ public class CachedWorldBuilder implements WorldBuilder {
             return false;
         }
         logger.info("Loading the world cache from {}", worldCacheFile);
-        Timer timer = new Timer("Load the world cache");
-        timer.start();
+        Monitor monitor = new Monitor("Load the world cache");
+        monitor.start();
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(
@@ -99,44 +105,34 @@ public class CachedWorldBuilder implements WorldBuilder {
                     logger.error("Failed to close input stream", e);
                 }
             }
-            timer.stop();
-            logger.info(timer);
+            monitor.stop();
+            logger.info(monitor);
         }
         return false;
     }
 
-    private void runWorldBuilder(Options options, List<AnalysisConfig> analyses) {
+    private void runWorldBuilder(Options options) {
         logger.info("Running the WorldBuilder ...");
-        Timer timer = new Timer("Run the WorldBuilder");
-        timer.start();
-        delegate.build(options, analyses);
-        timer.stop();
-        logger.info(timer);
+        Monitor monitor = new Monitor("Run the WorldBuilder");
+        monitor.start();
+        delegate.build(options);
+        monitor.stop();
+        logger.info(monitor);
     }
 
     private void saveCache(File worldCacheFile) {
         logger.info("Saving the world cache to {}", worldCacheFile);
-        Timer timer = new Timer("Save the world cache");
-        timer.start();
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(
-                    new BufferedOutputStream(new FileOutputStream(worldCacheFile)));
+        Monitor monitor = new Monitor("Save the world cache");
+        monitor.start();
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new BufferedOutputStream(new FileOutputStream(worldCacheFile)))) {
             oos.writeObject(World.get());
-            oos.close();
         } catch (Exception e) {
             logger.error("Failed to save world cache from {} due to {}",
                     worldCacheFile, e);
         } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (Exception e) {
-                    logger.error("Failed to close output stream", e);
-                }
-            }
-            timer.stop();
-            logger.info(timer);
+            monitor.stop();
+            logger.info(monitor);
         }
     }
 
@@ -155,8 +151,7 @@ public class CachedWorldBuilder implements WorldBuilder {
         result = 31 * result + (options.getInputClasses() != null
                 ? options.getInputClasses().hashCode() : 0);
         result = 31 * result + options.getJavaVersion();
-        result = 31 * result + (options.isPrependJVM() ? 1 : 0);
-        result = 31 * result + (options.isAllowPhantom() ? 1 : 0);
+        result = 31 * result + (options.useCurrentJRE() ? 1 : 0);
         result = 31 * result + (options.getWorldBuilderClass() != null
                 ? options.getWorldBuilderClass().getName().hashCode() : 0);
         // add the timestamp to the cache key calculation

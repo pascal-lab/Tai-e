@@ -104,7 +104,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                     analysis.meetInto(fact, in);
                 });
             } else if (inDegree == 1) {
-                CFGEdge<Node> inEdge = CollectionUtils.getOne(cfg.getInEdgesOf(node));
+                CFGEdge<Node> inEdge = CollectionUtils.getFirst(cfg.getInEdgesOf(node));
                 if (analysis.needTransferEdge(inEdge)) {
                     in = analysis.transferEdge(inEdge,
                             result.getOutFact(inEdge.source()));
@@ -191,7 +191,7 @@ class WorkListSolver<Node, Fact> extends AbstractSolver<Node, Fact> {
                     analysis.meetInto(fact, out);
                 });
             } else if (outDegree == 1) {
-                CFGEdge<Node> outEdge = CollectionUtils.getOne(cfg.getOutEdgesOf(node));
+                CFGEdge<Node> outEdge = CollectionUtils.getFirst(cfg.getOutEdgesOf(node));
                 if (analysis.needTransferEdge(outEdge)) {
                     out = analysis.transferEdge(outEdge,
                             result.getInFact(outEdge.target()));

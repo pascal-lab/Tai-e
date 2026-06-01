@@ -23,6 +23,7 @@
 package pascal.taie.frontend.soot;
 
 import org.junit.jupiter.api.Test;
+
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
@@ -35,6 +36,7 @@ import pascal.taie.language.classes.JMethod;
 
 import java.util.stream.Stream;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class InvokeDynamicTest {
@@ -46,7 +48,8 @@ public class InvokeDynamicTest {
     @Test
     void testFunction() {
         final String main = "Function";
-        Main.buildWorld("-pp", "-cp", CP, "-m", main);
+        Main.buildWorld("-cp", CP, "-m", main,
+                "--world-builder", SootWorldBuilder.class.getName());
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -57,7 +60,8 @@ public class InvokeDynamicTest {
     @Test
     void testInterface() {
         final String main = "Interface";
-        Main.buildWorld("-pp", "-cp", CP, "-m", main);
+        Main.buildWorld("-cp", CP, "-m", main,
+                "--world-builder", SootWorldBuilder.class.getName());
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -76,7 +80,8 @@ public class InvokeDynamicTest {
     @Test
     void testMultiStatement() {
         final String main = "MultiStatement";
-        Main.buildWorld("-pp", "-cp", CP, "-m", main);
+        Main.buildWorld("-cp", CP, "-m", main,
+                "--world-builder", SootWorldBuilder.class.getName());
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -91,7 +96,8 @@ public class InvokeDynamicTest {
     @Test
     void testWithArgs() {
         final String main = "WithArgs";
-        Main.buildWorld("-pp", "-cp", CP, "-m", main);
+        Main.buildWorld("-cp", CP, "-m", main,
+                "--world-builder", SootWorldBuilder.class.getName());
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         JMethod mainMethod = mainClass.getDeclaredMethod("main");
         printIR(mainMethod.getIR());
@@ -104,7 +110,8 @@ public class InvokeDynamicTest {
     @Test
     void testCapture() {
         final String main = "Capture";
-        Main.buildWorld("-pp", "-cp", CP, "-m", main);
+        Main.buildWorld("-cp", CP, "-m", main,
+                "--world-builder", SootWorldBuilder.class.getName());
         JClass mainClass = World.get().getClassHierarchy().getClass(main);
         mainClass.getDeclaredMethods().forEach(m -> printIR(m.getIR()));
     }

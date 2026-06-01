@@ -25,16 +25,19 @@ package pascal.taie.analysis.pta.core.heap;
 import pascal.taie.World;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.config.ConfigException;
+import pascal.taie.ir.exp.NewArray;
+import pascal.taie.ir.exp.NumberLiteral;
 import pascal.taie.ir.exp.ReferenceLiteral;
 import pascal.taie.ir.exp.StringLiteral;
+import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
-import pascal.taie.util.Predicates;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
+import pascal.taie.util.function.Predicates;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -45,10 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static pascal.taie.language.classes.ClassNames.STRING;
 import static pascal.taie.language.classes.ClassNames.STRING_BUFFER;
 import static pascal.taie.language.classes.ClassNames.STRING_BUILDER;
-import static pascal.taie.language.classes.ClassNames.THROWABLE;
 
 /**
  * All heap models should inherit this class, and we can define
@@ -92,6 +93,10 @@ public abstract class AbstractHeapModel implements HeapModel {
 
     private final Map<MockObj, MockObj> mockObjs = Maps.newMap();
 
+    private final Map<Type, Obj> zeroLengthArrays = Maps.newMap();
+
+    private static final Descriptor ZERO_LENGTH_ARRAY_DESC = () -> "ZeroLengthArray";
+
     /**
      * Counter for indexing Objs.
      */
@@ -106,10 +111,10 @@ public abstract class AbstractHeapModel implements HeapModel {
         isMergeStringBuilders = options.getBoolean("merge-string-builders");
         isMergeExceptionObjects = options.getBoolean("merge-exception-objects");
         typeSystem = World.get().getTypeSystem();
-        string = typeSystem.getClassType(STRING);
+        string = typeSystem.stringType();
         stringBuilder = typeSystem.getClassType(STRING_BUILDER);
         stringBuffer = typeSystem.getClassType(STRING_BUFFER);
-        throwable = typeSystem.getClassType(THROWABLE);
+        throwable = typeSystem.throwableType();
         mergedSC = add(new MergedObj(string, "<Merged string constants>"));
     }
 
@@ -152,7 +157,21 @@ public abstract class AbstractHeapModel implements HeapModel {
         if (isMergeExceptionObjects && typeSystem.isSubtype(throwable, type)) {
             return getMergedObj(allocSite);
         }
+        if (isZeroLengthArrayAlloc(allocSite)) {
+            return getZeroLengthArrayObj(type);
+        }
+
         return doGetObj(allocSite);
+    }
+
+    private boolean isZeroLengthArrayAlloc(New allocSite) {
+        if (!(allocSite.getRValue() instanceof NewArray newArr)) {
+            return false;
+        }
+        Var length = newArr.getLength();
+        return length.isConst()
+                && length.getConstValue() instanceof NumberLiteral numLit
+                && numLit.getNumber().longValue() == 0;
     }
 
     /**
@@ -172,6 +191,19 @@ public abstract class AbstractHeapModel implements HeapModel {
     protected NewObj getNewObj(New allocSite) {
         return newObjs.computeIfAbsent(allocSite,
                 site -> add(new NewObj(site)));
+    }
+
+    /**
+     * Get the mock object for a zero-length array.
+     * Arrays with the same type share one mocked representation
+     *
+     * @param type the type of allocated zero-length array (e.g. String[])
+     * @return mock object for the zero-length array
+     */
+    protected Obj getZeroLengthArrayObj(Type type) {
+        return zeroLengthArrays.computeIfAbsent(type,
+                t -> getMockObj(ZERO_LENGTH_ARRAY_DESC,
+                        "<Merged zero-length " + t + ">", t, false));
     }
 
     /**

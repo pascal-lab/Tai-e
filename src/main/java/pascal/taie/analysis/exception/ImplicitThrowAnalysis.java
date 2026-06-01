@@ -39,7 +39,7 @@ import pascal.taie.ir.stmt.StoreArray;
 import pascal.taie.ir.stmt.StoreField;
 import pascal.taie.ir.stmt.Throw;
 import pascal.taie.ir.stmt.Unary;
-import pascal.taie.language.classes.ClassNames;
+import pascal.taie.language.classes.ExceptionNames;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeSystem;
 
@@ -144,13 +144,13 @@ class ImplicitThrowAnalysis {
 
     ImplicitThrowAnalysis() {
         TypeSystem ts = World.get().getTypeSystem();
-        ClassType arrayStoreException = ts.getClassType(ClassNames.ARRAY_STORE_EXCEPTION);
-        ClassType indexOutOfBoundsException = ts.getClassType(ClassNames.INDEX_OUT_OF_BOUNDS_EXCEPTION);
-        ClassType nullPointerException = ts.getClassType(ClassNames.NULL_POINTER_EXCEPTION);
-        ClassType outOfMemoryError = ts.getClassType(ClassNames.OUT_OF_MEMORY_ERROR);
+        ClassType arrayStoreException = ts.getClassType(ExceptionNames.ARRAY_STORE_EXCEPTION);
+        ClassType indexOutOfBoundsException = ts.getClassType(ExceptionNames.INDEX_OUT_OF_BOUNDS_EXCEPTION);
+        ClassType nullPointerException = ts.getClassType(ExceptionNames.NULL_POINTER_EXCEPTION);
+        ClassType outOfMemoryError = ts.getClassType(ExceptionNames.OUT_OF_MEMORY_ERROR);
 
         ARITHMETIC_EXCEPTION = Set.of(
-                ts.getClassType(ClassNames.ARITHMETIC_EXCEPTION));
+                ts.getClassType(ExceptionNames.ARITHMETIC_EXCEPTION));
         LOAD_ARRAY_EXCEPTIONS = Set.of(
                 indexOutOfBoundsException,
                 nullPointerException);
@@ -159,12 +159,12 @@ class ImplicitThrowAnalysis {
                 indexOutOfBoundsException,
                 nullPointerException);
         INITIALIZER_ERROR = Set.of(
-                ts.getClassType(ClassNames.EXCEPTION_IN_INITIALIZER_ERROR));
+                ts.getClassType(ExceptionNames.EXCEPTION_IN_INITIALIZER_ERROR));
         CLASS_CAST_EXCEPTION = Set.of(
-                ts.getClassType(ClassNames.CLASS_CAST_EXCEPTION));
+                ts.getClassType(ExceptionNames.CLASS_CAST_EXCEPTION));
         NEW_ARRAY_EXCEPTIONS = Set.of(
                 outOfMemoryError,
-                ts.getClassType(ClassNames.NEGATIVE_ARRAY_SIZE_EXCEPTION));
+                ts.getClassType(ExceptionNames.NEGATIVE_ARRAY_SIZE_EXCEPTION));
         NULL_POINTER_EXCEPTION = Set.of(nullPointerException);
         OUT_OF_MEMORY_ERROR = Set.of(outOfMemoryError);
     }

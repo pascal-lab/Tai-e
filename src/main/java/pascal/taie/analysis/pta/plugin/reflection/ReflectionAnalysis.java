@@ -91,8 +91,11 @@ public class ReflectionAnalysis extends CompositePlugin {
         addPlugin(logBasedModel,
                 inferenceModel,
                 reflectiveActionModel,
-                new AnnotationModel(solver, helper),
                 new OthersModel(solver, helper));
+
+        if (World.get().getOptions().getJavaVersion() >= 5) {
+            addPlugin(new AnnotationModel(solver, helper));
+        }
     }
 
     @Override

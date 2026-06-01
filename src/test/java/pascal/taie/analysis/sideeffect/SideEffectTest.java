@@ -24,7 +24,25 @@ package pascal.taie.analysis.sideeffect;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import pascal.taie.Main;
+import pascal.taie.World;
 import pascal.taie.analysis.Tests;
+import pascal.taie.analysis.graph.callgraph.CallGraph;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.PointerAnalysisResult;
+import pascal.taie.analysis.pta.core.heap.Obj;
+import pascal.taie.ir.exp.ArrayAccess;
+import pascal.taie.ir.exp.InstanceFieldAccess;
+import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.ir.stmt.StoreArray;
+import pascal.taie.ir.stmt.StoreField;
+import pascal.taie.language.classes.JMethod;
+
+import java.util.LongSummaryStatistics;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SideEffectTest {
 
@@ -34,6 +52,24 @@ public class SideEffectTest {
         Tests.testMain(mainClass, CLASS_PATH, "side-effect",
                 "-a", "pta=implicit-entries:false",
                 "-a", "cg=algorithm:pta");
+    }
+
+    private static SideEffect runSideEffect(String mainClass, boolean onlyApp) {
+        Main.main("-cp", CLASS_PATH,
+                "-m", mainClass,
+                "-a", "side-effect=only-app:" + onlyApp,
+                "-a", "pta=implicit-entries:false",
+                "-a", "cg=algorithm:pta");
+        return World.get().getResult(SideEffectAnalysis.ID);
+    }
+
+    private LongSummaryStatistics summarize(SideEffect sideEffect) {
+        return World.get().getClassHierarchy().allClasses()
+                .filter(c -> c.isApplication())
+                .flatMap(c -> c.getDeclaredMethods().stream())
+                .map(sideEffect::getModifiedObjects)
+                .mapToLong(Set::size)
+                .summaryStatistics();
     }
 
     @ParameterizedTest
@@ -59,5 +95,87 @@ public class SideEffectTest {
     })
     void test(String mainClass) {
         testSideEffect(mainClass);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "StaticStore",
+            "SimpleCases",
+            "LinkedList",
+            "BubbleSort",
+            "PureTest",
+            "ConstructorTest",
+            "PrimitiveTest",
+            "Arrays",
+            "SideEffects",
+            "Globals",
+            "Inheritance",
+            "InterProc",
+            "Recursion",
+            "Loops",
+            "Null",
+            "OOP",
+            "Milanova",
+            "PolyLoop"
+    })
+    void testGlobal(String mainClass) {
+        // when only-app is set to false, the result should be no smaller
+        SideEffect appResult = runSideEffect(mainClass, true);
+        LongSummaryStatistics appSummary = summarize(appResult);
+
+        SideEffect globalResult = runSideEffect(mainClass, false);
+        LongSummaryStatistics globalSummary = summarize(globalResult);
+
+        assertTrue(appSummary.getMax() <= globalSummary.getMax());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "StaticStore",
+            "SimpleCases",
+            "LinkedList",
+            "BubbleSort",
+            "PureTest",
+            "ConstructorTest",
+            "PrimitiveTest",
+            "Arrays",
+            "SideEffects",
+            "Globals",
+            "Inheritance",
+            "InterProc",
+            "Recursion",
+            "Loops",
+            "Null",
+            "OOP",
+            "Milanova",
+            "PolyLoop"
+    })
+    void testCorrectness(String mainClass) {
+        SideEffect effect = runSideEffect(mainClass, false);
+        PointerAnalysisResult pta = World.get().getResult(PointerAnalysis.ID);
+        CallGraph<Invoke, JMethod> callGraph = pta.getCallGraph();
+        for (JMethod method : callGraph) {
+            if (!method.isApplication()) {
+                continue;
+            }
+            Set<Obj> methodMod = effect.getModifiedObjects(method);
+            for (Stmt stmt : method.getIR()) {
+                Set<Obj> stmtMod = effect.getModifiedObjects(stmt);
+                assertTrue(methodMod.containsAll(stmtMod));
+                if (stmt instanceof StoreField storeField
+                        && storeField.getFieldAccess() instanceof InstanceFieldAccess access) {
+                    assertTrue(stmtMod.containsAll(pta.getPointsToSet(access.getBase())));
+                } else if (stmt instanceof StoreArray storeArray) {
+                    ArrayAccess access = storeArray.getArrayAccess();
+                    assertTrue(stmtMod.containsAll(pta.getPointsToSet(access.getBase())));
+                } else if (stmt instanceof Invoke invoke) {
+                    for (JMethod callee : callGraph.getCalleesOf(invoke)) {
+                        if (callee.isApplication()) {
+                            assertTrue(stmtMod.containsAll(effect.getModifiedObjects(callee)));
+                        }
+                    }
+                }
+            }
+        }
     }
 }

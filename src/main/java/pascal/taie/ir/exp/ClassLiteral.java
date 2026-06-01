@@ -26,8 +26,6 @@ import pascal.taie.World;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
-import static pascal.taie.language.classes.ClassNames.CLASS;
-
 public class ClassLiteral implements ReferenceLiteral {
 
     /**
@@ -45,9 +43,7 @@ public class ClassLiteral implements ReferenceLiteral {
 
     @Override
     public ClassType getType() {
-        // TODO: cache Class type in a static field? Doing so
-        //  requires to reset the field when resetting World.
-        return World.get().getTypeSystem().getClassType(CLASS);
+        return World.get().getTypeSystem().classType();
     }
 
     public Type getTypeValue() {

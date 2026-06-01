@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.generics.ReferenceTypeGSignature;
@@ -39,17 +40,43 @@ public class JField extends ClassMember {
 
     private final Type type;
 
+    /**
+     * In class file, a field can be associated with a constant value attribute if
+     * it is static final.
+     * If a (static final) field is associated with a constant value, in
+     * {@code <cinit>} method, there will be no initialization for this field.
+     * E.g.,
+     * <pre>
+     * {@code
+     * class A {
+     *     static final int i = 1;
+     * }
+     * }
+     * </pre>
+     * where {@code i} is a static final field, associated with a constant value
+     * attribute in class file.
+     * In the {@code <cinit>} method, there will be no
+     * initialization for {@code i}.
+     * <p>
+     * Thus, to avoid losing the constant value, we need to store it in the {@code
+     * constantValue } field.
+     */
+    @Nullable
+    private final Literal constantValue;
+
     @Nullable
     @Experimental
     private final ReferenceTypeGSignature gSignature;
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
                   Type type, @Nullable ReferenceTypeGSignature gSignature,
-                  AnnotationHolder annotationHolder) {
+                  AnnotationHolder annotationHolder,
+                  @Nullable Literal constantValue) {
         super(declaringClass, name, modifiers, annotationHolder);
         this.type = type;
         this.gSignature = gSignature;
         this.signature = StringReps.getSignatureOf(this);
+        this.constantValue = constantValue;
     }
 
     public Type getType() {
@@ -74,5 +101,14 @@ public class JField extends ClassMember {
     @Override
     public String toString() {
         return StringReps.getSignatureOf(this);
+    }
+
+    /**
+     * See <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2">JVM Spec 4.7.2</a>
+     * @return constant value for static final fields, can be a primitive type or string value
+     */
+    @Nullable
+    public Literal getConstantValue() {
+        return constantValue;
     }
 }

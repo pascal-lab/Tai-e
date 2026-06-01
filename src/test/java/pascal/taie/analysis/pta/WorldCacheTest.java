@@ -29,7 +29,7 @@ import pascal.taie.World;
 import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.frontend.cache.CachedWorldBuilder;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class WorldCacheTest {
 
@@ -52,7 +52,7 @@ public class WorldCacheTest {
         Main.main(args);
         World world2 = World.get();
         CachedWorldBuilder.getWorldCacheFile(world2.getOptions()).delete();
-        assertTrue(world2.getIRBuilder() instanceof CachedIRBuilder);
+        assertInstanceOf(CachedIRBuilder.class, world2.getIRBuilder());
     }
 
 }

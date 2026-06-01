@@ -1,0 +1,6 @@
+sources:
+  - { kind: call, method: "<ZeroLengthArrayWithArraysCopyOf: java.lang.String getSourceData()>", index: result }
+
+sinks:
+  - { method: "<ZeroLengthArrayWithArraysCopyOf: void sink(java.lang.String)>", index: 0 }
+

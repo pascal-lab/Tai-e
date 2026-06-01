@@ -35,7 +35,13 @@ import java.util.Optional;
  */
 public abstract class Obj implements Indexable {
 
+    protected final Type type;
+
     private int index = -1;
+
+    protected Obj(Type type) {
+        this.type = type;
+    }
 
     void setIndex(int index) {
         if (this.index != -1) {
@@ -65,7 +71,9 @@ public abstract class Obj implements Indexable {
     /**
      * @return the type of the object.
      */
-    public abstract Type getType();
+    public Type getType() {
+        return type;
+    }
 
     /**
      * @return the allocation of the object.

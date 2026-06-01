@@ -108,8 +108,8 @@ public final class CSObjs {
     }
 
     /**
-     * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
-     * If the object does not represent a Method, then return null.
+     * Converts a CSObj of java.lang.reflect.Field to corresponding JField.
+     * If the object does not represent a Field, then return null.
      */
     @Nullable
     public static JField toField(CSObj csObj) {

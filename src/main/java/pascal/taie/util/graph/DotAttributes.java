@@ -60,7 +60,7 @@ public class DotAttributes {
         attrs.keySet().forEach(name -> {
             Set<String> values = attrs.get(name);
             if (values.size() == 1) {
-                joiner.add(name + '=' + CollectionUtils.getOne(values));
+                joiner.add(name + '=' + CollectionUtils.getFirst(values));
             } else {
                 String value = values.stream()
                         .collect(Collectors.joining(",", "\"", "\""));

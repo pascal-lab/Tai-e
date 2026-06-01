@@ -11,7 +11,7 @@ class A {
         c1.set(new D());
         C c2 = new C();
         c2.set(new D());
-        D x = c1.get();
+        D x = c1.get(); x.hashCode();
     }
 }
 
@@ -19,7 +19,7 @@ class B {
     void m() {
         C c3 = new C();
         c3.set(new D());
-        D y = c3.get();
+        D y = c3.get(); y.hashCode();
     }
 }
 

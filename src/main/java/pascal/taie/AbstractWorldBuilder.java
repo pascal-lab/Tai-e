@@ -68,12 +68,12 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
     );
 
     protected static String getClassPath(Options options) {
-        if (options.isPrependJVM()) {
+        if (options.useCurrentJRE()) {
             return Streams.concat(
                             options.getAppClassPath().stream(),
                             options.getClassPath().stream())
                     .collect(Collectors.joining(File.pathSeparator));
-        } else { // when prependJVM is not set, we manually specify JRE jars
+        } else { // otherwise, we manually specify JRE jars
             // check existence of JREs
             File jreDir = new File(JREs);
             if (!jreDir.exists()) {

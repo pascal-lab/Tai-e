@@ -3,8 +3,8 @@ class TwoCallOnly {
         B b = new B();
         A a1 = new A(new X());
         A a2 = new A(new X());
-        X x1 = a1.fun(b);
-        X x2 = a2.fun(b); //pts of x1 and x2?
+        X x1 = a1.fun(b); x1.hashCode();
+        X x2 = a2.fun(b); x2.hashCode(); //pts of x1 and x2?
     }
 }
 

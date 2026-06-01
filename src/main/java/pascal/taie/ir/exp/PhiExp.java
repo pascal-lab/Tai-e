@@ -22,26 +22,52 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.ArraySet;
+import pascal.taie.util.collection.Pair;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Representation of phi expression, e.g., φ(a, b).
+ */
 public class PhiExp implements RValue {
+
+    private final List<Pair<Stmt, Var>> sourceAndVar;
 
     private final Type type;
 
-    private final List<Var> vars;
+    public static final Stmt METHOD_ENTRY = new Nop() {
+        @Override
+        public String toString() {
+            return "METHOD_ENTRY";
+        }
+    };
 
-    public PhiExp(Type type, List<Var> vars) {
-        this.type = type;
-        this.vars = List.copyOf(vars);
+    /**
+     * @return the list of pairs of source statement and variable.
+     * The source statement represents the source coming control flow
+     * <p>
+     * E.g., let {@code phi(s1:a, s2:b)} be the current phi expression.
+     * <pre>
+     * {@code
+     * Block1 -> phi(s1:a, s2:b)
+     * Block2 -> phi(s1:a, s2:b)
+     * }
+     * </pre>
+     * {@code s1} will be the last statement of Block1, and {@code s2} will be the
+     * last statement of Block2.
+     */
+    public List<Pair<Stmt, Var>> getSourceAndVar() {
+        return sourceAndVar;
     }
 
-    public List<Var> getVars() {
-        return vars;
+    public PhiExp(List<Pair<Stmt, Var>> sourceAndVar, Type type) {
+        this.sourceAndVar = sourceAndVar;
+        this.type = type;
     }
 
     @Override
@@ -51,20 +77,25 @@ public class PhiExp implements RValue {
 
     @Override
     public Set<RValue> getUses() {
-        return new ArraySet<>(vars);
+        return sourceAndVar
+                .stream()
+                .map(Pair::second)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public <T> T accept(ExpVisitor<T> visitor) {
-        return visitor.visit(this);
+        throw new UnsupportedOperationException();
     }
-
 
     @Override
     public String toString() {
-        return String.format("phi(%s)", vars.stream()
-                .map(Var::toString)
-                .collect(Collectors.joining(", ")));
+        String repr;
+        repr = sourceAndVar.stream()
+                .map(p -> p.first() + ":" + p.second().toString())
+                .collect(Collectors.joining(", "));
+        return "Φ(" + repr + ")";
     }
+
 
 }

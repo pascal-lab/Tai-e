@@ -3,6 +3,7 @@ public class Fibonacci {
         int n = 5;
         int z = 0;
         z = getFibonacci(n);
+        use(z);
     }
 
     public static int getFibonacci(int n) {
@@ -12,4 +13,6 @@ public class Fibonacci {
             return getFibonacci(n - 1) + getFibonacci(n - 2);
         }
     }
+
+    public static void use(int n) {}
 }

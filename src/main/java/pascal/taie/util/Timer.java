@@ -35,6 +35,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+/**
+ * A utility class for timing tasks and logging elapsed time.
+ *
+ * <p><b>Note:</b> This class is deprecated and will be removed in a future version.
+ * Please use {@link Monitor} instead, which provides enhanced monitoring capabilities
+ * including CPU and memory usage tracking in addition to elapsed time.
+ *
+ * @deprecated Use {@link Monitor} instead for improved monitoring with CPU and memory tracking.
+ * @see Monitor
+ */
+@Deprecated(forRemoval = true)
 public class Timer {
 
     private static final Logger logger = LogManager.getLogger(Timer.class);

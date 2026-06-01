@@ -78,7 +78,7 @@ enum Checkers {
         List<Var> checkVars = getStoredVariables(invoke, 0);
         String assertion = String.format(
                 "points-to sets of variables %s are equal", checkVars);
-        Set<Obj> pts = pta.getPointsToSet(CollectionUtils.getOne(checkVars));
+        Set<Obj> pts = pta.getPointsToSet(CollectionUtils.getFirst(checkVars));
         Map<Var, Set<Obj>> failures = Maps.newLinkedHashMap();
         if (!checkVars.stream()
                 .map(pta::getPointsToSet)

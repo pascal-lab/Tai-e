@@ -22,8 +22,6 @@
 
 package pascal.taie.util;
 
-import pascal.taie.util.collection.Lists;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,17 +35,13 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
+import static pascal.taie.util.PathUtils.CLASS;
+
 /**
  * Utility class for extracting names of all classes inside
  * given JAR files or directories.
  */
 public class ClassNameExtractor {
-
-    private static final String JAR = ".jar";
-
-    private static final String CLASS = ".class";
-
-    private static final String JAVA = ".java";
 
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -59,10 +53,10 @@ public class ClassNameExtractor {
         File outFile = new File(args[0]);
         System.out.printf("Dumping extracted class names to %s%n",
                 outFile.getAbsolutePath());
-        String[] jars = Arrays.copyOfRange(args, 1, args.length);
+        String[] paths = Arrays.copyOfRange(args, 1, args.length);
         try (PrintStream out = new PrintStream(new FileOutputStream(outFile))) {
-            for (String arg : jars) {
-                extract(arg).forEach(out::println);
+            for (String path : paths) {
+                extract(path).forEach(out::println);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -73,11 +67,37 @@ public class ClassNameExtractor {
      * Extracts names of all classes in given path.
      */
     public static List<String> extract(String path) {
-        return path.endsWith(JAR) ? extractJar(path) : extractDir(path);
+        return extract(Path.of(path));
     }
 
-    private static List<String> extractJar(String jarPath) {
-        File file = new File(jarPath);
+    /**
+     * Extracts names of all classes in given path.
+     */
+    private static List<String> extract(Path path) {
+        return path.toFile().isDirectory() ? extractDir(path) : extractJar(path);
+    }
+
+    private static List<String> extractDir(Path dirPath) {
+        try (Stream<Path> paths = Files.walk(dirPath)) {
+            System.out.printf("Scanning %s ... ", dirPath.toAbsolutePath());
+            List<String> classNames = new ArrayList<>();
+            paths.map(dirPath::relativize).forEach(path -> {
+                if (PathUtils.isJavaFile(path) || PathUtils.isClassFile(path)) {
+                    classNames.add(PathUtils.toClassName(path));
+                }
+            });
+            System.out.printf("%d classes%n", classNames.size());
+            return classNames;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read directory: " + dirPath, e);
+        }
+    }
+
+    private static List<String> extractJar(Path jarPath) {
+        if (!PathUtils.isJarFile(jarPath)) {
+            throw new RuntimeException(jarPath + " is not a JAR file");
+        }
+        File file = jarPath.toFile();
         try (JarFile jar = new JarFile(file)) {
             System.out.printf("Scanning %s ... ", file.getAbsolutePath());
             List<String> classNames = jar.stream()
@@ -92,38 +112,8 @@ public class ClassNameExtractor {
             System.out.printf("%d classes%n", classNames.size());
             return classNames;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read jar file: " +
+            throw new RuntimeException("Failed to read JAR file: " +
                     file.getAbsolutePath(), e);
-        }
-    }
-
-    private static List<String> extractDir(String dirPath) {
-        Path dir = Path.of(dirPath);
-        if (!dir.toFile().isDirectory()) {
-            throw new RuntimeException(dir + " is not a directory");
-        }
-        try (Stream<Path> paths = Files.walk(dir)) {
-            System.out.printf("Scanning %s ... ", dir.toAbsolutePath());
-            List<String> classNames = new ArrayList<>();
-            paths.map(dir::relativize).forEach(path -> {
-                String fileName = path.getFileName().toString();
-                int suffix;
-                if (fileName.endsWith(CLASS)) {
-                    suffix = CLASS.length();
-                } else if (fileName.endsWith(JAVA)) {
-                    suffix = JAVA.length();
-                } else {
-                    return;
-                }
-                String name = String.join(".",
-                        Lists.map(Lists.asList(path), Path::toString));
-                String className = name.substring(0, name.length() - suffix);
-                classNames.add(className);
-            });
-            System.out.printf("%d classes%n", classNames.size());
-            return classNames;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read directory: " + dirPath, e);
         }
     }
 }

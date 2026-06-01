@@ -1,6 +1,6 @@
 plugins {
-    id("org.asciidoctor.jvm.convert") version "3.3.2"
-    id("org.asciidoctor.jvm.pdf") version "3.3.2"
+    id("org.asciidoctor.jvm.convert") version "4.0.4"
+    id("org.asciidoctor.jvm.pdf") version "4.0.4"
 }
 
 repositories {
@@ -16,11 +16,20 @@ dependencies {
 }
 
 tasks.withType(org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask::class) {
+    notCompatibleWithConfigurationCache("Filters configurations at execution time")
+    attributes(
+        mapOf(
+            // set revNumber to the current project version
+            "revnumber" to projectVersion,
+            // build reproducible byte-by-byte identical documentation
+            "reproducible" to "",
+        )
+    )
     // set source directory to docs/ instead of docs/src/docs/asciidoc/
     sourceDir(sourceDir.parentFile.parentFile.parentFile)
     // suppress the warning 'Native subprocess control requires open access to the JDK IO subsystem'
     // until https://github.com/jruby/jruby/issues/6721
-    forkOptions {
+    jvm {
         jvmArgs(listOf(
             "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
             "--add-opens", "java.base/java.io=ALL-UNNAMED",
@@ -63,7 +72,7 @@ tasks.named("asciidoctorPdf", org.asciidoctor.gradle.jvm.pdf.AsciidoctorPdfTask:
     }
 }
 
-task("all", type = Zip::class) {
+tasks.register<Zip>("all", Zip::class) {
     group = "documentation"
     description = "Builds all documentation"
     archiveFileName.set("tai-e-docs.zip")

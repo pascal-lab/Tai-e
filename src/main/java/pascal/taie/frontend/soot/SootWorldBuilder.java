@@ -22,11 +22,21 @@
 
 package pascal.taie.frontend.soot;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
@@ -36,7 +46,7 @@ import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassHierarchyImpl;
-import pascal.taie.language.classes.StringReps;
+import pascal.taie.language.type.FastTypeSystem;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.language.type.TypeSystemImpl;
 import soot.AndroidPlatformException;
@@ -48,14 +58,6 @@ import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import static soot.SootClass.HIERARCHY;
 
@@ -72,8 +74,8 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
     private static final String ANDROID_BASIC_CLASSES = "android/android-basic-classes.yml";
 
     @Override
-    public void build(Options options, List<AnalysisConfig> analyses) {
-        initSoot(options, analyses, this);
+    public void build(Options options) {
+        initSoot(options, this);
         if (options.isAndroidMode()) {
             buildForAndroid(options);
         } else {
@@ -81,8 +83,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    private static void initSoot(Options options, List<AnalysisConfig> analyses,
-                                 SootWorldBuilder builder) {
+    private static void initSoot(Options options, SootWorldBuilder builder) {
         // reset Soot
         G.reset();
 
@@ -100,13 +101,11 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        if (options.isPrependJVM()) {
+        if (options.useCurrentJRE()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
-        if (options.isAllowPhantom()) {
-            soot.options.Options.v().set_allow_phantom_refs(true);
-        }
+        soot.options.Options.v().set_allow_phantom_refs(true);
         if (options.isPreBuildIR()) {
             // we need to set this option to false when pre-building IRs,
             // otherwise Soot throws RuntimeException saying
@@ -121,7 +120,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
 
         Scene scene = G.v().soot_Scene();
         addBasicClasses(scene, BASIC_CLASSES);
-        addReflectionLogClasses(analyses, scene);
         if (options.isAndroidMode()) {
             addBasicClasses(scene, ANDROID_BASIC_CLASSES);
         }
@@ -143,14 +141,14 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
      * Reads basic classes specified by file {@link #ANDROID_BASIC_CLASSES} and
      * adds them to {@code scene}.
      */
-    private static void addBasicClasses(Scene scene, String path) {
+    private static void addBasicClasses(Scene scene, String file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JavaType type = mapper.getTypeFactory()
                 .constructCollectionType(List.class, String.class);
         try {
             InputStream content = SootWorldBuilder.class
                     .getClassLoader()
-                    .getResourceAsStream(path);
+                    .getResourceAsStream(file);
             List<String> classNames = mapper.readValue(content, type);
             classNames.forEach(name -> scene.addBasicClass(name, HIERARCHY));
         } catch (IOException e) {
@@ -158,58 +156,23 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         }
     }
 
-    /**
-     * Add classes in reflection log to the scene.
-     * Tai-e's ClassHierarchy depends on Soot's Scene, which does not change
-     * after hierarchy's construction, thus we need to add the classes
-     * in the reflection log before starting Soot.
-     * <p>
-     * TODO: this is a tentative solution. We should remove it and use other
-     *  way to load basic classes in the reflection log, so that world builder
-     *  does not depend on analyses to be executed.
-     *
-     * @param analyses the analyses to be executed
-     * @param scene    the Soot's scene
-     */
-    private static void addReflectionLogClasses(List<AnalysisConfig> analyses, Scene scene) {
-        analyses.forEach(config -> {
-            if (config.getId().equals(PointerAnalysis.ID)) {
-                String path = config.getOptions().getString("reflection-log");
-                if (path != null) {
-                    LogItem.load(path).forEach(item -> {
-                        // add target class
-                        String target = item.target;
-                        String targetClass;
-                        if (target.startsWith("<")) {
-                            targetClass = StringReps.getClassNameOf(target);
-                        } else {
-                            targetClass = target;
-                        }
-                        if (StringReps.isArrayType(targetClass)) {
-                            targetClass = StringReps.getBaseTypeNameOf(target);
-                        }
-                        scene.addBasicClass(targetClass);
-                    });
-                }
-            }
-        });
-    }
-
     private void build(Options options, Scene scene) {
         World.reset();
         World world = new World();
         World.set(world);
 
+        // options will be used during World building, thus it should be
+        // set at first.
         world.setOptions(options);
         // initialize class hierarchy
         ClassHierarchy hierarchy = new ClassHierarchyImpl();
         SootClassLoader loader = new SootClassLoader(
-                scene, hierarchy, options.isAllowPhantom());
+                scene, hierarchy, true);
         hierarchy.setDefaultClassLoader(loader);
         hierarchy.setBootstrapClassLoader(loader);
         world.setClassHierarchy(hierarchy);
         // initialize type manager
-        TypeSystem typeSystem = new TypeSystemImpl(hierarchy);
+        TypeSystem typeSystem = new FastTypeSystem(hierarchy);
         world.setTypeSystem(typeSystem);
         // initialize converter
         Converter converter = new Converter(loader, typeSystem);
@@ -236,7 +199,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 // thus we filter out null
                 .filter(Objects::nonNull)
                 .toList());
-
         // initialize IR builder
         world.setNativeModel(getNativeModel(typeSystem, hierarchy, options));
         IRBuilder irBuilder = new IRBuilder(converter);
@@ -244,7 +206,6 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         if (options.isPreBuildIR()) {
             irBuilder.buildAll(hierarchy);
         }
-
         // set apkInfo
         if (options.isAndroidMode()) {
             world.setApkInfo(ApkInfoCreator.create(options, hierarchy));

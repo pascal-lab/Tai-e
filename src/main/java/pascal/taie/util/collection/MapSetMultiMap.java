@@ -22,7 +22,7 @@
 
 package pascal.taie.util.collection;
 
-import pascal.taie.util.function.SSupplier;
+import pascal.taie.util.function.SerializableSupplier;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -53,11 +53,11 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     /**
      * Factory function for creating new sets.
      */
-    private final SSupplier<Set<V>> setFactory;
+    private final SerializableSupplier<Set<V>> setFactory;
 
     private int size = 0;
 
-    public MapSetMultiMap(Map<K, Set<V>> map, SSupplier<Set<V>> setFactory) {
+    public MapSetMultiMap(Map<K, Set<V>> map, SerializableSupplier<Set<V>> setFactory) {
         this.map = map;
         this.setFactory = setFactory;
     }
