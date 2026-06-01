@@ -28,7 +28,7 @@ import pascal.taie.android.AndroidBenchTest;
 
 public class UBCBenchTest extends AndroidBenchTest {
 
-    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/UBCBench/apk/";
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/suite/UBCBench/apk/";
 
     @ParameterizedTest
     @ValueSource(strings = {

@@ -35,7 +35,7 @@ public class ApkWorldBuilderTest {
 
     @Test
     void testWorldBuilder() {
-        Main.buildWorld("-am", "-pp", "-cp", "android-benchmarks/DroidBench/apk/Aliasing/FlowSensitivity1.apk");
+        Main.buildWorld("-am", "-pp", "-cp", "android-benchmarks/suite/DroidBench/apk/Aliasing/FlowSensitivity1.apk");
         World.get()
                 .getClassHierarchy()
                 .allClasses()

@@ -28,7 +28,7 @@ import pascal.taie.android.AndroidBenchTest;
 
 public class ICCBenchTest extends AndroidBenchTest {
 
-    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/ICC-Bench/apks/";
+    private static final String BENCHMARK_HOME_PREFIX = "android-benchmarks/suite/ICC-Bench/apks/";
 
     @ParameterizedTest
     @ValueSource(strings = {

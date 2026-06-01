@@ -50,7 +50,7 @@ For example:
 
 [source,shell,subs="verbatim"]
 ----
--cp android-benchmarks/DroidBench/apk/Lifecycle/ActivityLifecycle1.apk \
+-cp android-benchmarks/suite/DroidBench/apk/Lifecycle/ActivityLifecycle1.apk \
 -am \
 -a "pta=cs:ci"
 ----
@@ -102,9 +102,9 @@ For example, you can use the following DroidBench APK and test configuration fro
 
 [source,shell,subs="verbatim"]
 ----
--cp android-benchmarks/DroidBench/apk/Callbacks/Button1.apk \
+-cp android-benchmarks/suite/DroidBench/apk/Callbacks/Button1.apk \
 -am \
--a "pta=cs:ci;taint-config:android-benchmarks/taint-config-micro.yml" \
+-a "pta=cs:ci;taint-config:android-benchmarks/suite/taint-config.yml" \
 -a cg=algorithm:pta
 ----
 
@@ -112,7 +112,7 @@ For example, you can use the following DroidBench APK and test configuration fro
 
 The current Android tests in this project use the following ready-to-use configurations:
 
-* `android-benchmarks/taint-config-micro.yml`
+* `android-benchmarks/suite/taint-config.yml`
 * `android-benchmarks/taint-config-real.yml`
 
 For the semantics and syntax of taint configurations, please refer to

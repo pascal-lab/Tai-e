@@ -47,7 +47,7 @@ public class AndroidBenchTest {
 
     private static final String BENCHMARK_INFO = "benchmark-info.yml";
 
-    protected static final String TAINT_CONFIG_MICRO = "android-benchmarks/taint-config-micro.yml";
+    protected static final String TAINT_CONFIG_MICRO = "android-benchmarks/suite/taint-config.yml";
 
     protected static final String TAINT_CONFIG_REAL = "android-benchmarks/taint-config-real.yml";
 
