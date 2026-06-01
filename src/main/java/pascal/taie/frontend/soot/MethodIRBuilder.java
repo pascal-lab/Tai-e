@@ -82,7 +82,7 @@ import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Nop;
-import pascal.taie.ir.stmt.Phi;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
@@ -100,6 +100,7 @@ import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.Body;
 import soot.Local;
@@ -888,8 +889,10 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 .stream()
                 .map(this::getLocalOrConstant)
                 .toList();
-        PhiExp phiExp = new PhiExp(converter.convertType(rhs.getType()), values);
-        addStmt(new Phi(getVar(lhs), phiExp));
+        PhiExp phiExp = new PhiExp(values.stream()
+                .map(var -> new Pair<>(PhiExp.METHOD_ENTRY, var))
+                .toList(), converter.convertType(rhs.getType()));
+        addStmt(new PhiStmt(getVar(lhs), phiExp));
     }
 
     @Override
