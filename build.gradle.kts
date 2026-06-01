@@ -38,7 +38,9 @@ dependencies {
         // Disable transitive dependencies from FlowDroid in compile classpath
         compileOnly(it) { isTransitive = false }
         testCompileOnly(it) { isTransitive = false }
-        runtimeOnly(it)
+        runtimeOnly(it) {
+            exclude(group = "org.soot-oss", module = "soot")
+        }
     }
     implementation("de.upb.cs.swt:axml:2.1.3")
 
