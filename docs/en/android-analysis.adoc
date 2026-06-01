@@ -5,13 +5,14 @@ include::attributes.adoc[]
 
 Tai-e supports analyzing Android APKs.
 Android mode is enabled by option `-am`.
-The current implementation is designed as a plugin of the pointer analysis framework.
-Therefore, when analyzing Android programs, the main entry is still `pta`, and Android-specific modeling is enabled automatically in Android mode.
+Android analysis is implemented as a plugin of the pointer analysis framework.
+Therefore, to analyze Android programs, users need to run `pta`, and Android-specific modeling is enabled automatically in Android mode.
 
-Similar to <<taint-analysis#taint-analysis,Taint Analysis>>, this design allows Android analysis to directly reuse the capabilities provided by the pointer analysis framework, including various context-sensitivity and heap-abstraction techniques, as well as support for complex language features such as reflection and lambda expressions.
-As a result, Android analysis does not work in isolation.
-It is built on top of pointer analysis results, and in turn augments pointer analysis with Android framework semantics.
-This helps Tai-e build more reasonable call graphs, points-to relations, and taint propagation results for APKs.
+This design allows Android analysis to directly reuse the capabilities and implementations provided by the pointer analysis framework, including various context-sensitivity and heap-abstraction techniques, as well as the handling of complex language features such as reflection.
+It also makes Android analysis work naturally with Tai-e's existing taint analysis plugin.
+For details on pointer-analysis options and taint-analysis configuration, see
+<<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>> and
+<<taint-analysis#taint-analysis,Taint Analysis>>.
 
 Currently, Tai-e's Android analysis mainly models the following kinds of Android framework semantics:
 
@@ -23,9 +24,10 @@ This document aims to help users quickly start Android analysis in Tai-e and gai
 
 == Enabling Android Analysis
 
-This section introduces the prerequisites, the basic command-line form, and a minimal example.
+Android analysis can be enabled with a small set of options.
+In most cases, you only need to do the following two steps.
 
-=== Prerequisites
+=== Step 1: Fetch Required Submodules
 
 Before running Android analysis, make sure that the following submodules have been fetched:
 
@@ -39,66 +41,35 @@ You can fetch them in the project root directory by running:
 git submodule update --init --recursive
 ----
 
-Here:
+These submodules provide the libraries, benchmark APKs, and taint configuration files used by the examples below.
 
-* `java-benchmarks` provides the Java libraries required by Tai-e analyses.
-* `android-benchmarks` provides Android benchmark APKs and the taint configuration files used in the examples below.
+=== Step 2: Run `pta` in Android Mode
 
-If these two submodules are missing, subsequent builds and example commands may fail.
-
-=== Basic Form
-
-To analyze an Android program, you need to enable Android mode, run pointer analysis, and provide the target APK as input.
-The typical form is:
-
-[source]
-----
--cp <path/to/apk> -am -a pta=...
-----
-
-Here:
-
-* `-cp <path/to/apk>` specifies the APK to analyze.
-* `-am` enables Android mode.
-* `-a pta=...` runs pointer analysis; Android analysis is enabled automatically as a pointer-analysis plugin.
-
-If you want to learn more about `pta` options, precision settings, and the plugin mechanism, please refer to
-<<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>>.
-
-NOTE: In Android mode, Tai-e automatically infers the target Java version from the APK and automatically enables phantom references.
-
-=== Minimal Example
-
-The following is a minimal example that runs Android pointer analysis and constructs a call graph for a DroidBench APK in this repository.
-Only the analysis arguments are shown here.
-For how to actually launch Tai-e, please refer to
-<<command-line-options#,How to Run Tai-e (command-line options)?>>.
+To analyze an APK, provide the APK path, enable Android mode, and run `pta`.
+For example:
 
 [source,shell,subs="verbatim"]
 ----
 -cp android-benchmarks/DroidBench/apk/Lifecycle/ActivityLifecycle1.apk \
 -am \
--a "pta=cs:ci" \
--a cg=algorithm:pta
+-a "pta=cs:ci"
 ----
+
+Here:
+
+* `-cp` specifies the target APK.
+* `-am` enables Android mode.
+* `-a "pta=..."` runs pointer analysis, which in turn automatically enables Android analysis.
+
+If needed, users may additionally specify `-ajs` / `--android-jars` to override the default Android platform directory.
+The default value is `android-benchmarks/android-platforms`.
 
 This example does not enable taint analysis, but it already enables Android lifecycle, callback, and ICC modeling.
 If you further want to run taint analysis on Android programs, see
 <<android-with-taint,Using Android Analysis with Taint Analysis>> below.
 
-=== Relationship to Pointer Analysis
-
-In the current implementation, Android analysis is not a standalone top-level analysis id.
-Instead, it is attached to `pta`.
-That is:
-
-* if `pta` is not run, Android-specific modeling is not enabled
-* as long as `pta` runs in Android mode, Tai-e automatically loads Android analysis
-
-This also means that the precision and cost of Android analysis are directly affected by the pointer-analysis configuration, such as context sensitivity, heap abstraction, and string-object distinction.
-From another perspective, this is also an important benefit of building Android analysis on top of the pointer analysis framework: users can directly tune `pta` to obtain different precision/efficiency tradeoffs, without designing a separate mechanism for Android analysis.
-
-In addition, in Android mode, Tai-e currently applies the following Android-specific default options to `pta`:
+NOTE: In Android mode, Tai-e automatically infers the target Java version from the APK and automatically enables phantom references.
+It also applies the following Android-related default options to `pta`:
 
 * `implicit-entries:false`
 * `distinguish-string-constants:app`
