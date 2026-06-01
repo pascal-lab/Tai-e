@@ -110,8 +110,10 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
             soot.options.Options.v().set_drop_bodies_after_load(false);
         }
         if (options.isAndroidMode()) {
-            soot.options.Options.v().set_prepend_classpath(true);
             soot.options.Options.v().set_search_dex_in_archives(true);
+            // Required for Android analysis: prepend the classpath so dependencies
+            // provided by android.jar can be properly loaded and resolved.
+            soot.options.Options.v().set_prepend_classpath(true);
         }
 
         Scene scene = G.v().soot_Scene();
