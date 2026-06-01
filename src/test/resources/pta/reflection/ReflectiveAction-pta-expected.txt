@@ -1,5 +1,6 @@
 Points-to sets of all variables
 []:<ReflectiveAction: void arraynew()>/%c2 -> [[]:ConstantObj{java.lang.String: "U"}]
+[]:<ReflectiveAction: void arraynew()>/%c4 -> []
 []:<ReflectiveAction: void arraynew()>/%v5 -> [[]:ReflectiveObj{alloc=<ReflectiveAction: void arraynew()>[4@L48] %v5 = invokestatic java.lang.reflect.Array.newInstance(uClass, %c4),type=U[] in <ReflectiveAction: void arraynew()>}]
 []:<ReflectiveAction: void arraynew()>/%v8 -> [[]:NewObj{<ReflectiveAction: void arraynew()>[6@L49] new U}]
 []:<ReflectiveAction: void arraynew()>/arr -> [[]:ReflectiveObj{alloc=<ReflectiveAction: void arraynew()>[4@L48] %v5 = invokestatic java.lang.reflect.Array.newInstance(uClass, %c4),type=U[] in <ReflectiveAction: void arraynew()>}]
