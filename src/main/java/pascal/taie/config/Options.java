@@ -347,9 +347,6 @@ public class Options implements Serializable {
             // always allow phantom in Android mode
             options.allowPhantom = true;
 
-            // always prependJVM in Android mode
-            options.prependJVM = true;
-
             // infer Java version from Android target SDK
             String apkPath = options.classPath.get(0);
             options.javaVersion = AndroidJavaVersionInfer.inferFromApk(apkPath);
