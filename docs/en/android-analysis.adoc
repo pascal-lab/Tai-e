@@ -4,9 +4,8 @@ include::attributes.adoc[]
 = How to Use Android Analysis?
 
 Tai-e supports analyzing Android APKs.
-Android mode is enabled by option `-am`.
 Android analysis is implemented as a plugin of the pointer analysis framework.
-Therefore, to analyze Android programs, users need to run `pta`, and Android-specific modeling is enabled automatically in Android mode.
+To analyze Android programs, users need to run `pta` with Android mode enabled, and Android-specific modeling is then enabled automatically.
 
 This design allows Android analysis to directly reuse the capabilities and implementations provided by the pointer analysis framework, including various context-sensitivity and heap-abstraction techniques, as well as the handling of complex language features such as reflection.
 It also makes Android analysis work naturally with Tai-e's existing taint analysis plugin.
@@ -14,7 +13,10 @@ For details on pointer-analysis options and taint-analysis configuration, see
 <<pointer-analysis-framework#pointer-analysis-framework,Pointer Analysis Framework>> and
 <<taint-analysis#taint-analysis,Taint Analysis>>.
 
-Currently, Tai-e's Android analysis mainly models the following kinds of Android framework semantics:
+Our Android analysis is also described in the following ICSE 2025 paper:
+https://1010353663.github.io/menglongchen.github.io/publications/icse2025.pdf[PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps].
+
+Currently, Tai-e's Android analysis mainly models the following Android framework semantics:
 
 * lifecycle and callback semantics
 * inter-component communication (ICC)
@@ -41,7 +43,8 @@ You can fetch them in the project root directory by running:
 git submodule update --init --recursive
 ----
 
-These submodules provide the libraries, benchmark APKs, and taint configuration files used by the examples below.
+These submodules provide the libraries and benchmark APKs used by the examples below.
+Some taint-analysis examples below also use configuration files from `android-benchmarks`.
 
 === Step 2: Run `pta` in Android Mode
 
@@ -82,10 +85,9 @@ This section explains how Android analysis works together with taint analysis.
 
 Android analysis is most commonly used together with taint analysis.
 Android analysis itself is built on the pointer analysis framework, and Tai-e's existing taint analysis plugin is built on the same framework.
-Therefore, when users want to perform taint analysis on Android programs, they can naturally reuse the taint-analysis capabilities already provided by Tai-e, such as the source / sink / transfer configuration mechanism, as well as pointer-analysis-supported object propagation, call dispatch, and handling of complex language features.
-Android analysis further complements these capabilities with Android framework semantics, such as lifecycle dispatch, callback registration, asynchronous execution, and ICC target resolution.
-As a result, source, sink, and intermediate propagation paths in Android programs can be connected more completely.
-Without such Android framework modeling, taint analysis results are often significantly incomplete.
+Therefore, when users want to perform taint analysis on Android programs, they can naturally reuse the taint-analysis capabilities already provided by Tai-e, such as the source / sink / transfer configuration mechanism and pointer-analysis-supported value propagation.
+Android analysis further complements these capabilities with Android framework semantics, such as lifecycle, callback registration, asynchronous execution, and ICC communication.
+This helps connect source, sink, and intermediate propagation paths more soundness in Android apps.
 
 === Running Taint Analysis on Android Programs
 
@@ -113,7 +115,12 @@ For example, you can use the following DroidBench APK and test configuration fro
 The current Android tests in this project use the following ready-to-use configurations:
 
 * `android-benchmarks/suite/taint-config.yml`
-* `android-benchmarks/taint-config-real.yml`
+* `android-benchmarks/suite/real-world/taint-config-real-world.yml`
+
+The first configuration is used by the micro-benchmark suites under `suite/`,
+including `DroidBench`, `ICC-Bench`, `UBCBench`, and `extra-icc`.
+The second configuration is used by the `suite/real-world` collection, whose
+APKs are manually labeled to contain real taint flows.
 
 For the semantics and syntax of taint configurations, please refer to
 <<taint-analysis#taint-analysis,How to Use Taint Analysis?>>.
