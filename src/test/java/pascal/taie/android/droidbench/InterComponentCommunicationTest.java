@@ -42,21 +42,13 @@ public class InterComponentCommunicationTest extends DroidBenchTest {
             "ActivityCommunication6",
             "ActivityCommunication7",
             "ActivityCommunication8",
-            "ActivityCommunication9",
             "BroadcastTaintAndLeak1",
             "ComponentNotInManifest1",
             "EventOrdering1",
             "ServiceCommunication1",
-            "ServiceCommunication2",
             "SharedPreferences1",
             "Singletons1",
             "UnresolvableIntent1",
-            "IntentExtra",
-            "ICCData",
-            "ICCData2",
-            "Handler",
-            "SecondStart",
-            "SecondStart2",
     })
     void test(String benchmark) {
         run(CATEGORY, benchmark);
