@@ -51,6 +51,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static final String JREs = "java-benchmarks/JREs";
 
+    protected static final String ANDROID_PLATFORMs = "android-benchmarks/android-platforms";
+
     protected static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
@@ -124,6 +126,22 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
             throw new RuntimeException("Analysis on Java " +
                     options.getJavaVersion() + " library is not supported yet", e);
         }
+    }
+
+    protected static void validateAndroidJars(String androidJars) {
+        if (new File(androidJars).exists()) {
+            return;
+        }
+        if (ANDROID_PLATFORMs.equals(androidJars)) {
+            throw new RuntimeException("""
+                   Failed to locate Android platforms.
+                   Please clone submodule 'android-benchmarks' by command:
+                   'git submodule update --init --recursive' (if you are running Tai-e)
+                   or 'git clone https://github.com/pascal-lab/android-benchmarks' (if you are using Tai-e as a dependency),
+                   then put it in Tai-e's working directory.""");
+        }
+        throw new RuntimeException(
+                "Failed to locate Android platforms: " + androidJars);
     }
 
     protected static NativeModel getNativeModel(

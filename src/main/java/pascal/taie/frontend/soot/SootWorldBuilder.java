@@ -268,7 +268,9 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
                 : getAndroidJDKPath(options);
         Collections.addAll(args, "-cp", androidJDKPath);
         // set android platforms path
-        Collections.addAll(args, "-android-jars", options.getAndroidJars());
+        String androidJars = options.getAndroidJars();
+        validateAndroidJars(androidJars);
+        Collections.addAll(args, "-android-jars", androidJars);
         // set apk path
         Collections.addAll(args, "-process-dir", apkPath);
         try {
