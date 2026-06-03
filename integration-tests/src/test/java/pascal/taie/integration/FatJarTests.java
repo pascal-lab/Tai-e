@@ -30,7 +30,9 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.Files;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -95,8 +97,8 @@ class FatJarTests {
         String logContent = new String(Files.readAllBytes(logFile.toPath()));
         assertFalse(logContent.isEmpty(), "Log file should not be empty");
         // Check if the log file contains expected content
-        assertTrue(logContent.contains("Writing log to"));
         assertTrue(result.stdout().contains("Writing log to"));
+        assertTrue(logContent.contains("Tai-e Version: "));
         String version = logContent.split("Tai-e Version: ")[1].split("\n")[0].strip();
         assertFalse(version.isEmpty(), "Tai-e version should not be empty");
         assertFalse(version.toLowerCase().contains("unknown"), "Tai-e version should not be unknown");
@@ -109,6 +111,62 @@ class FatJarTests {
         // Check if the options.yml file is not empty
         String optionsContent = new String(Files.readAllBytes(optionsFile.toPath()));
         assertFalse(optionsContent.isEmpty(), "Options file should not be empty");
+    }
+
+    @Test
+    @DisplayName("Should redirect tai-e.log for repeated process runs")
+    void testLogFileRedirectionForRepeatedRuns() throws Exception {
+        File firstOutputDir = new File(tempDir, "first-output");
+        File secondOutputDir = new File(tempDir, "second-output");
+
+        ProcessResult firstResult = jarRunner.run(
+                "--output-dir", firstOutputDir.getAbsolutePath(), "-java", "17");
+        ProcessResult secondResult = jarRunner.run(
+                "--output-dir", secondOutputDir.getAbsolutePath(), "-java", "17");
+
+        assertTrue(firstResult.isSuccess());
+        assertTrue(secondResult.isSuccess());
+
+        File firstLog = new File(firstOutputDir, "tai-e.log");
+        File secondLog = new File(secondOutputDir, "tai-e.log");
+        assertNotEquals(firstLog.getAbsolutePath(), secondLog.getAbsolutePath());
+        assertTrue(firstLog.exists(), "First log file should be created");
+        assertTrue(secondLog.exists(), "Second log file should be created");
+
+        String firstLogContent = Files.readString(firstLog.toPath());
+        String secondLogContent = Files.readString(secondLog.toPath());
+        assertEquals(1, countOccurrences(firstLogContent, "Tai-e Version: "));
+        assertEquals(1, countOccurrences(secondLogContent, "Tai-e Version: "));
+    }
+
+    @Test
+    @DisplayName("Should overwrite tai-e.log for repeated process runs in same output dir")
+    void testLogFileOverwriteForRepeatedRunsInSameOutputDir() throws Exception {
+        File outputDir = new File(tempDir, "same-output");
+
+        ProcessResult firstResult = jarRunner.run(
+                "--output-dir", outputDir.getAbsolutePath(), "-java", "17");
+        ProcessResult secondResult = jarRunner.run(
+                "--output-dir", outputDir.getAbsolutePath(), "-java", "17");
+
+        assertTrue(firstResult.isSuccess());
+        assertTrue(secondResult.isSuccess());
+
+        File logFile = new File(outputDir, "tai-e.log");
+        assertTrue(logFile.exists(), "Log file should be created");
+
+        String logContent = Files.readString(logFile.toPath());
+        assertEquals(1, countOccurrences(logContent, "Tai-e Version: "));
+    }
+
+    private static int countOccurrences(String text, String substring) {
+        int count = 0;
+        int index = 0;
+        while ((index = text.indexOf(substring, index)) != -1) {
+            ++count;
+            index += substring.length();
+        }
+        return count;
     }
 
 }

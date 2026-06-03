@@ -13,8 +13,10 @@ dependencies {
     // Process options
     implementation("info.picocli:picocli:4.7.7")
     // Logger
-    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
+    val log4jVersion = "2.24.3"
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     // Process YAML configuration files
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
     // Use Soot as frontend
@@ -25,8 +27,6 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
-    // Eliminate SLF4J warning
-    implementation("org.slf4j:slf4j-nop:2.0.13")
     // JSR305, for javax.annotation
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use asm to read class file
@@ -43,6 +43,7 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it) {
             exclude(group = "org.soot-oss", module = "soot")
+            exclude(group = "org.slf4j", module = "slf4j-simple")
         }
     }
     implementation("de.upb.cs.swt:axml:2.1.3")

@@ -22,6 +22,8 @@
 
 package pascal.taie.config;
 
+// LoggerConfigs intentionally contains the default Log4j2 backend wiring.
+// CHECKSTYLE:OFF
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -29,6 +31,7 @@ import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.Reconfigurable;
+// CHECKSTYLE:ON
 
 import java.io.File;
 
@@ -59,7 +62,7 @@ public final class LoggerConfigs {
      */
     public static void reconfigure() {
         // stop the last configuration
-        LoggerContext ctx = ((org.apache.logging.log4j.core.Logger) logger).getContext();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
         config.stop();
         // re-fetch the configuration and reconfigure it
@@ -72,7 +75,7 @@ public final class LoggerConfigs {
      * Set the log output file based on the given output dir.
      */
     public static void setOutput(File outputDir) {
-        LoggerContext ctx = ((org.apache.logging.log4j.core.Logger) logger).getContext();
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
         // new a file appender
         FileAppender fileAppender = FileAppender

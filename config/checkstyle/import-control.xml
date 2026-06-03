@@ -18,6 +18,9 @@
     <!-- prefer java.nio.file.Path -->
     <disallow class="java.nio.file.Paths"/>
 
+    <!-- Use SLF4J facade; direct Log4j2 imports are only allowed in logger configuration. -->
+    <disallow pkg="org.apache.logging.log4j"/>
+
     <allow pkg=".*" regex="true"/>
 
     <subpackage name="util.collection">
