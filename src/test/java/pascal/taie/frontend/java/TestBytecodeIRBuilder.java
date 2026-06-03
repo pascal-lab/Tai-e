@@ -39,7 +39,7 @@ import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
-import pascal.taie.util.Timer;
+import pascal.taie.util.Monitor;
 import pascal.taie.util.collection.Streams;
 import soot.Body;
 import soot.G;
@@ -192,7 +192,6 @@ public class TestBytecodeIRBuilder {
 
     @Test
     @Disabled("Benchmark helper, not a unit test")
-    @SuppressWarnings("removal")
     public void benchmarkForNewFrontEnd() {
         int javaVersion = 8;
         String worldPath = "src/test/resources/world";
@@ -204,7 +203,7 @@ public class TestBytecodeIRBuilder {
                     "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder"
             );
 
-            Timer.runAndCount(() ->
+            Monitor.runAndCount(() ->
                     World.get()
                             .getClassHierarchy()
                             .allClasses()
@@ -215,7 +214,7 @@ public class TestBytecodeIRBuilder {
                             })), "Get All IR");
         };
 
-        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
+        Monitor.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
 
         Printer.printTestRes(false);
 
@@ -223,7 +222,6 @@ public class TestBytecodeIRBuilder {
 
     @Test
     @Disabled("Benchmark helper, not a unit test")
-    @SuppressWarnings("removal")
     public void benchmarkForNewFrontEnd11() {
         int javaVersion = 11;
 
@@ -234,7 +232,7 @@ public class TestBytecodeIRBuilder {
                     "--extract-all"
             );
 
-            Timer.runAndCount(() ->
+            Monitor.runAndCount(() ->
                     World.get()
                             .getClassHierarchy()
                             .allClasses()
@@ -245,7 +243,7 @@ public class TestBytecodeIRBuilder {
                             })), "Get All IR");
         };
 
-        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
+        Monitor.runAndCount(newFrontend, "New frontend builds all the classes in jre" + javaVersion);
 
         AtomicLong stmtCount = new AtomicLong();
         AtomicLong varCount = new AtomicLong();
@@ -269,14 +267,13 @@ public class TestBytecodeIRBuilder {
 
     @Test
     @Disabled("Benchmark helper, not a unit test")
-    @SuppressWarnings("removal")
     public void benchmarkForNewFrontEnd17() {
         Runnable newFrontend = () -> {
             Main.buildWorld(
                     "--extract-all"
             );
 
-            Timer.runAndCount(() ->
+            Monitor.runAndCount(() ->
                     World.get()
                             .getClassHierarchy()
                             .allClasses()
@@ -287,7 +284,7 @@ public class TestBytecodeIRBuilder {
                             })), "Get All IR");
         };
 
-        Timer.runAndCount(newFrontend, "New frontend builds all the classes in jre" + 17);
+        Monitor.runAndCount(newFrontend, "New frontend builds all the classes in jre" + 17);
         Printer.printTestRes(true);
     }
 
@@ -298,7 +295,6 @@ public class TestBytecodeIRBuilder {
         benchmarkForSoot(jrePaths(javaVersion), "", false);
     }
 
-    @SuppressWarnings("removal")
     private void benchmarkForSoot(String acp, String cp, boolean forcedToRetrieveBody) {
         int javaVersion = 8;
         String worldPath = "src/test/resources/world";
@@ -324,7 +320,7 @@ public class TestBytecodeIRBuilder {
 
         System.out.println(args);
 
-        Timer.runAndCount(
+        Monitor.runAndCount(
                 () -> {
                     runSoot(args.toArray(new String[0]));
                     if (forcedToRetrieveBody) {
@@ -389,7 +385,6 @@ public class TestBytecodeIRBuilder {
 
     @Test
     @Disabled("Diagnostic stress case for Soot, not a unit test")
-    @SuppressWarnings("removal")
     public void testIllTyping() {
         String worldPath = "src/test/resources/world/multi.jar";
 
@@ -399,7 +394,7 @@ public class TestBytecodeIRBuilder {
         Collections.addAll(args, "-process-dir", worldPath);
         Collections.addAll(args, "Multi");
 
-        Timer.runAndCount(() -> runSoot(args.toArray(new String[0])),
+        Monitor.runAndCount(() -> runSoot(args.toArray(new String[0])),
                 "Try to make soot type inference consume tons of time & memory \n" +
                         "(just build ir for one class with < 30 lines of java source)");
 
@@ -412,7 +407,7 @@ public class TestBytecodeIRBuilder {
                 "--world-builder", "pascal.taie.frontend.java.JavaWorldBuilder"
         );
 
-        Timer.runAndCount(() -> {
+        Monitor.runAndCount(() -> {
             for (JMethod m : World.get().getClassHierarchy().getClass("Multi").getDeclaredMethods()) {
                 if (m.getName().equals("main")) {
                     IRPrinter.print(m.getIR(), System.out);
