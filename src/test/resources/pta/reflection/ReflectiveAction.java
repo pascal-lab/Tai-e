@@ -9,6 +9,7 @@ public class ReflectiveAction {
         cnew();
         ctornew();
         arraynew();
+        arraynewMulti();
         invoke();
         get();
         set();
@@ -47,6 +48,14 @@ public class ReflectiveAction {
         Class<?> uClass = Class.forName("U");
         U[] arr = (U[]) Array.newInstance(uClass, 10);
         arr[0] = new U();
+    }
+
+    static void arraynewMulti() throws Exception {
+        Class<?> uClass = Class.forName("U");
+        int[] dimensions = new int[2];
+        U[][] arr = (U[][]) Array.newInstance(uClass, dimensions);
+        U[] row = arr[0];
+        row[0] = new U();
     }
 
     static void invoke() throws Exception {
