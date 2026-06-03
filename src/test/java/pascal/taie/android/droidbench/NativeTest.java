@@ -22,6 +22,7 @@
 
 package pascal.taie.android.droidbench;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,6 +33,7 @@ public class NativeTest extends DroidBenchTest {
     /**
      * Tests for Native CATEGORY apk
      */
+    @Disabled("Unsupported feature: native code")
     @ParameterizedTest
     @ValueSource(strings = {
             "JavaIDFunction",

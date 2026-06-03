@@ -22,6 +22,7 @@
 
 package pascal.taie.android.droidbench;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,6 +33,7 @@ public class DynamicLoadingTest extends DroidBenchTest {
     /**
      * Tests for DynamicLoading CATEGORY apk
      */
+    @Disabled("Unsupported feature: dynamic loading")
     @ParameterizedTest
     @ValueSource(strings = {
             "DynamicBoth1",

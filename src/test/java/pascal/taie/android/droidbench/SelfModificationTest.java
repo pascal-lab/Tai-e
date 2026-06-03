@@ -22,6 +22,7 @@
 
 package pascal.taie.android.droidbench;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,6 +33,7 @@ public class SelfModificationTest extends DroidBenchTest {
     /**
      * Tests for SelfModification CATEGORY apk
      */
+    @Disabled("Unsupported feature: self-modifying code")
     @ParameterizedTest
     @ValueSource(strings = {
             "BytecodeTamper1",

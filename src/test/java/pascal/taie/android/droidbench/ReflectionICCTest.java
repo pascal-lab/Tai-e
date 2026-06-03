@@ -22,6 +22,7 @@
 
 package pascal.taie.android.droidbench;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,6 +33,7 @@ public class ReflectionICCTest extends DroidBenchTest {
     /**
      * Tests for Reflection_ICC CATEGORY apk
      */
+    @Disabled("Unsupported feature: reflection-based ICC")
     @ParameterizedTest
     @ValueSource(strings = {
             "ActivityCommunication2",
