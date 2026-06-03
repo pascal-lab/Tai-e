@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -86,7 +86,7 @@ import java.util.Set;
  */
 public class TaintAnalysis extends CompositePlugin {
 
-    private static final Logger logger = LogManager.getLogger(TaintAnalysis.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaintAnalysis.class);
 
     private static final String TAINT_FLOW_GRAPH_FILE = "taint-flow-graph.dot";
 
@@ -158,7 +158,7 @@ public class TaintAnalysis extends CompositePlugin {
                         "Failed to create plugin instance for " + taintConfigProvider, e);
             }
         }
-        logger.info(config);
+        logger.info("{}", config);
         context = new HandlerContext(solver, new TaintManager(
                 solver.getHeapModel()), config);
         addPlugin(new SourceHandler(context),
@@ -251,7 +251,7 @@ public class TaintAnalysis extends CompositePlugin {
         isReported = true;
         Set<TaintFlow> taintFlows = new SinkHandler(context, appOnlyFlows).collectTaintFlows();
         logger.info("Detected {} taint flow(s):", taintFlows.size());
-        taintFlows.forEach(logger::info);
+        taintFlows.forEach(taintFlow -> logger.info("{}", taintFlow));
         solver.getResult().storeResult(getClass().getName(), taintFlows);
         TaintManager manager = context.manager();
         Monitor.runAndCount(() -> new TFGDumper().dump(

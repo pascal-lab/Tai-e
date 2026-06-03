@@ -22,8 +22,8 @@
 
 package pascal.taie.frontend.soot;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -192,7 +192,7 @@ import static pascal.taie.language.type.VoidType.VOID;
  */
 class MethodIRBuilder extends AbstractStmtSwitch<Void> {
 
-    private static final Logger logger = LogManager.getLogger(MethodIRBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(MethodIRBuilder.class);
 
     private final JMethod method;
 

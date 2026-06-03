@@ -22,13 +22,8 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.IRBuilderContext;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -61,6 +56,10 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Ensures type safety by inserting casts or recovering precise variables when inferred types are not suitable for usage.
@@ -70,7 +69,7 @@ import pascal.taie.util.collection.Pair;
  */
 final class CastInserter {
 
-    private static final Logger logger = LogManager.getLogger(CastInserter.class);
+    private static final Logger logger = LoggerFactory.getLogger(CastInserter.class);
 
     private final IRBuilderContext context;
 

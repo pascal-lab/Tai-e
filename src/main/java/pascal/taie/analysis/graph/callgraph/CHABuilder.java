@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  */
 class CHABuilder implements CGBuilder<Invoke, JMethod> {
 
-    private static final Logger logger = LogManager.getLogger(CHABuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(CHABuilder.class);
 
     private ClassHierarchy hierarchy;
 

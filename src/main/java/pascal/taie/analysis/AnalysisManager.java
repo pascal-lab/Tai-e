@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.callgraph.CallGraphBuilder;
@@ -50,7 +50,7 @@ import java.util.List;
  */
 public class AnalysisManager {
 
-    private static final Logger logger = LogManager.getLogger(AnalysisManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(AnalysisManager.class);
 
     private final Plan plan;
 

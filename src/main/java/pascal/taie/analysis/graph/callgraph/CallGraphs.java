@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.exp.InvokeDynamic;
@@ -56,7 +56,7 @@ import java.util.Map;
  */
 public final class CallGraphs {
 
-    private static final Logger logger = LogManager.getLogger(CallGraphs.class);
+    private static final Logger logger = LoggerFactory.getLogger(CallGraphs.class);
 
     private CallGraphs() {
     }

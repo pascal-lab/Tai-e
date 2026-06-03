@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.assertion;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class AssertionChecker implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(AssertionChecker.class);
+    private static final Logger logger = LoggerFactory.getLogger(AssertionChecker.class);
 
     /**
      * Name of the stub class that provides assertion APIs.

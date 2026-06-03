@@ -22,18 +22,16 @@
 
 package pascal.taie.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.appender.OutputStreamAppender;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -150,16 +148,11 @@ public class OptionsTest {
     @Test
     void testDeprecatedLegacyWorldBuilder() {
         ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
-        OutputStreamAppender appender = OutputStreamAppender.newBuilder()
-                .setName("CapturingAppender")
-                .setTarget(logOutput)
-                .setLayout(PatternLayout.newBuilder().withPattern("%m%n").build())
-                .build();
-        org.apache.logging.log4j.core.Logger optionsLogger =
-                (org.apache.logging.log4j.core.Logger) LogManager.getLogger(Options.class);
-        appender.start();
-        optionsLogger.addAppender(appender);
-        try {
+        PrintStream originalOut = System.out;
+        try (PrintStream capturingOut =
+                     new PrintStream(logOutput, true, StandardCharsets.UTF_8)) {
+            System.setOut(capturingOut);
+            LoggerConfigs.reconfigure();
             Options options = Options.parse(
                     "--world-builder", LEGACY_WORLD_BUILDER_CLASS);
             assertEquals(LEGACY_WORLD_BUILDER_CLASS,
@@ -168,8 +161,8 @@ public class OptionsTest {
             assertTrue(log.contains(
                     "DEPRECATED OPTION: Please stop using the legacy frontend"));
         } finally {
-            optionsLogger.removeAppender(appender);
-            appender.stop();
+            System.setOut(originalOut);
+            LoggerConfigs.reconfigure();
         }
     }
 

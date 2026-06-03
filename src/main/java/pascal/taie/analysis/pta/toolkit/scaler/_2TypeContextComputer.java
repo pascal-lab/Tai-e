@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.toolkit.scaler;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
 import pascal.taie.language.classes.JMethod;
@@ -36,7 +36,7 @@ import java.util.Set;
 
 class _2TypeContextComputer extends ContextComputer {
 
-    private static final Logger logger = LogManager.getLogger(_2TypeContextComputer.class);
+    private static final Logger logger = LoggerFactory.getLogger(_2TypeContextComputer.class);
 
     private final Graph<Obj> oag;
 

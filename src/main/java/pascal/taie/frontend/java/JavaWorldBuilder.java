@@ -22,9 +22,8 @@
 
 package pascal.taie.frontend.java;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.config.Options;
@@ -55,7 +54,7 @@ import java.util.Objects;
  */
 public class JavaWorldBuilder extends AbstractWorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(JavaWorldBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(JavaWorldBuilder.class);
 
     @Override
     public void build(Options options) {

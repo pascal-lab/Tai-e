@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
-import org.apache.logging.log4j.Level;
+import org.slf4j.event.Level;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;

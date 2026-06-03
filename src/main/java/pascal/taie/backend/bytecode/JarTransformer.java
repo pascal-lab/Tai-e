@@ -22,6 +22,15 @@
 
 package pascal.taie.backend.bytecode;
 
+import org.objectweb.asm.MethodTooLargeException;
+import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.Main;
+import pascal.taie.World;
+import pascal.taie.language.classes.JClass;
+
+import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -36,17 +45,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.MethodTooLargeException;
-import org.objectweb.asm.Opcodes;
-
-import pascal.taie.Main;
-import pascal.taie.World;
-import pascal.taie.language.classes.JClass;
-
 /**
  * This class is responsible for processing a given JAR file by
  * loading its classes into Tai-e, converting them to Tai-e's representation,
@@ -55,7 +53,7 @@ import pascal.taie.language.classes.JClass;
  */
 public class JarTransformer {
 
-    private static final Logger logger = LogManager.getLogger(JarTransformer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JarTransformer.class);
 
     /**
      * The main entry point for the JarTransformer.

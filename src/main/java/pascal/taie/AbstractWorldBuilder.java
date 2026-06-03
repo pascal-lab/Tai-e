@@ -22,8 +22,8 @@
 
 package pascal.taie;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.config.Options;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.natives.DefaultNativeModel;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractWorldBuilder implements WorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(AbstractWorldBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractWorldBuilder.class);
 
     protected static final String JREs = "java-benchmarks/JREs";
 

@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.misc;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.StmtResult;
@@ -67,7 +67,7 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
 
     public static final String ID = "process-result";
 
-    private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResultProcessor.class);
 
     private final boolean onlyApp;
 

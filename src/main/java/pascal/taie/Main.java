@@ -22,13 +22,8 @@
 
 package pascal.taie;
 
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.AnalysisManager;
 import pascal.taie.config.AnalysisConfig;
 import pascal.taie.config.AnalysisPlanner;
@@ -44,9 +39,13 @@ import pascal.taie.util.Monitor;
 import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.collection.Lists;
 
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.List;
+
 public class Main {
 
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String... args) {
         Monitor.runAndCount(() -> {

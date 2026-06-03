@@ -22,15 +22,8 @@
 
 package pascal.taie.ir.proginfo;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -40,6 +33,10 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Sets;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static pascal.taie.language.classes.ClassNames.METHOD_HANDLE;
 import static pascal.taie.language.classes.ClassNames.VAR_HANDLE;
@@ -49,7 +46,7 @@ import static pascal.taie.language.classes.ClassNames.VAR_HANDLE;
  */
 public class MethodRef extends MemberRef {
 
-    private static final Logger logger = LogManager.getLogger(MethodRef.class);
+    private static final Logger logger = LoggerFactory.getLogger(MethodRef.class);
 
     /**
      * Records the MethodRef that fails to be resolved.

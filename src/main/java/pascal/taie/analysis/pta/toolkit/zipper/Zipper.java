@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
 import pascal.taie.analysis.graph.flowgraph.ObjectFlowGraph;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 
 public class Zipper {
 
-    private static final Logger logger = LogManager.getLogger(Zipper.class);
+    private static final Logger logger = LoggerFactory.getLogger(Zipper.class);
 
     private static final float DEFAULT_PV = 0.05f;
 

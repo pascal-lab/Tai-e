@@ -22,14 +22,8 @@
 
 package pascal.taie.ir.proginfo;
 
-import java.util.Objects;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
@@ -38,12 +32,16 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Sets;
 
+import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Set;
+
 /**
  * Represents field references in IR.
  */
 public class FieldRef extends MemberRef {
 
-    private static final Logger logger = LogManager.getLogger(FieldRef.class);
+    private static final Logger logger = LoggerFactory.getLogger(FieldRef.class);
 
     /**
      * Records the FieldRef that fails to be resolved.

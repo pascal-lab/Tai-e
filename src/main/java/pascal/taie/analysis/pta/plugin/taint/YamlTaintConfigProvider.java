@@ -31,8 +31,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.config.ConfigException;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -58,7 +58,7 @@ import static pascal.taie.analysis.pta.plugin.taint.IndexRef.ARRAY_SUFFIX;
 
 class YamlTaintConfigProvider extends TaintConfigProvider {
 
-    private static final Logger logger = LogManager.getLogger(YamlTaintConfigProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(YamlTaintConfigProvider.class);
 
     private String path;
 

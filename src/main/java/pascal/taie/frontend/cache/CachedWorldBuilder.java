@@ -22,6 +22,13 @@
 
 package pascal.taie.frontend.cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.World;
+import pascal.taie.WorldBuilder;
+import pascal.taie.config.Options;
+import pascal.taie.util.Monitor;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,14 +38,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pascal.taie.World;
-import pascal.taie.WorldBuilder;
-import pascal.taie.config.Options;
-import pascal.taie.util.Monitor;
 
 /**
  * A {@link WorldBuilder} that caches the built World on disk,
@@ -53,7 +52,7 @@ import pascal.taie.util.Monitor;
  */
 public class CachedWorldBuilder implements WorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(CachedWorldBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(CachedWorldBuilder.class);
 
     private static final String CACHE_DIR = "cache";
 
@@ -106,7 +105,7 @@ public class CachedWorldBuilder implements WorldBuilder {
                 }
             }
             monitor.stop();
-            logger.info(monitor);
+            logger.info("{}", monitor);
         }
         return false;
     }
@@ -117,7 +116,7 @@ public class CachedWorldBuilder implements WorldBuilder {
         monitor.start();
         delegate.build(options);
         monitor.stop();
-        logger.info(monitor);
+        logger.info("{}", monitor);
     }
 
     private void saveCache(File worldCacheFile) {
@@ -132,7 +131,7 @@ public class CachedWorldBuilder implements WorldBuilder {
                     worldCacheFile, e);
         } finally {
             monitor.stop();
-            logger.info(monitor);
+            logger.info("{}", monitor);
         }
     }
 

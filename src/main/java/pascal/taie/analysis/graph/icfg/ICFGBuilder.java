@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
@@ -45,7 +45,7 @@ public class ICFGBuilder extends ProgramAnalysis<ICFG<JMethod, Stmt>> {
 
     public static final String ID = "icfg";
 
-    private static final Logger logger = LogManager.getLogger(ICFGBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ICFGBuilder.class);
 
     private final boolean isDump;
 

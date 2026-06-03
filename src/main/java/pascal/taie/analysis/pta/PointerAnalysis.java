@@ -22,7 +22,7 @@
 
 package pascal.taie.analysis.pta;
 
-import org.apache.logging.log4j.Level;
+import org.slf4j.event.Level;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.core.cs.element.MapBasedCSManager;

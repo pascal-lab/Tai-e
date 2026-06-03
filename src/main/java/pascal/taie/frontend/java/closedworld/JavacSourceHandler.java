@@ -22,6 +22,19 @@
 
 package pascal.taie.frontend.java.closedworld;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.frontend.java.FrontendException;
+import pascal.taie.frontend.java.project.DotClassFile;
+import pascal.taie.frontend.java.project.FileResource;
+import pascal.taie.frontend.java.project.Resource;
+import pascal.taie.util.PathUtils;
+
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -32,21 +45,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.project.DotClassFile;
-import pascal.taie.frontend.java.project.FileResource;
-import pascal.taie.frontend.java.project.Resource;
-import pascal.taie.util.PathUtils;
-
 /**
  * This class handles Java source files using the Java Compiler API.
  * It provides methods to compile Java source files, collect diagnostics,
@@ -54,7 +52,7 @@ import pascal.taie.util.PathUtils;
  */
 class JavacSourceHandler {
 
-    private static final Logger logger = LogManager.getLogger(JavacSourceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(JavacSourceHandler.class);
 
     /**
      * Temporary output directory for compiled class files.

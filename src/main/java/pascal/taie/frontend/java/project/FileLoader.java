@@ -22,13 +22,11 @@
 
 package pascal.taie.frontend.java.project;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.util.PathUtils;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -50,7 +48,7 @@ import java.util.zip.ZipException;
  */
 class FileLoader {
 
-    private static final Logger logger = LogManager.getLogger(FileLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileLoader.class);
 
     /**
      * Temp solution to handle non-root jar, e.g., b.jar nested in a.zip.

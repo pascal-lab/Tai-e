@@ -22,8 +22,8 @@
 
 package pascal.taie.android;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysis;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AndroidBenchTest {
 
-    private static final Logger logger = LogManager.getLogger(AndroidBenchTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AndroidBenchTest.class);
 
     private static final String BENCHMARK_INFO = "benchmark-info.yml";
 

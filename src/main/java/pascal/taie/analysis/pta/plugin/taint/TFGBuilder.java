@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.flowgraph.ArrayIndexNode;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.InstanceFieldNode;
@@ -56,7 +56,7 @@ import java.util.stream.Stream;
  */
 class TFGBuilder {
 
-    private static final Logger logger = LogManager.getLogger(TFGBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(TFGBuilder.class);
 
     private final PointerAnalysisResult pta;
 
@@ -142,7 +142,7 @@ class TFGBuilder {
             }
         }
         logger.info("Source nodes:");
-        sourceNode2SourcePoint.keySet().forEach(logger::info);
+        sourceNode2SourcePoint.keySet().forEach(node -> logger.info("{}", node));
         return sourceNode2SourcePoint;
     }
 
@@ -156,7 +156,7 @@ class TFGBuilder {
                     node -> sinkNode2SinkPoint.put(node, sinkPoint));
         });
         logger.info("Sink nodes:");
-        sinkNode2SinkPoint.keySet().forEach(logger::info);
+        sinkNode2SinkPoint.keySet().forEach(node -> logger.info("{}", node));
         return sinkNode2SinkPoint;
     }
 

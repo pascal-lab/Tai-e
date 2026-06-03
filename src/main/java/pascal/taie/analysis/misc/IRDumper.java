@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.misc;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.ClassAnalysis;
 import pascal.taie.config.AnalysisConfig;
@@ -56,7 +56,7 @@ public class IRDumper extends ClassAnalysis<Void> {
 
     public static final String ID = "ir-dumper";
 
-    private static final Logger logger = LogManager.getLogger(IRDumper.class);
+    private static final Logger logger = LoggerFactory.getLogger(IRDumper.class);
 
     private static final String IR_DIR = "tir";
 

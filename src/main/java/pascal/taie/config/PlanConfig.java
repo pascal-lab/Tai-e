@@ -22,20 +22,19 @@
 
 package pascal.taie.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Configuration for an analysis to be executed.
@@ -47,7 +46,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
  */
 public class PlanConfig {
 
-    private static final Logger logger = LogManager.getLogger(PlanConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlanConfig.class);
 
     private static final String PLAN_FILE = "tai-e-plan.yml";
 

@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -56,7 +56,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 
 class LogBasedModel extends SolverHolder implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(LogBasedModel.class);
+    private static final Logger logger = LoggerFactory.getLogger(LogBasedModel.class);
 
     private final Set<String> supportedApis = Set.of(
             "Class.forName",

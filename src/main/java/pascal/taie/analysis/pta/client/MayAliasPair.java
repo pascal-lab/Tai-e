@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.client;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.ProgramAnalysis;
 import pascal.taie.analysis.pta.PointerAnalysis;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 public class MayAliasPair extends ProgramAnalysis<MayAliasPair.MayAliasPairResult> {
 
-    private static final Logger logger = LogManager.getLogger(MayAliasPair.class);
+    private static final Logger logger = LoggerFactory.getLogger(MayAliasPair.class);
 
     public static final String ID = "may-alias-pair";
 

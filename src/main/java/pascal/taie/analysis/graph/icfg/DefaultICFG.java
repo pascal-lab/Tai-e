@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.graph.icfg;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.graph.cfg.CFG;
 import pascal.taie.analysis.graph.cfg.CFGEdge;
@@ -46,7 +46,7 @@ import static pascal.taie.analysis.graph.icfg.ICFGBuilder.getCFGOf;
 
 class DefaultICFG extends AbstractICFG<JMethod, Stmt> {
 
-    private static final Logger logger = LogManager.getLogger(DefaultICFG.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultICFG.class);
 
     private final MultiMap<Stmt, ICFGEdge<Stmt>> inEdges = Maps.newMultiMap();
 

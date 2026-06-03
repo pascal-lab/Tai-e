@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.toolkit.scaler;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.toolkit.PointerAnalysisResultEx;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 public class Scaler {
 
-    private static final Logger logger = LogManager.getLogger(Scaler.class);
+    private static final Logger logger = LoggerFactory.getLogger(Scaler.class);
 
     private static final long DEFAULT_TST = 30000000;
 
@@ -262,7 +262,7 @@ public class Scaler {
                                     .compareTo(e2.getKey().toString());
                         }
                     })
-                    .forEach(logger::debug);
+                    .forEach(entry -> logger.debug("{}", entry));
         }
     }
 }

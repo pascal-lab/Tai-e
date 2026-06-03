@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
@@ -40,7 +40,7 @@ import java.util.Set;
 
 public class ReflectionAnalysis extends CompositePlugin {
 
-    private static final Logger logger = LogManager.getLogger(ReflectionAnalysis.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReflectionAnalysis.class);
 
     private static final int DEFAULT_IMPRECISE_THRESHOLD = 50;
 

@@ -23,9 +23,9 @@
 package pascal.taie.util;
 
 import com.sun.management.OperatingSystemMXBean;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -77,7 +77,7 @@ import java.util.function.Supplier;
  */
 public class Monitor {
 
-    private static final Logger logger = LogManager.getLogger(Monitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(Monitor.class);
 
     /**
      * Monitoring interval in seconds for periodic CPU and memory sampling.
@@ -248,7 +248,7 @@ public class Monitor {
         monitor.start();
         T result = task.get();
         monitor.stop();
-        logger.log(level, monitor);
+        logger.atLevel(level).log("{}", monitor);
         return result;
     }
 

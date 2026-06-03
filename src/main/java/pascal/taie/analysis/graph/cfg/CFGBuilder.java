@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.graph.cfg;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.MethodAnalysis;
 import pascal.taie.analysis.exception.CatchAnalysis;
@@ -50,7 +50,7 @@ public class CFGBuilder extends MethodAnalysis<CFG<Stmt>> {
 
     public static final String ID = "cfg";
 
-    private static final Logger logger = LogManager.getLogger(CFGBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(CFGBuilder.class);
 
     private static final String CFG_DIR = "cfg";
 

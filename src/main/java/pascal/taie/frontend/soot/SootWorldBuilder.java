@@ -22,21 +22,11 @@
 
 package pascal.taie.frontend.soot;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.AbstractWorldBuilder;
 import pascal.taie.World;
 import pascal.taie.android.info.ApkInfoCreator;
@@ -54,12 +44,20 @@ import soot.SceneTransformer;
 import soot.SootResolver;
 import soot.Transform;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static soot.SootClass.HIERARCHY;
 
 public class SootWorldBuilder extends AbstractWorldBuilder {
 
-    private static final Logger logger = LogManager.getLogger(SootWorldBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(SootWorldBuilder.class);
 
     /**
      * Path to the file which specifies the basic classes that should be

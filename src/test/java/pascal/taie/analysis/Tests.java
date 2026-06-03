@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.cfg.CFGBuilder;
@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public final class Tests {
 
-    private static final Logger logger = LogManager.getLogger(Tests.class);
+    private static final Logger logger = LoggerFactory.getLogger(Tests.class);
 
     private Tests() {
     }

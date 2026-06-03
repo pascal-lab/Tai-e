@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.CallGraphs;
 import pascal.taie.analysis.graph.callgraph.CallKind;
@@ -53,7 +53,6 @@ import pascal.taie.analysis.pta.pts.PointsToSetFactory;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.CastExp;
-import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Literal;
@@ -66,11 +65,11 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.AssignLiteral;
 import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
-import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.New;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StmtVisitor;
 import pascal.taie.ir.stmt.StoreArray;
@@ -99,7 +98,7 @@ import static pascal.taie.language.classes.Signatures.FINALIZER_REGISTER;
 
 public class DefaultSolver implements Solver {
 
-    private static final Logger logger = LogManager.getLogger(DefaultSolver.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultSolver.class);
 
     /**
      * Descriptor for array objects created implicitly by multiarray instruction.

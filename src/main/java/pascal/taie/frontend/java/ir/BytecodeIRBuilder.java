@@ -22,9 +22,8 @@
 
 package pascal.taie.frontend.java.ir;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.typing.TypeInference;
 import pascal.taie.ir.IR;
@@ -36,7 +35,7 @@ import pascal.taie.util.graph.Dominators;
  */
 class BytecodeIRBuilder {
 
-    private static final Logger logger = LogManager.getLogger(BytecodeIRBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(BytecodeIRBuilder.class);
 
     /**
      * The shared context holding all resources and state for the IR building process.

@@ -25,8 +25,8 @@ package pascal.taie.analysis.pta.plugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
@@ -73,7 +73,7 @@ import static pascal.taie.util.collection.CollectionUtils.sum;
  */
 public class ResultProcessor implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(ResultProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResultProcessor.class);
 
     public static final String RESULTS_FILE = "pta-results.txt";
 

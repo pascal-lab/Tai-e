@@ -22,8 +22,8 @@
 
 package pascal.taie.language.classes;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.ArrayType;
@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 
 public class ClassHierarchyImpl implements ClassHierarchy {
 
-    private static final Logger logger = LogManager.getLogger(ClassHierarchyImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassHierarchyImpl.class);
 
     private JClassLoader defaultLoader;
 

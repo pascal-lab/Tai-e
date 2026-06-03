@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.Analysis;
 import pascal.taie.util.Monitor;
 
@@ -32,7 +32,7 @@ import pascal.taie.util.Monitor;
  */
 public class AnalysisTimer implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(Analysis.class);
+    private static final Logger logger = LoggerFactory.getLogger(Analysis.class);
 
     private Monitor ptaMonitor;
 
@@ -45,6 +45,6 @@ public class AnalysisTimer implements Plugin {
     @Override
     public void onFinish() {
         ptaMonitor.stop();
-        logger.info(ptaMonitor);
+        logger.info("{}", ptaMonitor);
     }
 }

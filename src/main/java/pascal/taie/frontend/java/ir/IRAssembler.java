@@ -22,20 +22,14 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
@@ -54,12 +48,17 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Assembles the final Tai-e IR.
  * It resolves jump targets, converts {@link FrontendPhiStmt} to the {@link PhiStmt}, and builds the exception table.
  */
 class IRAssembler {
-    private static final Logger logger = LogManager.getLogger(IRAssembler.class);
+    private static final Logger logger = LoggerFactory.getLogger(IRAssembler.class);
 
     /**
      * The shared context holding all sources and state for the IR building process.

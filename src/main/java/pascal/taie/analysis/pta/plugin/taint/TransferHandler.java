@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -61,7 +61,7 @@ import java.util.Set;
  */
 class TransferHandler extends OnFlyHandler {
 
-    private static final Logger logger = LogManager.getLogger(TransferHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransferHandler.class);
 
     private final Context emptyContext;
 

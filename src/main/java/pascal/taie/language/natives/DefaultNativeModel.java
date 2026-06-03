@@ -22,8 +22,8 @@
 
 package pascal.taie.language.natives;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
 import pascal.taie.ir.exp.ArrayAccess;
@@ -67,7 +67,7 @@ import static pascal.taie.util.collection.Maps.newMap;
 
 public class DefaultNativeModel implements NativeModel {
 
-    private static final Logger logger = LogManager.getLogger(DefaultNativeModel.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultNativeModel.class);
 
     private final TypeSystem typeSystem;
 

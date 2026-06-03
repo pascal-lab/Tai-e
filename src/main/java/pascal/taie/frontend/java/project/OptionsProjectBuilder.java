@@ -22,6 +22,14 @@
 
 package pascal.taie.frontend.java.project;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.config.Options;
+import pascal.taie.util.ClassNameExtractor;
+import pascal.taie.util.collection.Lists;
+import pascal.taie.util.collection.Sets;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -34,19 +42,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pascal.taie.config.Options;
-import pascal.taie.util.ClassNameExtractor;
-import pascal.taie.util.collection.Lists;
-import pascal.taie.util.collection.Sets;
-
 public class OptionsProjectBuilder implements ProjectBuilder {
 
-    private static final Logger logger = LogManager.getLogger(OptionsProjectBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(OptionsProjectBuilder.class);
 
     private static final String JREs = "java-benchmarks/JREs";
 

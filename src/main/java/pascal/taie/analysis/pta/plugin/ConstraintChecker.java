@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public class ConstraintChecker implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(ConstraintChecker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConstraintChecker.class);
 
     private final Set<JMethod> reached = Sets.newSet(4096);
 

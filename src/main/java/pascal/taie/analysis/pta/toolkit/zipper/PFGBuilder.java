@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
 import pascal.taie.analysis.graph.flowgraph.InstanceNode;
 import pascal.taie.analysis.graph.flowgraph.Node;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 
 class PFGBuilder {
 
-    private static final Logger logger = LogManager.getLogger(PFGBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(PFGBuilder.class);
 
     private final PointerAnalysisResultEx pta;
 

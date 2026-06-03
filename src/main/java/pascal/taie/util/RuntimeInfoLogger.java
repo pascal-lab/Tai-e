@@ -22,8 +22,8 @@
 
 package pascal.taie.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.net.JarURLConnection;
@@ -37,7 +37,7 @@ import java.util.jar.JarFile;
  */
 public class RuntimeInfoLogger {
 
-    private static final Logger logger = LogManager.getLogger(RuntimeInfoLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeInfoLogger.class);
 
     private static final String[] ENV_KEYS = {
             "java.version",

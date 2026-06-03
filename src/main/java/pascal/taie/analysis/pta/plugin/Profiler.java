@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.element.CSManager;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  */
 public class Profiler implements Plugin {
 
-    private static final Logger logger = LogManager.getLogger(Profiler.class);
+    private static final Logger logger = LoggerFactory.getLogger(Profiler.class);
 
     private static final String PROFILE_FILE = "pta-profile.txt";
 

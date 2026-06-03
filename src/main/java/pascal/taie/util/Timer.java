@@ -22,9 +22,9 @@
 
 package pascal.taie.util;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +48,7 @@ import java.util.function.Supplier;
 @Deprecated(forRemoval = true)
 public class Timer {
 
-    private static final Logger logger = LogManager.getLogger(Timer.class);
+    private static final Logger logger = LoggerFactory.getLogger(Timer.class);
 
     private final String name;
 
@@ -103,8 +103,9 @@ public class Timer {
         timer.start();
         T result = task.get();
         timer.stop();
-        logger.log(level, "{} finishes, elapsed time: {}", taskName,
-                String.format("%.2fs", timer.inSecond()));
+        logger.atLevel(level)
+                .log("{} finishes, elapsed time: {}", taskName,
+                        String.format("%.2fs", timer.inSecond()));
         return result;
     }
 
