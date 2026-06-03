@@ -30,8 +30,6 @@ import pascal.taie.analysis.deadcode.DeadCodeTestFull;
 import pascal.taie.analysis.graph.callgraph.cha.CHATestFull;
 import pascal.taie.analysis.pta.PTATestSuite;
 import pascal.taie.analysis.sideeffect.SideEffectTest;
-import pascal.taie.android.AndroidBenchTestSuite;
-import pascal.taie.android.droidbench.DroidBenchTestSuite;
 import pascal.taie.config.OptionsTest;
 import pascal.taie.frontend.cache.SerializationTest;
 import pascal.taie.frontend.java.FrontendTestSuite;
