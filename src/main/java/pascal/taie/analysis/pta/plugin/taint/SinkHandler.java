@@ -47,11 +47,14 @@ import java.util.stream.Collectors;
  */
 class SinkHandler extends Handler {
 
+    private final boolean appOnlyFlows;
+
     private final List<Sink> sinks;
 
-    SinkHandler(HandlerContext context) {
+    SinkHandler(HandlerContext context, boolean appOnlyFlows) {
         super(context);
         sinks = context.config().sinks();
+        this.appOnlyFlows = appOnlyFlows;
     }
 
     Set<TaintFlow> collectTaintFlows() {
@@ -116,6 +119,22 @@ class SinkHandler extends Handler {
                 .filter(manager::isTaint)
                 .map(manager::getSourcePoint)
                 .map(sourcePoint -> new TaintFlow(sourcePoint, sinkPoint))
+                .filter(this::shouldKeepTaintFlow)
                 .collect(Collectors.toSet());
+    }
+
+    private boolean shouldKeepTaintFlow(TaintFlow taintFlow) {
+        return !appOnlyFlows
+                || isApplicationTaintFlow(taintFlow);
+    }
+
+    private boolean isApplicationTaintFlow(TaintFlow taintFlow) {
+        return taintFlow.sourcePoint()
+                .getContainer()
+                .isApplication()
+                && taintFlow.sinkPoint()
+                .sinkCall()
+                .getContainer()
+                .isApplication();
     }
 }

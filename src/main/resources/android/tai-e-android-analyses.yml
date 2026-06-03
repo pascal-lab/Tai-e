@@ -1,0 +1,5 @@
+- id: pta
+  options:
+    implicit-entries: false
+    distinguish-string-constants: app
+    propagate-types: [ reference,int,long,double,char,float ]

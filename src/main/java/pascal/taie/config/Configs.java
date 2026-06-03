@@ -41,12 +41,26 @@ public final class Configs {
     private static final String CONFIG = "tai-e-analyses.yml";
 
     /**
+     * File name of Android-specific analysis overrides.
+     */
+    private static final String ANDROID_CONFIG = "android/tai-e-android-analyses.yml";
+
+    /**
      * @return the content of analysis configuration.
      */
     public static InputStream getAnalysisConfig() {
         return Configs.class
                 .getClassLoader()
                 .getResourceAsStream(CONFIG);
+    }
+
+    /**
+     * @return the content of Android-specific analysis overrides.
+     */
+    public static InputStream getAndroidAnalysisConfig() {
+        return Configs.class
+                .getClassLoader()
+                .getResourceAsStream(ANDROID_CONFIG);
     }
 
     /**

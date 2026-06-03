@@ -101,6 +101,8 @@ public class TaintAnalysis extends CompositePlugin {
      */
     private boolean isReported;
 
+    private boolean appOnlyFlows;
+
     private HandlerContext context;
 
     @Override
@@ -113,6 +115,7 @@ public class TaintAnalysis extends CompositePlugin {
     private void initialize() {
         // clean composited plugins, taint objects and taint transfer edges
         isReported = false;
+        appOnlyFlows = World.get().getOptions().isAndroidMode();
         clearPlugins();
         if (context != null) {
             TaintManager manager = context.manager();
@@ -246,7 +249,7 @@ public class TaintAnalysis extends CompositePlugin {
             return;
         }
         isReported = true;
-        Set<TaintFlow> taintFlows = new SinkHandler(context).collectTaintFlows();
+        Set<TaintFlow> taintFlows = new SinkHandler(context, appOnlyFlows).collectTaintFlows();
         logger.info("Detected {} taint flow(s):", taintFlows.size());
         taintFlows.forEach(logger::info);
         solver.getResult().storeResult(getClass().getName(), taintFlows);

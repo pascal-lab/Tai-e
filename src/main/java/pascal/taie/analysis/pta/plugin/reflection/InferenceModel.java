@@ -65,9 +65,15 @@ abstract class InferenceModel extends AnalysisModelPlugin {
 
     protected void classForNameKnown(
             Context context, Invoke forName, @Nullable String className) {
+        if (ReflectionAnalysis.ignoreImpreciseTarget(
+                forNameTargets.get(forName).size())) {
+            return;
+        }
         if (className != null) {
             JClass clazz = hierarchy.getClass(className);
-            if (clazz != null) {
+            if (clazz != null
+                    && (!ReflectionAnalysis.isAndroidMode()
+                    || clazz.isApplication())) {
                 solver.initializeClass(clazz);
                 Var result = forName.getResult();
                 if (result != null) {

@@ -29,6 +29,7 @@ import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.Set;
 
@@ -42,7 +43,8 @@ public class StringBasedModel extends InferenceModel {
 
     @InvokeHandler(signature = {
             "<java.lang.Class: java.lang.Class forName(java.lang.String)>",
-            "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>"},
+            "<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>",
+            "<java.lang.ClassLoader: java.lang.Class loadClass(java.lang.String)>"},
             argIndexes = {0})
     public void classForName(Context context, Invoke invoke, PointsToSet nameObjs) {
         if (invokesWithLog.contains(invoke)) {
@@ -79,6 +81,21 @@ public class StringBasedModel extends InferenceModel {
                 String name = CSObjs.toString(nameObj);
                 classGetMethodKnown(context, invoke, clazz, name);
             });
+        });
+    }
+
+    @InvokeHandler(signature = {
+            "<java.lang.reflect.Method: java.lang.Class getDeclaringClass()>"
+    }, argIndexes = {BASE})
+    public void methodGetDeclaringClass(Context context, Invoke invoke, PointsToSet methodObjs) {
+        if (invokesWithLog.contains(invoke)) {
+            return;
+        }
+        methodObjs.forEach(methodObj -> {
+            JMethod jMethod = CSObjs.toMethod(methodObj);
+            if (jMethod != null) {
+                classForNameKnown(context, invoke, jMethod.getDeclaringClass().getName());
+            }
         });
     }
 }

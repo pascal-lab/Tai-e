@@ -40,6 +40,7 @@ import pascal.taie.analysis.pta.plugin.Plugin;
 import pascal.taie.analysis.pta.plugin.ReferenceHandler;
 import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
+import pascal.taie.analysis.pta.plugin.android.AndroidAnalysis;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.Java9StringConcatHandler;
@@ -132,6 +133,9 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
                 new NativeModeller(),
                 new ExceptionAnalysis()
         );
+        if (World.get().getOptions().isAndroidMode()) {
+            plugin.addPlugin(new AndroidAnalysis());
+        }
         int javaVersion = World.get().getOptions().getJavaVersion();
         if (javaVersion < 9) {
             // current reference handler doesn't support Java 9+

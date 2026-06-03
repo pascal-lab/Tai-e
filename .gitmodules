@@ -2,3 +2,7 @@
 	path = java-benchmarks
 	url = ../java-benchmarks.git
 	branch = master
+[submodule "android-benchmarks"]
+	path = android-benchmarks
+	url = ../android-benchmarks.git
+	branch = master

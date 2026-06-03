@@ -84,6 +84,11 @@ public class Main {
         AnalysisPlanner planner = new AnalysisPlanner(
                 manager, options.getKeepResult());
         boolean reachableScope = options.getScope().equals(Scope.REACHABLE);
+        if (options.isAndroidMode()) {
+            manager.overwriteOptions(Lists.map(
+                    AnalysisConfig.parseConfigs(Configs.getAndroidAnalysisConfig()),
+                    config -> new PlanConfig(config.getId(), config.getOptions())));
+        }
         if (!options.getAnalyses().isEmpty()) {
             // Analyses are specified by options
             List<PlanConfig> planConfigs = PlanConfig.readConfigs(options);

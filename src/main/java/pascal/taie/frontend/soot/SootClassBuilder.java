@@ -22,6 +22,8 @@
 
 package pascal.taie.frontend.soot;
 
+import pascal.taie.World;
+import pascal.taie.android.util.AndroidSystemClassUtil;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JClassBuilder;
@@ -106,7 +108,9 @@ class SootClassBuilder implements JClassBuilder {
 
     @Override
     public boolean isApplication() {
-        return sootClass.isApplicationClass();
+        return !(World.get().getOptions().isAndroidMode()
+                && AndroidSystemClassUtil.isAndroidSystemClass(sootClass.getName()))
+                && sootClass.isApplicationClass();
     }
 
     @Override

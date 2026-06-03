@@ -1,0 +1,23 @@
+# Basic classes needed by Soot frontend
+
+# Adding classes below is necessary to avoid runtime exception
+# Android system classes
+- android.view.ContextThemeWrapper
+- android.app.Activity
+- android.content.BroadcastReceiver
+- android.app.Service
+- android.app.IntentService
+- android.content.ContentProvider
+- android.support.v4.app.Fragment
+- android.app.Fragment
+- androidx.fragment.app.Fragment
+- android.app.ListFragment
+- android.view.View
+- android.app.Application
+- android.content.ServiceConnection
+- android.os.Handler
+- android.os.AsyncTask
+- android.content.ContextWrapper
+
+# Android library class
+- org.apache.http.impl.client.DefaultHttpClient

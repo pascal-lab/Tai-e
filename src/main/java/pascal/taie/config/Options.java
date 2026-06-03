@@ -57,7 +57,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.frontend.soot.SootWorldBuilder;
 import pascal.taie.language.classes.StringReps;
+import pascal.taie.android.util.AndroidJavaVersionInfer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -204,6 +206,28 @@ public class Options implements Serializable {
     @Deprecated
     public boolean isAllowPhantom() {
         return true;
+    }
+
+    @JsonProperty
+    @Option(names = {"-am", "--android-mode"},
+            description = "Enable Android mode (default: ${DEFAULT-VALUE})",
+            defaultValue = "false")
+    private boolean androidMode;
+
+    public boolean isAndroidMode() {
+        return androidMode;
+    }
+
+    @JsonProperty
+    @Option(names = {"-ajs", "--android-jars"},
+            description = "Specifies the path to Android platforms required for analysis." +
+                    " This path is used to locate the necessary Android JAR files for analysis purposes." +
+                    " (default: ${DEFAULT-VALUE})",
+            defaultValue = "android-benchmarks/android-platforms")
+    private String androidJars;
+
+    public String getAndroidJars() {
+        return androidJars;
     }
 
     // ---------- general analysis options ----------
@@ -411,13 +435,27 @@ public class Options implements Serializable {
             throw new ConfigException("Conflict options: " +
                     "--analysis and --plan-file should not be used simultaneously");
         }
-        if (options.getClassPath() != null
-                && options.mainClass == null
-                && options.inputClasses.isEmpty()
-                && options.getAppClassPath() == null) {
-            throw new ConfigException("Missing options: " +
-                    "at least one of --main-class, --input-classes " +
-                    "or --app-class-path should be specified");
+        if (options.androidMode) { // analyze Android program
+            if (options.getClassPath().isEmpty()) {
+                throw new ConfigException("Missing options: apk is missing" +
+                        " (should be specified by -cp)");
+            }
+
+            // Android analysis still uses the Soot frontend.
+            options.worldBuilderClass = SootWorldBuilder.class;
+
+            // infer Java version from Android target SDK
+            String apkPath = options.classPath.get(0);
+            options.javaVersion = AndroidJavaVersionInfer.inferFromApk(apkPath);
+        } else { // analyze Java program
+            if (options.getClassPath().isEmpty()
+                    && options.mainClass == null
+                    && options.inputClasses.isEmpty()
+                    && options.getAppClassPath() == null) {
+                throw new ConfigException("Missing options: " +
+                        "at least one of --main-class, --input-classes " +
+                        "or --app-class-path should be specified");
+            }
         }
 
         if (options.analyses.containsKey(PointerAnalysis.ID)
@@ -676,7 +714,9 @@ public class Options implements Serializable {
                 ", appClassPath='" + appClassPath + '\'' +
                 ", mainClass='" + mainClass + '\'' +
                 ", inputClasses=" + inputClasses +
+                ", androidJars=" + androidJars +
                 ", javaVersion=" + javaVersion +
+                ", androidMode=" + androidMode +
                 ", worldBuilderClass=" + worldBuilderClass +
                 ", outputDir='" + outputDir + '\'' +
                 ", preBuildIR=" + preBuildIR +

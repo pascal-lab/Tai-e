@@ -51,6 +51,8 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
 
     protected static final String JREs = "java-benchmarks/JREs";
 
+    protected static final String ANDROID_PLATFORMs = "android-benchmarks/android-platforms";
+
     protected static final List<String> implicitEntries = List.of(
             "<java.lang.System: void initializeSystemClass()>",
             "<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>",
@@ -97,6 +99,49 @@ public abstract class AbstractWorldBuilder implements WorldBuilder {
                         options.getJavaVersion() + " library is not supported yet", e);
             }
         }
+    }
+
+    /**
+     * Obtains Android JDK path.
+     * TODO: temporarily use Soot to extract SDK version from given apk.
+     */
+    protected static String getAndroidJDKPath(Options options) {
+        // check existence of JREs
+        File jreDir = new File(JREs);
+        if (!jreDir.exists()) {
+            throw new RuntimeException("""
+                    Failed to locate Java library.
+                    Please clone submodule 'java-benchmarks' by command:
+                    'git submodule update --init --recursive' (if you are running Tai-e)
+                    or 'git clone https://github.com/pascal-lab/java-benchmarks' (if you are using Tai-e as a dependency),
+                    then put it in Tai-e's working directory.""");
+        }
+        String jrePath = String.format("%s/jre1.%d",
+                JREs, options.getJavaVersion());
+        try (Stream<Path> paths = Files.walk(Path.of(jrePath))) {
+            return paths.map(Path::toString)
+                    .filter(p -> p.endsWith(".jar"))
+                    .collect(Collectors.joining(File.pathSeparator));
+        } catch (IOException e) {
+            throw new RuntimeException("Analysis on Java " +
+                    options.getJavaVersion() + " library is not supported yet", e);
+        }
+    }
+
+    protected static void validateAndroidJars(String androidJars) {
+        if (new File(androidJars).exists()) {
+            return;
+        }
+        if (ANDROID_PLATFORMs.equals(androidJars)) {
+            throw new RuntimeException("""
+                   Failed to locate Android platforms.
+                   Please clone submodule 'android-benchmarks' by command:
+                   'git submodule update --init --recursive' (if you are running Tai-e)
+                   or 'git clone https://github.com/pascal-lab/android-benchmarks' (if you are using Tai-e as a dependency),
+                   then put it in Tai-e's working directory.""");
+        }
+        throw new RuntimeException(
+                "Failed to locate Android platforms: " + androidJars);
     }
 
     protected static NativeModel getNativeModel(

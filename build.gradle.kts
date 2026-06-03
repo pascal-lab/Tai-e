@@ -35,6 +35,17 @@ dependencies {
     implementation("org.ow2.asm:asm-commons:$asmVersion")
     implementation("org.ow2.asm:asm-tree:$asmVersion")
     implementation("org.ow2.asm:asm-util:$asmVersion")
+    // Use FlowDroid to parse AXML files
+    implementation(files("lib/flowdroidclasses-modified.jar"))
+    "de.fraunhofer.sit.sse.flowdroid:soot-infoflow-android:2.14.1".let {
+        // Disable transitive dependencies from FlowDroid in compile classpath
+        compileOnly(it) { isTransitive = false }
+        testCompileOnly(it) { isTransitive = false }
+        runtimeOnly(it) {
+            exclude(group = "org.soot-oss", module = "soot")
+        }
+    }
+    implementation("de.upb.cs.swt:axml:2.1.3")
 
 
     testImplementation(platform("org.junit:junit-bom:6.0.0"))

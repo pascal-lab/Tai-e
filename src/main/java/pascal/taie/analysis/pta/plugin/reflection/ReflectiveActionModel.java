@@ -39,9 +39,13 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.util.AnalysisModelPlugin;
 import pascal.taie.analysis.pta.plugin.util.CSObjs;
 import pascal.taie.analysis.pta.plugin.util.InvokeHandler;
+import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.analysis.pta.pts.PointsToSet;
+import pascal.taie.ir.exp.IntLiteral;
+import pascal.taie.ir.exp.NewArray;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.New;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
@@ -55,6 +59,8 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static pascal.taie.analysis.graph.flowgraph.FlowKind.INSTANCE_STORE;
@@ -72,6 +78,7 @@ import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
  *     <li>Field.get(Object)
  *     <li>Field.set(Object,Object)
  *     <li>Array.newInstance(Class,int)
+ *     <li>Array.newInstance(Class,int[])
  * </ul>
  * TODO: check accessibility
  */
@@ -242,8 +249,11 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         });
     }
 
-    @InvokeHandler(signature = "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>", argIndexes = {0})
-    public void arrayNewInstance(Context context, Invoke invoke, PointsToSet pts) {
+    @InvokeHandler(signature = {
+            "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int)>",
+            "<java.lang.reflect.Array: java.lang.Object newInstance(java.lang.Class,int[])>"
+    }, argIndexes = {0, 1})
+    public void arrayNewInstance(Context context, Invoke invoke, PointsToSet pts, PointsToSet arrayObjs) {
         Var result = invoke.getResult();
         if (result == null) {
             return;
@@ -254,11 +264,73 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
             }
             Type baseType = CSObjs.toType(obj);
             if (baseType != null && !(baseType instanceof VoidType)) {
-                ArrayType arrayType = typeSystem.getArrayType(baseType, 1);
-                newReflectiveObj(context, invoke, arrayType);
-                allTargets.put(invoke, arrayType);
+                resolveArrayRanks(invoke, arrayObjs).forEach(rank ->
+                        createReflectiveArray(context, invoke, baseType, rank));
             }
         });
+    }
+
+    private List<Integer> resolveArrayRanks(Invoke invoke, PointsToSet dimensionArrays) {
+        List<Integer> ranks = new ArrayList<>();
+        if (InvokeUtils.getVar(invoke, 1).getType() instanceof ArrayType) {
+            dimensionArrays.forEach(arrayObj -> {
+                Integer rank = getArrayRank(arrayObj);
+                if (rank != null) {
+                    ranks.add(rank);
+                }
+            });
+        } else {
+            ranks.add(1);
+        }
+        return ranks;
+    }
+
+    @Nullable
+    private static Integer getArrayRank(CSObj arrayObj) {
+        if (arrayObj.getObject().getAllocation() instanceof New stmt
+                && stmt.getRValue() instanceof NewArray newArray
+                && newArray.getLength().isConst()
+                && newArray.getLength().getConstValue() instanceof IntLiteral intLiteral) {
+            return intLiteral.getValue();
+        }
+        return null;
+    }
+
+    private void createReflectiveArray(
+            Context context, Invoke invoke, Type baseType, int rank) {
+        if (ReflectionAnalysis.ignoreImpreciseTarget(
+                allTargets.get(invoke).size())) {
+            return;
+        }
+        ArrayType arrayType = typeSystem.getArrayType(baseType, rank);
+        CSObj csNewArray = newReflectiveObj(context, invoke, arrayType);
+        allTargets.put(invoke, arrayType);
+        if (rank > 1) {
+            connectNestedArrays(context, invoke, csNewArray, arrayType, rank);
+        }
+    }
+
+    private void connectNestedArrays(
+            Context parentContext, Invoke invoke, CSObj parentArray,
+            ArrayType parentType, int rank) {
+        ArrayIndex parentIndex = csManager.getArrayIndex(parentArray);
+        Type nestedType = parentType.elementType();
+        for (int i = 1; i < rank; ++i) {
+            Obj nestedArray = heapModel.getMockObj(
+                    REF_OBJ_DESC, invoke + "[" + (i - 1) + "]",
+                    nestedType, invoke.getContainer());
+            Context nestedContext = selector.selectHeapContext(
+                    csManager.getCSMethod(parentContext, invoke.getContainer()),
+                    nestedArray);
+            solver.addPointsTo(parentIndex, nestedContext, nestedArray);
+
+            if (nestedType instanceof ArrayType arrayType) {
+                CSObj nestedCSObj = csManager.getCSObj(parentContext, nestedArray);
+                parentIndex = csManager.getArrayIndex(nestedCSObj);
+                parentContext = nestedContext;
+                nestedType = arrayType.elementType();
+            }
+        }
     }
 
     /**
@@ -273,6 +345,15 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
     private void addReflectiveCallEdge(
             Context callerCtx, Invoke callSite,
             @Nullable CSObj recvObj, JMethod callee, Var args) {
+        if (ReflectionAnalysis
+                .ignoreImpreciseTarget(allTargets.get(callSite).size())) {
+            return;
+        }
+
+        if (ReflectionAnalysis.isAndroidMode() && (!callee.isApplication())) {
+            return;
+        }
+
         if (!callee.isConstructor() && !callee.isStatic()) {
             // dispatch for instance method (except constructor)
             assert recvObj != null : "recvObj is required for instance method";

@@ -29,6 +29,8 @@ import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.Stmt;
+import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.MapEntry;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
@@ -40,7 +42,11 @@ public class ReflectionAnalysis extends CompositePlugin {
 
     private static final Logger logger = LogManager.getLogger(ReflectionAnalysis.class);
 
-    private static final int IMPRECISE_THRESHOLD = 50;
+    private static final int DEFAULT_IMPRECISE_THRESHOLD = 50;
+
+    private static final int ANDROID_IMPRECISE_THRESHOLD = 5;
+
+    private static boolean ignoreImpreciseTarget = false;
 
     private LogBasedModel logBasedModel;
 
@@ -78,6 +84,10 @@ public class ReflectionAnalysis extends CompositePlugin {
         reflectiveActionModel = new ReflectiveActionModel(solver, helper,
                 typeMatcher, invokesWithLog);
 
+        if (isAndroidMode()) {
+            ignoreImpreciseTarget = true;
+        }
+
         addPlugin(logBasedModel,
                 inferenceModel,
                 reflectiveActionModel,
@@ -85,6 +95,20 @@ public class ReflectionAnalysis extends CompositePlugin {
 
         if (World.get().getOptions().getJavaVersion() >= 5) {
             addPlugin(new AnnotationModel(solver, helper));
+        }
+    }
+
+    @Override
+    public void onNewStmt(Stmt stmt, JMethod container) {
+        if (!isAndroidMode()) {
+            super.onNewStmt(stmt, container);
+            return;
+        }
+
+        if (stmt instanceof Invoke invoke
+                && !invoke.isDynamic()
+                && container.isApplication()) {
+            super.onNewStmt(stmt, container);
         }
     }
 
@@ -104,7 +128,7 @@ public class ReflectionAnalysis extends CompositePlugin {
                 .stream()
                 .map(invoke -> new MapEntry<>(invoke, allTargets.get(invoke)))
                 .filter(e -> !invokesWithLog.contains(e.getKey()))
-                .filter(e -> e.getValue().size() > IMPRECISE_THRESHOLD)
+                .filter(e -> reachesImpreciseThreshold(e.getValue().size()))
                 .toList();
         if (!impreciseCalls.isEmpty()) {
             logger.info("Imprecise reflective calls:");
@@ -131,4 +155,19 @@ public class ReflectionAnalysis extends CompositePlugin {
         allTargets.putAll(reflectiveActionModel.getAllTargets());
         return allTargets;
     }
+
+    static boolean isAndroidMode() {
+        return World.get().getOptions().isAndroidMode();
+    }
+
+    private static boolean reachesImpreciseThreshold(int targetCount) {
+        return targetCount >= (isAndroidMode()
+                ? ANDROID_IMPRECISE_THRESHOLD
+                : DEFAULT_IMPRECISE_THRESHOLD);
+    }
+
+    static boolean ignoreImpreciseTarget(int targetCount) {
+        return ignoreImpreciseTarget && reachesImpreciseThreshold(targetCount);
+    }
+
 }

@@ -1,0 +1,158 @@
+- className: android.content.ContextWrapper
+  callbackMethodSubSigs:
+    - void attachBaseContext(android.content.Context) # android.app.Activity may not have this method in older sdk version
+
+- className: android.view.ContextThemeWrapper
+  callbackMethodSubSigs:
+    - void attachBaseContext(android.content.Context) # android.app.Activity may not have this method in older sdk version
+
+- className: android.app.Activity
+  callbackMethodSubSigs:
+    - void onBackPressed()
+    - void onCreate(android.os.Bundle)
+    - void onDestroy()
+    - void onPause()
+    - void onRestart()
+    - void onResume()
+    - void onStart()
+    - void onStop()
+    - void onSaveInstanceState(android.os.Bundle)
+    - void onRestoreInstanceState(android.os.Bundle)
+    - java.lang.CharSequence onCreateDescription()
+    - void onPostCreate(android.os.Bundle)
+    - void onPostResume()
+    - void onAttachFragment(android.app.Fragment)
+    - void onLowMemory()
+    - void onUserLeaveHint()
+    - void onRequestPermissionsResult(int,java.lang.String[],int[])
+    - void onNewIntent(android.content.Intent)
+
+- className: android.content.BroadcastReceiver
+  callbackMethodSubSigs:
+    - void onReceive(android.content.Context,android.content.Intent)
+
+- className: android.app.Service
+  callbackMethodSubSigs:
+    - void onCreate()
+    - void onStart(android.content.Intent,int)
+    - int onStartCommand(android.content.Intent,int,int)
+    - android.os.IBinder onBind(android.content.Intent)
+    - void onRebind(android.content.Intent)
+    - boolean onUnbind(android.content.Intent)
+    - void onDestroy()
+    - void onLowMemory()
+
+- className: android.app.IntentService
+  callbackMethodSubSigs:
+    - void onHandleIntent(android.content.Intent)
+
+- className: android.content.ContentProvider
+  callbackMethodSubSigs:
+    - boolean onCreate()
+    - android.net.Uri insert(android.net.Uri,android.content.ContentValues)
+    - android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String)
+    - int update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[])
+    - int delete(android.net.Uri,java.lang.String,java.lang.String[])
+    - java.lang.String getType(android.net.Uri)
+
+# old sdk version
+- className: android.support.v4.app.Fragment
+  callbackMethodSubSigs:
+    - android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)
+    - void onAttach(android.content.Context)
+    - void onAttach(android.app.Activity)
+    - void onCreate(android.os.Bundle)
+    - void onViewCreated(android.view.View,android.os.Bundle)
+    - void onStart()
+    - void onResume()
+    - void onPause()
+    - void onStop()
+    - void onDestroyView()
+    - void onDestroy()
+    - void onDetach()
+    - void onActivityCreated(android.os.Bundle)
+    - void onActivityResult(  int,int,android.content.Intent)
+    - void onAttachFragment(android.support.v4.app.Fragment)
+
+- className: android.app.Fragment
+  callbackMethodSubSigs:
+    - android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)
+    - void onAttach(android.content.Context)
+    - void onAttach(android.app.Activity)
+    - void onCreate(android.os.Bundle)
+    - void onViewCreated(android.view.View,android.os.Bundle)
+    - void onStart()
+    - void onResume()
+    - void onPause()
+    - void onStop()
+    - void onDestroyView()
+    - void onDestroy()
+    - void onDetach()
+    - void onActivityCreated(android.os.Bundle)
+    - void onActivityResult(int,int,android.content.Intent)
+    - void onAttachFragment(android.fragment.app.Fragment)
+
+- className: androidx.fragment.app.Fragment
+  callbackMethodSubSigs:
+    - android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)
+    - void onAttach(android.content.Context)
+    - void onAttach(android.app.Activity)
+    - void onCreate(android.os.Bundle)
+    - void onViewCreated(android.view.View,android.os.Bundle)
+    - void onStart()
+    - void onResume()
+    - void onPause()
+    - void onStop()
+    - void onDestroyView()
+    - void onDestroy()
+    - void onDetach()
+    - void onActivityCreated(android.os.Bundle)
+    - void onActivityResult(int,int,android.content.Intent)
+    - void onAttachFragment(androidx.fragment.app.Fragment)
+
+- className: android.app.ListFragment # old sdk version
+  callbackMethodSubSigs:
+    - void onListItemClick(android.widget.ListView,android.view.View,int,long)
+
+# refer https://developer.android.com/reference/android/view/View
+- className: android.view.View
+  callbackMethodSubSigs:
+    - void onFinishInflate()
+    - void onMeasure(int,int)
+    - void onLayout(boolean,int,int,int,int)
+    - void onSizeChanged(int,int,int,int)
+    - void onDraw(android.graphics.Canvas)
+    - void onKeyDown(int,android.view.KeyEvent)
+    - void onKeyUp(int,android.view.KeyEvent)
+    - void onTrackballEvent(android.view.MotionEvent)
+    - void onTouchEvent(android.view.MotionEvent)
+    - void onGenericMotionEvent(android.view.MotionEvent)
+    - void onHoverEvent(android.view.MotionEvent)
+    - void onFocusChanged(boolean,int,android.graphics.Rect)
+    - void onWindowFocusChanged(boolean)
+    - void onAttachedToWindow()
+    - void onDetachedFromWindow()
+    - void onWindowVisibilityChanged(int)
+
+- className: android.app.Application
+  callbackMethodSubSigs:
+    - void onCreate()
+    - void onTerminate()
+    - void onLowMemory()
+
+- className: android.content.ServiceConnection
+  callbackMethodSubSigs:
+    - void onServiceConnected(android.content.ComponentName,android.os.IBinder)
+    - void onServiceDisconnected(android.content.ComponentName)
+
+- className: android.os.Handler
+  callbackMethodSubSigs:
+    - void handleMessage(android.os.Message)
+
+- className: android.os.AsyncTask
+  callbackMethodSubSigs:
+    - void onPreExecute()
+    - java.lang.Object doInBackground(java.lang.Object[])
+    - void onProgressUpdate(java.lang.Object[])
+    - void onPostExecute(java.lang.Object)
+    - void onCancelled()

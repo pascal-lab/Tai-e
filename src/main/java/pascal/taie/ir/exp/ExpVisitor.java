@@ -159,6 +159,11 @@ public interface ExpVisitor<T> {
         return visitDefault(exp);
     }
 
+    // phi
+    default T visit(PhiExp exp) {
+        return visitDefault(exp);
+    }
+
     // default
     default T visitDefault(Exp exp) {
         return null;

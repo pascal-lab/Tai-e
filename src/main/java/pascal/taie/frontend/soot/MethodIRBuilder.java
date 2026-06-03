@@ -24,6 +24,7 @@ package pascal.taie.frontend.soot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pascal.taie.World;
 import pascal.taie.ir.DefaultIR;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.exp.ArithmeticExp;
@@ -57,6 +58,7 @@ import pascal.taie.ir.exp.NewExp;
 import pascal.taie.ir.exp.NewInstance;
 import pascal.taie.ir.exp.NewMultiArray;
 import pascal.taie.ir.exp.NullLiteral;
+import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.ShiftExp;
 import pascal.taie.ir.exp.StaticFieldAccess;
 import pascal.taie.ir.exp.StringLiteral;
@@ -80,6 +82,7 @@ import pascal.taie.ir.stmt.LookupSwitch;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.New;
 import pascal.taie.ir.stmt.Nop;
+import pascal.taie.ir.stmt.PhiStmt;
 import pascal.taie.ir.stmt.Return;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.ir.stmt.StoreArray;
@@ -97,6 +100,7 @@ import pascal.taie.util.collection.CollectionUtils;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
+import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 import soot.Body;
 import soot.Local;
@@ -172,6 +176,8 @@ import soot.jimple.UnopExpr;
 import soot.jimple.UshrExpr;
 import soot.jimple.VirtualInvokeExpr;
 import soot.jimple.XorExpr;
+import soot.shimple.PhiExpr;
+import soot.shimple.Shimple;
 import soot.util.Chain;
 
 import java.util.ArrayList;
@@ -208,6 +214,10 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
     IR build() {
         SootMethod m = (SootMethod) method.getMethodSource();
         Body body = m.retrieveActiveBody();
+        if (method.isApplication() && World.get().getOptions().isAndroidMode()) {
+            // Use SSA for application code in Android mode for better precision
+            body = Shimple.v().newBody(body);
+        }
         m.releaseActiveBody(); // release body to save memory
         varManager = new VarManager(method, converter);
         if (method.getReturnType().equals(VOID)) {
@@ -596,6 +606,8 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 buildInstanceOf(lvar, (InstanceOfExpr) rhs);
             } else if (rhs instanceof CastExpr) {
                 buildCast(lvar, (CastExpr) rhs);
+            } else if (rhs instanceof PhiExpr) {
+                buildPhi(lvar, (PhiExpr) rhs);
             } else {
                 throw new SootFrontendException(
                         "Cannot handle AssignStmt: " + stmt);
@@ -870,6 +882,17 @@ class MethodIRBuilder extends AbstractStmtSwitch<Void> {
                 getLocalOrConstant(rhs.getOp()),
                 converter.convertType(rhs.getCastType()));
         addStmt(new Cast(getVar(lhs), castExp));
+    }
+
+    private void buildPhi(Local lhs, PhiExpr rhs) {
+        List<Var> values = rhs.getValues()
+                .stream()
+                .map(this::getLocalOrConstant)
+                .toList();
+        PhiExp phiExp = new PhiExp(values.stream()
+                .map(var -> new Pair<>(PhiExp.METHOD_ENTRY, var))
+                .toList(), converter.convertType(rhs.getType()));
+        addStmt(new PhiStmt(getVar(lhs), phiExp));
     }
 
     @Override
