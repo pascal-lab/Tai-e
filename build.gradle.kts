@@ -56,6 +56,21 @@ dependencies {
 
 application {
     mainClass.set("pascal.taie.Main")
+    applicationName = projectArtifactId
+}
+
+distributions {
+    main {
+        distributionBaseName.set(projectArtifactId)
+        contents {
+            from(files("COPYING", "COPYING.LESSER",
+                "README.md", "CHANGELOG.md", "CITATION.bib"))
+        }
+    }
+}
+
+tasks.startScripts {
+    applicationName = projectArtifactId
 }
 
 tasks.register("generateBuildInfo") {
@@ -78,7 +93,7 @@ tasks.register("generateBuildInfo") {
 
 tasks.register<Jar>("fatJar", Jar::class) {
     group = "build"
-    description = "Creates a single jar file including Tai-e and all dependencies"
+    description = "Creates a legacy single jar file including Tai-e and all dependencies"
     manifest {
         attributes["Main-Class"] = "pascal.taie.Main"
     }

@@ -26,17 +26,14 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class FatJarTests extends InvocationTests {
+class DistributionTests extends InvocationTests {
 
     @Override
     CliRunner createRunner(File workingDir) {
-        String jarPath = System.getProperty("tai-e.fatjar.path");
-        assertNotNull(jarPath, "System property 'tai-e.fatjar.path'"
-                + " must be set to the path of the fat JAR");
-        String javaPath = System.getProperty("java.executable.path");
-        assertNotNull(javaPath, "System property 'java.executable.path'"
-                + " must be set to the path of the Java executable");
-        return CliRunner.forJar(javaPath, jarPath, workingDir);
+        String executablePath = System.getProperty("tai-e.executable.path");
+        assertNotNull(executablePath, "System property 'tai-e.executable.path'"
+                + " must be set to the Tai-e distribution executable");
+        return CliRunner.forDistribution(executablePath, workingDir);
     }
 
 }

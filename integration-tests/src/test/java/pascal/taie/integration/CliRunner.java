@@ -31,54 +31,67 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class for running the fat JAR in tests
+ * Utility class for running Tai-e CLI commands in tests.
  */
-public class FatJarRunner {
+public class CliRunner {
 
     private static final int DEFAULT_TIMEOUT_SECONDS = 30;
 
-    private final String jarPath;
-    private final String javaCommand;
+    private final List<String> commandPrefix;
+
     private final File workingDir;
 
-    public FatJarRunner(String javaCommand, String jarPath, File workingDir) {
-        this.jarPath = jarPath;
-        this.javaCommand = System.getProperty("java.command", "java");
+    public CliRunner(List<String> commandPrefix, File workingDir) {
+        this.commandPrefix = List.copyOf(commandPrefix);
         this.workingDir = workingDir;
-        // Verify JAR exists
+    }
+
+    public static CliRunner forDistribution(String executablePath, File workingDir) {
+        File executable = new File(executablePath);
+        if (!executable.exists()) {
+            throw new IllegalArgumentException("Executable file does not exist: "
+                    + executablePath);
+        }
+        return new CliRunner(List.of(executable.getAbsolutePath()), workingDir);
+    }
+
+    public static CliRunner forJar(String javaCommand, String jarPath, File workingDir) {
         File jarFile = new File(jarPath);
         if (!jarFile.exists()) {
             throw new IllegalArgumentException("JAR file does not exist: " + jarPath);
         }
+        return new CliRunner(
+                List.of(javaCommand, "-jar", jarFile.getAbsolutePath()),
+                workingDir);
     }
 
     /**
-     * Run the JAR with given arguments
+     * Runs Tai-e with given arguments.
      */
     public ProcessResult run(String... args) throws IOException, InterruptedException {
         return run(DEFAULT_TIMEOUT_SECONDS, args);
     }
 
     /**
-     * Run the JAR with custom timeout
+     * Runs Tai-e with custom timeout.
      */
     public ProcessResult run(int timeoutSeconds, String... args)
             throws IOException, InterruptedException {
-        // Build command
         List<String> command = buildCommand(args);
-        // Start process
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(workingDir);
         long startTime = System.currentTimeMillis();
         Process process = pb.start();
 
-        // Wait for the process to complete
-        String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+        String stdout = new String(process.getInputStream().readAllBytes(),
+                StandardCharsets.UTF_8);
+        String stderr = new String(process.getErrorStream().readAllBytes(),
+                StandardCharsets.UTF_8);
         boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
         if (!finished) {
             process.destroyForcibly();
-            throw new RuntimeException("Process timed out after " + timeoutSeconds + " seconds");
+            throw new RuntimeException("Process timed out after "
+                    + timeoutSeconds + " seconds");
         }
 
         long executionTime = System.currentTimeMillis() - startTime;
@@ -90,15 +103,8 @@ public class FatJarRunner {
         );
     }
 
-    /**
-     * Build command list for process execution
-     */
     private List<String> buildCommand(String... args) {
-        List<String> command = new ArrayList<>();
-        command.add(javaCommand);
-        command.add("-jar");
-        command.add(jarPath);
-        // add application arguments
+        List<String> command = new ArrayList<>(commandPrefix);
         command.addAll(Arrays.asList(args));
         return command;
     }

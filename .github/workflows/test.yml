@@ -30,7 +30,7 @@ jobs:
 
       - name: Check release generation
         run: |
-          ./gradlew docs:all fatJar
+          ./gradlew docs:all distZip fatJar
 
       - name: Regression tests and code coverage
         run: |

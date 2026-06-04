@@ -24,7 +24,7 @@
 ## Table of Contents
 
 - [What is Tai-e?](#what-is-tai-e)
-- [How to Obtain Runnable Jar of Tai-e?](#how-to-obtain-runnable-jar-of-tai-e)
+- [How to Obtain Runnable Tai-e?](#how-to-obtain-runnable-tai-e)
 - [How to Include Tai-e in Your Project?](#how-to-include-tai-e-in-your-project)
     - [Stable Version](#stable-version)
     - [Latest Version](#latest-version)
@@ -69,11 +69,33 @@ Tian Tan and Yue Li. 2023.
 **Tai-e: A Developer-Friendly Static Analysis Framework for Java by Harnessing the Good Designs of Classics.**
 In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA '23), July 17–21, 2023, Seattle, WA, USA ([pdf](https://cs.nju.edu.cn/tiantan/papers/issta2023.pdf), [bibtex](CITATION.bib)).
 
-## How to Obtain Runnable Jar of Tai-e?
-The simplest way is to download it from [GitHub Releases](https://github.com/pascal-lab/Tai-e/releases).
+## How to Obtain Runnable Tai-e?
 
-Alternatively, you might build the latest Tai-e yourself from the source code. This can be simply accomplished via Gradle (be sure that Java 17 (or higher version) is available on your system).
-You just need to run command `gradlew fatJar`, and then the runnable jar will be generated in `tai-e/build/`, which includes Tai-e and all its dependencies.
+The recommended way is to download the distribution ZIP from [GitHub Releases](https://github.com/pascal-lab/Tai-e/releases).
+The ZIP contains Tai-e, all runtime dependencies, and startup scripts for Windows, Linux, and macOS.
+
+Alternatively, you might build the latest Tai-e yourself from the source code. This can be simply accomplished via Gradle (be sure that Java 17 (or higher version) is available on your system):
+
+```bash
+./gradlew distZip
+```
+
+The distribution ZIP will be generated in `tai-e/build/distributions/`.
+After extracting it, run Tai-e via the startup script:
+
+```bash
+# on Linux/macOS
+./tai-e-<version>/bin/tai-e -h
+# on Windows
+.\tai-e-<version>\bin\tai-e.bat -h
+```
+
+For compatibility with older releases and scripts, Tai-e still provides a legacy all-in-one JAR:
+
+```bash
+./gradlew fatJar
+java -jar build/tai-e-all-<version>.jar -h
+```
 
 ## How to Include Tai-e in Your Project?
 Tai-e is designed as a standalone tool, but you also have the option to include it in your project as a dependency.

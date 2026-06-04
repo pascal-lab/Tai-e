@@ -142,7 +142,7 @@ Then the options would be:
 
 [source,shell,subs="+normal"]
 ----
-java -jar tai-e-all.jar -cp foo.jar -cp [underline]#"my program/dir/"# -m baz.Main -java 8 -a [underline]#"pta=cs:2-type;time-limit:60;"#
+./tai-e-<version>/bin/tai-e -cp foo.jar -cp [underline]#"my program/dir/"# -m baz.Main -java 8 -a [underline]#"pta=cs:2-type;time-limit:60;"#
 ----
 
 > Note again that you need to [underline]#enclose command-line parameters in quotes# if they contain semicolons `;` or spaces `&#32;`.

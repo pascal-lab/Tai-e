@@ -11,13 +11,21 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    // Build fat jar before running tests
-    val fatJarTask = rootProject.tasks["fatJar"] as Jar
-    dependsOn(fatJarTask)
-    val fatJarFile = fatJarTask.archiveFile.get().asFile
-    // Set system properties for test runtime
-    systemProperty("tai-e.jar.path", fatJarFile.absolutePath)
+    // Build the distribution for primary CLI tests and the fat JAR for compatibility tests.
+    val installDistTask = rootProject.tasks.named("installDist")
+    val fatJarTask = rootProject.tasks.named<Jar>("fatJar")
+    dependsOn(installDistTask, fatJarTask)
+    val executableName = if (System.getProperty("os.name").lowercase().contains("windows")) {
+        "$projectArtifactId.bat"
+    } else {
+        projectArtifactId
+    }
+    val executablePath = rootProject.layout.buildDirectory.file(
+        "install/$projectArtifactId/bin/$executableName")
+    val fatJarFile = fatJarTask.get().archiveFile.get().asFile
+
+    systemProperty("tai-e.fatjar.path", fatJarFile.absolutePath)
+    systemProperty("tai-e.executable.path", executablePath.get().asFile.absolutePath)
     systemProperty("tai-e.project.path", rootProject.projectDir.absolutePath)
     systemProperty("java.executable.path", javaExecutablePath.asFile.absolutePath)
 }
-
