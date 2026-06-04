@@ -55,7 +55,7 @@ jobs:
             ./build/distributions/*.zip \
             ./build/tai-e-all-*.jar
 
-      - uses: manyuanrong/setup-ossutil@v2.0
+      - uses: pascal-lab/setup-ossutil@v1
         with:
           endpoint: ${{ secrets.OSS_ACCESS_ENDPOINT }}
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
