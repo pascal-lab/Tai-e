@@ -22,6 +22,9 @@
 
 package pascal.taie.frontend.java;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -46,7 +49,6 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
-
 
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.ByteType.BYTE;
@@ -76,12 +78,19 @@ public class FrontendTypeSystem extends FastTypeSystem {
      * from method descriptor strings to types happens very frequently
      * in frontend, and this cache is able to save ~70% of calculation time.
      */
-    private final Map<String, Pair<List<Type>, Type>> methodDescriptorCache
+    private transient Map<String, Pair<List<Type>, Type>> methodDescriptorCache
             = Maps.newConcurrentMap();
 
     public FrontendTypeSystem(JClassLoader defaultClassLoader) {
         super(defaultClassLoader);
         arraySupers = Set.of(objectType, cloneableType, serializableType);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+        methodDescriptorCache = Maps.newConcurrentMap();
     }
 
     /**

@@ -22,6 +22,9 @@
 
 package pascal.taie.frontend.java.ir;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,17 +60,25 @@ public class FastIRBuilder implements pascal.taie.ir.IRBuilder {
      * Tracks which classes have had their method sources extracted.
      * Thread-safe set to prevent duplicate parsing of the same class.
      */
-    private final Set<JClass> loadedClasses = Sets.newConcurrentSet();
+    private transient Set<JClass> loadedClasses = Sets.newConcurrentSet();
 
     /**
      * Maps methods to their bytecode sources (adapters).
      * Populated during class parsing and consumed during IR building.
      */
-    private final transient ConcurrentMap<JMethod, AsmMethodSource> method2Source
+    private transient ConcurrentMap<JMethod, AsmMethodSource> method2Source
             = Maps.newConcurrentMap(1024);
 
     public FastIRBuilder(FrontendTypeSystem typeSystem) {
         this.typeSystem = typeSystem;
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+        loadedClasses = Sets.newConcurrentSet();
+        method2Source = Maps.newConcurrentMap(1024);
     }
 
     /**
