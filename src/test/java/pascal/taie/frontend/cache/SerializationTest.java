@@ -159,6 +159,28 @@ public class SerializationTest {
     }
 
     /**
+     * Building IRs populates runtime caches inside {@link IRBuilder} and
+     * the frontend type system. These caches should not become part of the
+     * serialized IR builder state.
+     */
+    @Test
+    void compareIRBuilderAfterIRsBuilt() {
+        World.set(world1); // World.world should be set for building IRs
+        buildIR(world1, "java.util.concurrent.ConcurrentHashMap", "putVal");
+
+        IRBuilder irBuilder1 = world1.getIRBuilder();
+        SerializationUtils.serializedCopy(irBuilder1);
+    }
+
+    private static void buildIR(World world, String className, String methodName) {
+        JClass clazz = world.getClassHierarchy().getClass(className);
+        assertNotNull(clazz);
+        JMethod method = clazz.getDeclaredMethod(methodName);
+        assertNotNull(method);
+        method.getIR();
+    }
+
+    /**
      * This test contains multiple subtests because
      * build all IRs is time-consuming, so share a deserialized {@link World}.
      */
