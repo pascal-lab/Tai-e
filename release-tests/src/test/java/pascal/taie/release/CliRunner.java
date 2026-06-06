@@ -20,7 +20,7 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.integration;
+package pascal.taie.release;
 
 import java.io.File;
 import java.io.IOException;

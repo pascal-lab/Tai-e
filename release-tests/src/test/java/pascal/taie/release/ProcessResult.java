@@ -20,23 +20,20 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.integration;
+package pascal.taie.release;
 
-import java.io.File;
+/**
+ * Container for process execution results
+ */
+public record ProcessResult(
+        int exitCode,
+        String stdout,
+        String stderr,
+        long executionTimeMs
+) {
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-class FatJarTests extends InvocationTests {
-
-    @Override
-    CliRunner createRunner(File workingDir) {
-        String jarPath = System.getProperty("tai-e.fatjar.path");
-        assertNotNull(jarPath, "System property 'tai-e.fatjar.path'"
-                + " must be set to the path of the fat JAR");
-        String javaPath = System.getProperty("java.executable.path");
-        assertNotNull(javaPath, "System property 'java.executable.path'"
-                + " must be set to the path of the Java executable");
-        return CliRunner.forJar(javaPath, jarPath, workingDir);
+    public boolean isSuccess() {
+        return exitCode == 0;
     }
 
 }

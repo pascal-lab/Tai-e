@@ -3,7 +3,7 @@
 include(
     ":", // root project
     "docs",
-    "integration-tests",
+    "release-tests",
 )
 
 // Auto detect and provision JVM

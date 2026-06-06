@@ -20,20 +20,11 @@
  * License along with Tai-e. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pascal.taie.integration;
-
-import java.io.File;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-class DistributionTests extends InvocationTests {
-
-    @Override
-    CliRunner createRunner(File workingDir) {
-        String executablePath = System.getProperty("tai-e.executable.path");
-        assertNotNull(executablePath, "System property 'tai-e.executable.path'"
-                + " must be set to the Tai-e distribution executable");
-        return CliRunner.forDistribution(executablePath, workingDir);
-    }
-
-}
+/**
+ * Release tests for Tai-e artifacts.
+ *
+ * <p>This module is used to test the released artifacts, e.g., launching Tai-e,
+ * ensuring that logs are written correctly, verifying that standard output is
+ * produced, and checking that the Tai-e version can be obtained.
+ */
+package pascal.taie.release;
