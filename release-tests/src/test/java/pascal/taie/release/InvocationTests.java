@@ -46,10 +46,10 @@ abstract class InvocationTests {
 
     private CliRunner runner;
 
-    abstract CliRunner createRunner(File workingDir);
+    abstract CliRunner createRunner(File workingDir) throws Exception;
 
     @BeforeEach
-    void setup() {
+    void setup() throws Exception {
         runner = createRunner(tempDir);
     }
 

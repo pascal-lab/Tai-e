@@ -25,6 +25,7 @@
  *
  * <p>This module is used to test the released artifacts, e.g., launching Tai-e,
  * ensuring that logs are written correctly, verifying that standard output is
- * produced, and checking that the Tai-e version can be obtained.
+ * produced, checking that the Tai-e version can be obtained, and verifying the
+ * documentation ZIP structure.
  */
 package pascal.taie.release;
