@@ -37,6 +37,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class InvocationTests {
 
+    private static final String TAI_E_VERSION = "Tai-e Version: ";
+
+    private static final String TAI_E_COMMIT = "Tai-e Commit: ";
+
     @TempDir
     private File tempDir;
 
@@ -86,15 +90,8 @@ abstract class InvocationTests {
         assertFalse(logContent.isEmpty(), "Log file should not be empty");
 
         assertTrue(result.stdout().contains("Writing log to"));
-        assertTrue(logContent.contains("Tai-e Version: "));
-        String version = logContent.split("Tai-e Version: ")[1].split("\n")[0].strip();
-        assertFalse(version.isEmpty(), "Tai-e version should not be empty");
-        assertFalse(version.toLowerCase().contains("unknown"),
-                "Tai-e version should not be unknown");
-        String commit = logContent.split("Tai-e Commit: ")[1].split("\n")[0].strip();
-        assertFalse(commit.isEmpty(), "Tai-e commit should not be empty");
-        assertFalse(commit.toLowerCase().contains("unknown"),
-                "Tai-e commit should not be unknown");
+        assertBuildInfo(result.stdout(), "stdout");
+        assertBuildInfo(logContent, "log file");
 
         File optionsFile = new File(tempDir, "output/options.yml");
         assertTrue(optionsFile.exists(), "Options file should be created");
@@ -124,8 +121,14 @@ abstract class InvocationTests {
 
         String firstLogContent = Files.readString(firstLog.toPath());
         String secondLogContent = Files.readString(secondLog.toPath());
-        assertEquals(1, countOccurrences(firstLogContent, "Tai-e Version: "));
-        assertEquals(1, countOccurrences(secondLogContent, "Tai-e Version: "));
+        assertBuildInfo(firstResult.stdout(), "first stdout");
+        assertBuildInfo(secondResult.stdout(), "second stdout");
+        assertBuildInfo(firstLogContent, "first log file");
+        assertBuildInfo(secondLogContent, "second log file");
+        assertEquals(1, countLinesContaining(firstResult.stdout(), TAI_E_VERSION));
+        assertEquals(1, countLinesContaining(secondResult.stdout(), TAI_E_VERSION));
+        assertEquals(1, countLinesContaining(firstLogContent, TAI_E_VERSION));
+        assertEquals(1, countLinesContaining(secondLogContent, TAI_E_VERSION));
     }
 
     @Test
@@ -145,17 +148,37 @@ abstract class InvocationTests {
         assertTrue(logFile.exists(), "Log file should be created");
 
         String logContent = Files.readString(logFile.toPath());
-        assertEquals(1, countOccurrences(logContent, "Tai-e Version: "));
+        assertBuildInfo(firstResult.stdout(), "first stdout");
+        assertBuildInfo(secondResult.stdout(), "second stdout");
+        assertBuildInfo(logContent, "log file");
+        assertEquals(1, countLinesContaining(firstResult.stdout(), TAI_E_VERSION));
+        assertEquals(1, countLinesContaining(secondResult.stdout(), TAI_E_VERSION));
+        assertEquals(1, countLinesContaining(logContent, TAI_E_VERSION));
     }
 
-    private static int countOccurrences(String text, String substring) {
-        int count = 0;
-        int index = 0;
-        while ((index = text.indexOf(substring, index)) != -1) {
-            ++count;
-            index += substring.length();
-        }
-        return count;
+    private static void assertBuildInfo(String text, String source) {
+        assertBuildInfoValue(text, source, TAI_E_VERSION, "Tai-e version");
+        assertBuildInfoValue(text, source, TAI_E_COMMIT, "Tai-e commit");
+    }
+
+    private static void assertBuildInfoValue(
+            String text, String source, String prefix, String description) {
+        String value = text.lines()
+                .filter(line -> line.contains(prefix))
+                .findFirst()
+                .map(line -> line.substring(
+                        line.indexOf(prefix) + prefix.length()).strip())
+                .orElse("");
+        assertFalse(value.isEmpty(), description + " in " + source
+                + " should not be empty");
+        assertFalse(value.toLowerCase().contains("unknown"),
+                description + " in " + source + " should not be unknown");
+    }
+
+    private static long countLinesContaining(String text, String substring) {
+        return text.lines()
+                .filter(line -> line.contains(substring))
+                .count();
     }
 
 }
