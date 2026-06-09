@@ -1,0 +1,8 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]:<Bean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

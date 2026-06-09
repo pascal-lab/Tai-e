@@ -1,0 +1,15 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: Bean1 bean1()>/%v1 -> [[]:NewObj{<ChildBean: Bean1 bean1()>[0@L6] new Bean1}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: Bean1 bean1()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: Bean1 bean1Alias()>/%v1 -> [[]:NewObj{<ParentBean: Bean1 bean1Alias()>[0@L5] new Bean1}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: Bean1 bean1Alias()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[NewObj{<ChildBean: Bean1 bean1()>[0@L6] new Bean1}]:<Bean1: void <init>()>/this -> [[]:NewObj{<ChildBean: Bean1 bean1()>[0@L6] new Bean1}]
+[NewObj{<ParentBean: Bean1 bean1Alias()>[0@L5] new Bean1}]:<Bean1: void <init>()>/this -> [[]:NewObj{<ParentBean: Bean1 bean1Alias()>[0@L5] new Bean1}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

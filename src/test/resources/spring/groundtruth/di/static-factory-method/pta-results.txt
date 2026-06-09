@@ -1,0 +1,12 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[consumer],jClass=Consumer,isSingleton=true,constructor=<Consumer: void <init>()>},type=Consumer}]:<Consumer: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[consumer],jClass=Consumer,isSingleton=true,constructor=<Consumer: void <init>()>},type=Consumer}]
+[NewObj{<Configuration: Product product()>[0@L6] new Product}]:<Product: void <init>()>/this -> [[]:NewObj{<Configuration: Product product()>[0@L6] new Product}]
+[]:<Configuration: Product product()>/%v0 -> [[]:NewObj{<Configuration: Product product()>[0@L6] new Product}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:DiObject{alloc=CommonBeanDefinition{beanName=[consumer],jClass=Consumer,isSingleton=true,constructor=<Consumer: void <init>()>},type=Consumer}.<Consumer: Product product> -> [[]:NewObj{<Configuration: Product product()>[0@L6] new Product}]
+
+Points-to sets of all array indexes

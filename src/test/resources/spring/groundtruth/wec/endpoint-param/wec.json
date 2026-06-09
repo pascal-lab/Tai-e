@@ -1,0 +1,11 @@
+[ {
+  "containingClass" : "Controller",
+  "handlerMethod" : "<Controller: java.lang.String getMappingEndpoint(java.lang.String,java.lang.String,java.lang.String)>",
+  "paths" : [ "/path/to/get-mapping-endpoint" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : {
+    "param1" : 0,
+    "param2" : 1,
+    "param3" : 2
+  }
+} ]

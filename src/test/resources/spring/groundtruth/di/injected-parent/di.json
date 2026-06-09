@@ -1,0 +1,15 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "bean" ],
+  "constructorSignature" : "<Bean: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Bean"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "childBean" ],
+  "constructorSignature" : "<ChildBean: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "ChildBean"
+} ]

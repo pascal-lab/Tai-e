@@ -1,0 +1,43 @@
+[ {
+  "containingClass" : "ChildController",
+  "handlerMethod" : "<BaseController: java.lang.String getMappingEndpoint3()>",
+  "paths" : [ "/path-prefix3/path/to/get-mapping-endpoint3" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "ChildController",
+  "handlerMethod" : "<ChildController: java.lang.String getMappingEndpoint4()>",
+  "paths" : [ "/path-prefix3/path/to/override-get-mapping-endpoint4" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "Controller",
+  "handlerMethod" : "<AbstractController: java.lang.String getMappingEndpoint1()>",
+  "paths" : [ "/path-prefix1/path/to/get-mapping-endpoint1" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "RichController",
+  "handlerMethod" : "<BaseController: java.lang.String getMappingEndpoint3()>",
+  "paths" : [ "/path-prefix1/path/to/get-mapping-endpoint3" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "RichController",
+  "handlerMethod" : "<RichController: java.lang.String getMappingEndpoint1()>",
+  "paths" : [ "/path-prefix1/path/to/get-mapping-endpoint1" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "RichController",
+  "handlerMethod" : "<RichController: java.lang.String getMappingEndpoint2()>",
+  "paths" : [ "/path-prefix1/path/to/get-mapping-endpoint2" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "RichController",
+  "handlerMethod" : "<RichController: java.lang.String getMappingEndpoint4()>",
+  "paths" : [ "/path-prefix1/path/to/get-mapping-endpoint4" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+} ]

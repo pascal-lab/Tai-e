@@ -78,6 +78,12 @@ public class MapBasedCSManager implements CSManager {
     }
 
     @Override
+    public MockPointer getMockPointer(PointerDescriptor descriptor,
+                                      Object allocation, Type type) {
+        return ptrManager.getMockPointer(descriptor, allocation, type);
+    }
+
+    @Override
     public Collection<Var> getVars() {
         return ptrManager.getVars();
     }
@@ -155,6 +161,13 @@ public class MapBasedCSManager implements CSManager {
 
         private final Map<CSObj, ArrayIndex> arrayIndexes = Maps.newMap();
 
+        private final Map<MockPointerKey, MockPointer> mockPointers = Maps.newMap();
+
+        private record MockPointerKey(PointerDescriptor descriptor,
+                                      Object allocation,
+                                      Type type) {
+        }
+
         /**
          * Counter for assigning unique indexes to Pointers.
          */
@@ -178,6 +191,13 @@ public class MapBasedCSManager implements CSManager {
         private ArrayIndex getArrayIndex(CSObj array) {
             return arrayIndexes.computeIfAbsent(array,
                     a -> new ArrayIndex(a, counter++));
+        }
+
+        private MockPointer getMockPointer(PointerDescriptor descriptor,
+                                           Object allocation, Type type) {
+            MockPointerKey key = new MockPointerKey(descriptor, allocation, type);
+            return mockPointers.computeIfAbsent(key,
+                    k -> new MockPointer(descriptor, allocation, type, counter++));
         }
 
         private Collection<Var> getVars() {

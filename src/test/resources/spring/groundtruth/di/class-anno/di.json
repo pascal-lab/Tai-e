@@ -1,0 +1,8 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "bean" ],
+  "constructorSignature" : "<Bean: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Bean"
+} ]

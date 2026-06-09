@@ -1,0 +1,22 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "bean3" ],
+  "constructorSignature" : "<Bean3: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Bean3"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "configuration" ],
+  "constructorSignature" : "<Configuration: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Configuration"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "multi" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Bean multi(int)>",
+  "singleton" : true,
+  "jclassName" : "Bean"
+} ]

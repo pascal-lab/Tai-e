@@ -1,0 +1,18 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]:<Controller: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}]:<Param1: Param2 getParam2()>/%v1 -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]
+[EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}]:<Param1: Param2 getParam2()>/this -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}]
+[EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]:<Param2: java.lang.String getStr2()>/%v1 -> []
+[EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]:<Param2: java.lang.String getStr2()>/this -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]
+[]:<Controller: void main(Param1)>/%v2 -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]
+[]:<Controller: void main(Param1)>/param1 -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}]
+[]:<Controller: void main(Param1)>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}.<Param1: Param2 param2> -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}]
+[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0},type=Param1 in <Controller: void main(Param1)>}.<Param1: java.lang.String str1> -> [[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.str1,type=java.lang.String in <Controller: void main(Param1)>}]
+[]:EntryPointObj{alloc=MethodParam{<Controller: void main(Param1)>/0}.param2,type=Param2 in <Controller: void main(Param1)>}.<Param2: java.lang.String str2> -> []
+
+Points-to sets of all array indexes

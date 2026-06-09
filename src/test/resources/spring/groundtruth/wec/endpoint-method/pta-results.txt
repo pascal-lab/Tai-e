@@ -1,0 +1,13 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]:<Controller: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[nonController],jClass=NonController,isSingleton=true,constructor=<NonController: void <init>()>},type=NonController}]:<NonController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[nonController],jClass=NonController,isSingleton=true,constructor=<NonController: void <init>()>},type=NonController}]
+[]:<Controller: java.lang.String getMappingEndpoint()>/%c1 -> [[]:ConstantObj{java.lang.String: "Get Mapping Endpoint"}]
+[]:<Controller: java.lang.String getMappingEndpoint()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[]:<Controller: java.lang.String requestMappingEndpoint()>/%c1 -> [[]:ConstantObj{java.lang.String: "Request Mapping Endpoint"}]
+[]:<Controller: java.lang.String requestMappingEndpoint()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

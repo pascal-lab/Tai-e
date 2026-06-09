@@ -27,6 +27,7 @@ import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.pta.core.cs.element.ArrayIndex;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
+import pascal.taie.analysis.pta.core.cs.element.MockPointer;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
 import pascal.taie.analysis.pta.core.cs.element.StaticField;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
@@ -78,6 +79,12 @@ public class ObjectFlowGraph extends NodeManager
     }
 
     private void addPointerFlowEdge(PointerFlowEdge edge) {
+        if (edge.source() instanceof MockPointer ||
+                edge.target() instanceof MockPointer) {
+            // MockPointer is an analysis-internal PFG placeholder and is not
+            // exposed as an OFG node.
+            return;
+        }
         FlowKind kind = edge.kind();
         Node source = toNode(edge.source());
         Node target = toNode(edge.target());

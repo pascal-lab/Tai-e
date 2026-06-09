@@ -42,6 +42,7 @@ import pascal.taie.analysis.pta.plugin.ResultProcessor;
 import pascal.taie.analysis.pta.plugin.ThreadHandler;
 import pascal.taie.analysis.pta.plugin.android.AndroidAnalysis;
 import pascal.taie.analysis.pta.plugin.exception.ExceptionAnalysis;
+import pascal.taie.analysis.pta.plugin.spring.SpringAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.InvokeDynamicAnalysis;
 import pascal.taie.analysis.pta.plugin.invokedynamic.Java9StringConcatHandler;
 import pascal.taie.analysis.pta.plugin.invokedynamic.LambdaAnalysis;
@@ -158,6 +159,9 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
         if (options.getString("taint-config") != null
                 || !((List<String>) options.get("taint-config-providers")).isEmpty()) {
             plugin.addPlugin(new TaintAnalysis());
+        }
+        if (options.getBoolean("spring")) {
+            plugin.addPlugin(new SpringAnalysis());
         }
         plugin.addPlugin(new ResultProcessor());
         // add plugins specified in options

@@ -1,0 +1,17 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]:<Bean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]:<Bean: void overrideReachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]:<Bean: void privateReachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]:<Bean: void reachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean],jClass=Bean,isSingleton=true,constructor=<Bean: void <init>()>},type=Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<Bean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<Bean: void overrideReachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<Bean: void privateReachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<Bean: void reachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: void overrideReachable()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

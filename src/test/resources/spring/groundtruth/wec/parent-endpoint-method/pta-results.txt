@@ -1,0 +1,24 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}]:<BaseController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}]:<ChildController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]:<AbstractController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]:<Controller: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]:<BaseController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]:<RichController: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+[]:<AbstractController: java.lang.String getMappingEndpoint1()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[controller],jClass=Controller,isSingleton=true,constructor=<Controller: void <init>()>},type=Controller}]
+[]:<BaseController: java.lang.String getMappingEndpoint3()>/%c1 -> [[]:ConstantObj{java.lang.String: "get-mapping-endpoint3"}]
+[]:<BaseController: java.lang.String getMappingEndpoint3()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}, []:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+[]:<ChildController: java.lang.String getMappingEndpoint4()>/%c1 -> [[]:ConstantObj{java.lang.String: "override-get-mapping-endpoint4"}]
+[]:<ChildController: java.lang.String getMappingEndpoint4()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childController],jClass=ChildController,isSingleton=true,constructor=<ChildController: void <init>()>},type=ChildController}]
+[]:<RichController: java.lang.String getMappingEndpoint1()>/%c1 -> [[]:ConstantObj{java.lang.String: "Get Mapping Endpoint 1"}]
+[]:<RichController: java.lang.String getMappingEndpoint1()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+[]:<RichController: java.lang.String getMappingEndpoint2()>/%c1 -> [[]:ConstantObj{java.lang.String: "Get Mapping Endpoint 1"}]
+[]:<RichController: java.lang.String getMappingEndpoint2()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+[]:<RichController: java.lang.String getMappingEndpoint4()>/%c1 -> [[]:ConstantObj{java.lang.String: "get-mapping-endpoint4"}]
+[]:<RichController: java.lang.String getMappingEndpoint4()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[richController],jClass=RichController,isSingleton=true,constructor=<RichController: void <init>()>},type=RichController}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

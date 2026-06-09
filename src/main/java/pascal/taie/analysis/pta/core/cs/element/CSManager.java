@@ -28,6 +28,7 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
+import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexer;
 
 import java.util.Collection;
@@ -75,6 +76,12 @@ public interface CSManager {
     ArrayIndex getArrayIndex(CSObj array);
 
     /**
+     * @return the corresponding MockPointer pointer for given mock allocation.
+     */
+    MockPointer getMockPointer(PointerDescriptor descriptor, Object allocation,
+                               Type type);
+
+    /**
      * @return all variables (without contexts).
      */
     Collection<Var> getVars();
@@ -115,7 +122,8 @@ public interface CSManager {
     Collection<ArrayIndex> getArrayIndexes();
 
     /**
-     * @return all pointers managed by this manager.
+     * @return all ordinary pointers managed by this manager, excluding
+     * analysis-internal mock pointers.
      */
     Stream<Pointer> pointers();
 

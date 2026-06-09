@@ -1,0 +1,29 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "bean" ],
+  "constructorSignature" : "<Bean: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Bean"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "bean1" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<ParentBean: Bean1 bean1()>",
+  "singleton" : true,
+  "jclassName" : "Bean1"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "childBean1" ],
+  "constructorSignature" : "<ChildBean1: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "ChildBean1"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "childBean2" ],
+  "constructorSignature" : "<ChildBean2: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "ChildBean2"
+} ]

@@ -1,0 +1,8 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "URLService" ],
+  "constructorSignature" : "<URLService: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "URLService"
+} ]

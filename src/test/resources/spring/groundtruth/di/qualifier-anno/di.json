@@ -1,0 +1,43 @@
+[ {
+  "type" : "FactoryBean",
+  "beanNames" : [ "bean2Name1" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Bean2 bean2Name1(Bean,Bean,Bean,Bean3,Bean3)>",
+  "singleton" : true,
+  "jclassName" : "Bean2"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "beanName1" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Bean beanName1()>",
+  "singleton" : true,
+  "jclassName" : "Bean"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "beanName2", "beanName2Alias" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Bean beanName2Factory()>",
+  "singleton" : true,
+  "jclassName" : "Bean"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "beanName3" ],
+  "constructorSignature" : "<Bean3: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Bean3"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "beanName3Alias" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Bean3 bean3Factory()>",
+  "singleton" : true,
+  "jclassName" : "Bean3"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "configuration" ],
+  "constructorSignature" : "<Configuration: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Configuration"
+} ]

@@ -30,9 +30,11 @@
     taint-config-providers: [ ] # class names of taint config provider classes
     # when this path/provider is given, taint analysis will be enabled
     taint-interactive-mode: false # whether enable interactive mode for taint analysis
+    spring: false # whether enable Spring Framework analysis (DI + WEC)
     plugins: [ ] # | [ pluginClass, ... ]
     time-limit: -1 # set time limit (in seconds) for pointer analysis,
     # -1 means no time limit
+
 
 - description: call graph construction
   analysisClass: pascal.taie.analysis.graph.callgraph.CallGraphBuilder

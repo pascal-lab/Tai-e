@@ -1,0 +1,28 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean3: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean: Bean2 bean2()>/%v1 -> [[]:NewObj{<Bean: Bean2 bean2()>[0@L15] new Bean2}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean: Bean2 bean2()>/%v2 -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean: Bean2 bean2()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean: void <init>()>/%v1 -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]:<Bean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: Bean bean()>/%v1 -> [[]:NewObj{<Configuration: Bean bean()>[0@L9] new Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: Bean bean()>/%v2 -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: Bean bean()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: void <init>()>/%v1 -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]:<Configuration: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}]
+[NewObj{<Bean: Bean2 bean2()>[0@L15] new Bean2}]:<Bean2: void <init>(A)>/a -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[NewObj{<Bean: Bean2 bean2()>[0@L15] new Bean2}]:<Bean2: void <init>(A)>/this -> [[]:NewObj{<Bean: Bean2 bean2()>[0@L15] new Bean2}]
+[NewObj{<Bean: void <init>()>[1@L5] new A}]:<A: void <init>()>/this -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[NewObj{<Configuration: Bean bean()>[0@L9] new Bean}]:<Bean: void <init>(A)>/a -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+[NewObj{<Configuration: Bean bean()>[0@L9] new Bean}]:<Bean: void <init>(A)>/this -> [[]:NewObj{<Configuration: Bean bean()>[0@L9] new Bean}]
+[NewObj{<Configuration: void <init>()>[1@L4] new A}]:<A: void <init>()>/this -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean3],jClass=Bean3,isSingleton=true,constructor=<Bean3: void <init>()>},type=Bean3}.<Bean: A a> -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[]:DiObject{alloc=CommonBeanDefinition{beanName=[configuration],jClass=Configuration,isSingleton=true,constructor=<Configuration: void <init>()>},type=Configuration}.<Configuration: A a> -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+[]:NewObj{<Bean: Bean2 bean2()>[0@L15] new Bean2}.<Bean2: A a> -> [[]:NewObj{<Bean: void <init>()>[1@L5] new A}]
+[]:NewObj{<Configuration: Bean bean()>[0@L9] new Bean}.<Bean: A a> -> [[]:NewObj{<Configuration: void <init>()>[1@L4] new A}]
+
+Points-to sets of all array indexes

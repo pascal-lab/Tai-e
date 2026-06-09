@@ -1,0 +1,8 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[URLService],jClass=URLService,isSingleton=true,constructor=<URLService: void <init>()>},type=URLService}]:<URLService: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[URLService],jClass=URLService,isSingleton=true,constructor=<URLService: void <init>()>},type=URLService}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

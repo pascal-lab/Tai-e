@@ -1,0 +1,22 @@
+[ {
+  "type" : "CommonBean",
+  "beanNames" : [ "configuration" ],
+  "constructorSignature" : "<Configuration: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Configuration"
+}, {
+  "type" : "CommonBean",
+  "beanNames" : [ "consumer" ],
+  "constructorSignature" : "<Consumer: void <init>()>",
+  "factoryMethodSignature" : null,
+  "singleton" : true,
+  "jclassName" : "Consumer"
+}, {
+  "type" : "FactoryBean",
+  "beanNames" : [ "product" ],
+  "constructorSignature" : null,
+  "factoryMethodSignature" : "<Configuration: Product product()>",
+  "singleton" : true,
+  "jclassName" : "Product"
+} ]

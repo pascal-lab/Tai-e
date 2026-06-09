@@ -1,0 +1,14 @@
+Points-to sets of all variables
+[DiObject{alloc=CommonBeanDefinition{beanName=[bean1],jClass=Bean1,isSingleton=true,constructor=<Bean1: void <init>()>},type=Bean1}]:<Bean1: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean1],jClass=Bean1,isSingleton=true,constructor=<Bean1: void <init>()>},type=Bean1}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ChildBean: void <init>()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: Bean bean()>/%v1 -> [[]:NewObj{<ParentBean: Bean bean()>[0@L10] new Bean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: Bean bean()>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: void setter(Bean1)>/bean1 -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[bean1],jClass=Bean1,isSingleton=true,constructor=<Bean1: void <init>()>},type=Bean1}]
+[DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]:<ParentBean: void setter(Bean1)>/this -> [[]:DiObject{alloc=CommonBeanDefinition{beanName=[childBean],jClass=ChildBean,isSingleton=true,constructor=<ChildBean: void <init>()>},type=ChildBean}]
+[NewObj{<ParentBean: Bean bean()>[0@L10] new Bean}]:<Bean: void <init>()>/this -> [[]:NewObj{<ParentBean: Bean bean()>[0@L10] new Bean}]
+
+Points-to sets of all static fields
+
+Points-to sets of all instance fields
+
+Points-to sets of all array indexes

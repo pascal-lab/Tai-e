@@ -71,6 +71,13 @@ For the reflective calls specified in the log file, pointer analysis will resolv
 Taint analysis will be enabled when this file is given.
 See <<taint-analysis#taint-analysis,Taint Analysis>> for more details.
 
+* Spring analysis: `spring:[true|false]`
+** Default value: `false`
+** Enable the built-in Spring Framework analysis plugin.
+When enabled, pointer analysis models Spring dependency injection (DI) and web endpoint configuration (WEC):
+it collects bean definitions from configured annotations, `@Bean` methods, and XML bean configurations; models constructor, field, and method injection; collects Spring Web endpoint handlers; and adds endpoint handlers as entry points with mock parameters.
+The supported Spring annotations and XML tags are configured by `src/main/resources/spring-plugin-config.yaml`.
+
 * Plugins: `plugins:[<pluginClass>,...]`
 ** Default value: `[]`
 ** Activate plugins.To enable a plugin, just add fully-qualified name of the plugin class to this list.

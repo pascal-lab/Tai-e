@@ -7,6 +7,7 @@
   - Add a new Java frontend, which is faster and more reliable than the Soot frontend.
 - Add option `--ssa` to make the Java frontend generate IR in SSA form.
 - Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
+- Add Spring DI and WEC analysis plugin.
 
 ### Breaking Changes
 - Change the default value of option `--world-builder` to

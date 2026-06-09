@@ -1,0 +1,7 @@
+[ {
+  "containingClass" : "Controller",
+  "handlerMethod" : "<Controller: void main(Param1)>",
+  "paths" : [ "/main" ],
+  "requestMethod" : [ "DELETE", "GET", "PATCH", "POST", "PUT" ],
+  "paramName2ParamIndex" : { }
+} ]

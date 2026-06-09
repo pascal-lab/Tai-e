@@ -1,0 +1,102 @@
+dependency-injection:
+  # xml tags to identify the dependency injection configuration
+  - di-xml-tags:
+    # Spring Framework
+    - tag-name: "bean"
+      class-attribute: "class"
+      id-attribute: "id"
+      scope-attribute: "scope"
+    # JSR-330 (Java standard for DI)
+    - tag-name: "ejb"
+      class-attribute: "class"
+      id-attribute: "id"
+      scope-attribute: "session-type"
+  # class annotations to specify the class managed by the DI container
+  - di-class-annotations:
+      # Spring Framework
+      - "org.springframework.stereotype.Component"
+      - "org.springframework.stereotype.Controller"
+      - "org.springframework.stereotype.Service"
+      - "org.springframework.stereotype.Repository"
+      - "org.springframework.context.annotation.Configuration"
+      - "org.springframework.web.bind.annotation.ControllerAdvice"
+      # Spring-WebMVC Framework
+      - "org.springframework.web.bind.annotation.RestController"
+      # Spring-Boot Framework
+      - "org.springframework.boot.context.properties.ConfigurationProperties"
+      - "org.springframework.boot.autoconfigure.SpringBootApplication"
+      - "org.springframework.boot.SpringBootConfiguration"
+      # JSR-330 (Java standard for DI)
+      - "javax.inject.Inject"
+      - "jakarta.inject.Inject"
+      - "javax.inject.Singleton"
+      - "jakarta.inject.Singleton"
+      # JSR-250 (Common Annotations)
+      - "javax.annotation.Resource"
+      - "jakarta.annotation.Resource"
+      - "javax.annotation.Resources"
+      - "jakarta.annotation.Resources"
+      - "javax.annotation.ManagedBean"
+      - "jakarta.annotation.ManagedBean"
+      # Mybatis
+      - "org.apache.ibatis.annotations.Mapper"
+  - di-factory-method-annotations:
+    # Spring Framework
+    - "org.springframework.context.annotation.Bean"
+  # method annotations to specify the constructor method managed by the DI container
+  - di-class-constructor-annotations:
+      # Spring Framework
+      - "org.springframework.beans.factory.annotation.Autowired"
+      # JSR-330 (Java标准依赖注入)
+      - "javax.inject.Inject"
+      - "jakarta.inject.Inject"
+  # field annotations to specify the field need to be injected by the DI container
+  - injected-field-annotations:
+      # Spring Framework
+      - "org.springframework.beans.factory.annotation.Autowired"
+      # JSR-330 (Java standard for DI)
+      - "javax.inject.Inject"
+      - "jakarta.inject.Inject"
+      # JSR-250 (Common Annotations)
+      - "javax.annotation.Resource"
+      - "jakarta.annotation.Resource"
+  # method annotations to specify the method parameters need to be injected by the DI container
+  - injected-method-annotations:
+      # Spring Framework
+      - "org.springframework.beans.factory.annotation.Autowired"
+      # JSR-330 (Java standard for DI)
+      - "javax.inject.Inject"
+      - "jakarta.inject.Inject"
+  # variable annotations to specify the metadata of injected object for annotated variable
+  - qualifier-annotations:
+      # Spring Framework
+      - "org.springframework.beans.factory.annotation.Qualifier"
+      # JSR-330 (Java standard for DI)
+      - "javax.inject.Named"
+      - "jakarta.inject.Named"
+      # JSR-250 (Common Annotations)
+      - "javax.annotation.Resource"
+
+web-endpoint-configuration:
+  # class annotations to activate the endpoint method configured within the annotated class
+  - endpoint-class-annotations:
+    # Spring Framework
+    - "org.springframework.stereotype.Controller"
+    # Spring-WebMVC Framework
+    - "org.springframework.web.bind.annotation.RestController"
+  # class annotations to specify the endpoint metadata configured within the annotated class
+  - endpoint-metadata-class-annotations:
+    # Spring-WebMVC Framework
+    - "org.springframework.web.bind.annotation.RequestMapping"
+  # method annotations to specify the endpoint metadata configured on the annotated method
+  - endpoint-metadata-method-annotations:
+    # Spring-WebMVC Framework
+    - "org.springframework.web.bind.annotation.RequestMapping"
+    - "org.springframework.web.bind.annotation.GetMapping"
+    - "org.springframework.web.bind.annotation.PostMapping"
+    - "org.springframework.web.bind.annotation.PutMapping"
+    - "org.springframework.web.bind.annotation.DeleteMapping"
+    - "org.springframework.web.bind.annotation.PatchMapping"
+  - endpoint-parameter-annotations:
+    # Spring-WebMVC Framework
+    - "org.springframework.web.bind.annotation.RequestParam"

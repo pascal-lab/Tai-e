@@ -1,0 +1,13 @@
+[ {
+  "containingClass" : "Controller",
+  "handlerMethod" : "<Controller: java.lang.String getMappingEndpoint()>",
+  "paths" : [ "/alias-path/to/get-mapping-endpoint", "/path/to/get-mapping-endpoint" ],
+  "requestMethod" : [ "GET" ],
+  "paramName2ParamIndex" : { }
+}, {
+  "containingClass" : "Controller",
+  "handlerMethod" : "<Controller: java.lang.String requestMappingEndpoint()>",
+  "paths" : [ "/alias-path/to/request-mapping-endpoint", "/path/to/request-mapping-endpoint" ],
+  "requestMethod" : [ "DELETE", "GET", "PATCH", "POST", "PUT" ],
+  "paramName2ParamIndex" : { }
+} ]
