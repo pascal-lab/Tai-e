@@ -136,6 +136,10 @@ public class TaintAnalysis extends CompositePlugin {
             provider.setPath(options.getString("taint-config"));
             config = provider.get();
         }
+        // Android taint analysis defaults to call-site mode.
+        if (World.get().getOptions().isAndroidMode()) {
+            config = config.mergeWith(TaintConfig.ANDROID_DEFAULT);
+        }
         // load programmatic taint configuration
         List<String> taintConfigProviders = (List<String>) solver
                 .getOptions().get("taint-config-providers");

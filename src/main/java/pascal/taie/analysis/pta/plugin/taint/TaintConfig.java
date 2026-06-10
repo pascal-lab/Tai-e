@@ -42,6 +42,12 @@ public record TaintConfig(List<Source> sources,
             List.of(), List.of(), List.of(), List.of(), false);
 
     /**
+     * An Android default taint config.
+     */
+    public static final TaintConfig ANDROID_DEFAULT = new TaintConfig(
+            List.of(), List.of(), List.of(), List.of(), true);
+
+    /**
      * Merges this taint config with other taint config.
      * @return a new merged taint config.
      */
