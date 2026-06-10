@@ -1,23 +1,21 @@
 # Changelog
 
-## [Unreleased] - 2026-05-31
+## [Unreleased] - 2026-06-10
 
 ### New Features
-- Frontend
-  - Add a new Java frontend, which is faster and more reliable than the Soot frontend.
-- Add option `--ssa` to make the Java frontend generate IR in SSA form.
-- Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
+- New frontend for converting input Java programs to Tai-e IR.
+    - Integrate our new frontend (OOPSLA'25), which is significantly faster and more reliable than the previous Soot-based frontend.
+    - Add option `--ssa` to enable SSA IR generation.
+    - Support parsing Java programs up to Java 25.
+    - Preserve source-level variable names in generated Tai-e IR when they are available in bytecode.
+    - Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
 - Add Spring DI and WEC analysis plugin.
 
 ### Breaking Changes
 - Change the default value of option `--world-builder` to
   `pascal.taie.frontend.java.JavaWorldBuilder`, i.e., the new Java frontend.
-- Deprecate option `-pp`/`--prepend-JVM`; it is accepted with a warning and will be
-  removed in a future version. When both `-java` and `--jre-dir` are omitted, Tai-e
-  uses the current Java runtime by default.
-- Deprecate option `-ap`/`--allow-phantom`; it is accepted with a warning and will
-  be removed in a future version. Tai-e now allows phantom classes by default and
-  reports them with warnings.
+- Deprecate option `-pp`/`--prepend-JVM`; it is accepted with a warning and will be removed in a future version. When both `-java` and `--jre-dir` are omitted, Tai-e uses the JRE of the current Java runtime as the analyzed library by default.
+- Deprecate option `-ap`/`--allow-phantom`; it is accepted with a warning and will be removed in a future version. Tai-e now allows phantom classes by default and reports them with warnings.
 
 ## [0.5.2] - 2025-12-31
 
