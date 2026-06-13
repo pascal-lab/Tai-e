@@ -9,6 +9,11 @@
     - Support parsing Java programs up to Java 25.
     - Preserve source-level variable names in generated Tai-e IR when they are available in bytecode.
     - Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
+- Add Android analysis plugin.
+    - Integrate PacDroid (ICSE'25), our pointer-analysis-centric framework for Android apps, into Tai-e's pointer analysis.
+    - Add option `--android-mode` to enable Android mode.
+    - Add option `--android-jars` to specify the Android platform jars required for Android analysis.
+    - Model key Android framework semantics, including lifecycle/callback behaviors, inter-component communication (ICC), and other common Android features such as intent extras and asynchronous execution.
 - Add Spring DI and WEC analysis plugin.
 
 ### Breaking Changes
