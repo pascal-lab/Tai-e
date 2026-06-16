@@ -4,17 +4,20 @@
 
 ### New Features
 - New frontend for converting input Java programs to Tai-e IR.
-    - Integrate our new frontend (OOPSLA'25), which is significantly faster and more reliable than the previous Soot-based frontend.
-    - Add option `--ssa` to enable SSA IR generation.
-    - Support parsing Java programs up to Java 25.
-    - Preserve source-level variable names in generated Tai-e IR when they are available in bytecode.
-    - Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
+  - Integrate our new frontend (OOPSLA'25), which is significantly faster and more reliable than the previous Soot-based frontend.
+  - Add option `--ssa` to enable SSA IR generation.
+  - Support parsing Java programs up to Java 25.
+  - Preserve source-level variable names in generated Tai-e IR when they are available in bytecode.
+  - Add option `--jre-dir` to specify the JRE directory for the Java library selected by `-java`.
 - Add Android analysis plugin.
-    - Integrate PacDroid (ICSE'25), our pointer-analysis-centric framework for Android apps, into Tai-e's pointer analysis.
-    - Add option `--android-mode` to enable Android mode.
-    - Add option `--android-jars` to specify the Android platform jars required for Android analysis.
-    - Model key Android framework semantics, including lifecycle/callback behaviors, inter-component communication (ICC), and other common Android features such as intent extras and asynchronous execution.
+  - Integrate PacDroid (ICSE'25), our pointer-analysis-centric framework for Android apps, into Tai-e's pointer analysis.
+  - Add option `--android-mode` to enable Android mode.
+  - Add option `--android-jars` to specify the Android platform jars required for Android analysis.
+  - Model key Android framework semantics, including lifecycle/callback behaviors, inter-component communication (ICC), and other common Android features such as intent extras and asynchronous execution.
 - Add Spring DI and WEC analysis plugin.
+- Add backends in `pascal.taie.backend` for Tai-e IR
+  - Add a bytecode backend to convert Tai-e IR into Java bytecode and JAR archives.
+  - Add a simple virtual machine to interpret Tai-e IR. This VM is not fully-fledged and is intended mainly for testing purposes.
 
 ### Breaking Changes
 - Change the default value of option `--world-builder` to
