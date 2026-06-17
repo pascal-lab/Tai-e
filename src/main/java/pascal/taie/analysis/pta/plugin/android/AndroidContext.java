@@ -26,6 +26,7 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.android.info.ApkInfo;
+import pascal.taie.android.info.ApkInfoCreator;
 import pascal.taie.android.util.AndroidLifecycleHelper;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.Maps;
@@ -65,7 +66,7 @@ public class AndroidContext {
     public AndroidContext(Solver solver) {
         this.solver = solver;
         this.androidObjManager = new AndroidObjManager(solver.getHeapModel());
-        this.apkInfo = World.get().getApkInfo();
+        this.apkInfo = ApkInfoCreator.create(World.get().getOptions(), solver().getHierarchy());
         this.lifecycleHelper = new AndroidLifecycleHelper(solver.getHierarchy());
         this.intentFiltersByDynamicReceiver = Maps.newMultiMap();
     }

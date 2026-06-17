@@ -22,7 +22,6 @@
 
 package pascal.taie;
 
-import pascal.taie.android.info.ApkInfo;
 import pascal.taie.config.Options;
 import pascal.taie.frontend.cache.CachedIRBuilder;
 import pascal.taie.ir.IRBuilder;
@@ -85,8 +84,6 @@ public final class World extends AbstractResultHolder
     private JMethod mainMethod;
 
     private Collection<JMethod> implicitEntries;
-
-    private ApkInfo apkInfo;
 
     /**
      * Sets current world to {@code world}.
@@ -165,14 +162,6 @@ public final class World extends AbstractResultHolder
 
     public void setImplicitEntries(Collection<JMethod> implicitEntries) {
         checkAndSet("implicitEntries", implicitEntries);
-    }
-
-    public ApkInfo getApkInfo() {
-        return apkInfo;
-    }
-
-    public void setApkInfo(ApkInfo apkInfo) {
-        checkAndSet("apkInfo", apkInfo);
     }
 
     /**
