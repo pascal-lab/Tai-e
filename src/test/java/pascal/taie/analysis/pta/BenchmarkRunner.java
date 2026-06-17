@@ -77,10 +77,9 @@ public class BenchmarkRunner {
         List<String> args = new ArrayList<>();
         int jdkVersion = jdk != 0 ? jdk : info.jdk();
         Collections.addAll(args,
-                //"-java", Integer.toString(jdkVersion),
+                "-java", Integer.toString(jdkVersion),
                 "-acp", buildClassPath(info.apps()),
                 "-cp", buildClassPath(info.libs()),
-                //"-wc",
                 "-m", info.main());
         Map<String, String> ptaArgs = Map.of(
                 "distinguish-string-constants", "null",
