@@ -15,6 +15,11 @@
   - Add option `--android-jars` to specify the Android platform jars required for Android analysis.
   - Model key Android framework semantics, including lifecycle/callback behaviors, inter-component communication (ICC), and other common Android features such as intent extras and asynchronous execution.
 - Add Spring DI and WEC analysis plugin.
+  - Add pointer-analysis option `spring` to enable the built-in Spring Framework analysis plugin.
+  - Model Spring dependency injection (DI) by collecting bean definitions from configured annotations, `@Bean` factory methods, and XML bean configurations.
+  - Simulate Spring-managed constructor, field, and method injection, including qualifier/name-based and type-based bean resolution.
+  - Collect Spring Web endpoint configurations (WEC) from controller and request-mapping annotations, and add endpoint handlers as entry points with receiver beans and mock parameters.
+  - Provide `spring-plugin-config.yaml` to configure supported DI annotations, XML tags, and WEC annotations.
 - Add backends in `pascal.taie.backend` for Tai-e IR
   - Add a bytecode backend to convert Tai-e IR into Java bytecode and JAR archives.
   - Add a simple virtual machine to interpret Tai-e IR. This VM is not fully-fledged and is intended mainly for testing purposes.
