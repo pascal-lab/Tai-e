@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
+import pascal.taie.analysis.pta.plugin.spring.SpringAnalysis;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.util.AnalysisException;
 
@@ -58,7 +59,7 @@ public abstract class AbstractResultProcessor<S, D> {
     protected abstract String getSortKey(D dto);
 
     public void process(AnalysisOptions options, List<S> sources) {
-        if (options.getBoolean("dump")) {
+        if (SpringAnalysis.shouldDumpResults()) {
             dumpToFile(sources, World.get().getOptions().getOutputDir());
         }
     }

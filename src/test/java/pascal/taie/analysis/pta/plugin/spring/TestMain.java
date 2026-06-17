@@ -135,7 +135,13 @@ public class TestMain {
                         """
         );
         // run!
-        pascal.taie.Main.main(args.toArray(new String[0]));
+        boolean dumpResults = SpringAnalysis.DUMP_RESULTS;
+        SpringAnalysis.DUMP_RESULTS = true;
+        try {
+            pascal.taie.Main.main(args.toArray(new String[0]));
+        } finally {
+            SpringAnalysis.DUMP_RESULTS = dumpResults;
+        }
 
         Path outputDir = World.get().getOptions().getOutputDir().toPath();
         if (GENERATE_EXPECTED_RESULTS) {

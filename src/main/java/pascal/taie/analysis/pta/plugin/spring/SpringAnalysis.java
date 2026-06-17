@@ -40,6 +40,12 @@ import java.util.function.Consumer;
 
 public class SpringAnalysis extends CompositePlugin {
 
+    /**
+     * Whether dump Spring analysis results (DI and WEC) or not.
+     * This is mainly used for tests and debugging.
+     */
+    static boolean DUMP_RESULTS = false;
+
     private DiAnalysis diAnalysis;
 
     private WecAnalysis wecAnalysis;
@@ -52,6 +58,10 @@ public class SpringAnalysis extends CompositePlugin {
      */
     public void addNewBeanObjListener(Consumer<CSObj> listener) {
         pendingBeanObjListeners.add(listener);
+    }
+
+    public static boolean shouldDumpResults() {
+        return DUMP_RESULTS;
     }
 
     @Override
