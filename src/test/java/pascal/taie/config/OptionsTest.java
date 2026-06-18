@@ -66,13 +66,43 @@ public class OptionsTest {
                 options.getJavaVersion());
     }
 
+    @Test
+    void testUseCurrentJRERoundTrip(@TempDir Path tempDir) throws IOException {
+        Path outputDir = Path.of("build", "tmp", "OptionsTest",
+                tempDir.getFileName().toString(), "output-current-jre");
+        Options options = Options.parse("--output-dir", outputDir.toString());
+        assertTrue(options.isUseCurrentJRE());
+        assertEquals(Options.getCurrentJavaVersion(), options.getJavaVersion());
+
+        Path optionsFile = outputDir.resolve("options.yml");
+        assertTrue(Files.readString(optionsFile).contains("useCurrentJRE: true"));
+        Options replayed = Options.parse("--options-file", optionsFile.toString());
+        assertTrue(replayed.isUseCurrentJRE());
+        assertEquals(Options.getCurrentJavaVersion(), replayed.getJavaVersion());
+    }
+
+    @Test
+    void testJavaVersionRoundTrip(@TempDir Path tempDir) throws IOException {
+        Path outputDir = Path.of("build", "tmp", "OptionsTest",
+                tempDir.getFileName().toString(), "output-java-version");
+        Options options = Options.parse("-java", "8", "--output-dir", outputDir.toString());
+        assertFalse(options.isUseCurrentJRE());
+        assertEquals(8, options.getJavaVersion());
+
+        Path optionsFile = outputDir.resolve("options.yml");
+        assertTrue(Files.readString(optionsFile).contains("useCurrentJRE: false"));
+        Options replayed = Options.parse("--options-file", optionsFile.toString());
+        assertFalse(replayed.isUseCurrentJRE());
+        assertEquals(8, replayed.getJavaVersion());
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     void testDeprecatedCompatibilityOptions() {
         Options options = Options.parse("-pp", "-ap");
         assertTrue(options.isPrependJVM());
         assertTrue(options.isAllowPhantom());
-        assertTrue(options.useCurrentJRE());
+        assertTrue(options.isUseCurrentJRE());
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
     }
@@ -99,7 +129,7 @@ public class OptionsTest {
         Options options = Options.parse("--options-file", optionsFile.toString());
         assertTrue(options.isPrependJVM());
         assertTrue(options.isAllowPhantom());
-        assertTrue(options.useCurrentJRE());
+        assertTrue(options.isUseCurrentJRE());
         assertEquals(Options.getCurrentJavaVersion(),
                 options.getJavaVersion());
     }

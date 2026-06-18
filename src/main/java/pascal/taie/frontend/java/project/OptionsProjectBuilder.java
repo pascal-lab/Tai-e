@@ -82,7 +82,7 @@ public class OptionsProjectBuilder implements ProjectBuilder {
                     Sets.newSet(getInputClasses(options)),
                     getAppContainers(appClassPaths),
                     getLibContainers(libClassPaths),
-                    getJREContainers(options.getJreDir(), options.useCurrentJRE(), options.getJavaVersion()),
+                    getJREContainers(options.getJreDir(), options.isUseCurrentJRE(), options.getJavaVersion()),
                     options.getJavaVersion()
             );
         } catch (IOException e) {

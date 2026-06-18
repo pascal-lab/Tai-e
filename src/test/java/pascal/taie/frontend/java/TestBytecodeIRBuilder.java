@@ -434,7 +434,7 @@ public class TestBytecodeIRBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        if (options.useCurrentJRE()) {
+        if (options.isUseCurrentJRE()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
@@ -507,7 +507,7 @@ public class TestBytecodeIRBuilder {
     protected static final String JREs = "java-benchmarks/JREs";
 
     protected static String getClassPath(Options options) {
-        if (options.useCurrentJRE()) {
+        if (options.isUseCurrentJRE()) {
             return String.join(File.pathSeparator, options.getClassPath());
         } else { // otherwise, we manually specify JRE jars
             // check existence of JREs

@@ -22,32 +22,6 @@
 
 package pascal.taie.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pascal.taie.WorldBuilder;
-import pascal.taie.analysis.pta.PointerAnalysis;
-import pascal.taie.analysis.pta.plugin.reflection.LogItem;
-import pascal.taie.android.util.AndroidJavaVersionInfer;
-import pascal.taie.frontend.soot.SootWorldBuilder;
-import pascal.taie.language.classes.StringReps;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -62,6 +36,33 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import pascal.taie.WorldBuilder;
+import pascal.taie.analysis.pta.PointerAnalysis;
+import pascal.taie.analysis.pta.plugin.reflection.LogItem;
+import pascal.taie.android.util.AndroidJavaVersionInfer;
+import pascal.taie.frontend.soot.SootWorldBuilder;
+import pascal.taie.language.classes.StringReps;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * Option class for Tai-e.
@@ -167,10 +168,11 @@ public class Options implements Serializable {
         return javaVersion;
     }
 
-    private boolean useCurrentJRE = false;
+    @JsonProperty
+    private Boolean useCurrentJRE;
 
-    public boolean useCurrentJRE() {
-        return useCurrentJRE;
+    public boolean isUseCurrentJRE() {
+        return Boolean.TRUE.equals(useCurrentJRE);
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -183,7 +185,7 @@ public class Options implements Serializable {
 
     /**
      * @return whether deprecated option {@code -pp}/{@code --prepend-JVM} is specified.
-     * @deprecated use {@link #useCurrentJRE()} instead.
+     * @deprecated use {@link #isUseCurrentJRE()} instead.
      */
     @Deprecated
     public boolean isPrependJVM() {
@@ -401,14 +403,27 @@ public class Options implements Serializable {
             options.useCurrentJRE = true;
             options.javaVersion = getCurrentJavaVersion();
             options.jreDir = null;
+        } else if (Boolean.TRUE.equals(options.useCurrentJRE)) {
+            if (options.jreDir != null) {
+                throw new ConfigException("Conflict options: "
+                        + "useCurrentJRE cannot be used with --jre-dir");
+            }
+            options.javaVersion = getCurrentJavaVersion();
+            options.jreDir = null;
         } else {
             if (options.jreDir != null && options.javaVersion == null) {
                 throw new ConfigException("Missing option: "
                         + "-java must be specified when --jre-dir is used");
             }
             if (options.jreDir == null && options.javaVersion == null) {
+                if (Boolean.FALSE.equals(options.useCurrentJRE)) {
+                    throw new ConfigException("Missing option: "
+                            + "-java must be specified when useCurrentJRE is false");
+                }
                 options.useCurrentJRE = true;
                 options.javaVersion = getCurrentJavaVersion();
+            } else {
+                options.useCurrentJRE = false;
             }
         }
         if (options.allowPhantom) {
@@ -419,10 +434,10 @@ public class Options implements Serializable {
         if (options.worldBuilderClass != null
                 && options.worldBuilderClass.getName().equals(LEGACY_WORLD_BUILDER_CLASS)) {
             logger.warn("DEPRECATED OPTION: Please stop using the legacy frontend "
-                    + "selected by '--world-builder'. "
-                    + "This legacy frontend will be removed in a future version; "
-                    + "the new Java frontend is now the default. Please omit "
-                    + "'--world-builder' or use '--world-builder {}' instead.",
+                            + "selected by '--world-builder'. "
+                            + "This legacy frontend will be removed in a future version; "
+                            + "the new Java frontend is now the default. Please omit "
+                            + "'--world-builder' or use '--world-builder {}' instead.",
                     DEFAULT_WORLD_BUILDER_CLASS);
         }
         if (options.worldCacheMode) {

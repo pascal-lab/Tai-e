@@ -150,7 +150,7 @@ public class CachedWorldBuilder implements WorldBuilder {
         result = 31 * result + (options.getInputClasses() != null
                 ? options.getInputClasses().hashCode() : 0);
         result = 31 * result + options.getJavaVersion();
-        result = 31 * result + (options.useCurrentJRE() ? 1 : 0);
+        result = 31 * result + (options.isUseCurrentJRE() ? 1 : 0);
         result = 31 * result + (options.getWorldBuilderClass() != null
                 ? options.getWorldBuilderClass().getName().hashCode() : 0);
         // add the timestamp to the cache key calculation

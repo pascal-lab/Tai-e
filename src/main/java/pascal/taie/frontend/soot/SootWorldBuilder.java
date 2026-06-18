@@ -94,7 +94,7 @@ public class SootWorldBuilder extends AbstractWorldBuilder {
         soot.options.Options.v().setPhaseOption("jb", "preserve-source-annotations:true");
         soot.options.Options.v().setPhaseOption("jb", "model-lambdametafactory:false");
         soot.options.Options.v().setPhaseOption("cg", "enabled:false");
-        if (options.useCurrentJRE()) {
+        if (options.isUseCurrentJRE()) {
             // TODO: figure out why -prepend-classpath makes Soot faster
             soot.options.Options.v().set_prepend_classpath(true);
         }
