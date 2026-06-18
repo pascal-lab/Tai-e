@@ -166,16 +166,16 @@ class IRAssembler {
     private Stmt getFirstStmt(LabelNode label) {
         BytecodeBlock block = context.cfg.searchForValidBlock(AsmInsnUtils.getInsnIndex(context.source, label));
         while (block.getStmts().isEmpty()) {
-            BytecodeBlock next1 = context.cfg.getNormalSuccsOf(block).get(0);
-            BytecodeBlock next2 = context.cfg.getObject(block.getIndex() + 1);
-            if (next1 != next2) {
+            List<BytecodeBlock> normalSuccs = context.cfg.getNormalSuccsOf(block);
+            BytecodeBlock next = context.cfg.getObject(block.getIndex() + 1);
+            if (normalSuccs.isEmpty() || normalSuccs.get(0) != next) {
                 // should not happen, which means refer to unreachable code
                 // but may happen in real world code (this is valid bytecode)
                 logger.atTrace()
                         .log("[IR] Unreachable code reference detected in context.method: "
                                 + context.method.toString());
             }
-            block = next2;
+            block = next;
         }
         return block.getStmts().get(0);
     }

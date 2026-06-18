@@ -72,6 +72,9 @@ class BytecodeIRBuilder {
 
         // 6. collect stmts for each block
         for (BytecodeBlock block : context.cfg) {
+            if (block.getOutStack() == null) {
+                continue;
+            }
             context.stmtManager.buildBlockStmts(block);
         }
 
