@@ -64,6 +64,17 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+
+import static pascal.taie.language.type.BooleanType.BOOLEAN;
+import static pascal.taie.language.type.ByteType.BYTE;
+import static pascal.taie.language.type.CharType.CHAR;
+import static pascal.taie.language.type.DoubleType.DOUBLE;
+import static pascal.taie.language.type.FloatType.FLOAT;
+import static pascal.taie.language.type.IntType.INT;
+import static pascal.taie.language.type.LongType.LONG;
+import static pascal.taie.language.type.ShortType.SHORT;
+import static pascal.taie.language.type.VoidType.VOID;
+
 /**
  * Option class for Tai-e.
  * We name this class in the plural to avoid name collision with {@link Option}.
@@ -701,6 +712,10 @@ public class Options implements Serializable {
         List<String> inputClasses = new ArrayList<>(this.inputClasses);
         String path = analyses.get(PointerAnalysis.ID).getString("reflection-log");
         if (path != null) {
+            Set<String> primitiveTypeNames = Set.of(
+                    BOOLEAN.getName(), BYTE.getName(), CHAR.getName(), SHORT.getName(),
+                    INT.getName(), LONG.getName(), FLOAT.getName(), DOUBLE.getName(),
+                    VOID.getName());
             LogItem.load(path).forEach(item -> {
                 // add target class
                 String target = item.target;
@@ -711,9 +726,11 @@ public class Options implements Serializable {
                     targetClass = target;
                 }
                 if (StringReps.isArrayType(targetClass)) {
-                    targetClass = StringReps.getBaseTypeNameOf(target);
+                    targetClass = StringReps.getBaseTypeNameOf(targetClass);
                 }
-                inputClasses.add(targetClass);
+                if (!primitiveTypeNames.contains(targetClass)) {
+                    inputClasses.add(targetClass);
+                }
             });
         }
         this.inputClasses = List.copyOf(inputClasses);
