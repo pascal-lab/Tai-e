@@ -161,7 +161,6 @@ public class DynamicFragmentModel extends LifecycleHandler {
         activitiesByFragmentTransaction.get(fragmentTransaction)
                 .forEach(activity ->
                         solver.addPFGEdge(
-                                new AndroidModelEdge(activity, activityParam),
-                                activityParam.getType()));
+                                new AndroidModelEdge(activity, activityParam)));
     }
 }

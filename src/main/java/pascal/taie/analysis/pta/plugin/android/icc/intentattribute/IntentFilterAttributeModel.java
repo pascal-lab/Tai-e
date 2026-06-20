@@ -93,7 +93,7 @@ public class IntentFilterAttributeModel extends ICCHandler {
                 new IntentAttributeCollector(context, csManager, invokeExp);
         CSVar base = csManager.getCSVar(context, InvokeUtils.getVar(invoke, BASE));
         if (INIT_WITH_INTENT_FILTER.equals(method.getSignature())) {
-            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
+            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base));
         }
         List<IntentAttribute> intentAttributes =
                 collectFilterAttributes(method.getSignature(), collector);

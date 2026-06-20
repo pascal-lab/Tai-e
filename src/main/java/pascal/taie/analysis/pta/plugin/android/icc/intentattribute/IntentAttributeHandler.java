@@ -165,7 +165,7 @@ public class IntentAttributeHandler extends ICCHandler {
         IntentAttributeCollector collector =
                 new IntentAttributeCollector(context, csManager, invokeExp);
         if (INIT_WITH_INTENT.equals(method.getSignature())) {
-            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
+            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base));
         }
         List<IntentAttribute> intentAttributes =
                 collectWrittenIntentAttributes(method.getSignature(), collector);
@@ -223,15 +223,7 @@ public class IntentAttributeHandler extends ICCHandler {
 
     private void connectGetIntentAttribute(Set<CSVar> sources, CSVar result) {
         sources.forEach(source ->
-                solver.addPFGEdge(new AndroidModelEdge(source, result), result.getType()));
-    }
-
-    private void copyIntentArgToBaseIfNeeded(String signature,
-                                             IntentAttributeCollector collector,
-                                             CSVar base) {
-        if (INIT_WITH_INTENT.equals(signature)) {
-            solver.addPFGEdge(new AndroidModelEdge(collector.arg(0), base), base.getType());
-        }
+                solver.addPFGEdge(new AndroidModelEdge(source, result)));
     }
 
     private List<IntentAttribute> collectWrittenIntentAttributes(String signature,

@@ -143,7 +143,6 @@ public class SharedPreferencesModel extends AndroidMiscHandler {
         solver.addPFGEdge(
                 new AndroidModelEdge(
                         sharedPreferencesVar,
-                        csManager.getCSVar(csCallback.getContext(), callbackParam)),
-                callbackParam.getType());
+                        csManager.getCSVar(csCallback.getContext(), callbackParam)));
     }
 }

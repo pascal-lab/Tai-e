@@ -100,7 +100,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
             JMethod callee = csCallee.getMethod();
             callee.getIR().getParams().forEach(param -> {
                 if (param.getType().equals(sourceVar.getType())) {
-                    solver.addPFGEdge(new ICCEdge(sourceVar, csManager.getCSVar(calleeCtx, param)), param.getType());
+                    solver.addPFGEdge(new ICCEdge(sourceVar, csManager.getCSVar(calleeCtx, param)));
                 }
             });
             processedICCInfos.add(sourceICCInfo);
@@ -130,7 +130,7 @@ public class SendAndReplyICCHandler extends ICCHandler {
                 switch (sourceICCInfo.kind()) {
                     case START_ACTIVITY, START_ACTIVITY_FOR_RESULT -> {
                         processedICCInfos.add(sourceICCInfo);
-                        solver.addPFGEdge(new ICCEdge(sourceICCInfo.info(), targetICCInfo.info()), targetICCInfo.info().getType());
+                        solver.addPFGEdge(new ICCEdge(sourceICCInfo.info(), targetICCInfo.info()));
 
                         JMethod callee = hierarchy.dispatch(targetComponent, onNewIntent.getRef());
                         if (callee != null) {

@@ -180,8 +180,7 @@ public class LayoutModel extends LifecycleHandler {
                                             emptyContext,
                                             lifecycleMethod.getIR().getParam(0));
                                     solver.addPFGEdge(
-                                            new AndroidModelEdge(activity, paramVar),
-                                            paramVar.getType());
+                                            new AndroidModelEdge(activity, paramVar));
                                 }
                             });
                 });
