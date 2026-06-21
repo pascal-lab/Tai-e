@@ -22,8 +22,21 @@
 
 package pascal.taie.language.classes;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import pascal.taie.World;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
@@ -41,17 +54,6 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Triple;
-
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Represents classes in the program. Each instance contains various
@@ -169,9 +171,8 @@ public class JClass extends AbstractResultHolder
                                     (oldV, newV) -> oldV, Maps::newLinkedHashMap))
             );
         } catch (Exception e) {
-            logger.warn("Failed to build class {}; creating phantom class instead. Cause: {}",
-                    name, e.toString());
-            logger.debug("Failed to build class {}; full exception:", name, e);
+            logger.warn("Cannot build class {}; creating phantom class instead. Cause: {}", name, e.toString());
+            logger.debug("Cannot build class {}; full exception:", name, e);
             superClass = getClassLoader().loadClass(ClassNames.OBJECT);
             interfaces = Collections.emptySet();
             outerClass = null;
