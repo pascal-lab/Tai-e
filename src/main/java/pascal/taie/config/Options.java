@@ -65,16 +65,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 
-import static pascal.taie.language.type.BooleanType.BOOLEAN;
-import static pascal.taie.language.type.ByteType.BYTE;
-import static pascal.taie.language.type.CharType.CHAR;
-import static pascal.taie.language.type.DoubleType.DOUBLE;
-import static pascal.taie.language.type.FloatType.FLOAT;
-import static pascal.taie.language.type.IntType.INT;
-import static pascal.taie.language.type.LongType.LONG;
-import static pascal.taie.language.type.ShortType.SHORT;
-import static pascal.taie.language.type.VoidType.VOID;
-
 /**
  * Option class for Tai-e.
  * We name this class in the plural to avoid name collision with {@link Option}.
@@ -179,6 +169,7 @@ public class Options implements Serializable {
         return javaVersion;
     }
 
+    // Defaults to true; false when -java selects a JRE.
     @JsonProperty
     private Boolean useCurrentJRE;
 
@@ -396,47 +387,15 @@ public class Options implements Serializable {
      *
      * @return the Options object after post-process.
      */
+    // TODO: Refactor this logic: loading already-processed options, reading
+    // options, and modifying options are mixed together.
     private static Options postProcess(Options options) {
         if (options.optionsFile != null) {
             // If options file is given, we ignore other options,
             // and instead read options from the file.
             options = readRawOptions(options.optionsFile);
         }
-        if (options.prependJVM) {
-            logger.warn("DEPRECATED OPTION: Please stop using '-pp/--prepend-JVM'. "
-                    + "This option will be removed in a future version; its behavior "
-                    + "is now the default when -java and --jre-dir are omitted. Tai-e "
-                    + "will use the current Java runtime for compatibility.");
-            if (options.javaVersion != null || options.jreDir != null) {
-                throw new ConfigException("Conflict options: "
-                        + "-pp/--prepend-JVM cannot be used with -java/--jre-dir");
-            }
-            options.useCurrentJRE = true;
-            options.javaVersion = getCurrentJavaVersion();
-            options.jreDir = null;
-        } else if (Boolean.TRUE.equals(options.useCurrentJRE)) {
-            if (options.jreDir != null) {
-                throw new ConfigException("Conflict options: "
-                        + "useCurrentJRE cannot be used with --jre-dir");
-            }
-            options.javaVersion = getCurrentJavaVersion();
-            options.jreDir = null;
-        } else {
-            if (options.jreDir != null && options.javaVersion == null) {
-                throw new ConfigException("Missing option: "
-                        + "-java must be specified when --jre-dir is used");
-            }
-            if (options.jreDir == null && options.javaVersion == null) {
-                if (Boolean.FALSE.equals(options.useCurrentJRE)) {
-                    throw new ConfigException("Missing option: "
-                            + "-java must be specified when useCurrentJRE is false");
-                }
-                options.useCurrentJRE = true;
-                options.javaVersion = getCurrentJavaVersion();
-            } else {
-                options.useCurrentJRE = false;
-            }
-        }
+        resolveJREOptions(options);
         if (options.allowPhantom) {
             logger.warn("DEPRECATED OPTION: Please stop using '-ap/--allow-phantom'. "
                     + "This option will be removed in a future version; allowing "
@@ -496,6 +455,53 @@ public class Options implements Serializable {
         // write options to file for future reviewing and issue submitting
         writeOptions(options, new File(options.outputDir, OPTIONS_FILE));
         return options;
+    }
+
+    /**
+     * Resolves JRE selection options.
+     */
+    private static void resolveJREOptions(Options options) {
+        // -pp is a deprecated compatibility option. It forces Tai-e to use the current JRE.
+        if (options.prependJVM) {
+            logger.warn("DEPRECATED OPTION: Please stop using '-pp/--prepend-JVM'. "
+                    + "This option will be removed in a future version; its behavior "
+                    + "is now the default when -java and --jre-dir are omitted. Tai-e "
+                    + "will use the current Java runtime for compatibility.");
+            if (options.javaVersion != null
+                    || options.jreDir != null
+                    || Boolean.FALSE.equals(options.useCurrentJRE)) {
+                throw new ConfigException("Conflict options: "
+                        + "-pp/--prepend-JVM forces the current JRE, so it "
+                        + "cannot be used with -java/--jre-dir/useCurrentJRE=false");
+            }
+            options.useCurrentJRE = true;
+            options.javaVersion = getCurrentJavaVersion();
+        } else if (options.useCurrentJRE != null) {
+            // useCurrentJRE is explicitly specified, so it is considered as already
+            // resolved; check the consistency with related options.
+            if (options.javaVersion == null
+                    || (options.useCurrentJRE && options.jreDir != null)) {
+                throw new ConfigException("Invalid options file: "
+                        + "useCurrentJRE must be paired with javaVersion, and "
+                        + "useCurrentJRE=true cannot be paired with --jre-dir");
+            }
+        } else if (options.javaVersion != null) {
+            // -java selects a JRE version. If --jre-dir is also specified, that
+            // version is loaded from the user-provided directory; otherwise, it
+            // is loaded from java-benchmarks later.
+            options.useCurrentJRE = false;
+        } else {
+            // --jre-dir only changes where the selected JRE is loaded from, so
+            // it cannot be used without -java.
+            if (options.jreDir != null) {
+                throw new ConfigException("Missing option: "
+                        + "-java must be specified when --jre-dir is used");
+            }
+
+            // no Java version is specified: use the current JRE by default.
+            options.useCurrentJRE = true;
+            options.javaVersion = getCurrentJavaVersion();
+        }
     }
 
     /**
@@ -713,9 +719,8 @@ public class Options implements Serializable {
         String path = analyses.get(PointerAnalysis.ID).getString("reflection-log");
         if (path != null) {
             Set<String> primitiveTypeNames = Set.of(
-                    BOOLEAN.getName(), BYTE.getName(), CHAR.getName(), SHORT.getName(),
-                    INT.getName(), LONG.getName(), FLOAT.getName(), DOUBLE.getName(),
-                    VOID.getName());
+                    "boolean", "byte", "char", "short", "int", "long",
+                    "float", "double", "void");
             LogItem.load(path).forEach(item -> {
                 // add target class
                 String target = item.target;
