@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased] - 2026-06-10
+## [Unreleased] - 2026-06-22
+
+## [0.5.4] - 2026-06-22
 
 ### New Features
 - New frontend for converting input Java programs to Tai-e IR.
