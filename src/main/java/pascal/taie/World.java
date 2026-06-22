@@ -104,8 +104,8 @@ public final class World extends AbstractResultHolder
     }
 
     public static void reset() {
-        theWorld = null;
         resetCallbacks.forEach(Runnable::run);
+        theWorld = null;
     }
 
     public Options getOptions() {
