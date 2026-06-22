@@ -12,9 +12,10 @@
 
 ## ✨News
 
-- Release v0.5.4: Tai-e ships with a new frontend, providing faster and more reliable conversion from Java programs to Tai-e IR.
-- Release v0.5.4: Android app analysis is supported through a PacDroid-powered plugin integrated with pointer analysis.
-- Release v0.5.4: Spring DI and WEC analysis is supported through the Spring analysis plugin.
+- Release v0.5.4:
+  - Tai-e ships with a new frontend, providing faster and more reliable conversion from Java programs to Tai-e IR.
+  - Android app analysis is supported through a PacDroid-powered plugin integrated with pointer analysis.
+  - Spring DI and WEC analysis is supported through the Spring analysis plugin.
 - Our paper _"Two Approaches to Fast Bytecode Frontend for Static Analysis"_ has been accepted by <ins>OOPSLA'25</ins>. This paper presents Tai-e's new bytecode frontend, which is significantly faster and more reliable than existing frontends.
 - Our paper _"Pointer Analysis for Database-Backed Applications"_ has been accepted by <ins>PLDI'25</ins>. This paper describes an end–to–end pointer analysis for Java database–backed application developed on top of Tai-e.
 - Our paper _"PacDroid: A Pointer-Analysis-Centric Framework for Security Vulnerabilities in Android Apps"_ has been accepted by <ins>ICSE'25</ins>. This work demonstrates Tai-e's new capability in Android analysis, providing a simple yet effective approach for security analysis of Apps. This work earned the **Best Artifact Award**🏅.
