@@ -22,24 +22,6 @@
 
 package pascal.taie.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.Predicate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -54,6 +36,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pascal.taie.WorldBuilder;
 import pascal.taie.analysis.pta.PointerAnalysis;
 import pascal.taie.analysis.pta.plugin.reflection.LogItem;
@@ -63,6 +47,21 @@ import pascal.taie.language.classes.StringReps;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Predicate;
 
 
 /**
@@ -169,10 +168,24 @@ public class Options implements Serializable {
         return javaVersion;
     }
 
-    // Defaults to true; false when -java selects a JRE.
+    /**
+     * Whether Tai-e uses the current JRE, i.e., the one Tai-e runs on,
+     * as the accompanying JRE library for the analyzed program. Using
+     * the current JRE is Tai-e's default behavior.
+     * <p>
+     * This field is intentionally declared as a boxed {@link Boolean}
+     * and left uninitialized (i.e., {@code null}) on purpose, so that
+     * {@link #resolveJREOptions} can distinguish whether the value has
+     * been explicitly specified via the options file from the case where
+     * it is absent and should fall back to the default.
+     */
     @JsonProperty
     private Boolean useCurrentJRE;
 
+    /**
+     * @return whether Tai-e uses the current JRE, i.e., the one Tai-e runs on,
+     * as the JRE for the analyzed program.
+     */
     public boolean isUseCurrentJRE() {
         return Boolean.TRUE.equals(useCurrentJRE);
     }
@@ -387,9 +400,9 @@ public class Options implements Serializable {
      *
      * @return the Options object after post-process.
      */
-    // TODO: Refactor this logic: loading already-processed options, reading
-    // options, and modifying options are mixed together.
     private static Options postProcess(Options options) {
+        // TODO: Refactor this logic: loading already-processed options,
+        //  reading options, and modifying options are mixed together now.
         if (options.optionsFile != null) {
             // If options file is given, we ignore other options,
             // and instead read options from the file.
@@ -461,7 +474,8 @@ public class Options implements Serializable {
      * Resolves JRE selection options.
      */
     private static void resolveJREOptions(Options options) {
-        // -pp is a deprecated compatibility option. It forces Tai-e to use the current JRE.
+        // -pp is a deprecated compatibility option.
+        // It forces Tai-e to use the current JRE.
         if (options.prependJVM) {
             logger.warn("DEPRECATED OPTION: Please stop using '-pp/--prepend-JVM'. "
                     + "This option will be removed in a future version; its behavior "
