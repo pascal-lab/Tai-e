@@ -9,7 +9,7 @@ repositories {
 
 version = projectVersion
 
-val asciidoctorExtensions: Configuration by configurations.creating
+val asciidoctorExtensions = configurations.create("asciidoctorExtensions")
 
 dependencies {
     asciidoctorExtensions("io.spring.asciidoctor.backends:spring-asciidoctor-backends:0.0.7")
@@ -45,7 +45,7 @@ tasks.withType(org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask::class) {
 
 tasks.named("asciidoctor", org.asciidoctor.gradle.jvm.AsciidoctorTask::class) {
     // apply the spring-html backend
-    configurations("asciidoctorExtensions")
+    configurations(asciidoctorExtensions.name)
     outputOptions {
         backends("spring-html")
     }

@@ -155,7 +155,7 @@ tasks.withType<Test> {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     // Sets the default classpath for test execution.
     // (see https://docs.gradle.org/current/userguide/upgrading_version_8.html#test_task_default_classpath)
-    val test by testing.suites.existing(JvmTestSuite::class)
+    val test = testing.suites.named<JvmTestSuite>(JvmTestSuitePlugin.DEFAULT_TEST_SUITE_NAME)
     testClassesDirs = files(test.map { it.sources.output.classesDirs })
     classpath = files(test.map { it.sources.runtimeClasspath })
 }

@@ -45,11 +45,11 @@ tasks.withType<Javadoc> {
     }
 }
 
-val signingKeyId: String? by project         // env.ORG_GRADLE_PROJECT_signingKeyId
-val signingKey: String? by project           // env.ORG_GRADLE_PROJECT_signingKey
-val signingPassword: String? by project      // env.ORG_GRADLE_PROJECT_signingPassword
-val mavenCentralUsername: String? by project // env.ORG_GRADLE_PROJECT_mavenCentralUsername
-val mavenCentralPassword: String? by project // env.ORG_GRADLE_PROJECT_mavenCentralPassword
+val signingKeyId = findProperty("signingKeyId") as String?                 // env.ORG_GRADLE_PROJECT_signingKeyId
+val signingKey = findProperty("signingKey") as String?                     // env.ORG_GRADLE_PROJECT_signingKey
+val signingPassword = findProperty("signingPassword") as String?           // env.ORG_GRADLE_PROJECT_signingPassword
+val mavenCentralUsername = findProperty("mavenCentralUsername") as String? // env.ORG_GRADLE_PROJECT_mavenCentralUsername
+val mavenCentralPassword = findProperty("mavenCentralPassword") as String? // env.ORG_GRADLE_PROJECT_mavenCentralPassword
 
 publishing {
     if (mavenCentralUsername != null && mavenCentralPassword != null) {
