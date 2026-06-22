@@ -59,12 +59,34 @@ application {
     applicationName = projectArtifactId
 }
 
+val apiDocs = tasks.named("javadoc")
+val docsProject = project(":docs")
+
 distributions {
     main {
         distributionBaseName.set(projectArtifactId)
         contents {
             from(files("COPYING", "COPYING.LESSER",
                 "README.md", "CHANGELOG.md", "CITATION.bib"))
+            from(apiDocs) {
+                into("docs/api")
+            }
+        }
+    }
+}
+
+docsProject.plugins.withId("org.asciidoctor.jvm.convert") {
+    val referenceDocs = docsProject.files(
+        docsProject.layout.buildDirectory.dir("docs/asciidoc")
+    ).builtBy(docsProject.tasks.named("asciidoctor"))
+
+    distributions {
+        main {
+            contents {
+                from(referenceDocs) {
+                    into("docs/reference")
+                }
+            }
         }
     }
 }

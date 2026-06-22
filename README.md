@@ -76,7 +76,7 @@ In Proceedings of the 32nd ACM SIGSOFT International Symposium on Software Testi
 ## How to Obtain Runnable Tai-e?
 
 The recommended way is to download the distribution ZIP from [GitHub Releases](https://github.com/pascal-lab/Tai-e/releases).
-The ZIP contains Tai-e, all runtime dependencies, and startup scripts for Windows, Linux, and macOS.
+The ZIP contains Tai-e, all runtime dependencies, offline documentation, and startup scripts for Windows, Linux, and macOS.
 
 Alternatively, you might build the latest Tai-e yourself from the source code. This can be simply accomplished via Gradle (be sure that Java 17 (or higher version) is available on your system):
 

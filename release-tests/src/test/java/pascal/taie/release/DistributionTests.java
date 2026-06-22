@@ -30,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +44,9 @@ class DistributionTests extends InvocationTests {
                 + "distribution ZIP");
         Path distributionDir = workingDir.toPath().resolve("distribution");
         extractZip(Path.of(distributionZipPath), distributionDir);
+        assertDistributionFile(distributionDir, "docs/reference/en/index.html");
+        assertNoDistributionFile(distributionDir, "docs/reference/index.html");
+        assertDistributionFile(distributionDir, "docs/api/index.html");
         Path executable = findExecutable(distributionDir);
         if (!isWindows()) {
             assertTrue(executable.toFile().setExecutable(true)
@@ -70,6 +74,28 @@ class DistributionTests extends InvocationTests {
                 }
                 zip.closeEntry();
             }
+        }
+    }
+
+    private static void assertDistributionFile(
+            Path distributionDir, String relativePath) throws IOException {
+        assertTrue(containsDistributionFile(distributionDir, relativePath),
+                "Distribution ZIP should contain " + relativePath);
+    }
+
+    private static void assertNoDistributionFile(
+            Path distributionDir, String relativePath) throws IOException {
+        assertFalse(containsDistributionFile(distributionDir, relativePath),
+                "Distribution ZIP should not contain " + relativePath);
+    }
+
+    private static boolean containsDistributionFile(
+            Path distributionDir, String relativePath) throws IOException {
+        Path expectedPath = Path.of(relativePath);
+        try (var files = Files.walk(distributionDir)) {
+            return files
+                    .filter(Files::isRegularFile)
+                    .anyMatch(path -> path.endsWith(expectedPath));
         }
     }
 
