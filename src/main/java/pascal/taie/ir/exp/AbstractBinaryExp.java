@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.exp;
 
+import pascal.taie.util.collection.ArraySet;
+
 import java.util.Collections;
 import java.util.Set;
-
-import pascal.taie.util.collection.ArraySet;
 
 /**
  * Provides common functionalities for {@link BinaryExp} implementations.

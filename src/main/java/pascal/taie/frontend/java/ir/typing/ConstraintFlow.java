@@ -22,10 +22,10 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.Optional;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.language.type.Type;
+
+import java.util.Optional;
 
 /**
  * Represents the backward propagation of type constraints along a graph edge.

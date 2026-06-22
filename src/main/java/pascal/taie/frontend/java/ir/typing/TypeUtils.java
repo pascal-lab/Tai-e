@@ -22,12 +22,12 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.Optional;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
+
+import java.util.Optional;
 
 final class TypeUtils {
 

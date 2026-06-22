@@ -22,6 +22,16 @@
 
 package pascal.taie.frontend.java.closedworld;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.frontend.java.FrontendException;
+import pascal.taie.frontend.java.project.ClassFile;
+import pascal.taie.frontend.java.project.ClassIndex;
+import pascal.taie.frontend.java.project.Project;
+import pascal.taie.language.classes.ClassSource;
+import pascal.taie.util.collection.Maps;
+import pascal.taie.util.collection.Sets;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,17 +46,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pascal.taie.frontend.java.FrontendException;
-import pascal.taie.frontend.java.project.ClassFile;
-import pascal.taie.frontend.java.project.ClassIndex;
-import pascal.taie.frontend.java.project.Project;
-import pascal.taie.language.classes.ClassSource;
-import pascal.taie.util.collection.Maps;
-import pascal.taie.util.collection.Sets;
 
 /**
  * Build the closed world via reference analysis.

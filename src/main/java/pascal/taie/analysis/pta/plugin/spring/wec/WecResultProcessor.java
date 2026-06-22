@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.spring.wec;
 
+import pascal.taie.analysis.pta.plugin.spring.util.AbstractResultProcessor;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.analysis.pta.plugin.spring.util.AbstractResultProcessor;
 
 import java.util.Map;
 import java.util.Set;

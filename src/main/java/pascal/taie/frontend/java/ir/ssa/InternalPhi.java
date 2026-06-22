@@ -22,11 +22,11 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.util.collection.IntList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Phi in the {@link SSATransform}.

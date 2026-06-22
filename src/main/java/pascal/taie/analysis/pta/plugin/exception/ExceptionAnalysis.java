@@ -22,7 +22,6 @@
 
 package pascal.taie.analysis.pta.plugin.exception;
 
-import pascal.taie.World;
 import pascal.taie.analysis.exception.CatchAnalysis;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;

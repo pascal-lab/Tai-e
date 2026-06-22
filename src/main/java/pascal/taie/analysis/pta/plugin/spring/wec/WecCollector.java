@@ -22,25 +22,24 @@
 
 package pascal.taie.analysis.pta.plugin.spring.wec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
+import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
+import pascal.taie.analysis.pta.plugin.spring.util.AnnotationUtils;
 import pascal.taie.config.AnalysisOptions;
+import pascal.taie.language.annotation.Annotation;
+import pascal.taie.language.annotation.ArrayElement;
+import pascal.taie.language.annotation.Element;
+import pascal.taie.language.annotation.EnumElement;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
-import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pascal.taie.language.annotation.Annotation;
-import pascal.taie.language.annotation.ArrayElement;
-import pascal.taie.language.annotation.Element;
-import pascal.taie.language.annotation.EnumElement;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
-import pascal.taie.analysis.pta.plugin.spring.util.AnnotationUtils;
 
 import javax.annotation.Nullable;
 import java.util.Collection;

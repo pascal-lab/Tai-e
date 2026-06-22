@@ -26,15 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import pascal.taie.language.annotation.Annotation;
-import pascal.taie.language.classes.ClassHierarchy;
-import pascal.taie.language.classes.JClass;
-import pascal.taie.language.classes.JMethod;
 import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
 import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
 import pascal.taie.analysis.pta.plugin.spring.util.AnnotationUtils;
 import pascal.taie.analysis.pta.plugin.spring.util.SpringBeanNames;
 import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
+import pascal.taie.language.classes.ClassHierarchy;
+import pascal.taie.language.classes.JClass;
+import pascal.taie.language.classes.JMethod;
 
 import java.util.List;
 import java.util.Set;

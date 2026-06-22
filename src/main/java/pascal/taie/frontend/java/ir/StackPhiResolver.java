@@ -22,12 +22,7 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import org.objectweb.asm.tree.AbstractInsnNode;
-
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.Exp;
@@ -35,6 +30,10 @@ import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.LazyArray;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Resolve {@link StackPhi}s into {@link FrontendPhiStmt}s (SSA mode) or explicit assignments (non-SSA mode).

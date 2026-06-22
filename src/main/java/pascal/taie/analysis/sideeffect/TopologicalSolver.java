@@ -22,10 +22,6 @@
 
 package pascal.taie.analysis.sideeffect;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import pascal.taie.analysis.graph.callgraph.CallGraph;
 import pascal.taie.analysis.pta.PointerAnalysisResult;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -46,6 +42,10 @@ import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.graph.MergedNode;
 import pascal.taie.util.graph.MergedSCCGraph;
 import pascal.taie.util.graph.TopologicalSorter;
+
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Computes side-effect information (which objects might be modified) based on pointer analysis

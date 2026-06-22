@@ -22,12 +22,7 @@
 
 package pascal.taie.frontend.java.closedworld;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.objectweb.asm.ClassReader;
-
 import pascal.taie.frontend.java.FrontendException;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.frontend.java.classes.PhantomClassSource;
@@ -36,6 +31,10 @@ import pascal.taie.frontend.java.project.DotClassFile;
 import pascal.taie.frontend.java.project.DotJavaFile;
 import pascal.taie.frontend.java.project.Project;
 import pascal.taie.language.classes.ClassSource;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Resolves all class dependencies (i.e., the referenced classes) of a class.

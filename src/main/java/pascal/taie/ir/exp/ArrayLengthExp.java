@@ -22,7 +22,6 @@
 
 package pascal.taie.ir.exp;
 
-import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.IntType;
 
 /**

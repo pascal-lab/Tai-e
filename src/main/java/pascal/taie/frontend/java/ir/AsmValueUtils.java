@@ -22,12 +22,9 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.List;
-
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.DoubleLiteral;
@@ -42,6 +39,8 @@ import pascal.taie.ir.proginfo.MemberRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.Pair;
+
+import java.util.List;
 
 /**
  * Utility functions for frontend.

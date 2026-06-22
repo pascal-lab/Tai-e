@@ -22,16 +22,16 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiExp;
 import pascal.taie.ir.exp.PhiExp;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Converts a {@link FrontendPhiExp} to a {@link PhiExp}.

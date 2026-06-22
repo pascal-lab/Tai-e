@@ -23,7 +23,6 @@
 package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-
 import pascal.taie.World;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.language.classes.JMethod;

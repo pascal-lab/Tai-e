@@ -22,21 +22,8 @@
 
 package pascal.taie.language.classes;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import pascal.taie.World;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
@@ -54,6 +41,17 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Triple;
+
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents classes in the program. Each instance contains various

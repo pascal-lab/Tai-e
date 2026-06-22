@@ -22,15 +22,13 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.objectweb.asm.tree.AbstractInsnNode;
-
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Stmt;
 
+import java.util.ArrayList;
+import java.util.List;
 
 import static pascal.taie.frontend.java.ir.AsmInsnUtils.isCFEdge;
 

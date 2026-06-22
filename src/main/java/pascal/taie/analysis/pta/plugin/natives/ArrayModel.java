@@ -22,8 +22,6 @@
 
 package pascal.taie.analysis.pta.plugin.natives;
 
-import java.util.List;
-
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
@@ -45,6 +43,8 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
+
+import java.util.List;
 
 public class ArrayModel {
 

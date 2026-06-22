@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.exp;
 
-import java.util.Set;
-
 import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.Type;
+
+import java.util.Set;
 
 /**
  * Representation of array access expression, e.g., a[i].

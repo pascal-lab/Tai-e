@@ -22,14 +22,6 @@
 
 package pascal.taie.frontend.java.ir.ssa;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.function.Consumer;
-
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.DUInfo;
 import pascal.taie.util.collection.IntList;
@@ -37,6 +29,14 @@ import pascal.taie.util.collection.LazyArray;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.Dominators;
 import pascal.taie.util.graph.IndexedGraph;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.function.Consumer;
 
 /**
  * Constructs SSA (reach def info) for bytecode to resolve local variable reuse.

@@ -23,8 +23,8 @@
 package pascal.taie.android.util;
 
 import pascal.taie.android.info.ApkInfo;
-import pascal.taie.android.info.UriData;
 import pascal.taie.android.info.IntentFilterAttribute;
+import pascal.taie.android.info.UriData;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;

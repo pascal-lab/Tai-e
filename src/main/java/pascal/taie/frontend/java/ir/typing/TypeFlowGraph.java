@@ -22,10 +22,6 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.BytecodeBlock;
 import pascal.taie.frontend.java.ir.BytecodeCFG;
@@ -39,6 +35,10 @@ import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
+
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Queue;
 
 /**
  * Represents the graph structure used for the pruning-based type inference algorithm.

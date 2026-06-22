@@ -22,8 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.spring.di;
 
-import pascal.taie.util.collection.Sets;
 import pascal.taie.analysis.pta.plugin.spring.util.AbstractResultProcessor;
+import pascal.taie.util.collection.Sets;
 
 import javax.annotation.Nullable;
 import java.util.Set;

@@ -22,8 +22,6 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.List;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.ssa.FrontendPhiStmt;
 import pascal.taie.ir.exp.ArrayLengthExp;
@@ -55,6 +53,7 @@ import pascal.taie.language.type.PrimitiveType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 
+import java.util.List;
 
 import static pascal.taie.language.type.BooleanType.BOOLEAN;
 import static pascal.taie.language.type.IntType.INT;

@@ -26,12 +26,12 @@ import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.CompositePlugin;
-import pascal.taie.util.collection.Sets;
 import pascal.taie.analysis.pta.plugin.spring.di.DiAnalysis;
 import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
 import pascal.taie.analysis.pta.plugin.spring.util.DirectoryTraverser;
 import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
 import pascal.taie.analysis.pta.plugin.spring.wec.WecAnalysis;
+import pascal.taie.util.collection.Sets;
 
 import java.util.ArrayList;
 import java.util.List;

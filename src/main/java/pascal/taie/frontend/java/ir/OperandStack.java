@@ -24,7 +24,6 @@ package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
-
 import pascal.taie.ir.exp.DoubleLiteral;
 import pascal.taie.ir.exp.Exp;
 import pascal.taie.ir.exp.FieldAccess;
@@ -42,7 +41,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.function.Function;
-
 
 import static pascal.taie.language.type.DoubleType.DOUBLE;
 import static pascal.taie.language.type.LongType.LONG;

@@ -27,7 +27,6 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
-
 import pascal.taie.language.type.NullType;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexer;
@@ -37,7 +36,6 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 
 import static pascal.taie.frontend.java.ir.Top.TOP;
 import static pascal.taie.language.type.DoubleType.DOUBLE;

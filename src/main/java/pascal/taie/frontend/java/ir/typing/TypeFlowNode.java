@@ -22,12 +22,6 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ArrayType;
@@ -37,6 +31,11 @@ import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a node in the type flow graph.

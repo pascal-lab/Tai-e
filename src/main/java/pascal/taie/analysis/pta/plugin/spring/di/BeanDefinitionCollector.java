@@ -22,6 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.spring.di;
 
+import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
+import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
+import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
 import pascal.taie.config.AnalysisOptions;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.classes.ClassHierarchy;
@@ -31,9 +34,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
-import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
-import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
 
 import java.util.Set;
 

@@ -22,20 +22,11 @@
 
 package pascal.taie.frontend.java.ir;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serial;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.classes.AsmClassSource;
 import pascal.taie.ir.IR;
@@ -46,6 +37,14 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.BytecodeDescriptors;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class implements the IRBuilder interface and is responsible for

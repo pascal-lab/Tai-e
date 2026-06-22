@@ -22,13 +22,13 @@
 
 package pascal.taie.analysis.pta.plugin.spring.di;
 
-import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.graph.callgraph.CallKind;
 import pascal.taie.analysis.graph.callgraph.Edge;
+import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
-import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
+import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.cs.element.InstanceField;
 import pascal.taie.analysis.pta.core.cs.element.Pointer;
@@ -37,6 +37,11 @@ import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.MockObj;
 import pascal.taie.analysis.pta.core.solver.Solver;
 import pascal.taie.analysis.pta.plugin.Plugin;
+import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
+import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
+import pascal.taie.analysis.pta.plugin.spring.util.AnnotationUtils;
+import pascal.taie.analysis.pta.plugin.spring.util.SpringBeanNames;
+import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
 import pascal.taie.analysis.pta.plugin.util.SolverHolder;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.ir.exp.InvokeExp;
@@ -51,11 +56,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
-import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
-import pascal.taie.analysis.pta.plugin.spring.util.AnnotationManager;
-import pascal.taie.analysis.pta.plugin.spring.util.AnnotationUtils;
-import pascal.taie.analysis.pta.plugin.spring.util.SpringBeanNames;
-import pascal.taie.analysis.pta.plugin.spring.util.XmlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -28,7 +28,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.frontend.java.ir.AsmValueUtils;
 import pascal.taie.ir.exp.Literal;
@@ -62,7 +61,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
 import javax.annotation.Nullable;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
