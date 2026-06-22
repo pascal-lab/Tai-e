@@ -336,7 +336,8 @@ public class MapLikeHandler extends AndroidMiscHandler {
                     solver.addPFGEdge(
                             new AndroidModelEdge(
                                     store.value(),
-                                    csManager.getCSVar(csCallSite.getContext(), result)));
+                                    csManager.getCSVar(csCallSite.getContext(), result)),
+                            result.getType());
                     matched = true;
                 }
             }
@@ -361,7 +362,8 @@ public class MapLikeHandler extends AndroidMiscHandler {
         storesByMap.get(mapObj).forEach(store -> solver.addPFGEdge(
                 new AndroidModelEdge(
                         store.value(),
-                        csManager.getCSVar(context, result))));
+                        csManager.getCSVar(context, result)),
+                result.getType()));
         propagateDefaultValue(context, callSite);
     }
 
