@@ -111,7 +111,7 @@ For Gradle:
 
 ```kotlin
 dependencies {
-    implementation("net.pascal-lab:tai-e:0.5.2")
+    implementation("net.pascal-lab:tai-e:0.5.4")
 }
 ```
 
@@ -123,7 +123,7 @@ For Maven:
     <dependency>
         <groupId>net.pascal-lab</groupId>
         <artifactId>tai-e</artifactId>
-        <version>0.5.2</version>
+        <version>0.5.4</version>
     </dependency>
 </dependencies>
 ```
@@ -139,7 +139,7 @@ repositories {
 }
 
 dependencies {
-    implementation("net.pascal-lab:tai-e:0.5.4-SNAPSHOT")
+    implementation("net.pascal-lab:tai-e:0.5.5-SNAPSHOT")
 }
 ```
 
@@ -158,7 +158,7 @@ For Maven:
     <dependency>
         <groupId>net.pascal-lab</groupId>
         <artifactId>tai-e</artifactId>
-        <version>0.5.4-SNAPSHOT</version>
+        <version>0.5.5-SNAPSHOT</version>
     </dependency>
 </dependencies>
 ```
