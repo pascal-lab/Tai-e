@@ -112,8 +112,10 @@ public class ComponentICCHandler extends ICCHandler {
         if (callee.getSignature().equals(GET_INTENT) && callSite.getResult() != null) {
             CSVar intent = csManager.getCSVar(callerCtx, callSite.getResult());
             // The same getIntent() result may receive either startActivity or startActivityForResult intents.
-            handlerContext.targetComponent2ICCInfo().put(callerThisVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY_FOR_RESULT, null, null));
-            handlerContext.targetComponent2ICCInfo().put(callerThisVar, new ICCInfo(intent, ICCInfoKind.START_ACTIVITY, null, null));
+            handlerContext.targetComponent2ICCInfo().put(callerThisVar,
+                    new ICCInfo(intent, ICCInfoKind.START_ACTIVITY_FOR_RESULT, null, null));
+            handlerContext.targetComponent2ICCInfo().put(callerThisVar,
+                    new ICCInfo(intent, ICCInfoKind.START_ACTIVITY, null, null));
         }
     }
 
@@ -197,9 +199,12 @@ public class ComponentICCHandler extends ICCHandler {
                     .forEach(serviceConnectionMethod -> {
                         Map<Integer, Obj> paramObjsByIndex = Maps.newMap();
                         if (serviceConnectionMethod.getSubsignature().equals(ON_SERVICE_CONNECTED_SUB_SIG)) {
-                            Obj param = handlerContext.androidObjManager().mockLifecycleMethodParamObj(serviceConnectionMethod, serviceConnectionMethod.getIR().getParam(1));
+                            Obj param = handlerContext.androidObjManager()
+                                    .mockLifecycleMethodParamObj(serviceConnectionMethod,
+                                            serviceConnectionMethod.getIR().getParam(1));
                             paramObjsByIndex.put(1, param);
-                            handlerContext.intent2IBinder().put(intent, csManager.getCSVar(emptyContext, serviceConnectionMethod.getIR().getParam(1)));
+                            handlerContext.intent2IBinder().put(intent, csManager.getCSVar(emptyContext,
+                                    serviceConnectionMethod.getIR().getParam(1)));
                         }
                         addEntryPoint(serviceConnectionMethod, thisObj, paramObjsByIndex);
                     });
@@ -215,7 +220,8 @@ public class ComponentICCHandler extends ICCHandler {
         Context context = csVar.getContext();
         Var var = csVar.getVar();
         JMethod container = var.getMethod();
-        if (handlerContext.lifecycleHelper().isLifeCycleMethod(container, SERVICE, ON_BIND_SUB_SIG) && container.getIR().getReturnVars().contains(var)) {
+        if (handlerContext.lifecycleHelper().isLifeCycleMethod(container, SERVICE, ON_BIND_SUB_SIG)
+                && container.getIR().getReturnVars().contains(var)) {
             CSVar thisVar = csManager.getCSVar(context, container.getIR().getThis());
             pts.forEach(csObj -> {
                 if (onBindResult2Messenger.containsKey(csObj)) {

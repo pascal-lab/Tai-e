@@ -187,7 +187,9 @@ public record UriData(@Nullable String scheme,
 
     private boolean matchesUri(UriData uriData) {
         boolean schemeMatches = matchesScheme(uriData.scheme);
-        boolean authorityMatches = hasSchemeConstraint() && matchesHost(uriData.host) && matchesPort(uriData.scheme, uriData.port);
+        boolean authorityMatches = hasSchemeConstraint()
+                && matchesHost(uriData.host)
+                && matchesPort(uriData.scheme, uriData.port);
         boolean pathMatches = hasSchemeConstraint() && hasAuthorityConstraint() && matchesPath(uriData.path);
         return (schemeMatches && !hasAuthorityConstraint() && !hasPathConstraint())
                 || (schemeMatches && authorityMatches && !hasPathConstraint())

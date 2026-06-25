@@ -59,10 +59,12 @@ public class IntentAttributeMatcher {
     /**
      * Returns all possible target component names for the given intent attribute.
      */
-    public Set<String> getMatchResult(IntentFilterAttribute userFilterAttribute, Set<String> matchDynamicReceiver) {
+    public Set<String> getMatchResult(IntentFilterAttribute userFilterAttribute,
+                                      Set<String> matchDynamicReceiver) {
         Set<String> explicitTargets = userFilterAttribute.classNames().stream()
                 .filter(enabledComponents::contains).collect(Collectors.toSet());
-        Set<String> implicitTargets = explicitTargets.isEmpty() ? matchManifestIntentFilter(userFilterAttribute) : Sets.newSet();
+        Set<String> implicitTargets = explicitTargets.isEmpty() ?
+                matchManifestIntentFilter(userFilterAttribute) : Sets.newSet();
         return Stream.of(explicitTargets,
                         implicitTargets,
                         matchDynamicReceiver)
@@ -90,7 +92,8 @@ public class IntentAttributeMatcher {
                 .collect(Collectors.toSet());
     }
 
-    public boolean matchIntentFilter(IntentFilterAttribute intentFilterAttribute, IntentFilterAttribute userFilterAttribute) {
+    public boolean matchIntentFilter(IntentFilterAttribute intentFilterAttribute,
+                                     IntentFilterAttribute userFilterAttribute) {
         return !userFilterAttribute.emptyAttribute()
                 && matchesAction(intentFilterAttribute.actions(), userFilterAttribute.actions())
                 && matchesCategories(intentFilterAttribute.categories(), userFilterAttribute.categories())

@@ -146,7 +146,10 @@ public class MessageHandler extends ICCHandler {
     }
 
     private void processSendMessage(Context context, CSObj csObj, Var arg, Invoke invoke) {
-        handlerContext.sendMessage().put(csObj, new ICCInfo(csManager.getCSVar(context, arg), ICCInfoKind.MESSENGER, null, csManager.getCSCallSite(context, invoke)));
+        handlerContext.sendMessage().put(csObj,
+                new ICCInfo(csManager.getCSVar(context, arg),
+                        ICCInfoKind.MESSENGER, null,
+                        csManager.getCSCallSite(context, invoke)));
     }
 
     private void processHandleMessage(JClass handler, Set<CSObj> csObjs, CSObj thisObj) {
@@ -156,7 +159,10 @@ public class MessageHandler extends ICCHandler {
                     if (handlerMsgMethod.getSubsignature().equals(HANDLE_MESSAGE_SUB_SIG)) {
                         Var param = handlerMsgMethod.getIR().getParam(0);
                         for (CSObj csObj : csObjs) {
-                            handlerContext.handleMessage().put(csObj, new ICCInfo(csManager.getCSVar(emptyContext, param), ICCInfoKind.MESSENGER, thisObj, null));
+                            handlerContext.handleMessage().put(csObj,
+                                    new ICCInfo(csManager.getCSVar(emptyContext, param),
+                                            ICCInfoKind.MESSENGER, thisObj,
+                                            null));
                         }
                     }
                     addEntryPoint(handlerMsgMethod, thisObj.getObject());
