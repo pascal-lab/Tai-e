@@ -156,6 +156,44 @@ public class OptionsTest {
     }
 
     @Test
+    void testAnalysisOptionsFileMapForm(@TempDir Path tempDir)
+            throws IOException {
+        Path optionsFile = tempDir.resolve("options.yml");
+        Files.writeString(optionsFile, """
+                outputDir: output
+                analyses:
+                  pta:
+                    cs: ci
+                """);
+
+        Options options = Options.parse("--options-file", optionsFile.toString());
+        List<PlanConfig> configs = PlanConfig.readConfigs(options);
+        assertEquals(1, configs.size());
+        PlanConfig pta = configs.get(0);
+        assertEquals("pta", pta.getId());
+        assertEquals("ci", pta.getOptions().get("cs"));
+    }
+
+    @Test
+    void testAnalysisOptionsFileRejectsCommandLineStyle(@TempDir Path tempDir)
+            throws IOException {
+        Path optionsFile = tempDir.resolve("options.yml");
+        Files.writeString(optionsFile, """
+                outputDir: output
+                analyses:
+                  pta: |
+                    cs:ci;
+                """);
+
+        ConfigException exception = assertThrows(ConfigException.class,
+                () -> Options.parse("--options-file", optionsFile.toString()));
+        String message = exception.getMessage();
+        assertTrue(message.contains("analyses.pta"));
+        assertTrue(message.contains("YAML map"));
+        assertTrue(message.contains("cs: ci"));
+    }
+
+    @Test
     void testKeepResult() {
         Options options = Options.parse();
         assertEquals(Set.of(Plan.KEEP_ALL), options.getKeepResult());

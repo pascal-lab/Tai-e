@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -525,10 +527,53 @@ public class Options implements Serializable {
     private static Options readRawOptions(File file) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            return mapper.readValue(file, Options.class);
+            JsonNode root = mapper.readTree(file);
+            validateAnalysisOptionsInOptionsFile(file, root);
+            return mapper.treeToValue(root, Options.class);
         } catch (IOException e) {
             throw new ConfigException("Failed to read options from " + file, e);
         }
+    }
+
+    private static void validateAnalysisOptionsInOptionsFile(File file, JsonNode root) {
+        if (root == null || !root.isObject() || !root.has("analyses")) {
+            return;
+        }
+        JsonNode analyses = root.get("analyses");
+        if (analyses == null || analyses.isNull()) {
+            return;
+        }
+        if (!analyses.isObject()) {
+            throw new ConfigException("Invalid options file " + file + ": 'analyses' "
+                    + "must be a YAML map from analysis IDs to option maps.");
+        }
+        Iterator<Map.Entry<String, JsonNode>> fields = analyses.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> entry = fields.next();
+            JsonNode analysisOptions = entry.getValue();
+            if (analysisOptions == null || !analysisOptions.isObject()) {
+                throw invalidAnalysisOptionsInOptionsFile(file, entry.getKey());
+            }
+        }
+    }
+
+    private static ConfigException invalidAnalysisOptionsInOptionsFile(
+            File file, String analysisId) {
+        String path = "analyses." + analysisId;
+        return new ConfigException("""
+                Invalid options file '%s': old command-line-style analysis options \
+                are no longer supported in options files. The value of '%s' must \
+                be a YAML map, for example:
+                ---
+                analyses:
+                  %s:
+                    cs: ci
+                ---
+                instead of:
+                ---
+                analyses:
+                  %s: "cs:ci;"
+                ---""".formatted(file, path, analysisId, analysisId));
     }
 
     static int getCurrentJavaVersion() {
