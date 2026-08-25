@@ -24,6 +24,7 @@ package pascal.taie.analysis.pta.plugin.util;
 
 import pascal.taie.analysis.pta.core.cs.element.CSMethod;
 import pascal.taie.analysis.pta.core.solver.Solver;
+import pascal.taie.ir.exp.InvokeInstanceExp;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.classes.JMethod;
@@ -129,5 +130,20 @@ public abstract class IRModelPlugin extends ModelPlugin {
         if (genStmts != null) {
             solver.addStmts(csMethod, genStmts);
         }
+    }
+
+
+    @Override
+    public void onFinish() {
+        // Constructing an artificial instance invocation registers it in the
+        // base Var. Remove these solver-local statements after the analysis so
+        // that a subsequent analysis over the same World does not process them.
+        method2GenStmts.values().stream()
+                .flatMap(Collection::stream)
+                .filter(Invoke.class::isInstance)
+                .map(Invoke.class::cast)
+                .filter(invoke -> invoke.getInvokeExp() instanceof InvokeInstanceExp)
+                .forEach(invoke -> ((InvokeInstanceExp) invoke.getInvokeExp())
+                        .getBase().removeRelevantStmt(invoke));
     }
 }
