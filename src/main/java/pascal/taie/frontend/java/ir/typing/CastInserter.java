@@ -169,7 +169,7 @@ final class CastInserter {
                 } else {
                     v1 = context.varManager.getTempVar();
                     VarMutator.setType(v1, t);
-                    newStmts.add(createCast(base, v1, t));
+                    newStmts.add(createCast(v1, base, t));
                     StmtVarReplacer stmtVarReplacer = new StmtVarReplacer(context.method, Map.of(base, v1), Map.of());
                     return stmtVarReplacer.replace(stmt);
                 }

@@ -22,6 +22,8 @@
 
 package pascal.taie.frontend.java;
 
+import pascal.taie.ir.exp.CastExp;
+import pascal.taie.ir.exp.InstanceFieldAccess;
 import pascal.taie.ir.exp.IntLiteral;
 import pascal.taie.ir.exp.NullLiteral;
 import pascal.taie.ir.exp.Var;
@@ -31,6 +33,7 @@ import pascal.taie.ir.stmt.Cast;
 import pascal.taie.ir.stmt.Copy;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.ir.stmt.Invoke;
+import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.ir.stmt.Monitor;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Phi;
@@ -42,11 +45,39 @@ import pascal.taie.language.classes.JMethod;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Shared semantic assertions for Java IR line-number tests. */
 final class LineNumberAssertions {
 
     private LineNumberAssertions() {
+    }
+
+    static void assertInstanceFieldCastLine(JMethod method,
+            String fieldName, int expectedLine) {
+        List<LoadField> loads = method.getIR().stmts()
+                .filter(LoadField.class::isInstance)
+                .map(LoadField.class::cast)
+                .filter(stmt -> stmt.getFieldRef().getName().equals(fieldName))
+                .toList();
+        assertEquals(1, loads.size(), "loads of " + fieldName + " in " + method);
+        LoadField load = loads.get(0);
+        InstanceFieldAccess access = (InstanceFieldAccess) load.getFieldAccess();
+        List<Cast> casts = method.getIR().stmts()
+                .filter(Cast.class::isInstance)
+                .map(Cast.class::cast)
+                .toList();
+        assertEquals(1, casts.size(), "casts in " + method);
+        Cast cast = casts.get(0);
+        assertTrue(cast.getLValue() == access.getBase(),
+                "receiver cast does not feed " + load);
+        CastExp castExp = cast.getRValue();
+        assertTrue(method.getIR().stmts()
+                        .anyMatch(stmt -> stmt.getDef().orElse(null)
+                                == castExp.getValue()),
+                "cast source is undefined: " + cast);
+        assertLine(cast, expectedLine);
+        assertLine(load, expectedLine);
     }
 
     static void assertInferredCastLine(JMethod method, int expectedLine) {
