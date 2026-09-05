@@ -12,9 +12,9 @@
 [6@L14] return p; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
 
 -------------------- <Reference: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L6] offset = 1; {}
-[1@L4] %ci2 = 2; {}
-[2@L5] %ci3 = 3; {}
+[0@L-1] offset = 1; {}
+[1@L-1] %ci2 = 2; {}
+[2@L-1] %ci3 = 3; {}
 [3@L3] p = new Point; {}
 [4@L3] invokespecial p.<Point: void <init>()>(); {}
 [5@L4] p.<Point: int x> = %ci2; {}

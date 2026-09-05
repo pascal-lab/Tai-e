@@ -23,6 +23,7 @@
 package pascal.taie.frontend.java.ir;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import pascal.taie.ir.stmt.Catch;
 import pascal.taie.ir.stmt.Nop;
 import pascal.taie.ir.stmt.Stmt;
@@ -50,9 +51,12 @@ final class StmtManager {
     private final List<List<Stmt>> additionalStmts;
 
     /**
-     * A <i>mutable</i> field that record current line number of visited bytecode
+     * A mapping from bytecode instruction index to the source line number that
+     * the bytecode LineNumberTable assigns to that instruction, or -1 if the
+     * instruction is not covered by any line number entry. Precomputed because
+     * {@link StmtManager#getLineNumber} is queried once per generated Stmt.
      */
-    private int currentLineNumber;
+    private final int[] insn2Line;
 
     /**
      * The shared context holding all resources and state for the IR building process.
@@ -68,29 +72,50 @@ final class StmtManager {
         for (int i = 0; i < insnCount; ++i) {
             additionalStmts.add(null);
         }
+        this.insn2Line = computeInsn2Line(insnCount);
     }
 
     /**
-     * Set line number.
+     * Resolves the line number of every instruction in two linear passes:
+     * the forward pass propagates each LineNumberNode to the instructions that
+     * follow it, and the backward pass makes each pseudo instruction (label,
+     * frame, line number) adopt the line of the next real instruction, so that
+     * a label starting a new line is not attributed to the previous line.
      */
-    void setLineNumber(int lineNumber) {
-        currentLineNumber = lineNumber;
+    private int[] computeInsn2Line(int insnCount) {
+        int[] insn2Line = new int[insnCount];
+        if (insnCount == 0) {
+            // abstract/native methods carry no instruction
+            return insn2Line;
+        }
+        int line = -1;
+        AbstractInsnNode insn = context.source.instructions.getFirst();
+        for (int i = 0; i < insnCount; ++i, insn = insn.getNext()) {
+            if (insn instanceof LineNumberNode node) {
+                line = node.line;
+            }
+            insn2Line[i] = line;
+        }
+        insn = context.source.instructions.getLast();
+        for (int i = insnCount - 2; i >= 0; --i) {
+            insn = insn.getPrevious();
+            if (insn.getOpcode() == -1) {
+                insn2Line[i] = insn2Line[i + 1];
+            }
+        }
+        return insn2Line;
     }
 
-    /**
-     * Get line number.
-     */
-    int getLineNumber() {
-        return currentLineNumber;
+    int getLineNumber(AbstractInsnNode insn) {
+        return insn2Line[AsmInsnUtils.getInsnIndex(context.source, insn)];
     }
 
     /**
      * Associates a generated Stmt with its source bytecode instruction.
      */
     void associateStmt(AbstractInsnNode insn, Stmt stmt) {
-        // TODO: remove this checking
         if (stmt.getLineNumber() == -1) {
-            stmt.setLineNumber(currentLineNumber);
+            stmt.setLineNumber(getLineNumber(insn));
         }
         int idx = AsmInsnUtils.getInsnIndex(context.source, insn);
         if (insn2Stmt[idx] == null) {
@@ -148,7 +173,15 @@ final class StmtManager {
             }
         }
         if (blockEmpty) {
-            insn2Stmt[start + insns.size() - 1] = new Nop();
+            Nop nop = new Nop();
+            for (int i = insns.size() - 1; i >= 0; --i) {
+                AbstractInsnNode insn = insns.get(i);
+                if (insn.getOpcode() != -1) {
+                    nop.setLineNumber(getLineNumber(insn));
+                    break;
+                }
+            }
+            insn2Stmt[start + insns.size() - 1] = nop;
         }
     }
 

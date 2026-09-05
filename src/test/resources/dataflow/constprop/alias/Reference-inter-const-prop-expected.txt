@@ -1,9 +1,9 @@
 -------------------- <Reference: int one()> (inter-const-prop) --------------------
-[0@L4] %ci1 = 1; {}
+[0@L-1] %ci1 = 1; {}
 [1@L4] return %ci1; {}
 
 -------------------- <Reference: int zero()> (inter-const-prop) --------------------
-[0@L8] %ci0 = 0; {}
+[0@L-1] %ci0 = 0; {}
 [1@L8] return %ci0; {}
 
 -------------------- <Reference: void <init>()> (inter-const-prop) --------------------

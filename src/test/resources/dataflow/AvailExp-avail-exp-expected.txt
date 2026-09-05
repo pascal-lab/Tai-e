@@ -1,5 +1,5 @@
 -------------------- <AvailExp: int foo(int,int,int)> (avail-exp) --------------------
-[0@L9] %ci0 = 0; []
+[0@L-1] %ci0 = 0; []
 [1@L7] p = a; [a]
 [2@L9] if (a <= %ci0) goto 7; [a]
 [3@L10] l = (long) a; [(long) a, a]

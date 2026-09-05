@@ -18,14 +18,14 @@
 [12@L9] a3.<A: int f> = %c14; {}
 [13@L10] %v15 = args.length; {%v15=NAC}
 [14@L10] if (%v15 <= %ci0) goto 17; {%v15=NAC}
-[15@L15] aa = a1; {%v15=NAC}
+[15@L10] aa = a1; {%v15=NAC}
 [16@L10] goto 18; {%v15=NAC}
-[17@L15] aa = a2; {%v15=NAC}
+[17@L10] aa = a2; {%v15=NAC}
 [18@L11] %v18 = args.length; {%v15=NAC, %v18=NAC}
 [19@L11] if (%v18 <= %ci0) goto 22; {%v15=NAC, %v18=NAC}
-[20@L15] aaa = a2; {%v15=NAC, %v18=NAC}
+[20@L11] aaa = a2; {%v15=NAC, %v18=NAC}
 [21@L11] goto 23; {%v15=NAC, %v18=NAC}
-[22@L15] aaa = a3; {%v15=NAC, %v18=NAC}
+[22@L11] aaa = a3; {%v15=NAC, %v18=NAC}
 [23@L12] %v20 = aa.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC}
 [24@L13] %v21 = aaa.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC, %v21=666}
 [25@L14] %v22 = a1.<A: int f>; {%v15=NAC, %v18=NAC, %v20=NAC, %v21=666, %v22=2333}

@@ -46,11 +46,9 @@ import pascal.taie.ir.stmt.SwitchStmt;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.ReferenceType;
 import pascal.taie.language.type.Type;
-import pascal.taie.util.collection.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -89,13 +87,9 @@ class IRAssembler {
         List<Stmt> stmts = new ArrayList<>(context.source.instructions.size());
         List<FrontendPhi> frontendPhis = new ArrayList<>();
         int now = 0;
-        for (Pair<Var, Optional<Integer>> p : context.varManager.getIntConstVarCache()) {
-            Var v = p.first();
+        for (Var v : context.varManager.getIntConstVarCache()) {
             if (v != null) {
                 Stmt curr = IRUtils.newAssignStmt(context.method, v, v.getConstValue());
-                if (p.second().isPresent()) {
-                    curr.setLineNumber(p.second().get());
-                }
                 curr.setIndex(now++);
                 stmts.add(curr);
             }

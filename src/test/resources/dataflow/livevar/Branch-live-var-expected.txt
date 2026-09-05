@@ -1,5 +1,5 @@
 -------------------- <Branch: int ifElse(int,int,int)> (live-var) --------------------
-[0@L5] %ci0 = 0; [%ci0, k, m, n]
+[0@L-1] %ci0 = 0; [%ci0, k, m, n]
 [1@L5] if (n <= %ci0) goto 4; [k, m, n]
 [2@L6] %v6 = m + n; [%v6]
 [3@L6] return %v6; []

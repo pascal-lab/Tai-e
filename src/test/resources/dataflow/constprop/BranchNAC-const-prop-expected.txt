@@ -3,7 +3,7 @@
 [1@L1] return; {}
 
 -------------------- <BranchNAC: void NAC1(boolean)> (const-prop) --------------------
-[0@L5] %ci0 = 0; {b=NAC}
+[0@L-1] %ci0 = 0; {b=NAC}
 [1@L5] if (b == %ci0) goto 4; {b=NAC}
 [2@L6] x = 10; {b=NAC, x=10}
 [3@L6] goto 5; {b=NAC, x=10}
@@ -11,7 +11,7 @@
 [5@L11] return; {b=NAC, x=NAC}
 
 -------------------- <BranchNAC: void nonDistributivity(boolean)> (const-prop) --------------------
-[0@L16] %ci0 = 0; {b=NAC}
+[0@L-1] %ci0 = 0; {b=NAC}
 [1@L-1] %ci2 = 2; {b=NAC}
 [2@L-1] %ci3 = 3; {b=NAC}
 [3@L16] if (b == %ci0) goto 7; {b=NAC}

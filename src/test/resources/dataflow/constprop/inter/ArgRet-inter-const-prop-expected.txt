@@ -1,10 +1,10 @@
 -------------------- <ArgRet: int add1(int)> (inter-const-prop) --------------------
-[0@L34] %ci1 = 1; {x=NAC}
+[0@L-1] %ci1 = 1; {x=NAC}
 [1@L34] %v2 = x + %ci1; {%v2=NAC, x=NAC}
 [2@L34] return %v2; {%v2=NAC, x=NAC}
 
 -------------------- <ArgRet: int branch(int)> (inter-const-prop) --------------------
-[0@L10] %ci0 = 0; {x=NAC}
+[0@L-1] %ci0 = 0; {x=NAC}
 [1@L10] if (x <= %ci0) goto 4; {x=NAC}
 [2@L11] n = 111; {n=111, x=NAC}
 [3@L11] goto 5; {n=111, x=NAC}
@@ -16,8 +16,8 @@
 [0@L20] return x; {x=NAC}
 
 -------------------- <ArgRet: int loop(int)> (inter-const-prop) --------------------
-[0@L26] %ci0 = 0; {times=6}
-[1@L26] %ci1 = 1; {times=6}
+[0@L-1] %ci0 = 0; {times=6}
+[1@L-1] %ci1 = 1; {times=6}
 [2@L24] n = 2333; {n=2333, times=6}
 [3@L25] r = 2334; {n=2333, r=2334, times=6}
 [4@L26] i = %ci0; {i=0, n=2333, r=2334, times=6}
@@ -29,7 +29,7 @@
 [10@L30] return r; {i=NAC, n=NAC, r=NAC, times=6}
 
 -------------------- <ArgRet: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L5] %ci6 = 6; {}
+[0@L-1] %ci6 = 6; {}
 [1@L4] %v3 = args.length; {%v3=NAC}
 [2@L4] invokestatic <ArgRet: int branch(int)>(%v3); {%v3=NAC}
 [3@L5] invokestatic <ArgRet: int loop(int)>(%ci6); {%v3=NAC}

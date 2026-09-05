@@ -1,12 +1,12 @@
 -------------------- <DeadLoop: int recursion(int)> (inter-const-prop) --------------------
-[0@L10] %ci1 = 1; {x=NAC}
+[0@L-1] %ci1 = 1; {x=NAC}
 [1@L10] x#1 = x + %ci1; {x=NAC, x#1=NAC}
 [2@L11] invokestatic <DeadLoop: int recursion(int)>(x#1); {x=NAC, x#1=NAC}
 [3@L12] return x#1; {x=NAC, x#1=NAC}
 
 -------------------- <DeadLoop: int whileLoop(int)> (inter-const-prop) --------------------
 [0@L-1] %ci1 = 1; {x=5}
-[1@L16] y = 2; {x=5}
+[1@L-1] y = 2; {x=5}
 [2@L17] z = %ci1; {x=5, z=1}
 [3@L18] if (x <= y) goto 6; {x=5, z=NAC}
 [4@L19] z = z + %ci1; {x=5, z=NAC}
@@ -14,7 +14,7 @@
 [6@L21] return z; {x=5, z=NAC}
 
 -------------------- <DeadLoop: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] x = 5; {}
+[0@L-1] x = 5; {}
 [1@L5] invokestatic <DeadLoop: int recursion(int)>(x); {}
 [2@L6] invokestatic <DeadLoop: int whileLoop(int)>(x); {}
 [3@L7] return; {}

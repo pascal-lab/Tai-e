@@ -1,6 +1,6 @@
 -------------------- <MaxPQ: boolean isEmpty()> (inter-const-prop) --------------------
-[0@L17] %ci0 = 0; {}
-[1@L17] %ci1 = 1; {}
+[0@L-1] %ci0 = 0; {}
+[1@L-1] %ci1 = 1; {}
 [2@L17] %v1 = this.<MaxPQ: int n>; {%v1=NAC}
 [3@L17] if (%v1 != %ci0) goto 6; {%v1=NAC}
 [4@L17] %v4 = %ci1; {%v1=NAC, %v4=1}
@@ -9,8 +9,8 @@
 [7@L17] return %v4; {%v1=NAC, %v4=NAC}
 
 -------------------- <MaxPQ: boolean less(int,int)> (inter-const-prop) --------------------
-[0@L71] %ci0 = 0; {i=NAC, j=NAC}
-[1@L71] %ci1 = 1; {i=NAC, j=NAC}
+[0@L-1] %ci0 = 0; {i=NAC, j=NAC}
+[1@L-1] %ci1 = 1; {i=NAC, j=NAC}
 [2@L71] if (i >= j) goto 5; {i=NAC, j=NAC}
 [3@L71] %v5 = %ci1; {%v5=1, i=NAC, j=NAC}
 [4@L71] goto 6; {%v5=1, i=NAC, j=NAC}
@@ -20,8 +20,8 @@
 -------------------- <MaxPQ: int delMax()> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
 [1@L-1] %ci1 = 1; {}
-[2@L49] %ci2 = 2; {}
-[3@L48] %ci4 = 4; {}
+[2@L-1] %ci2 = 2; {}
+[3@L-1] %ci4 = 4; {}
 [4@L42] %v2 = invokevirtual this.<MaxPQ: boolean isEmpty()>(); {}
 [5@L42] if (%v2 == %ci0) goto 8; {%v2=NAC}
 [6@L43] %c4 = 114514; {%v2=NAC}
@@ -57,13 +57,13 @@
 [1@L21] return %v1; {%v1=NAC}
 
 -------------------- <MaxPQ: void <init>()> (inter-const-prop) --------------------
-[0@L13] %ci1 = 1; {}
+[0@L-1] %ci1 = 1; {}
 [1@L13] invokespecial this.<MaxPQ: void <init>(int)>(%ci1); {}
 [2@L14] return; {}
 
 -------------------- <MaxPQ: void <init>(int)> (inter-const-prop) --------------------
-[0@L9] %ci0 = 0; {initCapacity=1}
-[1@L8] %ci1 = 1; {initCapacity=1}
+[0@L-1] %ci0 = 0; {initCapacity=1}
+[1@L-1] %ci1 = 1; {initCapacity=1}
 [2@L7] invokespecial this.<java.lang.Object: void <init>()>(); {initCapacity=1}
 [3@L8] %v3 = initCapacity + %ci1; {%v3=2, initCapacity=1}
 [4@L8] %v4 = newarray int[%v3]; {%v3=2, initCapacity=1}
@@ -84,7 +84,7 @@
 
 -------------------- <MaxPQ: void insert(int)> (inter-const-prop) --------------------
 [0@L-1] %ci1 = 1; {x=114514}
-[1@L34] %ci2 = 2; {x=114514}
+[1@L-1] %ci2 = 2; {x=114514}
 [2@L34] %v2 = this.<MaxPQ: int n>; {%v2=NAC, x=114514}
 [3@L34] %v3 = this.<MaxPQ: int[] pq>; {%v2=NAC, x=114514}
 [4@L34] %v5 = %v3.length; {%v2=NAC, %v5=NAC, x=114514}
@@ -104,7 +104,7 @@
 [18@L39] return; {%v10=NAC, %v12=NAC, %v13=NAC, %v14=NAC, %v2=NAC, %v5=NAC, %v6=NAC, %v9=NAC, x=114514}
 
 -------------------- <MaxPQ: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L85] %ci0 = 0; {}
+[0@L-1] %ci0 = 0; {}
 [1@L81] pq = new MaxPQ; {}
 [2@L81] invokespecial pq.<MaxPQ: void <init>()>(); {}
 [3@L82] %c5 = 114514; {}
@@ -115,7 +115,7 @@
 [8@L88] return; {r=114514, s=NAC}
 
 -------------------- <MaxPQ: void resize(int)> (inter-const-prop) --------------------
-[0@L26] %ci1 = 1; {capacity=NAC}
+[0@L-1] %ci1 = 1; {capacity=NAC}
 [1@L25] temp = newarray int[capacity]; {capacity=NAC}
 [2@L26] i = %ci1; {capacity=NAC, i=1}
 [3@L26] %v6 = this.<MaxPQ: int n>; {%v6=NAC, %v8=114514, capacity=NAC, i=NAC}
@@ -130,7 +130,7 @@
 
 -------------------- <MaxPQ: void sink(int)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {k=1}
-[1@L63] %ci1 = 1; {k=1}
+[1@L-1] %ci1 = 1; {k=1}
 [2@L-1] %ci2 = 2; {k=1}
 [3@L61] %v4 = %ci2 * k; {%v11=NAC, %v4=NAC, %v5=NAC, %v6=NAC, %v8=NAC, %v9=NAC, j=NAC, k=NAC}
 [4@L61] %v5 = this.<MaxPQ: int n>; {%v11=NAC, %v4=NAC, %v5=NAC, %v6=NAC, %v8=NAC, %v9=NAC, j=NAC, k=NAC}
@@ -151,8 +151,8 @@
 [19@L68] return; {%v11=NAC, %v4=NAC, %v5=NAC, %v6=NAC, %v8=NAC, %v9=NAC, j=NAC, k=NAC}
 
 -------------------- <MaxPQ: void swim(int)> (inter-const-prop) --------------------
-[0@L54] %ci0 = 0; {k=NAC}
-[1@L54] %ci1 = 1; {k=NAC}
+[0@L-1] %ci0 = 0; {k=NAC}
+[1@L-1] %ci1 = 1; {k=NAC}
 [2@L-1] %ci2 = 2; {k=NAC}
 [3@L54] if (k <= %ci1) goto 11; {%v4=NAC, %v5=NAC, %v7=NAC, k=NAC}
 [4@L54] %v4 = k / %ci2; {%v4=NAC, %v5=NAC, %v7=NAC, k=NAC}

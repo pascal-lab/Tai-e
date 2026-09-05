@@ -9,7 +9,7 @@
 [1@L1] return; {}
 
 -------------------- <FloatArg: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L8] x = 1; {}
+[0@L-1] x = 1; {}
 [1@L9] f = 2.0F; {}
 [2@L10] %v5 = new FloatArg; {}
 [3@L10] invokespecial %v5.<FloatArg: void <init>()>(); {}

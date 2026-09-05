@@ -1,6 +1,6 @@
 -------------------- <Array: int sum(int[])> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, arr]
-[1@L5] %ci1 = 1; [%ci0, %ci1, arr]
+[1@L-1] %ci1 = 1; [%ci0, %ci1, arr]
 [2@L4] result = %ci0; [%ci0, %ci1, arr, result]
 [3@L5] i = %ci0; [%ci1, arr, i, result]
 [4@L5] %v5 = arr.length; [%ci1, %v5, arr, i, result]

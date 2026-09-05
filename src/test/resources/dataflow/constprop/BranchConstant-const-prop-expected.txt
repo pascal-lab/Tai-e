@@ -3,7 +3,7 @@
 [1@L1] return; {}
 
 -------------------- <BranchConstant: void constant1(boolean)> (const-prop) --------------------
-[0@L7] %ci0 = 0; {b=NAC}
+[0@L-1] %ci0 = 0; {b=NAC}
 [1@L-1] %ci2 = 2; {b=NAC}
 [2@L7] if (b == %ci0) goto 5; {b=NAC}
 [3@L8] z = %ci2 + %ci2; {b=NAC, z=4}

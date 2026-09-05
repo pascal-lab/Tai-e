@@ -3,9 +3,9 @@
 [1@L1] return; {}
 
 -------------------- <SimpleConstant: void constant()> (const-prop) --------------------
-[0@L4] %ci1 = 1; {}
-[1@L5] %ci2 = 2; {}
-[2@L6] %ci3 = 3; {}
+[0@L-1] %ci1 = 1; {}
+[1@L-1] %ci2 = 2; {}
+[2@L-1] %ci3 = 3; {}
 [3@L7] return; {}
 
 -------------------- <SimpleConstant: void propagation()> (const-prop) --------------------

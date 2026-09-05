@@ -36,6 +36,8 @@ import pascal.taie.frontend.java.syntax.JavaVersionSyntaxTest;
         DependencyAnalysisTest.class,
         AnnotationTest.class,
         FieldOrderTest.class,
+        RealLineNumberTest.class,
+        FakeLineNumberTest.class,
         GenericsTest.class,
         RoundTripTest.class,
         JavaVersionSyntaxTest.class,

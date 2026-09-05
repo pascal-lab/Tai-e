@@ -178,7 +178,11 @@ class StackPhiResolver {
                 continue;
             }
             if (IRUtils.mayHaveSideEffect(e) || phi.used) {
-                stmts.add(IRUtils.newAssignStmt(context.method, writeOut, e));
+                Stmt stmt = IRUtils.newAssignStmt(context.method, writeOut, e);
+                if (item.origin() != null) {
+                    stmt.setLineNumber(context.stmtManager.getLineNumber(item.origin()));
+                }
+                stmts.add(stmt);
             }
         }
         phi.resolved = true;

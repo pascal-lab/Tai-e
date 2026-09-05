@@ -18,8 +18,8 @@
 [1@L5] return; []
 
 -------------------- <AnonInner: void show()> (live-var) --------------------
-[0@L17] %ci2 = 2; [%ci2]
-[1@L17] %ci5 = 5; [%ci2, %ci5]
+[0@L-1] %ci2 = 2; [%ci2]
+[1@L-1] %ci5 = 5; [%ci2, %ci5]
 [2@L17] %v1 = <java.lang.System: java.io.PrintStream out>; [%ci2, %ci5, %v1]
 [3@L17] %v3 = invokestatic <AnonInner: Adder makeAdder(int)>(%ci2); [%ci5, %v1, %v3]
 [4@L17] %v4 = invokeinterface %v3.<Adder: int add(int)>(%ci5); [%v1, %v4]

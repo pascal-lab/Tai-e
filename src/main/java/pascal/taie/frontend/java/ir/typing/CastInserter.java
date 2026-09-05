@@ -108,7 +108,12 @@ final class CastInserter {
                 "          Var " + right + " With Type: " + right.getType() + "\n" +
                 "          Excepted Type: " + t + "\n" +
                 "          In method: " + context.method);
-        return new Cast(left, new CastExp(right, t));
+        return withLineNumber(new Cast(left, new CastExp(right, t)), currentStmt);
+    }
+
+    private static <T extends Stmt> T withLineNumber(T stmt, Stmt source) {
+        stmt.setLineNumber(source.getLineNumber());
+        return stmt;
     }
 
     /**
@@ -224,7 +229,8 @@ final class CastInserter {
                 VarMutator.setType(v1, def.getRValue().getType());
                 StmtVarReplacer stmtVarReplacer = new StmtVarReplacer(context.method, Map.of(), Map.of(var, v1));
                 newStmts.set(newInBlock.second(), stmtVarReplacer.replace(def));
-                newStmts.add(newInBlock.second() + 1, new Copy(var, v1));
+                newStmts.add(newInBlock.second() + 1,
+                        withLineNumber(new Copy(var, v1), def));
                 preciseDefCache.put(originalVar, v1);
                 return v1;
             }
@@ -250,7 +256,8 @@ final class CastInserter {
             Var right = stmt.getRValue();
             Type t = getRequiredCastType(stmt.getLValue(), right);
             if (t == NullType.NULL) {
-                return new AssignLiteral(stmt.getLValue(), NullLiteral.get());
+                return withLineNumber(
+                        new AssignLiteral(stmt.getLValue(), NullLiteral.get()), stmt);
             }
             if (t != null) {
                 Pair<DefinitionStmt<?, ?>, Integer> newInBlock =
@@ -276,7 +283,7 @@ final class CastInserter {
                 Var v = context.varManager.getTempVar();
                 VarMutator.setType(v, stmt.getRValue().getType());
                 stmt.getRValue().getBase().removeRelevantStmt(stmt);
-                newStmts.add(new LoadArray(v, stmt.getRValue()));
+                newStmts.add(withLineNumber(new LoadArray(v, stmt.getRValue()), stmt));
                 return createCast(stmt.getLValue(), v, t);
             } else {
                 return stmt;
@@ -303,7 +310,7 @@ final class CastInserter {
                     access.getBase().removeRelevantStmt(stmt);
                 }
                 newStmts.add(createCast(v, stmt.getRValue(), t));
-                return new StoreField(stmt.getLValue(), v);
+                return withLineNumber(new StoreField(stmt.getLValue(), v), stmt);
             } else {
                 return stmt;
             }
@@ -383,7 +390,7 @@ final class CastInserter {
                 context.varManager.getRetVars().remove(stmt.getValue());
                 context.varManager.getRetVars().add(v);
                 VarMutator.setType(v, t);
-                return new Return(v);
+                return withLineNumber(new Return(v), stmt);
             } else {
                 return stmt;
             }

@@ -1,6 +1,6 @@
 -------------------- <DeadAssignment2: int deadAssign4()> (dead-code) --------------------
-[0@L33] %ci0 = 0;
-[1@L34] %ci1 = 1;
+[0@L-1] %ci0 = 0;
+[1@L-1] %ci1 = 1;
 
 -------------------- <DeadAssignment2: int ten()> (dead-code) --------------------
 

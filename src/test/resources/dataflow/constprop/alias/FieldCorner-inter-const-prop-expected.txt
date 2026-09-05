@@ -13,8 +13,8 @@
 [7@L15] return; {%v6=NAC}
 
 -------------------- <FieldCorner: void corner2()> (inter-const-prop) --------------------
-[0@L19] %ci1 = 1; {}
-[1@L20] %ci2 = 2; {}
+[0@L-1] %ci1 = 1; {}
+[1@L-1] %ci2 = 2; {}
 [2@L18] b1 = new A; {}
 [3@L18] invokespecial b1.<A: void <init>()>(); {}
 [4@L19] b1.<A: int f> = %ci1; {}
@@ -23,7 +23,7 @@
 [7@L23] return; {%v6=2}
 
 -------------------- <FieldCorner: void corner4()> (inter-const-prop) --------------------
-[0@L34] %ci1 = 1; {}
+[0@L-1] %ci1 = 1; {}
 [1@L26] d1 = new A; {}
 [2@L26] invokespecial d1.<A: void <init>()>(); {}
 [3@L27] d2 = new A; {}

@@ -147,8 +147,6 @@ final class BytecodeProcessor {
             insn = insnIter.next();
             if (insn instanceof FrameNode f) {
                 block.setFrame(f);
-            } else if (insn instanceof LineNumberNode l) {
-                context.stmtManager.setLineNumber(l.line);
             }
         }
         // now, insn must be:
@@ -388,11 +386,11 @@ final class BytecodeProcessor {
         } else if (insn instanceof LookupSwitchInsnNode lookupSwitch) {
             Var v = context.operandStack.popVar();
             context.stmtManager.associateStmt(insn, new LookupSwitch(v, lookupSwitch.keys));
-        } else if (insn instanceof LabelNode || insn instanceof FrameNode) {
+        } else if (insn instanceof LabelNode
+                || insn instanceof FrameNode
+                || insn instanceof LineNumberNode) {
             // do nothing
             return;
-        } else if (insn instanceof LineNumberNode lineNumber) {
-            context.stmtManager.setLineNumber(lineNumber.line);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -408,6 +406,7 @@ final class BytecodeProcessor {
         Var v2;
         if (isInRange(opcode, Opcodes.IFEQ, Opcodes.IFLE)) {
             v1 = context.operandStack.popVar();
+            // The implicit zero has no ICONST bytecode origin.
             v2 = context.varManager.getCachedInt(IntLiteral.get(0));
         } else if (opcode == Opcodes.IFNULL || opcode == Opcodes.IFNONNULL) {
             v1 = context.operandStack.popVar();

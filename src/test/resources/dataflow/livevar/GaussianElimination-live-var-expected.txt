@@ -1,5 +1,5 @@
 -------------------- <GaussianElimination: double[] primal()> (live-var) --------------------
-[0@L59] %ci-1 = -1; [$null, %ci-1, this]
+[0@L-1] %ci-1 = -1; [$null, %ci-1, this]
 [1@L-1] %ci0 = 0; [$null, %ci-1, %ci0, this]
 [2@L-1] %ci1 = 1; [$null, %ci-1, %ci0, %ci1, this]
 [3@L58] %v9 = this.<GaussianElimination: int n>; [$null, %ci-1, %ci0, %ci1, %v9, this]

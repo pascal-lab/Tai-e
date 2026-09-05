@@ -302,7 +302,11 @@ final class OperandStack {
         } else {
             ensureStackSafety(e -> e == v || e.getUses().contains(v));
         }
-        return IRUtils.newAssignStmt(context.method, v, top.exp());
+        Stmt stmt = IRUtils.newAssignStmt(context.method, v, top.exp());
+        if (top.origin() != null && stmt instanceof Invoke) {
+            stmt.setLineNumber(context.stmtManager.getLineNumber(top.origin()));
+        }
+        return stmt;
     }
 
     /**

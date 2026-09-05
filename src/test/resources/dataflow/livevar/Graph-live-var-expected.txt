@@ -1,6 +1,6 @@
 -------------------- <Graph: java.lang.String toString()> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, this]
-[1@L29] %ci1 = 1; [%ci0, %ci1, this]
+[1@L-1] %ci1 = 1; [%ci0, %ci1, this]
 [2@L27] s = new java.lang.StringBuilder; [%ci0, %ci1, s, this]
 [3@L27] invokespecial s.<java.lang.StringBuilder: void <init>()>(); [%ci0, %ci1, s, this]
 [4@L28] %v6 = this.<Graph: int V>; [%ci0, %ci1, %v6, s, this]
@@ -39,7 +39,7 @@
 
 -------------------- <Graph: void <init>(int)> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, V, this]
-[1@L15] %ci1 = 1; [%ci0, %ci1, V, this]
+[1@L-1] %ci1 = 1; [%ci0, %ci1, V, this]
 [2@L11] invokespecial this.<java.lang.Object: void <init>()>(); [%ci0, %ci1, V, this]
 [3@L12] this.<Graph: int V> = V; [%ci0, %ci1, V, this]
 [4@L13] this.<Graph: int E> = %ci0; [%ci0, %ci1, V, this]
@@ -56,7 +56,7 @@
 [15@L18] return; []
 
 -------------------- <Graph: void addEdge(int,int)> (live-var) --------------------
-[0@L21] %ci1 = 1; [%ci1, this, v, w]
+[0@L-1] %ci1 = 1; [%ci1, this, v, w]
 [1@L21] %v4 = this.<Graph: int E>; [%ci1, %v4, this, v, w]
 [2@L21] %v5 = %v4 + %ci1; [%v5, this, v, w]
 [3@L21] this.<Graph: int E> = %v5; [this, v, w]

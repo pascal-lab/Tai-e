@@ -1,7 +1,7 @@
 -------------------- <Fibonacci: int getFibonacci(int)> (live-var) --------------------
-[0@L3] %ci0 = 0; [%ci0, n, this]
+[0@L-1] %ci0 = 0; [%ci0, n, this]
 [1@L-1] %ci1 = 1; [%ci0, %ci1, n, this]
-[2@L6] %ci2 = 2; [%ci0, %ci1, %ci2, n, this]
+[2@L-1] %ci2 = 2; [%ci0, %ci1, %ci2, n, this]
 [3@L3] if (n == %ci0) goto 5; [%ci1, %ci2, n, this]
 [4@L3] if (n != %ci1) goto 6; [%ci1, %ci2, n, this]
 [5@L4] return n; []

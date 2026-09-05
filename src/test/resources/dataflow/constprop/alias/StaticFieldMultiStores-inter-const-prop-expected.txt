@@ -1,7 +1,7 @@
 -------------------- <StaticFieldMultiStores: int getNAC()> (inter-const-prop) --------------------
-[0@L32] %ci0 = 0; {}
-[1@L32] %ci1 = 1; {}
-[2@L32] %ci5 = 5; {}
+[0@L-1] %ci0 = 0; {}
+[1@L-1] %ci1 = 1; {}
+[2@L-1] %ci5 = 5; {}
 [3@L32] i = %ci0; {i=0}
 [4@L32] if (i >= %ci5) goto 7; {i=NAC}
 [5@L32] i = i + %ci1; {i=NAC}
@@ -16,7 +16,7 @@
 [4@L12] return; {%v3=555, %v4=NAC}
 
 -------------------- <StaticFieldMultiStores: void storeConst()> (inter-const-prop) --------------------
-[0@L15] %ci0 = 0; {}
+[0@L-1] %ci0 = 0; {}
 [1@L15] %v0 = invokestatic <StaticFieldMultiStores: int getNAC()>(); {}
 [2@L15] if (%v0 <= %ci0) goto 6; {%v0=NAC}
 [3@L16] %c2 = 555; {%v0=NAC}
@@ -27,7 +27,7 @@
 [8@L20] return; {%v0=NAC}
 
 -------------------- <StaticFieldMultiStores: void storeNAC()> (inter-const-prop) --------------------
-[0@L23] %ci0 = 0; {}
+[0@L-1] %ci0 = 0; {}
 [1@L23] %v0 = invokestatic <StaticFieldMultiStores: int getNAC()>(); {}
 [2@L23] if (%v0 <= %ci0) goto 6; {%v0=NAC}
 [3@L24] %c2 = 666; {%v0=NAC}
