@@ -2,6 +2,21 @@
 [0@L45] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L45] return; {}
 
+-------------------- <List$ListIterator: Int next()> (inter-const-prop) --------------------
+[0@L40] %v1 = this.<List$ListIterator: List this$0>; {}
+[1@L40] %v2 = %v1.<List: Int element>; {}
+[2@L40] return %v2; {}
+
+-------------------- <List$ListIterator: void <init>(List)> (inter-const-prop) --------------------
+[0@L38] this.<List$ListIterator: List this$0> = this$0; {}
+[1@L38] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[2@L38] return; {}
+
+-------------------- <List: Iterator iterator()> (inter-const-prop) --------------------
+[0@L35] %v1 = new List$ListIterator; {}
+[1@L35] invokespecial %v1.<List$ListIterator: void <init>(List)>(this); {}
+[2@L35] return %v1; {}
+
 -------------------- <List: void <init>()> (inter-const-prop) --------------------
 [0@L26] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L26] return; {}
@@ -9,21 +24,6 @@
 -------------------- <List: void add(Int)> (inter-const-prop) --------------------
 [0@L31] this.<List: Int element> = element; {}
 [1@L32] return; {}
-
--------------------- <List: Iterator iterator()> (inter-const-prop) --------------------
-[0@L35] %v1 = new List$ListIterator; {}
-[1@L35] invokespecial %v1.<List$ListIterator: void <init>(List)>(this); {}
-[2@L35] return %v1; {}
-
--------------------- <List$ListIterator: void <init>(List)> (inter-const-prop) --------------------
-[0@L38] this.<List$ListIterator: List this$0> = this$0; {}
-[1@L38] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[2@L38] return; {}
-
--------------------- <List$ListIterator: Int next()> (inter-const-prop) --------------------
-[0@L40] %v1 = this.<List$ListIterator: List this$0>; {}
-[1@L40] %v2 = %v1.<List: Int element>; {}
-[2@L40] return %v2; {}
 
 -------------------- <ObjSens2: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L7] l1 = new List; {}

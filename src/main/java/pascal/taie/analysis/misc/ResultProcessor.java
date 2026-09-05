@@ -173,17 +173,11 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
     }
 
     /**
-     * Compares methods by their declaring classes and source code position.
+     * Compares methods by their cached signatures to make the output order
+     * independent of IR statement order and source line numbers.
      */
-    private static final Comparator<JMethod> methodComp = (m1, m2) -> {
-        if (m1.getDeclaringClass().equals(m2.getDeclaringClass())) {
-            return m1.getIR().getStmt(0).getLineNumber() -
-                    m2.getIR().getStmt(0).getLineNumber();
-        } else {
-            return m1.getDeclaringClass().toString()
-                    .compareTo(m2.getDeclaringClass().toString());
-        }
-    };
+    private static final Comparator<JMethod> methodComp =
+            (m1, m2) -> m1.getSignature().compareTo(m2.getSignature());
 
     private void processProgramAnalysisResult(List<String> analyses) {
         // TODO: support class-level analysis?
@@ -254,7 +248,10 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
         out.printf("-------------------- %s (%s) --------------------%n", entity, id);
         Object result = resultGetter.apply(entity, id);
         if (result instanceof Collection<?> c) {
-            c.forEach(e -> out.println(toString(e)));
+            c.stream()
+                    .sorted(ResultProcessor::compareCollectionElements)
+                    .map(ResultProcessor::toString)
+                    .forEach(out::println);
         } else if (result instanceof StmtResult<?> stmtResult) {
             JMethod method = (JMethod) entity;
             method.getIR()
@@ -265,6 +262,21 @@ public class ResultProcessor extends ProgramAnalysis<Set<String>> {
             out.println(toString(result));
         }
         out.println();
+    }
+
+    /**
+     * Compares collection elements by a stable output order.
+     * Statements must be ordered by their IR indexes rather than by their
+     * rendered strings (e.g. index 13 must not precede index 6).
+     */
+    private static int compareCollectionElements(Object o1, Object o2) {
+        if (o1 instanceof Stmt s1 && o2 instanceof Stmt s2) {
+            int result = Integer.compare(s1.getIndex(), s2.getIndex());
+            if (result != 0) {
+                return result;
+            }
+        }
+        return toString(o1).compareTo(toString(o2));
     }
 
     /**

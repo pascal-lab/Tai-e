@@ -15,15 +15,6 @@
 [13@L15] %v9 = arr[%ci1]; {%v6=1, %v7=2, %v9=2}
 [14@L15] return %v9; {%v6=1, %v7=2, %v9=2}
 
--------------------- <ArrayField: void <init>()> (inter-const-prop) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
-
--------------------- <ArrayField: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] invokestatic <ArrayField: int array()>(); {}
-[1@L5] invokestatic <ArrayField: int field()>(); {}
-[2@L6] return; {}
-
 -------------------- <ArrayField: int field()> (inter-const-prop) --------------------
 [0@L25] %ci-1 = -1; {}
 [1@L22] %ci0 = 0; {}
@@ -35,4 +26,13 @@
 [7@L22] if (%v3 <= %ci0) goto 9; {%v3=1}
 [8@L23] return %ci1; {%v3=1}
 [9@L25] return %ci-1; {%v3=1}
+
+-------------------- <ArrayField: void <init>()> (inter-const-prop) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
+-------------------- <ArrayField: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] invokestatic <ArrayField: int array()>(); {}
+[1@L5] invokestatic <ArrayField: int field()>(); {}
+[2@L6] return; {}
 

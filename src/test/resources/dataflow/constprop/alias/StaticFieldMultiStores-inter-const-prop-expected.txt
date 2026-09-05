@@ -1,3 +1,13 @@
+-------------------- <StaticFieldMultiStores: int getNAC()> (inter-const-prop) --------------------
+[0@L32] %ci0 = 0; {}
+[1@L32] %ci1 = 1; {}
+[2@L32] %ci5 = 5; {}
+[3@L32] i = %ci0; {i=0}
+[4@L32] if (i >= %ci5) goto 7; {i=NAC}
+[5@L32] i = i + %ci1; {i=NAC}
+[6@L32] goto 4; {i=NAC}
+[7@L34] return i; {i=NAC}
+
 -------------------- <StaticFieldMultiStores: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L8] invokestatic <StaticFieldMultiStores: void storeConst()>(); {}
 [1@L9] invokestatic <StaticFieldMultiStores: void storeNAC()>(); {}
@@ -26,14 +36,4 @@
 [6@L26] %c3 = 777; {%v0=NAC}
 [7@L26] <StaticFieldMultiStores: int g> = %c3; {%v0=NAC}
 [8@L28] return; {%v0=NAC}
-
--------------------- <StaticFieldMultiStores: int getNAC()> (inter-const-prop) --------------------
-[0@L32] %ci0 = 0; {}
-[1@L32] %ci1 = 1; {}
-[2@L32] %ci5 = 5; {}
-[3@L32] i = %ci0; {i=0}
-[4@L32] if (i >= %ci5) goto 7; {i=NAC}
-[5@L32] i = i + %ci1; {i=NAC}
-[6@L32] goto 4; {i=NAC}
-[7@L34] return i; {i=NAC}
 

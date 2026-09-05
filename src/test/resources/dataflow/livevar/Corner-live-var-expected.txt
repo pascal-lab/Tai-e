@@ -6,13 +6,13 @@
 [4@L17] goto 2; [%ci1, a]
 [5@L19] return a; []
 
--------------------- <Corner: void <init>()> (live-var) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L1] return; []
-
 -------------------- <Corner: int exit()> (live-var) --------------------
 [0@L3] %ci1 = 1; [%ci1]
 [1@L3] return %ci1; []
+
+-------------------- <Corner: void <init>()> (live-var) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
 
 -------------------- <Corner: void exit2()> (live-var) --------------------
 [0@L7] %ci1 = 1; []

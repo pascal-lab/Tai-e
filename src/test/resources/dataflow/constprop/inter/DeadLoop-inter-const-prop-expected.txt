@@ -1,3 +1,9 @@
+-------------------- <DeadLoop: int recursion(int)> (inter-const-prop) --------------------
+[0@L10] %ci1 = 1; {x=NAC}
+[1@L10] x#1 = x + %ci1; {x=NAC, x#1=NAC}
+[2@L11] invokestatic <DeadLoop: int recursion(int)>(x#1); {x=NAC, x#1=NAC}
+[3@L12] return x#1; {x=NAC, x#1=NAC}
+
 -------------------- <DeadLoop: int whileLoop(int)> (inter-const-prop) --------------------
 [0@L-1] %ci1 = 1; {x=5}
 [1@L16] y = 2; {x=5}
@@ -12,10 +18,4 @@
 [1@L5] invokestatic <DeadLoop: int recursion(int)>(x); {}
 [2@L6] invokestatic <DeadLoop: int whileLoop(int)>(x); {}
 [3@L7] return; {}
-
--------------------- <DeadLoop: int recursion(int)> (inter-const-prop) --------------------
-[0@L10] %ci1 = 1; {x=NAC}
-[1@L10] x#1 = x + %ci1; {x=NAC, x#1=NAC}
-[2@L11] invokestatic <DeadLoop: int recursion(int)>(x#1); {x=NAC, x#1=NAC}
-[3@L12] return x#1; {x=NAC, x#1=NAC}
 

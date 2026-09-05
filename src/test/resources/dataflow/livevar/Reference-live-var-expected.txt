@@ -15,13 +15,13 @@
 [0@L19] invokespecial this.<java.lang.Object: void <init>()>(); []
 [1@L19] return; []
 
--------------------- <Reference: void <init>()> (live-var) --------------------
-[0@L22] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L22] return; []
-
 -------------------- <Reference: A referenceType(C)> (live-var) --------------------
 [0@L24] b = new B; [b, c]
 [1@L24] invokespecial b.<B: void <init>()>(); [b, c]
 [2@L25] invokevirtual b.<B: void setC(C)>(c); [b]
 [3@L26] return b; []
+
+-------------------- <Reference: void <init>()> (live-var) --------------------
+[0@L22] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L22] return; []
 

@@ -1,3 +1,11 @@
+-------------------- <MultiIntArgs: int foo(int,int)> (inter-const-prop) --------------------
+[0@L8] %v2 = x * y; {%v2=NAC, x=NAC, y=NAC}
+[1@L8] return %v2; {%v2=NAC, x=NAC, y=NAC}
+
+-------------------- <MultiIntArgs: int goo(int,int)> (inter-const-prop) --------------------
+[0@L4] %v2 = x + y; {%v2=5, x=2, y=3}
+[1@L4] return %v2; {%v2=5, x=2, y=3}
+
 -------------------- <MultiIntArgs: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L-1] x = 2; {}
 [1@L-1] y = 3; {}
@@ -10,14 +18,6 @@
 [8@L26] t = invokestatic <MultiIntArgs: int foo(int,int)>(r, s); {c=5, z=NAC}
 [9@L27] invokestatic <MultiIntArgs: void use(int)>(t); {c=5, t=NAC, z=NAC}
 [10@L29] return; {c=5, t=NAC, z=NAC}
-
--------------------- <MultiIntArgs: int goo(int,int)> (inter-const-prop) --------------------
-[0@L4] %v2 = x + y; {%v2=5, x=2, y=3}
-[1@L4] return %v2; {%v2=5, x=2, y=3}
-
--------------------- <MultiIntArgs: int foo(int,int)> (inter-const-prop) --------------------
-[0@L8] %v2 = x * y; {%v2=NAC, x=NAC, y=NAC}
-[1@L8] return %v2; {%v2=NAC, x=NAC, y=NAC}
 
 -------------------- <MultiIntArgs: void use(int)> (inter-const-prop) --------------------
 [0@L31] return; {n=NAC}

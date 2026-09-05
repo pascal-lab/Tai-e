@@ -1,21 +1,3 @@
--------------------- <Graph: void <init>(int)> (live-var) --------------------
-[0@L-1] %ci0 = 0; [%ci0, V, this]
-[1@L15] %ci1 = 1; [%ci0, %ci1, V, this]
-[2@L11] invokespecial this.<java.lang.Object: void <init>()>(); [%ci0, %ci1, V, this]
-[3@L12] this.<Graph: int V> = V; [%ci0, %ci1, V, this]
-[4@L13] this.<Graph: int E> = %ci0; [%ci0, %ci1, V, this]
-[5@L14] %v4 = newarray java.util.List[V]; [%ci0, %ci1, %v4, V, this]
-[6@L14] this.<Graph: java.util.List[] adj> = %v4; [%ci0, %ci1, V, this]
-[7@L15] v = %ci0; [%ci1, V, this, v]
-[8@L15] if (v >= V) goto 15; [%ci1, V, this, v]
-[9@L16] %v5 = this.<Graph: java.util.List[] adj>; [%ci1, %v5, V, this, v]
-[10@L16] %v6 = new java.util.ArrayList; [%ci1, %v5, %v6, V, this, v]
-[11@L16] invokespecial %v6.<java.util.ArrayList: void <init>()>(); [%ci1, %v5, %v6, V, this, v]
-[12@L16] %v5[v] = %v6; [%ci1, V, this, v]
-[13@L15] v = v + %ci1; [%ci1, V, this, v]
-[14@L15] goto 8; [%ci1, V, this, v]
-[15@L18] return; []
-
 -------------------- <Graph: java.lang.String toString()> (live-var) --------------------
 [0@L-1] %ci0 = 0; [%ci0, this]
 [1@L29] %ci1 = 1; [%ci0, %ci1, this]
@@ -54,6 +36,24 @@
 [1@L5] %v1 = invokestatic <java.lang.System: java.lang.String getProperty(java.lang.String)>(%c0); [%v1]
 [2@L5] <Graph: java.lang.String NEWLINE> = %v1; []
 [3@L5] return; []
+
+-------------------- <Graph: void <init>(int)> (live-var) --------------------
+[0@L-1] %ci0 = 0; [%ci0, V, this]
+[1@L15] %ci1 = 1; [%ci0, %ci1, V, this]
+[2@L11] invokespecial this.<java.lang.Object: void <init>()>(); [%ci0, %ci1, V, this]
+[3@L12] this.<Graph: int V> = V; [%ci0, %ci1, V, this]
+[4@L13] this.<Graph: int E> = %ci0; [%ci0, %ci1, V, this]
+[5@L14] %v4 = newarray java.util.List[V]; [%ci0, %ci1, %v4, V, this]
+[6@L14] this.<Graph: java.util.List[] adj> = %v4; [%ci0, %ci1, V, this]
+[7@L15] v = %ci0; [%ci1, V, this, v]
+[8@L15] if (v >= V) goto 15; [%ci1, V, this, v]
+[9@L16] %v5 = this.<Graph: java.util.List[] adj>; [%ci1, %v5, V, this, v]
+[10@L16] %v6 = new java.util.ArrayList; [%ci1, %v5, %v6, V, this, v]
+[11@L16] invokespecial %v6.<java.util.ArrayList: void <init>()>(); [%ci1, %v5, %v6, V, this, v]
+[12@L16] %v5[v] = %v6; [%ci1, V, this, v]
+[13@L15] v = v + %ci1; [%ci1, V, this, v]
+[14@L15] goto 8; [%ci1, V, this, v]
+[15@L18] return; []
 
 -------------------- <Graph: void addEdge(int,int)> (live-var) --------------------
 [0@L21] %ci1 = 1; [%ci1, this, v, w]

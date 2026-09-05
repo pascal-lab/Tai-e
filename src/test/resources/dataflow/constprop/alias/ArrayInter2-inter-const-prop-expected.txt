@@ -1,3 +1,7 @@
+-------------------- <ArrayInter2: int get(int[],int)> (inter-const-prop) --------------------
+[0@L19] %v2 = arr[i]; {%v2=777, i=0}
+[1@L19] return %v2; {%v2=777, i=0}
+
 -------------------- <ArrayInter2: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
 [1@L4] %ci1 = 1; {}
@@ -14,8 +18,4 @@
 -------------------- <ArrayInter2: void set(int[],int,int)> (inter-const-prop) --------------------
 [0@L15] arr[i] = v; {i=0, v=777}
 [1@L16] return; {i=0, v=777}
-
--------------------- <ArrayInter2: int get(int[],int)> (inter-const-prop) --------------------
-[0@L19] %v2 = arr[i]; {%v2=777, i=0}
-[1@L19] return %v2; {%v2=777, i=0}
 

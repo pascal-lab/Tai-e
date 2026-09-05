@@ -1,11 +1,21 @@
--------------------- <AnonInner: void <init>()> (live-var) --------------------
-[0@L5] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L5] return; []
+-------------------- <AnonInner$1: int add(int)> (live-var) --------------------
+[0@L11] %v2 = this.<AnonInner$1: int val$i>; [%v2, j]
+[1@L11] %v3 = %v2 + j; [%v3]
+[2@L11] return %v3; []
+
+-------------------- <AnonInner$1: void <init>(int)> (live-var) --------------------
+[0@L8] this.<AnonInner$1: int val$i> = $1; [this]
+[1@L8] invokespecial this.<java.lang.Object: void <init>()>(); []
+[2@L8] return; []
 
 -------------------- <AnonInner: Adder makeAdder(int)> (live-var) --------------------
 [0@L8] %v1 = new AnonInner$1; [%v1, i]
 [1@L8] invokespecial %v1.<AnonInner$1: void <init>(int)>(i); [%v1]
 [2@L8] return %v1; []
+
+-------------------- <AnonInner: void <init>()> (live-var) --------------------
+[0@L5] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L5] return; []
 
 -------------------- <AnonInner: void show()> (live-var) --------------------
 [0@L17] %ci2 = 2; [%ci2]
@@ -15,14 +25,4 @@
 [4@L17] %v4 = invokeinterface %v3.<Adder: int add(int)>(%ci5); [%v1, %v4]
 [5@L17] invokevirtual %v1.<java.io.PrintStream: void println(int)>(%v4); []
 [6@L18] return; []
-
--------------------- <AnonInner$1: void <init>(int)> (live-var) --------------------
-[0@L8] this.<AnonInner$1: int val$i> = $1; [this]
-[1@L8] invokespecial this.<java.lang.Object: void <init>()>(); []
-[2@L8] return; []
-
--------------------- <AnonInner$1: int add(int)> (live-var) --------------------
-[0@L11] %v2 = this.<AnonInner$1: int val$i>; [%v2, j]
-[1@L11] %v3 = %v2 + j; [%v3]
-[2@L11] return %v3; []
 

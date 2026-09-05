@@ -1,69 +1,3 @@
--------------------- <ArrayCorner: void corner5(int)> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {x=NAC}
-[1@L-1] %ci2 = 2; {x=NAC}
-[2@L51] %ci3 = 3; {x=NAC}
-[3@L48] e = newarray int[%ci2]; {x=NAC}
-[4@L49] y = %ci1; {x=NAC, y=1}
-[5@L50] if (x <= %ci1) goto 7; {x=NAC, y=1}
-[6@L51] y = %ci3; {x=NAC, y=3}
-[7@L53] e[x] = %ci1; {x=NAC, y=NAC}
-[8@L54] e[y] = %ci2; {x=NAC, y=NAC}
-[9@L55] %v8 = e[%ci1]; {%v8=NAC, x=NAC, y=NAC}
-[10@L56] return; {%v8=NAC, x=NAC, y=NAC}
-
--------------------- <ArrayCorner: void corner8(int)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {x=NAC}
-[1@L-1] %ci1 = 1; {x=NAC}
-[2@L78] %ci2 = 2; {x=NAC}
-[3@L75] %ci3 = 3; {x=NAC}
-[4@L75] h = newarray int[%ci3]; {x=NAC}
-[5@L76] h[%ci0] = %ci0; {x=NAC}
-[6@L77] h[%ci1] = %ci1; {x=NAC}
-[7@L78] h[%ci2] = %ci0; {x=NAC}
-[8@L79] h[x] = %ci1; {x=NAC}
-[9@L80] %v9 = h[%ci0]; {%v9=NAC, x=NAC}
-[10@L81] %v10 = h[%ci1]; {%v10=1, %v9=NAC, x=NAC}
-[11@L82] return; {%v10=1, %v9=NAC, x=NAC}
-
--------------------- <ArrayCorner: void corner3(int)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {x=NAC}
-[1@L35] %ci1 = 1; {x=NAC}
-[2@L-1] %ci2 = 2; {x=NAC}
-[3@L34] c = newarray int[%ci2]; {x=NAC}
-[4@L35] c[%ci0] = %ci1; {x=NAC}
-[5@L36] c[x] = %ci2; {x=NAC}
-[6@L37] %v7 = c[%ci0]; {%v7=NAC, x=NAC}
-[7@L38] return; {%v7=NAC, x=NAC}
-
--------------------- <ArrayCorner: void corner7(int)> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {x=NAC}
-[1@L69] %ci2 = 2; {x=NAC}
-[2@L67] %ci3 = 3; {x=NAC}
-[3@L-1] %ci6 = 6; {x=NAC}
-[4@L67] g = newarray int[%ci3]; {x=NAC}
-[5@L68] g[x] = %ci1; {x=NAC}
-[6@L69] g[%ci2] = %ci6; {x=NAC}
-[7@L70] g[x] = %ci6; {x=NAC}
-[8@L71] %v8 = g[%ci1]; {%v8=NAC, x=NAC}
-[9@L72] return; {%v8=NAC, x=NAC}
-
--------------------- <ArrayCorner: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] %ci0 = 0; {}
-[1@L3] %ci1 = 1; {}
-[2@L5] %ci2 = 2; {}
-[3@L3] x = %ci1; {x=1}
-[4@L4] if (x <= %ci0) goto 6; {x=1}
-[5@L5] x = %ci2; {x=2}
-[6@L8] invokestatic <ArrayCorner: void corner1(int)>(x); {x=NAC}
-[7@L9] invokestatic <ArrayCorner: void corner2(int)>(x); {x=NAC}
-[8@L10] invokestatic <ArrayCorner: void corner3(int)>(x); {x=NAC}
-[9@L11] invokestatic <ArrayCorner: void corner4(int)>(x); {x=NAC}
-[10@L12] invokestatic <ArrayCorner: void corner5(int)>(x); {x=NAC}
-[11@L13] invokestatic <ArrayCorner: void corner6(int)>(x); {x=NAC}
-[12@L14] invokestatic <ArrayCorner: void corner7(int)>(x); {x=NAC}
-[13@L15] invokestatic <ArrayCorner: void corner8(int)>(x); {x=NAC}
-[14@L16] return; {x=NAC}
-
 -------------------- <ArrayCorner: void corner1(int)> (inter-const-prop) --------------------
 [0@L24] %ci0 = 0; {x=NAC}
 [1@L22] %ci1 = 1; {x=NAC}
@@ -83,6 +17,16 @@
 [5@L30] %v7 = b[%ci0]; {%v7=1, x=NAC}
 [6@L31] return; {%v7=1, x=NAC}
 
+-------------------- <ArrayCorner: void corner3(int)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {x=NAC}
+[1@L35] %ci1 = 1; {x=NAC}
+[2@L-1] %ci2 = 2; {x=NAC}
+[3@L34] c = newarray int[%ci2]; {x=NAC}
+[4@L35] c[%ci0] = %ci1; {x=NAC}
+[5@L36] c[x] = %ci2; {x=NAC}
+[6@L37] %v7 = c[%ci0]; {%v7=NAC, x=NAC}
+[7@L38] return; {%v7=NAC, x=NAC}
+
 -------------------- <ArrayCorner: void corner4(int)> (inter-const-prop) --------------------
 [0@L44] %ci0 = 0; {x=NAC}
 [1@L42] %ci1 = 1; {x=NAC}
@@ -92,6 +36,19 @@
 [5@L43] d[x] = %ci2; {x=NAC}
 [6@L44] %v7 = d[%ci0]; {%v7=2, x=NAC}
 [7@L45] return; {%v7=2, x=NAC}
+
+-------------------- <ArrayCorner: void corner5(int)> (inter-const-prop) --------------------
+[0@L-1] %ci1 = 1; {x=NAC}
+[1@L-1] %ci2 = 2; {x=NAC}
+[2@L51] %ci3 = 3; {x=NAC}
+[3@L48] e = newarray int[%ci2]; {x=NAC}
+[4@L49] y = %ci1; {x=NAC, y=1}
+[5@L50] if (x <= %ci1) goto 7; {x=NAC, y=1}
+[6@L51] y = %ci3; {x=NAC, y=3}
+[7@L53] e[x] = %ci1; {x=NAC, y=NAC}
+[8@L54] e[y] = %ci2; {x=NAC, y=NAC}
+[9@L55] %v8 = e[%ci1]; {%v8=NAC, x=NAC, y=NAC}
+[10@L56] return; {%v8=NAC, x=NAC, y=NAC}
 
 -------------------- <ArrayCorner: void corner6(int)> (inter-const-prop) --------------------
 [0@L60] %ci0 = 0; {x=NAC}
@@ -103,4 +60,47 @@
 [6@L62] f[x] = %ci2; {x=NAC}
 [7@L63] %v7 = f[x]; {%v7=NAC, x=NAC}
 [8@L64] return; {%v7=NAC, x=NAC}
+
+-------------------- <ArrayCorner: void corner7(int)> (inter-const-prop) --------------------
+[0@L-1] %ci1 = 1; {x=NAC}
+[1@L69] %ci2 = 2; {x=NAC}
+[2@L67] %ci3 = 3; {x=NAC}
+[3@L-1] %ci6 = 6; {x=NAC}
+[4@L67] g = newarray int[%ci3]; {x=NAC}
+[5@L68] g[x] = %ci1; {x=NAC}
+[6@L69] g[%ci2] = %ci6; {x=NAC}
+[7@L70] g[x] = %ci6; {x=NAC}
+[8@L71] %v8 = g[%ci1]; {%v8=NAC, x=NAC}
+[9@L72] return; {%v8=NAC, x=NAC}
+
+-------------------- <ArrayCorner: void corner8(int)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {x=NAC}
+[1@L-1] %ci1 = 1; {x=NAC}
+[2@L78] %ci2 = 2; {x=NAC}
+[3@L75] %ci3 = 3; {x=NAC}
+[4@L75] h = newarray int[%ci3]; {x=NAC}
+[5@L76] h[%ci0] = %ci0; {x=NAC}
+[6@L77] h[%ci1] = %ci1; {x=NAC}
+[7@L78] h[%ci2] = %ci0; {x=NAC}
+[8@L79] h[x] = %ci1; {x=NAC}
+[9@L80] %v9 = h[%ci0]; {%v9=NAC, x=NAC}
+[10@L81] %v10 = h[%ci1]; {%v10=1, %v9=NAC, x=NAC}
+[11@L82] return; {%v10=1, %v9=NAC, x=NAC}
+
+-------------------- <ArrayCorner: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] %ci0 = 0; {}
+[1@L3] %ci1 = 1; {}
+[2@L5] %ci2 = 2; {}
+[3@L3] x = %ci1; {x=1}
+[4@L4] if (x <= %ci0) goto 6; {x=1}
+[5@L5] x = %ci2; {x=2}
+[6@L8] invokestatic <ArrayCorner: void corner1(int)>(x); {x=NAC}
+[7@L9] invokestatic <ArrayCorner: void corner2(int)>(x); {x=NAC}
+[8@L10] invokestatic <ArrayCorner: void corner3(int)>(x); {x=NAC}
+[9@L11] invokestatic <ArrayCorner: void corner4(int)>(x); {x=NAC}
+[10@L12] invokestatic <ArrayCorner: void corner5(int)>(x); {x=NAC}
+[11@L13] invokestatic <ArrayCorner: void corner6(int)>(x); {x=NAC}
+[12@L14] invokestatic <ArrayCorner: void corner7(int)>(x); {x=NAC}
+[13@L15] invokestatic <ArrayCorner: void corner8(int)>(x); {x=NAC}
+[14@L16] return; {x=NAC}
 

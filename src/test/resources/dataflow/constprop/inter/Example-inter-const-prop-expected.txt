@@ -1,12 +1,3 @@
--------------------- <Example: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L7] %ci3 = 3; {}
-[1@L5] a = 6; {}
-[2@L6] b = invokestatic <Example: int addOne(int)>(a); {}
-[3@L7] %v7 = b - %ci3; {%v7=4, b=7}
-[4@L8] b#1 = invokestatic <Example: int ten()>(); {%v7=4, b=7}
-[5@L9] %v9 = a * b#1; {%v7=4, %v9=60, b=7, b#1=10}
-[6@L10] return; {%v7=4, %v9=60, b=7, b#1=10}
-
 -------------------- <Example: int addOne(int)> (inter-const-prop) --------------------
 [0@L13] %ci1 = 1; {x=6}
 [1@L13] y = x + %ci1; {x=6, y=7}
@@ -15,4 +6,13 @@
 -------------------- <Example: int ten()> (inter-const-prop) --------------------
 [0@L18] %c0 = 10; {}
 [1@L18] return %c0; {}
+
+-------------------- <Example: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L7] %ci3 = 3; {}
+[1@L5] a = 6; {}
+[2@L6] b = invokestatic <Example: int addOne(int)>(a); {}
+[3@L7] %v7 = b - %ci3; {%v7=4, b=7}
+[4@L8] b#1 = invokestatic <Example: int ten()>(); {%v7=4, b=7}
+[5@L9] %v9 = a * b#1; {%v7=4, %v9=60, b=7, b#1=10}
+[6@L10] return; {%v7=4, %v9=60, b=7, b#1=10}
 

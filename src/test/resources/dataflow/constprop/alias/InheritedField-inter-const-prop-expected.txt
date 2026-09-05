@@ -10,10 +10,13 @@
 [0@L43] this.<A: int f> = x; {x=22}
 [1@L44] return; {x=22}
 
--------------------- <InheritedField: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L3] invokestatic <InheritedField: void corner1()>(); {}
-[1@L4] invokestatic <InheritedField: void corner2()>(); {}
-[2@L5] return; {}
+-------------------- <InheritedField: int bar(A)> (inter-const-prop) --------------------
+[0@L29] %v1 = a.<A: int f>; {%v1=22}
+[1@L29] return %v1; {%v1=22}
+
+-------------------- <InheritedField: int foo(A)> (inter-const-prop) --------------------
+[0@L15] %v1 = a.<A: int f>; {%v1=22}
+[1@L15] return %v1; {%v1=22}
 
 -------------------- <InheritedField: void corner1()> (inter-const-prop) --------------------
 [0@L8] b = new B; {}
@@ -23,10 +26,6 @@
 [4@L10] %v5 = b.<B: int f>; {}
 [5@L11] invokestatic <InheritedField: int foo(A)>(b); {}
 [6@L12] return; {}
-
--------------------- <InheritedField: int foo(A)> (inter-const-prop) --------------------
-[0@L15] %v1 = a.<A: int f>; {%v1=22}
-[1@L15] return %v1; {%v1=22}
 
 -------------------- <InheritedField: void corner2()> (inter-const-prop) --------------------
 [0@L19] a = new A; {}
@@ -42,7 +41,8 @@
 [10@L25] invokestatic <InheritedField: int bar(A)>(b); {%v8=33}
 [11@L26] return; {%v8=33}
 
--------------------- <InheritedField: int bar(A)> (inter-const-prop) --------------------
-[0@L29] %v1 = a.<A: int f>; {%v1=22}
-[1@L29] return %v1; {%v1=22}
+-------------------- <InheritedField: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L3] invokestatic <InheritedField: void corner1()>(); {}
+[1@L4] invokestatic <InheritedField: void corner2()>(); {}
+[2@L5] return; {}
 

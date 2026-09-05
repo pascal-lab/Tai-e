@@ -179,8 +179,11 @@ public final class Tests {
         String ptaArgs = getPTAArgs(processResult, expectedFile, opts);
         Collections.addAll(args, "-a", PointerAnalysis.ID + "=" + ptaArgs);
         Main.main(args.toArray(new String[0]));
-        // move expected file
-        if (processResult && GENERATE_EXPECTED_RESULTS) {
+        // Move the expected file only for the non-interactive run. Interactive
+        // taint analysis reinitializes plugins in the same solver and would
+        // overwrite the ground truth with its second run.
+        if (processResult && GENERATE_EXPECTED_RESULTS
+                && !Arrays.asList(opts).contains("taint-interactive-mode:true")) {
             try {
                 Path from = new File(World.get().getOptions().getOutputDir(),
                         pascal.taie.analysis.pta.plugin.ResultProcessor.RESULTS_FILE).toPath();

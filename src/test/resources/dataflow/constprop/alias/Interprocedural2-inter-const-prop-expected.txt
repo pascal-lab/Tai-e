@@ -1,3 +1,27 @@
+-------------------- <Interprocedural2$X: int getF()> (inter-const-prop) --------------------
+[0@L15] %v1 = this.<Interprocedural2$X: int f>; {%v1=123}
+[1@L15] return %v1; {%v1=123}
+
+-------------------- <Interprocedural2$X: void <init>()> (inter-const-prop) --------------------
+[0@L11] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L11] return; {}
+
+-------------------- <Interprocedural2$X: void setF(int)> (inter-const-prop) --------------------
+[0@L19] this.<Interprocedural2$X: int f> = f; {f=123}
+[1@L20] return; {f=123}
+
+-------------------- <Interprocedural2$Y: int getG()> (inter-const-prop) --------------------
+[0@L27] %v1 = this.<Interprocedural2$Y: int g>; {%v1=789}
+[1@L27] return %v1; {%v1=789}
+
+-------------------- <Interprocedural2$Y: void <init>()> (inter-const-prop) --------------------
+[0@L23] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L23] return; {}
+
+-------------------- <Interprocedural2$Y: void setG(int)> (inter-const-prop) --------------------
+[0@L31] this.<Interprocedural2$Y: int g> = g; {g=789}
+[1@L32] return; {g=789}
+
 -------------------- <Interprocedural2: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L3] x = new Interprocedural2$X; {}
 [1@L3] invokespecial x.<Interprocedural2$X: void <init>()>(); {}
@@ -10,28 +34,4 @@
 [8@L7] invokevirtual y.<Interprocedural2$Y: void setG(int)>(%c8); {}
 [9@L8] invokevirtual y.<Interprocedural2$Y: int getG()>(); {}
 [10@L9] return; {}
-
--------------------- <Interprocedural2$X: void <init>()> (inter-const-prop) --------------------
-[0@L11] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L11] return; {}
-
--------------------- <Interprocedural2$X: int getF()> (inter-const-prop) --------------------
-[0@L15] %v1 = this.<Interprocedural2$X: int f>; {%v1=123}
-[1@L15] return %v1; {%v1=123}
-
--------------------- <Interprocedural2$X: void setF(int)> (inter-const-prop) --------------------
-[0@L19] this.<Interprocedural2$X: int f> = f; {f=123}
-[1@L20] return; {f=123}
-
--------------------- <Interprocedural2$Y: void <init>()> (inter-const-prop) --------------------
-[0@L23] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L23] return; {}
-
--------------------- <Interprocedural2$Y: int getG()> (inter-const-prop) --------------------
-[0@L27] %v1 = this.<Interprocedural2$Y: int g>; {%v1=789}
-[1@L27] return %v1; {%v1=789}
-
--------------------- <Interprocedural2$Y: void setG(int)> (inter-const-prop) --------------------
-[0@L31] this.<Interprocedural2$Y: int g> = g; {g=789}
-[1@L32] return; {g=789}
 

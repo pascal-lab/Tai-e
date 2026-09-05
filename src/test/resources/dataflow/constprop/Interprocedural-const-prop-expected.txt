@@ -1,11 +1,13 @@
+-------------------- <Interprocedural: int id(int)> (const-prop) --------------------
+[0@L19] return x; {x=NAC}
+
+-------------------- <Interprocedural: int ten()> (const-prop) --------------------
+[0@L15] %c1 = 10; {}
+[1@L15] return %c1; {}
+
 -------------------- <Interprocedural: void <init>()> (const-prop) --------------------
 [0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L1] return; {}
-
--------------------- <Interprocedural: void param(int,boolean)> (const-prop) --------------------
-[0@L5] %c6 = 10; {b=NAC, i=NAC}
-[1@L5] %v7 = i + %c6; {%v7=NAC, b=NAC, i=NAC}
-[2@L7] return; {%v7=NAC, b=NAC, i=NAC}
 
 -------------------- <Interprocedural: void invoke()> (const-prop) --------------------
 [0@L10] invokevirtual this.<Interprocedural: int ten()>(); {}
@@ -13,10 +15,8 @@
 [2@L11] invokevirtual this.<Interprocedural: int id(int)>(%c3); {}
 [3@L12] return; {}
 
--------------------- <Interprocedural: int ten()> (const-prop) --------------------
-[0@L15] %c1 = 10; {}
-[1@L15] return %c1; {}
-
--------------------- <Interprocedural: int id(int)> (const-prop) --------------------
-[0@L19] return x; {x=NAC}
+-------------------- <Interprocedural: void param(int,boolean)> (const-prop) --------------------
+[0@L5] %c6 = 10; {b=NAC, i=NAC}
+[1@L5] %v7 = i + %c6; {%v7=NAC, b=NAC, i=NAC}
+[2@L7] return; {%v7=NAC, b=NAC, i=NAC}
 

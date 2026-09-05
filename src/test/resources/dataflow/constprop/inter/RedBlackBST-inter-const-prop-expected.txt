@@ -6,77 +6,39 @@
 [4@L13] this.<Node: int size> = size; {color=1, key=NAC, size=1, val=NAC}
 [5@L14] return; {color=1, key=NAC, size=1, val=NAC}
 
--------------------- <RedBlackBST: boolean isSizeConsistent(Node)> (inter-const-prop) --------------------
+-------------------- <RedBlackBST: Node balance(Node)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
-[1@L-1] %ci1 = 1; {}
-[2@L378] if (x != $null) goto 4; {}
-[3@L378] return %ci1; {}
-[4@L379] %v4 = x.<Node: int size>; {%v4=NAC}
-[5@L379] %v5 = x.<Node: Node left>; {%v4=NAC}
-[6@L379] %v6 = invokevirtual this.<RedBlackBST: int size(Node)>(%v5); {%v4=NAC}
-[7@L379] %v7 = x.<Node: Node right>; {%v4=NAC, %v6=NAC}
-[8@L379] %v8 = invokevirtual this.<RedBlackBST: int size(Node)>(%v7); {%v4=NAC, %v6=NAC}
-[9@L379] %v9 = %v6 + %v8; {%v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[10@L379] %v10 = %v9 + %ci1; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[11@L379] if (%v4 == %v10) goto 13; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[12@L379] return %ci0; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[13@L380] %v12 = x.<Node: Node left>; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[14@L380] %v13 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v12); {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[15@L380] if (%v13 == %ci0) goto 21; {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[16@L380] %v14 = x.<Node: Node right>; {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[17@L380] %v15 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v14); {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[18@L380] if (%v15 == %ci0) goto 21; {%v10=NAC, %v13=NAC, %v15=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[19@L380] %v16 = %ci1; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=1, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[20@L380] goto 22; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=1, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[21@L380] %v16 = %ci0; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=0, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-[22@L380] return %v16; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
-
--------------------- <RedBlackBST: boolean isBST(Node,int,int)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {max=NAC, min=NAC}
-[1@L-1] %ci1 = 1; {max=NAC, min=NAC}
-[2@L367] if (x != $null) goto 4; {max=NAC, min=NAC}
-[3@L367] return %ci1; {max=NAC, min=NAC}
-[4@L368] %c6 = 114514; {max=NAC, min=NAC}
-[5@L368] if (min == %c6) goto 10; {max=NAC, min=NAC}
-[6@L368] %v7 = x.<Node: int key>; {%v7=NAC, max=NAC, min=NAC}
-[7@L368] %v8 = %v7 - min; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[8@L368] if (%v8 > %ci0) goto 10; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[9@L368] return %ci0; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[10@L369] %c10 = 114514; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[11@L369] if (max == %c10) goto 16; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[12@L369] %v11 = x.<Node: int key>; {%v11=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[13@L369] %v12 = %v11 - max; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[14@L369] if (%v12 < %ci0) goto 16; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[15@L369] return %ci0; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[16@L370] %v13 = x.<Node: Node left>; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[17@L370] %v14 = x.<Node: int key>; {%v11=NAC, %v12=NAC, %v14=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[18@L370] %v15 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v13, min, %v14); {%v11=NAC, %v12=NAC, %v14=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[19@L370] if (%v15 == %ci0) goto 26; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[20@L370] %v16 = x.<Node: Node right>; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[21@L370] %v17 = x.<Node: int key>; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[22@L370] %v18 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v16, %v17, max); {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[23@L370] if (%v18 == %ci0) goto 26; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[24@L370] %v19 = %ci1; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=1, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[25@L370] goto 27; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=1, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[26@L370] %v19 = %ci0; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=0, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-[27@L370] return %v19; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
-
--------------------- <RedBlackBST: int get(Node,int)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {key=NAC}
-[1@L52] if (x == $null) goto 13; {%v5=NAC, cmp=NAC, key=NAC}
-[2@L53] %v5 = x.<Node: int key>; {%v5=NAC, cmp=NAC, key=NAC}
-[3@L53] cmp = key - %v5; {%v5=NAC, cmp=NAC, key=NAC}
-[4@L54] if (cmp >= %ci0) goto 7; {%v5=NAC, cmp=NAC, key=NAC}
-[5@L54] x = x.<Node: Node left>; {%v5=NAC, cmp=NAC, key=NAC}
-[6@L54] goto 12; {%v5=NAC, cmp=NAC, key=NAC}
-[7@L55] if (cmp <= %ci0) goto 10; {%v5=NAC, cmp=NAC, key=NAC}
-[8@L55] x = x.<Node: Node right>; {%v5=NAC, cmp=NAC, key=NAC}
-[9@L55] goto 12; {%v5=NAC, cmp=NAC, key=NAC}
-[10@L56] %v8 = x.<Node: int val>; {%v5=NAC, %v8=NAC, cmp=NAC, key=NAC}
-[11@L56] return %v8; {%v5=NAC, %v8=NAC, cmp=NAC, key=NAC}
-[12@L57] goto 1; {%v5=NAC, cmp=NAC, key=NAC}
-[13@L58] %c9 = 114514; {%v5=NAC, cmp=NAC, key=NAC}
-[14@L58] return %c9; {%v5=NAC, cmp=NAC, key=NAC}
+[1@L247] %ci1 = 1; {}
+[2@L243] %v2 = h.<Node: Node right>; {}
+[3@L243] %v3 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v2); {}
+[4@L243] if (%v3 == %ci0) goto 9; {%v3=NAC}
+[5@L243] %v5 = h.<Node: Node left>; {%v3=NAC}
+[6@L243] %v6 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v5); {%v3=NAC}
+[7@L243] if (%v6 != %ci0) goto 9; {%v3=NAC, %v6=NAC}
+[8@L243] h = invokevirtual this.<RedBlackBST: Node rotateLeft(Node)>(h); {%v3=NAC, %v6=NAC}
+[9@L244] %v7 = h.<Node: Node left>; {%v3=NAC, %v6=NAC}
+[10@L244] %v8 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v7); {%v3=NAC, %v6=NAC}
+[11@L244] if (%v8 == %ci0) goto 17; {%v3=NAC, %v6=NAC, %v8=NAC}
+[12@L244] %v9 = h.<Node: Node left>; {%v3=NAC, %v6=NAC, %v8=NAC}
+[13@L244] %v10 = %v9.<Node: Node left>; {%v3=NAC, %v6=NAC, %v8=NAC}
+[14@L244] %v11 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v10); {%v3=NAC, %v6=NAC, %v8=NAC}
+[15@L244] if (%v11 == %ci0) goto 17; {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[16@L244] h = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(h); {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[17@L245] %v12 = h.<Node: Node left>; {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[18@L245] %v13 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v12); {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[19@L245] if (%v13 == %ci0) goto 24; {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[20@L245] %v14 = h.<Node: Node right>; {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[21@L245] %v15 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v14); {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[22@L245] if (%v15 == %ci0) goto 24; {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[23@L245] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[24@L247] %v16 = h.<Node: Node left>; {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[25@L247] %v17 = invokevirtual this.<RedBlackBST: int size(Node)>(%v16); {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[26@L247] %v18 = h.<Node: Node right>; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[27@L247] %v19 = invokevirtual this.<RedBlackBST: int size(Node)>(%v18); {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[28@L247] %v21 = %v17 + %v19; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[29@L247] %v22 = %v21 + %ci1; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[30@L247] h.<Node: int size> = %v22; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+[31@L248] return h; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
 
 -------------------- <RedBlackBST: Node delete(Node,int)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {key=NAC}
@@ -132,6 +94,58 @@
 [50@L181] %v35 = invokevirtual this.<RedBlackBST: Node balance(Node)>(h); {%v11=NAC, %v15=NAC, %v16=NAC, %v17=NAC, %v21=NAC, %v24=NAC, %v25=NAC, %v26=NAC, %v29=NAC, %v30=NAC, %v4=NAC, %v5=NAC, %v8=NAC, key=NAC}
 [51@L181] return %v35; {%v11=NAC, %v15=NAC, %v16=NAC, %v17=NAC, %v21=NAC, %v24=NAC, %v25=NAC, %v26=NAC, %v29=NAC, %v30=NAC, %v4=NAC, %v5=NAC, %v8=NAC, key=NAC}
 
+-------------------- <RedBlackBST: Node deleteMin(Node)> (inter-const-prop) --------------------
+[0@L110] %ci0 = 0; {}
+[1@L107] %v2 = h.<Node: Node left>; {}
+[2@L107] if (%v2 != $null) goto 4; {}
+[3@L108] return $null; {}
+[4@L110] %v4 = h.<Node: Node left>; {}
+[5@L110] %v5 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v4); {}
+[6@L110] if (%v5 != %ci0) goto 12; {%v5=NAC}
+[7@L110] %v7 = h.<Node: Node left>; {%v5=NAC}
+[8@L110] %v8 = %v7.<Node: Node left>; {%v5=NAC}
+[9@L110] %v9 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v8); {%v5=NAC}
+[10@L110] if (%v9 != %ci0) goto 12; {%v5=NAC, %v9=NAC}
+[11@L111] h = invokevirtual this.<RedBlackBST: Node moveRedLeft(Node)>(h); {%v5=NAC, %v9=NAC}
+[12@L113] %v10 = h.<Node: Node left>; {%v5=NAC, %v9=NAC}
+[13@L113] %v11 = invokevirtual this.<RedBlackBST: Node deleteMin(Node)>(%v10); {%v5=NAC, %v9=NAC}
+[14@L113] h.<Node: Node left> = %v11; {%v5=NAC, %v9=NAC}
+[15@L114] %v12 = invokevirtual this.<RedBlackBST: Node balance(Node)>(h); {%v5=NAC, %v9=NAC}
+[16@L114] return %v12; {%v5=NAC, %v9=NAC}
+
+-------------------- <RedBlackBST: Node min(Node)> (inter-const-prop) --------------------
+[0@L267] %v2 = x.<Node: Node left>; {}
+[1@L267] if (%v2 != $null) goto 3; {}
+[2@L267] return x; {}
+[3@L268] %v4 = x.<Node: Node left>; {}
+[4@L268] %v5 = invokevirtual this.<RedBlackBST: Node min(Node)>(%v4); {}
+[5@L268] return %v5; {}
+
+-------------------- <RedBlackBST: Node moveRedLeft(Node)> (inter-const-prop) --------------------
+[0@L221] %ci0 = 0; {}
+[1@L220] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {}
+[2@L221] %v2 = h.<Node: Node right>; {}
+[3@L221] %v3 = %v2.<Node: Node left>; {}
+[4@L221] %v4 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v3); {}
+[5@L221] if (%v4 == %ci0) goto 11; {%v4=NAC}
+[6@L222] %v6 = h.<Node: Node right>; {%v4=NAC}
+[7@L222] %v7 = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(%v6); {%v4=NAC}
+[8@L222] h.<Node: Node right> = %v7; {%v4=NAC}
+[9@L223] h = invokevirtual this.<RedBlackBST: Node rotateLeft(Node)>(h); {%v4=NAC}
+[10@L224] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v4=NAC}
+[11@L226] return h; {%v4=NAC}
+
+-------------------- <RedBlackBST: Node moveRedRight(Node)> (inter-const-prop) --------------------
+[0@L233] %ci0 = 0; {}
+[1@L232] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {}
+[2@L233] %v2 = h.<Node: Node left>; {}
+[3@L233] %v3 = %v2.<Node: Node left>; {}
+[4@L233] %v4 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v3); {}
+[5@L233] if (%v4 == %ci0) goto 8; {%v4=NAC}
+[6@L234] h = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(h); {%v4=NAC}
+[7@L235] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v4=NAC}
+[8@L237] return h; {%v4=NAC}
+
 -------------------- <RedBlackBST: Node put(Node,int,int)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {key=NAC, val=NAC}
 [1@L-1] %ci1 = 1; {key=NAC, val=NAC}
@@ -183,66 +197,81 @@
 [47@L89] h.<Node: int size> = %v33; {%v16=NAC, %v18=NAC, %v20=NAC, %v23=NAC, %v25=NAC, %v27=NAC, %v29=NAC, %v31=NAC, %v32=NAC, %v33=NAC, %v8=NAC, cmp=NAC, key=NAC, val=NAC}
 [48@L91] return h; {%v16=NAC, %v18=NAC, %v20=NAC, %v23=NAC, %v25=NAC, %v27=NAC, %v29=NAC, %v31=NAC, %v32=NAC, %v33=NAC, %v8=NAC, cmp=NAC, key=NAC, val=NAC}
 
--------------------- <RedBlackBST: Node balance(Node)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L247] %ci1 = 1; {}
-[2@L243] %v2 = h.<Node: Node right>; {}
-[3@L243] %v3 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v2); {}
-[4@L243] if (%v3 == %ci0) goto 9; {%v3=NAC}
-[5@L243] %v5 = h.<Node: Node left>; {%v3=NAC}
-[6@L243] %v6 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v5); {%v3=NAC}
-[7@L243] if (%v6 != %ci0) goto 9; {%v3=NAC, %v6=NAC}
-[8@L243] h = invokevirtual this.<RedBlackBST: Node rotateLeft(Node)>(h); {%v3=NAC, %v6=NAC}
-[9@L244] %v7 = h.<Node: Node left>; {%v3=NAC, %v6=NAC}
-[10@L244] %v8 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v7); {%v3=NAC, %v6=NAC}
-[11@L244] if (%v8 == %ci0) goto 17; {%v3=NAC, %v6=NAC, %v8=NAC}
-[12@L244] %v9 = h.<Node: Node left>; {%v3=NAC, %v6=NAC, %v8=NAC}
-[13@L244] %v10 = %v9.<Node: Node left>; {%v3=NAC, %v6=NAC, %v8=NAC}
-[14@L244] %v11 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v10); {%v3=NAC, %v6=NAC, %v8=NAC}
-[15@L244] if (%v11 == %ci0) goto 17; {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[16@L244] h = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(h); {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[17@L245] %v12 = h.<Node: Node left>; {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[18@L245] %v13 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v12); {%v11=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[19@L245] if (%v13 == %ci0) goto 24; {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[20@L245] %v14 = h.<Node: Node right>; {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[21@L245] %v15 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v14); {%v11=NAC, %v13=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[22@L245] if (%v15 == %ci0) goto 24; {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[23@L245] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[24@L247] %v16 = h.<Node: Node left>; {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[25@L247] %v17 = invokevirtual this.<RedBlackBST: int size(Node)>(%v16); {%v11=NAC, %v13=NAC, %v15=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[26@L247] %v18 = h.<Node: Node right>; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[27@L247] %v19 = invokevirtual this.<RedBlackBST: int size(Node)>(%v18); {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[28@L247] %v21 = %v17 + %v19; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[29@L247] %v22 = %v21 + %ci1; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[30@L247] h.<Node: int size> = %v22; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
-[31@L248] return h; {%v11=NAC, %v13=NAC, %v15=NAC, %v17=NAC, %v19=NAC, %v21=NAC, %v22=NAC, %v3=NAC, %v6=NAC, %v8=NAC}
+-------------------- <RedBlackBST: Node rotateLeft(Node)> (inter-const-prop) --------------------
+[0@L-1] %ci1 = 1; {}
+[1@L196] x = h.<Node: Node right>; {}
+[2@L197] %v4 = x.<Node: Node left>; {}
+[3@L197] h.<Node: Node right> = %v4; {}
+[4@L198] x.<Node: Node left> = h; {}
+[5@L199] %v5 = x.<Node: Node left>; {}
+[6@L199] %v6 = %v5.<Node: boolean color>; {%v6=NAC}
+[7@L199] x.<Node: boolean color> = %v6; {%v6=NAC}
+[8@L200] %v8 = x.<Node: Node left>; {%v6=NAC}
+[9@L200] %v8.<Node: boolean color> = %ci1; {%v6=NAC}
+[10@L201] %v9 = h.<Node: int size>; {%v6=NAC, %v9=NAC}
+[11@L201] x.<Node: int size> = %v9; {%v6=NAC, %v9=NAC}
+[12@L202] %v10 = h.<Node: Node left>; {%v6=NAC, %v9=NAC}
+[13@L202] %v11 = invokevirtual this.<RedBlackBST: int size(Node)>(%v10); {%v6=NAC, %v9=NAC}
+[14@L202] %v12 = h.<Node: Node right>; {%v11=NAC, %v6=NAC, %v9=NAC}
+[15@L202] %v13 = invokevirtual this.<RedBlackBST: int size(Node)>(%v12); {%v11=NAC, %v6=NAC, %v9=NAC}
+[16@L202] %v14 = %v11 + %v13; {%v11=NAC, %v13=NAC, %v14=NAC, %v6=NAC, %v9=NAC}
+[17@L202] %v15 = %v14 + %ci1; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+[18@L202] h.<Node: int size> = %v15; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+[19@L203] return x; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
 
--------------------- <RedBlackBST: boolean isRed(Node)> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L30] %ci1 = 1; {}
-[2@L29] if (x != $null) goto 4; {}
-[3@L29] return %ci0; {}
-[4@L30] %v5 = x.<Node: boolean color>; {%v5=NAC}
-[5@L30] if (%v5 != %ci1) goto 8; {%v5=NAC}
-[6@L30] %v6 = %ci1; {%v5=NAC, %v6=1}
-[7@L30] goto 9; {%v5=NAC, %v6=1}
-[8@L30] %v6 = %ci0; {%v5=NAC, %v6=0}
-[9@L30] return %v6; {%v5=NAC, %v6=NAC}
+-------------------- <RedBlackBST: Node rotateRight(Node)> (inter-const-prop) --------------------
+[0@L-1] %ci1 = 1; {}
+[1@L185] x = h.<Node: Node left>; {}
+[2@L186] %v4 = x.<Node: Node right>; {}
+[3@L186] h.<Node: Node left> = %v4; {}
+[4@L187] x.<Node: Node right> = h; {}
+[5@L188] %v5 = x.<Node: Node right>; {}
+[6@L188] %v6 = %v5.<Node: boolean color>; {%v6=NAC}
+[7@L188] x.<Node: boolean color> = %v6; {%v6=NAC}
+[8@L189] %v8 = x.<Node: Node right>; {%v6=NAC}
+[9@L189] %v8.<Node: boolean color> = %ci1; {%v6=NAC}
+[10@L190] %v9 = h.<Node: int size>; {%v6=NAC, %v9=NAC}
+[11@L190] x.<Node: int size> = %v9; {%v6=NAC, %v9=NAC}
+[12@L191] %v10 = h.<Node: Node left>; {%v6=NAC, %v9=NAC}
+[13@L191] %v11 = invokevirtual this.<RedBlackBST: int size(Node)>(%v10); {%v6=NAC, %v9=NAC}
+[14@L191] %v12 = h.<Node: Node right>; {%v11=NAC, %v6=NAC, %v9=NAC}
+[15@L191] %v13 = invokevirtual this.<RedBlackBST: int size(Node)>(%v12); {%v11=NAC, %v6=NAC, %v9=NAC}
+[16@L191] %v14 = %v11 + %v13; {%v11=NAC, %v13=NAC, %v14=NAC, %v6=NAC, %v9=NAC}
+[17@L191] %v15 = %v14 + %ci1; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+[18@L191] h.<Node: int size> = %v15; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+[19@L192] return x; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
 
--------------------- <RedBlackBST: boolean isBalanced()> (inter-const-prop) --------------------
-[0@L-1] %ci0 = 0; {}
-[1@L399] %ci1 = 1; {}
-[2@L396] black = %ci0; {black=0}
-[3@L397] x = this.<RedBlackBST: Node root>; {black=0}
-[4@L398] if (x == $null) goto 10; {%v5=NAC, black=NAC}
-[5@L399] %v5 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(x); {%v5=NAC, black=NAC}
-[6@L399] if (%v5 != %ci0) goto 8; {%v5=NAC, black=NAC}
-[7@L399] black = black + %ci1; {%v5=NAC, black=NAC}
-[8@L400] x = x.<Node: Node left>; {%v5=NAC, black=NAC}
-[9@L400] goto 4; {%v5=NAC, black=NAC}
-[10@L402] %v7 = this.<RedBlackBST: Node root>; {%v5=NAC, black=NAC}
-[11@L402] %v8 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v7, black); {%v5=NAC, black=NAC}
-[12@L402] return %v8; {%v5=NAC, %v8=NAC, black=NAC}
+-------------------- <RedBlackBST: boolean check()> (inter-const-prop) --------------------
+[0@L359] %ci0 = 0; {}
+[1@L359] %ci1 = 1; {}
+[2@L359] %v1 = invokevirtual this.<RedBlackBST: boolean isBST()>(); {}
+[3@L359] if (%v1 == %ci0) goto 12; {%v1=NAC}
+[4@L359] %v3 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent()>(); {%v1=NAC}
+[5@L359] if (%v3 == %ci0) goto 12; {%v1=NAC, %v3=NAC}
+[6@L359] %v4 = invokevirtual this.<RedBlackBST: boolean is23()>(); {%v1=NAC, %v3=NAC}
+[7@L359] if (%v4 == %ci0) goto 12; {%v1=NAC, %v3=NAC, %v4=NAC}
+[8@L359] %v5 = invokevirtual this.<RedBlackBST: boolean isBalanced()>(); {%v1=NAC, %v3=NAC, %v4=NAC}
+[9@L359] if (%v5 == %ci0) goto 12; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC}
+[10@L359] %v7 = %ci1; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=1}
+[11@L359] goto 13; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=1}
+[12@L359] %v7 = %ci0; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=0}
+[13@L359] return %v7; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=NAC}
+
+-------------------- <RedBlackBST: boolean contains(int)> (inter-const-prop) --------------------
+[0@L62] %ci0 = 0; {key=NAC}
+[1@L62] %ci1 = 1; {key=NAC}
+[2@L62] %v3 = invokevirtual this.<RedBlackBST: int get(int)>(key); {key=NAC}
+[3@L62] %c2 = 114514; {%v3=NAC, key=NAC}
+[4@L62] if (%v3 == %c2) goto 7; {%v3=NAC, key=NAC}
+[5@L62] %v6 = %ci1; {%v3=NAC, %v6=1, key=NAC}
+[6@L62] goto 8; {%v3=NAC, %v6=1, key=NAC}
+[7@L62] %v6 = %ci0; {%v3=NAC, %v6=0, key=NAC}
+[8@L62] return %v6; {%v3=NAC, %v6=NAC, key=NAC}
+
+-------------------- <RedBlackBST: boolean is23()> (inter-const-prop) --------------------
+[0@L384] %v1 = this.<RedBlackBST: Node root>; {}
+[1@L384] %v2 = invokevirtual this.<RedBlackBST: boolean is23(Node)>(%v1); {}
+[2@L384] return %v2; {%v2=NAC}
 
 -------------------- <RedBlackBST: boolean is23(Node)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
@@ -272,76 +301,170 @@
 [24@L392] %v15 = %ci0; {%v10=NAC, %v12=NAC, %v14=NAC, %v15=0, %v5=NAC, %v8=NAC}
 [25@L392] return %v15; {%v10=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v5=NAC, %v8=NAC}
 
--------------------- <RedBlackBST: Node rotateLeft(Node)> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L196] x = h.<Node: Node right>; {}
-[2@L197] %v4 = x.<Node: Node left>; {}
-[3@L197] h.<Node: Node right> = %v4; {}
-[4@L198] x.<Node: Node left> = h; {}
-[5@L199] %v5 = x.<Node: Node left>; {}
-[6@L199] %v6 = %v5.<Node: boolean color>; {%v6=NAC}
-[7@L199] x.<Node: boolean color> = %v6; {%v6=NAC}
-[8@L200] %v8 = x.<Node: Node left>; {%v6=NAC}
-[9@L200] %v8.<Node: boolean color> = %ci1; {%v6=NAC}
-[10@L201] %v9 = h.<Node: int size>; {%v6=NAC, %v9=NAC}
-[11@L201] x.<Node: int size> = %v9; {%v6=NAC, %v9=NAC}
-[12@L202] %v10 = h.<Node: Node left>; {%v6=NAC, %v9=NAC}
-[13@L202] %v11 = invokevirtual this.<RedBlackBST: int size(Node)>(%v10); {%v6=NAC, %v9=NAC}
-[14@L202] %v12 = h.<Node: Node right>; {%v11=NAC, %v6=NAC, %v9=NAC}
-[15@L202] %v13 = invokevirtual this.<RedBlackBST: int size(Node)>(%v12); {%v11=NAC, %v6=NAC, %v9=NAC}
-[16@L202] %v14 = %v11 + %v13; {%v11=NAC, %v13=NAC, %v14=NAC, %v6=NAC, %v9=NAC}
-[17@L202] %v15 = %v14 + %ci1; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
-[18@L202] h.<Node: int size> = %v15; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
-[19@L203] return x; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+-------------------- <RedBlackBST: boolean isBST()> (inter-const-prop) --------------------
+[0@L363] %v3 = this.<RedBlackBST: Node root>; {}
+[1@L363] %c2 = 114514; {}
+[2@L363] %c1 = 114514; {}
+[3@L363] %v4 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v3, %c2, %c1); {}
+[4@L363] return %v4; {%v4=NAC}
 
--------------------- <RedBlackBST: void flipColors(Node)> (inter-const-prop) --------------------
+-------------------- <RedBlackBST: boolean isBST(Node,int,int)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {max=NAC, min=NAC}
+[1@L-1] %ci1 = 1; {max=NAC, min=NAC}
+[2@L367] if (x != $null) goto 4; {max=NAC, min=NAC}
+[3@L367] return %ci1; {max=NAC, min=NAC}
+[4@L368] %c6 = 114514; {max=NAC, min=NAC}
+[5@L368] if (min == %c6) goto 10; {max=NAC, min=NAC}
+[6@L368] %v7 = x.<Node: int key>; {%v7=NAC, max=NAC, min=NAC}
+[7@L368] %v8 = %v7 - min; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[8@L368] if (%v8 > %ci0) goto 10; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[9@L368] return %ci0; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[10@L369] %c10 = 114514; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[11@L369] if (max == %c10) goto 16; {%v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[12@L369] %v11 = x.<Node: int key>; {%v11=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[13@L369] %v12 = %v11 - max; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[14@L369] if (%v12 < %ci0) goto 16; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[15@L369] return %ci0; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[16@L370] %v13 = x.<Node: Node left>; {%v11=NAC, %v12=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[17@L370] %v14 = x.<Node: int key>; {%v11=NAC, %v12=NAC, %v14=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[18@L370] %v15 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v13, min, %v14); {%v11=NAC, %v12=NAC, %v14=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[19@L370] if (%v15 == %ci0) goto 26; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[20@L370] %v16 = x.<Node: Node right>; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[21@L370] %v17 = x.<Node: int key>; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[22@L370] %v18 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v16, %v17, max); {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[23@L370] if (%v18 == %ci0) goto 26; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[24@L370] %v19 = %ci1; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=1, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[25@L370] goto 27; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=1, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[26@L370] %v19 = %ci0; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=0, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+[27@L370] return %v19; {%v11=NAC, %v12=NAC, %v14=NAC, %v15=NAC, %v17=NAC, %v18=NAC, %v19=NAC, %v7=NAC, %v8=NAC, max=NAC, min=NAC}
+
+-------------------- <RedBlackBST: boolean isBalanced()> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {}
+[1@L399] %ci1 = 1; {}
+[2@L396] black = %ci0; {black=0}
+[3@L397] x = this.<RedBlackBST: Node root>; {black=0}
+[4@L398] if (x == $null) goto 10; {%v5=NAC, black=NAC}
+[5@L399] %v5 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(x); {%v5=NAC, black=NAC}
+[6@L399] if (%v5 != %ci0) goto 8; {%v5=NAC, black=NAC}
+[7@L399] black = black + %ci1; {%v5=NAC, black=NAC}
+[8@L400] x = x.<Node: Node left>; {%v5=NAC, black=NAC}
+[9@L400] goto 4; {%v5=NAC, black=NAC}
+[10@L402] %v7 = this.<RedBlackBST: Node root>; {%v5=NAC, black=NAC}
+[11@L402] %v8 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v7, black); {%v5=NAC, black=NAC}
+[12@L402] return %v8; {%v5=NAC, %v8=NAC, black=NAC}
+
+-------------------- <RedBlackBST: boolean isBalanced(Node,int)> (inter-const-prop) --------------------
+[0@L407] %ci-1 = -1; {black=NAC}
+[1@L-1] %ci0 = 0; {black=NAC}
+[2@L-1] %ci1 = 1; {black=NAC}
+[3@L406] if (x != $null) goto 9; {black=NAC}
+[4@L406] if (black != %ci0) goto 7; {black=NAC}
+[5@L408] %v6 = %ci1; {%v6=1, black=NAC}
+[6@L406] goto 8; {%v6=1, black=NAC}
+[7@L408] %v6 = %ci0; {%v6=0, black=NAC}
+[8@L406] return %v6; {%v6=NAC, black=NAC}
+[9@L407] %v7 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(x); {black=NAC}
+[10@L407] if (%v7 != %ci0) goto 12; {%v7=NAC, black=NAC}
+[11@L407] black = black + %ci-1; {%v7=NAC, black=NAC}
+[12@L408] %v9 = x.<Node: Node left>; {%v7=NAC, black=NAC}
+[13@L408] %v10 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v9, black); {%v7=NAC, black=NAC}
+[14@L408] if (%v10 == %ci0) goto 20; {%v10=NAC, %v7=NAC, black=NAC}
+[15@L408] %v11 = x.<Node: Node right>; {%v10=NAC, %v7=NAC, black=NAC}
+[16@L408] %v12 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v11, black); {%v10=NAC, %v7=NAC, black=NAC}
+[17@L408] if (%v12 == %ci0) goto 20; {%v10=NAC, %v12=NAC, %v7=NAC, black=NAC}
+[18@L408] %v13 = %ci1; {%v10=NAC, %v12=NAC, %v13=1, %v7=NAC, black=NAC}
+[19@L408] goto 21; {%v10=NAC, %v12=NAC, %v13=1, %v7=NAC, black=NAC}
+[20@L408] %v13 = %ci0; {%v10=NAC, %v12=NAC, %v13=0, %v7=NAC, black=NAC}
+[21@L408] return %v13; {%v10=NAC, %v12=NAC, %v13=NAC, %v7=NAC, black=NAC}
+
+-------------------- <RedBlackBST: boolean isEmpty()> (inter-const-prop) --------------------
+[0@L43] %ci0 = 0; {}
+[1@L43] %ci1 = 1; {}
+[2@L43] %v1 = this.<RedBlackBST: Node root>; {}
+[3@L43] if (%v1 != $null) goto 6; {}
+[4@L43] %v5 = %ci1; {%v5=1}
+[5@L43] goto 7; {%v5=1}
+[6@L43] %v5 = %ci0; {%v5=0}
+[7@L43] return %v5; {%v5=NAC}
+
+-------------------- <RedBlackBST: boolean isRed(Node)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {}
+[1@L30] %ci1 = 1; {}
+[2@L29] if (x != $null) goto 4; {}
+[3@L29] return %ci0; {}
+[4@L30] %v5 = x.<Node: boolean color>; {%v5=NAC}
+[5@L30] if (%v5 != %ci1) goto 8; {%v5=NAC}
+[6@L30] %v6 = %ci1; {%v5=NAC, %v6=1}
+[7@L30] goto 9; {%v5=NAC, %v6=1}
+[8@L30] %v6 = %ci0; {%v5=NAC, %v6=0}
+[9@L30] return %v6; {%v5=NAC, %v6=NAC}
+
+-------------------- <RedBlackBST: boolean isSizeConsistent()> (inter-const-prop) --------------------
+[0@L374] %v1 = this.<RedBlackBST: Node root>; {}
+[1@L374] %v2 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v1); {}
+[2@L374] return %v2; {%v2=NAC}
+
+-------------------- <RedBlackBST: boolean isSizeConsistent(Node)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {}
 [1@L-1] %ci1 = 1; {}
-[2@L211] %v2 = h.<Node: boolean color>; {%v2=NAC}
-[3@L211] if (%v2 != %ci0) goto 6; {%v2=NAC}
-[4@L214] %v5 = %ci1; {%v2=NAC, %v5=1}
-[5@L211] goto 7; {%v2=NAC, %v5=1}
-[6@L214] %v5 = %ci0; {%v2=NAC, %v5=0}
-[7@L211] h.<Node: boolean color> = %v5; {%v2=NAC, %v5=NAC}
-[8@L212] %v6 = h.<Node: Node left>; {%v2=NAC, %v5=NAC}
-[9@L212] %v7 = h.<Node: Node left>; {%v2=NAC, %v5=NAC}
-[10@L212] %v8 = %v7.<Node: boolean color>; {%v2=NAC, %v5=NAC, %v8=NAC}
-[11@L212] if (%v8 != %ci0) goto 14; {%v2=NAC, %v5=NAC, %v8=NAC}
-[12@L214] %v9 = %ci1; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=1}
-[13@L212] goto 15; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=1}
-[14@L214] %v9 = %ci0; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=0}
-[15@L212] %v6.<Node: boolean color> = %v9; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[16@L213] %v10 = h.<Node: Node right>; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[17@L213] %v11 = h.<Node: Node right>; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[18@L213] %v12 = %v11.<Node: boolean color>; {%v12=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[19@L213] if (%v12 != %ci0) goto 22; {%v12=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[20@L214] %v13 = %ci1; {%v12=NAC, %v13=1, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[21@L213] goto 23; {%v12=NAC, %v13=1, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[22@L214] %v13 = %ci0; {%v12=NAC, %v13=0, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[23@L213] %v10.<Node: boolean color> = %v13; {%v12=NAC, %v13=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
-[24@L214] return; {%v12=NAC, %v13=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[2@L378] if (x != $null) goto 4; {}
+[3@L378] return %ci1; {}
+[4@L379] %v4 = x.<Node: int size>; {%v4=NAC}
+[5@L379] %v5 = x.<Node: Node left>; {%v4=NAC}
+[6@L379] %v6 = invokevirtual this.<RedBlackBST: int size(Node)>(%v5); {%v4=NAC}
+[7@L379] %v7 = x.<Node: Node right>; {%v4=NAC, %v6=NAC}
+[8@L379] %v8 = invokevirtual this.<RedBlackBST: int size(Node)>(%v7); {%v4=NAC, %v6=NAC}
+[9@L379] %v9 = %v6 + %v8; {%v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[10@L379] %v10 = %v9 + %ci1; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[11@L379] if (%v4 == %v10) goto 13; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[12@L379] return %ci0; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[13@L380] %v12 = x.<Node: Node left>; {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[14@L380] %v13 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v12); {%v10=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[15@L380] if (%v13 == %ci0) goto 21; {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[16@L380] %v14 = x.<Node: Node right>; {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[17@L380] %v15 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v14); {%v10=NAC, %v13=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[18@L380] if (%v15 == %ci0) goto 21; {%v10=NAC, %v13=NAC, %v15=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[19@L380] %v16 = %ci1; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=1, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[20@L380] goto 22; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=1, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[21@L380] %v16 = %ci0; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=0, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
+[22@L380] return %v16; {%v10=NAC, %v13=NAC, %v15=NAC, %v16=NAC, %v4=NAC, %v6=NAC, %v8=NAC, %v9=NAC}
 
--------------------- <RedBlackBST: Node rotateRight(Node)> (inter-const-prop) --------------------
-[0@L-1] %ci1 = 1; {}
-[1@L185] x = h.<Node: Node left>; {}
-[2@L186] %v4 = x.<Node: Node right>; {}
-[3@L186] h.<Node: Node left> = %v4; {}
-[4@L187] x.<Node: Node right> = h; {}
-[5@L188] %v5 = x.<Node: Node right>; {}
-[6@L188] %v6 = %v5.<Node: boolean color>; {%v6=NAC}
-[7@L188] x.<Node: boolean color> = %v6; {%v6=NAC}
-[8@L189] %v8 = x.<Node: Node right>; {%v6=NAC}
-[9@L189] %v8.<Node: boolean color> = %ci1; {%v6=NAC}
-[10@L190] %v9 = h.<Node: int size>; {%v6=NAC, %v9=NAC}
-[11@L190] x.<Node: int size> = %v9; {%v6=NAC, %v9=NAC}
-[12@L191] %v10 = h.<Node: Node left>; {%v6=NAC, %v9=NAC}
-[13@L191] %v11 = invokevirtual this.<RedBlackBST: int size(Node)>(%v10); {%v6=NAC, %v9=NAC}
-[14@L191] %v12 = h.<Node: Node right>; {%v11=NAC, %v6=NAC, %v9=NAC}
-[15@L191] %v13 = invokevirtual this.<RedBlackBST: int size(Node)>(%v12); {%v11=NAC, %v6=NAC, %v9=NAC}
-[16@L191] %v14 = %v11 + %v13; {%v11=NAC, %v13=NAC, %v14=NAC, %v6=NAC, %v9=NAC}
-[17@L191] %v15 = %v14 + %ci1; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
-[18@L191] h.<Node: int size> = %v15; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
-[19@L192] return x; {%v11=NAC, %v13=NAC, %v14=NAC, %v15=NAC, %v6=NAC, %v9=NAC}
+-------------------- <RedBlackBST: int get(Node,int)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {key=NAC}
+[1@L52] if (x == $null) goto 13; {%v5=NAC, cmp=NAC, key=NAC}
+[2@L53] %v5 = x.<Node: int key>; {%v5=NAC, cmp=NAC, key=NAC}
+[3@L53] cmp = key - %v5; {%v5=NAC, cmp=NAC, key=NAC}
+[4@L54] if (cmp >= %ci0) goto 7; {%v5=NAC, cmp=NAC, key=NAC}
+[5@L54] x = x.<Node: Node left>; {%v5=NAC, cmp=NAC, key=NAC}
+[6@L54] goto 12; {%v5=NAC, cmp=NAC, key=NAC}
+[7@L55] if (cmp <= %ci0) goto 10; {%v5=NAC, cmp=NAC, key=NAC}
+[8@L55] x = x.<Node: Node right>; {%v5=NAC, cmp=NAC, key=NAC}
+[9@L55] goto 12; {%v5=NAC, cmp=NAC, key=NAC}
+[10@L56] %v8 = x.<Node: int val>; {%v5=NAC, %v8=NAC, cmp=NAC, key=NAC}
+[11@L56] return %v8; {%v5=NAC, %v8=NAC, cmp=NAC, key=NAC}
+[12@L57] goto 1; {%v5=NAC, cmp=NAC, key=NAC}
+[13@L58] %c9 = 114514; {%v5=NAC, cmp=NAC, key=NAC}
+[14@L58] return %c9; {%v5=NAC, cmp=NAC, key=NAC}
+
+-------------------- <RedBlackBST: int get(int)> (inter-const-prop) --------------------
+[0@L47] %c2 = 114514; {key=NAC}
+[1@L47] if (key != %c2) goto 4; {key=NAC}
+[2@L47] %c3 = 114514; {key=NAC}
+[3@L47] return %c3; {key=NAC}
+[4@L48] %v4 = this.<RedBlackBST: Node root>; {key=NAC}
+[5@L48] %v5 = invokevirtual this.<RedBlackBST: int get(Node,int)>(%v4, key); {key=NAC}
+[6@L48] return %v5; {%v5=NAC, key=NAC}
+
+-------------------- <RedBlackBST: int size(Node)> (inter-const-prop) --------------------
+[0@L34] %ci0 = 0; {}
+[1@L34] if (x != $null) goto 3; {}
+[2@L34] return %ci0; {}
+[3@L35] %v4 = x.<Node: int size>; {%v4=NAC}
+[4@L35] return %v4; {%v4=NAC}
+
+-------------------- <RedBlackBST: void <init>()> (inter-const-prop) --------------------
+[0@L25] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L26] return; {}
 
 -------------------- <RedBlackBST: void delete(int)> (inter-const-prop) --------------------
 [0@L-1] %ci0 = 0; {key=NAC}
@@ -371,46 +494,46 @@
 [24@L153] %v16.<Node: boolean color> = %ci0; {%v10=NAC, %v15=NAC, %v3=NAC, %v7=NAC, key=NAC}
 [25@L155] return; {%v10=NAC, %v15=NAC, %v3=NAC, %v7=NAC, key=NAC}
 
--------------------- <RedBlackBST: void <init>()> (inter-const-prop) --------------------
-[0@L25] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L26] return; {}
+-------------------- <RedBlackBST: void flipColors(Node)> (inter-const-prop) --------------------
+[0@L-1] %ci0 = 0; {}
+[1@L-1] %ci1 = 1; {}
+[2@L211] %v2 = h.<Node: boolean color>; {%v2=NAC}
+[3@L211] if (%v2 != %ci0) goto 6; {%v2=NAC}
+[4@L214] %v5 = %ci1; {%v2=NAC, %v5=1}
+[5@L211] goto 7; {%v2=NAC, %v5=1}
+[6@L214] %v5 = %ci0; {%v2=NAC, %v5=0}
+[7@L211] h.<Node: boolean color> = %v5; {%v2=NAC, %v5=NAC}
+[8@L212] %v6 = h.<Node: Node left>; {%v2=NAC, %v5=NAC}
+[9@L212] %v7 = h.<Node: Node left>; {%v2=NAC, %v5=NAC}
+[10@L212] %v8 = %v7.<Node: boolean color>; {%v2=NAC, %v5=NAC, %v8=NAC}
+[11@L212] if (%v8 != %ci0) goto 14; {%v2=NAC, %v5=NAC, %v8=NAC}
+[12@L214] %v9 = %ci1; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=1}
+[13@L212] goto 15; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=1}
+[14@L214] %v9 = %ci0; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=0}
+[15@L212] %v6.<Node: boolean color> = %v9; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[16@L213] %v10 = h.<Node: Node right>; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[17@L213] %v11 = h.<Node: Node right>; {%v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[18@L213] %v12 = %v11.<Node: boolean color>; {%v12=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[19@L213] if (%v12 != %ci0) goto 22; {%v12=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[20@L214] %v13 = %ci1; {%v12=NAC, %v13=1, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[21@L213] goto 23; {%v12=NAC, %v13=1, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[22@L214] %v13 = %ci0; {%v12=NAC, %v13=0, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[23@L213] %v10.<Node: boolean color> = %v13; {%v12=NAC, %v13=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
+[24@L214] return; {%v12=NAC, %v13=NAC, %v2=NAC, %v5=NAC, %v8=NAC, %v9=NAC}
 
--------------------- <RedBlackBST: int size(Node)> (inter-const-prop) --------------------
-[0@L34] %ci0 = 0; {}
-[1@L34] if (x != $null) goto 3; {}
-[2@L34] return %ci0; {}
-[3@L35] %v4 = x.<Node: int size>; {%v4=NAC}
-[4@L35] return %v4; {%v4=NAC}
-
--------------------- <RedBlackBST: boolean isEmpty()> (inter-const-prop) --------------------
-[0@L43] %ci0 = 0; {}
-[1@L43] %ci1 = 1; {}
-[2@L43] %v1 = this.<RedBlackBST: Node root>; {}
-[3@L43] if (%v1 != $null) goto 6; {}
-[4@L43] %v5 = %ci1; {%v5=1}
-[5@L43] goto 7; {%v5=1}
-[6@L43] %v5 = %ci0; {%v5=0}
-[7@L43] return %v5; {%v5=NAC}
-
--------------------- <RedBlackBST: int get(int)> (inter-const-prop) --------------------
-[0@L47] %c2 = 114514; {key=NAC}
-[1@L47] if (key != %c2) goto 4; {key=NAC}
-[2@L47] %c3 = 114514; {key=NAC}
-[3@L47] return %c3; {key=NAC}
-[4@L48] %v4 = this.<RedBlackBST: Node root>; {key=NAC}
-[5@L48] %v5 = invokevirtual this.<RedBlackBST: int get(Node,int)>(%v4, key); {key=NAC}
-[6@L48] return %v5; {%v5=NAC, key=NAC}
-
--------------------- <RedBlackBST: boolean contains(int)> (inter-const-prop) --------------------
-[0@L62] %ci0 = 0; {key=NAC}
-[1@L62] %ci1 = 1; {key=NAC}
-[2@L62] %v3 = invokevirtual this.<RedBlackBST: int get(int)>(key); {key=NAC}
-[3@L62] %c2 = 114514; {%v3=NAC, key=NAC}
-[4@L62] if (%v3 == %c2) goto 7; {%v3=NAC, key=NAC}
-[5@L62] %v6 = %ci1; {%v3=NAC, %v6=1, key=NAC}
-[6@L62] goto 8; {%v3=NAC, %v6=1, key=NAC}
-[7@L62] %v6 = %ci0; {%v3=NAC, %v6=0, key=NAC}
-[8@L62] return %v6; {%v3=NAC, %v6=NAC, key=NAC}
+-------------------- <RedBlackBST: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L413] %ci1 = 1; {}
+[1@L413] %ci2 = 2; {}
+[2@L415] %ci3 = 3; {}
+[3@L412] st = new RedBlackBST; {}
+[4@L412] invokespecial st.<RedBlackBST: void <init>()>(); {}
+[5@L413] invokevirtual st.<RedBlackBST: void put(int,int)>(%ci1, %ci2); {}
+[6@L414] %c6 = 114; {}
+[7@L414] %c5 = 514; {}
+[8@L414] invokevirtual st.<RedBlackBST: void put(int,int)>(%c6, %c5); {}
+[9@L415] invokevirtual st.<RedBlackBST: void delete(int)>(%ci3); {}
+[10@L416] invokevirtual st.<RedBlackBST: boolean check()>(); {}
+[11@L417] return; {}
 
 -------------------- <RedBlackBST: void put(int,int)> (inter-const-prop) --------------------
 [0@L73] %ci0 = 0; {key=NAC, val=NAC}
@@ -427,127 +550,4 @@
 [11@L73] %v8 = this.<RedBlackBST: Node root>; {key=NAC, val=NAC}
 [12@L73] %v8.<Node: boolean color> = %ci0; {key=NAC, val=NAC}
 [13@L75] return; {key=NAC, val=NAC}
-
--------------------- <RedBlackBST: Node deleteMin(Node)> (inter-const-prop) --------------------
-[0@L110] %ci0 = 0; {}
-[1@L107] %v2 = h.<Node: Node left>; {}
-[2@L107] if (%v2 != $null) goto 4; {}
-[3@L108] return $null; {}
-[4@L110] %v4 = h.<Node: Node left>; {}
-[5@L110] %v5 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v4); {}
-[6@L110] if (%v5 != %ci0) goto 12; {%v5=NAC}
-[7@L110] %v7 = h.<Node: Node left>; {%v5=NAC}
-[8@L110] %v8 = %v7.<Node: Node left>; {%v5=NAC}
-[9@L110] %v9 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v8); {%v5=NAC}
-[10@L110] if (%v9 != %ci0) goto 12; {%v5=NAC, %v9=NAC}
-[11@L111] h = invokevirtual this.<RedBlackBST: Node moveRedLeft(Node)>(h); {%v5=NAC, %v9=NAC}
-[12@L113] %v10 = h.<Node: Node left>; {%v5=NAC, %v9=NAC}
-[13@L113] %v11 = invokevirtual this.<RedBlackBST: Node deleteMin(Node)>(%v10); {%v5=NAC, %v9=NAC}
-[14@L113] h.<Node: Node left> = %v11; {%v5=NAC, %v9=NAC}
-[15@L114] %v12 = invokevirtual this.<RedBlackBST: Node balance(Node)>(h); {%v5=NAC, %v9=NAC}
-[16@L114] return %v12; {%v5=NAC, %v9=NAC}
-
--------------------- <RedBlackBST: Node moveRedLeft(Node)> (inter-const-prop) --------------------
-[0@L221] %ci0 = 0; {}
-[1@L220] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {}
-[2@L221] %v2 = h.<Node: Node right>; {}
-[3@L221] %v3 = %v2.<Node: Node left>; {}
-[4@L221] %v4 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v3); {}
-[5@L221] if (%v4 == %ci0) goto 11; {%v4=NAC}
-[6@L222] %v6 = h.<Node: Node right>; {%v4=NAC}
-[7@L222] %v7 = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(%v6); {%v4=NAC}
-[8@L222] h.<Node: Node right> = %v7; {%v4=NAC}
-[9@L223] h = invokevirtual this.<RedBlackBST: Node rotateLeft(Node)>(h); {%v4=NAC}
-[10@L224] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v4=NAC}
-[11@L226] return h; {%v4=NAC}
-
--------------------- <RedBlackBST: Node moveRedRight(Node)> (inter-const-prop) --------------------
-[0@L233] %ci0 = 0; {}
-[1@L232] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {}
-[2@L233] %v2 = h.<Node: Node left>; {}
-[3@L233] %v3 = %v2.<Node: Node left>; {}
-[4@L233] %v4 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(%v3); {}
-[5@L233] if (%v4 == %ci0) goto 8; {%v4=NAC}
-[6@L234] h = invokevirtual this.<RedBlackBST: Node rotateRight(Node)>(h); {%v4=NAC}
-[7@L235] invokevirtual this.<RedBlackBST: void flipColors(Node)>(h); {%v4=NAC}
-[8@L237] return h; {%v4=NAC}
-
--------------------- <RedBlackBST: Node min(Node)> (inter-const-prop) --------------------
-[0@L267] %v2 = x.<Node: Node left>; {}
-[1@L267] if (%v2 != $null) goto 3; {}
-[2@L267] return x; {}
-[3@L268] %v4 = x.<Node: Node left>; {}
-[4@L268] %v5 = invokevirtual this.<RedBlackBST: Node min(Node)>(%v4); {}
-[5@L268] return %v5; {}
-
--------------------- <RedBlackBST: boolean check()> (inter-const-prop) --------------------
-[0@L359] %ci0 = 0; {}
-[1@L359] %ci1 = 1; {}
-[2@L359] %v1 = invokevirtual this.<RedBlackBST: boolean isBST()>(); {}
-[3@L359] if (%v1 == %ci0) goto 12; {%v1=NAC}
-[4@L359] %v3 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent()>(); {%v1=NAC}
-[5@L359] if (%v3 == %ci0) goto 12; {%v1=NAC, %v3=NAC}
-[6@L359] %v4 = invokevirtual this.<RedBlackBST: boolean is23()>(); {%v1=NAC, %v3=NAC}
-[7@L359] if (%v4 == %ci0) goto 12; {%v1=NAC, %v3=NAC, %v4=NAC}
-[8@L359] %v5 = invokevirtual this.<RedBlackBST: boolean isBalanced()>(); {%v1=NAC, %v3=NAC, %v4=NAC}
-[9@L359] if (%v5 == %ci0) goto 12; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC}
-[10@L359] %v7 = %ci1; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=1}
-[11@L359] goto 13; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=1}
-[12@L359] %v7 = %ci0; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=0}
-[13@L359] return %v7; {%v1=NAC, %v3=NAC, %v4=NAC, %v5=NAC, %v7=NAC}
-
--------------------- <RedBlackBST: boolean isBST()> (inter-const-prop) --------------------
-[0@L363] %v3 = this.<RedBlackBST: Node root>; {}
-[1@L363] %c2 = 114514; {}
-[2@L363] %c1 = 114514; {}
-[3@L363] %v4 = invokevirtual this.<RedBlackBST: boolean isBST(Node,int,int)>(%v3, %c2, %c1); {}
-[4@L363] return %v4; {%v4=NAC}
-
--------------------- <RedBlackBST: boolean isSizeConsistent()> (inter-const-prop) --------------------
-[0@L374] %v1 = this.<RedBlackBST: Node root>; {}
-[1@L374] %v2 = invokevirtual this.<RedBlackBST: boolean isSizeConsistent(Node)>(%v1); {}
-[2@L374] return %v2; {%v2=NAC}
-
--------------------- <RedBlackBST: boolean is23()> (inter-const-prop) --------------------
-[0@L384] %v1 = this.<RedBlackBST: Node root>; {}
-[1@L384] %v2 = invokevirtual this.<RedBlackBST: boolean is23(Node)>(%v1); {}
-[2@L384] return %v2; {%v2=NAC}
-
--------------------- <RedBlackBST: boolean isBalanced(Node,int)> (inter-const-prop) --------------------
-[0@L407] %ci-1 = -1; {black=NAC}
-[1@L-1] %ci0 = 0; {black=NAC}
-[2@L-1] %ci1 = 1; {black=NAC}
-[3@L406] if (x != $null) goto 9; {black=NAC}
-[4@L406] if (black != %ci0) goto 7; {black=NAC}
-[5@L408] %v6 = %ci1; {%v6=1, black=NAC}
-[6@L406] goto 8; {%v6=1, black=NAC}
-[7@L408] %v6 = %ci0; {%v6=0, black=NAC}
-[8@L406] return %v6; {%v6=NAC, black=NAC}
-[9@L407] %v7 = invokevirtual this.<RedBlackBST: boolean isRed(Node)>(x); {black=NAC}
-[10@L407] if (%v7 != %ci0) goto 12; {%v7=NAC, black=NAC}
-[11@L407] black = black + %ci-1; {%v7=NAC, black=NAC}
-[12@L408] %v9 = x.<Node: Node left>; {%v7=NAC, black=NAC}
-[13@L408] %v10 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v9, black); {%v7=NAC, black=NAC}
-[14@L408] if (%v10 == %ci0) goto 20; {%v10=NAC, %v7=NAC, black=NAC}
-[15@L408] %v11 = x.<Node: Node right>; {%v10=NAC, %v7=NAC, black=NAC}
-[16@L408] %v12 = invokevirtual this.<RedBlackBST: boolean isBalanced(Node,int)>(%v11, black); {%v10=NAC, %v7=NAC, black=NAC}
-[17@L408] if (%v12 == %ci0) goto 20; {%v10=NAC, %v12=NAC, %v7=NAC, black=NAC}
-[18@L408] %v13 = %ci1; {%v10=NAC, %v12=NAC, %v13=1, %v7=NAC, black=NAC}
-[19@L408] goto 21; {%v10=NAC, %v12=NAC, %v13=1, %v7=NAC, black=NAC}
-[20@L408] %v13 = %ci0; {%v10=NAC, %v12=NAC, %v13=0, %v7=NAC, black=NAC}
-[21@L408] return %v13; {%v10=NAC, %v12=NAC, %v13=NAC, %v7=NAC, black=NAC}
-
--------------------- <RedBlackBST: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L413] %ci1 = 1; {}
-[1@L413] %ci2 = 2; {}
-[2@L415] %ci3 = 3; {}
-[3@L412] st = new RedBlackBST; {}
-[4@L412] invokespecial st.<RedBlackBST: void <init>()>(); {}
-[5@L413] invokevirtual st.<RedBlackBST: void put(int,int)>(%ci1, %ci2); {}
-[6@L414] %c6 = 114; {}
-[7@L414] %c5 = 514; {}
-[8@L414] invokevirtual st.<RedBlackBST: void put(int,int)>(%c6, %c5); {}
-[9@L415] invokevirtual st.<RedBlackBST: void delete(int)>(%ci3); {}
-[10@L416] invokevirtual st.<RedBlackBST: boolean check()>(); {}
-[11@L417] return; {}
 

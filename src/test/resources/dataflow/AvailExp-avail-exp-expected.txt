@@ -1,7 +1,3 @@
--------------------- <AvailExp: void <init>()> (avail-exp) --------------------
-[0@L4] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L4] return; []
-
 -------------------- <AvailExp: int foo(int,int,int)> (avail-exp) --------------------
 [0@L9] %ci0 = 0; []
 [1@L7] p = a; [a]
@@ -20,6 +16,10 @@
 [14@L22] invokevirtual this.<AvailExp: void use(int,int,int)>(%v12, r#1, q); [(int) l, (long) a, a, a + b, p]
 [15@L23] %v13 = r#1 + q; [(int) l, (long) a, a, a + b, p, r#1 + q]
 [16@L23] return %v13; [(int) l, (long) a, a, a + b, p, r#1 + q]
+
+-------------------- <AvailExp: void <init>()> (avail-exp) --------------------
+[0@L4] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L4] return; []
 
 -------------------- <AvailExp: void use(int,int,int)> (avail-exp) --------------------
 [0@L27] return; []

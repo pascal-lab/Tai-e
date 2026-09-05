@@ -5,10 +5,10 @@
 -------------------- <SimpleChar: void constant()> (const-prop) --------------------
 [0@L6] return; {}
 
--------------------- <SimpleChar: void undefined()> (const-prop) --------------------
-[0@L11] return; {}
-
 -------------------- <SimpleChar: void propagation()> (const-prop) --------------------
 [0@L14] a = 97; {}
 [1@L17] return; {}
+
+-------------------- <SimpleChar: void undefined()> (const-prop) --------------------
+[0@L11] return; {}
 

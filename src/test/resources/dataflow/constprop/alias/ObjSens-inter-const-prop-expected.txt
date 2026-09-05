@@ -18,6 +18,10 @@
 [16@L16] %v16 = yy1.<Y: int f>; {%v16=147}
 [17@L17] return; {%v16=147}
 
+-------------------- <X: Y getY()> (inter-const-prop) --------------------
+[0@L29] %v1 = this.<X: Y y>; {}
+[1@L29] return %v1; {}
+
 -------------------- <X: void <init>()> (inter-const-prop) --------------------
 [0@L20] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L20] return; {}
@@ -25,10 +29,6 @@
 -------------------- <X: void setY(Y)> (inter-const-prop) --------------------
 [0@L25] this.<X: Y y> = y; {}
 [1@L26] return; {}
-
--------------------- <X: Y getY()> (inter-const-prop) --------------------
-[0@L29] %v1 = this.<X: Y y>; {}
-[1@L29] return %v1; {}
 
 -------------------- <Y: void <init>()> (inter-const-prop) --------------------
 [0@L33] invokespecial this.<java.lang.Object: void <init>()>(); {}

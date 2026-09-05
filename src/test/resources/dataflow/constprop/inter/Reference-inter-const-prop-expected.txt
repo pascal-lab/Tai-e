@@ -2,6 +2,15 @@
 [0@L18] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L18] return; {}
 
+-------------------- <Reference: Point adjustPoint(Point,int)> (inter-const-prop) --------------------
+[0@L12] %v2 = p.<Point: int x>; {%v2=NAC, offset=1}
+[1@L12] %v3 = %v2 + offset; {%v2=NAC, %v3=NAC, offset=1}
+[2@L12] p.<Point: int x> = %v3; {%v2=NAC, %v3=NAC, offset=1}
+[3@L13] %v4 = p.<Point: int y>; {%v2=NAC, %v3=NAC, %v4=NAC, offset=1}
+[4@L13] %v5 = %v4 + offset; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
+[5@L13] p.<Point: int y> = %v5; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
+[6@L14] return p; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
+
 -------------------- <Reference: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L6] offset = 1; {}
 [1@L4] %ci2 = 2; {}
@@ -15,13 +24,4 @@
 [9@L8] %v11 = p2.<Point: int y>; {%v10=NAC, %v11=NAC}
 [10@L8] %v12 = %v10 + %v11; {%v10=NAC, %v11=NAC, %v12=NAC}
 [11@L9] return; {%v10=NAC, %v11=NAC, %v12=NAC}
-
--------------------- <Reference: Point adjustPoint(Point,int)> (inter-const-prop) --------------------
-[0@L12] %v2 = p.<Point: int x>; {%v2=NAC, offset=1}
-[1@L12] %v3 = %v2 + offset; {%v2=NAC, %v3=NAC, offset=1}
-[2@L12] p.<Point: int x> = %v3; {%v2=NAC, %v3=NAC, offset=1}
-[3@L13] %v4 = p.<Point: int y>; {%v2=NAC, %v3=NAC, %v4=NAC, offset=1}
-[4@L13] %v5 = %v4 + offset; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
-[5@L13] p.<Point: int y> = %v5; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
-[6@L14] return p; {%v2=NAC, %v3=NAC, %v4=NAC, %v5=NAC, offset=1}
 

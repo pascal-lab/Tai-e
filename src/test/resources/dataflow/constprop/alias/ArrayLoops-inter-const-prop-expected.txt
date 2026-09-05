@@ -1,9 +1,3 @@
--------------------- <ArrayLoops: void main(java.lang.String[])> (inter-const-prop) --------------------
-[0@L4] invokestatic <ArrayLoops: void loopConst()>(); {}
-[1@L5] invokestatic <ArrayLoops: void loopMix()>(); {}
-[2@L6] invokestatic <ArrayLoops: void loopNAC()>(); {}
-[3@L7] return; {}
-
 -------------------- <ArrayLoops: void loopConst()> (inter-const-prop) --------------------
 [0@L11] %ci0 = 0; {}
 [1@L11] %ci1 = 1; {}
@@ -54,4 +48,10 @@
 [10@L29] goto 6; {%v5=NAC, i=NAC}
 [11@L32] %v8 = a[%ci3]; {%v5=NAC, %v8=NAC, i=NAC}
 [12@L33] return; {%v5=NAC, %v8=NAC, i=NAC}
+
+-------------------- <ArrayLoops: void main(java.lang.String[])> (inter-const-prop) --------------------
+[0@L4] invokestatic <ArrayLoops: void loopConst()>(); {}
+[1@L5] invokestatic <ArrayLoops: void loopMix()>(); {}
+[2@L6] invokestatic <ArrayLoops: void loopNAC()>(); {}
+[3@L7] return; {}
 

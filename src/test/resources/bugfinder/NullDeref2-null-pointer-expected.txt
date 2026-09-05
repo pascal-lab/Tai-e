@@ -1,9 +1,3 @@
--------------------- <NullDeref2: void <init>()> (null-pointer) --------------------
-
--------------------- <NullDeref2: void possibleNullOnSplit()> (null-pointer) --------------------
-Class: NullDeref2, Method: <NullDeref2: void possibleNullOnSplit()>, LineNumber: 5, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
-Class: NullDeref2, Method: <NullDeref2: void possibleNullOnSplit()>, LineNumber: 12, BugType: NP_MAY_NULL, Severity: CRITICAL
-
 -------------------- <NullDeref2: boolean same0(java.lang.Object,java.lang.Object)> (null-pointer) --------------------
 
 -------------------- <NullDeref2: boolean same1(int[],int[])> (null-pointer) --------------------
@@ -14,4 +8,10 @@ Class: NullDeref2, Method: <NullDeref2: boolean same2(java.lang.Object,java.lang
 
 -------------------- <NullDeref2: boolean same3(java.lang.Object,java.lang.Object)> (null-pointer) --------------------
 Class: NullDeref2, Method: <NullDeref2: boolean same3(java.lang.Object,java.lang.Object)>, LineNumber: 45, BugType: NP_MAY_NULL, Severity: CRITICAL
+
+-------------------- <NullDeref2: void <init>()> (null-pointer) --------------------
+
+-------------------- <NullDeref2: void possibleNullOnSplit()> (null-pointer) --------------------
+Class: NullDeref2, Method: <NullDeref2: void possibleNullOnSplit()>, LineNumber: 12, BugType: NP_MAY_NULL, Severity: CRITICAL
+Class: NullDeref2, Method: <NullDeref2: void possibleNullOnSplit()>, LineNumber: 5, BugType: RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE, Severity: MAJOR
 

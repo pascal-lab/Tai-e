@@ -2,6 +2,10 @@
 [0@L19] invokespecial this.<java.lang.Object: void <init>()>(); {}
 [1@L19] return; {}
 
+-------------------- <Interprocedural: int getF(A)> (inter-const-prop) --------------------
+[0@L15] %v1 = a.<A: int f>; {%v1=555}
+[1@L15] return %v1; {%v1=555}
+
 -------------------- <Interprocedural: void main(java.lang.String[])> (inter-const-prop) --------------------
 [0@L7] %ci0 = 0; {}
 [1@L4] a = new A; {}
@@ -15,8 +19,4 @@
 [9@L8] goto 11; {%v5=555}
 [10@L10] invokestatic <Interprocedural: int getF(A)>(a); {%v5=555}
 [11@L12] return; {%v5=555}
-
--------------------- <Interprocedural: int getF(A)> (inter-const-prop) --------------------
-[0@L15] %v1 = a.<A: int f>; {%v1=555}
-[1@L15] return %v1; {%v1=555}
 

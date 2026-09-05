@@ -1,3 +1,7 @@
+-------------------- <LogicalOp: void <init>()> (const-prop) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
+[1@L1] return; {}
+
 -------------------- <LogicalOp: void logicalOp()> (const-prop) --------------------
 [0@L-1] bFalse = 0; {}
 [1@L-1] bTrue = 1; {}
@@ -8,8 +12,4 @@
 [6@L7] if (bFalse == bFalse) goto 8; {}
 [7@L7] goto 8; {}
 [8@L8] return; {}
-
--------------------- <LogicalOp: void <init>()> (const-prop) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); {}
-[1@L1] return; {}
 

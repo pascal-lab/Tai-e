@@ -1,7 +1,3 @@
--------------------- <Fibonacci: void <init>()> (live-var) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L1] return; []
-
 -------------------- <Fibonacci: int getFibonacci(int)> (live-var) --------------------
 [0@L3] %ci0 = 0; [%ci0, n, this]
 [1@L-1] %ci1 = 1; [%ci0, %ci1, n, this]
@@ -15,4 +11,8 @@
 [9@L6] %v8 = invokevirtual this.<Fibonacci: int getFibonacci(int)>(%v7); [%v6, %v8]
 [10@L6] %v9 = %v6 + %v8; [%v9]
 [11@L6] return %v9; []
+
+-------------------- <Fibonacci: void <init>()> (live-var) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
 

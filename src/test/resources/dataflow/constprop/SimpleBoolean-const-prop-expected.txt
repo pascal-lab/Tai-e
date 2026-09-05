@@ -7,11 +7,11 @@
 [1@L4] %ci1 = 1; {}
 [2@L6] return; {}
 
--------------------- <SimpleBoolean: void undefined()> (const-prop) --------------------
-[0@L10] %ci1 = 1; {}
-[1@L11] return; {}
-
 -------------------- <SimpleBoolean: void propagation()> (const-prop) --------------------
 [0@L14] b = 1; {}
 [1@L17] return; {}
+
+-------------------- <SimpleBoolean: void undefined()> (const-prop) --------------------
+[0@L10] %ci1 = 1; {}
+[1@L11] return; {}
 

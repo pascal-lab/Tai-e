@@ -1,7 +1,3 @@
--------------------- <Field: void <init>()> (live-var) --------------------
-[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
-[1@L1] return; []
-
 -------------------- <Field: int timeFlies(int)> (live-var) --------------------
 [0@L6] %v2 = this.<Field: int age>; [%v2, this, years]
 [1@L6] %v3 = %v2 + years; [%v3, this, years]
@@ -12,4 +8,8 @@
 [6@L7] invokevirtual %v4.<java.io.PrintStream: void println(java.lang.String)>(%v6); [this]
 [7@L8] %v7 = this.<Field: int age>; [%v7]
 [8@L8] return %v7; []
+
+-------------------- <Field: void <init>()> (live-var) --------------------
+[0@L1] invokespecial this.<java.lang.Object: void <init>()>(); []
+[1@L1] return; []
 

@@ -1,8 +1,19 @@
+-------------------- <DroppedException: int exitInTryBlock()> (dropped-exception) --------------------
+Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 89, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
+Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 94, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
+
+-------------------- <DroppedException: void <init>()> (dropped-exception) --------------------
+
 -------------------- <DroppedException: int x(int)> (dropped-exception) --------------------
 
 -------------------- <DroppedException: void commonPractice()> (dropped-exception) --------------------
 
 -------------------- <DroppedException: void commonPracticeWithFinally()> (dropped-exception) --------------------
+
+-------------------- <DroppedException: DroppedException cloneException()> (dropped-exception) --------------------
+Class: DroppedException, Method: <DroppedException: DroppedException cloneException()>, LineNumber: 36, BugType: DE_MIGHT_DROP, Severity: MINOR
+
+-------------------- <DroppedException: DroppedException cloneException2()> (dropped-exception) --------------------
 
 -------------------- <DroppedException: void emptyCatchBlock1()> (dropped-exception) --------------------
 Class: DroppedException, Method: <DroppedException: void emptyCatchBlock1()>, LineNumber: 52, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
@@ -15,17 +26,6 @@ Class: DroppedException, Method: <DroppedException: void emptyCatchBlock2()>, Li
 Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally1()>, LineNumber: 67, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 
 -------------------- <DroppedException: void emptyCatchBlockWithFinally2()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally2()>, LineNumber: 80, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally2()>, LineNumber: 76, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
-
--------------------- <DroppedException: int exitInTryBlock()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 89, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
-Class: DroppedException, Method: <DroppedException: int exitInTryBlock()>, LineNumber: 94, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
-
--------------------- <DroppedException: void <init>()> (dropped-exception) --------------------
-
--------------------- <DroppedException: DroppedException cloneException()> (dropped-exception) --------------------
-Class: DroppedException, Method: <DroppedException: DroppedException cloneException()>, LineNumber: 36, BugType: DE_MIGHT_DROP, Severity: MINOR
-
--------------------- <DroppedException: DroppedException cloneException2()> (dropped-exception) --------------------
+Class: DroppedException, Method: <DroppedException: void emptyCatchBlockWithFinally2()>, LineNumber: 80, BugType: DE_MIGHT_IGNORE, Severity: CRITICAL
 
