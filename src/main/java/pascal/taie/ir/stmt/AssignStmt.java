@@ -22,11 +22,11 @@
 
 package pascal.taie.ir.stmt;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.ir.exp.LValue;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.util.collection.ArraySet;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,8 +49,7 @@ public abstract class AssignStmt<L extends LValue, R extends RValue>
     }
 
     @Override
-    @Nonnull
-    public L getLValue() {
+    public @NonNull L getLValue() {
         return lvalue;
     }
 

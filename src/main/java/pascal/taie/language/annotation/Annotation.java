@@ -22,9 +22,9 @@
 
 package pascal.taie.language.annotation;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.util.collection.Views;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
@@ -67,8 +67,7 @@ public class Annotation implements Serializable {
         return elements.containsKey(name);
     }
 
-    @Nullable
-    public Element getElement(String name) {
+    public @Nullable Element getElement(String name) {
         return elements.get(name);
     }
 

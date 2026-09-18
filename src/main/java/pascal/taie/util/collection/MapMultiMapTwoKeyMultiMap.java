@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.function.SerializableSupplier;
 
-import javax.annotation.Nonnull;
 import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.Iterator;
@@ -97,7 +97,7 @@ public class MapMultiMapTwoKeyMultiMap<K1, K2, V> extends
     }
 
     @Override
-    public boolean put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value) {
+    public boolean put(@NonNull K1 key1, @NonNull K2 key2, @NonNull V value) {
         Objects.requireNonNull(key1, NULL_KEY);
         Objects.requireNonNull(key2, NULL_KEY);
         Objects.requireNonNull(value, NULL_VALUE);
@@ -214,9 +214,8 @@ public class MapMultiMapTwoKeyMultiMap<K1, K2, V> extends
             return false;
         }
 
-        @Nonnull
         @Override
-        public Iterator<Pair<K1, K2>> iterator() {
+        public @NonNull Iterator<Pair<K1, K2>> iterator() {
             return new TwoKeyIterator();
         }
 

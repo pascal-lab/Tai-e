@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.toolkit.mahjong;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.classes.JField;
 import pascal.taie.util.collection.Maps;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
@@ -38,8 +38,7 @@ class Field {
     /**
      * When this is {@code null}, this Field represents array index.
      */
-    @Nullable
-    private final JField field;
+    private final @Nullable JField field;
 
     private Field(@Nullable JField field) {
         this.field = field;

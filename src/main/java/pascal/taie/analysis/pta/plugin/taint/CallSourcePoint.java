@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 
 /**
@@ -39,7 +39,7 @@ record CallSourcePoint(Invoke sourceCall, IndexRef indexRef, CallSource source)
                     .thenComparing(CallSourcePoint::indexRef);
 
     @Override
-    public int compareTo(@Nonnull SourcePoint sp) {
+    public int compareTo(@NonNull SourcePoint sp) {
         if (sp instanceof CallSourcePoint csp) {
             return COMPARATOR.compare(this, csp);
         }

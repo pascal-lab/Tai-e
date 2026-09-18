@@ -25,6 +25,7 @@ package pascal.taie.android.info;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.language.classes.JMethod;
@@ -39,7 +40,6 @@ import soot.jimple.infoflow.android.manifest.IAndroidComponent;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.resources.ARSCFileParser;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -145,8 +145,7 @@ public record ApkInfo(@Nullable JClass application,
             this.hierarchy = hierarchy;
         }
 
-        @Nullable
-        public JClass convertApplication() {
+        public @Nullable JClass convertApplication() {
             IAndroidApplication application = manifest.getApplication();
             if (application == null || !application.isEnabled()) {
                 return null;

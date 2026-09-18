@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -58,7 +59,6 @@ import pascal.taie.language.type.VoidType;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -285,8 +285,7 @@ public class ReflectiveActionModel extends AnalysisModelPlugin {
         return ranks;
     }
 
-    @Nullable
-    private static Integer getArrayRank(CSObj arrayObj) {
+    private static @Nullable Integer getArrayRank(CSObj arrayObj) {
         if (arrayObj.getObject().getAllocation() instanceof New stmt
                 && stmt.getRValue() instanceof NewArray newArray
                 && newArray.getLength().isConst()

@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.ArrayAccess;
 import pascal.taie.ir.exp.CastExp;
 import pascal.taie.ir.exp.IntLiteral;
@@ -43,7 +44,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 

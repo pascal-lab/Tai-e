@@ -23,11 +23,11 @@
 
 package pascal.taie.language.generics;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.signature.SignatureReader;
 import pascal.taie.util.Experimental;
 
-import javax.annotation.Nullable;
 
 /**
  * Utility methods for converting signatures.
@@ -44,26 +44,23 @@ public final class GSignatures {
      */
     public static final int API = Opcodes.ASM9;
 
-    @Nullable
     @Experimental
-    public static ClassGSignature toClassSig(boolean isInterface, String sig) {
+    public static @Nullable ClassGSignature toClassSig(boolean isInterface, String sig) {
         var builder = new ClassGSignatureBuilder(isInterface);
         new SignatureReader(sig).accept(builder);
         return builder.get();
     }
 
-    @Nullable
     @Experimental
-    public static MethodGSignature toMethodSig(String sig) {
+    public static @Nullable MethodGSignature toMethodSig(String sig) {
         var builder = new MethodGSignatureBuilder();
         new SignatureReader(sig).accept(builder);
         return builder.get();
     }
 
-    @Nullable
     @Experimental
     @SuppressWarnings("unchecked")
-    public static <T extends TypeGSignature> T toTypeSig(String sig) {
+    public static <T extends TypeGSignature> @Nullable T toTypeSig(String sig) {
         var builder = new TypeGSignatureBuilder();
         new SignatureReader(sig).accept(builder);
         TypeGSignature gSig = builder.get();

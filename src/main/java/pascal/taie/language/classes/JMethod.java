@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.World;
 import pascal.taie.ir.IR;
 import pascal.taie.ir.IRBuildHelper;
@@ -34,7 +35,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Experimental;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -54,15 +54,12 @@ public class JMethod extends ClassMember {
 
     private final Subsignature subsignature;
 
-    @Nullable
     @Experimental
-    private final MethodGSignature gSignature;
+    private final @Nullable MethodGSignature gSignature;
 
-    @Nullable
-    private final List<AnnotationHolder> paramAnnotations;
+    private final @Nullable List<AnnotationHolder> paramAnnotations;
 
-    @Nullable
-    private final List<String> paramNames;
+    private final @Nullable List<String> paramNames;
 
     /**
      * Source of the body (and/or other information) of this method.
@@ -140,8 +137,7 @@ public class JMethod extends ClassMember {
      * @return the annotation attached on the {@code i}-th parameter that is
      * of {@code type}. If such annotation is absent, {@code null} is returned.
      */
-    @Nullable
-    public Annotation getParamAnnotation(int i, String type) {
+    public @Nullable Annotation getParamAnnotation(int i, String type) {
         return paramAnnotations == null ? null :
                 paramAnnotations.get(i).getAnnotation(type);
     }
@@ -155,8 +151,7 @@ public class JMethod extends ClassMember {
                 paramAnnotations.get(i).getAnnotations();
     }
 
-    @Nullable
-    public String getParamName(int i) {
+    public @Nullable String getParamName(int i) {
         return paramNames == null ? null : paramNames.get(i);
     }
 
@@ -172,9 +167,8 @@ public class JMethod extends ClassMember {
         return subsignature;
     }
 
-    @Nullable
     @Experimental
-    public MethodGSignature getGSignature() {
+    public @Nullable MethodGSignature getGSignature() {
         return gSignature;
     }
 

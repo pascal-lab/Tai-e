@@ -22,6 +22,7 @@
 
 package pascal.taie;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.AnalysisManager;
@@ -39,7 +40,6 @@ import pascal.taie.util.Monitor;
 import pascal.taie.util.RuntimeInfoLogger;
 import pascal.taie.util.collection.Lists;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -71,8 +71,7 @@ public class Main {
      * Parses options from the given arguments. If the options are empty or
      * specify to print help information, then print help and return null.
      */
-    @Nullable
-    private static Options processArgs(String... args) {
+    private static @Nullable Options processArgs(String... args) {
         Options options = Options.parse(args);
         if (options.isPrintHelp() || args.length == 0) {
             options.printHelp();

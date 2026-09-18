@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -95,20 +96,20 @@ public interface MultiMap<K, V> {
      *
      * @return {@code true} if the multimap changed.
      */
-    boolean put(@Nonnull K key, @Nonnull V value);
+    boolean put(@NonNull K key, @NonNull V value);
 
     /**
      * Stores a key-value pair in this multimap for each of {@code values},
      * all using the same key, {@code key}.=
      */
-    boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values);
+    boolean putAll(@NonNull K key, @NonNull Collection<? extends V> values);
 
     /**
      * Stores all key-value pairs of {@code multimap} in this multimap.
      *
      * @return {@code true} if the multimap changed
      */
-    boolean putAll(@Nonnull MultiMap<? extends K, ? extends V> multiMap);
+    boolean putAll(@NonNull MultiMap<? extends K, ? extends V> multiMap);
 
     /**
      * Removes a single key-value pair with the key {@code key} and the value
@@ -158,7 +159,7 @@ public interface MultiMap<K, V> {
     /**
      * Performs the given action for all key-value pairs contained in this multimap.
      */
-    default void forEach(@Nonnull BiConsumer<K, V> action) {
+    default void forEach(@NonNull BiConsumer<K, V> action) {
         Objects.requireNonNull(action);
         entrySet().forEach(entry ->
                 action.accept(entry.getKey(), entry.getValue()));
@@ -167,7 +168,7 @@ public interface MultiMap<K, V> {
     /**
      * Performs the given action for key-(value-set) pairs contained in this multimap.
      */
-    void forEachSet(@Nonnull BiConsumer<K, Set<V>> action);
+    void forEachSet(@NonNull BiConsumer<K, Set<V>> action);
 
     /**
      * Removes all key-value pairs from the multimap, leaving it empty.

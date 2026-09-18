@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -101,8 +102,7 @@ public class SparseIntSet implements Iterable<Integer> {
     }
 
     @Override
-    @Nonnull
-    public Iterator<Integer> iterator() {
+    public @NonNull Iterator<Integer> iterator() {
         return new Iterator<>() {
             int index = 0;
 

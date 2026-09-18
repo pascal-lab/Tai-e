@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.ClassLiteral;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.exp.NullLiteral;
@@ -33,7 +34,6 @@ import pascal.taie.util.collection.Maps;
 import soot.Local;
 import soot.Value;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

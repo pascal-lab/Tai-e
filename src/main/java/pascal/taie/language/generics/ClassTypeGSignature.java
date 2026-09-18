@@ -23,7 +23,8 @@
 
 package pascal.taie.language.generics;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +57,7 @@ public final class ClassTypeGSignature
     /**
      * package name. For example, {@code org.example}
      */
-    @Nullable
-    private final String packageName;
+    private final @Nullable String packageName;
 
     /**
      * class names and their type arguments. For example,
@@ -75,8 +75,7 @@ public final class ClassTypeGSignature
         this.signatures = signatures;
     }
 
-    @Nullable
-    public String getPackageName() {
+    public @Nullable String getPackageName() {
         return packageName;
     }
 

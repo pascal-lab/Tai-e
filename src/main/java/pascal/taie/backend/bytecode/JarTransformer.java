@@ -22,6 +22,7 @@
 
 package pascal.taie.backend.bytecode;
 
+import org.jspecify.annotations.NonNull;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import pascal.taie.Main;
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;
 
-import javax.annotation.Nonnull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -120,10 +120,9 @@ public class JarTransformer {
         try (FileSystem jarFs = FileSystems.newFileSystem(outputJar)) {
             // Copy the files from the output directory to the JAR file system
             Files.walkFileTree(tempDir, new SimpleFileVisitor<>() {
-                @Nonnull
                 @Override
-                public FileVisitResult visitFile(
-                        @Nonnull Path file, @Nonnull BasicFileAttributes attrs)
+                public @NonNull FileVisitResult visitFile(
+                        @NonNull Path file, @NonNull BasicFileAttributes attrs)
                         throws IOException {
                     Path dest = jarFs.getPath(tempDir.relativize(file).toString());
                     if (!Files.exists(dest)) {

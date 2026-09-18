@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.graph.cfg;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.IR;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.Maps;
@@ -29,7 +30,6 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Views;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -120,8 +120,7 @@ abstract class AbstractCFG<N> implements CFG<N> {
      * kind, source, and target of the given edge, returns the existing edge,
      * otherwise returns null.
      */
-    @Nullable
-    private CFGEdge<N> getExistingEdge(CFGEdge<N> edge) {
+    private @Nullable CFGEdge<N> getExistingEdge(CFGEdge<N> edge) {
         for (CFGEdge<N> outEdge : outEdges.get(edge.source())) {
             if (outEdge.target().equals(edge.target()) &&
                     outEdge.getKind() == edge.getKind()) {

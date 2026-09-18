@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.android;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -33,7 +34,6 @@ import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -66,8 +66,7 @@ public abstract class AndroidHandler extends AnalysisModelPlugin {
         solver.addEntryPoint(new EntryPoint(entryPoint, builder.build()));
     }
 
-    @Nullable
-    protected CSObj addResultObjectForInvoke(Context context, Invoke invoke) {
+    protected @Nullable CSObj addResultObjectForInvoke(Context context, Invoke invoke) {
         Var result = invoke.getResult();
         if (result != null) {
             Obj resultObj = handlerContext.androidObjManager()

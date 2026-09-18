@@ -22,13 +22,13 @@
 
 package pascal.taie.frontend.java.ir;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.language.type.ClassType;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -48,8 +48,7 @@ public final class BytecodeBlock {
 
     private InsnListSlice instr;
 
-    @Nullable
-    private FrameNode frame;
+    private @Nullable FrameNode frame;
 
     // ----- Stack simulation state -----
     private Stack<StackItem> inStack;
@@ -93,8 +92,7 @@ public final class BytecodeBlock {
         return instr.get(instr.size() - 1);
     }
 
-    @Nullable
-    FrameNode getFrame() {
+    @Nullable FrameNode getFrame() {
         return frame;
     }
 
@@ -133,8 +131,7 @@ public final class BytecodeBlock {
         this.stmts = stmts;
     }
 
-    @Nullable
-    Stmt getLastStmt() {
+    @Nullable Stmt getLastStmt() {
         return stmts.isEmpty() ? null : stmts.get(stmts.size() - 1);
     }
 
@@ -147,8 +144,7 @@ public final class BytecodeBlock {
         return exceptionHandlerTypes != null;
     }
 
-    @Nullable
-    public List<ClassType> getExceptionHandlerTypes() {
+    public @Nullable List<ClassType> getExceptionHandlerTypes() {
         return exceptionHandlerTypes;
     }
 

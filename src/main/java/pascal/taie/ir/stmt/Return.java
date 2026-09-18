@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.stmt;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.RValue;
 import pascal.taie.ir.exp.Var;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -33,8 +33,7 @@ import java.util.Set;
  */
 public class Return extends AbstractStmt {
 
-    @Nullable
-    private final Var value;
+    private final @Nullable Var value;
 
     public Return(@Nullable Var value) {
         this.value = value;
@@ -44,8 +43,7 @@ public class Return extends AbstractStmt {
         this(null);
     }
 
-    @Nullable
-    public Var getValue() {
+    public @Nullable Var getValue() {
         return value;
     }
 

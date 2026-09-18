@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.ir.typing;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.frontend.java.FrontendTypeSystem;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.type.ArrayType;
@@ -32,7 +33,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -52,14 +52,12 @@ final class TypeFlowNode {
     /**
      * The current inferred primitive type.
      */
-    @Nullable
-    private PrimitiveType primitiveType;
+    private @Nullable PrimitiveType primitiveType;
 
     /**
      * The current inferred reference type.
      */
-    @Nullable
-    private ReferenceType referenceType;
+    private @Nullable ReferenceType referenceType;
 
     /**
      * The set of candidate reference types.

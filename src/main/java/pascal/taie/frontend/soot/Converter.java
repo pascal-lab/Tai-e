@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.annotation.Annotation;
@@ -90,7 +91,6 @@ import soot.tagkit.Tag;
 import soot.tagkit.VisibilityAnnotationTag;
 import soot.tagkit.VisibilityParameterAnnotationTag;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -231,8 +231,7 @@ class Converter {
      *         starting from Java 1.5.
      * @see ReferenceTypeGSignature
      */
-    @Nullable
-    private static ReferenceTypeGSignature convertGSignature(SootField sootField) {
+    private static @Nullable ReferenceTypeGSignature convertGSignature(SootField sootField) {
         Tag tag = sootField.getTag("SignatureTag");
         if (tag instanceof SignatureTag signatureTag) {
             return GSignatures.toTypeSig(signatureTag.getSignature());
@@ -245,8 +244,7 @@ class Converter {
      *         starting from Java 1.5.
      * @see MethodGSignature
      */
-    @Nullable
-    private static MethodGSignature convertGSignature(SootMethod sootMethod) {
+    private static @Nullable MethodGSignature convertGSignature(SootMethod sootMethod) {
         Tag tag = sootMethod.getTag("SignatureTag");
         if (tag instanceof SignatureTag signatureTag) {
             return GSignatures.toMethodSig(signatureTag.getSignature());
@@ -336,8 +334,7 @@ class Converter {
      *
      * @see VisibilityParameterAnnotationTag
      */
-    @Nullable
-    private static List<AnnotationHolder> convertParamAnnotations(
+    private static @Nullable List<AnnotationHolder> convertParamAnnotations(
             SootMethod sootMethod) {
         // in Soot, each VisibilityParameterAnnotationTag contains
         // the annotations for all parameters in the SootMethod
@@ -352,8 +349,7 @@ class Converter {
      *
      * @see ParamNamesTag
      */
-    @Nullable
-    private static List<String> convertParamNames(
+    private static @Nullable List<String> convertParamNames(
             SootMethod sootMethod) {
         // in Soot, each ParamNamesTag contains the names of all parameters
         // in the SootMethod, except the case explained below.

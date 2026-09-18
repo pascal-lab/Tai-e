@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.classes;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -60,7 +61,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,9 +173,8 @@ public class BytecodeClassBuilder implements JClassBuilder {
         return false;
     }
 
-    @Nullable
     @Override
-    public ClassGSignature getGSignature() {
+    public @Nullable ClassGSignature getGSignature() {
         // TODO: implement this
         return classGSig;
     }
@@ -284,11 +283,9 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         private final Type type;
 
-        @Nullable
-        private final ReferenceTypeGSignature gSignature;
+        private final @Nullable ReferenceTypeGSignature gSignature;
 
-        @Nullable
-        private final Literal constantValue;
+        private final @Nullable Literal constantValue;
 
         private final List<Annotation> annotations = new ArrayList<>();
 
@@ -339,8 +336,7 @@ public class BytecodeClassBuilder implements JClassBuilder {
 
         private final List<Annotation> annotations = new ArrayList<>();
 
-        @Nullable
-        private List<String> paramNames;
+        private @Nullable List<String> paramNames;
 
         private final Map<Integer, List<Annotation>> paramAnnotations = Maps.newMap();
 

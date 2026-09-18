@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.analysis.pta.core.solver.Solver;
@@ -35,7 +36,6 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Stream;
 

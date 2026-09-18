@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -44,7 +45,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;

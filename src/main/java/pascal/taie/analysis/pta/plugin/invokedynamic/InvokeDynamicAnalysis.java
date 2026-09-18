@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.World;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
@@ -58,7 +59,6 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -203,8 +203,7 @@ public class InvokeDynamicAnalysis implements Plugin {
         }
     }
 
-    @Nullable
-    private static InvokeDynamic getInvokeDynamic(Invoke invoke) {
+    private static @Nullable InvokeDynamic getInvokeDynamic(Invoke invoke) {
         InvokeExp invokeExp = invoke.getInvokeExp();
         if (invokeExp instanceof InvokeDynamic) {
             if (!LambdaAnalysis.isLambdaMetaFactory(invoke) &&

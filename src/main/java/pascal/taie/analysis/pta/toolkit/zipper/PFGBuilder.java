@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
@@ -43,7 +44,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -276,8 +276,7 @@ class PFGBuilder {
         return outEdges;
     }
 
-    @Nullable
-    private VarNode getAssignedNode(Obj obj) {
+    private @Nullable VarNode getAssignedNode(Obj obj) {
         if (obj.getAllocation() instanceof New newStmt) {
             Var lhs = newStmt.getLValue();
             return ofg.getVarNode(lhs);

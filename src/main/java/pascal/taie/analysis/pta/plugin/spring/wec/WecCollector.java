@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.spring.wec;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.pta.plugin.spring.SpringPluginConfig;
@@ -41,7 +42,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;

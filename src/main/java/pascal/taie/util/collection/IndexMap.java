@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.Indexer;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -199,8 +199,7 @@ public class IndexMap<K, V> extends AbstractMap<K, V>
         }
 
         @Override
-        @Nonnull
-        public Iterator<Entry<K, V>> iterator() {
+        public @NonNull Iterator<Entry<K, V>> iterator() {
             return new EntryIterator();
         }
 

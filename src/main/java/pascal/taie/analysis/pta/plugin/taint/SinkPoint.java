@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.ir.stmt.Invoke;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 
 /**
@@ -41,7 +41,7 @@ record SinkPoint(Invoke sinkCall, IndexRef indexRef, Sink sink)
                     .thenComparing(SinkPoint::indexRef);
 
     @Override
-    public int compareTo(@Nonnull SinkPoint other) {
+    public int compareTo(@NonNull SinkPoint other) {
         return COMPARATOR.compare(this, other);
     }
 

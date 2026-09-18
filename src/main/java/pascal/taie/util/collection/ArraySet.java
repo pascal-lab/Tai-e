@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,15 +93,12 @@ public class ArraySet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    @Nonnull
-    public Object[] toArray() {
+    public Object @NonNull [] toArray() {
         return elements.toArray();
     }
 
     @Override
-    @Nonnull
-    public <T> T[] toArray(@Nonnull T[] a) {
-        //noinspection SuspiciousToArrayCall
+    public <T> T @NonNull [] toArray(T @NonNull [] a) {
         return elements.toArray(a);
     }
 
@@ -122,7 +120,7 @@ public class ArraySet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean containsAll(@Nonnull Collection<?> c) {
+    public boolean containsAll(@NonNull Collection<?> c) {
         return elements.containsAll(c);
     }
 
@@ -136,7 +134,7 @@ public class ArraySet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(@NonNull Collection<?> c) {
         return elements.retainAll(c);
     }
 
@@ -146,8 +144,7 @@ public class ArraySet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    @Nonnull
-    public Iterator<E> iterator() {
+    public @NonNull Iterator<E> iterator() {
         return elements.iterator();
     }
 

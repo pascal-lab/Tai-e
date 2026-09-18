@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,8 +76,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
         }
 
         @Override
-        @Nonnull
-        public Iterator<Map.Entry<K, V>> iterator() {
+        public @NonNull Iterator<Map.Entry<K, V>> iterator() {
             return entryIterator();
         }
 

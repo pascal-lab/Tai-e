@@ -22,7 +22,8 @@
 
 package pascal.taie.language.annotation;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -50,8 +51,7 @@ public class AnnotationHolder implements Serializable {
         return annotations.containsKey(annotationType);
     }
 
-    @Nullable
-    public Annotation getAnnotation(String annotationType) {
+    public @Nullable Annotation getAnnotation(String annotationType) {
         return annotations.get(annotationType);
     }
 

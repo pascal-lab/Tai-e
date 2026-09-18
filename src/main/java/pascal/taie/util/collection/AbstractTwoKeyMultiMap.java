@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collections;
@@ -62,8 +63,7 @@ public abstract class AbstractTwoKeyMultiMap<K1, K2, V> implements
         }
 
         @Override
-        @Nonnull
-        public Iterator<TwoKeyMap.Entry<K1, K2, V>> iterator() {
+        public @NonNull Iterator<TwoKeyMap.Entry<K1, K2, V>> iterator() {
             return entryIterator();
         }
 

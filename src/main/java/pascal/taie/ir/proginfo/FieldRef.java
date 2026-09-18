@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.proginfo;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
@@ -32,7 +33,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -62,8 +62,7 @@ public class FieldRef extends MemberRef {
      * @see #resolve()
      * @see #resolveNullable()
      */
-    @Nullable
-    private transient JField field;
+    private transient @Nullable JField field;
 
     private transient int cachedHash = 0;
 
@@ -95,8 +94,7 @@ public class FieldRef extends MemberRef {
     }
 
     @Override
-    @Nullable
-    public JField resolveNullable() {
+    public @Nullable JField resolveNullable() {
         if (field == null) {
             field = World.get().getClassHierarchy()
                     .resolveField(this);

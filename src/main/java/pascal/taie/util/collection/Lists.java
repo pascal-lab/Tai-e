@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -73,9 +74,8 @@ public final class Lists {
      */
     public static <T> Set<T> asSet(List<T> list) {
         return new AbstractSet<>() {
-            @Nonnull
             @Override
-            public Iterator<T> iterator() {
+            public @NonNull Iterator<T> iterator() {
                 return list.iterator();
             }
 

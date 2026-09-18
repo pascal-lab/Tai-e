@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.android.misc;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.cs.context.Context;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -32,8 +33,6 @@ import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.language.classes.Subsignature;
 import pascal.taie.language.type.ClassType;
-
-import javax.annotation.Nullable;
 
 import static pascal.taie.analysis.pta.plugin.util.InvokeUtils.BASE;
 

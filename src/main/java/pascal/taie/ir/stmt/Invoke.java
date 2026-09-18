@@ -22,6 +22,8 @@
 
 package pascal.taie.ir.stmt;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.InvokeDynamic;
 import pascal.taie.ir.exp.InvokeExp;
 import pascal.taie.ir.exp.InvokeInstanceExp;
@@ -36,8 +38,6 @@ import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.collection.ArraySet;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -52,8 +52,7 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
      * The variable receiving the result of the invocation. This field
      * is null if no variable receives the invocation result, e.g., o.m(...).
      */
-    @Nullable
-    private final Var result;
+    private final @Nullable Var result;
 
     /**
      * The invocation expression.
@@ -80,13 +79,11 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
     }
 
     @Override
-    @Nullable
-    public Var getLValue() {
+    public @Nullable Var getLValue() {
         return result;
     }
 
-    @Nullable
-    public Var getResult() {
+    public @Nullable Var getResult() {
         return result;
     }
 
@@ -160,7 +157,7 @@ public class Invoke extends DefinitionStmt<Var, InvokeExp>
                     .thenComparingInt(Stmt::getIndex);
 
     @Override
-    public int compareTo(@Nonnull Invoke other) {
+    public int compareTo(@NonNull Invoke other) {
         return COMPARATOR.compare(this, other);
     }
 

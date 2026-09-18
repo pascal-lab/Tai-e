@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.exp;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.Type;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,8 +46,7 @@ public class InvokeDynamic extends InvokeExp {
      * bootstrap method handle {@code methodHandle = kind + methodRef}
      * Soot lost the {@code kind} information.
      */
-    @Nullable
-    private final MethodHandle bootstrapMethodHandle;
+    private final @Nullable MethodHandle bootstrapMethodHandle;
 
     /**
      * Bootstrap method reference.

@@ -22,11 +22,11 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
@@ -42,7 +43,6 @@ import pascal.taie.util.collection.MultiMapCollector;
 import pascal.taie.util.collection.Sets;
 import pascal.taie.util.collection.Triple;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,9 +73,8 @@ public class JClass extends AbstractResultHolder
 
     private ClassType type;
 
-    @Nullable
     @Experimental
-    private ClassGSignature gSignature;
+    private @Nullable ClassGSignature gSignature;
 
     private Set<Modifier> modifiers;
 
@@ -109,8 +108,7 @@ public class JClass extends AbstractResultHolder
      * The source (origin) of content of this class. Set during construction
      * and can be released via {@link #releaseClassSource()} to save memory.
      */
-    @Nullable
-    private transient ClassSource classSource;
+    private transient @Nullable ClassSource classSource;
 
     private int index = -1;
 
@@ -199,9 +197,8 @@ public class JClass extends AbstractResultHolder
         return type;
     }
 
-    @Nullable
     @Experimental
-    public ClassGSignature getGSignature() {
+    public @Nullable ClassGSignature getGSignature() {
         return gSignature;
     }
 
@@ -245,8 +242,7 @@ public class JClass extends AbstractResultHolder
         return Modifier.hasSynthetic(modifiers);
     }
 
-    @Nullable
-    public JClass getSuperClass() {
+    public @Nullable JClass getSuperClass() {
         return superClass;
     }
 
@@ -258,8 +254,7 @@ public class JClass extends AbstractResultHolder
         return outerClass != null;
     }
 
-    @Nullable
-    public JClass getOuterClass() {
+    public @Nullable JClass getOuterClass() {
         return outerClass;
     }
 
@@ -273,8 +268,7 @@ public class JClass extends AbstractResultHolder
      * @throws AmbiguousMemberException if this class has multiple fields
      *                                  with the given name.
      */
-    @Nullable
-    public JField getDeclaredField(String fieldName) {
+    public @Nullable JField getDeclaredField(String fieldName) {
         Set<JField> fields = declaredFields.get(fieldName);
         return switch (fields.size()) {
             case 0 -> null;
@@ -289,8 +283,7 @@ public class JClass extends AbstractResultHolder
      * @return the target field with given name and type,
      * or {@code null} if such field does not exist.
      */
-    @Nullable
-    public JField getDeclaredField(String fieldName, Type fieldType) {
+    public @Nullable JField getDeclaredField(String fieldName, Type fieldType) {
         for (JField field : declaredFields.get(fieldName)) {
             if (field.getType().equals(fieldType)) {
                 return field;
@@ -307,8 +300,7 @@ public class JClass extends AbstractResultHolder
      * @return the target field with given name and type,
      * or {@code null} if such field does not exist.
      */
-    @Nullable
-    public JField getDeclaredField(String fieldName, String typeName) {
+    public @Nullable JField getDeclaredField(String fieldName, String typeName) {
         for (JField field : declaredFields.get(fieldName)) {
             if (field.getType().getName().equals(typeName)) {
                 return field;
@@ -327,8 +319,7 @@ public class JClass extends AbstractResultHolder
      * @throws AmbiguousMemberException if this class has multiple methods
      *                                  with the given name.
      */
-    @Nullable
-    public JMethod getDeclaredMethod(String methodName) {
+    public @Nullable JMethod getDeclaredMethod(String methodName) {
         JMethod result = null;
         for (JMethod method : declaredMethods.values()) {
             if (method.getName().equals(methodName)) {
@@ -349,13 +340,11 @@ public class JClass extends AbstractResultHolder
      * @return the target method with given subsignature,
      * or {@code null} if such method does not exist.
      */
-    @Nullable
-    public JMethod getDeclaredMethod(Subsignature subsignature) {
+    public @Nullable JMethod getDeclaredMethod(Subsignature subsignature) {
         return declaredMethods.get(subsignature);
     }
 
-    @Nullable
-    public JMethod getClinit() {
+    public @Nullable JMethod getClinit() {
         return getDeclaredMethod(Subsignature.getClinit());
     }
 
@@ -365,8 +354,7 @@ public class JClass extends AbstractResultHolder
     }
 
     @Override
-    @Nullable
-    public Annotation getAnnotation(String annotationType) {
+    public @Nullable Annotation getAnnotation(String annotationType) {
         return annotationHolder.getAnnotation(annotationType);
     }
 
@@ -386,8 +374,7 @@ public class JClass extends AbstractResultHolder
     /**
      * @return the phantom field. If not exist yet, create one atomically.
      */
-    @Nullable
-    public JField getPhantomField(String fieldName, Type fieldType, boolean isStatic) {
+    public @Nullable JField getPhantomField(String fieldName, Type fieldType, boolean isStatic) {
         assert isPhantom();
         FieldKey key = new FieldKey(fieldName, fieldType);
         return phantomFields.computeIfAbsent(key, k -> {
@@ -400,8 +387,7 @@ public class JClass extends AbstractResultHolder
     /**
      * @return the phantom method by given subsignature. If not exist yet, create one atomically.
      */
-    @Nullable
-    public JMethod getPhantomMethod(Subsignature subsignature) {
+    public @Nullable JMethod getPhantomMethod(Subsignature subsignature) {
         assert isPhantom();
         return phantomMethods.computeIfAbsent(subsignature, k -> {
             Triple<String, List<Type>, Type> t = parseSubsignature(subsignature);
@@ -454,8 +440,7 @@ public class JClass extends AbstractResultHolder
      *
      * @return the ClassSource instance, or null for phantom classes
      */
-    @Nullable
-    public ClassSource getClassSource() {
+    public @Nullable ClassSource getClassSource() {
         return classSource;
     }
 

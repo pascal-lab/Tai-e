@@ -22,12 +22,12 @@
 
 package pascal.taie.analysis.bugfinder.nullpointer;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.graph.cfg.CFGEdge;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.If;
 import pascal.taie.language.type.ReferenceType;
 
-import javax.annotation.CheckForNull;
 
 class IsNullConditionDecision {
 
@@ -62,8 +62,7 @@ class IsNullConditionDecision {
         return getDecision(edgeKind) != null;
     }
 
-    @CheckForNull
-    IsNullValue getDecision(CFGEdge.Kind edgeKind) {
+    @Nullable IsNullValue getDecision(CFGEdge.Kind edgeKind) {
         return switch (edgeKind) {
             case IF_TRUE -> ifTrueDecision;
             case IF_FALSE -> ifFalseDecision;

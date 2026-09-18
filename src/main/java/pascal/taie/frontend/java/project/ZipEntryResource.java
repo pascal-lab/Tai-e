@@ -22,7 +22,8 @@
 
 package pascal.taie.frontend.java.project;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -34,10 +35,9 @@ public class ZipEntryResource implements Resource {
 
     private final FileSystem fileSystem;
 
-    @Nullable
-    private byte[] cache;
+    private byte @Nullable [] cache;
 
-    public ZipEntryResource(String path, FileSystem fileSystem, @Nullable byte[] cache) {
+    public ZipEntryResource(String path, FileSystem fileSystem, byte @Nullable [] cache) {
         this.cache = cache;
         this.path = path;
         this.fileSystem = fileSystem;

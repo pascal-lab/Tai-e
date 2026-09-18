@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.spring.util;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -32,7 +33,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
-import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -108,8 +108,7 @@ public final class XmlConfiguration {
         }
     }
 
-    @Nonnull
-    public Collection<Node> getNodesByTag(String tagName) {
+    public @NonNull Collection<Node> getNodesByTag(String tagName) {
         return tag2FilenameNodes.get(tagName)
                 .stream()
                 .map(Pair::second)

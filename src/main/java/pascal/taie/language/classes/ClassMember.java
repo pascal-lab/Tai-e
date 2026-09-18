@@ -22,11 +22,11 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.annotation.Annotated;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.AnnotationHolder;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
@@ -103,8 +103,7 @@ public abstract class ClassMember implements Annotated, Serializable {
     }
 
     @Override
-    @Nullable
-    public Annotation getAnnotation(String annotationType) {
+    public @Nullable Annotation getAnnotation(String annotationType) {
         return annotationHolder.getAnnotation(annotationType);
     }
 

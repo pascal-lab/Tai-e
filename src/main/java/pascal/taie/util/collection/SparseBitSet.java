@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -1003,8 +1004,7 @@ public class SparseBitSet extends AbstractBitSet
      * @param w2    level 2 index
      * @return the block if it is present in the table, or {@code null} if absent.
      */
-    @Nullable
-    private static long[] getBlock(long[][][] table, int w1, int w2) {
+    private static long @Nullable [] getBlock(long[][][] table, int w1, int w2) {
         return w1 < table.length && table[w1] != null ? table[w1][w2] : null;
     }
 

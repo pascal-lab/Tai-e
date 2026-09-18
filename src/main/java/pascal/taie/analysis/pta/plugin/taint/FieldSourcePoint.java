@@ -22,11 +22,11 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.ir.IRPrinter;
 import pascal.taie.ir.stmt.LoadField;
 import pascal.taie.language.classes.JMethod;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 
 record FieldSourcePoint(JMethod container, LoadField loadField, FieldSource source)
@@ -37,7 +37,7 @@ record FieldSourcePoint(JMethod container, LoadField loadField, FieldSource sour
                     .thenComparingInt(fsp -> fsp.loadField().getIndex());
 
     @Override
-    public int compareTo(@Nonnull SourcePoint sp) {
+    public int compareTo(@NonNull SourcePoint sp) {
         if (sp instanceof FieldSourcePoint fsp) {
             return COMPARATOR.compare(this, fsp);
         }

@@ -22,10 +22,10 @@
 
 package pascal.taie.ir.proginfo;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.classes.ClassMember;
 import pascal.taie.language.classes.JClass;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 
 /**
@@ -71,6 +71,5 @@ public abstract class MemberRef implements Serializable {
      * @return the concrete class member pointed by this reference,
      * or null if the member cannot be resolved.
      */
-    @Nullable
-    public abstract ClassMember resolveNullable();
+    public abstract @Nullable ClassMember resolveNullable();
 }

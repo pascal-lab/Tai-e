@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.soot;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.World;
 import pascal.taie.android.util.AndroidSystemClassUtil;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -38,7 +39,6 @@ import soot.SootClass;
 import soot.tagkit.SignatureTag;
 import soot.tagkit.Tag;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -118,9 +118,8 @@ class SootClassBuilder implements JClassBuilder {
         return sootClass.isPhantom();
     }
 
-    @Nullable
     @Override
-    public ClassGSignature getGSignature() {
+    public @Nullable ClassGSignature getGSignature() {
         Tag tag = sootClass.getTag("SignatureTag");
         if (tag instanceof SignatureTag signatureTag) {
             return GSignatures.toClassSig(sootClass.isInterface(),

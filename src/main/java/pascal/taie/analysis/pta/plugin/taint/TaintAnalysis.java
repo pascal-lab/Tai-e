@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
@@ -43,7 +44,6 @@ import pascal.taie.language.type.TypeSystem;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Monitor;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -226,8 +226,7 @@ public class TaintAnalysis extends CompositePlugin {
      * @return one line read from the console,
      * or {@code null} if no line is available
      */
-    @Nullable
-    private static String readLineFromConsole() {
+    private static @Nullable String readLineFromConsole() {
         StringBuilder sb = new StringBuilder();
         try {
             int c;

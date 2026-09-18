@@ -22,14 +22,14 @@
 
 package pascal.taie.frontend.java.project;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.jar.Manifest;
 
 class JarContainer extends ZipContainer {
 
-    @Nullable
-    private final Manifest manifest;
+    private final @Nullable Manifest manifest;
 
     JarContainer(String name,
                  List<ClassFile> files, List<FileContainer> containers,
@@ -43,8 +43,7 @@ class JarContainer extends ZipContainer {
         return getName() + ".jar";
     }
 
-    @Nullable
-    Manifest getManifest() {
+    @Nullable Manifest getManifest() {
         return manifest;
     }
 }

@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.ir.proginfo.FieldRef;
@@ -34,7 +35,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.TwoKeyMap;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -181,34 +181,29 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JClass getClass(JClassLoader loader, String name) {
+    public @Nullable JClass getClass(JClassLoader loader, String name) {
         return loader.loadClass(name);
     }
 
     @Override
-    @Nullable
-    public JClass getClass(JClassLoader loader, String name, boolean allowPhantom) {
+    public @Nullable JClass getClass(JClassLoader loader, String name, boolean allowPhantom) {
         return loader.loadClass(name, allowPhantom);
     }
 
     @Override
-    @Nullable
-    public JClass getClass(String name) {
+    public @Nullable JClass getClass(String name) {
         // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name);
     }
 
     @Override
-    @Nullable
-    public JClass getClass(String name, boolean allowPhantom) {
+    public @Nullable JClass getClass(String name, boolean allowPhantom) {
         // TODO: add warning for missing class loader
         return getClass(getDefaultClassLoader(), name, allowPhantom);
     }
 
     @Override
-    @Nullable
-    public JMethod getMethod(String methodSig) {
+    public @Nullable JMethod getMethod(String methodSig) {
         // TODO: add warning for ambiguous methods (due to classes
         //  with the same name)
         String className = StringReps.getClassNameOf(methodSig);
@@ -222,8 +217,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JField getField(String fieldSig) {
+    public @Nullable JField getField(String fieldSig) {
         // TODO: add warning for ambiguous fields (due to classes
         //  with the same name)
         String className = StringReps.getClassNameOf(fieldSig);
@@ -237,14 +231,12 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JClass getJREClass(String name) {
+    public @Nullable JClass getJREClass(String name) {
         return getClass(getBootstrapClassLoader(), name, false);
     }
 
     @Override
-    @Nullable
-    public JMethod getJREMethod(String methodSig) {
+    public @Nullable JMethod getJREMethod(String methodSig) {
         String className = StringReps.getClassNameOf(methodSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -256,8 +248,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JField getJREField(String fieldSig) {
+    public @Nullable JField getJREField(String fieldSig) {
         String className = StringReps.getClassNameOf(fieldSig);
         JClass jclass = getJREClass(className);
         if (jclass != null) {
@@ -268,8 +259,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JMethod resolveMethod(MethodRef methodRef) {
+    public @Nullable JMethod resolveMethod(MethodRef methodRef) {
         JClass declaringClass = methodRef.getDeclaringClass();
         JMethod method = lookupMethod(declaringClass,
                 methodRef.getSubsignature(), true);
@@ -284,8 +274,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JField resolveField(FieldRef fieldRef) {
+    public @Nullable JField resolveField(FieldRef fieldRef) {
         return resolveField(fieldRef.getDeclaringClass(),
                 fieldRef.getName(), fieldRef.getType(), fieldRef.isStatic());
     }
@@ -323,8 +312,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JMethod dispatch(Type receiverType, MethodRef methodRef) {
+    public @Nullable JMethod dispatch(Type receiverType, MethodRef methodRef) {
         JClass cls;
         if (receiverType instanceof ClassType) {
             cls = ((ClassType) receiverType).getJClass();
@@ -338,8 +326,7 @@ public class ClassHierarchyImpl implements ClassHierarchy {
     }
 
     @Override
-    @Nullable
-    public JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
+    public @Nullable JMethod dispatch(JClass receiverClass, MethodRef methodRef) {
         // check the subclass relation between the receiver class and
         // the class of method reference to avoid the unexpected method found
         if (!isSubclass(methodRef.getDeclaringClass(), receiverClass)) {

@@ -22,11 +22,11 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import pascal.taie.util.TriFunction;
 import pascal.taie.util.function.SerializableSupplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
@@ -59,15 +59,13 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     }
 
     @Override
-    @Nullable
-    public Map<K2, V> get(K1 key1) {
+    public @Nullable Map<K2, V> get(K1 key1) {
         var m = map.get(key1);
         return m == null ? null : Collections.unmodifiableMap(m);
     }
 
     @Override
-    @Nullable
-    public V put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value) {
+    public @Nullable V put(@NonNull K1 key1, @NonNull K2 key2, @NonNull V value) {
         Objects.requireNonNull(key1, NULL_KEY);
         Objects.requireNonNull(key2, NULL_KEY);
         Objects.requireNonNull(value, NULL_VALUE);
@@ -79,25 +77,24 @@ public class MapMapTwoKeyMap<K1, K2, V> extends
     }
 
     @Override
-    public void putAll(@Nonnull K1 key1, @Nonnull Map<K2, V> map) {
+    public void putAll(@NonNull K1 key1, @NonNull Map<K2, V> map) {
         Objects.requireNonNull(key1, NULL_KEY);
         Objects.requireNonNull(map);
         map.forEach((k2, v) -> put(key1, k2, v));
     }
 
     @Override
-    public void putAll(@Nonnull TwoKeyMap<K1, K2, V> twoKeyMap) {
+    public void putAll(@NonNull TwoKeyMap<K1, K2, V> twoKeyMap) {
         Objects.requireNonNull(twoKeyMap);
         twoKeyMap.forEach(this::put);
     }
 
-    private Map<K2, V> getOrCreateMap(@Nonnull K1 key1) {
+    private Map<K2, V> getOrCreateMap(@NonNull K1 key1) {
         return map.computeIfAbsent(key1, __ -> mapFactory.get());
     }
 
     @Override
-    @Nullable
-    public V remove(K1 key1, K2 key2) {
+    public @Nullable V remove(K1 key1, K2 key2) {
         Map<K2, V> mappings = map.get(key1);
         V oldV = null;
         if (mappings != null) {

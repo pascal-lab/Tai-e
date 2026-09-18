@@ -22,14 +22,14 @@
 
 package pascal.taie.analysis.pta.plugin.spring.util;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.language.annotation.Annotation;
 import pascal.taie.language.annotation.ArrayElement;
 import pascal.taie.language.annotation.StringElement;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,13 +43,11 @@ public final class AnnotationUtils {
     private AnnotationUtils() {
     }
 
-    @Nullable
-    public static String getStringElement(@Nullable Annotation anno) {
+    public static @Nullable String getStringElement(@Nullable Annotation anno) {
         return getStringElement(anno, DEFAULT_KEY);
     }
 
-    @Nullable
-    public static String getStringElement(@Nullable Annotation anno,
+    public static @Nullable String getStringElement(@Nullable Annotation anno,
                                           String elementKey) {
         return Optional.ofNullable(anno)
                        .map(annotation -> annotation.getElement(elementKey))
@@ -59,16 +57,14 @@ public final class AnnotationUtils {
                        .orElse(null);
     }
 
-    @Nullable
-    public static String getStringElementAlias(@Nullable Annotation anno,
+    public static @Nullable String getStringElementAlias(@Nullable Annotation anno,
                                                String elementKey1,
                                                String elementKey2) {
         return Optional.ofNullable(getStringElement(anno, elementKey1))
                        .orElseGet(() -> getStringElement(anno, elementKey2));
     }
 
-    @Nonnull
-    public static List<String> getStringArrayElement(@Nullable Annotation anno,
+    public static @NonNull List<String> getStringArrayElement(@Nullable Annotation anno,
                                                      String elementKey) {
         return Optional.ofNullable(anno)
                        .map(annotation -> annotation.getElement(elementKey))
@@ -81,8 +77,7 @@ public final class AnnotationUtils {
                        .collect(Collectors.toList());
     }
 
-    @Nonnull
-    public static List<String> getStringArrayElementAlias(Annotation anno, String key1, String key2) {
+    public static @NonNull List<String> getStringArrayElementAlias(Annotation anno, String key1, String key2) {
         List<String> result1 = getStringArrayElement(anno, key1);
         List<String> result2 = getStringArrayElement(anno, key2);
         if ((result1.isEmpty() ^ result2.isEmpty()) || result1.equals(result2)) {

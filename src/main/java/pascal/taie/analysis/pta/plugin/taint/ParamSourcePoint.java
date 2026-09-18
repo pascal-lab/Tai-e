@@ -22,9 +22,9 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.language.classes.JMethod;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 
 /**
@@ -38,7 +38,7 @@ record ParamSourcePoint(JMethod sourceMethod, IndexRef indexRef, ParamSource sou
                     .thenComparing(ParamSourcePoint::indexRef);
 
     @Override
-    public int compareTo(@Nonnull SourcePoint sp) {
+    public int compareTo(@NonNull SourcePoint sp) {
         if (sp instanceof ParamSourcePoint psp) {
             return COMPARATOR.compare(this, psp);
         }

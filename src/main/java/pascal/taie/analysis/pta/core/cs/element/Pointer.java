@@ -22,13 +22,13 @@
 
 package pascal.taie.analysis.pta.core.cs.element;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.solver.PointerFlowEdge;
 import pascal.taie.analysis.pta.pts.PointsToSet;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Indexable;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -49,8 +49,7 @@ public interface Pointer extends Indexable {
      *
      * @return the points-to set associated with this pointer.
      */
-    @Nullable
-    PointsToSet getPointsToSet();
+    @Nullable PointsToSet getPointsToSet();
 
     /**
      * Sets the associated points-to set of this pointer.

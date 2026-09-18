@@ -22,11 +22,11 @@
 
 package pascal.taie.frontend.java.project;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.util.PathUtils;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -260,8 +260,7 @@ class FileLoader {
     /**
      * Gets the manifest of a jar file.
      */
-    @Nullable
-    private static Manifest getManifest(FileSystem fs) throws IOException {
+    private static @Nullable Manifest getManifest(FileSystem fs) throws IOException {
         Path p = fs.getPath("META-INF/MANIFEST.MF");
         if (Files.exists(p)) {
             return new Manifest(Files.newInputStream(p));

@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.plugin.util.InvokeUtils;
 import pascal.taie.language.classes.JField;
 
-import javax.annotation.Nullable;
 
 public record IndexRef(Kind kind, int index, @Nullable JField field)
         implements Comparable<IndexRef> {

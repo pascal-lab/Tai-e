@@ -22,6 +22,7 @@
 
 package pascal.taie.language.classes;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.Literal;
 import pascal.taie.ir.proginfo.FieldRef;
 import pascal.taie.language.annotation.AnnotationHolder;
@@ -29,7 +30,6 @@ import pascal.taie.language.generics.ReferenceTypeGSignature;
 import pascal.taie.language.type.Type;
 import pascal.taie.util.Experimental;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -61,12 +61,10 @@ public class JField extends ClassMember {
      * Thus, to avoid losing the constant value, we need to store it in the {@code
      * constantValue } field.
      */
-    @Nullable
-    private final Literal constantValue;
+    private final @Nullable Literal constantValue;
 
-    @Nullable
     @Experimental
-    private final ReferenceTypeGSignature gSignature;
+    private final @Nullable ReferenceTypeGSignature gSignature;
 
     public JField(JClass declaringClass, String name, Set<Modifier> modifiers,
                   Type type, @Nullable ReferenceTypeGSignature gSignature,
@@ -83,9 +81,8 @@ public class JField extends ClassMember {
         return type;
     }
 
-    @Nullable
     @Experimental
-    public ReferenceTypeGSignature getGSignature() {
+    public @Nullable ReferenceTypeGSignature getGSignature() {
         return gSignature;
     }
 
@@ -107,8 +104,7 @@ public class JField extends ClassMember {
      * See <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7.2">JVM Spec 4.7.2</a>
      * @return constant value for static final fields, can be a primitive type or string value
      */
-    @Nullable
-    public Literal getConstantValue() {
+    public @Nullable Literal getConstantValue() {
         return constantValue;
     }
 }

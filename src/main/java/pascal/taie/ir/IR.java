@@ -22,6 +22,7 @@
 
 package pascal.taie.ir;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Invoke;
@@ -30,7 +31,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.Indexer;
 import pascal.taie.util.ResultHolder;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -52,8 +52,7 @@ public interface IR extends Iterable<Stmt>, Indexer<Stmt>,
      * @return the "this" variable in this IR.
      * If the method is static, then returns null.
      */
-    @Nullable
-    Var getThis();
+    @Nullable Var getThis();
 
     /**
      * @return the parameters in this IR ("this" variable is excluded).

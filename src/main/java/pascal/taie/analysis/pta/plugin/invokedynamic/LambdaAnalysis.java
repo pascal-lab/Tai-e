@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.invokedynamic;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.graph.callgraph.Edge;
 import pascal.taie.analysis.graph.flowgraph.FlowKind;
 import pascal.taie.analysis.pta.core.cs.context.Context;
@@ -55,7 +56,6 @@ import pascal.taie.util.AnalysisException;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class LambdaAnalysis implements Plugin {

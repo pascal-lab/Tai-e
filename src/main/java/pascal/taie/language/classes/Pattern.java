@@ -22,7 +22,8 @@
 
 package pascal.taie.language.classes;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -100,9 +101,8 @@ class Pattern {
             return units.stream().anyMatch(NAME_WILDCARD::equals);
         }
 
-        @Nonnull
         @Override
-        public Iterator<NameUnit> iterator() {
+        public @NonNull Iterator<NameUnit> iterator() {
             return units.iterator();
         }
 

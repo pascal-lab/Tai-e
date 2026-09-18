@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.core.solver;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
 import pascal.taie.analysis.pta.core.heap.Obj;
@@ -35,7 +36,6 @@ import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.TwoKeyMultiMap;
 
-import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
@@ -68,8 +68,7 @@ public class DeclaredParamProvider implements ParamProvider {
         }
     }
 
-    @Nullable
-    private Obj thisObj;
+    private @Nullable Obj thisObj;
 
     private Obj[] paramObjs;
 

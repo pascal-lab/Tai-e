@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.exp;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.ir.stmt.LoadArray;
 import pascal.taie.ir.stmt.LoadField;
@@ -33,7 +34,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.AnalysisException;
 import pascal.taie.util.Indexable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

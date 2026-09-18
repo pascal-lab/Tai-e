@@ -22,6 +22,7 @@
 
 package pascal.taie.android.info;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.classes.ClassHierarchy;
 import pascal.taie.language.classes.JClass;
 import pascal.taie.util.collection.Maps;
@@ -30,7 +31,6 @@ import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -178,20 +178,17 @@ final class ManifestIntentFilterResolver {
                 dataAttributes.get(DATA_MIME_TYPE)).convertToDataSet();
     }
 
-    @Nullable
-    private String getParentName(AXmlNode intentFilter) {
+    private @Nullable String getParentName(AXmlNode intentFilter) {
         AXmlNode parent = intentFilter.getParent();
         String name = parent == null ? null : getAttributeValue(parent);
         return name == null ? null : manifest.expandClassName(name);
     }
 
-    @Nullable
-    private static String getAttributeValue(AXmlNode node) {
+    private static @Nullable String getAttributeValue(AXmlNode node) {
         return getAttributeValue(node.getAttribute(ATTR_NAME));
     }
 
-    @Nullable
-    private static String getAttributeValue(@Nullable AXmlAttribute<?> attribute) {
+    private static @Nullable String getAttributeValue(@Nullable AXmlAttribute<?> attribute) {
         if (attribute == null || attribute.getValue() == null) {
             return null;
         }

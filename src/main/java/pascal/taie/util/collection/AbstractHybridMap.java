@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.Hashes;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -285,20 +285,17 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
     }
 
     @Override
-    @Nonnull
-    public Collection<V> values() {
+    public @NonNull Collection<V> values() {
         return new Values();
     }
 
     @Override
-    @Nonnull
-    public Set<Entry<K, V>> entrySet() {
+    public @NonNull Set<Entry<K, V>> entrySet() {
         return new EntrySet();
     }
 
     @Override
-    @Nonnull
-    public Set<K> keySet() {
+    public @NonNull Set<K> keySet() {
         return new KeySet();
     }
 
@@ -346,13 +343,11 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
         }
 
         @Override
-        @Nonnull
-        public Iterator<K> iterator() {
+        public @NonNull Iterator<K> iterator() {
             if (singletonKey != null) {
                 return new SingletonIterator<K>() {
                     @Override
-                    @Nonnull
-                    public K next() {
+                    public @NonNull K next() {
                         return nextKey();
                     }
                 };
@@ -381,8 +376,7 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
         }
 
         @Override
-        @Nonnull
-        public Iterator<V> iterator() {
+        public @NonNull Iterator<V> iterator() {
             if (singletonKey != null) {
                 return new SingletonIterator<V>() {
                     @Override
@@ -405,13 +399,11 @@ public abstract class AbstractHybridMap<K, V> extends AbstractMap<K, V>
 
     private final class EntrySet extends AbstractSet<Entry<K, V>> {
         @Override
-        @Nonnull
-        public Iterator<Entry<K, V>> iterator() {
+        public @NonNull Iterator<Entry<K, V>> iterator() {
             if (singletonKey != null) {
                 return new SingletonIterator<Entry<K, V>>() {
                     @Override
-                    @Nonnull
-                    public Entry<K, V> next() {
+                    public @NonNull Entry<K, V> next() {
                         return nextEntry();
                     }
                 };

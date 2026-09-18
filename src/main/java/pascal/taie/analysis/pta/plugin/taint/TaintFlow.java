@@ -22,7 +22,8 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Comparator;
 
 /**
@@ -36,7 +37,7 @@ public record TaintFlow(SourcePoint sourcePoint, SinkPoint sinkPoint)
                     .thenComparing(TaintFlow::sinkPoint);
 
     @Override
-    public int compareTo(@Nonnull TaintFlow other) {
+    public int compareTo(@NonNull TaintFlow other) {
         return COMPARATOR.compare(this, other);
     }
 

@@ -22,10 +22,10 @@
 
 package pascal.taie.frontend.java.ir;
 
+import org.jspecify.annotations.NonNull;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
-import javax.annotation.Nonnull;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,8 +70,7 @@ class InsnListSlice extends AbstractList<AbstractInsnNode> {
     }
 
     @Override
-    @Nonnull
-    public Iterator<AbstractInsnNode> iterator() {
+    public @NonNull Iterator<AbstractInsnNode> iterator() {
         return new Iterator<>() {
             int cursor = start;
 

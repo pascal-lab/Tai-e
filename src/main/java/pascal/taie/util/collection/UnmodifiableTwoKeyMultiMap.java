@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.TriConsumer;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Objects;
@@ -35,7 +35,7 @@ class UnmodifiableTwoKeyMultiMap<K1, K2, V> implements
 
     private final TwoKeyMultiMap<K1, K2, V> m;
 
-    UnmodifiableTwoKeyMultiMap(@Nonnull TwoKeyMultiMap<K1, K2, V> m) {
+    UnmodifiableTwoKeyMultiMap(@NonNull TwoKeyMultiMap<K1, K2, V> m) {
         this.m = Objects.requireNonNull(m);
     }
 
@@ -70,7 +70,7 @@ class UnmodifiableTwoKeyMultiMap<K1, K2, V> implements
     }
 
     @Override
-    public boolean put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value) {
+    public boolean put(@NonNull K1 key1, @NonNull K2 key2, @NonNull V value) {
         throw new UnsupportedOperationException();
     }
 
@@ -105,7 +105,7 @@ class UnmodifiableTwoKeyMultiMap<K1, K2, V> implements
     }
 
     @Override
-    public void forEach(@Nonnull TriConsumer<K1, K2, V> action) {
+    public void forEach(@NonNull TriConsumer<K1, K2, V> action) {
         m.forEach(action);
     }
 

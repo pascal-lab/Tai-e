@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -108,8 +109,7 @@ public final class Views {
         }
 
         @Override
-        @Nonnull
-        public Iterator<R> iterator() {
+        public @NonNull Iterator<R> iterator() {
             return new Iterator<>() {
 
                 private final Iterator<T> it = backing.iterator();
@@ -248,8 +248,7 @@ public final class Views {
         }
 
         @Override
-        @Nonnull
-        public Iterator<T> iterator() {
+        public @NonNull Iterator<T> iterator() {
             return new FilteredIterator();
         }
 
@@ -340,8 +339,7 @@ public final class Views {
         }
 
         @Override
-        @Nonnull
-        public Iterator<T> iterator() {
+        public @NonNull Iterator<T> iterator() {
             return new Iterator<>() {
 
                 private final Iterator<? extends T> it1 = set1.iterator();

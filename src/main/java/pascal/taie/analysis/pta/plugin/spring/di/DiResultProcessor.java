@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.plugin.spring.di;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.plugin.spring.util.AbstractResultProcessor;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 
 public class DiResultProcessor extends AbstractResultProcessor<BeanDefinition, DiResultProcessor.BeanDefinitionDto> {
@@ -76,8 +76,8 @@ public class DiResultProcessor extends AbstractResultProcessor<BeanDefinition, D
         private Set<String> beanNames;
         private String jClassName;
         private boolean isSingleton;
-        @Nullable private String constructorSignature = null;
-        @Nullable private String factoryMethodSignature = null;
+        private @Nullable String constructorSignature = null;
+        private @Nullable String factoryMethodSignature = null;
 
         public BeanDefinitionDto() {
         }
@@ -114,8 +114,7 @@ public class DiResultProcessor extends AbstractResultProcessor<BeanDefinition, D
             isSingleton = singleton;
         }
 
-        @Nullable
-        public String getConstructorSignature() {
+        public @Nullable String getConstructorSignature() {
             return constructorSignature;
         }
 
@@ -123,8 +122,7 @@ public class DiResultProcessor extends AbstractResultProcessor<BeanDefinition, D
             this.constructorSignature = s;
         }
 
-        @Nullable
-        public String getFactoryMethodSignature() {
+        public @Nullable String getFactoryMethodSignature() {
             return factoryMethodSignature;
         }
 

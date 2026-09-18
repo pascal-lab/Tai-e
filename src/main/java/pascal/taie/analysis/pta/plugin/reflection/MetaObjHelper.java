@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
 import pascal.taie.analysis.pta.core.heap.HeapModel;
@@ -40,7 +41,6 @@ import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 import pascal.taie.language.type.TypeSystem;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Set;
 

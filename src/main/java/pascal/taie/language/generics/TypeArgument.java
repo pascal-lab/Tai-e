@@ -23,10 +23,10 @@
 
 package pascal.taie.language.generics;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import pascal.taie.util.Experimental;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 
 /**
@@ -40,8 +40,7 @@ public final class TypeArgument implements Serializable {
 
     private final Kind kind;
 
-    @Nullable
-    private final ReferenceTypeGSignature gSig;
+    private final @Nullable ReferenceTypeGSignature gSig;
 
     private TypeArgument(Kind kind,
                          @Nullable ReferenceTypeGSignature gSig) {
@@ -54,9 +53,8 @@ public final class TypeArgument implements Serializable {
         return kind;
     }
 
-    @Nullable
     @Experimental
-    public ReferenceTypeGSignature getGSignature() {
+    public @Nullable ReferenceTypeGSignature getGSignature() {
         return gSig;
     }
 
@@ -65,7 +63,7 @@ public final class TypeArgument implements Serializable {
     }
 
     public static TypeArgument of(char symbol,
-                                  @Nonnull ReferenceTypeGSignature gSig) {
+                                  @NonNull ReferenceTypeGSignature gSig) {
         Kind kind = Kind.of(symbol);
         assert kind != Kind.ALL && gSig != null;
         return new TypeArgument(kind, gSig);

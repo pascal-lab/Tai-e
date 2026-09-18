@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.toolkit.zipper;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -42,7 +43,6 @@ import pascal.taie.util.MutableInt;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -221,8 +221,7 @@ public class Zipper {
     /**
      * @return containing method of {@code node}.
      */
-    @Nullable
-    private static JMethod node2Method(Node node) {
+    private static @Nullable JMethod node2Method(Node node) {
         if (node instanceof VarNode varNode) {
             return varNode.getVar().getMethod();
         } else {

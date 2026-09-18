@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.TriConsumer;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Set;
 
@@ -101,7 +101,7 @@ public interface TwoKeyMultiMap<K1, K2, V> {
      *
      * @return {@code true} if this two-key multimap changed.
      */
-    boolean put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value);
+    boolean put(@NonNull K1 key1, @NonNull K2 key2, @NonNull V value);
 
     /**
      * Removes a single key1-key2-value triple from this two-key multimap,
@@ -136,7 +136,7 @@ public interface TwoKeyMultiMap<K1, K2, V> {
      * Performs the given action for all key1-key2-value triples
      * contained in this map.
      */
-    default void forEach(@Nonnull TriConsumer<K1, K2, V> action) {
+    default void forEach(@NonNull TriConsumer<K1, K2, V> action) {
         Objects.requireNonNull(action);
         entrySet().forEach(entry -> action.accept(
                 entry.key1(), entry.key2(), entry.value()));

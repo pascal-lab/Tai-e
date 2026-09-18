@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -154,7 +155,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean addAll(@Nonnull Collection<? extends E> c) {
+    public boolean addAll(@NonNull Collection<? extends E> c) {
         if (!isLargeSet) {
             int cSize = c.size();
             if (cSize == 0) {
@@ -237,8 +238,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    @Nonnull
-    public Iterator<E> iterator() {
+    public @NonNull Iterator<E> iterator() {
         if (singleton != null) {
             return new Iterator<>() {
 
@@ -299,7 +299,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(@NonNull Collection<?> c) {
         boolean changed = false;
         for (Iterator<E> it = iterator(); it.hasNext(); ) {
             if (!c.contains(it.next())) {
@@ -311,8 +311,7 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    @Nonnull
-    public Object[] toArray() {
+    public Object @NonNull [] toArray() {
         if (singleton != null) {
             Object[] a = new Object[1];
             a[0] = singleton;
@@ -325,9 +324,8 @@ public abstract class AbstractHybridSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    @Nonnull
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(@Nonnull T[] a) {
+    public <T> T @NonNull [] toArray(T @NonNull [] a) {
         if (singleton != null) {
             if (a.length < 1) {
                 a = (T[]) Array.newInstance(a.getClass().getComponentType(), 1);

@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.project;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.config.Options;
@@ -29,7 +30,6 @@ import pascal.taie.util.ClassNameExtractor;
 import pascal.taie.util.collection.Lists;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;

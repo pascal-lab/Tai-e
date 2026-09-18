@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.classes;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.language.annotation.AnnotationHolder;
 import pascal.taie.language.classes.ClassNames;
 import pascal.taie.language.classes.JClass;
@@ -33,7 +34,6 @@ import pascal.taie.language.generics.ClassGSignature;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.TypeSystem;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -115,9 +115,8 @@ public class PhantomClassBuilder implements JClassBuilder {
         return true;
     }
 
-    @Nullable
     @Override
-    public ClassGSignature getGSignature() {
+    public @Nullable ClassGSignature getGSignature() {
         // for phantom class, generic signature is unavailable.
         return null;
     }

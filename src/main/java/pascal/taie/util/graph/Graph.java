@@ -22,9 +22,9 @@
 
 package pascal.taie.util.graph;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.collection.Views;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
@@ -119,9 +119,8 @@ public interface Graph<N> extends Iterable<N>, Serializable {
         return nodeCount();
     }
 
-    @Nonnull
     @Override
-    default Iterator<N> iterator() {
+    default @NonNull Iterator<N> iterator() {
         return getNodes().iterator();
     }
 }

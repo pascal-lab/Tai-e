@@ -22,11 +22,11 @@
 
 package pascal.taie.analysis.pta.plugin.android.icc;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.cs.element.CSCallSite;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.cs.element.CSVar;
 
-import javax.annotation.Nullable;
 
 /**
  * ICC related info.
@@ -38,9 +38,7 @@ import javax.annotation.Nullable;
  */
 public record ICCInfo(CSVar info,
                       ICCInfoKind kind,
-                      @Nullable
-                      CSObj handlerObj,
-                      @Nullable
-                      CSCallSite iccCSCallSite) {
+                      @Nullable CSObj handlerObj,
+                      @Nullable CSCallSite iccCSCallSite) {
 
 }

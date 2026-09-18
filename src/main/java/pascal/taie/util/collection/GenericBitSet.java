@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.Hashes;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -87,7 +87,7 @@ public abstract class GenericBitSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean containsAll(@Nonnull Collection<?> c) {
+    public boolean containsAll(@NonNull Collection<?> c) {
         if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.contains(s.bitSet);
@@ -97,7 +97,7 @@ public abstract class GenericBitSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean addAll(@Nonnull Collection<? extends E> c) {
+    public boolean addAll(@NonNull Collection<? extends E> c) {
         if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.or(s.bitSet);
@@ -117,7 +117,7 @@ public abstract class GenericBitSet<E> extends AbstractSetEx<E>
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(@NonNull Collection<?> c) {
         if (c instanceof GenericBitSet s) {
             checkContext(s);
             return bitSet.and(s.bitSet);
@@ -129,7 +129,7 @@ public abstract class GenericBitSet<E> extends AbstractSetEx<E>
     /**
      * Sets the content of this bit set to the same as given collection.
      */
-    public void setTo(@Nonnull Collection<E> c) {
+    public void setTo(@NonNull Collection<E> c) {
         if (c instanceof GenericBitSet s) {
             checkContext(s);
             bitSet.setTo(s.bitSet);

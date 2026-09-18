@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,8 +48,7 @@ public final class CollectionUtils {
      * of given collection that satisfies the predicate. If not such element
      * is found, returns {@code null}.
      */
-    @Nullable
-    public static <T> T findFirst(Collection<? extends T> c,
+    public static <T> @Nullable T findFirst(Collection<? extends T> c,
                                   Predicate<? super T> p) {
         for (T e : c) {
             if (p.test(e)) {

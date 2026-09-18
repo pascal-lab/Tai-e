@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +36,7 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
 
     private final MultiMap<K, V> m;
 
-    UnmodifiableMultiMap(@Nonnull MultiMap<K, V> m) {
+    UnmodifiableMultiMap(@NonNull MultiMap<K, V> m) {
         this.m = Objects.requireNonNull(m);
     }
 
@@ -60,17 +61,17 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
     }
 
     @Override
-    public boolean put(@Nonnull K key, @Nonnull V value) {
+    public boolean put(@NonNull K key, @NonNull V value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values) {
+    public boolean putAll(@NonNull K key, @NonNull Collection<? extends V> values) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean putAll(@Nonnull MultiMap<? extends K, ? extends V> multiMap) {
+    public boolean putAll(@NonNull MultiMap<? extends K, ? extends V> multiMap) {
         throw new UnsupportedOperationException();
     }
 
@@ -129,7 +130,7 @@ class UnmodifiableMultiMap<K, V> implements MultiMap<K, V>, Serializable {
     }
 
     @Override
-    public void forEachSet(@Nonnull BiConsumer<K, Set<V>> action) {
+    public void forEachSet(@NonNull BiConsumer<K, Set<V>> action) {
         m.forEachSet(action);
     }
 

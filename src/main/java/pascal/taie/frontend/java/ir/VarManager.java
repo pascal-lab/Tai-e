@@ -22,6 +22,7 @@
 
 package pascal.taie.frontend.java.ir;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -37,7 +38,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.Pair;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

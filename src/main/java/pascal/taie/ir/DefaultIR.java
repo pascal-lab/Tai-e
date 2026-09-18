@@ -22,6 +22,7 @@
 
 package pascal.taie.ir;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.ExceptionEntry;
 import pascal.taie.ir.stmt.Stmt;
@@ -29,7 +30,6 @@ import pascal.taie.language.classes.JMethod;
 import pascal.taie.util.AbstractResultHolder;
 import pascal.taie.util.Indexer;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -77,8 +77,7 @@ public class DefaultIR extends AbstractResultHolder implements IR {
     }
 
     @Override
-    @Nullable
-    public Var getThis() {
+    public @Nullable Var getThis() {
         return thisVar;
     }
 

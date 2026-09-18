@@ -22,10 +22,10 @@
 
 package pascal.taie.util;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.Properties;
@@ -111,8 +111,7 @@ public class RuntimeInfoLogger {
      *
      * @return the build properties, or {@code null} if an error occurs or the build properties is not found
      */
-    @Nullable
-    private static Properties getBuildProperties() {
+    private static @Nullable Properties getBuildProperties() {
         try {
             URL url = RuntimeInfoLogger.class.getProtectionDomain().getCodeSource().getLocation();
             if (url.getPath().endsWith(".jar")) {

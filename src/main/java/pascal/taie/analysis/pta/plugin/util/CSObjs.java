@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.util;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.World;
 import pascal.taie.analysis.pta.core.cs.element.CSObj;
 import pascal.taie.analysis.pta.core.heap.Descriptor;
@@ -39,7 +40,6 @@ import pascal.taie.language.type.ArrayType;
 import pascal.taie.language.type.ClassType;
 import pascal.taie.language.type.Type;
 
-import javax.annotation.Nullable;
 
 /**
  * Static utility methods for {@link CSObjs}.
@@ -62,8 +62,7 @@ public final class CSObjs {
      * Converts a CSObj of string constant to corresponding String.
      * If the object is not a string constant, then return null.
      */
-    @Nullable
-    public static String toString(CSObj csObj) {
+    public static @Nullable String toString(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof StringLiteral str ? str.getString() : null;
     }
@@ -72,8 +71,7 @@ public final class CSObjs {
      * Converts a CSObj of class to corresponding JClass. If the object is
      * not a class constant, then return null.
      */
-    @Nullable
-    public static JClass toClass(CSObj csObj) {
+    public static @Nullable JClass toClass(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         if (alloc instanceof ClassLiteral cls) {
             Type type = cls.getTypeValue();
@@ -91,8 +89,7 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Constructor to corresponding JMethod.
      * If the object does not represent a Constructor, then return null.
      */
-    @Nullable
-    public static JMethod toConstructor(CSObj csObj) {
+    public static @Nullable JMethod toConstructor(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return (alloc instanceof JMethod m && m.isConstructor()) ? m : null;
     }
@@ -101,8 +98,7 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Method to corresponding JMethod.
      * If the object does not represent a Method, then return null.
      */
-    @Nullable
-    public static JMethod toMethod(CSObj csObj) {
+    public static @Nullable JMethod toMethod(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return (alloc instanceof JMethod m && !m.isConstructor()) ? m : null;
     }
@@ -111,8 +107,7 @@ public final class CSObjs {
      * Converts a CSObj of java.lang.reflect.Field to corresponding JField.
      * If the object does not represent a Field, then return null.
      */
-    @Nullable
-    public static JField toField(CSObj csObj) {
+    public static @Nullable JField toField(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof JField field ? field : null;
     }
@@ -121,8 +116,7 @@ public final class CSObjs {
      * Converts a CSObj of class to corresponding type. If the object is
      * not a class constant, then return null.
      */
-    @Nullable
-    public static Type toType(CSObj csObj) {
+    public static @Nullable Type toType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof ClassLiteral cls ? cls.getTypeValue() : null;
     }
@@ -131,8 +125,7 @@ public final class CSObjs {
      * Converts a CSObj of MethodType to corresponding MethodType.
      * If the object is not a MethodType, then return null.
      */
-    @Nullable
-    public static MethodType toMethodType(CSObj csObj) {
+    public static @Nullable MethodType toMethodType(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodType mt ? mt : null;
     }
@@ -141,8 +134,7 @@ public final class CSObjs {
      * Converts a CSObj of MethodHandle constant to corresponding MethodHandle.
      * If the object is not a MethodHandle constant, then return null.
      */
-    @Nullable
-    public static MethodHandle toMethodHandle(CSObj csObj) {
+    public static @Nullable MethodHandle toMethodHandle(CSObj csObj) {
         Object alloc = csObj.getObject().getAllocation();
         return alloc instanceof MethodHandle mh ? mh : null;
     }

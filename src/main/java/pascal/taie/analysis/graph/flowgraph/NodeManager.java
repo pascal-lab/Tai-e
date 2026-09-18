@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.graph.flowgraph;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.pta.core.heap.Obj;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.language.classes.JField;
@@ -30,7 +31,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.TwoKeyMap;
 import pascal.taie.util.collection.Views;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +50,7 @@ public abstract class NodeManager implements Indexer<Node> {
 
     private final Map<JField, StaticFieldNode> sField2Node = Maps.newMap(1024);
 
-    @Nullable
-    public VarNode getVarNode(Var var) {
+    public @Nullable VarNode getVarNode(Var var) {
         return var2Node.get(var);
     }
 
@@ -63,8 +62,7 @@ public abstract class NodeManager implements Indexer<Node> {
         });
     }
 
-    @Nullable
-    public InstanceFieldNode getInstanceFieldNode(Obj base, JField field) {
+    public @Nullable InstanceFieldNode getInstanceFieldNode(Obj base, JField field) {
         return iField2Node.get(base, field);
     }
 
@@ -76,8 +74,7 @@ public abstract class NodeManager implements Indexer<Node> {
         });
     }
 
-    @Nullable
-    public ArrayIndexNode getArrayIndexNode(Obj array) {
+    public @Nullable ArrayIndexNode getArrayIndexNode(Obj array) {
         return array2Node.get(array);
     }
 

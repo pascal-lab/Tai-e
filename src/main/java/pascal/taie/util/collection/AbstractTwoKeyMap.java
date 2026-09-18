@@ -22,8 +22,9 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -63,8 +64,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
     }
 
     @Override
-    @Nullable
-    public V get(K1 key1, K2 key2) {
+    public @Nullable V get(K1 key1, K2 key2) {
         Map<K2, V> map = get(key1);
         return map == null ? null : map.get(key2);
     }
@@ -98,8 +98,7 @@ public abstract class AbstractTwoKeyMap<K1, K2, V> implements
         }
 
         @Override
-        @Nonnull
-        public Iterator<TwoKeyMap.Entry<K1, K2, V>> iterator() {
+        public @NonNull Iterator<TwoKeyMap.Entry<K1, K2, V>> iterator() {
             return entryIterator();
         }
 

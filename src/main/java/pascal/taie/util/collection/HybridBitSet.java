@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.Indexer;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
@@ -65,7 +65,7 @@ public final class HybridBitSet<E> extends AbstractHybridSet<E>
     }
 
     @Override
-    public boolean addAll(@Nonnull Collection<? extends E> c) {
+    public boolean addAll(@NonNull Collection<? extends E> c) {
         // optimize when c is HybridBitSet
         if (this.set instanceof GenericBitSet<E> thisBitSet
                 && c instanceof HybridBitSet<? extends E> other
@@ -98,7 +98,7 @@ public final class HybridBitSet<E> extends AbstractHybridSet<E>
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(@NonNull Collection<?> c) {
         // optimize when c is HybridBitSet
         if (this.set instanceof GenericBitSet<E> thisBitSet
                 && c instanceof HybridBitSet<?> other

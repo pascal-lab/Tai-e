@@ -27,7 +27,9 @@ dependencies {
         testCompileOnly(it) { isTransitive = false }
         runtimeOnly(it)
     }
-    // JSR305, for javax.annotation
+    // Nullness annotations
+    implementation("org.jspecify:jspecify:1.0.0")
+    // Retain JSR-305 temporarily for backward compatibility; remove in a future release.
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use asm to read class file
     val asmVersion = "9.8"

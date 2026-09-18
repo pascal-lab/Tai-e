@@ -22,7 +22,8 @@
 
 package pascal.taie.util.collection;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -126,8 +127,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V>
     }
 
     @Override
-    @Nonnull
-    public Set<Entry<K, V>> entrySet() {
+    public @NonNull Set<Entry<K, V>> entrySet() {
         Set<Map.Entry<K, V>> es;
         return (es = entrySet) == null ? (entrySet = new EntrySet()) : es;
     }
@@ -150,8 +150,7 @@ public class ArrayMap<K, V> extends AbstractMap<K, V>
     private class EntrySet extends AbstractSet<Entry<K, V>> {
 
         @Override
-        @Nonnull
-        public Iterator<Entry<K, V>> iterator() {
+        public @NonNull Iterator<Entry<K, V>> iterator() {
             return entries.iterator();
         }
 

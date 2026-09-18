@@ -22,6 +22,7 @@
 
 package pascal.taie.ir.proginfo;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
@@ -33,7 +34,6 @@ import pascal.taie.language.type.Type;
 import pascal.taie.util.Hashes;
 import pascal.taie.util.collection.Sets;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -116,8 +116,7 @@ public class MethodRef extends MemberRef {
      * @see #resolve()
      * @see #resolveNullable()
      */
-    @Nullable
-    private transient JMethod method;
+    private transient @Nullable JMethod method;
 
     private final boolean isDeclaredInInterface;
 
@@ -202,8 +201,7 @@ public class MethodRef extends MemberRef {
     }
 
     @Override
-    @Nullable
-    public JMethod resolveNullable() {
+    public @Nullable JMethod resolveNullable() {
         if (method == null) {
             method = World.get().getClassHierarchy()
                     .resolveMethod(this);

@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.graph.callgraph;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.World;
@@ -43,7 +44,6 @@ import pascal.taie.util.collection.Maps;
 import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -77,8 +77,7 @@ public final class CallGraphs {
         throw new AnalysisException("Cannot handle Invoke: " + invoke);
     }
 
-    @Nullable
-    public static JMethod resolveCallee(Type type, Invoke callSite) {
+    public static @Nullable JMethod resolveCallee(Type type, Invoke callSite) {
         MethodRef methodRef = callSite.getMethodRef();
         if (callSite.isInterface() || callSite.isVirtual()) {
             return World.get().getClassHierarchy()

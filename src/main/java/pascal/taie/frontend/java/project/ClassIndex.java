@@ -23,13 +23,13 @@
 // Java
 package pascal.taie.frontend.java.project;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.util.collection.Maps;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.Pair;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +83,7 @@ public class ClassIndex {
      * @param className the fully-qualified name of the class to search
      * @return the found ClassFile, or {@code null} if not found.
      */
-    @Nullable
-    public ClassFile find(String className) {
+    public @Nullable ClassFile find(String className) {
         return index.get(className);
     }
 

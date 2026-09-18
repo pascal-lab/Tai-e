@@ -1,6 +1,9 @@
 # Changelog
 
-## [Unreleased] - 2026-06-22
+## [Unreleased] - 2026-09-18
+
+### Breaking Changes
+- Migrate nullness annotations from JSR-305 to JSpecify. Retain the JSR-305 dependency temporarily for backward compatibility; it will be removed in a future release.
 
 ## [0.5.4] - 2026-06-22
 

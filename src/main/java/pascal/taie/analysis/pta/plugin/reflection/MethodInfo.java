@@ -22,10 +22,10 @@
 
 package pascal.taie.analysis.pta.plugin.reflection;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JClass;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 
 record MethodInfo(Invoke invoke, @Nullable JClass clazz, @Nullable String name) {

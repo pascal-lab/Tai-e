@@ -22,11 +22,11 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import pascal.taie.util.TriConsumer;
 import pascal.taie.util.TriFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -83,15 +83,13 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the value to which the specified keys is mapped, or {@code null}
      * if this map contains no mapping for the keys.
      */
-    @Nullable
-    V get(K1 key1, K2 key2);
+    @Nullable V get(K1 key1, K2 key2);
 
     /**
      * @return an unmodifiable view of the second-level map for {@code key1},
      * or {@code null} if this map contains no mapping for the key.
      */
-    @Nullable
-    Map<K2, V> get(K1 key1);
+    @Nullable Map<K2, V> get(K1 key1);
 
     /**
      * Associates the specified value with the specified two-key pair in this map.
@@ -101,19 +99,18 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the previous value associated with {@code key1} and {@code key2},
      * or {@code null} if there was no mapping for key2.
      */
-    @Nullable
-    V put(@Nonnull K1 key1, @Nonnull K2 key2, @Nonnull V value);
+    @Nullable V put(@NonNull K1 key1, @NonNull K2 key2, @NonNull V value);
 
     /**
      * Copies all the mappings from the specified map to second-level map
      * associated with {@code key1}.
      */
-    void putAll(@Nonnull K1 key1, @Nonnull Map<K2, V> map);
+    void putAll(@NonNull K1 key1, @NonNull Map<K2, V> map);
 
     /**
      * Copies all the mappings from the specified two-key map to this map.
      */
-    void putAll(@Nonnull TwoKeyMap<K1, K2, V> twoKeyMap);
+    void putAll(@NonNull TwoKeyMap<K1, K2, V> twoKeyMap);
 
     /**
      * Removes the mapping for a key-pair from this map if it is present.
@@ -121,8 +118,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * @return the value to which this map previously associated the key pair,
      * or {@code null} if the map contained no mapping for the key pair.
      */
-    @Nullable
-    V remove(K1 key1, K2 key2);
+    @Nullable V remove(K1 key1, K2 key2);
 
     /**
      * Removes all mappings with {@code key1} as the first key in this map.
@@ -170,7 +166,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * Performs the given action for all key1-key2-value triples
      * contained in this map.
      */
-    default void forEach(@Nonnull TriConsumer<K1, K2, V> action) {
+    default void forEach(@NonNull TriConsumer<K1, K2, V> action) {
         Objects.requireNonNull(action);
         entrySet().forEach(entry -> action.accept(
                 entry.key1(), entry.key2(), entry.value()));
@@ -207,7 +203,7 @@ public interface TwoKeyMap<K1, K2, V> {
      * the specified key, or {@code null} if the computed value is {@code null}.
      */
     default V computeIfAbsent(K1 key1, K2 key2,
-                              @Nonnull BiFunction<K1, K2, V> mapper) {
+                              @NonNull BiFunction<K1, K2, V> mapper) {
         Objects.requireNonNull(mapper);
         V v;
         if ((v = get(key1, key2)) == null) {

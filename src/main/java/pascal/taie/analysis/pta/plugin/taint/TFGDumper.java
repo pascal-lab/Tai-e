@@ -22,6 +22,7 @@
 
 package pascal.taie.analysis.pta.plugin.taint;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pascal.taie.analysis.graph.flowgraph.FlowEdge;
@@ -34,7 +35,6 @@ import pascal.taie.util.graph.DotAttributes;
 import pascal.taie.util.graph.DotDumper;
 import pascal.taie.util.graph.Edge;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

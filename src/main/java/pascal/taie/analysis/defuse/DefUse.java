@@ -22,13 +22,13 @@
 
 package pascal.taie.analysis.defuse;
 
+import org.jspecify.annotations.Nullable;
 import pascal.taie.analysis.StmtResult;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.stmt.Stmt;
 import pascal.taie.util.collection.MultiMap;
 import pascal.taie.util.collection.TwoKeyMultiMap;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,11 +44,9 @@ public class DefUse implements StmtResult<MultiMap<Var, Stmt>> {
     private static final String NULL_USES = "uses is null (not computed)" +
             " as it is disabled in def-use analysis";
 
-    @Nullable
-    private final TwoKeyMultiMap<Stmt, Var, Stmt> defs;
+    private final @Nullable TwoKeyMultiMap<Stmt, Var, Stmt> defs;
 
-    @Nullable
-    private final MultiMap<Stmt, Stmt> uses;
+    private final @Nullable MultiMap<Stmt, Stmt> uses;
 
     DefUse(@Nullable TwoKeyMultiMap<Stmt, Var, Stmt> defs,
            @Nullable MultiMap<Stmt, Stmt> uses) {

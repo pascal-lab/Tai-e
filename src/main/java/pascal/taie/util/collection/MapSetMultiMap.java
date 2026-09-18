@@ -22,9 +22,9 @@
 
 package pascal.taie.util.collection;
 
+import org.jspecify.annotations.NonNull;
 import pascal.taie.util.function.SerializableSupplier;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,7 +73,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     }
 
     @Override
-    public Set<V> get(@Nonnull K key) {
+    public Set<V> get(@NonNull K key) {
         Objects.requireNonNull(key, NULL_KEY);
         Set<V> values = map.get(key);
         return values == null ? Set.of() :
@@ -81,7 +81,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     }
 
     @Override
-    public boolean put(@Nonnull K key, @Nonnull V value) {
+    public boolean put(@NonNull K key, @NonNull V value) {
         Objects.requireNonNull(key, NULL_KEY);
         Objects.requireNonNull(value, NULL_VALUE);
         if (getOrCreateSet(key).add(value)) {
@@ -93,7 +93,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     }
 
     @Override
-    public boolean putAll(@Nonnull K key, @Nonnull Collection<? extends V> values) {
+    public boolean putAll(@NonNull K key, @NonNull Collection<? extends V> values) {
         Objects.requireNonNull(key, NULL_KEY);
         Objects.requireNonNull(values);
         if (!values.isEmpty()) {
@@ -112,12 +112,12 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
         return false;
     }
 
-    private Set<V> getOrCreateSet(@Nonnull K key) {
+    private Set<V> getOrCreateSet(@NonNull K key) {
         return map.computeIfAbsent(key, __ -> setFactory.get());
     }
 
     @Override
-    public boolean putAll(@Nonnull MultiMap<? extends K, ? extends V> multiMap) {
+    public boolean putAll(@NonNull MultiMap<? extends K, ? extends V> multiMap) {
         Objects.requireNonNull(multiMap);
         boolean[] changed = {false};
         multiMap.forEachSet((k, vs) -> changed[0] |= putAll(k, vs));
@@ -219,7 +219,7 @@ public class MapSetMultiMap<K, V> extends AbstractMultiMap<K, V>
     }
 
     @Override
-    public void forEachSet(@Nonnull BiConsumer<K, Set<V>> action) {
+    public void forEachSet(@NonNull BiConsumer<K, Set<V>> action) {
         map.forEach(action);
     }
 
