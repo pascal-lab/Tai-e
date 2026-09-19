@@ -51,8 +51,8 @@ import java.util.function.Supplier;
  *   <li><b>Memory Usage:</b> Heap and non-heap memory consumption at start, peak, and end</li>
  * </ul>
  *
- * <p>The monitor uses a scheduled executor to periodically sample CPU and memory usage
- * (every {@value #INTERVAL} second) to capture peak values during task execution.
+ * <p>Peak CPU and memory are the maximum of the start sample, periodic samples
+ * (every {@value #INTERVAL} second), and the end sample.
  *
  * <p><b>Example usage (instance-based):</b>
  * <pre>{@code
@@ -124,45 +124,49 @@ public class Monitor {
     /**
      * Starts the monitoring process.
      *
-     * <p>Records the start time and initial CPU/memory metrics, and begins
-     * periodic sampling of CPU and memory usage to track peak values.
+     * <p>Records the start time and initial CPU/memory metrics, folds those
+     * samples into the peak, and begins periodic sampling.
      * If the monitor is already running, this call has no effect.
      */
     public void start() {
-        if (!inCounting) {
-            inCounting = true;
-            startTime = System.currentTimeMillis();
-            startCpuUsage = getCpuUsage();
-            startMemoryMB = getMemoryUsedMB();
-            // start up the scheduler
-            scheduler.scheduleAtFixedRate(this::updatePeakValues,
-                    0, INTERVAL, TimeUnit.SECONDS);
+        if (inCounting) {
+            return;
         }
+        inCounting = true;
+        startTime = System.currentTimeMillis();
+        startCpuUsage = getCpuUsage();
+        startMemoryMB = getMemoryUsedMB();
+        updatePeakValues(startCpuUsage, startMemoryMB);
+        // Start already observed the current usage; first periodic sample
+        // is due after one interval.
+        scheduler.scheduleAtFixedRate(this::updatePeakValues,
+                INTERVAL, INTERVAL, TimeUnit.SECONDS);
     }
 
     /**
      * Stops the monitoring process.
      *
-     * <p>Records the final elapsed time and end CPU/memory metrics, then
-     * shuts down the periodic sampling scheduler. If the monitor is not
-     * currently running, this call has no effect.
+     * <p>Records the final elapsed time and end CPU/memory metrics, folds those
+     * samples into the peak, then shuts down the periodic sampling scheduler.
+     * If the monitor is not currently running, this call has no effect.
      */
     public void stop() {
-        if (inCounting) {
-            inCounting = false;
-            elapsedTime += System.currentTimeMillis() - startTime;
-            endCpuUsage = getCpuUsage();
-            endMemoryMB = getMemoryUsedMB();
-            // shut down the scheduler
-            scheduler.shutdown();
-            try {
-                if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
-                    scheduler.shutdownNow();
-                }
-            } catch (InterruptedException e) {
+        if (!inCounting) {
+            return;
+        }
+        inCounting = false;
+        elapsedTime += System.currentTimeMillis() - startTime;
+        endCpuUsage = getCpuUsage();
+        endMemoryMB = getMemoryUsedMB();
+        updatePeakValues(endCpuUsage, endMemoryMB);
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
                 scheduler.shutdownNow();
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -206,13 +210,15 @@ public class Monitor {
     }
 
     private void updatePeakValues() {
-        double currentCpuUsage = getCpuUsage();
-        if (currentCpuUsage > peakCpuUsage) {
-            peakCpuUsage = currentCpuUsage;
+        updatePeakValues(getCpuUsage(), getMemoryUsedMB());
+    }
+
+    private synchronized void updatePeakValues(double cpuUsage, long memoryMB) {
+        if (cpuUsage > peakCpuUsage) {
+            peakCpuUsage = cpuUsage;
         }
-        long currentMemoryMB = getMemoryUsedMB();
-        if (currentMemoryMB > peakMemoryMB) {
-            peakMemoryMB = currentMemoryMB;
+        if (memoryMB > peakMemoryMB) {
+            peakMemoryMB = memoryMB;
         }
     }
 
@@ -314,5 +320,4 @@ public class Monitor {
             executor.shutdownNow();
         }
     }
-
 }
