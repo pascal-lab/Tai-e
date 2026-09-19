@@ -45,9 +45,67 @@
 <!--    </module>-->
 
     <module name="TreeWalker">
-        <module name="ImportControl">
-            <property name="file"
-                      value="${config_loc}/import-control.xml" />
+        <!-- Checks for imports -->
+        <!-- See https://checkstyle.org/config_imports.html#IllegalImport -->
+        <!-- prefer pascal.taie.util.collection.Maps -->
+        <module name="IllegalImport">
+            <property name="id" value="PreferMaps"/>
+            <property name="illegalClasses"
+                      value="java.util.HashMap,
+                             java.util.LinkedHashMap,
+                             java.util.TreeMap,
+                             java.util.concurrent.ConcurrentHashMap"/>
+            <message key="import.illegal"
+                     value="Prefer pascal.taie.util.collection.Maps: {0}"/>
+        </module>
+        <!-- prefer pascal.taie.util.collection.Sets -->
+        <module name="IllegalImport">
+            <property name="id" value="PreferSets"/>
+            <property name="illegalClasses"
+                      value="java.util.HashSet,
+                             java.util.LinkedHashSet,
+                             java.util.TreeSet,
+                             java.util.concurrent.CopyOnWriteArraySet"/>
+            <message key="import.illegal"
+                     value="Prefer pascal.taie.util.collection.Sets: {0}"/>
+        </module>
+        <!-- prefer java.nio.file.Path -->
+        <module name="IllegalImport">
+            <property name="id" value="PreferPath"/>
+            <property name="illegalClasses" value="java.nio.file.Paths"/>
+            <message key="import.illegal"
+                     value="Prefer java.nio.file.Path: {0}"/>
+        </module>
+        <!-- Use SLF4J facade; direct Log4j2 imports are only allowed in logger configuration. -->
+        <module name="IllegalImport">
+            <property name="id" value="PreferSlf4j"/>
+            <property name="illegalPkgs" value="org.apache.logging.log4j"/>
+            <message key="import.illegal"
+                     value="Use SLF4J instead of Log4j2: {0}"/>
+        </module>
+        <!-- prefer org.jspecify.annotations -->
+        <module name="IllegalImport">
+            <property name="id" value="PreferJSpecify"/>
+            <property name="illegalClasses"
+                      value="javax.annotation.Nullable,
+                             javax.annotation.Nonnull,
+                             javax.annotation.CheckForNull,
+                             javax.annotation.ParametersAreNonnullByDefault,
+                             javax.annotation.ParametersAreNullableByDefault"/>
+            <property name="illegalPkgs"
+                      value="javax.annotation.concurrent,
+                             javax.annotation.meta"/>
+            <message key="import.illegal"
+                     value="Prefer org.jspecify.annotations over JSR-305: {0}"/>
+        </module>
+        <!-- Maps/Sets implementations may import JDK collection types. -->
+        <module name="SuppressionXpathSingleFilter">
+            <property name="id" value="PreferMaps"/>
+            <property name="files" value="[\\/]pascal[\\/]taie[\\/]util[\\/]collection[\\/]"/>
+        </module>
+        <module name="SuppressionXpathSingleFilter">
+            <property name="id" value="PreferSets"/>
+            <property name="files" value="[\\/]pascal[\\/]taie[\\/]util[\\/]collection[\\/]"/>
         </module>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
