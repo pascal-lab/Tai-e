@@ -21,6 +21,15 @@
     <!-- Use SLF4J facade; direct Log4j2 imports are only allowed in logger configuration. -->
     <disallow pkg="org.apache.logging.log4j"/>
 
+    <!-- prefer org.jspecify.annotations -->
+    <disallow class="javax.annotation.Nullable"/>
+    <disallow class="javax.annotation.Nonnull"/>
+    <disallow class="javax.annotation.CheckForNull"/>
+    <disallow class="javax.annotation.ParametersAreNonnullByDefault"/>
+    <disallow class="javax.annotation.ParametersAreNullableByDefault"/>
+    <disallow pkg="javax.annotation.concurrent"/>
+    <disallow pkg="javax.annotation.meta"/>
+
     <allow pkg=".*" regex="true"/>
 
     <subpackage name="util.collection">
