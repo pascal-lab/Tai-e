@@ -13,12 +13,12 @@ dependencies {
     // Process options
     implementation("info.picocli:picocli:4.7.7")
     // Logger
-    val log4jVersion = "2.24.3"
-    implementation("org.slf4j:slf4j-api:2.0.16")
+    val log4jVersion = "2.26.1"
+    implementation("org.slf4j:slf4j-api:2.0.20")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     // Process YAML configuration files
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.4")
     // Use Soot as frontend
     implementation(files("lib/sootclasses-modified.jar"))
     "org.soot-oss:soot:4.4.1".let {
@@ -28,7 +28,7 @@ dependencies {
         runtimeOnly(it)
     }
     // Nullness annotations
-    implementation("org.jspecify:jspecify:1.0.0")
+    implementation("org.jspecify:jspecify:1.0.1")
     // Retain JSR-305 temporarily for backward compatibility; remove in a future release.
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // Use asm to read class file
@@ -51,7 +51,7 @@ dependencies {
     implementation("de.upb.cs.swt:axml:2.1.3")
 
 
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
 }

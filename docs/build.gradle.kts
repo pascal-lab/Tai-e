@@ -1,6 +1,6 @@
 plugins {
-    id("org.asciidoctor.jvm.convert") version "4.0.4"
-    id("org.asciidoctor.jvm.pdf") version "4.0.4"
+    id("org.asciidoctor.jvm.convert") version "4.0.5"
+    id("org.asciidoctor.jvm.pdf") version "4.0.5"
 }
 
 repositories {
