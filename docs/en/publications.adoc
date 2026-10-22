@@ -2,6 +2,10 @@ include::attributes.adoc[]
 
 = Publications
 
+* Zhiwei Zhang, Menglong Chen, Yufei Liang, Hengbin Zheng, Yinning Xiao, Tian Tan, Jie Liu, and Yue Li. _When Absence Speaks: A Null-Aware Approach for Taint Analysis_. In Proceedings of the 49th IEEE/ACM International Conference on Software Engineering, Dublin, Ireland, April 25--May 1 2027 (ICSE'27). (Accepted, to Appear).
+
+* Jinpeng Wang, Yufei Liang, Zhongsheng Zhan, Tian Tan, and Yue Li. _Heap Abstraction via Early-Confluent Object Merging for Pointer Analysis_. In Proceedings of the ACM on Programming Languages, Volume 10, Issue OOPSLA2, Oakland, California, United States, October 4--9 2026 (OOPSLA'26).
+
 * Chenxi Li, Haoran Lin, Tian Tan, and Yue Li. _Two Approaches to Fast Bytecode Frontend for Static Analysis_. In Proceedings of the ACM on Programming Languages, Volume 8, Issue OOPSLA2, Singapore, October 12--18 2025. (OOPSLA'25)
 
 * Yufei Liang, Teng Zhang, Ganlin Li, Tian Tan, Chang Xu, Chun Cao, Xiaoxing Ma, and Yue Li. _Pointer Analysis for Database-Backed Applications_. In Proceedings of the 46th ACM SIGPLAN Conference on Programming Language Design and Implementation, Seoul, South Korea, June 16--20 2025 (PLDI'25).
