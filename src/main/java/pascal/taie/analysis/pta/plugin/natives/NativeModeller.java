@@ -36,6 +36,7 @@ public class NativeModeller extends CompositePlugin {
         addPlugin(new ArrayModel.AnalysisModel(solver),
                 new ArrayModel.IRModel(solver),
                 new UnsafeModel(solver),
-                new DoPriviledgedModel(solver));
+                new DoPriviledgedModel(solver),
+                new ObjectCloneModel(solver));
     }
 }
