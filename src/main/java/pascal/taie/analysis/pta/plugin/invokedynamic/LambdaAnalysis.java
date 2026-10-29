@@ -224,6 +224,31 @@ public class LambdaAnalysis implements Plugin {
         return (MethodHandle) indy.getBootstrapArgs().get(1);
     }
 
+    /**
+     * Whether the arguments transferred by this edge fit into {@code callee}'s
+     * parameters, using the same shifts as {@link #onNewCallEdge}.
+     */
+    private boolean fitsParameterCount(
+            CSCallSite csCallSite, InvokeDynamic indy, JMethod callee) {
+        if (callee.isAbstract()) {
+            return false;
+        }
+        int captured = indy.getArgs().size();
+        int actual = csCallSite.getCallSite().getInvokeExp().getArgCount();
+        int transferred;
+        if (callee.isStatic() || callee.isConstructor()) {
+            // No receiver: every captured variable and actual argument is a parameter.
+            transferred = captured + actual;
+        } else if (captured == 0) {
+            // The first actual argument is the receiver.
+            transferred = Math.max(0, actual - 1);
+        } else {
+            // The first captured variable is the receiver.
+            transferred = (captured - 1) + actual;
+        }
+        return transferred <= callee.getParamCount();
+    }
+
     private void addLambdaCallEdge(
             CSCallSite csCallSite, @Nullable CSObj recvObj, MethodRef targetRef,
             InvokeDynamic indy, Context indyCtx) {
@@ -246,6 +271,11 @@ public class LambdaAnalysis implements Plugin {
                 return;
             }
             calleeCtx = selector.selectContext(csCallSite, callee);
+        }
+        if (!fitsParameterCount(csCallSite, indy, callee)) {
+            // A lambda object can reach a call site that only shares its method
+            // name; such a pairing cannot be called, so drop the edge.
+            return;
         }
         LambdaCallEdge callEdge = new LambdaCallEdge(csCallSite,
                 csManager.getCSMethod(calleeCtx, callee), indy, indyCtx);
